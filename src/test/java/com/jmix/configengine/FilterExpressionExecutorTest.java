@@ -9,6 +9,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.jmix.configengine.model.Extensible;
+import com.jmix.configengine.model.ModelBuilder;
 import com.jmix.configengine.model.ParaOption;
 import com.jmix.configengine.model.Part;
 import com.jmix.configengine.model.PartType;
@@ -270,30 +271,24 @@ public class FilterExpressionExecutorTest {
      * 创建颜色选项测试对象
      */
     private ParaOption createColorOption(int codeId, String code, String description, int sortNo, String hexCode, String popularity) {
-        ParaOption option = new ParaOption();
-        option.setCodeId(codeId);
-        option.setCode(code);
-        option.setDescription(description);
-        option.setSortNo(sortNo);
-        option.setDefaultValue(code);
-        option.setExtAttr("hexCode", hexCode);
-        option.setExtAttr("popularity", popularity);
-        return option;
+        return ModelBuilder.ParaOptionBuilder.create()
+                .asOption(codeId, code, description)
+                .sortNo(sortNo)
+                .extAttr("hexCode", hexCode)
+                .extAttr("popularity", popularity)
+                .build();
     }
     
     /**
      * 创建尺寸选项测试对象
      */
     private ParaOption createSizeOption(int codeId, String code, String description, int sortNo, String chest, String length) {
-        ParaOption option = new ParaOption();
-        option.setCodeId(codeId);
-        option.setCode(code);
-        option.setDescription(description);
-        option.setSortNo(sortNo);
-        option.setDefaultValue(code);
-        option.setExtAttr("chest", chest);
-        option.setExtAttr("length", length);
-        return option;
+        return ModelBuilder.ParaOptionBuilder.create()
+                .asOption(codeId, code, description)
+                .sortNo(sortNo)
+                .extAttr("chest", chest)
+                .extAttr("length", length)
+                .build();
     }
     
     /**
@@ -301,26 +296,12 @@ public class FilterExpressionExecutorTest {
      */
     private Part createTShirtPart(String code, String description, int sortNo, Long price, String material, String weight, 
                                  String fabric, String thickness, String elasticity) {
-        Part part = new Part();
-        part.setCode(code);
-        part.setDescription(description);
-        part.setSortNo(sortNo);
-        part.setDefaultValue(0);
-        part.setType(PartType.ATOMIC);
-        part.setPrice(price);
-        
-        // 设置扩展属性 - 包括price，这样可以通过扩展属性访问
-        part.setExtAttr("material", material);
-        part.setExtAttr("weight", weight);
-        part.setExtAttr("price", price.toString());
-        
-        // 设置规格属性
-        Map<String, String> attrs = new HashMap<>();
-        attrs.put("fabric", fabric);
-        attrs.put("thickness", thickness);
-        attrs.put("elasticity", elasticity);
-        part.setAttrs(attrs);
-        
-        return part;
+        return ModelBuilder.PartBuilder.create()
+                .asTShirtPart(code, description, sortNo, price, material, weight)
+                .extAttr("price", price.toString())
+                .attr("fabric", fabric)
+                .attr("thickness", thickness)
+                .attr("elasticity", elasticity)
+                .build();
     }
 } 
