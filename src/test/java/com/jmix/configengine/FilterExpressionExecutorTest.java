@@ -297,7 +297,7 @@ public class FilterExpressionExecutorTest {
     private Part createTShirtPart(String code, String description, int sortNo, Long price, String material, String weight, 
                                  String fabric, String thickness, String elasticity) {
         return ModuleBuilder.PartBuilder.create()
-                .asTShirtPart(code, description, sortNo, price, material, weight)
+                .asPart(code, description, sortNo, price, material, weight)
                 .extAttr("price", price.toString())
                 .attr("fabric", fabric)
                 .attr("thickness", thickness)

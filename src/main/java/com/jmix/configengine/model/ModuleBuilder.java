@@ -258,9 +258,9 @@ public class ModuleBuilder {
         }
         
         /**
-         * 创建T恤衫部件的便捷方法
+         * 创建部件的便捷方法
          */
-        public PartBuilder asTShirtPart(String code, String description, int sortNo, Long price, String material, String weight) {
+        public PartBuilder asPart(String code, String description, int sortNo, Long price, String material, String weight) {
             return this.code(code)
                        .description(description)
                        .sortNo(sortNo)
