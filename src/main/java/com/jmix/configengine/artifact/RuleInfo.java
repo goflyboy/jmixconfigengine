@@ -13,9 +13,10 @@ public class RuleInfo {
     private String code;
     
     /**
-     * 规则Schema
+     * 规则Schema类型全名
+     * 例如：CDSL.V5.Struct.CompatiableRule
      */
-    private String ruleSchema;
+    private String ruleSchemaTypeFullName;
     
     /**
      * 规则名称

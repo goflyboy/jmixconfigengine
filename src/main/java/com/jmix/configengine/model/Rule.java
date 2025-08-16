@@ -2,6 +2,7 @@ package com.jmix.configengine.model;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import com.jmix.configengine.schema.RuleSchema;
 
 /**
  * 规则定义
@@ -42,10 +43,11 @@ public class Rule extends Extensible {
     /**
      * 规则原始代码
      */
-    private String rawCode;
+    private RuleSchema rawCode;
     
     /**
-     * 规则表达范式
+     * 规则表达范式类型全名
+     * 例如：CDSL.V5.Struct.CompatiableRule
      */
-    private String ruleSchema;
+    private String ruleSchemaTypeFullName;
 } 

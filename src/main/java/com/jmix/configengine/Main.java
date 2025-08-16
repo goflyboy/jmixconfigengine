@@ -123,7 +123,7 @@ public class Main {
         rule1.setProgObjCode("");
         rule1.setProgObjField("");
         rule1.setNormalNaturalCode("如果颜色是红色，则尺寸必须是大号或小号");
-        rule1.setRuleSchema("CDSL.V5.Struct.CompatiableRule");
+        rule1.setRuleSchemaTypeFullName("CDSL.V5.Struct.CompatiableRule");
         rule1.setRawCode("{\"leftExpr\":{\"rawCode\":\"Color!=\\\"Red\\\"\",\"refProgObjs\":[{\"progObjType\":\"Para\",\"progObjCode\":\"Color\",\"progObjField\":\"options\"}]},\"operator\":\"CoRefent\",\"rightExpr\":{\"rawCode\":\"Size!=\\\"Medium\\\"\",\"refProgObjs\":[{\"progObjType\":\"Para\",\"progObjCode\":\"Size\",\"progObjField\":\"options\"}]}}");
         
         Rule rule2 = new Rule();
@@ -133,7 +133,7 @@ public class Main {
         rule2.setProgObjCode("TShirt12");
         rule2.setProgObjField("value");
         rule2.setNormalNaturalCode("TShirt12的数量等于TShirt11数量的2倍");
-        rule2.setRuleSchema("CDSL.V5.Struct.CalculateRule");
+        rule2.setRuleSchemaTypeFullName("CDSL.V5.Struct.CalculateRule");
         rule2.setRawCode("{\"leftExpr\":{\"rawCode\":\"TShirt11*2\",\"refProgObjs\":[{\"progObjType\":\"Part\",\"progObjCode\":\"TShirt11\",\"progObjField\":\"value\"}]}}");
         
         // 设置模块属性

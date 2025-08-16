@@ -186,7 +186,7 @@
           ]
         }
       },
-      "ruleSchema": "CDSL.V5.Struct.CompatiableRule",
+      "ruleSchemaTypeFullName": "CDSL.V5.Struct.CompatiableRule",
       "extSchema": "CompatiableRuleSchema",
       "extAttrs": {
         "priority": "high",
@@ -217,7 +217,7 @@
           ]
         }
       },
-      "ruleSchema": "CDSL.V5.Struct.CalculateRule",
+      "ruleSchemaTypeFullName": "CDSL.V5.Struct.CalculateRule",
       "extSchema": "CalculateRuleSchema",
       "extAttrs": {
         "priority": "medium",
@@ -243,7 +243,7 @@
           ]
         }
       },
-      "ruleSchema": "CDSL.V5.Struct.SelectRule",
+      "ruleSchemaTypeFullName": "CDSL.V5.Struct.SelectRule",
       "extSchema": "SelectRuleSchema",
       "extAttrs": {
         "priority": "high",

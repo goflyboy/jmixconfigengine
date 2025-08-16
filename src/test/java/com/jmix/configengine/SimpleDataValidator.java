@@ -236,7 +236,7 @@ public class SimpleDataValidator {
         boolean isValid = true;
         
         // 验证规则必需字段
-        String[] requiredFields = {"code", "name", "ruleSchema", "normalNaturalCode"};
+        String[] requiredFields = {"code", "name", "ruleSchemaTypeFullName", "normalNaturalCode"};
         for (String field : requiredFields) {
             if (!ruleNode.has(field) || ruleNode.get(field).isNull()) {
                 addError("规则[" + index + "]缺少必需字段: " + field);
@@ -245,9 +245,9 @@ public class SimpleDataValidator {
         }
         
         // 验证规则Schema
-        if (ruleNode.has("ruleSchema")) {
-            String schema = ruleNode.get("ruleSchema").asText();
-            if (!isValidRuleSchema(schema)) {
+        if (ruleNode.has("ruleSchemaTypeFullName")) {
+            String schema = ruleNode.get("ruleSchemaTypeFullName").asText();
+            if (!isValidRuleSchemaTypeFullName(schema)) {
                 addError("规则[" + index + "]无效的Schema: " + schema);
                 isValid = false;
             }
@@ -306,7 +306,7 @@ public class SimpleDataValidator {
     /**
      * 验证规则Schema
      */
-    private boolean isValidRuleSchema(String schema) {
+    private boolean isValidRuleSchemaTypeFullName(String schema) {
         return schema.contains("CompatiableRule") || 
                schema.contains("CalculateRule") || 
                schema.contains("SelectRule");

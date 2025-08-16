@@ -3,6 +3,7 @@ package com.jmix.configengine.artifact;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jmix.configengine.model.*;
 import com.jmix.configengine.schema.*;
+import com.jmix.configengine.schema.CompatiableRuleSchema;
 import com.jmix.configengine.util.FilterExpressionExecutor;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -138,17 +139,17 @@ public class ModuleAlgArtifactGenerator {
     private RuleInfo buildRule(com.jmix.configengine.model.Module module, Rule rule) {
         RuleInfo ruleInfo = new RuleInfo();
         ruleInfo.setCode(rule.getCode());
-        ruleInfo.setRuleSchema(rule.getRuleSchema());
+        ruleInfo.setRuleSchemaTypeFullName(rule.getRuleSchemaTypeFullName());
         ruleInfo.setName(rule.getName());
         ruleInfo.setNormalNaturalCode(rule.getNormalNaturalCode());
         
-        // 根据ruleSchema分函数处理
+        // 根据ruleSchemaTypeFullName分函数处理
         try {
-            if (rule.getRuleSchema().contains("CompatiableRule")) {
+            if (rule.getRuleSchemaTypeFullName().contains("CompatiableRule")) {
                 buildCompatiableRule(ruleInfo, module, rule);
-            } else if (rule.getRuleSchema().contains("CalculateRule")) {
+            } else if (rule.getRuleSchemaTypeFullName().contains("CalculateRule")) {
                 buildCalculateRule(ruleInfo, module, rule);
-            } else if (rule.getRuleSchema().contains("SelectRule")) {
+            } else if (rule.getRuleSchemaTypeFullName().contains("SelectRule")) {
                 buildSelectRule(ruleInfo, module, rule);
             }
         } catch (Exception e) {
@@ -163,21 +164,22 @@ public class ModuleAlgArtifactGenerator {
      */
     private void buildCompatiableRule(RuleInfo ruleInfo, com.jmix.configengine.model.Module module, Rule rule) {
         try {
-            // 解析rawCode中的表达式
-            Map<String, Object> rawCode = objectMapper.readValue(rule.getRawCode(), Map.class);
-            
-            // 处理左表达式
-            Map<String, Object> leftExpr = (Map<String, Object>) rawCode.get("leftExpr");
-            if (leftExpr != null) {
-                ruleInfo.setLeftTypeName("ParaVar");
-                // 这里简化处理，实际应该根据表达式创建VarInfo
-            }
-            
-            // 处理右表达式
-            Map<String, Object> rightExpr = (Map<String, Object>) rawCode.get("rightExpr");
-            if (rightExpr != null) {
-                ruleInfo.setRightTypeName("ParaVar");
-                // 这里简化处理，实际应该根据表达式创建VarInfo
+            // 直接使用RuleSchema对象
+            RuleSchema rawCode = rule.getRawCode();
+            if (rawCode instanceof CompatiableRuleSchema) {
+                CompatiableRuleSchema compatiableRule = (CompatiableRuleSchema) rawCode;
+                
+                // 处理左表达式
+                if (compatiableRule.getLeftExpr() != null) {
+                    ruleInfo.setLeftTypeName("ParaVar");
+                    // 这里简化处理，实际应该根据表达式创建VarInfo
+                }
+                
+                // 处理右表达式
+                if (compatiableRule.getRightExpr() != null) {
+                    ruleInfo.setRightTypeName("ParaVar");
+                    // 这里简化处理，实际应该根据表达式创建VarInfo
+                }
             }
         } catch (Exception e) {
             log.error("解析兼容规则失败: {}", rule.getCode(), e);
