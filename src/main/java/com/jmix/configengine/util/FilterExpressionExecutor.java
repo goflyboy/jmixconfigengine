@@ -9,7 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 过滤表达式执行器
+ * Filter Expression Executor
  */
 public class FilterExpressionExecutor {
     
@@ -18,14 +18,14 @@ public class FilterExpressionExecutor {
     private static final Pattern FILTER_PATTERN = Pattern.compile("(\\w+)\\s*([=!<>]+)\\s*\"?([^\"]*)\"?");
     
     /**
-     * 根据过滤表达式筛选对象
+     * Filter objects based on filter expression
      */
     public static <T extends Extensible> List<T> doSelect(List<T> objects, String filterExpr) {
-        log.info("开始执行过滤表达式筛选，对象数量: {}, 过滤表达式: {}", 
+        log.info("Starting filter expression execution, object count: {}, filter expression: {}", 
                 objects != null ? objects.size() : 0, filterExpr);
         
         if (objects == null || objects.isEmpty() || filterExpr == null || filterExpr.trim().isEmpty()) {
-            log.warn("输入参数无效，返回原始对象列表");
+            log.warn("Invalid input parameters, returning original object list");
             return objects;
         }
         
@@ -37,12 +37,12 @@ public class FilterExpressionExecutor {
             }
         }
         
-        log.info("过滤完成，筛选出 {} 个对象", filterObjects.size());
+        log.info("Filtering completed, found {} objects", filterObjects.size());
         return filterObjects;
     }
     
     /**
-     * 检查对象是否匹配过滤条件
+     * Check if object matches filter condition
      */
     private static <T extends Extensible> boolean matchesFilter(T object, String filterExpr) {
         try {
@@ -52,14 +52,14 @@ public class FilterExpressionExecutor {
                 String operator = matcher.group(2);
                 String value = matcher.group(3);
                 
-                log.debug("解析过滤表达式成功 - 字段: {}, 操作符: {}, 值: {}", fieldName, operator, value);
+                log.debug("Filter expression parsed successfully - field: {}, operator: {}, value: {}", fieldName, operator, value);
                 return evaluateCondition(object, fieldName, operator, value);
             } else {
-                log.warn("过滤表达式格式不正确: {}", filterExpr);
+                log.warn("Invalid filter expression format: {}", filterExpr);
             }
         } catch (Exception e) {
-            log.error("解析过滤表达式时发生异常: {}", filterExpr, e);
-            // 如果解析失败，返回false
+            log.error("Exception occurred while parsing filter expression: {}", filterExpr, e);
+            // Return false if parsing fails
             return false;
         }
         
@@ -67,20 +67,20 @@ public class FilterExpressionExecutor {
     }
     
     /**
-     * 评估条件
+     * Evaluate condition
      */
     private static <T extends Extensible> boolean evaluateCondition(T object, String fieldName, String operator, String value) {
         try {
-            // 尝试通过反射获取字段值
+            // Try to get field value through reflection
             Object fieldValue = getFieldValue(object, fieldName);
             
             if (fieldValue == null) {
-                log.debug("字段 {} 的值为null，条件不匹配", fieldName);
+                log.debug("Field {} value is null, condition not matched", fieldName);
                 return false;
             }
             
             String fieldValueStr = fieldValue.toString();
-            log.debug("评估条件 - 字段: {}, 操作符: {}, 字段值: {}, 比较值: {}", 
+            log.debug("Evaluating condition - field: {}, operator: {}, field value: {}, compare value: {}", 
                      fieldName, operator, fieldValueStr, value);
             
             boolean result = false;
@@ -104,61 +104,61 @@ public class FilterExpressionExecutor {
                     result = compareValues(fieldValueStr, value) <= 0;
                     break;
                 default:
-                    log.warn("不支持的操作符: {}", operator);
+                    log.warn("Unsupported operator: {}", operator);
                     return false;
             }
             
-            log.debug("条件评估结果: {} {} {} = {}", fieldValueStr, operator, value, result);
+            log.debug("Condition evaluation result: {} {} {} = {}", fieldValueStr, operator, value, result);
             return result;
         } catch (Exception e) {
-            log.error("评估条件时发生异常 - 字段: {}, 操作符: {}, 值: {}", fieldName, operator, value, e);
+            log.error("Exception occurred while evaluating condition - field: {}, operator: {}, value: {}", fieldName, operator, value, e);
             return false;
         }
     }
     
     /**
-     * 获取字段值
+     * Get field value
      */
     private static Object getFieldValue(Object object, String fieldName) throws Exception {
         try {
-            // 尝试获取扩展属性
+            // Try to get extended attributes
             if (object instanceof Extensible) {
                 Extensible extensible = (Extensible) object;
                 String extValue = extensible.getExtAttr(fieldName);
                 if (extValue != null) {
-                    log.debug("从扩展属性获取字段值 - 字段: {}, 值: {}", fieldName, extValue);
+                    log.debug("Getting field value from extended attributes - field: {}, value: {}", fieldName, extValue);
                     return extValue;
                 }
             }
             
-            // 尝试通过反射获取字段值
+            // Try to get field value through reflection
             java.lang.reflect.Field field = object.getClass().getDeclaredField(fieldName);
             field.setAccessible(true);
             Object value = field.get(object);
-            log.debug("通过反射获取字段值 - 字段: {}, 值: {}", fieldName, value);
+            log.debug("Getting field value through reflection - field: {}, value: {}", fieldName, value);
             return value;
         } catch (Exception e) {
-            log.debug("获取字段值失败 - 字段: {}, 对象类型: {}", fieldName, object.getClass().getSimpleName(), e);
-            // 如果获取失败，返回null
+            log.debug("Failed to get field value - field: {}, object type: {}", fieldName, object.getClass().getSimpleName(), e);
+            // Return null if getting fails
             return null;
         }
     }
     
     /**
-     * 比较值
+     * Compare values
      */
     private static int compareValues(String value1, String value2) {
         try {
-            // 尝试转换为数字进行比较
+            // Try to convert to numbers for comparison
             double num1 = Double.parseDouble(value1);
             double num2 = Double.parseDouble(value2);
             int result = Double.compare(num1, num2);
-            log.debug("数值比较: {} 与 {} = {}", value1, value2, result);
+            log.debug("Numeric comparison: {} vs {} = {}", value1, value2, result);
             return result;
         } catch (NumberFormatException e) {
-            // 如果无法转换为数字，则按字符串比较
+            // If cannot convert to numbers, compare as strings
             int result = value1.compareTo(value2);
-            log.debug("字符串比较: {} 与 {} = {}", value1, value2, result);
+            log.debug("String comparison: {} vs {} = {}", value1, value2, result);
             return result;
         }
     }
