@@ -211,8 +211,10 @@ public class FilterExpressionExecutorTest {
     public void testDoSelectPartWithAttrsFilter() {
         // 准备测试数据
         List<Part> parts = Arrays.asList(
-            createTShirtPart("TShirt11", "T恤衫主体部件", 1, 1500L, "cotton", "180g", "100%棉", "中等", "适中"),
-            createTShirtPart("TShirt12", "T恤衫装饰部件", 2, 500L, "polyester", "50g", "印花", "胸前", "10x8cm")
+            createTShirtPart("TShirt11", "T恤衫主体部件", 1, 1500L, "cotton", 
+            "180g", "100%棉", "中等", "适中"),
+            createTShirtPart("TShirt12", "T恤衫装饰部件", 2, 500L, "polyester", 
+            "50g", "印花", "胸前", "10x8cm")
         );
         
         // 测试fabric="100%棉"的过滤
@@ -220,7 +222,7 @@ public class FilterExpressionExecutorTest {
         
         Assert.assertEquals(1, result.size());
         Assert.assertEquals("TShirt11", result.get(0).getCode());
-        Assert.assertEquals("100%棉", result.get(0).getAttrs().get("fabric"));
+        Assert.assertEquals("100%棉", result.get(0).getAttr("fabric"));
     }
     
     @Test

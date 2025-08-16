@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.ReflectionUtils;
 
 import com.jmix.configengine.model.Extensible;
+import com.jmix.configengine.model.Part;
 
 /**
  * Filter Expression Executor
@@ -186,7 +187,15 @@ public class FilterExpressionExecutor {
                          fieldName, value, field.getDeclaringClass().getSimpleName());
                 return value;
             }
-            
+               // Try to get extended attributes first
+            if (object instanceof Part) {
+                Part part = (Part) object;
+                String value = part.getAttr(fieldName);
+                if (value != null) {
+                    log.debug("Getting field value from part attributes - field: {}, value: {}", fieldName, value);
+                    return value;
+                }
+            }
             log.debug("Field {} not found in class {} or its parent classes", fieldName, object.getClass().getSimpleName());
             return null;
         } catch (Exception e) {

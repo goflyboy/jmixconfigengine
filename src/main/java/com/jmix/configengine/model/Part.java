@@ -5,6 +5,8 @@ import lombok.EqualsAndHashCode;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * 部件定义
  */
@@ -37,4 +39,20 @@ public class Part extends ProgramableObject<Integer> {
     public Integer getDefaultQuantity() {
         return super.getDefaultValue();
     }
+
+   /**
+     * 获取规格属性值
+     */
+    @JsonIgnore
+    public String getAttr(String key) {
+        return attrs.get(key);
+    }
+    
+    /**
+     * 设置规格属性值
+     */
+    @JsonIgnore
+    public void setAttr(String key, String value) {
+        attrs.put(key, value);
+    }   
 } 
