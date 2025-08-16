@@ -260,14 +260,12 @@ public class ModuleBuilder {
         /**
          * 创建部件的便捷方法
          */
-        public PartBuilder asPart(String code, String description, int sortNo, Long price, String material, String weight) {
+        public PartBuilder asPart(String code, String description, int sortNo, Long price) {
             return this.code(code)
                        .description(description)
                        .sortNo(sortNo)
                        .type(PartType.ATOMIC)
-                       .price(price)
-                       .extAttr("material", material)
-                       .extAttr("weight", weight);
+                       .price(price);
         }
         
         /**
