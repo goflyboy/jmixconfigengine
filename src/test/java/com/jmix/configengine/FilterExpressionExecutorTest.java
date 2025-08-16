@@ -89,16 +89,13 @@ public class FilterExpressionExecutorTest {
         private String code;
         private String description;
         private int sortNo;
-        private String freq;
-        private String slots;
+        // private String freq;
+        // private String slots;
         
         public TestObject(String code, String description, int sortNo, String freq, String slots) {
             this.code = code;
             this.description = description;
-            this.sortNo = sortNo;
-            this.freq = freq;
-            this.slots = slots;
-            
+            this.sortNo = sortNo;             
             // 设置扩展属性
             setExtAttr("freq", freq);
             setExtAttr("slots", slots);
@@ -106,8 +103,7 @@ public class FilterExpressionExecutorTest {
         
         public String getCode() { return code; }
         public String getDescription() { return description; }
-        public int getSortNo() { return sortNo; }
-        public String getFreq() { return freq; }
-        public String getSlots() { return slots; }
+        public int getSortNo() { return sortNo; } 
+   
     }
 } 

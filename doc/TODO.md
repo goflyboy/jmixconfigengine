@@ -1,0 +1,2 @@
+
+1、testDoSelectWithExtAttrFilter 扩展属性仅支持String类型，后续支持其它类型

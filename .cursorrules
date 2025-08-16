@@ -1,0 +1,45 @@
+# JMix Config Engine - Cursor Rules
+
+## 核心规则：日志内容必须使用英文
+
+### 🚫 禁止在日志中使用非英文字符
+- 所有 `log.info()`, `log.warn()`, `log.error()`, `log.debug()` 消息必须使用纯英文
+- 禁止使用中文、日文、韩文等非英文字符
+- 日志消息应该简洁、清晰、专业
+
+### ✅ 正确的日志示例
+```java
+log.info("User authentication successful for user: {}", username);
+log.warn("Database connection timeout, retrying...");
+log.error("Failed to process request: {}", errorMessage);
+log.debug("Processing item: {} with value: {}", itemId, itemValue);
+```
+
+### ❌ 错误的日志示例
+```java
+log.info("用户认证成功，用户名: {}", username);
+log.warn("数据库连接超时，正在重试...");
+log.error("处理请求失败: {}", errorMessage);
+log.debug("正在处理项目: {}，值: {}", itemId, itemValue);
+```
+
+### 📝 注释可以使用中文
+- JavaDoc注释可以使用中文，便于中文开发者理解
+- 行内注释可以使用中文，解释复杂的业务逻辑
+- 只有日志内容必须使用英文
+
+### 🔍 日志检查规则
+- 使用正则表达式 `[\u4e00-\u9fff]` 检查日志中的中文字符
+- 在代码审查时重点关注日志内容
+- 确保所有日志消息符合国际化标准
+
+### 💡 最佳实践
+1. 使用标准的英文技术术语
+2. 保持消息的简洁性和可读性
+3. 使用适当的标点符号
+4. 避免使用缩写（除非是标准缩写）
+5. 在异常日志中记录足够的上下文信息
+
+---
+
+**重要提醒：日志是给运维人员和开发者看的，应该使用国际通用的英文；注释是给开发者看的，可以使用中文便于理解。** 

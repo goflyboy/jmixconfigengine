@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+        "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+        "https://checkstyle.org/dtds/configuration_1_3.dtd">
+
+<module name="Checker">
+    <property name="charset" value="UTF-8"/>
+    <property name="severity" value="warning"/>
+    <property name="fileExtensions" value="java, properties, xml"/>
+
+    <!-- 文件大小检查 -->
+    <module name="FileLength">
+        <property name="max" value="2000"/>
+    </module>
+
+    <!-- 文件Tab字符检查 -->
+    <module name="FileTabCharacter">
+        <property name="eachLine" value="true"/>
+    </module>
+
+    <!-- 树形检查器 -->
+    <module name="TreeWalker">
+        <!-- 导入语句检查 -->
+        <module name="AvoidStarImport"/>
+        <module name="IllegalImport"/>
+        <module name="RedundantImport"/>
+        <module name="UnusedImports"/>
+
+        <!-- 命名约定检查 -->
+        <module name="ConstantName"/>
+        <module name="LocalFinalVariableName"/>
+        <module name="LocalVariableName"/>
+        <module name="MemberName"/>
+        <module name="MethodName"/>
+        <module name="PackageName"/>
+        <module name="ParameterName"/>
+        <module name="StaticVariableName"/>
+        <module name="TypeName"/>
+
+        <!-- 代码风格检查 -->
+        <module name="EmptyForIteratorPad"/>
+        <module name="GenericWhitespace"/>
+        <module name="MethodParamPad"/>
+        <module name="NoWhitespaceAfter"/>
+        <module name="NoWhitespaceBefore"/>
+        <module name="OperatorWrap"/>
+        <module name="ParenPad"/>
+        <module name="TypecastParenPad"/>
+        <module name="WhitespaceAfter"/>
+        <module name="WhitespaceAround"/>
+
+        <!-- 代码块检查 -->
+        <module name="AvoidNestedBlocks"/>
+        <module name="EmptyBlock"/>
+        <module name="LeftCurly"/>
+        <module name="NeedBraces"/>
+        <module name="RightCurly"/>
+
+        <!-- 类设计检查 -->
+        <module name="DesignForExtension"/>
+        <module name="FinalClass"/>
+        <module name="HideUtilityClassConstructor"/>
+        <module name="InterfaceIsType"/>
+        <module name="VisibilityModifier"/>
+
+        <!-- 其他检查 -->
+        <module name="FinalParameters"/>
+        <module name="TodoComment"/>
+        <module name="UpperEll"/>
+
+        <!-- 自定义检查：中文日志检查 -->
+        <module name="Regexp">
+            <property name="id" value="chineseLogCheck"/>
+            <property name="format" value="log\.(info|warn|error|debug|trace)\s*\(\s*[""'][^""']*[\u4e00-\u9fff][^""']*[""']"/>
+            <property name="message" value="Log messages must be in English, not Chinese. Please use English for all log content."/>
+            <property name="severity" value="error"/>
+        </module>
+
+        <!-- 检查日志语句格式 -->
+        <module name="Regexp">
+            <property name="id" value="logFormatCheck"/>
+            <property name="format" value="log\.(info|warn|error|debug|trace)\s*\(\s*[""'][^""']*[""']\s*\+"/>
+            <property name="message" value="Avoid string concatenation in log statements. Use placeholders {} instead."/>
+            <property name="severity" value="warning"/>
+        </module>
+
+        <!-- 检查日志级别使用 -->
+        <module name="Regexp">
+            <property name="id" value="logLevelCheck"/>
+            <property name="format" value="log\.(debug|trace)\s*\(\s*[""'][^""']*[""']"/>
+            <property name="message" value="Consider if DEBUG/TRACE level is appropriate for production code."/>
+            <property name="severity" value="info"/>
+        </module>
+    </module>
+</module> 
