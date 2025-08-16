@@ -1,6 +1,6 @@
 package com.jmix.configengine;
 
-import com.jmix.configengine.model.ModelBuilder;
+import com.jmix.configengine.model.ModuleBuilder;
 import com.jmix.configengine.model.ParaOption;
 import org.junit.Assert;
 import org.junit.Test;
@@ -18,7 +18,7 @@ public class ParaOptionBuilderTest {
     @Test
     public void testBasicBuilder() {
         // 测试基础构建器功能
-        ParaOption option = ModelBuilder.ParaOptionBuilder.create()
+        ParaOption option = ModuleBuilder.ParaOptionBuilder.create()
                 .codeId(10)
                 .code("Red")
                 .description("红色选项")
@@ -34,7 +34,7 @@ public class ParaOptionBuilderTest {
     @Test
     public void testExtAttrBuilder() {
         // 测试扩展属性构建
-        ParaOption option = ModelBuilder.ParaOptionBuilder.create()
+        ParaOption option = ModuleBuilder.ParaOptionBuilder.create()
                 .codeId(20)
                 .code("Blue")
                 .extAttr("hexCode", "#0000FF")
@@ -52,7 +52,7 @@ public class ParaOptionBuilderTest {
         extAttrs.put("category", "primary");
         extAttrs.put("season", "all");
         
-        ParaOption option = ModelBuilder.ParaOptionBuilder.create()
+        ParaOption option = ModuleBuilder.ParaOptionBuilder.create()
                 .codeId(30)
                 .code("Green")
                 .extAttrs(extAttrs)
@@ -65,7 +65,7 @@ public class ParaOptionBuilderTest {
     @Test
     public void testColorOptionHelper() {
         // 测试颜色选项便捷方法
-        ParaOption option = ModelBuilder.ParaOptionBuilder.create()
+        ParaOption option = ModuleBuilder.ParaOptionBuilder.create()
                 .asOption(10, "Red", "红色")
                 .sortNo(1)
                 .extAttr("hexCode", "#FF0000")
@@ -83,9 +83,11 @@ public class ParaOptionBuilderTest {
     @Test
     public void testSizeOptionHelper() {
         // 测试尺寸选项便捷方法
-        ParaOption option = ParaOptionBuilder.create()
-                .asSizeOption(1, "Big", "大号", "110-120cm", "70-75cm")
+        ParaOption option = ModuleBuilder.ParaOptionBuilder.create()
+                .asOption(1, "Big", "大号")
                 .sortNo(1)
+                .extAttr("chest", "110-120cm")
+                .extAttr("length", "70-75cm")
                 .build();
         
         Assert.assertEquals(1, option.getCodeId());
@@ -99,8 +101,10 @@ public class ParaOptionBuilderTest {
     @Test
     public void testBasicOptionHelper() {
         // 测试基础选项便捷方法
-        ParaOption option = ParaOptionBuilder.create()
-                .asBasicOption(5, "Standard", "标准选项", 5)
+        ParaOption option = ModuleBuilder.ParaOptionBuilder.create()
+                .asOption(5, "Standard", "标准选项")
+                .sortNo(5)
+                .defaultValue("Standard")
                 .build();
         
         Assert.assertEquals(5, option.getCodeId());
@@ -113,7 +117,7 @@ public class ParaOptionBuilderTest {
     @Test
     public void testBuildWithDefaults() {
         // 测试带默认值的构建
-        ParaOption option = ParaOptionBuilder.create()
+        ParaOption option = ModuleBuilder.ParaOptionBuilder.create()
                 .codeId(15)
                 .code("Yellow")
                 .description("黄色选项")
@@ -129,7 +133,7 @@ public class ParaOptionBuilderTest {
     @Test
     public void testComplexBuilder() {
         // 测试复杂构建场景
-        ParaOption option = ParaOptionBuilder.create()
+        ParaOption option = ModuleBuilder.ParaOptionBuilder.create()
                 .codeId(25)
                 .code("Purple")
                 .fatherCode("ColorGroup")
@@ -156,17 +160,23 @@ public class ParaOptionBuilderTest {
     public void testBuilderInTestData() {
         // 测试在测试数据构建中的使用
         List<ParaOption> colorOptions = Arrays.asList(
-            ParaOptionBuilder.create()
-                .asColorOption(10, "Red", "红色", "#FF0000", "high")
+            ModuleBuilder.ParaOptionBuilder.create()
+                .asOption(10, "Red", "红色")
                 .sortNo(1)
+                .extAttr("hexCode", "#FF0000")
+                .extAttr("popularity", "high")
                 .build(),
-            ParaOptionBuilder.create()
-                .asColorOption(20, "Black", "黑色", "#000000", "veryHigh")
+            ModuleBuilder.ParaOptionBuilder.create()
+                .asOption(20, "Black", "黑色")
                 .sortNo(2)
+                .extAttr("hexCode", "#000000")
+                .extAttr("popularity", "veryHigh")
                 .build(),
-            ParaOptionBuilder.create()
-                .asColorOption(30, "White", "白色", "#FFFFFF", "high")
+            ModuleBuilder.ParaOptionBuilder.create()
+                .asOption(30, "White", "白色")
                 .sortNo(3)
+                .extAttr("hexCode", "#FFFFFF")
+                .extAttr("popularity", "high")
                 .build()
         );
         
@@ -194,7 +204,7 @@ public class ParaOptionBuilderTest {
     @Test
     public void testBuilderChaining() {
         // 测试方法链式调用
-        ParaOption option = ParaOptionBuilder.create()
+        ParaOption option = ModuleBuilder.ParaOptionBuilder.create()
                 .codeId(100)
                 .code("Test")
                 .description("测试选项")

@@ -9,7 +9,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.jmix.configengine.model.Extensible;
-import com.jmix.configengine.model.ModelBuilder;
+import com.jmix.configengine.model.ModuleBuilder;
 import com.jmix.configengine.model.ParaOption;
 import com.jmix.configengine.model.Part;
 import com.jmix.configengine.model.PartType;
@@ -271,7 +271,7 @@ public class FilterExpressionExecutorTest {
      * 创建颜色选项测试对象
      */
     private ParaOption createColorOption(int codeId, String code, String description, int sortNo, String hexCode, String popularity) {
-        return ModelBuilder.ParaOptionBuilder.create()
+        return ModuleBuilder.ParaOptionBuilder.create()
                 .asOption(codeId, code, description)
                 .sortNo(sortNo)
                 .extAttr("hexCode", hexCode)
@@ -283,7 +283,7 @@ public class FilterExpressionExecutorTest {
      * 创建尺寸选项测试对象
      */
     private ParaOption createSizeOption(int codeId, String code, String description, int sortNo, String chest, String length) {
-        return ModelBuilder.ParaOptionBuilder.create()
+        return ModuleBuilder.ParaOptionBuilder.create()
                 .asOption(codeId, code, description)
                 .sortNo(sortNo)
                 .extAttr("chest", chest)
@@ -296,7 +296,7 @@ public class FilterExpressionExecutorTest {
      */
     private Part createTShirtPart(String code, String description, int sortNo, Long price, String material, String weight, 
                                  String fabric, String thickness, String elasticity) {
-        return ModelBuilder.PartBuilder.create()
+        return ModuleBuilder.PartBuilder.create()
                 .asTShirtPart(code, description, sortNo, price, material, weight)
                 .extAttr("price", price.toString())
                 .attr("fabric", fabric)
