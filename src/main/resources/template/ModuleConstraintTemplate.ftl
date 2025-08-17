@@ -57,6 +57,14 @@ public class ${module.code}Constraint extends ConstraintAlgImpl {
     
     <#--生成约束定义 -->
     <#list module.rules as rule>
+        //===================================调试信息===================================
+        // 规则: ${rule.code} - ${rule.name}
+        // isCompatibleRule(): ${rule.isCompatibleRule()?string}
+        // rule.left??: ${(rule.left??)?string}
+        // rule.right??: ${(rule.right??)?string}
+        // 条件判断结果: ${(rule.isCompatibleRule() && rule.left?? && rule.right??)?string}
+        //===================================调试信息===================================
+        
         <#if rule.isCompatibleRule() && rule.left?? && rule.right??>
         //===================================类型1===================================
     /**

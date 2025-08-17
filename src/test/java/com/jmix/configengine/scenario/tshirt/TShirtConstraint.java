@@ -65,6 +65,14 @@ public class TShirtConstraint extends ConstraintAlgImpl {
         addConstraint_rule3();
     }
     
+        //===================================调试信息===================================
+        // 规则: rule1 - 颜色和尺寸兼容关系规则
+        // isCompatibleRule(): false
+        // rule.left??: true
+        // rule.right??: true
+        // 条件判断结果: false
+        //===================================调试信息===================================
+        
     /**
      * 未知规则类型：颜色和尺寸兼容关系规则
      * 规则内容：如果颜色选择红色，则尺寸必须选择大号或小号，不能选择中号
@@ -72,6 +80,14 @@ public class TShirtConstraint extends ConstraintAlgImpl {
     public void addConstraint_rule1() {
         System.out.println("未知规则类型: 颜色和尺寸兼容关系规则");
     }
+        //===================================调试信息===================================
+        // 规则: rule2 - 部件数量关系规则
+        // isCompatibleRule(): false
+        // rule.left??: false
+        // rule.right??: false
+        // 条件判断结果: false
+        //===================================调试信息===================================
+        
     /**
      * 兼容性规则：部件数量关系规则
      * 规则内容：装饰部件TShirt12的数量必须等于主体部件TShirt11数量的2倍
@@ -82,6 +98,14 @@ public class TShirtConstraint extends ConstraintAlgImpl {
     }
            
        //===================================类型1===================================
+        //===================================调试信息===================================
+        // 规则: rule3 - 颜色选择规则
+        // isCompatibleRule(): false
+        // rule.left??: false
+        // rule.right??: false
+        // 条件判断结果: false
+        //===================================调试信息===================================
+        
     /**
      * 未知规则类型：颜色选择规则
      * 规则内容：颜色参数必须且只能选择一个选项
