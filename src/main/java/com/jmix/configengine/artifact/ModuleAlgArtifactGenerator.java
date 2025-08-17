@@ -129,7 +129,6 @@ public class ModuleAlgArtifactGenerator {
             long[] domain = para.getOptions().stream()
                     .mapToLong(option -> option.getCodeId())
                     .toArray();
-            paraInfo.setDomain(domain);
             
             // 构建ParaOptionInfo
             List<ParaOptionInfo> optionInfos = para.getOptions().stream()
@@ -230,8 +229,8 @@ public class ModuleAlgArtifactGenerator {
                     //调用doSelectProObjs方法
                     Pair<VarInfo<? extends Extensible>, List<String>> pair = doSelectProObjs(moduleInfo, compatiableRule.getRightExpr());
                     if (pair != null) {
-                        // ruleInfo.setRight(pair.getFirst());
-                        // ruleInfo.setRightObjects(pair.getSecond());
+                        ruleInfo.setRight(pair.getFirst());
+                        ruleInfo.setRightFilterCodes(pair.getSecond());
                     }
                     else {
                         log.error("Failed to select programming objects for rule: {}", rule.getCode());

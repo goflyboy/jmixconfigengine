@@ -58,10 +58,10 @@ public class ${module.code}Constraint extends ConstraintAlgImpl {
     
     <#--生成约束定义 -->
     <#list module.rules as rule>
-        <#if rule.isCompatibleRule()>
+        <#if rule.isCompatibleRule() && rule.left?? && rule.right??>
         //===================================类型1===================================
     /**
-     * 计算规则：${rule.name}
+     * 兼容性规则：${rule.name}
      * 规则内容：${rule.normalNaturalCode}
      */
     public void addConstraint_${rule.code}() {
@@ -77,6 +77,7 @@ public class ${module.code}Constraint extends ConstraintAlgImpl {
             // 4. 定义筛选后的集合 Set1=(A1,A2,A3) =>筛出的结果A1，A2 (filterCodeIds)
             // 左表达式：对Color.options执行filter("Color !="Red")的结果为：(Black=10, White=20)
             BoolVar leftCond = model.newBoolVar("${rule.code}" + "_" + "leftCond");
+            <#if rule.leftFilterCodes?? && rule.leftFilterCodes?size gt 0>
             model.addBoolOr(new Literal[]{
                 <#list rule.leftFilterCodes as filterCode>
                 this.${rule.left.varName}.getParaOptionByCode("${filterCode}").getIsSelectedVar()<#if filterCode_has_next>,</#if>
@@ -87,9 +88,11 @@ public class ${module.code}Constraint extends ConstraintAlgImpl {
                 this.${rule.left.varName}.getParaOptionByCode("${filterCode}").getIsSelectedVar().not()<#if filterCode_has_next>,</#if>
                 </#list>
             }).onlyEnforceIf(leftCond.not());
+            </#if>
             
             // 右表达式：对Color.options执行filter("Color !="Red")的结果为：(Black=10, White=20)
             BoolVar rightCond = model.newBoolVar("${rule.code}" + "_" + "rightCond");
+            <#if rule.rightFilterCodes?? && rule.rightFilterCodes?size gt 0>
             model.addBoolOr(new Literal[]{
                 <#list rule.rightFilterCodes as filterCode>
                 this.${rule.right.varName}.getParaOptionByCode("${filterCode}").getIsSelectedVar()<#if filterCode_has_next>,</#if>
@@ -100,9 +103,12 @@ public class ${module.code}Constraint extends ConstraintAlgImpl {
                 this.${rule.right.varName}.getParaOptionByCode("${filterCode}").getIsSelectedVar().not()<#if filterCode_has_next>,</#if>
                 </#list>
             }).onlyEnforceIf(rightCond.not());
+            </#if>
             
             // 5. 实现Codependent关系
+            <#if rule.leftFilterCodes?? && rule.leftFilterCodes?size gt 0 && rule.rightFilterCodes?? && rule.rightFilterCodes?size gt 0>
             model.addEquality(leftCond, rightCond);
+            </#if>
     }
 
 
@@ -113,8 +119,7 @@ public class ${module.code}Constraint extends ConstraintAlgImpl {
      * 规则内容：${rule.normalNaturalCode}
      */
     public void addConstraint_${rule.code}() {
-        // TODO: 实现兼容性约束
-        // ${rule.leftTypeName} ${rule.left.varName} 与 ${rule.rightTypeName} ${rule.right.varName} 的兼容关系
+        // TODO: 实现兼容性约束TODO 
         System.out.println("添加兼容性约束: ${rule.name}");
     }
            
