@@ -27,7 +27,7 @@ import com.jmix.configengine.util.ModuleUtilsTest;
     ModuleUtilsTest.class,
     
     // 场景测试
-    com.jmix.configengine.scenario.tshirt.ModuleAlgArtifactGeneratorTest.class
+    com.jmix.configengine.scenario.tshirt.ModuleAlgArtifactGeneratorBaseTest.class
 })
 public class TestSuite {
     

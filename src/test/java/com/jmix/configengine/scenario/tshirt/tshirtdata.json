@@ -1,163 +1,175 @@
 {
+  "@type": "Module",
   "code": "TShirt",
   "id": 123123,
   "version": "V1.0",
-  "type": "General",
+  "type": "GENERAL",
   "defaultValue": 1,
   "description": "T恤衫配置模块，支持颜色、尺寸选择和部件数量约束",
   "sortNo": 1,
   "extSchema": "TShirtModuleSchema",
   "packageName": "com.jmix.configengine.scenario.tshirt",
-  "extAttrs": {
+  "extAttrs": [ "java.util.HashMap", {
     "category": "clothing",
     "season": "all"
-  },
-  "paras": [
+  } ],
+  "paras": [ "java.util.Arrays$ArrayList", [
     {
+      "@type": "Para",
       "code": "Color",
       "fatherCode": "TShirt",
-      "type": "EnumType",
+      "type": "ENUM",
       "defaultValue": "Red",
       "description": "T恤衫颜色选择参数",
       "sortNo": 1,
       "extSchema": "ColorParaSchema",
-      "extAttrs": {
+      "extAttrs": [ "java.util.HashMap", {
         "colorGroup": "basic",
         "availability": "inStock"
-      },
-      "options": [
+      } ],
+      "options": [ "java.util.Arrays$ArrayList", [
         {
+          "@type": "ParaOption",
           "codeId": 10,
           "code": "Red",
           "fatherCode": "Color",
           "defaultValue": "Red",
           "description": "红色T恤衫",
           "sortNo": 1,
-          "extAttrs": {
+          "extAttrs": [ "java.util.HashMap", {
             "hexCode": "#FF0000",
             "popularity": "high"
-          }
+          } ]
         },
         {
+          "@type": "ParaOption",
           "codeId": 20,
           "code": "Black",
           "fatherCode": "Color",
           "defaultValue": "Black",
           "description": "黑色T恤衫",
           "sortNo": 2,
-          "extAttrs": {
+          "extAttrs": [ "java.util.HashMap", {
             "hexCode": "#000000",
             "popularity": "veryHigh"
-          }
+          } ]
         },
         {
+          "@type": "ParaOption",
           "codeId": 30,
           "code": "White",
           "fatherCode": "Color",
           "defaultValue": "White",
           "description": "白色T恤衫",
           "sortNo": 3,
-          "extAttrs": {
+          "extAttrs": [ "java.util.HashMap", {
             "hexCode": "#FFFFFF",
             "popularity": "high"
-          }
+          } ]
         }
-      ]
+      ] ]
     },
     {
+      "@type": "Para",
       "code": "Size",
       "fatherCode": "TShirt",
-      "type": "EnumType",
+      "type": "ENUM",
       "defaultValue": "Medium",
       "description": "T恤衫尺寸选择参数",
       "sortNo": 2,
       "extSchema": "SizeParaSchema",
-      "extAttrs": {
+      "extAttrs": [ "java.util.HashMap", {
         "measurement": "EU",
         "fit": "regular"
-      },
-      "options": [
+      } ],
+      "options": [ "java.util.Arrays$ArrayList", [
         {
+          "@type": "ParaOption",
           "codeId": 1,
           "code": "Big",
           "fatherCode": "Size",
           "defaultValue": "Big",
           "description": "大号尺寸",
           "sortNo": 1,
-          "extAttrs": {
+          "extAttrs": [ "java.util.HashMap", {
             "chest": "110-120cm",
             "length": "70-75cm"
-          }
+          } ]
         },
         {
+          "@type": "ParaOption",
           "codeId": 2,
           "code": "Medium",
           "fatherCode": "Size",
           "defaultValue": "Medium",
           "description": "中号尺寸",
           "sortNo": 2,
-          "extAttrs": {
+          "extAttrs": [ "java.util.HashMap", {
             "chest": "100-110cm",
             "length": "65-70cm"
-          }
+          } ]
         },
         {
+          "@type": "ParaOption",
           "codeId": 3,
           "code": "Small",
           "fatherCode": "Size",
           "defaultValue": "Small",
           "description": "小号尺寸",
           "sortNo": 3,
-          "extAttrs": {
+          "extAttrs": [ "java.util.HashMap", {
             "chest": "90-100cm",
             "length": "60-65cm"
-          }
+          } ]
         }
-      ]
+      ] ]
     }
-  ],
-  "parts": [
+  ] ],
+  "parts": [ "java.util.Arrays$ArrayList", [
     {
+      "@type": "Part",
       "code": "TShirt11",
       "fatherCode": "TShirt",
-      "type": "AtomicPart",
+      "type": "ATOMIC",
       "defaultValue": 0,
       "description": "T恤衫主体部件",
       "sortNo": 1,
       "price": 1500,
       "extSchema": "TShirtPartSchema",
-      "extAttrs": {
+      "extAttrs": [ "java.util.HashMap", {
         "material": "cotton",
         "weight": "180g"
-      },
-      "attrs": {
+      } ],
+      "attrs": [ "java.util.HashMap", {
         "fabric": "100%棉",
         "thickness": "中等",
         "elasticity": "适中"
-      }
+      } ]
     },
     {
+      "@type": "Part",
       "code": "TShirt12",
       "fatherCode": "TShirt",
-      "type": "AtomicPart",
+      "type": "ATOMIC",
       "defaultValue": 0,
       "description": "T恤衫装饰部件",
       "sortNo": 2,
       "price": 500,
       "extSchema": "TShirtPartSchema",
-      "extAttrs": {
+      "extAttrs": [ "java.util.HashMap", {
         "material": "polyester",
         "weight": "50g"
-      },
-      "attrs": {
+      } ],
+      "attrs": [ "java.util.HashMap", {
         "pattern": "印花",
         "position": "胸前",
         "size": "10x8cm"
-      }
+      } ]
     }
-  ],
-  "rules": [
+  ] ],
+  "rules": [ "java.util.Arrays$ArrayList", [
     {
+      "@type": "Rule",
       "code": "rule1",
       "name": "颜色和尺寸兼容关系规则",
       "progObjType": "Module",
@@ -165,36 +177,42 @@
       "progObjField": "constraints",
       "normalNaturalCode": "如果颜色选择红色，则尺寸必须选择大号或小号，不能选择中号",
       "rawCode": {
+        "@type": "CompatiableRule",
         "leftExpr": {
+          "@type": "ExprSchema",
           "rawCode": "Color=\"Red\"",
-          "refProgObjs": [
+          "refProgObjs": [ "java.util.Arrays$ArrayList", [
             {
+              "@type": "RefProgObjSchema",
               "progObjType": "Para",
               "progObjCode": "Color",
               "progObjField": "value"
             }
-          ]
+          ] ]
         },
         "operator": "Requires",
         "rightExpr": {
+          "@type": "ExprSchema",
           "rawCode": "Size!=\"Medium\"",
-          "refProgObjs": [
+          "refProgObjs": [ "java.util.Arrays$ArrayList", [
             {
+              "@type": "RefProgObjSchema",
               "progObjType": "Para",
               "progObjCode": "Size",
               "progObjField": "value"
             }
-          ]
+          ] ]
         }
       },
       "ruleSchemaTypeFullName": "CDSL.V5.Struct.CompatiableRule",
       "extSchema": "CompatiableRuleSchema",
-      "extAttrs": {
+      "extAttrs": [ "java.util.HashMap", {
         "priority": "high",
         "enforcement": "strict"
-      }
+      } ]
     },
     {
+      "@type": "Rule",
       "code": "rule2",
       "name": "部件数量关系规则",
       "progObjType": "Part",
@@ -202,30 +220,35 @@
       "progObjField": "quantity",
       "normalNaturalCode": "装饰部件TShirt12的数量必须等于主体部件TShirt11数量的2倍",
       "rawCode": {
+        "@type": "CalculateRule",
         "leftExpr": {
+          "@type": "ExprSchema",
           "rawCode": "TShirt12.quantity = TShirt11.quantity * 2",
-          "refProgObjs": [
+          "refProgObjs": [ "java.util.Arrays$ArrayList", [
             {
+              "@type": "RefProgObjSchema",
               "progObjType": "Part",
               "progObjCode": "TShirt11",
               "progObjField": "quantity"
             },
             {
+              "@type": "RefProgObjSchema",
               "progObjType": "Part",
               "progObjCode": "TShirt12",
               "progObjField": "quantity"
             }
-          ]
+          ] ]
         }
       },
       "ruleSchemaTypeFullName": "CDSL.V5.Struct.CalculateRule",
       "extSchema": "CalculateRuleSchema",
-      "extAttrs": {
+      "extAttrs": [ "java.util.HashMap", {
         "priority": "medium",
         "enforcement": "flexible"
-      }
+      } ]
     },
     {
+      "@type": "Rule",
       "code": "rule3",
       "name": "颜色选择规则",
       "progObjType": "Para",
@@ -233,23 +256,26 @@
       "progObjField": "options",
       "normalNaturalCode": "颜色参数必须且只能选择一个选项",
       "rawCode": {
+        "@type": "SelectRule",
         "leftExpr": {
+          "@type": "ExprSchema",
           "rawCode": "Color.options.count = 1",
-          "refProgObjs": [
+          "refProgObjs": [ "java.util.Arrays$ArrayList", [
             {
+              "@type": "RefProgObjSchema",
               "progObjType": "Para",
               "progObjCode": "Color",
               "progObjField": "options"
             }
-          ]
+          ] ]
         }
       },
       "ruleSchemaTypeFullName": "CDSL.V5.Struct.SelectRule",
       "extSchema": "SelectRuleSchema",
-      "extAttrs": {
+      "extAttrs": [ "java.util.HashMap", {
         "priority": "high",
         "enforcement": "strict"
-      }
+      } ]
     }
-  ]
+  ] ]
 } 

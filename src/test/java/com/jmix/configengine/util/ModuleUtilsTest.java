@@ -20,6 +20,7 @@ public class ModuleUtilsTest {
     
     private com.jmix.configengine.model.Module testModule;
     private String testJsonFile = "test_module.json";
+    private boolean deleteGeneratedFile;
     
     @Before
     public void setUp() {
@@ -30,7 +31,7 @@ public class ModuleUtilsTest {
     @Test
     public void testToJsonFile() throws IOException {
         System.out.println("=== 测试 toJsonFile 方法 ===");
-        
+        deleteGeneratedFile = false;
         // 调用toJsonFile方法
         ModuleUtils.toJsonFile(testModule, testJsonFile);
         
@@ -253,6 +254,9 @@ public class ModuleUtilsTest {
     @After
     public void tearDown() {
         // 清理测试文件
+        if (!deleteGeneratedFile) {
+            return;
+        }
         try {
             File testFile = new File(testJsonFile);
             if (testFile.exists()) {

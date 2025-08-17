@@ -22,7 +22,7 @@ import java.nio.file.Paths;
  * 2. 调用ModuleAlgArtifactGenerator.buildConstraintRule生成约束规则代码
  * 3. 验证生成的代码文件是否正确
  */
-public class ModuleAlgArtifactGeneratorTest {
+public class ModuleAlgArtifactGeneratorBaseTest {
     
     private ModuleAlgArtifactGenerator generator;
     private com.jmix.configengine.model.Module tshirtModule;
