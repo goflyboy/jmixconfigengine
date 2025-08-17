@@ -3,6 +3,7 @@ package com.jmix.configengine.scenario.tshirt;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jmix.configengine.artifact.ModuleAlgArtifactGenerator;
 import com.jmix.configengine.model.*;
+import com.jmix.configengine.util.ModuleUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.After;
@@ -37,11 +38,195 @@ public class ModuleAlgArtifactGeneratorTest {
         // 设置输出路径为当前包所在目录
         outputPath = getCurrentPackagePath() + "/TShirtConstraint.java";
         
-        // 创建T恤衫模块数据
-        tshirtModule = createTShirtModuleFromSampleData();
+        // 创建T恤衫模块数据（简化版本，避免JSON反序列化问题）
+        tshirtModule = createSimpleTShirtModule();
         
         // 初始化模块
         tshirtModule.init();
+    }
+    
+    /**
+     * 创建简化的T恤衫模块数据
+     */
+    private com.jmix.configengine.model.Module createSimpleTShirtModule() {
+        com.jmix.configengine.model.Module module = new com.jmix.configengine.model.Module();
+        module.setCode("TShirt");
+        module.setId(123123L);
+        module.setVersion("V1.0");
+        module.setType(ModuleType.GENERAL);
+        module.setDefaultValue(1);
+        module.setDescription("T恤衫配置模块，支持颜色、尺寸选择和部件数量约束");
+        module.setSortNo(1);
+        module.setPackageName("com.jmix.configengine.scenario.tshirt");
+        
+        // 创建颜色参数
+        Para colorPara = new Para();
+        colorPara.setCode("Color");
+        colorPara.setFatherCode("TShirt");
+        colorPara.setType(ParaType.ENUM);
+        colorPara.setDefaultValue("Red");
+        colorPara.setDescription("T恤衫颜色选择参数");
+        colorPara.setSortNo(1);
+        
+        // 创建颜色选项
+        ParaOption redOption = new ParaOption();
+        redOption.setCodeId(10);
+        redOption.setCode("Red");
+        redOption.setFatherCode("Color");
+        redOption.setDefaultValue("Red");
+        redOption.setDescription("红色T恤衫");
+        redOption.setSortNo(1);
+        
+        ParaOption blackOption = new ParaOption();
+        blackOption.setCodeId(20);
+        blackOption.setCode("Black");
+        blackOption.setFatherCode("Color");
+        blackOption.setDefaultValue("Black");
+        blackOption.setDescription("黑色T恤衫");
+        blackOption.setSortNo(2);
+        
+        ParaOption whiteOption = new ParaOption();
+        whiteOption.setCodeId(30);
+        whiteOption.setCode("White");
+        whiteOption.setFatherCode("Color");
+        whiteOption.setDefaultValue("White");
+        whiteOption.setDescription("白色T恤衫");
+        whiteOption.setSortNo(3);
+        
+        colorPara.setOptions(java.util.Arrays.asList(redOption, blackOption, whiteOption));
+        
+        // 创建尺寸参数
+        Para sizePara = new Para();
+        sizePara.setCode("Size");
+        sizePara.setFatherCode("TShirt");
+        sizePara.setType(ParaType.ENUM);
+        sizePara.setDefaultValue("Medium");
+        sizePara.setDescription("T恤衫尺寸选择参数");
+        sizePara.setSortNo(2);
+        
+        // 创建尺寸选项
+        ParaOption bigOption = new ParaOption();
+        bigOption.setCodeId(1);
+        bigOption.setCode("Big");
+        bigOption.setFatherCode("Size");
+        bigOption.setDefaultValue("Big");
+        bigOption.setDescription("大号尺寸");
+        bigOption.setSortNo(1);
+        
+        ParaOption mediumOption = new ParaOption();
+        mediumOption.setCodeId(2);
+        mediumOption.setCode("Medium");
+        mediumOption.setFatherCode("Size");
+        mediumOption.setDefaultValue("Medium");
+        mediumOption.setDescription("中号尺寸");
+        mediumOption.setSortNo(2);
+        
+        ParaOption smallOption = new ParaOption();
+        smallOption.setCodeId(3);
+        smallOption.setCode("Small");
+        smallOption.setFatherCode("Size");
+        smallOption.setDefaultValue("Small");
+        smallOption.setDescription("小号尺寸");
+        smallOption.setSortNo(3);
+        
+        sizePara.setOptions(java.util.Arrays.asList(bigOption, mediumOption, smallOption));
+        
+        // 创建部件
+        Part tshirt11Part = new Part();
+        tshirt11Part.setCode("TShirt11");
+        tshirt11Part.setFatherCode("TShirt");
+        tshirt11Part.setType(PartType.ATOMIC);
+        tshirt11Part.setDefaultValue(0);
+        tshirt11Part.setDescription("T恤衫主体部件");
+        tshirt11Part.setSortNo(1);
+        tshirt11Part.setPrice(1500L);
+        
+        Part tshirt12Part = new Part();
+        tshirt12Part.setCode("TShirt12");
+        tshirt12Part.setFatherCode("TShirt");
+        tshirt12Part.setType(PartType.ATOMIC);
+        tshirt12Part.setDefaultValue(0);
+        tshirt12Part.setDescription("T恤衫装饰部件");
+        tshirt12Part.setSortNo(2);
+        tshirt12Part.setPrice(500L);
+        
+        // 创建规则
+        Rule rule1 = new Rule();
+        rule1.setCode("rule1");
+        rule1.setName("颜色和尺寸兼容关系规则");
+        rule1.setProgObjType("Module");
+        rule1.setProgObjCode("TShirt");
+        rule1.setProgObjField("constraints");
+        rule1.setNormalNaturalCode("如果颜色选择红色，则尺寸必须选择大号或小号，不能选择中号");
+        rule1.setRuleSchemaTypeFullName("CDSL.V5.Struct.CompatiableRule");
+        
+        // 创建兼容规则Schema
+        com.jmix.configengine.schema.CompatiableRuleSchema compatibleRuleSchema = new com.jmix.configengine.schema.CompatiableRuleSchema();
+        compatibleRuleSchema.setOperator("Requires");
+        
+        // 创建左表达式：Color="Red"
+        com.jmix.configengine.schema.ExprSchema leftExpr = new com.jmix.configengine.schema.ExprSchema();
+        leftExpr.setRawCode("Color=\"Red\"");
+        
+        com.jmix.configengine.schema.RefProgObjSchema leftRef = new com.jmix.configengine.schema.RefProgObjSchema();
+        leftRef.setProgObjType("Para");
+        leftRef.setProgObjCode("Color");
+        leftRef.setProgObjField("value");
+        leftExpr.setRefProgObjs(java.util.Arrays.asList(leftRef));
+        
+        // 创建右表达式：Size!="Medium"
+        com.jmix.configengine.schema.ExprSchema rightExpr = new com.jmix.configengine.schema.ExprSchema();
+        rightExpr.setRawCode("Size!=\"Medium\"");
+        
+        com.jmix.configengine.schema.RefProgObjSchema rightRef = new com.jmix.configengine.schema.RefProgObjSchema();
+        rightRef.setProgObjType("Para");
+        rightRef.setProgObjCode("Size");
+        rightRef.setProgObjField("value");
+        rightExpr.setRefProgObjs(java.util.Arrays.asList(rightRef));
+        
+        compatibleRuleSchema.setLeftExpr(leftExpr);
+        compatibleRuleSchema.setRightExpr(rightExpr);
+        
+        rule1.setRawCode(compatibleRuleSchema);
+        
+        // 创建规则2：部件数量关系规则
+        Rule rule2 = new Rule();
+        rule2.setCode("rule2");
+        rule2.setName("部件数量关系规则");
+        rule2.setProgObjType("Part");
+        rule2.setProgObjCode("TShirt12");
+        rule2.setProgObjField("quantity");
+        rule2.setNormalNaturalCode("装饰部件TShirt12的数量必须等于主体部件TShirt11数量的2倍");
+        rule2.setRuleSchemaTypeFullName("CDSL.V5.Struct.CalculateRule");
+        
+        // 创建计算规则Schema
+        com.jmix.configengine.schema.CalculateRuleSchema calculateRuleSchema = new com.jmix.configengine.schema.CalculateRuleSchema();
+        calculateRuleSchema.setType("CalculateRule");
+        
+        rule2.setRawCode(calculateRuleSchema);
+        
+        // 创建规则3：颜色选择规则
+        Rule rule3 = new Rule();
+        rule3.setCode("rule3");
+        rule3.setName("颜色选择规则");
+        rule3.setProgObjType("Para");
+        rule3.setProgObjCode("Color");
+        rule3.setProgObjField("options");
+        rule3.setNormalNaturalCode("颜色参数必须且只能选择一个选项");
+        rule3.setRuleSchemaTypeFullName("CDSL.V5.Struct.SelectRule");
+        
+        // 创建选择规则Schema
+        com.jmix.configengine.schema.SelectRuleSchema selectRuleSchema = new com.jmix.configengine.schema.SelectRuleSchema();
+        selectRuleSchema.setType("SelectRule");
+        
+        rule3.setRawCode(selectRuleSchema);
+        
+        // 设置模块属性
+        module.setParas(java.util.Arrays.asList(colorPara, sizePara));
+        module.setParts(java.util.Arrays.asList(tshirt11Part, tshirt12Part));
+        module.setRules(java.util.Arrays.asList(rule1, rule2, rule3));
+        
+        return module;
     }
     
     @Test
@@ -124,247 +309,6 @@ public class ModuleAlgArtifactGeneratorTest {
         System.out.println("  包含所有参数变量");
         System.out.println("  包含所有部件变量");
         System.out.println("  包含所有约束规则方法");
-    }
-    
-    /**
-     * 根据T恤衫模块样例数据创建Module对象
-     */
-    private com.jmix.configengine.model.Module createTShirtModuleFromSampleData() {
-        com.jmix.configengine.model.Module module = new com.jmix.configengine.model.Module();
-        module.setCode("TShirt");
-        module.setId(123123L);
-        module.setVersion("V1.0");
-        module.setType(ModuleType.GENERAL);
-        module.setDefaultValue(1);
-        module.setDescription("T恤衫配置模块，支持颜色、尺寸选择和部件数量约束");
-        module.setSortNo(1);
-        module.setPackageName("com.jmix.configengine.scenario.tshirt");
-        
-        // 创建颜色参数
-        Para colorPara = createColorPara();
-        
-        // 创建尺寸参数
-        Para sizePara = createSizePara();
-        
-        // 创建部件
-        Part tshirt11Part = createTShirt11Part();
-        Part tshirt12Part = createTShirt12Part();
-        
-        // 创建规则
-        Rule rule1 = createRule1();
-        Rule rule2 = createRule2();
-        Rule rule3 = createRule3();
-        
-        // 设置模块属性
-        module.setParas(java.util.Arrays.asList(colorPara, sizePara));
-        module.setParts(java.util.Arrays.asList(tshirt11Part, tshirt12Part));
-        module.setRules(java.util.Arrays.asList(rule1, rule2, rule3));
-        
-        // 初始化模块
-        module.init();
-        
-        return module;
-    }
-    
-    /**
-     * 创建颜色参数
-     */
-    private Para createColorPara() {
-        Para para = new Para();
-        para.setCode("Color");
-        para.setFatherCode("TShirt");
-        para.setType(ParaType.ENUM);
-        para.setDefaultValue("Red");
-        para.setDescription("T恤衫颜色选择参数");
-        para.setSortNo(1);
-        
-        // 创建颜色选项
-        ParaOption redOption = new ParaOption();
-        redOption.setCodeId(10);
-        redOption.setCode("Red");
-        redOption.setFatherCode("Color");
-        redOption.setDefaultValue("Red");
-        redOption.setDescription("红色T恤衫");
-        redOption.setSortNo(1);
-        
-        ParaOption blackOption = new ParaOption();
-        blackOption.setCodeId(20);
-        blackOption.setCode("Black");
-        blackOption.setFatherCode("Color");
-        blackOption.setDefaultValue("Black");
-        blackOption.setDescription("黑色T恤衫");
-        blackOption.setSortNo(2);
-        
-        ParaOption whiteOption = new ParaOption();
-        whiteOption.setCodeId(30);
-        whiteOption.setCode("White");
-        whiteOption.setFatherCode("Color");
-        whiteOption.setDefaultValue("White");
-        whiteOption.setDescription("白色T恤衫");
-        whiteOption.setSortNo(3);
-        
-        para.setOptions(java.util.Arrays.asList(redOption, blackOption, whiteOption));
-        return para;
-    }
-    
-    /**
-     * 创建尺寸参数
-     */
-    private Para createSizePara() {
-        Para para = new Para();
-        para.setCode("Size");
-        para.setFatherCode("TShirt");
-        para.setType(ParaType.ENUM);
-        para.setDefaultValue("Medium");
-        para.setDescription("T恤衫尺寸选择参数");
-        para.setSortNo(2);
-        
-        // 创建尺寸选项
-        ParaOption bigOption = new ParaOption();
-        bigOption.setCodeId(1);
-        bigOption.setCode("Big");
-        bigOption.setFatherCode("Size");
-        bigOption.setDefaultValue("Big");
-        bigOption.setDescription("大号尺寸");
-        bigOption.setSortNo(1);
-        
-        ParaOption mediumOption = new ParaOption();
-        mediumOption.setCodeId(2);
-        mediumOption.setCode("Medium");
-        mediumOption.setFatherCode("Size");
-        mediumOption.setDefaultValue("Medium");
-        mediumOption.setDescription("中号尺寸");
-        mediumOption.setSortNo(2);
-        
-        ParaOption smallOption = new ParaOption();
-        smallOption.setCodeId(3);
-        smallOption.setCode("Small");
-        smallOption.setFatherCode("Size");
-        smallOption.setDefaultValue("Small");
-        smallOption.setDescription("小号尺寸");
-        smallOption.setSortNo(3);
-        
-        para.setOptions(java.util.Arrays.asList(bigOption, mediumOption, smallOption));
-        return para;
-    }
-    
-    /**
-     * 创建T恤衫11部件
-     */
-    private Part createTShirt11Part() {
-        Part part = new Part();
-        part.setCode("TShirt11");
-        part.setFatherCode("TShirt");
-        part.setType(PartType.ATOMIC);
-        part.setDefaultValue(0);
-        part.setDescription("T恤衫主体部件");
-        part.setSortNo(1);
-        part.setPrice(1500L);
-        return part;
-    }
-    
-    /**
-     * 创建T恤衫12部件
-     */
-    private Part createTShirt12Part() {
-        Part part = new Part();
-        part.setCode("TShirt12");
-        part.setFatherCode("TShirt");
-        part.setType(PartType.ATOMIC);
-        part.setDefaultValue(0);
-        part.setDescription("T恤衫装饰部件");
-        part.setSortNo(2);
-        part.setPrice(500L);
-        return part;
-    }
-    
-    /**
-     * 创建规则1：颜色和尺寸兼容关系规则
-     */
-    private Rule createRule1() {
-        Rule rule = new Rule();
-        rule.setCode("rule1");
-        rule.setName("颜色和尺寸兼容关系规则");
-        rule.setProgObjType("Module");
-        rule.setProgObjCode("TShirt");
-        rule.setProgObjField("constraints");
-        rule.setNormalNaturalCode("如果颜色选择红色，则尺寸必须选择大号或小号，不能选择中号");
-        rule.setRuleSchemaTypeFullName("CDSL.V5.Struct.CompatiableRule");
-        
-        // 创建兼容规则Schema
-        com.jmix.configengine.schema.CompatiableRuleSchema compatibleRuleSchema = new com.jmix.configengine.schema.CompatiableRuleSchema();
-        compatibleRuleSchema.setOperator("Requires");
-        
-        // 创建左表达式：Color="Red"
-        com.jmix.configengine.schema.ExprSchema leftExpr = new com.jmix.configengine.schema.ExprSchema();
-        leftExpr.setRawCode("Color=\"Red\"");
-        
-        com.jmix.configengine.schema.RefProgObjSchema leftRef = new com.jmix.configengine.schema.RefProgObjSchema();
-        leftRef.setProgObjType("Para");
-        leftRef.setProgObjCode("Color");
-        leftRef.setProgObjField("value");
-        leftExpr.setRefProgObjs(java.util.Arrays.asList(leftRef));
-        
-        // 创建右表达式：Size!="Medium"
-        com.jmix.configengine.schema.ExprSchema rightExpr = new com.jmix.configengine.schema.ExprSchema();
-        rightExpr.setRawCode("Size!=\"Medium\"");
-        
-        com.jmix.configengine.schema.RefProgObjSchema rightRef = new com.jmix.configengine.schema.RefProgObjSchema();
-        rightRef.setProgObjType("Para");
-        rightRef.setProgObjCode("Size");
-        rightRef.setProgObjField("value");
-        rightExpr.setRefProgObjs(java.util.Arrays.asList(rightRef));
-        
-        compatibleRuleSchema.setLeftExpr(leftExpr);
-        compatibleRuleSchema.setRightExpr(rightExpr);
-        
-        rule.setRawCode(compatibleRuleSchema);
-        
-        return rule;
-    }
-    
-    /**
-     * 创建规则2：部件数量关系规则
-     */
-    private Rule createRule2() {
-        Rule rule = new Rule();
-        rule.setCode("rule2");
-        rule.setName("部件数量关系规则");
-        rule.setProgObjType("Part");
-        rule.setProgObjCode("TShirt12");
-        rule.setProgObjField("quantity");
-        rule.setNormalNaturalCode("装饰部件TShirt12的数量必须等于主体部件TShirt11数量的2倍");
-        rule.setRuleSchemaTypeFullName("CDSL.V5.Struct.CalculateRule");
-        
-        // 创建计算规则Schema
-        com.jmix.configengine.schema.CalculateRuleSchema calculateRuleSchema = new com.jmix.configengine.schema.CalculateRuleSchema();
-        calculateRuleSchema.setType("CalculateRule");
-        
-        rule.setRawCode(calculateRuleSchema);
-        
-        return rule;
-    }
-    
-    /**
-     * 创建规则3：颜色选择规则
-     */
-    private Rule createRule3() {
-        Rule rule = new Rule();
-        rule.setCode("rule3");
-        rule.setName("颜色选择规则");
-        rule.setProgObjType("Para");
-        rule.setProgObjCode("Color");
-        rule.setProgObjField("options");
-        rule.setNormalNaturalCode("颜色参数必须且只能选择一个选项");
-        rule.setRuleSchemaTypeFullName("CDSL.V5.Struct.SelectRule");
-        
-        // 创建选择规则Schema
-        com.jmix.configengine.schema.SelectRuleSchema selectRuleSchema = new com.jmix.configengine.schema.SelectRuleSchema();
-        selectRuleSchema.setType("SelectRule");
-        
-        rule.setRawCode(selectRuleSchema);
-        
-        return rule;
     }
     
     /**
