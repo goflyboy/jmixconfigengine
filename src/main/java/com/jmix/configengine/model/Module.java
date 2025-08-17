@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 
 /**
  * 模块定义
@@ -67,5 +68,71 @@ public class Module extends ProgramableObject<Integer> {
                 partMap.put(part.getCode(), part);
             }
         }
+    }
+    
+    /**
+     * 根据编码获取参数对象
+     */
+    @JsonIgnore
+    public Para getPara(String code) {
+        if (code == null || paraMap.isEmpty()) {
+            return null;
+        }
+        return paraMap.get(code);
+    }
+    
+    /**
+     * 根据编码获取部件对象
+     */
+    @JsonIgnore
+    public Part getPart(String code) {
+        if (code == null || partMap.isEmpty()) {
+            return null;
+        }
+        return partMap.get(code);
+    }
+    
+    /**
+     * 根据父部件编码获取子部件列表
+     */
+    @JsonIgnore
+    public List<Part> getChildrenPart(String fatherCode) {
+        if (fatherCode == null || parts == null) {
+            return new ArrayList<>();
+        }
+        
+        return parts.stream()
+                .filter(part -> fatherCode.equals(part.getFatherCode()))
+                .collect(java.util.stream.Collectors.toList());
+    }
+    
+    /**
+     * 获取所有顶级部件（没有父部件的部件）
+     */
+    @JsonIgnore
+    public List<Part> getTopLevelParts() {
+        if (parts == null) {
+            return new ArrayList<>();
+        }
+        
+        return parts.stream()
+                .filter(part -> part.getFatherCode() == null || part.getFatherCode().isEmpty())
+                .collect(java.util.stream.Collectors.toList());
+    }
+    
+    /**
+     * 检查是否包含指定编码的参数
+     */
+    @JsonIgnore
+    public boolean hasPara(String code) {
+        return code != null && paraMap.containsKey(code);
+    }
+    
+    /**
+     * 检查是否包含指定编码的部件
+     */
+    @JsonIgnore
+    public boolean hasPart(String code) {
+        return code != null && partMap.containsKey(code);
     }
 } 

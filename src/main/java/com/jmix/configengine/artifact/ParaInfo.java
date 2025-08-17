@@ -3,13 +3,14 @@ package com.jmix.configengine.artifact;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import java.util.List;
+import com.jmix.configengine.model.Extensible;
 
 /**
  * 参数信息
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class ParaInfo extends VarInfo {
+public class ParaInfo extends VarInfo<com.jmix.configengine.model.Para> {
     /**
      * 参数编码
      */
@@ -26,7 +27,13 @@ public class ParaInfo extends VarInfo {
     private List<ParaOptionInfo> options;
     
     public ParaInfo() {
-        // 设置默认变量名
-        setVarName(code + "Var");
+        super(); // 调用VarInfo的默认构造函数
+    }
+    
+    /**
+     * 构造函数
+     */
+    public ParaInfo(com.jmix.configengine.model.Para para) {
+        super(para); // 调用VarInfo的构造函数，传入Para（因为Para继承自Extensible）
     }
 } 
