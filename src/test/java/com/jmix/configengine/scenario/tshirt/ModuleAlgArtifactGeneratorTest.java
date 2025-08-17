@@ -26,6 +26,8 @@ public class ModuleAlgArtifactGeneratorTest {
     private ModuleAlgArtifactGenerator generator;
     private com.jmix.configengine.model.Module tshirtModule;
     private String outputPath;
+    //是否删除生成的文件
+    private boolean deleteGeneratedFile = true;
     
     @Before
     public void setUp() throws Exception {
@@ -44,6 +46,7 @@ public class ModuleAlgArtifactGeneratorTest {
     
     @Test
     public void testBuildConstraintRule() throws Exception {
+        deleteGeneratedFile = false;
         System.out.println("=== 开始测试 buildConstraintRule 方法 ===");
         System.out.println("输出路径: " + outputPath);
         
@@ -135,6 +138,7 @@ public class ModuleAlgArtifactGeneratorTest {
         module.setDefaultValue(1);
         module.setDescription("T恤衫配置模块，支持颜色、尺寸选择和部件数量约束");
         module.setSortNo(1);
+        module.setPackageName("com.jmix.configengine.scenario.tshirt");
         
         // 创建颜色参数
         Para colorPara = createColorPara();
@@ -386,6 +390,10 @@ public class ModuleAlgArtifactGeneratorTest {
     @After
     public void tearDown() {
         // 清理生成的测试文件
+        if (!deleteGeneratedFile) {
+            return;
+        }
+
         try {
             File generatedFile = new File(outputPath);
             if (generatedFile.exists()) {

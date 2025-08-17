@@ -14,32 +14,10 @@ import java.util.stream.Collectors;
 /**
  * 模块算法制品生成器
  * 每个Module都需要新建一个实例来处理
- * 
- * 使用示例：
- * <pre>
- * // 方式1：使用静态工厂方法（推荐）
- * Module module = ...; // 从某处获取Module
- * ModuleAlgArtifactGenerator generator = ModuleAlgArtifactGenerator.forModule(module);
- * 
- * // 检查参数和部件
- * if (generator.hasPara("Color")) {
- *     ParaVar colorVar = generator.getParaVar("Color");
- *     // 使用colorVar...
- * }
- * 
- * if (generator.hasPart("Body")) {
- *     PartVar bodyVar = generator.getPartVar("Body");
- *     // 使用bodyVar...
- * }
- * 
- * // 生成约束规则代码
- * generator.buildConstraintRule(module, "output/constraint.java");
- * 
- * // 方式2：传统方式
- * ModuleAlgArtifactGenerator generator = new ModuleAlgArtifactGenerator();
+
  * generator.buildConstraintRule(module, "output/constraint.java");
  * </pre>
- * 
+ *
  * 主要特性：
  * 1. 每个Module都需要新建一个实例，避免状态混乱
  * 2. 提供paraMaps和partMaps映射表，简化内部处理
@@ -97,6 +75,7 @@ public class ModuleAlgArtifactGenerator {
         ModuleInfo moduleInfo = new ModuleInfo(module);
         moduleInfo.setCode(module.getCode());
         moduleInfo.setVarName(module.getCode() + "Var");
+        moduleInfo.setPackageName(module.getPackageName());
         
         // 根据Para生成ParaInfo
         if (module.getParas() != null) {

@@ -25,6 +25,11 @@ public class Module extends ProgramableObject<Integer> {
     private String version;
     
     /**
+     * 包名
+     */
+    private String packageName;
+    
+    /**
      * 模块类型
      */
     private ModuleType type;

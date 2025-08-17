@@ -1,4 +1,4 @@
-package com.jmix.configengine;
+package ${module.packageName};
 
 import com.jmix.configengine.artifact.*;
 import com.google.ortools.sat.*;
@@ -8,13 +8,13 @@ import com.google.ortools.sat.*;
  */
 public class ${module.code}Constraint extends ConstraintAlgImpl {
     
-    <#--参数变量声明 -->	
-    <#list module.paras as para> 
+    <#--参数变量声明 -->
+    <#list module.paras as para>
     private ParaVar ${para.varName};
     </#list>
     
-    <#--Part变量声明 -->	
-    <#list module.parts as part> 
+    <#--Part变量声明 -->
+    <#list module.parts as part>
     private PartVar ${part.varName};
     </#list>
 
@@ -24,13 +24,12 @@ public class ${module.code}Constraint extends ConstraintAlgImpl {
         <#list module.paras as para>
             //参数${para.code}创建
             this.${para.varName} = new ParaVar();
-            this.${para.varName}.code = ${para.code};
-            this.${para.varName}.var = newIntVarFromDomain(model, new long[] {${para.optionIdsStr}}, ${para.code});
+            this.${para.varName}.code = "${para.code}";
+            this.${para.varName}.var = newIntVarFromDomain(model, new long[] {${para.optionIdsStr}}, "${para.code}");
             
             //为参数可选值创建“是否选择的var"
             <#list para.options as option>
-             //this.ColorVar.optionSelectVars.put(10, new ParaOptionVar("Red", 10, model.newBoolVar("Color_" + 10)));
-             this.${para.varName}.optionSelectVars.put(${option.codeId}, new ParaOptionVar("${option.code}", ${option.codeId}, model.newBoolVar("${para.code}"+"_" + ${option.codeId})));
+            this.${para.varName}.optionSelectVars.put(${option.codeId}, new ParaOptionVar("${option.code}", ${option.codeId}, model.newBoolVar("${para.code}"+"_" + ${option.codeId})));
             </#list>
         // 建立属性变量与选项变量之间的关系
         this.${para.varName}.optionSelectVars.forEach((optionId, optionVar) -> {
@@ -43,7 +42,7 @@ public class ${module.code}Constraint extends ConstraintAlgImpl {
         <#list module.parts as part>
             //部件${part.code}创建
             this.${part.varName} = new PartVar();
-            this.${part.varName}.code = ${part.code};
+            this.${part.varName}.code = "${part.code}";
             this.${part.varName}.var = model.newIntVar(0, 1000, "${part.code}");
         </#list>
     }

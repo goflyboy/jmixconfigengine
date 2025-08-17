@@ -1,4 +1,4 @@
-package com.jmix.configengine;
+package com.jmix.configengine.artifact;
 
 import java.util.Arrays;
 import java.util.HashMap;

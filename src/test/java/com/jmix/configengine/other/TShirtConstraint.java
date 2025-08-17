@@ -1,4 +1,4 @@
-package com.jmix.configengine;
+package com.jmix.configengine.other;
 
 import com.jmix.configengine.artifact.*;
 import com.google.ortools.sat.*;

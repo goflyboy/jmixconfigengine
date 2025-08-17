@@ -1,4 +1,4 @@
-package com.jmix.configengine;
+package com.jmix.configengine.model;
 
 import com.jmix.configengine.model.ModuleBuilder;
 import com.jmix.configengine.model.ParaOption;

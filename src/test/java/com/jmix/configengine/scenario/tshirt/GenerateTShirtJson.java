@@ -38,6 +38,7 @@ public class GenerateTShirtJson {
         module.setCode("TShirt");
         module.setId(123123L);
         module.setVersion("V1.0");
+        module.setPackageName("com.jmix.configengine.scenario.tshirt");
         module.setType(ModuleType.GENERAL);
         module.setDefaultValue(1);
         module.setDescription("T恤衫配置模块，支持颜色、尺寸选择和部件数量约束");

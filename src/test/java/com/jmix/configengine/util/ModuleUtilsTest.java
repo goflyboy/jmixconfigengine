@@ -160,6 +160,7 @@ public class ModuleUtilsTest {
         module.setCode("TestModule");
         module.setId(999L);
         module.setVersion("1.0.0");
+        module.setPackageName("com.jmix.configengine.util");
         module.setType(ModuleType.GENERAL);
         module.setDefaultValue(1);
         module.setDescription("测试模块");

@@ -497,6 +497,7 @@ public class ModuleAlgArtifactGeneratorTest {
     private com.jmix.configengine.model.Module createTestModule() {
         com.jmix.configengine.model.Module module = new com.jmix.configengine.model.Module();
         module.setCode("TestModule");
+        module.setPackageName("com.jmix.configengine.artifact");
         
         // 创建参数
         List<Para> paras = new ArrayList<>();
@@ -550,6 +551,7 @@ public class ModuleAlgArtifactGeneratorTest {
     private com.jmix.configengine.model.Module createTestModuleWithHierarchy() {
         com.jmix.configengine.model.Module module = new com.jmix.configengine.model.Module();
         module.setCode("TestModule");
+        module.setPackageName("com.jmix.configengine.artifact");
         
         // 创建参数
         List<Para> paras = new ArrayList<>();

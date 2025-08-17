@@ -21,6 +21,11 @@ public class ModuleInfo extends VarInfo<com.jmix.configengine.model.Module> {
     private String code;
     
     /**
+     * 包名
+     */
+    private String packageName;
+    
+    /**
      * 参数信息列表
      */
     private List<ParaInfo> paras;

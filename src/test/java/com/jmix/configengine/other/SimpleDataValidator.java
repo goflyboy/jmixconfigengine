@@ -1,4 +1,4 @@
-package com.jmix.configengine;
+package com.jmix.configengine.other;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
