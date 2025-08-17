@@ -6,6 +6,8 @@ import com.jmix.configengine.artifact.PartVar;
 import com.jmix.configengine.artifact.ParaOptionVar;
 import com.google.ortools.sat.CpModel;
 import com.google.ortools.sat.IntVar;
+import com.google.ortools.sat.LinearArgument;
+import com.google.ortools.sat.LinearExpr;
 import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.LinearExprBuilder;
 import com.google.ortools.sat.Literal;
@@ -96,9 +98,9 @@ public class TShirtConstraint extends ConstraintAlgImpl {
         addConstrain_rule2(model, this.thsirt11Var, this.thsirt12Var);
     }
 
-    /**s
+    /**
      * 规则1：颜色和尺寸的约束关系
-     * 规则名称：(Color !="Red") CoRefent (Size !="Medium")
+     * 规则名称：(Color !="Red") Codependent (Size !="Medium")
      */
     public void addConstrain_rule1(CpModel model, ParaVar ColorVar, ParaVar SizeVar) {
         // 确保只有一个颜色选项被选中
@@ -113,27 +115,25 @@ public class TShirtConstraint extends ConstraintAlgImpl {
         // 4. 定义筛选后的集合 Set1=(A1,A2,A3) =>筛出的结果A1，A2 (filterCodeIds)
         // 左表达式：对Color.options执行filter("Color !="Red")的结果为：(Black=10, White=20)
         BoolVar colorNotRed = model.newBoolVar("ColorNotRed");
-        model.addBoolOr(new BoolVar[]{
+        model.addBoolOr(new Literal[]{
             this.ColorVar.optionSelectVars.get(10).getIsSelectedVar(),
             this.ColorVar.optionSelectVars.get(20).getIsSelectedVar()
         }).onlyEnforceIf(colorNotRed);
-        model.addBoolAnd(new BoolVar[]{
-            (BoolVar)this.ColorVar.optionSelectVars.get(10).getIsSelectedVar().not(),
-            (BoolVar)this.ColorVar.optionSelectVars.get(20).getIsSelectedVar().not()
+        model.addBoolAnd(new Literal[]{this.ColorVar.optionSelectVars.get(10).getIsSelectedVar().not(),
+            this.ColorVar.optionSelectVars.get(20).getIsSelectedVar().not()
         }).onlyEnforceIf(colorNotRed.not());
         
         // set2: Size非中号 (Big=1, Small=3)
         BoolVar sizeNotMedium = model.newBoolVar("SizeNotMedium");
-        model.addBoolOr(new BoolVar[]{
+        model.addBoolOr(new Literal[]{
             this.SizeVar.optionSelectVars.get(1).getIsSelectedVar(),
             this.SizeVar.optionSelectVars.get(3).getIsSelectedVar()
         }).onlyEnforceIf(sizeNotMedium);
-        model.addBoolAnd(new BoolVar[]{
-            (BoolVar)this.SizeVar.optionSelectVars.get(1).getIsSelectedVar().not(),
-            (BoolVar)this.SizeVar.optionSelectVars.get(2).getIsSelectedVar().not()
+        model.addBoolAnd(new Literal[]{this.SizeVar.optionSelectVars.get(1).getIsSelectedVar().not(),
+            this.SizeVar.optionSelectVars.get(2).getIsSelectedVar().not()
         }).onlyEnforceIf(sizeNotMedium.not());
         
-        // 5. 实现CoRefent关系
+        // 5. 实现Codependent关系
         model.addEquality(colorNotRed, sizeNotMedium);
     }
 
@@ -142,15 +142,14 @@ public class TShirtConstraint extends ConstraintAlgImpl {
      * 规则名称：TShirt12 = TShirt11*2
      */
     public void addConstrain_rule2(CpModel model, PartVar thsirt11Var, PartVar thsirt12Var) {
-        // 使用简单的乘法约束：thsirt12Var = thsirt11Var * 2
-        IntVar thsirt11 = (IntVar) thsirt11Var.var;
-        IntVar thsirt12 = (IntVar) thsirt12Var.var;
         
         // 使用简单的约束：thsirt12 = thsirt11 * 2
-        // 由于OR-Tools的限制，我们使用范围约束来近似实现
-        model.addGreaterOrEqual(thsirt12, thsirt11);
-        model.addGreaterOrEqual(thsirt12, thsirt11);
-        // 注意：这里简化处理，实际应用中可能需要更复杂的约束逻辑
+        IntVar thsirt11 = (IntVar) thsirt11Var.var;
+        IntVar thsirt12 = (IntVar) thsirt12Var.var;
+        // OR-Tools doesn't support direct multiplication, so we use addition: thsirt12 = thsirt11 + thsirt11
+        // thsirt12 = LinearExpr.weightedSum(
+        //     new LinearArgument[] {thsirt11, LinearExpr.constant(2)}, new long[] {1, 2});
+        //TODO
     }
     
     /**

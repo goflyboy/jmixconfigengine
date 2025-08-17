@@ -82,18 +82,18 @@ public class TShirtConstraintTest {
             // 验证约束规则的正确性
             System.out.println("\n=== 约束验证 ===");
             
-            // 验证规则1: (Color !="Red") CoRefent (Size !="Medium")
-            boolean colorNotRed = (colorValue != 10); // 10是Red的ID
-            boolean sizeNotMedium = (sizeValue != 2);  // 2是Medium的ID
-            boolean coRefentSatisfied = (colorNotRed == sizeNotMedium);
-            
-            System.out.println("规则1验证: (Color != 'Red') CoRefent (Size != 'Medium')");
-            System.out.println("  颜色非红色: " + colorNotRed + " (颜色值: " + colorValue + " = " + getColorName(colorValue) + ")");
-            System.out.println("  尺寸非中号: " + sizeNotMedium + " (尺寸值: " + sizeValue + " = " + getSizeName(sizeValue) + ")");
-            System.out.println("  CoRefent关系: " + (coRefentSatisfied ? "✓ 满足" : "✗ 违反"));
-            
-            // 断言验证规则1
-            assertTrue("颜色和尺寸应该满足CoRefent关系", coRefentSatisfied);
+                    // 验证规则1: (Color !="Red") Codependent (Size !="Medium")
+        boolean colorNotRed = (colorValue != 10); // 10是Red的ID
+        boolean sizeNotMedium = (sizeValue != 2);  // 2是Medium的ID
+        boolean codependentSatisfied = (colorNotRed == sizeNotMedium);
+        
+        System.out.println("规则1验证: (Color != 'Red') Codependent (Size != 'Medium')");
+        System.out.println("  颜色非红色: " + colorNotRed + " (颜色值: " + colorValue + " = " + getColorName(colorValue) + ")");
+        System.out.println("  尺寸非中号: " + sizeNotMedium + " (尺寸值: " + sizeValue + " = " + getSizeName(sizeValue) + ")");
+        System.out.println("  Codependent关系: " + (codependentSatisfied ? "✓ 满足" : "✗ 违反"));
+        
+        // 断言验证规则1
+        assertTrue("颜色和尺寸应该满足Codependent关系", codependentSatisfied);
             
             // 验证规则2: T恤衫数量关系约束
             System.out.println("\n规则2验证: TShirt12 >= TShirt11");
