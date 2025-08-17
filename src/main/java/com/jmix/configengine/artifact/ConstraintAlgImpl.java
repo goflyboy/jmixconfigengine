@@ -20,7 +20,9 @@ public abstract class ConstraintAlgImpl {
         initVariables();
         initConstraint();
     }
-    protected abstract void initModelAfter(CpModel model);
+    protected void initModelAfter(CpModel model){
+        
+    }
     protected abstract void initVariables();
     protected abstract void initConstraint();
 

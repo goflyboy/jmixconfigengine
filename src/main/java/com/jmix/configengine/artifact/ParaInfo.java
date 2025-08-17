@@ -3,6 +3,7 @@ package com.jmix.configengine.artifact;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 参数信息
@@ -16,11 +17,6 @@ public class ParaInfo extends VarInfo<com.jmix.configengine.model.Para> {
     private String code;
     
     /**
-     * 参数域值
-     */
-    private long[] domain;
-    
-    /**
      * 选项信息列表
      */
     private List<ParaOptionInfo> options;
@@ -29,6 +25,9 @@ public class ParaInfo extends VarInfo<com.jmix.configengine.model.Para> {
         super(); // 调用VarInfo的默认构造函数
     }
     
+    public String getOptionIdsStr(){
+        return options.stream().map(ParaOptionInfo::getCodeId).map(String::valueOf).collect(Collectors.joining(","));
+    }
     /**
      * 构造函数
      */

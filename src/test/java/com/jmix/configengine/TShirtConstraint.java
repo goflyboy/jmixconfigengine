@@ -15,17 +15,7 @@ public class TShirtConstraint extends ConstraintAlgImpl {
     
     // 部件变量
     public PartVar thsirt11Var;
-    public PartVar thsirt12Var;
-  
-    
-    // 不再需要单独的映射，直接使用ParaVar.optionBoolVars
-    public TShirtConstraint() {
-    }
-    public void initModel(CpModel model) {
-        this.model = model;
-        this.initVariables();
-        this.initConstraint();
-    }
+    public PartVar thsirt12Var; 
     
     @Override
     protected void initVariables() {
@@ -80,15 +70,15 @@ public class TShirtConstraint extends ConstraintAlgImpl {
     
     @Override
     protected void initConstraint() {
-        addConstrain_rule1(model, this.ColorVar, this.SizeVar);
-        addConstrain_rule2(model, this.thsirt11Var, this.thsirt12Var);
+        addConstraint_rule1();
+        addConstraint_rule2();
     }
 
     /**
      * 规则1：颜色和尺寸的约束关系
      * 规则名称：(Color !="Red") Codependent (Size !="Medium")
      */
-    private void addConstrain_rule1(CpModel model, ParaVar ColorVar, ParaVar SizeVar) {
+    private void addConstraint_rule1() {
         // 确保只有一个颜色选项被选中
         model.addExactlyOne(this.ColorVar.optionSelectVars.values().stream()
             .map(option -> option.getIsSelectedVar())
@@ -127,18 +117,14 @@ public class TShirtConstraint extends ConstraintAlgImpl {
      * 规则2：T恤衫数量关系约束
      * 规则名称：TShirt12 = TShirt11*2
      */
-    private void addConstrain_rule2(CpModel model, PartVar thsirt11Var, PartVar thsirt12Var) {
+    private void addConstraint_rule2() {
         
         // 使用简单的约束：thsirt12 = thsirt11 * 2
-        IntVar thsirt11 = (IntVar) thsirt11Var.var;
-        IntVar thsirt12 = (IntVar) thsirt12Var.var;
+        IntVar thsirt11 = (IntVar) this.thsirt11Var.var;
+        IntVar thsirt12 = (IntVar) this.thsirt12Var.var;
         // OR-Tools doesn't support direct multiplication, so we use addition: thsirt12 = thsirt11 + thsirt11
         // thsirt12 = LinearExpr.weightedSum(
         //     new LinearArgument[] {thsirt11, LinearExpr.constant(2)}, new long[] {1, 2});
         //TODO
-    }
-
-    @Override
-    protected void initModelAfter(CpModel model) {
     }
 }

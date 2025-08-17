@@ -14,53 +14,60 @@ public class RuleInfo {
     /**
      * 规则编码
      */
-    private String code;
+    public String code;
     
     /**
      * 规则Schema类型全名
      * 例如：CDSL.V5.Struct.CompatiableRule
      */
-    private String ruleSchemaTypeFullName;
+    public String ruleSchemaTypeFullName;
     
     /**
      * 规则名称
      */
-    private String name;
+    public String name;
     
     /**
      * 自然语言描述
      */
-    private String normalNaturalCode;
+    public String normalNaturalCode;
     
     /**
      * 左类型名称
      */
-    private String leftTypeName;
+    public String leftTypeName;
     
     /**
      * 左变量信息
      */
-    private VarInfo<? extends Extensible> left;
+    public VarInfo<? extends Extensible> left;
 
     /**
      * 左对象过滤后的列表-CodeId
      */
-    private List<String> leftFilterCodes;
+    public List<String> leftFilterCodes;//名字不太好，过滤后的结果 TODO
     
     /**
      * 右类型名称
      */
-    private String rightTypeName;
+    public String rightTypeName;
     
     /**
      * 右变量信息
      */
-    private VarInfo<? extends Extensible> right;
+    public VarInfo<? extends Extensible> right;
 
     
     /**
      * 左对象过滤后的列表-Code
      */
-    private List<String> rightFilterCodes;
+    public List<String> rightFilterCodes;
     
+    public boolean isCompatibleRule(){
+        return this.ruleSchemaTypeFullName.contains("CompatibleRule");
+    }
+
+    public boolean isCalculateRule(){
+        return this.ruleSchemaTypeFullName.contains("CalculateRule");
+    }
 } 

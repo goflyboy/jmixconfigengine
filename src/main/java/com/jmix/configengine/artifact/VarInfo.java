@@ -11,12 +11,12 @@ public class VarInfo<T extends Extensible> {
     /**
      * 变量名称
      */
-    private String varName;
+    public String varName;
     
     /**
      * 扩展基础信息
      */
-    private T base;
+    public T base;
     
     /**
      * 构造函数
