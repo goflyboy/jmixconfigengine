@@ -1,13 +1,7 @@
-package com.jmix.configengine.generated;
+package com.jmix.configengine;
 
-import com.google.ortools.sat.CpModel;
-import com.google.ortools.sat.CpSolver;
-import com.google.ortools.sat.IntVar;
-import com.google.ortools.sat.LinearExprBuilder;
-import com.google.ortools.sat.Literal;
-import com.google.ortools.sat.BoolVar;
-import com.google.ortools.sat.Domain;
-import com.jmix.configengine.artifact.ConstraintAlgImpl;
+import com.jmix.configengine.artifact.*;
+import com.google.ortools.sat.*;
 
 /**
  * 自动生成的约束类：${module.code}Constraint

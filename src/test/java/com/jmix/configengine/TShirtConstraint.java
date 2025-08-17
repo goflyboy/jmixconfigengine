@@ -1,19 +1,7 @@
 package com.jmix.configengine;
 
-import com.jmix.configengine.artifact.ConstraintAlgImpl;
-import com.jmix.configengine.artifact.ParaVar;
-import com.jmix.configengine.artifact.PartVar;
-import com.jmix.configengine.artifact.ParaOptionVar;
-import com.google.ortools.sat.CpModel;
-import com.google.ortools.sat.IntVar;
-import com.google.ortools.sat.LinearArgument;
-import com.google.ortools.sat.LinearExpr;
-import com.google.ortools.sat.BoolVar;
-import com.google.ortools.sat.LinearExprBuilder;
-import com.google.ortools.sat.Literal;
-import com.google.ortools.util.Domain;
-import java.util.HashMap;
-import java.util.Map;
+import com.jmix.configengine.artifact.*;
+import com.google.ortools.sat.*;
 
 /**
  * T恤衫约束算法实现
@@ -28,17 +16,10 @@ public class TShirtConstraint extends ConstraintAlgImpl {
     // 部件变量
     public PartVar thsirt11Var;
     public PartVar thsirt12Var;
-    
-    // CP模型
-    private CpModel model;
+  
     
     // 不再需要单独的映射，直接使用ParaVar.optionBoolVars
-    
     public TShirtConstraint() {
-        this.ColorVar = new ParaVar();
-        this.SizeVar = new ParaVar();
-        this.thsirt11Var = new PartVar();
-        this.thsirt12Var = new PartVar();
     }
     public void initModel(CpModel model) {
         this.model = model;
@@ -47,7 +28,12 @@ public class TShirtConstraint extends ConstraintAlgImpl {
     }
     
     @Override
-    public void initVariables() {
+    protected void initVariables() {
+        this.ColorVar = new ParaVar();
+        this.SizeVar = new ParaVar();
+        this.thsirt11Var = new PartVar();
+        this.thsirt12Var = new PartVar();
+
         // 1. 定义属性变量
         this.ColorVar.code = "Color"; 
         this.ColorVar.var = newIntVarFromDomain(model, new long[] {10, 20, 30}, "Color");
@@ -93,7 +79,7 @@ public class TShirtConstraint extends ConstraintAlgImpl {
     }
     
     @Override
-    public void initConstraint() {
+    protected void initConstraint() {
         addConstrain_rule1(model, this.ColorVar, this.SizeVar);
         addConstrain_rule2(model, this.thsirt11Var, this.thsirt12Var);
     }
@@ -102,7 +88,7 @@ public class TShirtConstraint extends ConstraintAlgImpl {
      * 规则1：颜色和尺寸的约束关系
      * 规则名称：(Color !="Red") Codependent (Size !="Medium")
      */
-    public void addConstrain_rule1(CpModel model, ParaVar ColorVar, ParaVar SizeVar) {
+    private void addConstrain_rule1(CpModel model, ParaVar ColorVar, ParaVar SizeVar) {
         // 确保只有一个颜色选项被选中
         model.addExactlyOne(this.ColorVar.optionSelectVars.values().stream()
             .map(option -> option.getIsSelectedVar())
@@ -141,7 +127,7 @@ public class TShirtConstraint extends ConstraintAlgImpl {
      * 规则2：T恤衫数量关系约束
      * 规则名称：TShirt12 = TShirt11*2
      */
-    public void addConstrain_rule2(CpModel model, PartVar thsirt11Var, PartVar thsirt12Var) {
+    private void addConstrain_rule2(CpModel model, PartVar thsirt11Var, PartVar thsirt12Var) {
         
         // 使用简单的约束：thsirt12 = thsirt11 * 2
         IntVar thsirt11 = (IntVar) thsirt11Var.var;
@@ -151,11 +137,8 @@ public class TShirtConstraint extends ConstraintAlgImpl {
         //     new LinearArgument[] {thsirt11, LinearExpr.constant(2)}, new long[] {1, 2});
         //TODO
     }
-    
-    /**
-     * 设置CP模型
-     */
-    public void setModel(CpModel model) {
-        this.model = model;
+
+    @Override
+    protected void initModelAfter(CpModel model) {
     }
-} 
+}

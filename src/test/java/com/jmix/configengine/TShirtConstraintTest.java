@@ -33,7 +33,7 @@ public class TShirtConstraintTest {
         // 2. 调用TShirtConstraint初始化模型
         System.out.println("=== 步骤2: 初始化TShirtConstraint模型 ===");
         TShirtConstraint constraint = new TShirtConstraint();
-        constraint.initModel(model);        
+        constraint.initModel(model);
         
         // 3. 进行求解
         System.out.println("=== 步骤3: 使用OR-Tools求解器求解 ===");
@@ -194,40 +194,5 @@ public class TShirtConstraintTest {
             default: return "Unknown";
         }
     }
-    
-    @Test
-    public void testVariableInitialization() {
-        // 测试变量初始化 - 不调用initVariables避免OR-Tools本地库问题
-        TShirtConstraint constraint = new TShirtConstraint();
-        CpModel model = new CpModel();
-        constraint.setModel(model);
-        
-        // 手动设置变量代码来测试基本功能
-        constraint.ColorVar.code = "Color";
-        constraint.SizeVar.code = "Size";
-        constraint.thsirt11Var.code = "thsirt11";
-        constraint.thsirt12Var.code = "thsirt12";
-        
-        // 验证变量代码设置
-        assertEquals("ColorVar代码应该是Color", "Color", constraint.ColorVar.code);
-        assertEquals("SizeVar代码应该是Size", "Size", constraint.SizeVar.code);
-        assertEquals("thsirt11Var代码应该是thsirt11", "thsirt11", constraint.thsirt11Var.code);
-        assertEquals("thsirt12Var代码应该是thsirt12", "thsirt12", constraint.thsirt12Var.code);
-    }
-    
-    @Test
-    public void testConstraintMethodsExist() {
-        // 测试约束方法存在
-        TShirtConstraint constraint = new TShirtConstraint();
-        
-        // 验证方法存在（通过反射）
-        try {
-            constraint.getClass().getMethod("addConstrain_rule1", 
-                CpModel.class, ParaVar.class, ParaVar.class);
-            constraint.getClass().getMethod("addConstrain_rule2", 
-                CpModel.class, PartVar.class, PartVar.class);
-        } catch (NoSuchMethodException e) {
-            fail("约束方法应该存在: " + e.getMessage());
-        }
-    }
-} 
+
+}

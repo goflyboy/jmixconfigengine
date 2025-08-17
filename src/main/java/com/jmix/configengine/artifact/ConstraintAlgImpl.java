@@ -11,17 +11,18 @@ public abstract class ConstraintAlgImpl {
     static {
         Loader.loadNativeLibraries();
     }
-    /**
-     * 初始化变量
-     */
-    public abstract void initVariables();
-    
-    /**
-     * 初始化约束
-     */
-    public abstract void initConstraint();
+    // CP模型
+    protected CpModel model; 
 
-    public abstract void initModel(CpModel model);
+    public void initModel(CpModel model){
+        this.model = model;
+        initModelAfter(model);
+        initVariables();
+        initConstraint();
+    }
+    protected abstract void initModelAfter(CpModel model);
+    protected abstract void initVariables();
+    protected abstract void initConstraint();
 
     public static IntVar newIntVarFromDomain(CpModel model, long[] values, String name) {
         return model.newIntVarFromDomain(Domain.fromValues(values), name);
