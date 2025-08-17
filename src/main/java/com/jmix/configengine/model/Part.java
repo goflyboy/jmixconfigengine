@@ -36,6 +36,7 @@ public class Part extends ProgramableObject<Integer> {
     /**
      * 获取默认数量
      */
+    @JsonIgnore
     public Integer getDefaultQuantity() {
         return super.getDefaultValue();
     }

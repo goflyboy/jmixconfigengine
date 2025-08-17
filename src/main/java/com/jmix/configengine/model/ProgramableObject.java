@@ -2,12 +2,21 @@ package com.jmix.configengine.model;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 
 /**
  * 可编程对象基类
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@type")
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = Module.class, name = "Module"),
+    @JsonSubTypes.Type(value = Para.class, name = "Para"),
+    @JsonSubTypes.Type(value = Part.class, name = "Part"),
+    @JsonSubTypes.Type(value = ParaOption.class, name = "ParaOption")
+})
 public class ProgramableObject<T> extends Extensible {
     /**
      * 对象编码

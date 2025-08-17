@@ -3,12 +3,18 @@ package com.jmix.configengine.model;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import com.jmix.configengine.schema.RuleSchema;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 
 /**
  * 规则定义
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@type")
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = Rule.class, name = "Rule")
+})
 public class Rule extends Extensible {
     /**
      * 规则编码

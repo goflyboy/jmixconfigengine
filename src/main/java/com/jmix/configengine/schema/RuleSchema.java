@@ -1,11 +1,19 @@
 package com.jmix.configengine.schema;
 
 import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 
 /**
  * 规则Schema基类
  */
 @Data
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@type")
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = CompatiableRuleSchema.class, name = "CompatiableRule"),
+    @JsonSubTypes.Type(value = CalculateRuleSchema.class, name = "CalculateRule"),
+    @JsonSubTypes.Type(value = SelectRuleSchema.class, name = "SelectRule")
+})
 public abstract class RuleSchema {
     /**
      * Schema类型
