@@ -55,6 +55,71 @@ public class ModuleAlgArtifactGeneratorTest {
     }
     
     @Test
+    public void testBuildRule() throws Exception {
+        // 创建测试模块和ModuleInfo
+        com.jmix.configengine.model.Module module = createTestModule();
+        module.init(); // 初始化映射表
+        ModuleInfo moduleInfo = new ModuleInfo(module);
+        
+        // 测试兼容规则
+        Rule compatiableRule = createCompatiableRule();
+        RuleInfo compatiableRuleInfo = invokeBuildRule(moduleInfo, compatiableRule);
+        
+        Assert.assertNotNull("CompatiableRuleInfo should not be null", compatiableRuleInfo);
+        Assert.assertEquals("Code should match", "rule1", compatiableRuleInfo.getCode());
+        Assert.assertEquals("Name should match", "颜色和尺寸兼容关系规则", compatiableRuleInfo.getName());
+        Assert.assertEquals("NormalNaturalCode should match", "如果颜色选择红色，则尺寸必须选择大号或小号，不能选择中号", compatiableRuleInfo.getNormalNaturalCode());
+        Assert.assertEquals("RuleSchemaTypeFullName should match", "CDSL.V5.Struct.CompatiableRule", compatiableRuleInfo.getRuleSchemaTypeFullName());
+        Assert.assertEquals("LeftTypeName should be ParaVar", "ParaVar", compatiableRuleInfo.getLeftTypeName());
+        Assert.assertEquals("RightTypeName should be ParaVar", "ParaVar", compatiableRuleInfo.getRightTypeName());
+        
+        // 测试计算规则
+        Rule calculateRule = createCalculateRule();
+        RuleInfo calculateRuleInfo = invokeBuildRule(moduleInfo, calculateRule);
+        
+        Assert.assertNotNull("CalculateRuleInfo should not be null", calculateRuleInfo);
+        Assert.assertEquals("Code should match", "rule2", calculateRuleInfo.getCode());
+        Assert.assertEquals("Name should match", "部件数量关系规则", calculateRuleInfo.getName());
+        Assert.assertEquals("NormalNaturalCode should match", "装饰部件TShirt12的数量必须等于主体部件TShirt11数量的2倍", calculateRuleInfo.getNormalNaturalCode());
+        Assert.assertEquals("RuleSchemaTypeFullName should match", "CDSL.V5.Struct.CalculateRule", calculateRuleInfo.getRuleSchemaTypeFullName());
+        Assert.assertEquals("LeftTypeName should be PartVar", "PartVar", calculateRuleInfo.getLeftTypeName());
+        Assert.assertEquals("RightTypeName should be PartVar", "PartVar", calculateRuleInfo.getRightTypeName());
+        
+        // 测试选择规则
+        Rule selectRule = createSelectRule();
+        RuleInfo selectRuleInfo = invokeBuildRule(moduleInfo, selectRule);
+        
+        Assert.assertNotNull("SelectRuleInfo should not be null", selectRuleInfo);
+        Assert.assertEquals("Code should match", "rule3", selectRuleInfo.getCode());
+        Assert.assertEquals("Name should match", "颜色选择规则", selectRuleInfo.getName());
+        Assert.assertEquals("NormalNaturalCode should match", "颜色参数必须且只能选择一个选项", selectRuleInfo.getNormalNaturalCode());
+        Assert.assertEquals("RuleSchemaTypeFullName should match", "CDSL.V5.Struct.SelectRule", selectRuleInfo.getRuleSchemaTypeFullName());
+        Assert.assertEquals("LeftTypeName should be ParaVar", "ParaVar", selectRuleInfo.getLeftTypeName());
+        Assert.assertEquals("RightTypeName should be ParaVar", "ParaVar", selectRuleInfo.getRightTypeName());
+        
+        // 测试无效规则（应该不会抛出异常，而是记录错误日志）
+        Rule invalidRule = createInvalidRule();
+        RuleInfo invalidRuleInfo = invokeBuildRule(moduleInfo, invalidRule);
+        
+        Assert.assertNotNull("InvalidRuleInfo should not be null", invalidRuleInfo);
+        Assert.assertEquals("Code should match", "invalidRule", invalidRuleInfo.getCode());
+        Assert.assertEquals("Name should match", "无效规则", invalidRuleInfo.getName());
+        
+        // 测试未知类型规则
+        Rule unknownRule = createUnknownRuleType();
+        RuleInfo unknownRuleInfo = invokeBuildRule(moduleInfo, unknownRule);
+        
+        Assert.assertNotNull("UnknownRuleInfo should not be null", unknownRuleInfo);
+        Assert.assertEquals("Code should match", "unknownRule", unknownRuleInfo.getCode());
+        Assert.assertEquals("Name should match", "未知类型规则", unknownRuleInfo.getName());
+        // 对于未知类型，左右类型名称应该为null
+        Assert.assertNull("LeftTypeName should be null for unknown type", unknownRuleInfo.getLeftTypeName());
+        Assert.assertNull("RightTypeName should be null for unknown type", unknownRuleInfo.getRightTypeName());
+        
+        System.out.println("BuildRule test passed successfully");
+    }
+    
+    @Test
     public void testDoSelectProObjs() {
         com.jmix.configengine.model.Module module = createTestModule();
         ModuleAlgArtifactGenerator generator = ModuleAlgArtifactGenerator.forModule(module);
@@ -281,6 +346,7 @@ public class ModuleAlgArtifactGeneratorTest {
         rule.setNormalNaturalCode("如果颜色选择红色，则尺寸必须选择大号或小号，不能选择中号");
         rule.setRuleSchemaTypeFullName("CDSL.V5.Struct.CompatiableRule");
         
+        // 构建rawCode - 使用CompatiableRuleSchema对象
         // 构建rawCode - 使用CompatiableRuleSchema对象
         CompatiableRuleSchema rawCode = new CompatiableRuleSchema();
         rawCode.setType("CompatiableRule");
@@ -556,12 +622,12 @@ public class ModuleAlgArtifactGeneratorTest {
     /**
      * 使用反射调用私有方法buildRule
      */
-    private RuleInfo invokeBuildRule(Module module, Rule rule) throws Exception {
+    private RuleInfo invokeBuildRule(ModuleInfo moduleInfo, Rule rule) throws Exception {
         try {
             java.lang.reflect.Method method = ModuleAlgArtifactGenerator.class
-                    .getDeclaredMethod("buildRule", Module.class, Rule.class);
+                    .getDeclaredMethod("buildRule", ModuleInfo.class, Rule.class);
             method.setAccessible(true);
-            return (RuleInfo) method.invoke(generator, module, rule);
+            return (RuleInfo) method.invoke(generator, moduleInfo, rule);
         } catch (Exception e) {
             throw new RuntimeException("Failed to invoke buildRule method", e);
         }
