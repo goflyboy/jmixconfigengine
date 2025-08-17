@@ -1,5 +1,9 @@
 package com.jmix.configengine.artifact;
 
+import java.util.List;
+
+import com.jmix.configengine.model.Extensible;
+
 import lombok.Data;
 
 /**
@@ -36,7 +40,12 @@ public class RuleInfo {
     /**
      * 左变量信息
      */
-    private VarInfo left;
+    private VarInfo<? extends Extensible> left;
+
+    /**
+     * 左对象过滤后的列表-CodeId
+     */
+    private List<String> leftFilterCodes;
     
     /**
      * 右类型名称
@@ -46,5 +55,12 @@ public class RuleInfo {
     /**
      * 右变量信息
      */
-    private VarInfo right;
+    private VarInfo<? extends Extensible> right;
+
+    
+    /**
+     * 左对象过滤后的列表-Code
+     */
+    private List<String> rightFilterCodes;
+    
 } 

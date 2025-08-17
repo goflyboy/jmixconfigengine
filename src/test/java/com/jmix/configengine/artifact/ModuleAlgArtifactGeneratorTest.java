@@ -3,7 +3,6 @@ package com.jmix.configengine.artifact;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jmix.configengine.model.*;
 import com.jmix.configengine.model.Rule;
-import com.jmix.configengine.schema.RuleSchema;
 import com.jmix.configengine.schema.CompatiableRuleSchema;
 import com.jmix.configengine.schema.CalculateRuleSchema;
 import com.jmix.configengine.schema.SelectRuleSchema;
@@ -11,10 +10,6 @@ import com.jmix.configengine.schema.ExprSchema;
 import com.jmix.configengine.schema.RefProgObjSchema;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
-
-import java.util.HashMap;
-import java.util.Map;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Assert;
@@ -58,12 +53,10 @@ public class ModuleAlgArtifactGeneratorTest {
     public void testBuildRule() throws Exception {
         // 创建测试模块和ModuleInfo
         com.jmix.configengine.model.Module module = createTestModule();
-        module.init(); // 初始化映射表
-        ModuleInfo moduleInfo = new ModuleInfo(module);
-        
+        module.init();
         // 测试兼容规则
         Rule compatiableRule = createCompatiableRule();
-        RuleInfo compatiableRuleInfo = invokeBuildRule(moduleInfo, compatiableRule);
+        RuleInfo compatiableRuleInfo = invokeBuildRule(module, compatiableRule);
         
         Assert.assertNotNull("CompatiableRuleInfo should not be null", compatiableRuleInfo);
         Assert.assertEquals("Code should match", "rule1", compatiableRuleInfo.getCode());
@@ -75,7 +68,7 @@ public class ModuleAlgArtifactGeneratorTest {
         
         // 测试计算规则
         Rule calculateRule = createCalculateRule();
-        RuleInfo calculateRuleInfo = invokeBuildRule(moduleInfo, calculateRule);
+        RuleInfo calculateRuleInfo = invokeBuildRule(module, calculateRule);
         
         Assert.assertNotNull("CalculateRuleInfo should not be null", calculateRuleInfo);
         Assert.assertEquals("Code should match", "rule2", calculateRuleInfo.getCode());
@@ -87,7 +80,7 @@ public class ModuleAlgArtifactGeneratorTest {
         
         // 测试选择规则
         Rule selectRule = createSelectRule();
-        RuleInfo selectRuleInfo = invokeBuildRule(moduleInfo, selectRule);
+        RuleInfo selectRuleInfo = invokeBuildRule(module, selectRule);
         
         Assert.assertNotNull("SelectRuleInfo should not be null", selectRuleInfo);
         Assert.assertEquals("Code should match", "rule3", selectRuleInfo.getCode());
@@ -99,7 +92,7 @@ public class ModuleAlgArtifactGeneratorTest {
         
         // 测试无效规则（应该不会抛出异常，而是记录错误日志）
         Rule invalidRule = createInvalidRule();
-        RuleInfo invalidRuleInfo = invokeBuildRule(moduleInfo, invalidRule);
+        RuleInfo invalidRuleInfo = invokeBuildRule(module, invalidRule);
         
         Assert.assertNotNull("InvalidRuleInfo should not be null", invalidRuleInfo);
         Assert.assertEquals("Code should match", "invalidRule", invalidRuleInfo.getCode());
@@ -107,7 +100,7 @@ public class ModuleAlgArtifactGeneratorTest {
         
         // 测试未知类型规则
         Rule unknownRule = createUnknownRuleType();
-        RuleInfo unknownRuleInfo = invokeBuildRule(moduleInfo, unknownRule);
+        RuleInfo unknownRuleInfo = invokeBuildRule(module, unknownRule);
         
         Assert.assertNotNull("UnknownRuleInfo should not be null", unknownRuleInfo);
         Assert.assertEquals("Code should match", "unknownRule", unknownRuleInfo.getCode());
@@ -622,14 +615,11 @@ public class ModuleAlgArtifactGeneratorTest {
     /**
      * 使用反射调用私有方法buildRule
      */
-    private RuleInfo invokeBuildRule(ModuleInfo moduleInfo, Rule rule) throws Exception {
-        try {
-            java.lang.reflect.Method method = ModuleAlgArtifactGenerator.class
-                    .getDeclaredMethod("buildRule", ModuleInfo.class, Rule.class);
-            method.setAccessible(true);
-            return (RuleInfo) method.invoke(generator, moduleInfo, rule);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to invoke buildRule method", e);
-        }
+    private RuleInfo invokeBuildRule(com.jmix.configengine.model.Module module, Rule rule) throws Exception {
+      
+            ModuleAlgArtifactGenerator generator = new ModuleAlgArtifactGenerator();
+            ModuleInfo moduleInfo = generator.buildModuleInfoBase(module);
+            return generator.buildRule(moduleInfo, rule);
+       
     }
 } 

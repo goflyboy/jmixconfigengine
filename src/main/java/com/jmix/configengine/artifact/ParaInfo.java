@@ -3,7 +3,6 @@ package com.jmix.configengine.artifact;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import java.util.List;
-import com.jmix.configengine.model.Extensible;
 
 /**
  * 参数信息

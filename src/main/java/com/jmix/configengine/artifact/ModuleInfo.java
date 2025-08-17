@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
-import com.jmix.configengine.model.Extensible;
 
 /**
  * 模块信息

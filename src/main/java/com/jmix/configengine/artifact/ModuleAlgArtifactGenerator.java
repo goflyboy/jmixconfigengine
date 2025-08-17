@@ -1,13 +1,10 @@
 package com.jmix.configengine.artifact;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jmix.configengine.model.*;
 import com.jmix.configengine.schema.*;
 import com.jmix.configengine.schema.CompatiableRuleSchema;
 import com.jmix.configengine.util.FilterExpressionExecutor;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
-import freemarker.template.TemplateException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
@@ -51,8 +48,6 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 public class ModuleAlgArtifactGenerator {
-    
-    private final ObjectMapper objectMapper = new ObjectMapper();
     private final Configuration freemarkerConfig;
     
     // 当前处理的模块信息
@@ -84,6 +79,21 @@ public class ModuleAlgArtifactGenerator {
      * 构建模块信息
      */
     private ModuleInfo buildModuleInfo(com.jmix.configengine.model.Module module) {
+        ModuleInfo moduleInfo =buildModuleInfoBase(module);
+        
+        // 调用buildRules生成RuleInfos
+        if (module.getRules() != null) {
+            List<RuleInfo> ruleInfos = buildRules(moduleInfo);
+            moduleInfo.setRules(ruleInfos);
+        }
+        
+        return moduleInfo;
+    }
+
+    /**
+     * 构建模块信息
+     */
+    public ModuleInfo buildModuleInfoBase(com.jmix.configengine.model.Module module) {
         ModuleInfo moduleInfo = new ModuleInfo(module);
         moduleInfo.setCode(module.getCode());
         moduleInfo.setVarName(module.getCode() + "Var");
@@ -104,16 +114,8 @@ public class ModuleAlgArtifactGenerator {
                     .collect(Collectors.toList());
             moduleInfo.setParts(partInfos);
         }
-        
-        // 调用buildRules生成RuleInfos
-        if (module.getRules() != null) {
-            List<RuleInfo> ruleInfos = buildRules(moduleInfo);
-            moduleInfo.setRules(ruleInfos);
-        }
-        
         return moduleInfo;
     }
-    
     /**
      * 构建参数信息
      */
@@ -173,7 +175,7 @@ public class ModuleAlgArtifactGenerator {
     /**
      * 构建单个规则
      */
-    private RuleInfo buildRule(ModuleInfo moduleInfo, Rule rule) {
+    public RuleInfo buildRule(ModuleInfo moduleInfo, Rule rule) {
         RuleInfo ruleInfo = new RuleInfo();
         ruleInfo.setCode(rule.getCode());
         ruleInfo.setRuleSchemaTypeFullName(rule.getRuleSchemaTypeFullName());
@@ -209,13 +211,32 @@ public class ModuleAlgArtifactGenerator {
                 // 处理左表达式
                 if (compatiableRule.getLeftExpr() != null) {
                     ruleInfo.setLeftTypeName("ParaVar");
-                    // 简化处理：暂时不调用doSelectProObjs方法
+                    //调用doSelectProObjs方法
+                    Pair<VarInfo<? extends Extensible>, List<String>>
+                        pair = doSelectProObjs(moduleInfo, compatiableRule.getLeftExpr());
+                    if (pair != null) {
+                        ruleInfo.setLeft(pair.getFirst());
+                        ruleInfo.setLeftFilterCodes(pair.getSecond());
+                    }
+                    else {
+                        log.error("Failed to select programming objects for rule: {}", rule.getCode());
+                        throw new RuntimeException("Failed to select programming objects for rule: " + rule.getCode());
+                    }
                 }
                 
                 // 处理右表达式
                 if (compatiableRule.getRightExpr() != null) {
                     ruleInfo.setRightTypeName("ParaVar");
-                    // 简化处理：暂时不调用doSelectProObjs方法
+                    //调用doSelectProObjs方法
+                    Pair<VarInfo<? extends Extensible>, List<String>> pair = doSelectProObjs(moduleInfo, compatiableRule.getRightExpr());
+                    if (pair != null) {
+                        // ruleInfo.setRight(pair.getFirst());
+                        // ruleInfo.setRightObjects(pair.getSecond());
+                    }
+                    else {
+                        log.error("Failed to select programming objects for rule: {}", rule.getCode());
+                        throw new RuntimeException("Failed to select programming objects for rule: " + rule.getCode());
+                    }
                 }
             }
         } catch (Exception e) {
@@ -242,9 +263,9 @@ public class ModuleAlgArtifactGenerator {
     /**
      * 选择编程对象
      */
-    private Pair<Object, List<? extends Extensible>> doSelectProObjs(ModuleInfo moduleInfo, ExprSchema exprSchema) {
+    @SuppressWarnings("rawtypes")
+    private Pair<VarInfo<? extends Extensible>, List<String>> doSelectProObjs(ModuleInfo moduleInfo, ExprSchema exprSchema) {
         // 1. 根据exprSchema的progObjType、progObjCode、progObjField根据待过滤objects
-        
         if (exprSchema.getRefProgObjs() == null || exprSchema.getRefProgObjs().isEmpty()) {
             log.warn("No reference programming objects found in expression schema");
             return null;
@@ -255,7 +276,7 @@ public class ModuleAlgArtifactGenerator {
         String progObjCode = refProgObj.getProgObjCode();
         String progObjField = refProgObj.getProgObjField();
         
-        Object targetObj = null;
+        VarInfo<? extends Extensible> targetObj = null;
         List<? extends Extensible> objects = null;
         String parsedRawCode = exprSchema.getRawCode();
         
@@ -298,8 +319,15 @@ public class ModuleAlgArtifactGenerator {
         // 2. 调用FilterExpressionExecutor.doSelect进行过滤
         // filterObjects = FilterExpressionExecutor.doSelect(objects, parsedRawCode)
         List<? extends Extensible> filterObjects = FilterExpressionExecutor.doSelect(objects, parsedRawCode);
+
+        // 3.根据filterObjects的code，生成filterObjectCodes(每个Extensible对象强制转化为ProgramableObject)
+        List<String> filterObjectCodes = filterObjects.stream()
+                .map(obj -> ((ProgramableObject) obj).getCode())
+                .collect(Collectors.toList());
         
-        return new Pair<>(targetObj, filterObjects);
+        // 4.返回结果
+        Pair<VarInfo<? extends Extensible>, List<String>> result = new Pair<>(targetObj, filterObjectCodes); 
+        return result;
     } 
     
     /**
