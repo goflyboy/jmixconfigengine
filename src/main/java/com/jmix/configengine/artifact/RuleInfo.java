@@ -64,7 +64,7 @@ public class RuleInfo {
     public List<String> rightFilterCodes;
     
     public boolean isCompatibleRule(){
-        return this.ruleSchemaTypeFullName.contains("CompatibleRule");
+        return this.ruleSchemaTypeFullName.contains("CompatiableRule");
     }
 
     public boolean isCalculateRule(){
