@@ -8,6 +8,7 @@ import com.jmix.configengine.schema.CalculateRuleSchema;
 import com.jmix.configengine.schema.SelectRuleSchema;
 import com.jmix.configengine.schema.ExprSchema;
 import com.jmix.configengine.schema.RefProgObjSchema;
+import com.jmix.configengine.constant.RuleTypeConstants;
 import org.junit.Before;
 import org.junit.Test;
 import java.util.ArrayList;
@@ -62,7 +63,7 @@ public class ModuleAlgArtifactGeneratorTest {
         Assert.assertEquals("Code should match", "rule1", compatiableRuleInfo.getCode());
         Assert.assertEquals("Name should match", "颜色和尺寸兼容关系规则", compatiableRuleInfo.getName());
         Assert.assertEquals("NormalNaturalCode should match", "如果颜色选择红色，则尺寸必须选择大号或小号，不能选择中号", compatiableRuleInfo.getNormalNaturalCode());
-        Assert.assertEquals("RuleSchemaTypeFullName should match", "CDSL.V5.Struct.CompatiableRule", compatiableRuleInfo.getRuleSchemaTypeFullName());
+        Assert.assertEquals("RuleSchemaTypeFullName should match", RuleTypeConstants.COMPATIABLE_RULE_FULL_NAME, compatiableRuleInfo.getRuleSchemaTypeFullName());
         Assert.assertEquals("LeftTypeName should be ParaVar", "ParaVar", compatiableRuleInfo.getLeftTypeName());
         Assert.assertEquals("RightTypeName should be ParaVar", "ParaVar", compatiableRuleInfo.getRightTypeName());
         
@@ -337,7 +338,7 @@ public class ModuleAlgArtifactGeneratorTest {
         rule.setCode("rule1");
         rule.setName("颜色和尺寸兼容关系规则");
         rule.setNormalNaturalCode("如果颜色选择红色，则尺寸必须选择大号或小号，不能选择中号");
-        rule.setRuleSchemaTypeFullName("CDSL.V5.Struct.CompatiableRule");
+        rule.setRuleSchemaTypeFullName(RuleTypeConstants.COMPATIABLE_RULE_FULL_NAME);
         
         // 构建rawCode - 使用CompatiableRuleSchema对象
         // 构建rawCode - 使用CompatiableRuleSchema对象
@@ -470,7 +471,7 @@ public class ModuleAlgArtifactGeneratorTest {
         rule.setCode("invalidRule");
         rule.setName("无效规则");
         rule.setNormalNaturalCode("这是一个无效的规则");
-        rule.setRuleSchemaTypeFullName("CDSL.V5.Struct.CompatiableRule");
+        rule.setRuleSchemaTypeFullName(RuleTypeConstants.COMPATIABLE_RULE_FULL_NAME);
         
         // 设置null的rawCode，模拟无效情况
         rule.setRawCode(null);
@@ -599,7 +600,7 @@ public class ModuleAlgArtifactGeneratorTest {
         Rule rule = new Rule();
         rule.setCode("TestRule");
         rule.setName("Test Rule");
-        rule.setRuleSchemaTypeFullName("CDSL.V5.Struct.CompatiableRule");
+        rule.setRuleSchemaTypeFullName(RuleTypeConstants.COMPATIABLE_RULE_FULL_NAME);
         
         CompatiableRuleSchema ruleSchema = new CompatiableRuleSchema();
         ExprSchema leftExpr = new ExprSchema();

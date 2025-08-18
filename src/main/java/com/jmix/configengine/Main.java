@@ -3,6 +3,7 @@ package com.jmix.configengine;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jmix.configengine.artifact.ModuleAlgArtifactGenerator;
 import com.jmix.configengine.model.*;
+import com.jmix.configengine.constant.RuleTypeConstants;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
@@ -123,7 +124,7 @@ public class Main {
         rule1.setProgObjCode("");
         rule1.setProgObjField("");
         rule1.setNormalNaturalCode("如果颜色是红色，则尺寸必须是大号或小号");
-        rule1.setRuleSchemaTypeFullName("CDSL.V5.Struct.CompatiableRule");
+        rule1.setRuleSchemaTypeFullName(RuleTypeConstants.COMPATIABLE_RULE_FULL_NAME);
         // rule1.setRawCode(null); // 暂时不设置，避免类型不匹配问题
         
         Rule rule2 = new Rule();

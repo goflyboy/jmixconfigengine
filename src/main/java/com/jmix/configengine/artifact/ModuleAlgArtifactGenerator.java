@@ -3,6 +3,7 @@ import com.jmix.configengine.model.*;
 import com.jmix.configengine.schema.*;
 import com.jmix.configengine.schema.CompatiableRuleSchema;
 import com.jmix.configengine.util.FilterExpressionExecutor;
+import com.jmix.configengine.constant.RuleTypeConstants;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import lombok.extern.slf4j.Slf4j;
@@ -162,11 +163,11 @@ public class ModuleAlgArtifactGenerator {
         
         // 根据ruleSchemaTypeFullName分函数处理
         try {
-            if (rule.getRuleSchemaTypeFullName().contains("CompatiableRule")) {
+            if (RuleTypeConstants.isCompatiableRule(rule.getRuleSchemaTypeFullName())) {
                 buildCompatiableRule(ruleInfo, moduleInfo, rule);
-            } else if (rule.getRuleSchemaTypeFullName().contains("CalculateRule")) {
+            } else if (RuleTypeConstants.isCalculateRule(rule.getRuleSchemaTypeFullName())) {
                 buildCalculateRule(ruleInfo, moduleInfo, rule);
-            } else if (rule.getRuleSchemaTypeFullName().contains("SelectRule")) {
+            } else if (RuleTypeConstants.isSelectRule(rule.getRuleSchemaTypeFullName())) {
                 buildSelectRule(ruleInfo, moduleInfo, rule);
             }
         } catch (Exception e) {

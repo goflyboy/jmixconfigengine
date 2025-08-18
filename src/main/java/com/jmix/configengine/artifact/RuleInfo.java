@@ -3,6 +3,7 @@ package com.jmix.configengine.artifact;
 import java.util.List;
 
 import com.jmix.configengine.model.Extensible;
+import com.jmix.configengine.constant.RuleTypeConstants;
 
 import lombok.Data;
 
@@ -64,10 +65,10 @@ public class RuleInfo {
     public List<String> rightFilterCodes;
     
     public boolean isCompatibleRule(){
-        return this.ruleSchemaTypeFullName.contains("CompatiableRule");
+        return RuleTypeConstants.isCompatiableRule(this.ruleSchemaTypeFullName);
     }
 
     public boolean isCalculateRule(){
-        return this.ruleSchemaTypeFullName.contains("CalculateRule");
+        return RuleTypeConstants.isCalculateRule(this.ruleSchemaTypeFullName);
     }
 } 
