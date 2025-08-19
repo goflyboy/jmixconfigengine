@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 
 /**
- * 可编程对象基类
+ * 可编程对象基类（兼容命名：ProgramableObject → ProgrammableObject）
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -17,29 +17,29 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
     @JsonSubTypes.Type(value = Part.class, name = "Part"),
     @JsonSubTypes.Type(value = ParaOption.class, name = "ParaOption")
 })
-public class ProgramableObject<T> extends Extensible {
-    /**
-     * 对象编码
-     */
-    private String code;
-    
-    /**
-     * 父对象编码
-     */
-    private String fatherCode;
-    
-    /**
-     * 默认值
-     */
-    private T defaultValue;
-    
-    /**
-     * 描述信息
-     */
-    private String description;
-    
-    /**
-     * 排序号
-     */
-    private Integer sortNo;
+public class ProgrammableObject<T> extends Extensible implements Programmable {
+	/**
+	 * 对象编码
+	 */
+	private String code;
+	
+	/**
+	 * 父对象编码
+	 */
+	private String fatherCode;
+	
+	/**
+	 * 默认值
+	 */
+	private T defaultValue;
+	
+	/**
+	 * 描述信息
+	 */
+	private String description;
+	
+	/**
+	 * 排序号
+	 */
+	private Integer sortNo;
 } 

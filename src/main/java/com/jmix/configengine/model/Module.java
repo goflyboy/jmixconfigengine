@@ -13,7 +13,7 @@ import java.util.ArrayList;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class Module extends ProgramableObject<Integer> {
+public class Module extends ProgrammableObject<Integer> {
 	/**
 	 * 版本信息
 	 */

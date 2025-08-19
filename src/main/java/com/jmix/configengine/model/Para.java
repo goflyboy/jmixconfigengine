@@ -9,7 +9,7 @@ import java.util.List;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class Para extends ProgramableObject<String> {
+public class Para extends ProgrammableObject<String> {
     /**
      * 参数类型
      */

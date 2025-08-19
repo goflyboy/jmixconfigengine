@@ -1,7 +1,8 @@
-package com.jmix.configengine.executor;
+package com.jmix.configengine;
 
 import com.jmix.configengine.model.Module;
 import java.util.List;
+import java.util.Map;
 
 public interface ModuleConstraintExecutor {
 	Result<Void> init(ConstraintConfig config);
@@ -47,7 +48,7 @@ public interface ModuleConstraintExecutor {
 	class PartInst {
 		public String code;
 		public Integer quantity;
-		public java.util.Map<String,String> selectAttrValue;
+		public Map<String,String> selectAttrValue;
 		public boolean isHidden = false;
 	}
 	class ParaInst {

@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class ParaOption extends ProgramableObject<String> {
+public class ParaOption extends ProgrammableObject<String> {
     /**
      * 选项编码ID
      */

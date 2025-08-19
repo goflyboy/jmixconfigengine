@@ -22,7 +22,7 @@ import com.jmix.configengine.util.ModuleUtilsTest;
     // 核心功能测试
     FilterExpressionExecutorTest.class,
     ModuleAlgArtifactGeneratorTest.class,
-    
+    ModuleConstraintExecutorTest.class,
     // 工具类测试
     ModuleUtilsTest.class,
     

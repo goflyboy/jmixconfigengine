@@ -1,10 +1,11 @@
 {
   "@type" : "Module",
   "extSchema" : "TestModuleSchema",
-  "extAttrs" : [ "java.util.HashMap", {
+  "extAttrs" : {
+    "@class" : "java.util.HashMap",
     "testCategory" : "test",
     "testPurpose" : "unitTest"
-  } ],
+  },
   "code" : "TestModule",
   "fatherCode" : null,
   "defaultValue" : 1,
@@ -17,9 +18,10 @@
   "paras" : [ "java.util.Arrays$ArrayList", [ {
     "@type" : "Para",
     "extSchema" : "TestParaSchema",
-    "extAttrs" : [ "java.util.HashMap", {
+    "extAttrs" : {
+      "@class" : "java.util.HashMap",
       "testAttr" : "testValue"
-    } ],
+    },
     "code" : "TestPara",
     "fatherCode" : "TestModule",
     "defaultValue" : "Default",
@@ -29,9 +31,10 @@
     "options" : [ "java.util.Arrays$ArrayList", [ {
       "@type" : "ParaOption",
       "extSchema" : null,
-      "extAttrs" : [ "java.util.HashMap", {
+      "extAttrs" : {
+        "@class" : "java.util.HashMap",
         "optionAttr" : "optionValue"
-      } ],
+      },
       "code" : "TestOption",
       "fatherCode" : "TestPara",
       "defaultValue" : "TestOption",
@@ -45,9 +48,10 @@
   "parts" : [ "java.util.Arrays$ArrayList", [ {
     "@type" : "Part",
     "extSchema" : "TestPartSchema",
-    "extAttrs" : [ "java.util.HashMap", {
+    "extAttrs" : {
+      "@class" : "java.util.HashMap",
       "partAttr" : "partValue"
-    } ],
+    },
     "code" : "TestPart",
     "fatherCode" : "TestModule",
     "defaultValue" : 0,
@@ -55,17 +59,19 @@
     "sortNo" : 1,
     "type" : "ATOMIC",
     "price" : 100,
-    "attrs" : [ "java.util.HashMap", {
+    "attrs" : {
+      "@class" : "java.util.HashMap",
       "partProperty" : "propertyValue"
-    } ],
+    },
     "attrSchemas" : null
   } ] ],
   "rules" : [ "java.util.Arrays$ArrayList", [ {
     "@type" : "Rule",
     "extSchema" : "TestRuleSchema",
-    "extAttrs" : [ "java.util.HashMap", {
+    "extAttrs" : {
+      "@class" : "java.util.HashMap",
       "ruleAttr" : "ruleValue"
-    } ],
+    },
     "code" : "TestRule",
     "name" : "测试规则",
     "progObjType" : "Module",
@@ -99,5 +105,6 @@
       }
     },
     "ruleSchemaTypeFullName" : "CDSL.V5.Struct.TestRule"
-  } ] ]
+  } ] ],
+  "alg" : null
 }

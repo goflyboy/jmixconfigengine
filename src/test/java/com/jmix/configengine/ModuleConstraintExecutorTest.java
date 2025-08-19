@@ -1,7 +1,9 @@
-package com.jmix.configengine.executor;
+package com.jmix.configengine;
 import com.jmix.configengine.util.ModuleUtils;
 import com.jmix.configengine.model.ModuleAlgArtifact;
 import com.jmix.configengine.artifact.*;
+import com.jmix.configengine.executor.ModuleConstraintExecutorImpl;
+
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -37,7 +39,8 @@ public class ModuleConstraintExecutorTest {
 		ModuleConstraintExecutor.InferParasReq req = new ModuleConstraintExecutor.InferParasReq();
 		req.moduleId = 123123L;
 		req.enumerateAllSolution = false;
-		ModuleConstraintExecutor.Result<List<ModuleConstraintExecutor.ModuleInst>> r = exec.inferParas(req);
+		ModuleConstraintExecutor.Result<List<ModuleConstraintExecutor.ModuleInst>> r 
+		= exec.inferParas(req);
 		
 		// 在当前环境下，只要能走到求解并返回，不抛异常即认为打通
 		assertEquals(0, r.code);

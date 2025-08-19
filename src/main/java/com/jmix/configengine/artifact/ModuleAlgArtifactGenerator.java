@@ -299,9 +299,9 @@ public class ModuleAlgArtifactGenerator {
         // filterObjects = FilterExpressionExecutor.doSelect(objects, parsedRawCode)
         List<? extends Extensible> filterObjects = FilterExpressionExecutor.doSelect(objects, parsedRawCode);
 
-        // 3.根据filterObjects的code，生成filterObjectCodes(每个Extensible对象强制转化为ProgramableObject)
+        // 3.根据filterObjects的code，生成filterObjectCodes(每个Extensible对象强制转化为ProgrammableObject)
         List<String> filterObjectCodes = filterObjects.stream()
-                .map(obj -> ((ProgramableObject) obj).getCode())
+                .map(obj -> ((ProgrammableObject) obj).getCode())
                 .collect(Collectors.toList());
         
         // 4.返回结果

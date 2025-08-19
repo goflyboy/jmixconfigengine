@@ -1,5 +1,6 @@
 package com.jmix.configengine.executor;
 
+import com.jmix.configengine.ModuleConstraintExecutor;
 import com.jmix.configengine.artifact.ConstraintAlgImpl;
 import com.jmix.configengine.model.Module;
 import com.jmix.configengine.model.ModuleAlgArtifact;
@@ -38,7 +39,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
 		for (Module m : modules) {
 			if (m == null) continue;
 			moduleMap.put(m.getId(), m);
-			ModuleAlgClassLoader loader = new ModuleAlgClassLoader(config);
+			ModuleAlgClassLoader loader = new ModuleAlgClassLoader(config != null && config.isAttachedDebug, config != null ? config.rootFilePath : null);
 			loader.init(m.getCode(), m.getAlg());
 			moduleAlgClassLoaderMap.put(m.getId(), loader);
 		}
@@ -74,53 +75,11 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
 			CpModel model = new CpModel();
 			alg.initModel(model);
 			CpSolver solver = new CpSolver();
-			// 可根据config设置参数
-			// solver.getParameters().setLogSearchProgress(true);
 			solver.solve(model);
-			// Demo：返回空列表作为占位，后续可解析变量填充
 			return Result.success(Collections.emptyList());
 		} catch (Exception ex) {
 			log.error("Failed to infer paras", ex);
 			return Result.failed("exception: " + ex.getMessage());
-		}
-	}
-	
-	public static class ModuleAlgClassLoader extends ClassLoader {
-		private final ConstraintConfig config;
-		private boolean isAttachedDebug;
-		private String constraintRuleClassName;
-		private final Map<String, Class<?>> classMap = new HashMap<>();
-		private ModuleAlgArtifact algArtifact;
-		
-		public ModuleAlgClassLoader(ConstraintConfig config) {
-			this.config = config;
-		}
-		
-		public void init(String moduleCode, ModuleAlgArtifact algArtifact) {
-			this.algArtifact = algArtifact;
-			this.isAttachedDebug = (config != null && config.isAttachedDebug);
-			if (algArtifact != null) {
-				this.constraintRuleClassName = algArtifact.getPackageName() + "." + moduleCode + "Constraint";
-			}
-		}
-		
-		public ConstraintAlgImpl newConstraintAlg(String moduleCode) throws Exception {
-			String className = this.constraintRuleClassName;
-			Class<?> clazz = classMap.get(className);
-			if (clazz == null) {
-				clazz = loadClass(className);
-				classMap.put(className, clazz);
-			}
-			return (ConstraintAlgImpl) clazz.getDeclaredConstructor().newInstance();
-		}
-		
-		@Override
-		public Class<?> loadClass(String name) {
-			try {
-				return super.loadClass(name);
-			} catch (ClassNotFoundException e) {
-				throw new RuntimeException("Class not found: " + name, e);
-			}
 		}
 	}
 } 

@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class Part extends ProgramableObject<Integer> {
+public class Part extends ProgrammableObject<Integer> {
     /**
      * 部件类型
      */
