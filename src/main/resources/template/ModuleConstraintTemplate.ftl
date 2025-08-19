@@ -23,27 +23,13 @@ public class ${module.code}Constraint extends ConstraintAlgImpl {
         //参数创建
         <#list module.paras as para>
             //参数${para.code}创建
-            this.${para.varName} = new ParaVar();
-            this.${para.varName}.code = "${para.code}";
-            this.${para.varName}.var = newIntVarFromDomain(model, new long[] {${para.optionIdsStr}}, "${para.code}");
-            
-            //为参数可选值创建“是否选择的var"
-            <#list para.options as option>
-            this.${para.varName}.optionSelectVars.put(${option.codeId}, new ParaOptionVar("${option.code}", ${option.codeId}, model.newBoolVar("${para.code}"+"_" + ${option.codeId})));
-            </#list>
-        // 建立属性变量与选项变量之间的关系
-        this.${para.varName}.optionSelectVars.forEach((optionId, optionVar) -> {
-            model.addEquality((IntVar) this.${para.varName}.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar());
-            model.addDifferent((IntVar) this.${para.varName}.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar().not());
-        });
+            this.${para.varName} = createParaVar("${para.code}");
         </#list>
         
         //部件创建
         <#list module.parts as part>
             //部件${part.code}创建
-            this.${part.varName} = new PartVar();
-            this.${part.varName}.code = "${part.code}";
-            this.${part.varName}.var = model.newIntVar(0, 1000, "${part.code}");
+            this.${part.varName} = createPartVar("${part.code}");
         </#list>
     }
 

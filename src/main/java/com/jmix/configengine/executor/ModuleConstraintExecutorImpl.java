@@ -73,7 +73,8 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
 		try {
 			ConstraintAlgImpl alg = loader.newConstraintAlg(module.getCode());
 			CpModel model = new CpModel();
-			alg.initModel(model);
+			module.init();
+			alg.initModel(model, module);
 			CpSolver solver = new CpSolver();
 			solver.solve(model);
 			return Result.success(Collections.emptyList());

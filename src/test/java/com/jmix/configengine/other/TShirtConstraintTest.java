@@ -16,6 +16,16 @@ public class TShirtConstraintTest {
         // 测试创建TShirtConstraint实例
         TShirtConstraint constraint = new TShirtConstraint();
         
+        // 使用真实的TShirt模块初始化
+        com.jmix.configengine.model.Module module;
+        try {
+            module = com.jmix.configengine.util.ModuleUtils.fromJsonFile("src/test/java/com/jmix/configengine/scenario/tshirt/tshirtdata.json");
+        } catch (java.io.IOException e) {
+            throw new RuntimeException(e);
+        }
+        com.google.ortools.sat.CpModel model = new com.google.ortools.sat.CpModel();
+        constraint.initModel(model, module);
+        
         // 验证实例创建成功
         assertNotNull("TShirtConstraint实例应该创建成功", constraint);
         assertNotNull("ColorVar应该初始化", constraint.ColorVar);
@@ -33,7 +43,13 @@ public class TShirtConstraintTest {
         // 2. 调用TShirtConstraint初始化模型
         System.out.println("=== 步骤2: 初始化TShirtConstraint模型 ===");
         TShirtConstraint constraint = new TShirtConstraint();
-        constraint.initModel(model);
+        com.jmix.configengine.model.Module module;
+        try {
+            module = com.jmix.configengine.util.ModuleUtils.fromJsonFile("src/test/java/com/jmix/configengine/scenario/tshirt/tshirtdata.json");
+        } catch (java.io.IOException e) {
+            throw new RuntimeException(e);
+        }
+        constraint.initModel(model, module);
         
         // 3. 进行求解
         System.out.println("=== 步骤3: 使用OR-Tools求解器求解 ===");

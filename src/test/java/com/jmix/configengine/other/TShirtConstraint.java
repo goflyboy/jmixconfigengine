@@ -19,53 +19,10 @@ public class TShirtConstraint extends ConstraintAlgImpl {
     
     @Override
     protected void initVariables() {
-        this.ColorVar = new ParaVar();
-        this.SizeVar = new ParaVar();
-        this.thsirt11Var = new PartVar();
-        this.thsirt12Var = new PartVar();
-
-        // 1. 定义属性变量
-        this.ColorVar.code = "Color"; 
-        this.ColorVar.var = newIntVarFromDomain(model, new long[] {10, 20, 30}, "Color");
-        
-        // 创建颜色选项
-        ParaOptionVar colorOption10 = new ParaOptionVar("Red", 10, model.newBoolVar("Color_" + 10));
-        ParaOptionVar colorOption20 = new ParaOptionVar("Black", 20, model.newBoolVar("Color_" + 20));
-        ParaOptionVar colorOption30 = new ParaOptionVar("White", 30, model.newBoolVar("Color_" + 30));
-        
-        this.ColorVar.optionSelectVars.put(10, colorOption10);
-        this.ColorVar.optionSelectVars.put(20, colorOption20);
-        this.ColorVar.optionSelectVars.put(30, colorOption30);
-        
-        // 建立属性变量与选项变量之间的关系
-        this.ColorVar.optionSelectVars.forEach((optionId, optionVar) -> {
-            model.addEquality((IntVar) this.ColorVar.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar());
-            model.addDifferent((IntVar) this.ColorVar.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar().not());
-        });
-
-        this.SizeVar.code = "Size";
-        this.SizeVar.var = newIntVarFromDomain(model, new long[] {1, 2, 3}, "Size");
-        
-        // 创建尺寸选项
-        ParaOptionVar sizeOption1 = new ParaOptionVar("Big", 1, model.newBoolVar("Size_" + 1));
-        ParaOptionVar sizeOption2 = new ParaOptionVar("Medium", 2, model.newBoolVar("Size_" + 2));
-        ParaOptionVar sizeOption3 = new ParaOptionVar("Small", 3, model.newBoolVar("Size_" + 3));
-        
-        this.SizeVar.optionSelectVars.put(1, sizeOption1);
-        this.SizeVar.optionSelectVars.put(2, sizeOption2);
-        this.SizeVar.optionSelectVars.put(3, sizeOption3);
-        
-        // 建立属性变量与选项变量之间的关系
-        this.SizeVar.optionSelectVars.forEach((optionId, optionVar) -> {
-            model.addEquality((IntVar) this.SizeVar.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar());
-            model.addDifferent((IntVar) this.SizeVar.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar().not());
-        });
-
-        this.thsirt11Var.code = "thsirt11";
-        this.thsirt11Var.var = model.newIntVar(0, 1000, "thsirt11"); // 范围值TODO
-
-        this.thsirt12Var.code = "thsirt12";
-        this.thsirt12Var.var = model.newIntVar(0, 1000, "thsirt12");
+        this.ColorVar = createParaVar("Color");
+        this.SizeVar = createParaVar("Size");
+        this.thsirt11Var = createPartVar("TShirt11");
+        this.thsirt12Var = createPartVar("TShirt12");
     }
     
     @Override
