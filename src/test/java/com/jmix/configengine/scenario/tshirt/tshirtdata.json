@@ -9,6 +9,12 @@
   "sortNo": 1,
   "extSchema": "TShirtModuleSchema",
   "packageName": "com.jmix.configengine.scenario.tshirt",
+  "alg": {
+    "@type": "ModuleAlgArtifact",
+    "id": 123123,
+    "packageName": "com.jmix.configengine.scenario.tshirt",
+    "fileName": "TShirtConstraint.jar"
+  },
   "extAttrs": [ "java.util.HashMap", {
     "category": "clothing",
     "season": "all"

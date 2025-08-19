@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.jmix.configengine.model.Module;
 import lombok.extern.slf4j.Slf4j;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,8 +26,12 @@ public class ModuleUtils {
         objectMapper.enable(SerializationFeature.INDENT_OUTPUT); // 美化输出
         objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS); // 允许空Bean序列化
         
-        // 配置类型信息
-        objectMapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+        // 配置类型信息：使用PROPERTY形式携带@type
+        objectMapper.activateDefaultTyping(
+            objectMapper.getPolymorphicTypeValidator(),
+            ObjectMapper.DefaultTyping.NON_FINAL,
+            JsonTypeInfo.As.PROPERTY
+        );
     }
     
     /**
