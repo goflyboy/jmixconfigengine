@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class ParaOptionInfo extends VarInfo<com.jmix.configengine.model.ParaOption> {
+public class ParaOptionVarInfo extends VarInfo<com.jmix.configengine.model.ParaOption> {
     /**
      * 选项编码ID
      */
@@ -19,14 +19,14 @@ public class ParaOptionInfo extends VarInfo<com.jmix.configengine.model.ParaOpti
      */
     private String code;
     
-    public ParaOptionInfo() {
+    public ParaOptionVarInfo() {
         super(); // 调用VarInfo的默认构造函数
     }
     
     /**
      * 构造函数
      */
-    public ParaOptionInfo(com.jmix.configengine.model.ParaOption option) {
+    public ParaOptionVarInfo(com.jmix.configengine.model.ParaOption option) {
         super(option); // 调用VarInfo的构造函数，传入ParaOption（因为ParaOption继承自Extensible）
     }
 } 

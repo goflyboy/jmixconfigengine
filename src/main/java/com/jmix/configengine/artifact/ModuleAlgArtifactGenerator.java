@@ -30,7 +30,7 @@ public class ModuleAlgArtifactGenerator {
     private final Configuration freemarkerConfig;
     
     // 当前处理的模块信息
-    private ModuleInfo moduleInfo;
+    private ModuleVarInfo moduleInfo;
     
     public ModuleAlgArtifactGenerator() {
         // 初始化FreeMarker配置
@@ -57,8 +57,8 @@ public class ModuleAlgArtifactGenerator {
     /**
      * 构建模块信息
      */
-    private ModuleInfo buildModuleInfo(com.jmix.configengine.model.Module module) {
-        ModuleInfo moduleInfo =buildModuleInfoBase(module);
+    private ModuleVarInfo buildModuleInfo(com.jmix.configengine.model.Module module) {
+        ModuleVarInfo moduleInfo =buildModuleInfoBase(module);
         
         // 调用buildRules生成RuleInfos
         if (module.getRules() != null) {
@@ -72,24 +72,24 @@ public class ModuleAlgArtifactGenerator {
     /**
      * 构建模块信息
      */
-    public ModuleInfo buildModuleInfoBase(com.jmix.configengine.model.Module module) {
-        ModuleInfo moduleInfo = new ModuleInfo(module);
+    public ModuleVarInfo buildModuleInfoBase(com.jmix.configengine.model.Module module) {
+        ModuleVarInfo moduleInfo = new ModuleVarInfo(module);
         moduleInfo.setCode(module.getCode());
         moduleInfo.setVarName(module.getCode() + "Var");
         moduleInfo.setPackageName(module.getPackageName());
         
-        // 根据Para生成ParaInfo
+        // 根据Para生成ParaVarInfo
         if (module.getParas() != null) {
-            List<ParaInfo> paraInfos = module.getParas().stream()
+            List<ParaVarInfo> paraInfos = module.getParas().stream()
                     .map(this::buildParaInfo)
                     .collect(Collectors.toList());
             moduleInfo.setParas(paraInfos);
             
         }
         
-        // 根据Part生成PartInfo
+        // 根据Part生成PartVarInfo
         if (module.getParts() != null) {
-            List<PartInfo> partInfos = module.getParts().stream()
+            List<PartVarInfo> partInfos = module.getParts().stream()
                     .map(this::buildPartInfo)
                     .collect(Collectors.toList());
             moduleInfo.setParts(partInfos);
@@ -99,8 +99,8 @@ public class ModuleAlgArtifactGenerator {
     /**
      * 构建参数信息
      */
-    private ParaInfo buildParaInfo(Para para) {
-        ParaInfo paraInfo = new ParaInfo(para);
+    private ParaVarInfo buildParaInfo(Para para) {
+        ParaVarInfo paraInfo = new ParaVarInfo(para);
         paraInfo.setCode(para.getCode());
         paraInfo.setVarName(para.getCode() + "Var");
         
@@ -109,9 +109,8 @@ public class ModuleAlgArtifactGenerator {
             long[] domain = para.getOptions().stream()
                     .mapToLong(option -> option.getCodeId())
                     .toArray();
-            
-            // 构建ParaOptionInfo
-            List<ParaOptionInfo> optionInfos = para.getOptions().stream()
+            // 构建ParaOptionVarInfo
+            List<ParaOptionVarInfo> optionInfos = para.getOptions().stream()
                     .map(this::buildParaOptionInfo)
                     .collect(Collectors.toList());
             paraInfo.setOptions(optionInfos);
@@ -123,8 +122,8 @@ public class ModuleAlgArtifactGenerator {
     /**
      * 构建参数选项信息
      */
-    private ParaOptionInfo buildParaOptionInfo(ParaOption option) {
-        ParaOptionInfo optionInfo = new ParaOptionInfo(option);
+    private ParaOptionVarInfo buildParaOptionInfo(ParaOption option) {
+        ParaOptionVarInfo optionInfo = new ParaOptionVarInfo(option);
         optionInfo.setCodeId(option.getCodeId());
         optionInfo.setCode(option.getCode());
         optionInfo.setVarName(option.getCode() + "_" + option.getCodeId() + "_selectVar");
@@ -134,8 +133,8 @@ public class ModuleAlgArtifactGenerator {
     /**
      * 构建部件信息
      */
-    private PartInfo buildPartInfo(Part part) {
-        PartInfo partInfo = new PartInfo(part);
+    private PartVarInfo buildPartInfo(Part part) {
+        PartVarInfo partInfo = new PartVarInfo(part);
         partInfo.setCode(part.getCode());
         partInfo.setFatherCode(part.getFatherCode());
         partInfo.setVarName(part.getCode() + "Var");
@@ -145,7 +144,7 @@ public class ModuleAlgArtifactGenerator {
     /**
      * 构建规则列表
      */
-    private List<RuleInfo> buildRules(ModuleInfo moduleInfo) {
+    private List<RuleInfo> buildRules(ModuleVarInfo moduleInfo) {
         return moduleInfo.getBase().getRules().stream()
                 .map(rule -> buildRule(moduleInfo, rule))
                 .collect(Collectors.toList());
@@ -154,7 +153,7 @@ public class ModuleAlgArtifactGenerator {
     /**
      * 构建单个规则
      */
-    public RuleInfo buildRule(ModuleInfo moduleInfo, Rule rule) {
+    public RuleInfo buildRule(ModuleVarInfo moduleInfo, Rule rule) {
         RuleInfo ruleInfo = new RuleInfo();
         ruleInfo.setCode(rule.getCode());
         ruleInfo.setRuleSchemaTypeFullName(rule.getRuleSchemaTypeFullName());
@@ -180,7 +179,7 @@ public class ModuleAlgArtifactGenerator {
     /**
      * 构建兼容规则
      */
-    private void buildCompatiableRule(RuleInfo ruleInfo, ModuleInfo moduleInfo, Rule rule) {
+    private void buildCompatiableRule(RuleInfo ruleInfo, ModuleVarInfo moduleInfo, Rule rule) {
         try {
             // 直接使用RuleSchema对象
             RuleSchema rawCode = rule.getRawCode();
@@ -226,7 +225,7 @@ public class ModuleAlgArtifactGenerator {
     /**
      * 构建计算规则
      */
-    private void buildCalculateRule(RuleInfo ruleInfo, ModuleInfo moduleInfo, Rule rule) {
+    private void buildCalculateRule(RuleInfo ruleInfo, ModuleVarInfo moduleInfo, Rule rule) {
         ruleInfo.setLeftTypeName("PartVar");
         ruleInfo.setRightTypeName("PartVar");
     }
@@ -234,7 +233,7 @@ public class ModuleAlgArtifactGenerator {
     /**
      * 构建选择规则
      */
-    private void buildSelectRule(RuleInfo ruleInfo, ModuleInfo moduleInfo, Rule rule) {
+    private void buildSelectRule(RuleInfo ruleInfo, ModuleVarInfo moduleInfo, Rule rule) {
         ruleInfo.setLeftTypeName("ParaVar");
         ruleInfo.setRightTypeName("ParaVar");
     }
@@ -243,7 +242,7 @@ public class ModuleAlgArtifactGenerator {
      * 选择编程对象
      */
     @SuppressWarnings("rawtypes")
-    private Pair<VarInfo<? extends Extensible>, List<String>> doSelectProObjs(ModuleInfo moduleInfo, ExprSchema exprSchema) {
+    private Pair<VarInfo<? extends Extensible>, List<String>> doSelectProObjs(ModuleVarInfo moduleInfo, ExprSchema exprSchema) {
         // 1. 根据exprSchema的progObjType、progObjCode、progObjField根据待过滤objects
         if (exprSchema.getRefProgObjs() == null || exprSchema.getRefProgObjs().isEmpty()) {
             log.warn("No reference programming objects found in expression schema");
@@ -261,32 +260,22 @@ public class ModuleAlgArtifactGenerator {
         
         // 根据exprSchema.refProgObjs.progObjType = Para
         if ("Para".equals(progObjType)) {
-            // 则根据exprSchema.refProgObjs.progObjCode查询参数的options;
-            // --- targetObj = paraMap.get(exprSchema.refProgObjs.progObjCode)
-            ParaInfo paraInfo = moduleInfo.getPara(progObjCode);
+            ParaVarInfo paraInfo = moduleInfo.getPara(progObjCode);
             if (paraInfo != null) {
                 targetObj = paraInfo;
-                // --- objects = targetObj.getOptions();
                 Para para = moduleInfo.getBase().getPara(progObjCode);
                 if (para != null) {
                     objects = para.getOptions();
                 }
-                // ---parsedRawCode = replaceToOptionCode(exprSchema.rawCode, from=exprSchema.refProgObjs.progObjCode, to="code")
-                // 需要将rawcode中 progObjCode替换为code
                 parsedRawCode = replaceToOptionCode(exprSchema.getRawCode(), progObjCode, "code");
             }
         }
         // 根据exprSchema.refProgObjs.progObjType = Part
         else if ("Part".equals(progObjType)) {
-            // --- 调用本方法的getChildrenParts(fatherCode); // 根据parts来获取
-            // --- targetObj = getPart(code=fatherCode=exprSchema.refProgObjs.progObjCode)
-            PartInfo part = moduleInfo.getPart(progObjCode);
+            PartVarInfo part = moduleInfo.getPart(progObjCode);
             if (part != null) {
                 targetObj = part;
-                // --- objects = getChildrenParts(fatherCode=exprSchema.refProgObjs.progObjCode)
                 objects = moduleInfo.getBase().getChildrenPart(progObjCode);
-                // --- parsedRawCode = parsedRawCode
-                // 保持原始代码不变
             }
         }
         
@@ -296,7 +285,6 @@ public class ModuleAlgArtifactGenerator {
         }
         
         // 2. 调用FilterExpressionExecutor.doSelect进行过滤
-        // filterObjects = FilterExpressionExecutor.doSelect(objects, parsedRawCode)
         List<? extends Extensible> filterObjects = FilterExpressionExecutor.doSelect(objects, parsedRawCode);
 
         // 3.根据filterObjects的code，生成filterObjectCodes(每个Extensible对象强制转化为ProgrammableObject)
@@ -322,7 +310,7 @@ public class ModuleAlgArtifactGenerator {
     /**
      * 生成约束代码
      */
-    private void generateConstraintCode(ModuleInfo moduleInfo, String outputPath) throws Exception {
+    private void generateConstraintCode(ModuleVarInfo moduleInfo, String outputPath) throws Exception {
         // 准备模板数据
         Map<String, Object> templateData = new HashMap<>();
         templateData.put("module", moduleInfo);
@@ -349,7 +337,7 @@ public class ModuleAlgArtifactGenerator {
     /**
      * 获取当前模块信息
      */
-    public ModuleInfo getModuleInfo() {
+    public ModuleVarInfo getModuleInfo() {
         return moduleInfo;
     }
     

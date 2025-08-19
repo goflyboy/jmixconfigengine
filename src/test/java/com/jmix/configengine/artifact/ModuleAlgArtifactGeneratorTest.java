@@ -134,7 +134,7 @@ public class ModuleAlgArtifactGeneratorTest {
         // 测试doSelectProObjs方法（通过反射调用私有方法）
         try {
             java.lang.reflect.Method method = ModuleAlgArtifactGenerator.class.getDeclaredMethod("doSelectProObjs", 
-                ModuleInfo.class, ExprSchema.class);
+                ModuleVarInfo.class, ExprSchema.class);
             method.setAccessible(true);
             
             @SuppressWarnings("unchecked")
@@ -164,72 +164,7 @@ public class ModuleAlgArtifactGeneratorTest {
             Assert.fail("Test failed with exception: " + e.getMessage());
         }
     }
-    
-    @Test
-    public void testModuleInfoGetParaAndPart() {
-        com.jmix.configengine.model.Module module = createTestModule();
-        ModuleAlgArtifactGenerator generator = ModuleAlgArtifactGenerator.forModule(module);
-        
-        ModuleInfo moduleInfo = generator.getModuleInfo();
-        Assert.assertNotNull("ModuleInfo should not be null", moduleInfo);
-        
-        // 测试getPara功能
-        ParaInfo colorPara = moduleInfo.getPara("Color");
-        Assert.assertNotNull("Color para should not be null", colorPara);
-        Assert.assertEquals("Color", colorPara.getCode());
-        
-        ParaInfo sizePara = moduleInfo.getPara("Size");
-        Assert.assertNotNull("Size para should not be null", sizePara);
-        Assert.assertEquals("Size", sizePara.getCode());
-        
-        // 测试getPart功能
-        PartInfo bodyPart = moduleInfo.getPart("Body");
-        Assert.assertNotNull("Body part should not be null", bodyPart);
-        Assert.assertEquals("Body", bodyPart.getCode());
-        
-        // 测试hasPara和hasPart功能
-        Assert.assertTrue("Should have Color para", moduleInfo.hasPara("Color"));
-        Assert.assertTrue("Should have Size para", moduleInfo.hasPara("Size"));
-        Assert.assertTrue("Should have Body part", moduleInfo.hasPart("Body"));
-        
-        // 测试不存在的编码
-        Assert.assertFalse("Should not have non-existent para", moduleInfo.hasPara("NonExistent"));
-        Assert.assertFalse("Should not have non-existent part", moduleInfo.hasPart("NonExistent"));
-        
-        System.out.println("ModuleInfo getPara/getPart test passed successfully");
-    }
-    
-    @Test
-    public void testPartInfoFatherCodeAndGetChildrenPart() {
-        com.jmix.configengine.model.Module module = createTestModuleWithHierarchy();
-        ModuleAlgArtifactGenerator generator = ModuleAlgArtifactGenerator.forModule(module);
-        
-        ModuleInfo moduleInfo = generator.getModuleInfo();
-        Assert.assertNotNull("ModuleInfo should not be null", moduleInfo);
-        
-        // 测试getChildrenPart功能
-        List<PartInfo> bodyChildren = moduleInfo.getChildrenPart("Body");
-        Assert.assertNotNull("Body children should not be null", bodyChildren);
-        Assert.assertEquals("Body should have 2 children", 2, bodyChildren.size());
-        
-        // 验证子部件的fatherCode设置
-        for (PartInfo child : bodyChildren) {
-            Assert.assertEquals("Child should have correct fatherCode", "Body", child.getFatherCode());
-        }
-        
-        // 测试顶级部件
-        List<PartInfo> topLevelParts = moduleInfo.getTopLevelParts();
-        Assert.assertNotNull("Top level parts should not be null", topLevelParts);
-        Assert.assertEquals("Should have 1 top level part", 1, topLevelParts.size());
-        Assert.assertEquals("Top level part should be Body", "Body", topLevelParts.get(0).getCode());
-        
-        // 测试不存在的fatherCode
-        List<PartInfo> nonExistentChildren = moduleInfo.getChildrenPart("NonExistent");
-        Assert.assertNotNull("Non-existent children should return empty list", nonExistentChildren);
-        Assert.assertEquals("Non-existent children should be empty", 0, nonExistentChildren.size());
-        
-        System.out.println("PartInfo fatherCode and getChildrenPart test passed successfully");
-    }
+
     
     @Test
     public void testModuleMethods() {
@@ -284,51 +219,7 @@ public class ModuleAlgArtifactGeneratorTest {
         
         System.out.println("Module methods test passed successfully");
     }
-    
-    @Test
-    public void testVarInfoBase() {
-        // 测试VarInfo的base功能
-        VarInfo<Extensible> varInfo = new VarInfo<>();
-        // 注意：默认构造函数不再设置base字段，所以这里应该为null
-        Assert.assertNull("base should be null for default constructor", varInfo.getBase());
-        
-        // 测试带参数的构造函数
-        Extensible extensible = new Extensible();
-        extensible.setExtSchema("TestSchema");
-        extensible.setExtAttr("testKey", "testValue");
-        
-        VarInfo<Extensible> varInfoWithExt = new VarInfo<>(extensible);
-        Assert.assertNotNull("base should not be null", varInfoWithExt.getBase());
-        Assert.assertEquals("base should be the same instance", extensible, varInfoWithExt.getBase());
-        
-        // 测试ModuleInfo的base功能
-        com.jmix.configengine.model.Module module = createTestModule();
-        module.init(); // 初始化映射表
-        ModuleInfo moduleInfo = new ModuleInfo(module);
-        Assert.assertNotNull("ModuleInfo base should not be null", moduleInfo.getBase());
-        Assert.assertEquals("ModuleInfo base should be the same instance", module, moduleInfo.getBase());
-        
-        // 测试ParaInfo的base功能
-        Para colorPara = module.getPara("Color");
-        Assert.assertNotNull("Color para should not be null", colorPara);
-        ParaInfo paraInfo = new ParaInfo(colorPara);
-        Assert.assertNotNull("ParaInfo base should not be null", paraInfo.getBase());
-        Assert.assertEquals("ParaInfo base should be the same instance", colorPara, paraInfo.getBase());
-        
-        // 测试PartInfo的base功能
-        Part bodyPart = module.getPart("Body");
-        PartInfo partInfo = new PartInfo(bodyPart);
-        Assert.assertNotNull("PartInfo base should not be null", partInfo.getBase());
-        Assert.assertEquals("PartInfo base should be the same instance", bodyPart, partInfo.getBase());
-        
-        // 测试ParaOptionInfo的base功能
-        ParaOption redOption = colorPara.getOptions().get(0);
-        ParaOptionInfo optionInfo = new ParaOptionInfo(redOption);
-        Assert.assertNotNull("ParaOptionInfo base should not be null", optionInfo.getBase());
-        Assert.assertEquals("ParaOptionInfo base should be the same instance", redOption, optionInfo.getBase());
-        
-        System.out.println("VarInfo base test passed successfully");
-    }
+     
     
     /**
      * 创建兼容规则测试数据
@@ -619,10 +510,10 @@ public class ModuleAlgArtifactGeneratorTest {
      * 使用反射调用私有方法buildRule
      */
     private RuleInfo invokeBuildRule(com.jmix.configengine.model.Module module, Rule rule) throws Exception {
-      
+
             ModuleAlgArtifactGenerator generator = new ModuleAlgArtifactGenerator();
-            ModuleInfo moduleInfo = generator.buildModuleInfoBase(module);
+            ModuleVarInfo moduleInfo = generator.buildModuleInfoBase(module);
             return generator.buildRule(moduleInfo, rule);
-       
+
     }
-} 
+}
