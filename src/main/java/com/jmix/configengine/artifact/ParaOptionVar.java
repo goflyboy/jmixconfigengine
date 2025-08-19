@@ -1,11 +1,8 @@
 package com.jmix.configengine.artifact;
 
 import lombok.Data;
-import java.util.HashMap;
-import java.util.Map;
 
 import com.google.ortools.sat.BoolVar;
-import com.google.ortools.sat.IntVar;
 import com.jmix.configengine.model.ParaOption;
 
 /**

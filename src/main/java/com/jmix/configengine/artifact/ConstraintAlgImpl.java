@@ -21,7 +21,7 @@ public abstract class ConstraintAlgImpl {
 	// module context
 	protected Module module;
 	// var map
-	protected Map<String, Var<?>> varMap = new HashMap<>();
+	protected Map<String, Var<?>> varMap = new LinkedHashMap<>();
 
 	public void initModel(CpModel model, Module module){
 		this.model = model;
@@ -48,6 +48,10 @@ public abstract class ConstraintAlgImpl {
 
 	public Map<String, Var<?>> getVarMap() {
 		return varMap;
+	}
+
+	public List<Var<?>> getVars() {
+		return new ArrayList<>(varMap.values());
 	}
 
 	public void registerVar(String code, Var<?> var) {

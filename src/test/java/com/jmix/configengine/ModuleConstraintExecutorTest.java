@@ -38,12 +38,17 @@ public class ModuleConstraintExecutorTest {
 		
 		ModuleConstraintExecutor.InferParasReq req = new ModuleConstraintExecutor.InferParasReq();
 		req.moduleId = 123123L;
-		req.enumerateAllSolution = false;
+		req.enumerateAllSolution = true;
 		ModuleConstraintExecutor.Result<List<ModuleConstraintExecutor.ModuleInst>> r 
 		= exec.inferParas(req);
 		
-		// 在当前环境下，只要能走到求解并返回，不抛异常即认为打通
+		// 枚举所有解，应该至少返回1个
 		assertEquals(0, r.code);
 		assertNotNull(r.data);
+		assertTrue(r.data.size() >= 1);
+		// 解的结构应包含para和part
+		ModuleConstraintExecutor.ModuleInst first = r.data.get(0);
+		assertNotNull(first.paras);
+		assertNotNull(first.parts);
 	}
 } 

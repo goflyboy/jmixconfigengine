@@ -2,11 +2,14 @@ package com.jmix.configengine.executor;
 
 import com.jmix.configengine.ModuleConstraintExecutor;
 import com.jmix.configengine.artifact.ConstraintAlgImpl;
+import com.jmix.configengine.artifact.ParaOptionVar;
+import com.jmix.configengine.artifact.ParaVar;
+import com.jmix.configengine.artifact.PartVar;
+import com.jmix.configengine.artifact.Var;
 import com.jmix.configengine.model.Module;
 import com.jmix.configengine.model.ModuleAlgArtifact;
 import lombok.extern.slf4j.Slf4j;
-import com.google.ortools.sat.CpModel;
-import com.google.ortools.sat.CpSolver;
+import com.google.ortools.sat.*;
 
 import java.util.*;
 
@@ -76,11 +79,66 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
 			module.init();
 			alg.initModel(model, module);
 			CpSolver solver = new CpSolver();
-			solver.solve(model);
-			return Result.success(Collections.emptyList());
+			if (req.enumerateAllSolution) {
+				solver.getParameters().setEnumerateAllSolutions(true);
+			}
+			// 可按需设置更多参数
+			// if (config != null) { solver.getParameters().setLogSearchProgress(true); }
+			ModuleInstSolutionCallBack cb = new ModuleInstSolutionCallBack(alg.getVars());
+			solver.solve(model, cb);
+			return Result.success(cb.getAllSolutions());
 		} catch (Exception ex) {
 			log.error("Failed to infer paras", ex);
 			return Result.failed("exception: " + ex.getMessage());
+		}
+	}
+
+	static class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
+		private final List<Var<?>> vars;
+		private final List<ModuleInst> allSolutions = new ArrayList<>();
+
+		public ModuleInstSolutionCallBack(List<Var<?>> vars) {
+			this.vars = vars != null ? vars : Collections.emptyList();
+		}
+
+		@Override
+		public void onSolutionCallback() {
+			ModuleInst moduleInst = new ModuleInst();
+			List<ParaInst> paraInsts = new ArrayList<>();
+			List<PartInst> partInsts = new ArrayList<>();
+			for (Var<?> v : vars) {
+				if (v instanceof ParaVar) {
+					ParaVar pv = (ParaVar) v;
+					ParaInst pi = new ParaInst();
+					pi.code = pv.getCode();
+					// value: read IntVar domain value
+					int value = (int) value((IntVar) pv.var);
+					pi.value = String.valueOf(value);
+					// options: selected option codes
+					List<String> options = new ArrayList<>();
+					pv.optionSelectVars.forEach((codeId, optionVar) -> {
+						long sel = value(optionVar.getIsSelectedVar());
+						if (sel == 1L) {
+							options.add(optionVar.getCode());
+						}
+					});
+					pi.options = options;
+					paraInsts.add(pi);
+				} else if (v instanceof PartVar) {
+					PartVar partVar = (PartVar) v;
+					PartInst inst = new PartInst();
+					inst.code = partVar.getCode();
+					inst.quantity = (int) value((IntVar) partVar.var);
+					partInsts.add(inst);
+				}
+			}
+			moduleInst.paras = paraInsts;
+			moduleInst.parts = partInsts;
+			allSolutions.add(moduleInst);
+		}
+
+		public List<ModuleInst> getAllSolutions() {
+			return allSolutions;
 		}
 	}
 } 

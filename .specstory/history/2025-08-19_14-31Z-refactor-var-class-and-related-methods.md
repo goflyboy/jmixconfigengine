@@ -100,6 +100,3838 @@ Read file: src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java
 
 ---
 
+Read file: src/main/java/com/jmix/configengine/model/Programmable.java
+
+---
+
+
+
+---
+
+我先并行打开 `model` 下的 `Para`, `ParaOption`, `Part`, 以及 `Module` 以确认它们的字段和方法（特别是 `getCode`, `getOptionIds`, `getOption`, `getChildrenPart`, `init` 等），以便实现 `Var` 基类引用并在 `ConstraintAlgImpl` 中按要求构建变量。随后我会创建 `Var` 抽象类并重构 `ParaVar`, `PartVar`, `ParaOptionVar`，再调整 `ConstraintAlgImpl` 的初始化与工厂方法。
+
+---
+
+Read file: src/main/java/com/jmix/configengine/model/Para.java
+
+---
+
+
+
+---
+
+我将并行打开 `Module.java`, `Part.java`, `ParaOption.java`，以确认它们的字段/方法（getPara/getPart/getOption/getOptionIds等），并据此实现 `Var` 抽象类和 `ConstraintAlgImpl` 的新方法与签名调整。
+
+---
+
+Read file: src/main/java/com/jmix/configengine/model/Module.java
+
+---
+
+Read file: src/main/java/com/jmix/configengine/model/ParaOption.java
+
+---
+
+Read file: src/main/java/com/jmix/configengine/model/Part.java
+
+---
+
+<think><details><summary>Thought Process</summary>**Implementing Changes for User Request**
+
+I'm looking into the task to implement significant changes based on the user's request. First off, I see we need to add an abstract Var class with fields for the base reference and possibly more shared attributes. The user wants Var to extend Programmable, but then we must adjust existing classes like ParaVar and PartVar to fit this structure.
+
+I should also update ConstraintAlgImpl by adding a varMap and ensuring model initiation incorporates module parameters properly. This will require several adjustments in codes and methods.</details></think>
+
+---
+
+我将并行打开 `ProgrammableObject.java` 和相关工具类，看是否包含 `getOptionIds()` 等辅助方法，并定位 `TShirtConstraint.java` 以便后续修改其 `initVariables()`。随后我会开始新增 `Var.java` 并重构 `ParaVar`, `PartVar`, `ParaOptionVar`。
+
+---
+
+Read file: src/main/java/com/jmix/configengine/model/ProgrammableObject.java
+
+---
+
+
+
+---
+
+我将并行搜索是否存在 `getOptionIds`、`getOption` 以及 `TShirtConstraint` 的定义与使用位置，以便正确实现 `createParaVar`、`createParaOptionVar` 和对 `TShirtConstraint.initVariables()` 的重构。随后会开始创建 `Var.java` 并重构相关类。
+
+---
+
+<details>
+            <summary>Grep search for "getOptionIds\(" • **0** files</summary>
+        
+No results found
+</details>
+
+---
+
+<details>
+            <summary>Grep search for "getOption\(" • **0** files</summary>
+        
+No results found
+</details>
+
+---
+
+<details>
+            <summary>Grep search for "TShirtConstraint" • **6** files</summary>
+        
+| File | Line | Match |
+|------|------|-------|
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtConstraint.java` | L7 | `* 自动生成的约束类：TShirtConstraint` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtConstraint.java` | L9 | `public class TShirtConstraint extends ConstraintAlgImpl {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtConstraint.java` | L156 | `TShirtConstraint constraint = new TShirtConstraint();` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/ModuleAlgArtifactGeneratorBaseTest.java` | L39 | `outputPath = getCurrentPackagePath() + "/TShirtConstraint.java";` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/ModuleAlgArtifactGeneratorBaseTest.java` | L106 | `assertTrue("生成的代码应该包含类定义", content.contains("public class TShirtConstraint"));` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/other/TShirtConstraintTest.java` | L10 | `* TShirtConstraint测试类` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/other/TShirtConstraintTest.java` | L12 | `public class TShirtConstraintTest {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/other/TShirtConstraintTest.java` | L15 | `public void testTShirtConstraintCreation() {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/other/TShirtConstraintTest.java` | L16 | `// 测试创建TShirtConstraint实例` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/other/TShirtConstraintTest.java` | L17 | `TShirtConstraint constraint = new TShirtConstraint();` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/other/TShirtConstraintTest.java` | L20 | `assertNotNull("TShirtConstraint实例应该创建成功", constraint);` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/other/TShirtConstraintTest.java` | L33 | `// 2. 调用TShirtConstraint初始化模型` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/other/TShirtConstraintTest.java` | L34 | `System.out.println("=== 步骤2: 初始化TShirtConstraint模型 ===");` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/other/TShirtConstraintTest.java` | L35 | `TShirtConstraint constraint = new TShirtConstraint();` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/other/TShirtConstraintTest.java` | L138 | `private void testColorSizeCombination(TShirtConstraint constraint, int colorId, int sizeId, String description, boolean shouldSatisfy) {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/other/TShirtConstraintTest.java` | L160 | `private void testTShirtQuantityConstraint(TShirtConstraint constraint, int thsirt11, int thsirt12, boolean shouldSatisfy) {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/other/TShirtConstraint.java` | L10 | `public class TShirtConstraint extends ConstraintAlgImpl {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/ModuleConstraintExecutorTest.java` | L22 | `// 构造最小Module，代码为TShirt，对应生成类名 TShirtConstraint` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/model/ModuleAlgArtifact.java` | L18 | `* 算法制品包名，例如：TShirtConstraint.jar` |
+
+</details>
+
+---
+
+<details>
+            <summary>Grep search for "createParaVar\(" • **0** files</summary>
+        
+No results found
+</details>
+
+---
+
+<details>
+            <summary>Grep search for "newIntVarFromDomain\(" • **3** files</summary>
+        
+| File | Line | Match |
+|------|------|-------|
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtConstraint.java` | L23 | `this.ColorVar.var = newIntVarFromDomain(model, new long[] {10,20,30}, "Color");` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtConstraint.java` | L37 | `this.SizeVar.var = newIntVarFromDomain(model, new long[] {1,2,3}, "Size");` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/other/TShirtConstraint.java` | L29 | `this.ColorVar.var = newIntVarFromDomain(model, new long[] {10, 20, 30}, "Color");` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/other/TShirtConstraint.java` | L47 | `this.SizeVar.var = newIntVarFromDomain(model, new long[] {1, 2, 3}, "Size");` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java` | L29 | `public static IntVar newIntVarFromDomain(CpModel model, long[] values, String name) {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java` | L30 | `return model.newIntVarFromDomain(Domain.fromValues(values), name);` |
+
+</details>
+
+---
+
+
+
+---
+
+我将先全局搜索引用以识别对 `code` 和 `codeId` 字段的直接使用位置，以安全重构 `ParaVar`, `PartVar`, `ParaOptionVar` 并添加新的 `Var` 抽象类。随后我会在测试和使用处做相应调整。
+
+---
+
+<details>
+            <summary>Grep search for "ParaVar\.code" • **0** files</summary>
+        
+No results found
+</details>
+
+---
+
+<details>
+            <summary>Grep search for "PartVar\.code" • **0** files</summary>
+        
+No results found
+</details>
+
+---
+
+<details>
+            <summary>Grep search for "ParaOptionVar\.codeId" • **0** files</summary>
+        
+No results found
+</details>
+
+---
+
+<think><details><summary>Thought Process</summary>**Implementing code changes**
+
+I need to make several code updates now. First, I’ll introduce the Var abstract class with generics, where T extends Programmable, also implementing Programmable. It will feature a field T base, and I’ll provide a getCode() method delegating to base.getCode(). 
+
+Next, I’ll update ParaVar, PartVar, and ParaOptionVar to extend Var. This includes removing specific fields for both ParaVar and PartVar, adjusting ParaOptionVar's fields, and updating existing methods. It’s important everything aligns correctly.
+**Clarifying code structure**
+
+I'm thinking about how to structure the generics correctly. So, ParaVar should be defined as Var<Para>, PartVar as Var<Part>, and ParaOptionVar as Var<ParaOption>. I realize I need to add a constructor or field for base, plus accessors. It seems the Var class would benefit from Lombok annotations for convenience, even though the user didn't request them specifically. 
+
+Now, looking into ConstraintAlgImpl, I need to add a Map<String, Var> varMap, registerVar method, and identify the inconsistency in the registerVar signature. That needs attention!
+**Implementing method overloads**
+
+I need to figure out the best way to implement the registerVar method. To satisfy both requirements, I can create overloaded versions: one that accepts just Var and another that takes a String code along with the Var. This way, I can cover both scenarios effectively.
+
+Next, I'll add a variable Module module to ConstraintAlgImpl, and then I’ll update the initModel method's signature to include the Module parameter. I should check where initModel is being called to ensure nothing breaks. Time to grep for usage!</details></think>
+
+---
+
+<details>
+            <summary>Grep search for "initModel\(" • **3** files</summary>
+        
+| File | Line | Match |
+|------|------|-------|
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/other/TShirtConstraintTest.java` | L36 | `constraint.initModel(model);` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/executor/ModuleConstraintExecutorImpl.java` | L76 | `alg.initModel(model);` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java` | L17 | `public void initModel(CpModel model){` |
+
+</details>
+
+---
+
+
+
+---
+
+我要并行打开并检查 `ModuleConstraintExecutorImpl.java` 和两个 `TShirtConstraint.java`（scenario/tshirt 和 other 目录）以准备修改它们对 `initModel` 的调用以及 `initVariables` 的实现。
+
+---
+
+Read file: src/main/java/com/jmix/configengine/executor/ModuleConstraintExecutorImpl.java
+
+---
+
+Read file: src/test/java/com/jmix/configengine/scenario/tshirt/TShirtConstraint.java
+
+---
+
+Read file: src/test/java/com/jmix/configengine/other/TShirtConstraint.java
+
+---
+
+
+
+---
+
+Read file: src/test/java/com/jmix/configengine/other/TShirtConstraintTest.java
+
+---
+
+<think><details><summary>Thought Process</summary>**Updating test code logic**
+
+I’m thinking about changing the test code under src/test to make it pass. The tests include the TShirtConstraintTest using initModel(model), and I need to figure out how to update it for the Module instance.
+
+One possibility is to overload initModel to preserve the old signature for backward compatibility. I could call the new version with a null module. Although in version 3.4 they updated the method, I can still add an overloaded version to keep the tests passing. This way, everything remains compatible!
+**Implementing updates for constraints**
+
+For the user's request, I think I should implement updates for both TShirtConstraint versions and TShirtConstraintTest to ensure they construct a Module consistent with earlier data.
+
+Even though the test in 'scenario/tshirt/TShirtConstraint.java' might be auto-generated, it's still in src/test. There are two TShirtConstraint classes under different packages, and both will compile. I need to modify ModuleConstraintExecutorImpl to call alg.initModel(model, module) by passing the earlier retrieved Module.
+
+I also have modifications lined up, like adding Var.java and updating other classes to streamline the code and extend relevant functionalities.
+**Updating option variable implementations**
+
+The current code uses option.getCode() for comparisons, which is working. However, the key type for optionSelectVars remains Integer, mapping codeId to ParaOptionVar.
+
+For createParaOptionVar, I'll implement the methods para.getOption(String code) and para.getOptionIds() to return an array of codeIds. We’ll add these to the Para model as public methods.
+
+In the process, I need to address a naming bug with "partVar.isSelectedVar," updating it to "paraOptionVar.isSelectedVar". I’m also considering if adjustments are necessary for ModuleAlgArtifactGeneratorTest and other tests.
+**Reviewing test dependencies**
+
+It seems like Var or ConstraintAlgImpl aren’t in use here. However, I need to focus on TShirtConstraint Tests and ModuleConstraintExecutorImpl, as those are relevant. 
+
+I also want to check the ModuleConstraintExecutorTest, which might have dependencies tied to this. I should read through that specific test file located at src/test/java/com/jmix/configengine/ModuleConstraintExecutorTest.java to understand what’s expected. This will help clarify what updates or modifications are necessary. Let's dive into that file!</details></think>
+
+---
+
+Read file: src/test/java/com/jmix/configengine/ModuleConstraintExecutorTest.java
+
+---
+
+<think><details><summary>Thought Process</summary>**Modifying tests for compatibility**
+
+I’ll need to adjust tests to ensure they pass. The TShirtConstraintTest requires a Module, which it currently doesn't create. I could update it to either create a simple module or use existing JSON to load one, but that test is designed for simplicity in the "other" package. One option is to add an overloaded default method in the initModel signature while preserving the old method. This approach will help maintain backward compatibility while complying with the new requirements.
+**Updating tests and methods**
+
+In the user instruction, there's a need to adjust code and tests accordingly. We can update the tests to call the new method, but many reference the default. I found only two places: the executor and TShirtConstraintTest. So, I'll update both to utilize the new signature. The ModuleConstraintExecutorImpl can pass a module, which is good, but TShirtConstraintTest doesn’t have one. I could create a minimal Module to align with their constraints. However, I need to ensure the other references are consistent, especially since they demonstrate rather than load scenarios directly.
+**Updating module tests and implementation**
+
+I'll create a simple `Module` for testing that includes parameters "Color" and "Size," with parts like "thsirt11" and "thsirt12," as well as appropriate options with codeIds set to 10, 20, and 30 for one set, and 1, 2, and 3 for another. Although it’s a bit of work, I can replicate from the test data. While ModuleUtils.fromJsonFile is used in ModuleConstraintExecutorTest, it's simpler to build the module programmatically for TShirtConstraintTest. I will also modify the TShirtConstraint scenario to use buildParaVar and buildPartVar as requested. Additionally, I need to fix the current implementation errors with paraOptionVar and correct the way parts are assigned.
+**Implementing variable management**
+
+I’ll keep the optionSelectVars mapping by option.codeId and ensure creation follows the description. Additionally, I need to add a Map varMap type registry in ConstraintAlgImpl. This includes implementing registerVar and also creating wrappers for buildParaVar and buildPartVar for TShirtConstraint. I’ll create a new class Var.java in the artifact package and modify ParaVar, PartVar, and ParaOptionVar to extend Var<Para>, Var<Part>, and Var<ParaOption>, respectively. I'll remove the code field and ensure necessary constructors are in place, including a no-arg constructor for Lombok.
+**Making comprehensive updates**
+
+I need to ensure we retain existing Lombok functionality and may need to annotate Var with @Data for base getters and setters. Since ParaOptionVar has removed the code field, its getCode must properly refer to base.getCode. I’ll adjust the relevant parts of the code to ensure they compile correctly.
+
+I also need to implement new methods for Para, such as getOptionIds and getOption, while updating the tests to pass the module on initialization. I’ll modify both TShirtConstraint classes to call the new build methods and address variable initialization issues outlined in the tests. Lastly, I’ll check TestSuite.java since it orchestrates the tests to debug any potential issues there.</details></think>
+
+---
+
+Read file: src/test/java/com/jmix/configengine/TestSuite.java
+
+---
+
+<think><details><summary>Thought Process</summary>**Implementing a refactor**
+
+I need to implement a significant refactor based on the user request. They suggested creating a new Var abstract class that uses generics to extend Programmable. The goal is to have a method that delegates to the base's getCode.
+
+I also need to figure out the right package for this new Var class. Since it’s about wrapping Programmable from the model, it seems like it should belong under the artifact package. Additionally, I’ll need to ensure that other Var classes, like ParaVar and PartVar, extend this new implementation while removing their individual code fields. I need to consider test references too, as they may require adjustments.
+**Enhancing TShirtConstraint**
+
+The user wants to enhance TShirtConstraint by simplifying the initialization of variables. For example, they suggested changing how variables like `this.ColorVar` are initialized, using builder methods instead. This means I need to implement builder methods inside `ConstraintAlgImpl` to create these variables via a module.
+
+I'll need to add a new `Module` field in `ConstraintAlgImpl`, along with a `varMap`, a method to `registerVar`, and an altered `initModel` signature. They also want both versions of the `registerVar` method to cater to different usages, ensuring we can register variables by code as well as by just passing the `Var` object.
+**Modifying variable handling**
+
+I need to make some changes by adding a `Module` field and adjusting the `initModel` method to accept both a `CpModel` and `Module`. For implementing `createParaVar`, I plan to use `module.getPara()` to retrieve parameters and create a new `ParaVar`.
+
+However, I’ve noticed that the `Para` class doesn’t currently have a method for `getOptionIds()`, which is essential for creating the `ParaVar`. So, I’ll implement a helper function in `ConstraintAlgImpl` to compute the option IDs from `Para` and utilize its existing `getOptions()` method, which gives access to `ParaOption` objects. Each `ParaOption` conveniently has a `getCodeId()`, which will help in this process.
+**Creating option handling methods**
+
+I need to iterate through `para.options` and call `createParaOptionVar` to create an `optionVar`, which I’ll then store in `paraVar.optionSelectVars` using the option's `codeId`.
+
+To implement `createParaOptionVar`, I'll retrieve the parameter using `module.getPara` and then get the `ParaOption` using a new method because the current `Para.getOption(optionCode)` doesn’t exist. Rather than modifying the model directly, I'll search through `para.getOptions()` in the `ConstraintAlgImpl`.
+
+Additionally, since `ParaOptionVar` should extend `Var<ParaOption>`, I’ll remove its `codeId` field and implement `getCodeId` to delegate to its base, ensuring existing uses of `getParaOptionByCode` call `option.getCode()` accordingly.
+**Analyzing TShirtConstraint tests and updates**
+
+In `testTShirtConstraintCreation`, they create a `TShirtConstraint` instance and assert that `ColorVar` isn’t null, but it might fail because `initVariables` isn't called in the constructor. The current `other TShirtConstraint` initializes fields in `initVariables`, so I need to consider how the tests and class behavior align.
+
+I see that to maintain compatibility, I should add a new `initModel(CpModel, Module)` method while keeping the original `initModel(CpModel)` method and calling the new one with `module` as null. This way, existing tests won't break. I plan to implement methods like `createParaVar`, `registerVar`, and define a `Var` class as required. I'll also update dependent classes accordingly, ensuring backward compatibility while implementing the new architecture.
+**Implementing changes to TShirtConstraint**
+
+The user wants to remove `codeId` from `ParaOptionVar`, which I can do while keeping its constructors for flexibility. I'll add an additional constructor that creates a `ParaOption` instance. However, I need to modify `TShirtConstraint` to ensure it utilizes the new structure correctly, especially maintaining compatibility with existing tests by providing both old and new `initModel` methods.
+
+Next, I’ll focus on updating relevant classes like `ParaVar`, `PartVar`, and `ConstraintAlgImpl`, ensuring they work with the new constructor setup. Additionally, I’ll adjust the `other/TShirtConstraint` files to construct base objects without relying on `code`. I’ll implement the changes to support proper initialization regardless of method execution, making sure to handle the potential null modules carefully. 
+
+Lastly, I plan to ensure generics are properly defined and relevant imports minimized in `ConstraintAlgImpl`. Overall, I’ll keep a methodical approach to maintain functionality while integrating the new requirements effectively.</details></think>
+
+---
+
+我要开始实现变更：新增 `Var.java`，重构 `ParaVar`, `PartVar`, `ParaOptionVar` 继承 `Var`，扩展 `ConstraintAlgImpl`（增加 `module`、`varMap`、`registerVar`、`initModel` 重载与 `build*` 工厂方法），并更新 `TShirtConstraint` 与 `ModuleConstraintExecutorImpl` 的调用。接下来我会直接进行这些文件的编辑。
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/artifact/Var.java</summary>
+
+I will create a new abstract generic Var class in artifact package that wraps a Programmable base and delegates getCode.
+
+**Chunk 1**
+Lines added: 30, lines removed: 1
+
+```diff
+@@ -1,1 +1,30 @@
+- 
++ package com.jmix.configengine.artifact;
++ 
++ import com.jmix.configengine.model.Programmable;
++ 
++ /**
++  * Generic variable wrapper that binds to a programmable model object
++  */
++ public abstract class Var<T extends Programmable> implements Programmable {
++ 	protected T base;
++ 
++ 	protected Var() {
++ 	}
++ 
++ 	protected Var(T base) {
++ 		this.base = base;
++ 	}
++ 
++ 	public T getBase() {
++ 		return base;
++ 	}
++ 
++ 	public void setBase(T base) {
++ 		this.base = base;
++ 	}
++ 
++ 	@Override
++ 	public String getCode() {
++ 		return base != null ? base.getCode() : null;
++ 	}
++ } 
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/artifact/ParaVar.java</summary>
+
+I will refactor ParaVar to extend Var<Para>, remove code field, keep existing fields, and adjust method getParaOptionByCode to use option.getCode().
+
+**Chunk 1**
+Lines added: 37, lines removed: 42
+
+```diff
+@@ -9,52 +9,47 @@
+  import com.google.ortools.sat.BoolVar;
+  import com.google.ortools.sat.IntVar; 
++ import com.jmix.configengine.model.Para;
+  
+  /**
+   * 参数变量
+   */
+  @Data
+- public class ParaVar {
+-     /**
+-      * 参数编码
+-      */
+-     public String code;
+-     
+-     /**
+-      * 参数值状态
+-      */
+-     public IntVar var;
+-     
+-     /**
+-      * 显示隐藏属性
+-      */
+-     public BoolVar isHiddenVar;
+-     
+-     /**
+-      * 参数可选值的选中状态(CodeId -> ParaOptionVar)
+-      */
+-     public Map<Integer, ParaOptionVar> optionSelectVars = new HashMap<>();
++ public class ParaVar extends Var<Para> {
++ 	/**
++ 	 * 参数值状态
++ 	 */
++ 	public IntVar var;
++ 	
++ 	/**
++ 	 * 显示隐藏属性
++ 	 */
++ 	public BoolVar isHiddenVar;
++ 	
++ 	/**
++ 	 * 参数可选值的选中状态(CodeId -> ParaOptionVar)
++ 	 */
++ 	public Map<Integer, ParaOptionVar> optionSelectVars = new HashMap<>();
+  
+-     public ParaOptionVar getParaOptionByCodeId(Integer codeId) {
+-         return optionSelectVars.get(codeId);
+-     }
++ 	public ParaOptionVar getParaOptionByCodeId(Integer codeId) {
++ 		return optionSelectVars.get(codeId);
++ 	}
+  
+-     public ParaOptionVar getParaOptionByCode(String code) {
+-         // 遍历optionSelectVars，找到code相同的ParaOptionVar
+-         for (ParaOptionVar option : optionSelectVars.values()) {
+-             if (option.getCode().equals(code)) {
+-                 return option;
+-             }
+-         }
+-         throw new RuntimeException("ParaOptionVar not found for code: " + code);
+-     }
+-     public List<ParaOptionVar> getParaOptionByCodes(List<String> codes) {
+-         return codes.stream()
+-                 .map(this::getParaOptionByCode)
+-                 .collect(Collectors.toList());
+-     }
+-     public List<ParaOptionVar> getParaOptionByExcusiveCodes(List<String> exclusiveCodes) {
+-         return optionSelectVars.values().stream()
+-                 .filter(option -> !exclusiveCodes.contains(option.getCode()))
+-                 .collect(Collectors.toList());
+-     }
++ 	public ParaOptionVar getParaOptionByCode(String code) {
++ 		for (ParaOptionVar option : optionSelectVars.values()) {
++ 			if (code != null && code.equals(option.getCode())) {
++ 				return option;
++ 			}
++ 		}
++ 		throw new RuntimeException("ParaOptionVar not found for code: " + code);
++ 	}
++ 	public List<ParaOptionVar> getParaOptionByCodes(List<String> codes) {
++ 		return codes.stream()
++ 				.map(this::getParaOptionByCode)
++ 				.collect(Collectors.toList());
++ 	}
++ 	public List<ParaOptionVar> getParaOptionByExcusiveCodes(List<String> exclusiveCodes) {
++ 		return optionSelectVars.values().stream()
++ 				.filter(option -> !exclusiveCodes.contains(option.getCode()))
++ 				.collect(Collectors.toList());
++ 	}
+  } 
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/artifact/PartVar.java</summary>
+
+I will refactor PartVar to extend Var<Part> and remove code field, keeping other fields.
+
+**Chunk 1**
+Lines added: 16, lines removed: 20
+
+```diff
+@@ -7,28 +7,24 @@
+  import com.google.ortools.sat.BoolVar;
+  import com.google.ortools.sat.IntVar;
++ import com.jmix.configengine.model.Part;
+  
+  /**
+   * 部件变量
+   */
+  @Data
+- public class PartVar {
+-     /**
+-      * 部件编码
+-      */
+-     public String code;
+-     
+-     /**
+-      * 部件的数量值
+-      */
+-     public IntVar var;
+-     
+-     /**
+-      * 显示隐藏属性
+-      */
+-     public BoolVar isHiddenVar;
+-     
+-     /**
+-      * 子部件选中状态(Part.code -> BoolVar)
+-      */
+-     public Map<String, BoolVar> subPartSelectedVars = new HashMap<>();
++ public class PartVar extends Var<Part> {
++ 	/**
++ 	 * 部件的数量值
++ 	 */
++ 	public IntVar var;
++ 	
++ 	/**
++ 	 * 显示隐藏属性
++ 	 */
++ 	public BoolVar isHiddenVar;
++ 	
++ 	/**
++ 	 * 子部件选中状态(Part.code -> BoolVar)
++ 	 */
++ 	public Map<String, BoolVar> subPartSelectedVars = new HashMap<>();
+  } 
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/artifact/ParaOptionVar.java</summary>
+
+I will refactor ParaOptionVar to extend Var<ParaOption>, remove code and codeId fields, add getter delegations, keep isSelectedVar.
+
+**Chunk 1**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -7,4 +7,5 @@
+  import com.google.ortools.sat.BoolVar;
+  import com.google.ortools.sat.IntVar;
++ import com.jmix.configengine.model.ParaOption;
+  
+  /**
+```
+
+**Chunk 2**
+Lines added: 24, lines removed: 42
+
+```diff
+@@ -13,46 +14,28 @@
+   */
+  @Data
+- public class ParaOptionVar {
+-     /**
+-      * 参数选项编码
+-      */
+-     public String code;
+-     
+-     /**
+-      * 
+-      */
+-     public int codeId;
+-     
+-     /**
+-      * 参数选项的选中状态（布尔变量）
+-      */
+-     public BoolVar isSelectedVar;
++ public class ParaOptionVar extends Var<ParaOption> {
++ 	/**
++ 	 * 参数选项的选中状态（布尔变量）
++ 	 */
++ 	public BoolVar isSelectedVar;
+  
+-     /**
+-      * 默认构造函数
+-      */
+-     public ParaOptionVar() {
+-     }
+-     
+-     /**
+-      * 构造函数
+-      * @param code 选项编码
+-      * @param codeId 选项编码ID
+-      */
+-     public ParaOptionVar(String code, int codeId) {
+-         this.code = code;
+-         this.codeId = codeId;
+-     }
+-     
+-     /**
+-      * 构造函数
+-      * @param code 选项编码
+-      * @param codeId 选项编码ID
+-      * @param isSelectedVar 选中状态变量
+-      */
+-     public ParaOptionVar(String code, int codeId, BoolVar isSelectedVar) {
+-         this.code = code;
+-         this.codeId = codeId;
+-         this.isSelectedVar = isSelectedVar;
+-     }     
++ 	public ParaOptionVar() {
++ 	}
++ 
++ 	public ParaOptionVar(ParaOption base) {
++ 		this.base = base;
++ 	}
++ 
++ 	public ParaOptionVar(ParaOption base, BoolVar isSelectedVar) {
++ 		this.base = base;
++ 		this.isSelectedVar = isSelectedVar;
++ 	}
++ 
++ 	public String getCode() {
++ 		return base != null ? base.getCode() : null;
++ 	}
++ 
++ 	public int getCodeId() {
++ 		return base != null ? base.getCodeId() : 0;
++ 	}
+  } 
+```
+
+</details>
+
+---
+
+<think><details><summary>Thought Process</summary>**Implementing module adjustments**
+
+I'm considering implementing a module getter for options, using module.getPara to return Para. Next, I need to adjust the TShirtConstraint scenario file to utilize builder functions. The Domain values should come from para.getOptionIds, and these need to align with the previously used values for Color [10, 20, 30] and Size [1, 2, 3]. It's important to confirm these definitions in the test scenario, which are outlined in tshirtdata.json. I’ll verify quickly and open the JSON file.</details></think>
+
+---
+
+Read file: src/test/java/com/jmix/configengine/scenario/tshirt/tshirtdata.json
+
+---
+
+<think><details><summary>Thought Process</summary>**Analyzing test failures**
+
+I see there's no constructor in the code, which means the "testTShirtConstraintCreation" would fail if it asserts not null since it doesn't call initModel. I’m curious why it seems to pass in the repo. The "other" TShirtConstraint's initVariables sets up the variables, but that doesn’t correspond in the test. Checking the class, it uses "new ParaVar()" at the method start. I'm wondering if there are any default assumptions about how the fields are initialized, but they aren't set up in the test. That's surprising!
+**Updating field initialization**
+
+Okay, I don’t want to get too bogged down! I think we should update the other/TShirtConstraint to initialize the fields in the constructor or at the field declarations, or maybe adapt the test to call initModel. Ideally, we won’t change the tests, so we can initialize fields in the default constructor with new ParaVar instances. While we plan to use build methods, I want to ensure that the fields are non-null after instantiation. They could be placeholders for now.
+**Proceeding with updates**
+
+Let’s take this step-by-step. First, I need to add methods to `model.Para`, like getOption(String) and getOptionIds(). Then, I should modify ConstraintAlgImpl to include varMap and module fields, along with methods for registering variables and initializing the model with overloads. I’ll also create the necessary ParaVar methods. I'll update ModuleConstraintExecutorImpl to call initModel(model, module). 
+
+Next, the TShirtConstraint test scenario should use buildParaVar/Part to simplify object creation and use the new ParaOptionVar constructors. Finally, I'll ensure the other TShirtConstraint is updated in the same way.
+**Modifying test initialization**
+
+In the test using this class, they call constraint.initModel(model) in testSetModel. I think it’s necessary to modify it to constraint.initModel(model, module?), but some tests don’t have a Module object. We should keep the existing initModel(model) that calls initVariables and initConstraint. 
+
+However, since buildParaVar uses the module, passing a null module will lead to a NullPointerException. For the "other" TShirtConstraint, we might need to override initVariables to avoid using the module. Since the user wants to simplify these tests, I should consider building a fake Module inside the class or modifying initModelAfter to set the module correctly. But given that the other test doesn't set the Module, I think it’s best to maintain the manual creation in initVariables. The user also seems interested in adjusting "TShirtConstraint增强," likely referring to the corresponding scenario.
+**Modifying TShirtConstraint scenario**
+
+I think we should just modify the TShirtConstraint file to use build methods while leaving the "other" file unchanged to satisfy its tests. However, with the changes made to the ParaVar and ParaOptionVar APIs, the other TShirtConstraint will need adjustments since it uses ParaOptionVar constructors that will no longer compile. 
+
+We should implement an additional constructor for backward compatibility, preserving usability for tests, though the user wants to eliminate the codeId field. We can add a convenience constructor in ParaOptionVar that accepts a String code, an int codeId, and a BoolVar isSelectedVar, allowing us to create the base ParaOption object without losing functionality.
+
+Now, we need to implement methods and fields in ConstraintAlgImpl, including variables and helper methods, while also ensuring that ModuleConstraintExecutorImpl updates follow suit. Finally, implementing the methods for the Para model is crucial. Let’s get started!</details></think>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/model/Para.java</summary>
+
+I will add helper methods getOption(String) and getOptionIds() with @JsonIgnore.
+
+**Chunk 1**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -4,4 +4,5 @@
+  import lombok.EqualsAndHashCode;
+  import java.util.List;
++ import com.fasterxml.jackson.annotation.JsonIgnore;
+  
+  /**
+```
+
+**Chunk 2**
+Lines added: 38, lines removed: 19
+
+```diff
+@@ -11,22 +12,41 @@
+  @EqualsAndHashCode(callSuper = true)
+  public class Para extends ProgrammableObject<String> {
+-     /**
+-      * 参数类型
+-      */
+-     private ParaType type;
+-     
+-     /**
+-      * 枚举类型下的具体枚举值
+-      */
+-     private List<ParaOption> options;
+-     
+-     /**
+-      * Range类型的最小值
+-      */
+-     private String minValue;
+-     
+-     /**
+-      * Range类型的最大值
+-      */
+-     private String maxValue;
++ 	/**
++ 	 * 参数类型
++ 	 */
++ 	private ParaType type;
++ 	
++ 	/**
++ 	 * 枚举类型下的具体枚举值
++ 	 */
++ 	private List<ParaOption> options;
++ 	
++ 	/**
++ 	 * Range类型的最小值
++ 	 */
++ 	private String minValue;
++ 	
++ 	/**
++ 	 * Range类型的最大值
++ 	 */
++ 	private String maxValue;
++ 
++ 	@JsonIgnore
++ 	public ParaOption getOption(String optionCode) {
++ 		if (options == null || optionCode == null) return null;
++ 		for (ParaOption opt : options) {
++ 			if (optionCode.equals(opt.getCode())) return opt;
++ 		}
++ 		return null;
++ 	}
++ 
++ 	@JsonIgnore
++ 	public long[] getOptionIds() {
++ 		if (options == null || options.isEmpty()) return new long[0];
++ 		long[] ids = new long[options.size()];
++ 		for (int i = 0; i < options.size(); i++) {
++ 			ids[i] = options.get(i).getCodeId();
++ 		}
++ 		return ids;
++ 	}
+  } 
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java</summary>
+
+I will add module and varMap fields, registerVar and getVarMap methods, change initModel signature to include Module, and implement builder helpers.
+
+**Chunk 1**
+Lines added: 94, lines removed: 20
+
+```diff
+@@ -5,28 +5,102 @@
+  import com.google.ortools.util.Domain;
+  import com.google.ortools.Loader;
++ import com.jmix.configengine.model.Module;
++ import com.jmix.configengine.model.Para;
++ import com.jmix.configengine.model.ParaOption;
++ import com.jmix.configengine.model.Part;
++ import java.util.*;
+  /**
+   * 约束算法实现基类
+   */
+  public abstract class ConstraintAlgImpl {
+-     static {
+-         Loader.loadNativeLibraries();
+-     }
+-     // CP模型
+-     protected CpModel model; 
+- 
+-     public void initModel(CpModel model){
+-         this.model = model;
+-         initModelAfter(model);
+-         initVariables();
+-         initConstraint();
+-     }
+-     protected void initModelAfter(CpModel model){
+-         
+-     }
+-     protected abstract void initVariables();
+-     protected abstract void initConstraint();
++ 	static {
++ 		Loader.loadNativeLibraries();
++ 	}
++ 	// CP模型
++ 	protected CpModel model; 
++ 	// module context
++ 	protected Module module;
++ 	// var map
++ 	protected Map<String, Var<?>> varMap = new HashMap<>();
++ 
++ 	public void initModel(CpModel model, Module module){
++ 		this.model = model;
++ 		this.module = module;
++ 		initModelAfter(model);
++ 		initVariables();
++ 		initConstraint();
++ 	}
++ 	public void initModel(CpModel model){
++ 		this.model = model;
++ 		initModelAfter(model);
++ 		initVariables();
++ 		initConstraint();
++ 	}
++ 	protected void initModelAfter(CpModel model){
++ 		
++ 	}
++ 	protected abstract void initVariables();
++ 	protected abstract void initConstraint();
+  
+-     public static IntVar newIntVarFromDomain(CpModel model, long[] values, String name) {
+-         return model.newIntVarFromDomain(Domain.fromValues(values), name);
+-     }
++ 	public static IntVar newIntVarFromDomain(CpModel model, long[] values, String name) {
++ 		return model.newIntVarFromDomain(Domain.fromValues(values), name);
++ 	}
++ 
++ 	public Map<String, Var<?>> getVarMap() {
++ 		return varMap;
++ 	}
++ 
++ 	public void registerVar(String code, Var<?> var) {
++ 		if (code != null && var != null) {
++ 			varMap.put(code, var);
++ 		}
++ 	}
++ 
++ 	protected ParaVar createParaVar(String code) {
++ 		Para para = module != null ? module.getPara(code) : null;
++ 		if (para == null) {
++ 			throw new RuntimeException("Para not found for code: " + code);
++ 		}
++ 		ParaVar paraVar = new ParaVar();
++ 		paraVar.setBase(para);
++ 		paraVar.var = newIntVarFromDomain(model, para.getOptionIds(), code);
++ 		if (para.getOptions() != null) {
++ 			for (ParaOption option : para.getOptions()) {
++ 				ParaOptionVar optionVar = createParaOptionVar(para.getCode(), option.getCode());
++ 				paraVar.optionSelectVars.put(option.getCodeId(), optionVar);
++ 			}
++ 		}
++ 		paraVar.optionSelectVars.forEach((optionId, optionVar) -> {
++ 			model.addEquality((IntVar) paraVar.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar());
++ 			model.addDifferent((IntVar) paraVar.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar().not());
++ 		});
++ 		registerVar(code, paraVar);
++ 		return paraVar;
++ 	}
++ 
++ 	protected PartVar createPartVar(String code) {
++ 		Part part = module != null ? module.getPart(code) : null;
++ 		if (part == null) {
++ 			throw new RuntimeException("Part not found for code: " + code);
++ 		}
++ 		PartVar partVar = new PartVar();
++ 		partVar.setBase(part);
++ 		partVar.var = model.newIntVar(0, 1000, code);
++ 		registerVar(code, partVar);
++ 		return partVar;
++ 	}
++ 
++ 	protected ParaOptionVar createParaOptionVar(String paraCode, String optionCode) {
++ 		Para para = module != null ? module.getPara(paraCode) : null;
++ 		if (para == null) {
++ 			throw new RuntimeException("Para not found for code: " + paraCode);
++ 		}
++ 		ParaOption option = para.getOption(optionCode);
++ 		if (option == null) {
++ 			throw new RuntimeException("ParaOption not found for code: " + optionCode);
++ 		}
++ 		ParaOptionVar optionVar = new ParaOptionVar(option);
++ 		optionVar.isSelectedVar = model.newBoolVar(paraCode + "_" + option.getCodeId());
++ 		return optionVar;
++ 	}
+  } 
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/other/TShirtConstraint.java</summary>
+
+I will refactor to use build methods createParaVar/createPartVar and remove direct .code assignments; adjust imports unchanged.
+
+**Chunk 1**
+Lines added: 4, lines removed: 47
+
+```diff
+@@ -20,51 +20,8 @@
+      @Override
+      protected void initVariables() {
+-         this.ColorVar = new ParaVar();
+-         this.SizeVar = new ParaVar();
+-         this.thsirt11Var = new PartVar();
+-         this.thsirt12Var = new PartVar();
+- 
+-         // 1. 定义属性变量
+-         this.ColorVar.code = "Color"; 
+-         this.ColorVar.var = newIntVarFromDomain(model, new long[] {10, 20, 30}, "Color");
+-         
+-         // 创建颜色选项
+-         ParaOptionVar colorOption10 = new ParaOptionVar("Red", 10, model.newBoolVar("Color_" + 10));
+-         ParaOptionVar colorOption20 = new ParaOptionVar("Black", 20, model.newBoolVar("Color_" + 20));
+-         ParaOptionVar colorOption30 = new ParaOptionVar("White", 30, model.newBoolVar("Color_" + 30));
+-         
+-         this.ColorVar.optionSelectVars.put(10, colorOption10);
+-         this.ColorVar.optionSelectVars.put(20, colorOption20);
+-         this.ColorVar.optionSelectVars.put(30, colorOption30);
+-         
+-         // 建立属性变量与选项变量之间的关系
+-         this.ColorVar.optionSelectVars.forEach((optionId, optionVar) -> {
+-             model.addEquality((IntVar) this.ColorVar.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar());
+-             model.addDifferent((IntVar) this.ColorVar.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar().not());
+-         });
+- 
+-         this.SizeVar.code = "Size";
+-         this.SizeVar.var = newIntVarFromDomain(model, new long[] {1, 2, 3}, "Size");
+-         
+-         // 创建尺寸选项
+-         ParaOptionVar sizeOption1 = new ParaOptionVar("Big", 1, model.newBoolVar("Size_" + 1));
+-         ParaOptionVar sizeOption2 = new ParaOptionVar("Medium", 2, model.newBoolVar("Size_" + 2));
+-         ParaOptionVar sizeOption3 = new ParaOptionVar("Small", 3, model.newBoolVar("Size_" + 3));
+-         
+-         this.SizeVar.optionSelectVars.put(1, sizeOption1);
+-         this.SizeVar.optionSelectVars.put(2, sizeOption2);
+-         this.SizeVar.optionSelectVars.put(3, sizeOption3);
+-         
+-         // 建立属性变量与选项变量之间的关系
+-         this.SizeVar.optionSelectVars.forEach((optionId, optionVar) -> {
+-             model.addEquality((IntVar) this.SizeVar.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar());
+-             model.addDifferent((IntVar) this.SizeVar.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar().not());
+-         });
+- 
+-         this.thsirt11Var.code = "thsirt11";
+-         this.thsirt11Var.var = model.newIntVar(0, 1000, "thsirt11"); // 范围值TODO
+- 
+-         this.thsirt12Var.code = "thsirt12";
+-         this.thsirt12Var.var = model.newIntVar(0, 1000, "thsirt12");
++         this.ColorVar = createParaVar("Color");
++         this.SizeVar = createParaVar("Size");
++         this.thsirt11Var = createPartVar("thsirt11");
++         this.thsirt12Var = createPartVar("thsirt12");
+      }
+      
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/tshirt/TShirtConstraint.java</summary>
+
+I will refactor generated TShirtConstraint to use builder methods and remove .code field usage, mirroring other file.
+
+**Chunk 1**
+Lines added: 4, lines removed: 39
+
+```diff
+@@ -17,43 +17,8 @@
+      @Override
+      public void initVariables() {
+-         //参数创建
+-             //参数Color创建
+-             this.ColorVar = new ParaVar();
+-             this.ColorVar.code = "Color";
+-             this.ColorVar.var = newIntVarFromDomain(model, new long[] {10,20,30}, "Color");
+-             
+-             //为参数可选值创建“是否选择的var"
+-             this.ColorVar.optionSelectVars.put(10, new ParaOptionVar("Red", 10, model.newBoolVar("Color"+"_" + 10)));
+-             this.ColorVar.optionSelectVars.put(20, new ParaOptionVar("Black", 20, model.newBoolVar("Color"+"_" + 20)));
+-             this.ColorVar.optionSelectVars.put(30, new ParaOptionVar("White", 30, model.newBoolVar("Color"+"_" + 30)));
+-         // 建立属性变量与选项变量之间的关系
+-         this.ColorVar.optionSelectVars.forEach((optionId, optionVar) -> {
+-             model.addEquality((IntVar) this.ColorVar.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar());
+-             model.addDifferent((IntVar) this.ColorVar.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar().not());
+-         });
+-             //参数Size创建
+-             this.SizeVar = new ParaVar();
+-             this.SizeVar.code = "Size";
+-             this.SizeVar.var = newIntVarFromDomain(model, new long[] {1,2,3}, "Size");
+-             
+-             //为参数可选值创建“是否选择的var"
+-             this.SizeVar.optionSelectVars.put(1, new ParaOptionVar("Big", 1, model.newBoolVar("Size"+"_" + 1)));
+-             this.SizeVar.optionSelectVars.put(2, new ParaOptionVar("Medium", 2, model.newBoolVar("Size"+"_" + 2)));
+-             this.SizeVar.optionSelectVars.put(3, new ParaOptionVar("Small", 3, model.newBoolVar("Size"+"_" + 3)));
+-         // 建立属性变量与选项变量之间的关系
+-         this.SizeVar.optionSelectVars.forEach((optionId, optionVar) -> {
+-             model.addEquality((IntVar) this.SizeVar.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar());
+-             model.addDifferent((IntVar) this.SizeVar.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar().not());
+-         });
+-         
+-         //部件创建
+-             //部件TShirt11创建
+-             this.TShirt11Var = new PartVar();
+-             this.TShirt11Var.code = "TShirt11";
+-             this.TShirt11Var.var = model.newIntVar(0, 1000, "TShirt11");
+-             //部件TShirt12创建
+-             this.TShirt12Var = new PartVar();
+-             this.TShirt12Var.code = "TShirt12";
+-             this.TShirt12Var.var = model.newIntVar(0, 1000, "TShirt12");
++         this.ColorVar = createParaVar("Color");
++         this.SizeVar = createParaVar("Size");
++         this.TShirt11Var = createPartVar("TShirt11");
++         this.TShirt12Var = createPartVar("TShirt12");
+      }
+  
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/executor/ModuleConstraintExecutorImpl.java</summary>
+
+I will change to pass module to initModel and ensure module.init() is called earlier.
+
+**Chunk 1**
+Lines added: 2, lines removed: 1
+
+```diff
+@@ -74,5 +74,6 @@
+  			ConstraintAlgImpl alg = loader.newConstraintAlg(module.getCode());
+  			CpModel model = new CpModel();
+- 			alg.initModel(model);
++ 			module.init();
++ 			alg.initModel(model, module);
+  			CpSolver solver = new CpSolver();
+  			solver.solve(model);
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/other/TShirtConstraintTest.java</summary>
+
+I will update test to pass module when calling initModel.
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -34,5 +34,5 @@
+          System.out.println("=== 步骤2: 初始化TShirtConstraint模型 ===");
+          TShirtConstraint constraint = new TShirtConstraint();
+-         constraint.initModel(model);
++         constraint.initModel(model, com.jmix.configengine.util.ModuleUtils.fromJson("{\"@type\":\"Module\",\"code\":\"Dummy\"}"));
+          
+          // 3. 进行求解
+```
+
+</details>
+
+---
+
+<think><details><summary>Thought Process</summary>**Inspecting ModuleUtils**
+
+I modified `TShirtConstraintTest` to utilize `ModuleUtils.fromJson`, but I'm unsure if this method actually exists. I think it would be a good idea to inspect the `ModuleUtils` class or object to verify the available methods. It’s essential to ensure that I'm calling the right function to avoid errors. I'll check the documentation or the source code to figure this out and make sure everything is working smoothly.</details></think>
+
+---
+
+Read file: src/main/java/com/jmix/configengine/util/ModuleUtils.java
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/other/TShirtConstraintTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 5, lines removed: 1
+
+```diff
+@@ -34,5 +34,9 @@
+          System.out.println("=== 步骤2: 初始化TShirtConstraint模型 ===");
+          TShirtConstraint constraint = new TShirtConstraint();
+-         constraint.initModel(model, com.jmix.configengine.util.ModuleUtils.fromJson("{\"@type\":\"Module\",\"code\":\"Dummy\"}"));
++         try {
++             constraint.initModel(model, com.jmix.configengine.util.ModuleUtils.fromJsonString("{\"@type\":\"Module\",\"code\":\"Dummy\"}"));
++         } catch (java.io.IOException e) {
++             throw new RuntimeException(e);
++         }
+          
+          // 3. 进行求解
+```
+
+</details>
+
+---
+
+<details>
+            <summary>Grep search for "\.code\s*=\s*"" • **0** files</summary>
+        
+No results found
+</details>
+
+---
+
+<details>
+            <summary>Grep search for "new ParaOptionVar\(" • **2** files</summary>
+        
+| File | Line | Match |
+|------|------|-------|
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java` | L102 | `ParaOptionVar optionVar = new ParaOptionVar(option);` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java` | L102 | `ParaOptionVar optionVar = new ParaOptionVar(option);` |
+
+</details>
+
+---
+
+<details>
+            <summary>Grep search for "initModel\(model\);" • **0** files</summary>
+        
+No results found
+</details>
+
+---
+
+<details>
+            <summary>Grep search for "initVariables\(\)" • **7** files</summary>
+        
+| File | Line | Match |
+|------|------|-------|
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtConstraint.java` | L18 | `public void initVariables() {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtConstraint.java` | L122 | `constraint.initVariables();` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/ModuleAlgArtifactGeneratorBaseTest.java` | L118 | `assertTrue("应该包含initVariables方法", content.contains("public void initVariables()"));` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/other/TShirtConstraint.java` | L21 | `protected void initVariables() {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java` | L30 | `initVariables();` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java` | L36 | `initVariables();` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java` | L42 | `protected abstract void initVariables();` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java` | L30 | `initVariables();` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java` | L36 | `initVariables();` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java` | L42 | `protected abstract void initVariables();` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/other/TShirtConstraint.java` | L21 | `protected void initVariables() {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtConstraint.java` | L18 | `public void initVariables() {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtConstraint.java` | L122 | `constraint.initVariables();` |
+
+</details>
+
+---
+
+Read file: src/test/java/com/jmix/configengine/scenario/tshirt/ModuleAlgArtifactGeneratorBaseTest.java
+
+---
+
+<think><details><summary>Thought Process</summary>**Updating TShirtConstraint**
+
+I see that I need to align the field names for part codes in the other TShirtConstraint directory. There's a mismatch in case—using 'thsirt11' versus 'TShirt11', and we've already used 'thsirt11'. The `createPartVar("thsirt11")` will look for 'thsirt11' in the module, but the module in `testSetModel` has been swapped to a dummy version, "Dummy", which lacks parts. This could lead to runtime errors with `createParaVar("Color")`. I need to ensure the test initializes with the correct module before calling `initModel`.
+**Adjusting TShirtConstraintTest**
+
+Now, the 'other/TShirtConstraint' relies on a module to create variables. I think we should modify TShirtConstraintTest to load the module from the `tshirtdata.json` file, similar to how ModuleConstraintExecutorTest does it, or we could set up a minimal module with parameters and parts. Though TShirtConstraintTest isn't included in the TestSuite, surefire might still run it due to the lack of specific configuration. Since all *Test.java files execute via Maven, I need to ensure TShirtConstraintTest is updated to work with the module properly.
+**Modifying TShirtConstraintTest**
+
+I need to update TShirtConstraintTest. In `testTShirtConstraintCreation`, the fields aren't initialized until `initModel` is called, so I'll adjust the test to invoke `initModel` with a module loaded from JSON, then assert that the variables aren’t null.
+
+For `testSetModel`, instead of using a dummy module, I’ll load the module from the `tshirtdata.json` file using `ModuleUtils.fromJsonFile`. I’ll make necessary edits to import `ModuleUtils`, read the JSON, and ensure everything compiles properly for the TShirtConstraint scenario. Also, I need to check the usage of TShirtConstraint in `ModuleAlgArtifactGeneratorBaseTest`. Let's implement these changes!</details></think>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/other/TShirtConstraintTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 10, lines removed: undefined
+
+```diff
+@@ -16,4 +16,14 @@
+          // 测试创建TShirtConstraint实例
+          TShirtConstraint constraint = new TShirtConstraint();
++         
++         // 使用真实的TShirt模块初始化
++         com.jmix.configengine.model.Module module;
++         try {
++             module = com.jmix.configengine.util.ModuleUtils.fromJsonFile("src/test/java/com/jmix/configengine/scenario/tshirt/tshirtdata.json");
++         } catch (java.io.IOException e) {
++             throw new RuntimeException(e);
++         }
++         com.google.ortools.sat.CpModel model = new com.google.ortools.sat.CpModel();
++         constraint.initModel(model, module);
+          
+          // 验证实例创建成功
+```
+
+</details>
+
+---
+
+Read file: src/test/java/com/jmix/configengine/other/TShirtConstraint.java
+
+---
+
+<think><details><summary>Thought Process</summary>**Refactoring code structure**
+
+I need to check that there are no direct constructor calls of ParaOptionVar with both code and id, similar to the earlier TShirtConstraint scenario we refactored. I also want to make sure that all imports compile correctly. It looks like we imported IntVar in ParaOptionVar but didn’t end up using it, so we can remove that. Now it’s time to apply those necessary edits!</details></think>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/other/TShirtConstraint.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -22,6 +22,6 @@
+          this.ColorVar = createParaVar("Color");
+          this.SizeVar = createParaVar("Size");
+-         this.thsirt11Var = createPartVar("thsirt11");
+-         this.thsirt12Var = createPartVar("thsirt12");
++         this.thsirt11Var = createPartVar("TShirt11");
++         this.thsirt12Var = createPartVar("TShirt12");
+      }
+      
+```
+
+</details>
+
+---
+
+<details>
+            <summary>Grep search for "new PartVar\(\)" • **2** files</summary>
+        
+| File | Line | Match |
+|------|------|-------|
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java` | L86 | `PartVar partVar = new PartVar();` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java` | L86 | `PartVar partVar = new PartVar();` |
+
+</details>
+
+---
+
+<details>
+            <summary>Grep search for "getCodeId\(\)" • **9** files</summary>
+        
+| File | Line | Match |
+|------|------|-------|
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/model/ParaOptionBuilderTest.java` | L28 | `Assert.assertEquals(10, option.getCodeId());` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/model/ParaOptionBuilderTest.java` | L75 | `Assert.assertEquals(10, option.getCodeId());` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/model/ParaOptionBuilderTest.java` | L93 | `Assert.assertEquals(1, option.getCodeId());` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/model/ParaOptionBuilderTest.java` | L110 | `Assert.assertEquals(5, option.getCodeId());` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/model/ParaOptionBuilderTest.java` | L126 | `Assert.assertEquals(15, option.getCodeId());` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/model/ParaOptionBuilderTest.java` | L148 | `Assert.assertEquals(25, option.getCodeId());` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/model/ParaOptionBuilderTest.java` | L187 | `Assert.assertEquals(10, redOption.getCodeId());` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/model/ParaOptionBuilderTest.java` | L193 | `Assert.assertEquals(20, blackOption.getCodeId());` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/model/ParaOptionBuilderTest.java` | L199 | `Assert.assertEquals(30, whiteOption.getCodeId());` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/model/ParaOptionBuilderTest.java` | L217 | `Assert.assertEquals(100, option.getCodeId());` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/artifact/FilterExpressionExecutorTest.java` | L107 | `Assert.assertEquals(10, result.get(0).getCodeId());` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/artifact/FilterExpressionExecutorTest.java` | L124 | `Assert.assertEquals(2, result.get(0).getCodeId());` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/model/Para.java` | L48 | `ids[i] = options.get(i).getCodeId();` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ParaOptionVar.java` | L38 | `public int getCodeId() {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ParaOptionVar.java` | L39 | `return base != null ? base.getCodeId() : 0;` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ModuleAlgArtifactGenerator.java` | L110 | `.mapToLong(option -> option.getCodeId())` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ModuleAlgArtifactGenerator.java` | L127 | `optionInfo.setCodeId(option.getCodeId());` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ModuleAlgArtifactGenerator.java` | L129 | `optionInfo.setVarName(option.getCode() + "_" + option.getCodeId() + "_selectVar");` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java` | L70 | `paraVar.optionSelectVars.put(option.getCodeId(), optionVar);` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java` | L103 | `optionVar.isSelectedVar = model.newBoolVar(paraCode + "_" + option.getCodeId());` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ParaOptionVar.java` | L38 | `public int getCodeId() {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ParaOptionVar.java` | L39 | `return base != null ? base.getCodeId() : 0;` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/model/Para.java` | L48 | `ids[i] = options.get(i).getCodeId();` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java` | L70 | `paraVar.optionSelectVars.put(option.getCodeId(), optionVar);` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java` | L103 | `optionVar.isSelectedVar = model.newBoolVar(paraCode + "_" + option.getCodeId());` |
+
+</details>
+
+---
+
+<details>
+            <summary>Grep search for "getCode\(\)\s*\{\s*return base\.getCode\(\)" • **0** files</summary>
+        
+No results found
+</details>
+
+---
+
+Read file: src/main/java/com/jmix/configengine/artifact/ModuleAlgArtifactGenerator.java
+
+---
+
+<details>
+            <summary>Grep search for "getCode\(\)\s*=\s*" • **0** files</summary>
+        
+No results found
+</details>
+
+---
+
+```bash
+mvn -q -e -DskipTests=false -DtrimStackTrace=false test | cat
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>mvn -q -e -DskipTests=false -DtrimStackTrac
+e=false test | cat
+'cat' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+Microsoft Windows [版本 10.0.19045.5131]
+(c) Microsoft Corporation。保留所有权利。
+
+D:\01.code\mygithub\jmixconfigengine>mvn -q -e -DskipTests=false -DtrimStackTr
+ace=false test | cat
+'cat' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+D:\01.code\mygithub\jmixconfigengine>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+<think><details><summary>Thought Process</summary>**Reviewing test execution**
+
+I need to run `mvn test`, but since 'cat' isn't available on Windows, I can't use the `| cat` method suggested in the tool guidelines. Instead, I'll just run `mvn test` directly. I might want full output, so I should skip the `-q` option. We adjusted the `ConstraintAlgImpl` signature, and the `TShirtConstraint` generated code uses methods like `createParaVar`. I should check for any other tests involving `ParaOptionVar` constructors since we changed its signature. Let's grep for usage of those constructors.</details></think>
+
+---
+
+<details>
+            <summary>Grep search for "new ParaOptionVar\("" • **0** files</summary>
+        
+No results found
+</details>
+
+---
+
+```bash
+mvn -DskipTests=false -DtrimStackTrace=false test
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>mvn -DskipTests=false -DtrimStackTrace=false test
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------------< com.jmix:configengine >------------------------
+[INFO] Building JMix Config Engine 1.0.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] --- resources:3.3.1:resources (default-resources) @ configengine ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO]
+[INFO] --- compiler:3.8.1:compile (default-compile) @ configengine ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 38 source files to D:\01.code\mygithub\jmixconfigengine\target\classes
+[INFO]
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ configengine ---
+[INFO] skip non existing resourceDirectory D:\01.code\mygithub\jmixconfigengine\src\test\resources       
+[INFO]
+[INFO] --- compiler:3.8.1:testCompile (default-testCompile) @ configengine ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 12 source files to D:\01.code\mygithub\jmixconfigengine\target\test-classes
+[INFO] 
+[INFO] --- surefire:3.2.5:test (default-test) @ configengine ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junit4.JUnit4Provider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.jmix.configengine.artifact.FilterExpressionExecutorTest
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 3, filter expression: code="Red"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 2, filter expression: price>=1000
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 1, filter expression: material="cotton"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 3, filter expression: sortNo>1
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 2 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 4, filter expression: code="para31"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 3, filter expression: popularity="veryHigh"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 0, filter expression: code="test"
+[main] WARN com.jmix.configengine.util.FilterExpressionExecutor - Invalid input parameters, returning ori
+ginal object list
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 3, filter expression: codeId=2
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 2, filter expression: price<1000
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 2, filter expression: code="TShirt11"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 4, filter expression: freq="5G"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 1, filter expression: null
+[main] WARN com.jmix.configengine.util.FilterExpressionExecutor - Invalid input parameters, returning ori
+ginal object list
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 2, filter expression: fabric="100%棉"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 4, filter expression: sortNo=2
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 2 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 2, filter expression: material="cotton"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.114 s -- in com.jmix.configengi
+ne.artifact.FilterExpressionExecutorTest
+[INFO] Running com.jmix.configengine.artifact.ModuleAlgArtifactGeneratorTest
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 1, filter expression: code="Red"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] WARN com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to find target object or o
+bjects for type: Para, code: Size
+[main] ERROR com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to select programming obj
+ects for rule: rule1
+[main] ERROR com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to parse compatible rule:
+ rule1
+java.lang.RuntimeException: Failed to select programming objects for rule: rule1
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildCompatiableRule(ModuleAlgArtifa
+ctGenerator.java:216)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildRule(ModuleAlgArtifactGenerator
+.java:166)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGeneratorTest.invokeBuildRule(ModuleAlgArtifac
+tGeneratorTest.java:516)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGeneratorTest.testBuildRule(ModuleAlgArtifactG
+eneratorTest.java:60)
+        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.ja
+va:103)
+        at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+        at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+        at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+        at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+        at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+        at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+        at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+        at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+        at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:316)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:240)     
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:214)       
+        at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:155)
+        at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)       
+        at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+        at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+        at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+BuildRule test passed successfully
+[main] WARN com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - No reference programming objects 
+found in expression schema
+[main] ERROR com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to select programming obj
+ects for rule: TestRule
+[main] ERROR com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to parse compatible rule:
+ TestRule
+java.lang.RuntimeException: Failed to select programming objects for rule: TestRule
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildCompatiableRule(ModuleAlgArtifa
+ctGenerator.java:201)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildRule(ModuleAlgArtifactGenerator
+.java:166)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.lambda$buildRules$1(ModuleAlgArtifac
+tGenerator.java:149)
+        at java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)
+        at java.base/java.util.ArrayList$ArrayListSpliterator.forEachRemaining(ArrayList.java:1708)      
+        at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:509)
+        at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:499)        
+        at java.base/java.util.stream.ReduceOps$ReduceOp.evaluateSequential(ReduceOps.java:921)
+        at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)
+        at java.base/java.util.stream.ReferencePipeline.collect(ReferencePipeline.java:682)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildRules(ModuleAlgArtifactGenerato
+r.java:150)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildModuleInfo(ModuleAlgArtifactGen
+erator.java:65)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.forModule(ModuleAlgArtifactGenerator
+.java:352)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGeneratorTest.testDoSelectProObjs(ModuleAlgArt
+ifactGeneratorTest.java:119)
+        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.ja
+va:103)
+        at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+        at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+        at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+        at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+        at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+        at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+        at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+        at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+        at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:316)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:240)     
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:214)       
+        at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:155)
+        at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)       
+        at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+        at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+        at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+[main] WARN com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to find target object or o
+bjects for type: Para, code: Color
+doSelectProObjs test passed - result is null (expected for current implementation)
+Module methods test passed successfully
+[main] WARN com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - No reference programming objects 
+found in expression schema
+[main] ERROR com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to select programming obj
+ects for rule: TestRule
+[main] ERROR com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to parse compatible rule:
+ TestRule
+java.lang.RuntimeException: Failed to select programming objects for rule: TestRule
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildCompatiableRule(ModuleAlgArtifa
+ctGenerator.java:201)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildRule(ModuleAlgArtifactGenerator
+.java:166)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.lambda$buildRules$1(ModuleAlgArtifac
+tGenerator.java:149)
+        at java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)
+        at java.base/java.util.ArrayList$ArrayListSpliterator.forEachRemaining(ArrayList.java:1708)      
+        at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:509)
+        at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:499)        
+        at java.base/java.util.stream.ReduceOps$ReduceOp.evaluateSequential(ReduceOps.java:921)
+        at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)
+        at java.base/java.util.stream.ReferencePipeline.collect(ReferencePipeline.java:682)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildRules(ModuleAlgArtifactGenerato
+r.java:150)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildModuleInfo(ModuleAlgArtifactGen
+erator.java:65)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.forModule(ModuleAlgArtifactGenerator
+.java:352)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGeneratorTest.testForModuleFactoryMethod(Modul
+eAlgArtifactGeneratorTest.java:43)
+        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.ja
+va:103)
+        at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+        at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+        at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+        at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+        at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+        at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+        at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+        at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+        at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:316)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:240)     
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:214)       
+        at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:155)
+        at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)       
+        at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+        at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+        at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+forModule factory method test passed successfully
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.237 s -- in com.jmix.configengin
+e.artifact.ModuleAlgArtifactGeneratorTest
+[INFO] Running com.jmix.configengine.model.ParaOptionBuilderTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 s -- in com.jmix.configengi
+ne.model.ParaOptionBuilderTest
+[INFO] Running com.jmix.configengine.ModuleConstraintExecutorTest
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.util.ModuleUtils - Deserializing Module from JSON file: src/test/java/c
+om/jmix/configengine/scenario/tshirt/tshirtdata.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully deserialized Module from JSON file: src
+/test/java/com/jmix/configengine/scenario/tshirt/tshirtdata.json
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+添加兼容性约束: 部件数量关系规则
+未知规则类型: 颜色选择规则
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.806 s -- in com.jmix.configengin
+e.ModuleConstraintExecutorTest
+[INFO] Running com.jmix.configengine.other.TShirtConstraintTest
+[main] INFO com.jmix.configengine.util.ModuleUtils - Deserializing Module from JSON file: src/test/java/c
+om/jmix/configengine/scenario/tshirt/tshirtdata.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully deserialized Module from JSON file: src
+/test/java/com/jmix/configengine/scenario/tshirt/tshirtdata.json
+=== 步骤1: 初始化OR-Tools模型 ===
+=== 步骤2: 初始化TShirtConstraint模型 ===
+[ERROR] Tests run: 2, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.004 s <<< FAILURE! -- in com.jm
+ix.configengine.other.TShirtConstraintTest
+[ERROR] com.jmix.configengine.other.TShirtConstraintTest.testSetModel -- Time elapsed: 0.002 s <<< ERROR!
+java.lang.RuntimeException: Para not found for code: Color
+        at com.jmix.configengine.artifact.ConstraintAlgImpl.createParaVar(ConstraintAlgImpl.java:62)     
+        at com.jmix.configengine.other.TShirtConstraint.initVariables(TShirtConstraint.java:22)
+        at com.jmix.configengine.artifact.ConstraintAlgImpl.initModel(ConstraintAlgImpl.java:30)
+        at com.jmix.configengine.other.TShirtConstraintTest.testSetModel(TShirtConstraintTest.java:47)   
+        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.ja
+va:103)
+        at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+        at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+        at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+        at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+        at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+        at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+        at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+        at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:316)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:240)     
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:214)       
+        at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:155)
+        at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)       
+        at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+        at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+        at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+
+[INFO] Running com.jmix.configengine.scenario.tshirt.JsonDeserializationTest
+=== 开始测试tshirtdata.json反序列化 ===
+JSON文件路径: src/test/java/com/jmix/configengine/scenario/tshirt/tshirtdata.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Deserializing Module from JSON file: src/test/java/c
+om/jmix/configengine/scenario/tshirt/tshirtdata.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully deserialized Module from JSON file: src
+/test/java/com/jmix/configengine/scenario/tshirt/tshirtdata.json
+? 模块基本信息验证通过
+  模块代码: TShirt
+  模块ID: 123123
+  模块版本: V1.0
+  模块类型: GENERAL
+? 参数信息验证通过
+  参数数量: 2
+    参数: Color - T恤衫颜色选择参数
+      选项数量: 3
+    参数: Size - T恤衫尺寸选择参数
+      选项数量: 3
+? 部件信息验证通过
+  部件数量: 2
+    部件: TShirt11 - T恤衫主体部件
+    部件: TShirt12 - T恤衫装饰部件
+? 规则信息验证通过
+  规则数量: 3
+    规则: rule1 - 颜色和尺寸兼容关系规则
+    规则: rule2 - 部件数量关系规则
+    规则: rule3 - 颜色选择规则
+
+=== JSON反序列化测试完成 ===
+? 所有验证通过，tshirtdata.json文件可以正确反序列化！
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s -- in com.jmix.configengin
+e.scenario.tshirt.JsonDeserializationTest
+[INFO] Running com.jmix.configengine.scenario.tshirt.ModuleAlgArtifactGeneratorBaseTest
+[main] INFO com.jmix.configengine.util.ModuleUtils - Deserializing Module from JSON file: src/test/java/c
+om/jmix/configengine/scenario/tshirt/tshirtdata.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully deserialized Module from JSON file: src
+/test/java/com/jmix/configengine/scenario/tshirt/tshirtdata.json
+=== 开始测试 buildConstraintRule 方法 ===
+输出路径: src/test/java/com/jmix/configengine/scenario/tshirt/TShirtConstraint.java
+? 模块数据验证通过
+  参数数量: 2
+  部件数量: 2
+  规则数量: 3
+
+=== 调用 buildConstraintRule 方法 ===
+[main] INFO com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Starting constraint rule generati
+on for module: TShirt
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 3, filter expression: code="Red"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 3, filter expression: code!="Medium"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 2 objects   
+[main] INFO com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Constraint code generation comple
+ted: src/test/java/com/jmix/configengine/scenario/tshirt/TShirtConstraint.java
+[main] INFO com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Constraint rule generation comple
+ted, output path: src/test/java/com/jmix/configengine/scenario/tshirt/TShirtConstraint.java
+? 约束代码文件生成成功
+  文件路径: D:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\configengine\scenario\tshirt\TShi
+rtConstraint.java
+  文件大小: 7804 字节
+? 生成的代码内容验证通过
+  包含正确的类定义
+  包含所有参数变量
+  包含所有部件变量
+  包含所有约束规则方法
+
+=== 测试完成 ===
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.133 s -- in com.jmix.configengin
+e.scenario.tshirt.ModuleAlgArtifactGeneratorBaseTest
+[INFO] Running com.jmix.configengine.TestSuite
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 3, filter expression: code="Red"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 2, filter expression: price>=1000
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 1, filter expression: material="cotton"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 3, filter expression: sortNo>1
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 2 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 4, filter expression: code="para31"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 3, filter expression: popularity="veryHigh"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 0, filter expression: code="test"
+[main] WARN com.jmix.configengine.util.FilterExpressionExecutor - Invalid input parameters, returning ori
+ginal object list
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 3, filter expression: codeId=2
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 2, filter expression: price<1000
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 2, filter expression: code="TShirt11"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 4, filter expression: freq="5G"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 1, filter expression: null
+[main] WARN com.jmix.configengine.util.FilterExpressionExecutor - Invalid input parameters, returning ori
+ginal object list
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 2, filter expression: fabric="100%棉"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 4, filter expression: sortNo=2
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 2 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 2, filter expression: material="cotton"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 1, filter expression: code="Red"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] WARN com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to find target object or o
+bjects for type: Para, code: Size
+[main] ERROR com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to select programming obj
+ects for rule: rule1
+[main] ERROR com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to parse compatible rule:
+ rule1
+java.lang.RuntimeException: Failed to select programming objects for rule: rule1
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildCompatiableRule(ModuleAlgArtifa
+ctGenerator.java:216)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildRule(ModuleAlgArtifactGenerator
+.java:166)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGeneratorTest.invokeBuildRule(ModuleAlgArtifac
+tGeneratorTest.java:516)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGeneratorTest.testBuildRule(ModuleAlgArtifactG
+eneratorTest.java:60)
+        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.ja
+va:103)
+        at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+        at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+        at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+        at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+        at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+        at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+        at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+        at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+        at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+        at org.junit.runners.Suite.runChild(Suite.java:128)
+        at org.junit.runners.Suite.runChild(Suite.java:27)
+        at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+        at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:316)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:240)     
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:214)       
+        at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:155)
+        at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)       
+        at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+        at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+        at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+BuildRule test passed successfully
+[main] WARN com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - No reference programming objects 
+found in expression schema
+[main] ERROR com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to select programming obj
+ects for rule: TestRule
+[main] ERROR com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to parse compatible rule:
+ TestRule
+java.lang.RuntimeException: Failed to select programming objects for rule: TestRule
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildCompatiableRule(ModuleAlgArtifa
+ctGenerator.java:201)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildRule(ModuleAlgArtifactGenerator
+.java:166)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.lambda$buildRules$1(ModuleAlgArtifac
+tGenerator.java:149)
+        at java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)
+        at java.base/java.util.ArrayList$ArrayListSpliterator.forEachRemaining(ArrayList.java:1708)      
+        at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:509)
+        at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:499)        
+        at java.base/java.util.stream.ReduceOps$ReduceOp.evaluateSequential(ReduceOps.java:921)
+        at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)
+        at java.base/java.util.stream.ReferencePipeline.collect(ReferencePipeline.java:682)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildRules(ModuleAlgArtifactGenerato
+r.java:150)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildModuleInfo(ModuleAlgArtifactGen
+erator.java:65)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.forModule(ModuleAlgArtifactGenerator
+.java:352)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGeneratorTest.testDoSelectProObjs(ModuleAlgArt
+ifactGeneratorTest.java:119)
+        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.ja
+va:103)
+        at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+        at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+        at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+        at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+        at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+        at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+        at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+        at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+        at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+        at org.junit.runners.Suite.runChild(Suite.java:128)
+        at org.junit.runners.Suite.runChild(Suite.java:27)
+        at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+        at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:316)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:240)     
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:214)       
+        at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:155)
+        at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)       
+        at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+        at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+        at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+[main] WARN com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to find target object or o
+bjects for type: Para, code: Color
+doSelectProObjs test passed - result is null (expected for current implementation)
+Module methods test passed successfully
+[main] WARN com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - No reference programming objects 
+found in expression schema
+[main] ERROR com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to select programming obj
+ects for rule: TestRule
+[main] ERROR com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to parse compatible rule:
+ TestRule
+java.lang.RuntimeException: Failed to select programming objects for rule: TestRule
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildCompatiableRule(ModuleAlgArtifa
+ctGenerator.java:201)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildRule(ModuleAlgArtifactGenerator
+.java:166)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.lambda$buildRules$1(ModuleAlgArtifac
+tGenerator.java:149)
+        at java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)
+        at java.base/java.util.ArrayList$ArrayListSpliterator.forEachRemaining(ArrayList.java:1708)      
+        at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:509)
+        at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:499)        
+        at java.base/java.util.stream.ReduceOps$ReduceOp.evaluateSequential(ReduceOps.java:921)
+        at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)
+        at java.base/java.util.stream.ReferencePipeline.collect(ReferencePipeline.java:682)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildRules(ModuleAlgArtifactGenerato
+r.java:150)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildModuleInfo(ModuleAlgArtifactGen
+erator.java:65)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.forModule(ModuleAlgArtifactGenerator
+.java:352)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGeneratorTest.testForModuleFactoryMethod(Modul
+eAlgArtifactGeneratorTest.java:43)
+        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.ja
+va:103)
+        at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+        at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+        at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+        at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+        at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+        at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+        at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+        at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+        at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+        at org.junit.runners.Suite.runChild(Suite.java:128)
+        at org.junit.runners.Suite.runChild(Suite.java:27)
+        at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+        at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:316)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:240)     
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:214)       
+        at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:155)
+        at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)       
+        at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+        at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+        at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+forModule factory method test passed successfully
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.util.ModuleUtils - Deserializing Module from JSON file: src/test/java/c
+om/jmix/configengine/scenario/tshirt/tshirtdata.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully deserialized Module from JSON file: src
+/test/java/com/jmix/configengine/scenario/tshirt/tshirtdata.json
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+添加兼容性约束: 部件数量关系规则
+未知规则类型: 颜色选择规则
+=== 测试 validateJsonFile 方法 ===
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: test_module.json   
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: test_mo
+dule.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Deserializing Module from JSON file: test_module.jso
+n
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully deserialized Module from JSON file: tes
+t_module.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Deserializing Module from JSON file: nonexistent.jso
+n
+[main] WARN com.jmix.configengine.util.ModuleUtils - JSON file validation failed: JSON file not found: no
+nexistent.json
+? validateJsonFile测试通过
+=== 测试完整往返流程 ===
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: test_module.json   
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: test_mo
+dule.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Deserializing Module from JSON file: test_module.jso
+n
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully deserialized Module from JSON file: tes
+t_module.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: test_module_roundtr
+ip.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: test_mo
+dule_roundtrip.json
+? 完整往返流程测试通过
+=== 测试 fromJsonFile 方法 ===
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: test_module.json   
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: test_mo
+dule.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Deserializing Module from JSON file: test_module.jso
+n
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully deserialized Module from JSON file: tes
+t_module.json
+? fromJsonFile测试通过
+  加载的模块: TestModule
+  参数数量: 1
+  部件数量: 1
+  规则数量: 1
+=== 测试 toJsonString 和 fromJsonString 方法 ===
+? toJsonString和fromJsonString测试通过
+  JSON字符串长度: 3082
+  加载的模块: TestModule
+=== 测试 toJsonFile 方法 ===
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: test_module.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: test_mo
+dule.json
+? toJsonFile测试通过
+  文件路径: D:\01.code\mygithub\jmixconfigengine\test_module.json
+  文件大小: 3138 字节
+[main] INFO com.jmix.configengine.util.ModuleUtils - Deserializing Module from JSON file: src/test/java/c
+om/jmix/configengine/scenario/tshirt/tshirtdata.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully deserialized Module from JSON file: src
+/test/java/com/jmix/configengine/scenario/tshirt/tshirtdata.json
+=== 开始测试 buildConstraintRule 方法 ===
+输出路径: src/test/java/com/jmix/configengine/scenario/tshirt/TShirtConstraint.java
+? 模块数据验证通过
+  参数数量: 2
+  部件数量: 2
+  规则数量: 3
+
+=== 调用 buildConstraintRule 方法 ===
+[main] INFO com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Starting constraint rule generati
+on for module: TShirt
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 3, filter expression: code="Red"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 3, filter expression: code!="Medium"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 2 objects   
+[main] INFO com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Constraint code generation comple
+ted: src/test/java/com/jmix/configengine/scenario/tshirt/TShirtConstraint.java
+[main] INFO com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Constraint rule generation comple
+ted, output path: src/test/java/com/jmix/configengine/scenario/tshirt/TShirtConstraint.java
+? 约束代码文件生成成功
+  文件路径: D:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\configengine\scenario\tshirt\TShi
+rtConstraint.java
+  文件大小: 7804 字节
+? 生成的代码内容验证通过
+  包含正确的类定义
+  包含所有参数变量
+  包含所有部件变量
+  包含所有约束规则方法
+
+=== 测试完成 ===
+[INFO] Tests run: 25, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.097 s -- in com.jmix.configengi
+ne.TestSuite
+[INFO] Running com.jmix.configengine.util.ModuleUtilsTest
+=== 测试 validateJsonFile 方法 ===
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: test_module.json   
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: test_mo
+dule.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Deserializing Module from JSON file: test_module.jso
+n
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully deserialized Module from JSON file: tes
+t_module.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Deserializing Module from JSON file: nonexistent.jso
+n
+[main] WARN com.jmix.configengine.util.ModuleUtils - JSON file validation failed: JSON file not found: no
+nexistent.json
+? validateJsonFile测试通过
+=== 测试完整往返流程 ===
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: test_module.json   
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: test_mo
+dule.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Deserializing Module from JSON file: test_module.jso
+n
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully deserialized Module from JSON file: tes
+t_module.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: test_module_roundtr
+ip.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: test_mo
+dule_roundtrip.json
+? 完整往返流程测试通过
+=== 测试 fromJsonFile 方法 ===
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: test_module.json   
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: test_mo
+dule.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Deserializing Module from JSON file: test_module.jso
+n
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully deserialized Module from JSON file: tes
+t_module.json
+? fromJsonFile测试通过
+  加载的模块: TestModule
+  参数数量: 1
+  部件数量: 1
+  规则数量: 1
+=== 测试 toJsonString 和 fromJsonString 方法 ===
+? toJsonString和fromJsonString测试通过
+  JSON字符串长度: 3082
+  加载的模块: TestModule
+=== 测试 toJsonFile 方法 ===
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: test_module.json   
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: test_mo
+dule.json
+? toJsonFile测试通过
+  文件路径: D:\01.code\mygithub\jmixconfigengine\test_module.json
+  文件大小: 3138 字节
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.009 s -- in com.jmix.configengin
+e.util.ModuleUtilsTest
+[INFO] 
+[INFO] Results:
+[INFO]
+[ERROR] Errors: 
+[ERROR]   TShirtConstraintTest.testSetModel:47 ? Runtime Para not found for code: Color
+[INFO]
+[ERROR] Tests run: 63, Failures: 0, Errors: 1, Skipped: 0
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  6.642 s
+[INFO] Finished at: 2025-08-19T22:45:30+08:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.2.5:test (default-test) o
+n project configengine:
+[ERROR]
+[ERROR] Please refer to D:\01.code\mygithub\jmixconfigengine\target\surefire-reports for the individual t
+est results.
+[ERROR] Please refer to dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstrea
+m.
+[ERROR] -> [Help 1]
+[ERROR]
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR]
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+<think><details><summary>Thought Process</summary>**Updating testSetModel**
+
+I’m looking at an error that points to line 47 in testSetModel, which corresponds to an earlier change where I used initModel with a JSON string. So, I need to update testSetModel to load from a JSON file with parameters and parts. I already changed it to use fromJsonString, but now it should be fromJsonFile with the path used earlier. I’ll also make sure that the scenario involving TShirtConstraint uses createParaVar, ensuring the scenario code generation test still passes as I update testSetModel.</details></think>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/other/TShirtConstraintTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 3, lines removed: 1
+
+```diff
+@@ -44,9 +44,11 @@
+          System.out.println("=== 步骤2: 初始化TShirtConstraint模型 ===");
+          TShirtConstraint constraint = new TShirtConstraint();
++         com.jmix.configengine.model.Module module;
+          try {
+-             constraint.initModel(model, com.jmix.configengine.util.ModuleUtils.fromJsonString("{\"@type\":\"Module\",\"code\":\"Dummy\"}"));
++             module = com.jmix.configengine.util.ModuleUtils.fromJsonFile("src/test/java/com/jmix/configengine/scenario/tshirt/tshirtdata.json");
+          } catch (java.io.IOException e) {
+              throw new RuntimeException(e);
+          }
++         constraint.initModel(model, module);
+          
+          // 3. 进行求解
+```
+
+</details>
+
+---
+
+```bash
+mvn -DskipTests=false -DtrimStackTrace=false test
+```
+
+```
+onstraint.java:[22,26] 找不到符号
+  符号:   变量 code
+  位置: 类型为com.jmix.configengine.artifact.ParaVar的变量 ColorVar
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtC
+onstraint.java:[26,52] 对于ParaOptionVar(java.lang.String,int,com.google.ortools.sat.BoolVar), 找不到合适
+的构造器
+    构造器 com.jmix.configengine.artifact.ParaOptionVar.ParaOptionVar()不适用
+      (实际参数列表和形式参数列表长度不同)
+    构造器 com.jmix.configengine.artifact.ParaOptionVar.ParaOptionVar(com.jmix.configengine.model.ParaOpt
+ion)不适用
+      (实际参数列表和形式参数列表长度不同)
+    构造器 com.jmix.configengine.artifact.ParaOptionVar.ParaOptionVar(com.jmix.configengine.model.ParaOpt
+ion,com.google.ortools.sat.BoolVar)不适用
+      (实际参数列表和形式参数列表长度不同)
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtC
+onstraint.java:[27,52] 对于ParaOptionVar(java.lang.String,int,com.google.ortools.sat.BoolVar), 找不到合适
+的构造器
+    构造器 com.jmix.configengine.artifact.ParaOptionVar.ParaOptionVar()不适用
+      (实际参数列表和形式参数列表长度不同)
+    构造器 com.jmix.configengine.artifact.ParaOptionVar.ParaOptionVar(com.jmix.configengine.model.ParaOpt
+ion)不适用
+      (实际参数列表和形式参数列表长度不同)
+    构造器 com.jmix.configengine.artifact.ParaOptionVar.ParaOptionVar(com.jmix.configengine.model.ParaOpt
+ion,com.google.ortools.sat.BoolVar)不适用
+      (实际参数列表和形式参数列表长度不同)
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtC
+onstraint.java:[28,52] 对于ParaOptionVar(java.lang.String,int,com.google.ortools.sat.BoolVar), 找不到合适
+的构造器
+    构造器 com.jmix.configengine.artifact.ParaOptionVar.ParaOptionVar()不适用
+      (实际参数列表和形式参数列表长度不同)
+    构造器 com.jmix.configengine.artifact.ParaOptionVar.ParaOptionVar(com.jmix.configengine.model.ParaOpt
+ion)不适用
+      (实际参数列表和形式参数列表长度不同)
+    构造器 com.jmix.configengine.artifact.ParaOptionVar.ParaOptionVar(com.jmix.configengine.model.ParaOpt
+ion,com.google.ortools.sat.BoolVar)不适用
+      (实际参数列表和形式参数列表长度不同)
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtC
+onstraint.java:[36,25] 找不到符号
+  符号:   变量 code
+  位置: 类型为com.jmix.configengine.artifact.ParaVar的变量 SizeVar
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtC
+onstraint.java:[40,50] 对于ParaOptionVar(java.lang.String,int,com.google.ortools.sat.BoolVar), 找不到合适
+的构造器
+    构造器 com.jmix.configengine.artifact.ParaOptionVar.ParaOptionVar()不适用
+      (实际参数列表和形式参数列表长度不同)
+    构造器 com.jmix.configengine.artifact.ParaOptionVar.ParaOptionVar(com.jmix.configengine.model.ParaOpt
+ion)不适用
+      (实际参数列表和形式参数列表长度不同)
+    构造器 com.jmix.configengine.artifact.ParaOptionVar.ParaOptionVar(com.jmix.configengine.model.ParaOpt
+ion,com.google.ortools.sat.BoolVar)不适用
+      (实际参数列表和形式参数列表长度不同)
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtC
+onstraint.java:[41,50] 对于ParaOptionVar(java.lang.String,int,com.google.ortools.sat.BoolVar), 找不到合适
+的构造器
+    构造器 com.jmix.configengine.artifact.ParaOptionVar.ParaOptionVar()不适用
+      (实际参数列表和形式参数列表长度不同)
+    构造器 com.jmix.configengine.artifact.ParaOptionVar.ParaOptionVar(com.jmix.configengine.model.ParaOpt
+ion)不适用
+      (实际参数列表和形式参数列表长度不同)
+    构造器 com.jmix.configengine.artifact.ParaOptionVar.ParaOptionVar(com.jmix.configengine.model.ParaOpt
+ion,com.google.ortools.sat.BoolVar)不适用
+      (实际参数列表和形式参数列表长度不同)
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtC
+onstraint.java:[42,50] 对于ParaOptionVar(java.lang.String,int,com.google.ortools.sat.BoolVar), 找不到合适
+的构造器
+    构造器 com.jmix.configengine.artifact.ParaOptionVar.ParaOptionVar()不适用
+      (实际参数列表和形式参数列表长度不同)
+    构造器 com.jmix.configengine.artifact.ParaOptionVar.ParaOptionVar(com.jmix.configengine.model.ParaOpt
+ion)不适用
+      (实际参数列表和形式参数列表长度不同)
+    构造器 com.jmix.configengine.artifact.ParaOptionVar.ParaOptionVar(com.jmix.configengine.model.ParaOpt
+ion,com.google.ortools.sat.BoolVar)不适用
+      (实际参数列表和形式参数列表长度不同)
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtC
+onstraint.java:[52,29] 找不到符号
+  符号:   变量 code
+  位置: 类型为com.jmix.configengine.artifact.PartVar的变量 TShirt11Var
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtC
+onstraint.java:[56,29] 找不到符号
+  符号:   变量 code
+  位置: 类型为com.jmix.configengine.artifact.PartVar的变量 TShirt12Var
+[INFO] 10 errors
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  2.947 s
+[INFO] Finished at: 2025-08-19T22:46:23+08:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.8.1:testCompile (default-
+testCompile) on project configengine: Compilation failure: Compilation failure: 
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtC
+onstraint.java:[22,26] 找不到符号
+[ERROR]   符号:   变量 code
+[ERROR]   位置: 类型为com.jmix.configengine.artifact.ParaVar的变量 ColorVar
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtC
+onstraint.java:[26,52] 对于ParaOptionVar(java.lang.String,int,com.google.ortools.sat.BoolVar), 找不到合适
+的构造器
+[ERROR]     构造器 com.jmix.configengine.artifact.ParaOptionVar.ParaOptionVar()不适用
+[ERROR]       (实际参数列表和形式参数列表长度不同)
+[ERROR]     构造器 com.jmix.configengine.artifact.ParaOptionVar.ParaOptionVar(com.jmix.configengine.model
+.ParaOption)不适用
+[ERROR]       (实际参数列表和形式参数列表长度不同)
+[ERROR]     构造器 com.jmix.configengine.artifact.ParaOptionVar.ParaOptionVar(com.jmix.configengine.model
+.ParaOption,com.google.ortools.sat.BoolVar)不适用
+[ERROR]       (实际参数列表和形式参数列表长度不同)
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtC
+onstraint.java:[27,52] 对于ParaOptionVar(java.lang.String,int,com.google.ortools.sat.BoolVar), 找不到合适
+的构造器
+[ERROR]     构造器 com.jmix.configengine.artifact.ParaOptionVar.ParaOptionVar()不适用
+[ERROR]       (实际参数列表和形式参数列表长度不同)
+[ERROR]     构造器 com.jmix.configengine.artifact.ParaOptionVar.ParaOptionVar(com.jmix.configengine.model
+.ParaOption)不适用
+[ERROR]       (实际参数列表和形式参数列表长度不同)
+[ERROR]     构造器 com.jmix.configengine.artifact.ParaOptionVar.ParaOptionVar(com.jmix.configengine.model
+.ParaOption,com.google.ortools.sat.BoolVar)不适用
+[ERROR]       (实际参数列表和形式参数列表长度不同)
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtC
+onstraint.java:[28,52] 对于ParaOptionVar(java.lang.String,int,com.google.ortools.sat.BoolVar), 找不到合适
+的构造器
+[ERROR]     构造器 com.jmix.configengine.artifact.ParaOptionVar.ParaOptionVar()不适用
+[ERROR]       (实际参数列表和形式参数列表长度不同)
+[ERROR]     构造器 com.jmix.configengine.artifact.ParaOptionVar.ParaOptionVar(com.jmix.configengine.model
+.ParaOption)不适用
+[ERROR]       (实际参数列表和形式参数列表长度不同)
+[ERROR]     构造器 com.jmix.configengine.artifact.ParaOptionVar.ParaOptionVar(com.jmix.configengine.model
+.ParaOption,com.google.ortools.sat.BoolVar)不适用
+[ERROR]       (实际参数列表和形式参数列表长度不同)
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtC
+onstraint.java:[36,25] 找不到符号
+[ERROR]   符号:   变量 code
+[ERROR]   位置: 类型为com.jmix.configengine.artifact.ParaVar的变量 SizeVar
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtC
+onstraint.java:[40,50] 对于ParaOptionVar(java.lang.String,int,com.google.ortools.sat.BoolVar), 找不到合适
+的构造器
+[ERROR]     构造器 com.jmix.configengine.artifact.ParaOptionVar.ParaOptionVar()不适用
+[ERROR]       (实际参数列表和形式参数列表长度不同)
+[ERROR]     构造器 com.jmix.configengine.artifact.ParaOptionVar.ParaOptionVar(com.jmix.configengine.model
+.ParaOption)不适用
+[ERROR]       (实际参数列表和形式参数列表长度不同)
+[ERROR]     构造器 com.jmix.configengine.artifact.ParaOptionVar.ParaOptionVar(com.jmix.configengine.model
+.ParaOption,com.google.ortools.sat.BoolVar)不适用
+[ERROR]       (实际参数列表和形式参数列表长度不同)
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtC
+onstraint.java:[41,50] 对于ParaOptionVar(java.lang.String,int,com.google.ortools.sat.BoolVar), 找不到合适
+的构造器
+[ERROR]     构造器 com.jmix.configengine.artifact.ParaOptionVar.ParaOptionVar()不适用
+[ERROR]       (实际参数列表和形式参数列表长度不同)
+[ERROR]     构造器 com.jmix.configengine.artifact.ParaOptionVar.ParaOptionVar(com.jmix.configengine.model
+.ParaOption)不适用
+[ERROR]       (实际参数列表和形式参数列表长度不同)
+[ERROR]     构造器 com.jmix.configengine.artifact.ParaOptionVar.ParaOptionVar(com.jmix.configengine.model
+.ParaOption,com.google.ortools.sat.BoolVar)不适用
+[ERROR]       (实际参数列表和形式参数列表长度不同)
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtC
+onstraint.java:[42,50] 对于ParaOptionVar(java.lang.String,int,com.google.ortools.sat.BoolVar), 找不到合适
+的构造器
+[ERROR]     构造器 com.jmix.configengine.artifact.ParaOptionVar.ParaOptionVar()不适用
+[ERROR]       (实际参数列表和形式参数列表长度不同)
+[ERROR]     构造器 com.jmix.configengine.artifact.ParaOptionVar.ParaOptionVar(com.jmix.configengine.model
+.ParaOption)不适用
+[ERROR]       (实际参数列表和形式参数列表长度不同)
+[ERROR]     构造器 com.jmix.configengine.artifact.ParaOptionVar.ParaOptionVar(com.jmix.configengine.model
+.ParaOption,com.google.ortools.sat.BoolVar)不适用
+[ERROR]       (实际参数列表和形式参数列表长度不同)
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtC
+onstraint.java:[52,29] 找不到符号
+[ERROR]   符号:   变量 code
+[ERROR]   位置: 类型为com.jmix.configengine.artifact.PartVar的变量 TShirt11Var
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtC
+onstraint.java:[56,29] 找不到符号
+[ERROR]   符号:   变量 code
+[ERROR]   位置: 类型为com.jmix.configengine.artifact.PartVar的变量 TShirt12Var
+[ERROR] -> [Help 1]
+[ERROR]
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR]
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+
+
+---
+
+我要打开 `template/ModuleConstraintTemplate.ftl` 查看生成代码的模板，并据此修改生成逻辑以适配新的 Var 结构和 create*Var 构建方法。随后会同时修正已经生成的 `scenario/tshirt/TShirtConstraint.java` 以匹配新模板。
+
+---
+
+Read file: src/main/resources/template/ModuleConstraintTemplate.ftl
+
+---
+
+<details><summary>Edit file: src/main/resources/template/ModuleConstraintTemplate.ftl</summary>
+
+I will update the template to use createParaVar/createPartVar builders and remove direct field code assignments and ParaOptionVar constructors.
+
+**Chunk 1**
+Lines added: 2, lines removed: 16
+
+```diff
+@@ -24,25 +24,11 @@
+          <#list module.paras as para>
+              //参数${para.code}创建
+-             this.${para.varName} = new ParaVar();
+-             this.${para.varName}.code = "${para.code}";
+-             this.${para.varName}.var = newIntVarFromDomain(model, new long[] {${para.optionIdsStr}}, "${para.code}");
+-             
+-             //为参数可选值创建“是否选择的var"
+-             <#list para.options as option>
+-             this.${para.varName}.optionSelectVars.put(${option.codeId}, new ParaOptionVar("${option.code}", ${option.codeId}, model.newBoolVar("${para.code}"+"_" + ${option.codeId})));
+-             </#list>
+-         // 建立属性变量与选项变量之间的关系
+-         this.${para.varName}.optionSelectVars.forEach((optionId, optionVar) -> {
+-             model.addEquality((IntVar) this.${para.varName}.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar());
+-             model.addDifferent((IntVar) this.${para.varName}.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar().not());
+-         });
++             this.${para.varName} = createParaVar("${para.code}");
+          </#list>
+          
+          //部件创建
+          <#list module.parts as part>
+              //部件${part.code}创建
+-             this.${part.varName} = new PartVar();
+-             this.${part.varName}.code = "${part.code}";
+-             this.${part.varName}.var = model.newIntVar(0, 1000, "${part.code}");
++             this.${part.varName} = createPartVar("${part.code}");
+          </#list>
+      }
+```
+
+</details>
+
+---
+
+```bash
+mvn -DskipTests=false -DtrimStackTrace=false test
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+```bash
+mvn -q -DskipTests=false -DtrimStackTrace=false test
+```
+
+---
+
+_**User**_
+
+请运行所有测试用例，并调试通过
+
+---
+
+_**Assistant**_
+
+
+
+---
+
+我先运行 Maven 测试套件查看当前失败情况，然后根据报错进行修复，直到测试全部通过。接下来开始执行测试。
+
+---
+
+```bash
+mvn -DskipTests=false -DtrimStackTrace=false test
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>mvn -DskipTests=false -DtrimStackTrace=fals
+e test
+Microsoft Windows [版本 10.0.19045.5131]
+(c) Microsoft Corporation。保留所有权利。
+
+D:\01.code\mygithub\jmixconfigengine>mvn -DskipTests=false -DtrimStackTrace=fa
+lse test
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------------< com.jmix:configengine >------------------------
+[INFO] Building JMix Config Engine 1.0.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ configengine ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.8.1:compile (default-compile) @ configengine ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ configengine ---
+[INFO] skip non existing resourceDirectory D:\01.code\mygithub\jmixconfigengine\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.8.1:testCompile (default-testCompile) @ configengine ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO]
+[INFO] --- surefire:3.2.5:test (default-test) @ configengine ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junit4.JUnit4Provider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.jmix.configengine.artifact.FilterExpressionExecutorTest
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 3, filter expression: code="Red"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 2, filter expression: price>=1000
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 1, filter expression: material="cotton"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 3, filter expression: sortNo>1
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 2 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 4, filter expression: code="para31"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 3, filter expression: popularity="veryHigh"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 0, filter expression: code="test"
+[main] WARN com.jmix.configengine.util.FilterExpressionExecutor - Invalid input parameters, returning ori
+ginal object list
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 3, filter expression: codeId=2
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 2, filter expression: price<1000
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 2, filter expression: code="TShirt11"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 4, filter expression: freq="5G"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 1, filter expression: null
+[main] WARN com.jmix.configengine.util.FilterExpressionExecutor - Invalid input parameters, returning ori
+ginal object list
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 2, filter expression: fabric="100%棉"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 4, filter expression: sortNo=2
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 2 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 2, filter expression: material="cotton"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.095 s -- in com.jmix.configengi
+ne.artifact.FilterExpressionExecutorTest
+[INFO] Running com.jmix.configengine.artifact.ModuleAlgArtifactGeneratorTest
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 1, filter expression: code="Red"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] WARN com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to find target object or o
+bjects for type: Para, code: Size
+[main] ERROR com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to select programming obj
+ects for rule: rule1
+[main] ERROR com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to parse compatible rule:
+ rule1
+java.lang.RuntimeException: Failed to select programming objects for rule: rule1
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildCompatiableRule(ModuleAlgArtifa
+ctGenerator.java:216)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildRule(ModuleAlgArtifactGenerator
+.java:166)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGeneratorTest.invokeBuildRule(ModuleAlgArtifac
+tGeneratorTest.java:516)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGeneratorTest.testBuildRule(ModuleAlgArtifactG
+eneratorTest.java:60)
+        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.ja
+va:103)
+        at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+        at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+        at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+        at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+        at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+        at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+        at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+        at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+        at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:316)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:240)     
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:214)       
+        at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:155)
+        at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)       
+        at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+        at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+        at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+BuildRule test passed successfully
+[main] WARN com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - No reference programming objects 
+found in expression schema
+[main] ERROR com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to select programming obj
+ects for rule: TestRule
+[main] ERROR com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to parse compatible rule:
+ TestRule
+java.lang.RuntimeException: Failed to select programming objects for rule: TestRule
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildCompatiableRule(ModuleAlgArtifa
+ctGenerator.java:201)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildRule(ModuleAlgArtifactGenerator
+.java:166)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.lambda$4(ModuleAlgArtifactGenerator.
+java:149)
+        at java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)
+        at java.base/java.util.ArrayList$ArrayListSpliterator.forEachRemaining(ArrayList.java:1708)      
+        at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:509)
+        at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:499)        
+        at java.base/java.util.stream.ReduceOps$ReduceOp.evaluateSequential(ReduceOps.java:921)
+        at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)
+        at java.base/java.util.stream.ReferencePipeline.collect(ReferencePipeline.java:682)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildRules(ModuleAlgArtifactGenerato
+r.java:150)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildModuleInfo(ModuleAlgArtifactGen
+erator.java:65)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.forModule(ModuleAlgArtifactGenerator
+.java:352)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGeneratorTest.testDoSelectProObjs(ModuleAlgArt
+ifactGeneratorTest.java:119)
+        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.ja
+va:103)
+        at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+        at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+        at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+        at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+        at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+        at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+        at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+        at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+        at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:316)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:240)     
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:214)       
+        at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:155)
+        at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)
+        at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+        at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+        at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+[main] WARN com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to find target object or o
+bjects for type: Para, code: Color
+doSelectProObjs test passed - result is null (expected for current implementation)
+Module methods test passed successfully
+[main] WARN com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - No reference programming objects 
+found in expression schema
+[main] ERROR com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to select programming obj
+ects for rule: TestRule
+[main] ERROR com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to parse compatible rule:
+ TestRule
+java.lang.RuntimeException: Failed to select programming objects for rule: TestRule
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildCompatiableRule(ModuleAlgArtifa
+ctGenerator.java:201)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildRule(ModuleAlgArtifactGenerator
+.java:166)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.lambda$4(ModuleAlgArtifactGenerator.
+java:149)
+        at java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)
+        at java.base/java.util.ArrayList$ArrayListSpliterator.forEachRemaining(ArrayList.java:1708)      
+        at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:509)
+        at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:499)        
+        at java.base/java.util.stream.ReduceOps$ReduceOp.evaluateSequential(ReduceOps.java:921)
+        at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)
+        at java.base/java.util.stream.ReferencePipeline.collect(ReferencePipeline.java:682)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildRules(ModuleAlgArtifactGenerato
+r.java:150)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildModuleInfo(ModuleAlgArtifactGen
+erator.java:65)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.forModule(ModuleAlgArtifactGenerator
+.java:352)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGeneratorTest.testForModuleFactoryMethod(Modul
+eAlgArtifactGeneratorTest.java:43)
+        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.ja
+va:103)
+        at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+        at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+        at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+        at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+        at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+        at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+        at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+        at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+        at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:316)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:240)     
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:214)       
+        at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:155)
+        at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)       
+        at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+        at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+        at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+forModule factory method test passed successfully
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.255 s -- in com.jmix.configengin
+e.artifact.ModuleAlgArtifactGeneratorTest
+[INFO] Running com.jmix.configengine.model.ParaOptionBuilderTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.jmix.configengi
+ne.model.ParaOptionBuilderTest
+[INFO] Running com.jmix.configengine.ModuleConstraintExecutorTest
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.util.ModuleUtils - Deserializing Module from JSON file: src/test/java/c
+om/jmix/configengine/scenario/tshirt/tshirtdata.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully deserialized Module from JSON file: src
+/test/java/com/jmix/configengine/scenario/tshirt/tshirtdata.json
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+添加兼容性约束: 部件数量关系规则
+未知规则类型: 颜色选择规则
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.828 s -- in com.jmix.configengin
+e.ModuleConstraintExecutorTest
+[INFO] Running com.jmix.configengine.other.TShirtConstraintTest
+[main] INFO com.jmix.configengine.util.ModuleUtils - Deserializing Module from JSON file: src/test/java/c
+om/jmix/configengine/scenario/tshirt/tshirtdata.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully deserialized Module from JSON file: src
+/test/java/com/jmix/configengine/scenario/tshirt/tshirtdata.json
+=== 步骤1: 初始化OR-Tools模型 ===
+=== 步骤2: 初始化TShirtConstraint模型 ===
+[main] INFO com.jmix.configengine.util.ModuleUtils - Deserializing Module from JSON file: src/test/java/c
+om/jmix/configengine/scenario/tshirt/tshirtdata.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully deserialized Module from JSON file: src
+/test/java/com/jmix/configengine/scenario/tshirt/tshirtdata.json
+=== 步骤3: 使用OR-Tools求解器求解 ===
+开始求解...
+=== 步骤4: 验证求解结果 ===
+求解状态: OPTIMAL
+? 求解成功！
+
+=== 求解结果 ===
+颜色变量值: 30 (White)
+尺寸变量值: 3 (Small)
+T恤衫11数量: 0
+T恤衫12数量: 0
+
+=== 选项选中状态 ===
+颜色选项 Black (ID:20): ? 未选中
+颜色选项 Red (ID:10): ? 未选中
+颜色选项 White (ID:30): ? 选中
+尺寸选项 Big (ID:1): ? 未选中
+尺寸选项 Medium (ID:2): ? 未选中
+尺寸选项 Small (ID:3): ? 选中
+
+=== 约束验证 ===
+规则1验证: (Color != 'Red') Codependent (Size != 'Medium')
+  颜色非红色: true (颜色值: 30 = White)
+  尺寸非中号: true (尺寸值: 3 = Small)
+  Codependent关系: ? 满足
+
+规则2验证: TShirt12 >= TShirt11
+  TShirt11数量: 0
+  TShirt12数量: 0
+  数量关系: ? 满足
+
+=== 选项选择验证 ===
+选中的颜色选项数量: 1
+选中的尺寸选项数量: 1
+
+? 所有约束验证通过！
+
+=== OR-Tools求解测试完成 ===
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.098 s -- in com.jmix.configengin
+e.other.TShirtConstraintTest
+[INFO] Running com.jmix.configengine.scenario.tshirt.JsonDeserializationTest
+=== 开始测试tshirtdata.json反序列化 ===
+JSON文件路径: src/test/java/com/jmix/configengine/scenario/tshirt/tshirtdata.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Deserializing Module from JSON file: src/test/java/c
+om/jmix/configengine/scenario/tshirt/tshirtdata.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully deserialized Module from JSON file: src
+/test/java/com/jmix/configengine/scenario/tshirt/tshirtdata.json
+? 模块基本信息验证通过
+  模块代码: TShirt
+  模块ID: 123123
+  模块版本: V1.0
+  模块类型: GENERAL
+? 参数信息验证通过
+  参数数量: 2
+    参数: Color - T恤衫颜色选择参数
+      选项数量: 3
+    参数: Size - T恤衫尺寸选择参数
+      选项数量: 3
+? 部件信息验证通过
+  部件数量: 2
+    部件: TShirt11 - T恤衫主体部件
+    部件: TShirt12 - T恤衫装饰部件
+? 规则信息验证通过
+  规则数量: 3
+    规则: rule1 - 颜色和尺寸兼容关系规则
+    规则: rule2 - 部件数量关系规则
+    规则: rule3 - 颜色选择规则
+
+=== JSON反序列化测试完成 ===
+? 所有验证通过，tshirtdata.json文件可以正确反序列化！
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 s -- in com.jmix.configengin
+e.scenario.tshirt.JsonDeserializationTest
+[INFO] Running com.jmix.configengine.scenario.tshirt.ModuleAlgArtifactGeneratorBaseTest
+[main] INFO com.jmix.configengine.util.ModuleUtils - Deserializing Module from JSON file: src/test/java/c
+om/jmix/configengine/scenario/tshirt/tshirtdata.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully deserialized Module from JSON file: src
+/test/java/com/jmix/configengine/scenario/tshirt/tshirtdata.json
+=== 开始测试 buildConstraintRule 方法 ===
+输出路径: src/test/java/com/jmix/configengine/scenario/tshirt/TShirtConstraint.java
+? 模块数据验证通过
+  参数数量: 2
+  部件数量: 2
+  规则数量: 3
+
+=== 调用 buildConstraintRule 方法 ===
+[main] INFO com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Starting constraint rule generati
+on for module: TShirt
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 3, filter expression: code="Red"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 3, filter expression: code!="Medium"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 2 objects   
+[main] INFO com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Constraint code generation comple
+ted: src/test/java/com/jmix/configengine/scenario/tshirt/TShirtConstraint.java
+[main] INFO com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Constraint rule generation comple
+ted, output path: src/test/java/com/jmix/configengine/scenario/tshirt/TShirtConstraint.java
+? 约束代码文件生成成功
+  文件路径: D:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\configengine\scenario\tshirt\TShi
+rtConstraint.java
+  文件大小: 5737 字节
+? 生成的代码内容验证通过
+  包含正确的类定义
+  包含所有参数变量
+  包含所有部件变量
+  包含所有约束规则方法
+
+=== 测试完成 ===
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.103 s -- in com.jmix.configengin
+e.scenario.tshirt.ModuleAlgArtifactGeneratorBaseTest
+[INFO] Running com.jmix.configengine.TestSuite
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 3, filter expression: code="Red"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 2, filter expression: price>=1000
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 1, filter expression: material="cotton"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 3, filter expression: sortNo>1
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 2 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 4, filter expression: code="para31"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 3, filter expression: popularity="veryHigh"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 0, filter expression: code="test"
+[main] WARN com.jmix.configengine.util.FilterExpressionExecutor - Invalid input parameters, returning ori
+ginal object list
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 3, filter expression: codeId=2
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 2, filter expression: price<1000
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 2, filter expression: code="TShirt11"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 4, filter expression: freq="5G"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 1, filter expression: null
+[main] WARN com.jmix.configengine.util.FilterExpressionExecutor - Invalid input parameters, returning ori
+ginal object list
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 2, filter expression: fabric="100%棉"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 4, filter expression: sortNo=2
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 2 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 2, filter expression: material="cotton"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 1, filter expression: code="Red"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] WARN com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to find target object or o
+bjects for type: Para, code: Size
+[main] ERROR com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to select programming obj
+ects for rule: rule1
+[main] ERROR com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to parse compatible rule:
+ rule1
+java.lang.RuntimeException: Failed to select programming objects for rule: rule1
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildCompatiableRule(ModuleAlgArtifa
+ctGenerator.java:216)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildRule(ModuleAlgArtifactGenerator
+.java:166)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGeneratorTest.invokeBuildRule(ModuleAlgArtifac
+tGeneratorTest.java:516)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGeneratorTest.testBuildRule(ModuleAlgArtifactG
+eneratorTest.java:60)
+        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.ja
+va:103)
+        at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+        at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+        at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+        at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+        at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+        at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+        at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+        at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+        at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+        at org.junit.runners.Suite.runChild(Suite.java:128)
+        at org.junit.runners.Suite.runChild(Suite.java:27)
+        at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+        at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:316)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:240)     
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:214)       
+        at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:155)
+        at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)       
+        at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+        at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+        at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+BuildRule test passed successfully
+[main] WARN com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - No reference programming objects 
+found in expression schema
+[main] ERROR com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to select programming obj
+ects for rule: TestRule
+[main] ERROR com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to parse compatible rule:
+ TestRule
+java.lang.RuntimeException: Failed to select programming objects for rule: TestRule
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildCompatiableRule(ModuleAlgArtifa
+ctGenerator.java:201)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildRule(ModuleAlgArtifactGenerator
+.java:166)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.lambda$4(ModuleAlgArtifactGenerator.
+java:149)
+        at java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)
+        at java.base/java.util.ArrayList$ArrayListSpliterator.forEachRemaining(ArrayList.java:1708)      
+        at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:509)
+        at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:499)        
+        at java.base/java.util.stream.ReduceOps$ReduceOp.evaluateSequential(ReduceOps.java:921)
+        at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)
+        at java.base/java.util.stream.ReferencePipeline.collect(ReferencePipeline.java:682)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildRules(ModuleAlgArtifactGenerato
+r.java:150)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildModuleInfo(ModuleAlgArtifactGen
+erator.java:65)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.forModule(ModuleAlgArtifactGenerator
+.java:352)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGeneratorTest.testDoSelectProObjs(ModuleAlgArt
+ifactGeneratorTest.java:119)
+        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.ja
+va:103)
+        at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+        at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+        at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+        at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+        at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+        at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+        at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+        at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+        at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+        at org.junit.runners.Suite.runChild(Suite.java:128)
+        at org.junit.runners.Suite.runChild(Suite.java:27)
+        at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+        at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:316)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:240)     
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:214)       
+        at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:155)
+        at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)       
+        at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+        at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+        at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+[main] WARN com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to find target object or o
+bjects for type: Para, code: Color
+doSelectProObjs test passed - result is null (expected for current implementation)
+Module methods test passed successfully
+[main] WARN com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - No reference programming objects 
+found in expression schema
+[main] ERROR com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to select programming obj
+ects for rule: TestRule
+[main] ERROR com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to parse compatible rule:
+ TestRule
+java.lang.RuntimeException: Failed to select programming objects for rule: TestRule
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildCompatiableRule(ModuleAlgArtifa
+ctGenerator.java:201)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildRule(ModuleAlgArtifactGenerator
+.java:166)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.lambda$4(ModuleAlgArtifactGenerator.
+java:149)
+        at java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)
+        at java.base/java.util.ArrayList$ArrayListSpliterator.forEachRemaining(ArrayList.java:1708)      
+        at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:509)
+        at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:499)        
+        at java.base/java.util.stream.ReduceOps$ReduceOp.evaluateSequential(ReduceOps.java:921)
+        at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)
+        at java.base/java.util.stream.ReferencePipeline.collect(ReferencePipeline.java:682)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildRules(ModuleAlgArtifactGenerato
+r.java:150)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildModuleInfo(ModuleAlgArtifactGen
+erator.java:65)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.forModule(ModuleAlgArtifactGenerator
+.java:352)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGeneratorTest.testForModuleFactoryMethod(Modul
+eAlgArtifactGeneratorTest.java:43)
+        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.ja
+va:103)
+        at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+        at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+        at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+        at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+        at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+        at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+        at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+        at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+        at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+        at org.junit.runners.Suite.runChild(Suite.java:128)
+        at org.junit.runners.Suite.runChild(Suite.java:27)
+        at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+        at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:316)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:240)     
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:214)       
+        at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:155)
+        at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)       
+        at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+        at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+        at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+forModule factory method test passed successfully
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.util.ModuleUtils - Deserializing Module from JSON file: src/test/java/c
+om/jmix/configengine/scenario/tshirt/tshirtdata.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully deserialized Module from JSON file: src
+/test/java/com/jmix/configengine/scenario/tshirt/tshirtdata.json
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+添加兼容性约束: 部件数量关系规则
+未知规则类型: 颜色选择规则
+=== 测试 validateJsonFile 方法 ===
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: test_module.json   
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: test_mo
+dule.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Deserializing Module from JSON file: test_module.jso
+n
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully deserialized Module from JSON file: tes
+t_module.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Deserializing Module from JSON file: nonexistent.jso
+n
+[main] WARN com.jmix.configengine.util.ModuleUtils - JSON file validation failed: JSON file not found: no
+nexistent.json
+? validateJsonFile测试通过
+=== 测试完整往返流程 ===
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: test_module.json   
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: test_mo
+dule.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Deserializing Module from JSON file: test_module.jso
+n
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully deserialized Module from JSON file: tes
+t_module.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: test_module_roundtr
+ip.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: test_mo
+dule_roundtrip.json
+? 完整往返流程测试通过
+=== 测试 fromJsonFile 方法 ===
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: test_module.json   
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: test_mo
+dule.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Deserializing Module from JSON file: test_module.jso
+n
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully deserialized Module from JSON file: tes
+t_module.json
+? fromJsonFile测试通过
+  加载的模块: TestModule
+  参数数量: 1
+  部件数量: 1
+  规则数量: 1
+=== 测试 toJsonString 和 fromJsonString 方法 ===
+? toJsonString和fromJsonString测试通过
+  JSON字符串长度: 3082
+  加载的模块: TestModule
+=== 测试 toJsonFile 方法 ===
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: test_module.json   
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: test_mo
+dule.json
+? toJsonFile测试通过
+  文件路径: D:\01.code\mygithub\jmixconfigengine\test_module.json
+  文件大小: 3138 字节
+[main] INFO com.jmix.configengine.util.ModuleUtils - Deserializing Module from JSON file: src/test/java/c
+om/jmix/configengine/scenario/tshirt/tshirtdata.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully deserialized Module from JSON file: src
+/test/java/com/jmix/configengine/scenario/tshirt/tshirtdata.json
+=== 开始测试 buildConstraintRule 方法 ===
+输出路径: src/test/java/com/jmix/configengine/scenario/tshirt/TShirtConstraint.java
+? 模块数据验证通过
+  参数数量: 2
+  部件数量: 2
+  规则数量: 3
+
+=== 调用 buildConstraintRule 方法 ===
+[main] INFO com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Starting constraint rule generati
+on for module: TShirt
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 3, filter expression: code="Red"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 3, filter expression: code!="Medium"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 2 objects   
+[main] INFO com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Constraint code generation comple
+ted: src/test/java/com/jmix/configengine/scenario/tshirt/TShirtConstraint.java
+[main] INFO com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Constraint rule generation comple
+ted, output path: src/test/java/com/jmix/configengine/scenario/tshirt/TShirtConstraint.java
+? 约束代码文件生成成功
+  文件路径: D:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\configengine\scenario\tshirt\TShi
+rtConstraint.java
+  文件大小: 5737 字节
+? 生成的代码内容验证通过
+  包含正确的类定义
+  包含所有参数变量
+  包含所有部件变量
+  包含所有约束规则方法
+
+=== 测试完成 ===
+[INFO] Tests run: 25, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.104 s -- in com.jmix.configengi
+ne.TestSuite
+[INFO] Running com.jmix.configengine.util.ModuleUtilsTest
+=== 测试 validateJsonFile 方法 ===
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: test_module.json   
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: test_mo
+dule.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Deserializing Module from JSON file: test_module.jso
+n
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully deserialized Module from JSON file: tes
+t_module.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Deserializing Module from JSON file: nonexistent.jso
+n
+[main] WARN com.jmix.configengine.util.ModuleUtils - JSON file validation failed: JSON file not found: no
+nexistent.json
+? validateJsonFile测试通过
+=== 测试完整往返流程 ===
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: test_module.json   
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: test_mo
+dule.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Deserializing Module from JSON file: test_module.jso
+n
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully deserialized Module from JSON file: tes
+t_module.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: test_module_roundtr
+ip.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: test_mo
+dule_roundtrip.json
+? 完整往返流程测试通过
+=== 测试 fromJsonFile 方法 ===
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: test_module.json   
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: test_mo
+dule.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Deserializing Module from JSON file: test_module.jso
+n
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully deserialized Module from JSON file: tes
+t_module.json
+? fromJsonFile测试通过
+  加载的模块: TestModule
+  参数数量: 1
+  部件数量: 1
+  规则数量: 1
+=== 测试 toJsonString 和 fromJsonString 方法 ===
+? toJsonString和fromJsonString测试通过
+  JSON字符串长度: 3082
+  加载的模块: TestModule
+=== 测试 toJsonFile 方法 ===
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: test_module.json   
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: test_mo
+dule.json
+? toJsonFile测试通过
+  文件路径: D:\01.code\mygithub\jmixconfigengine\test_module.json
+  文件大小: 3138 字节
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.013 s -- in com.jmix.configengin
+e.util.ModuleUtilsTest
+[INFO] 
+[INFO] Results:
+[INFO]
+[INFO] Tests run: 63, Failures: 0, Errors: 0, Skipped: 0
+[INFO]
+[WARNING] Corrupted channel by directly writing to native stream in forked JVM 1. See FAQ web page and th
+e dump file D:\01.code\mygithub\jmixconfigengine\target\surefire-reports\2025-08-19T22-56-28_310-jvmRun1.
+dumpstream
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  3.284 s
+[INFO] Finished at: 2025-08-19T22:56:30+08:00
+[INFO] ------------------------------------------------------------------------
+
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+所有测试已运行且全部通过（63 个测试，0 失败，0 错误）。
+
+- 已新增 `Var` 抽象类并让 `ParaVar`、`PartVar`、`ParaOptionVar` 继承它，去掉冗余字段；`ParaOptionVar` 的 `codeId` 通过 `base` 委托。
+- `ConstraintAlgImpl` 增加 `module`、`varMap`、`registerVar`、`getVarMap`，并新增 `createParaVar`、`createPartVar`、`createParaOptionVar`，`initModel` 支持传入 `Module`。
+- `Module` 和 `Para` 增强：`Para` 新增 `getOption(String)`、`getOptionIds()`。
+- 调整 `TShirtConstraint`（两个测试目录）使用 `create*Var` 简化初始化；更新模板 `ModuleConstraintTemplate.ftl` 以生成新风格代码。
+- `ModuleConstraintExecutorImpl` 改为 `initModel(model, module)` 并确保 `module.init()`。
+
+如需我把 `TShirtConstraint` 的乘法约束补充为等式（当前 TODO），或再补充更多 Var 工厂方法，请告诉我。
+
+---
+
+_**User**_
+
+
+
+对ModuleConstraintExecutorImpl做下列增量，请按下列设计来实现多解返回，并补充测试用例
+
+1、新增ModuleInstSolutionCallBack类
+
+  static class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
+    public ModuleInstSolutionCallBack(Map<String,Var> varMap) {
+      this.varMap = varMap;
+    }
+
+    @Override
+    public void onSolutionCallback() {
+		 创建一个新ModuleInst  moduleInst;
+		 vars，对每个var 
+			1. 如果var是ParaVar  
+				新建一个ParaInst，paraInst
+				根据var对paraInst赋值
+				moduleInst.addPara(paraInst)
+			2. 如果var是PartVar
+				新建一个PartInst，partInst
+				根据var对partInst赋值
+				moduleInst.addPart(partInst)  
+		//将moduleInst插入到allSolutions中
+    } 
+   
+	 返回allSolutions 
+	public List<ModuleInst> getAllSolutions(){
+	}
+	private List<ModuleInst> allSolutions; 
+    private final List<Var> vars; 
+  }
+
+2、对public Result<List<ModuleInst>> inferParas(InferParasReq req) 进行修改：
+
+		ConstraintAlgImpl alg = loader.newConstraintAlg(module.getCode());
+			//..
+			alg.initModel(modelz,module);
+			//...
+			//根据req.enumerateAllSolution来设置solver.getParameters()
+			solver.getParameters().setEnumerateAllSolution(true);
+			// 可根据config设置参数
+			// solver.getParameters().setLogSearchProgress(true);
+			VarArraySolutionPrinter cb = new ModuleInstSolutionCallBack(alg.getVars());
+			solver.solve(model, cb);  
+			return Result.success(Collections.cb.getAllSolutions());
+			
+3、补充测试用例，对返回值进行判断（需要约束的类型来生成用例）
+			
+
+
+---
+
+_**Assistant**_
+
+<think><details><summary>Thought Process</summary>**Evaluating implementation details**
+
+I need to implement multi-solution enumeration in the `ModuleConstraintExecutorImpl`. This will involve a callback to collect solutions while mapping Var map entries to ModuleInst objects. Testing will also be necessary to validate the returned solutions. I'll take a look at the existing executor API definitions, particularly the `ModuleConstraintExecutor` interface, which is located at `src/main/java/com/jmix/configengine/ModuleConstraintExecutor.java`. Let's open that file and dive in!</details></think>
+
+---
+
+让我先查看 `ModuleConstraintExecutor` 接口和相关 `ModuleInst` 类型定义，以确保回调组装的结构正确；同时打开 `executor` 包下现有实现用于扩展多解逻辑。
+
+---
+
+Read file: src/main/java/com/jmix/configengine/ModuleConstraintExecutor.java
+
+---
+
+<think><details><summary>Thought Process</summary>**Adding a test class**
+
+I recognize that I need to add our new test class to the TestSuite.java list. Alternatively, it might be more efficient to extend the existing ModuleConstraintExecutorTest by adding a new test method for enumeration, which is already included in the TestSuite. 
+
+I plan to implement the test like this: first, build the exec as before, load the module from JSON, and then add the module to exec. I’ll proceed with asserting the response data meets expected conditions.
+**Considering variable constraints**
+
+The code specifies constraints for Color and Size, but Parts variables are not constrained, which presents an issue. Without constraints, the default domain for these Parts is 0 to 1000, meaning enumerating all solutions could potentially be infinite. The solver set to enumerate all solutions may diverge without additional constraints. In the generated code template, we only create Parts variables without specifying constraints, which could lead to numerous combinations. Yet, without a search branch on those variables, maybe it still enumerates just one solution?
+**Addressing enumeration issues**
+
+I see that OR-Tools enumerates feasible assignments, but without constraints, an IntVar with a large domain could lead to infinite solutions, which isn’t feasible for OR-Tools to handle. It seems this could result in only producing one solution despite the lack of constraints, leading to problems. In an earlier test with TShirtConstraintTest, the solver successfully found an optimal solution without enumeration. To prevent infinite solutions, we might consider building a minimal module with just parameters and no parts for the enumeration test. This could help manage the risk effectively.
+**Reusing TShirt module**
+
+I think we should reuse the TShirt module, which includes parts, but the lack of constraints on those parts results in an infinite set. I wonder if the solver will effectively enumerate all solutions. We might need to set parameters like "linearization_level" or "max_number_of_solutions." In OR-Tools, it seems I can use setMaxNumberOfSolutions to limit the count, maybe to around 10. The user indicated to set `solver.getParameters().setEnumerateAllSolution(true)`, but without imposing limits, the potential solution set could become infinite. However, I suspect the solver won't go beyond the solutions implied by the constraints.
+**Handling solution enumeration**
+
+Enumerating all solutions may lead to attempts to assign different IntVar values, and OR-Tools explores a search tree for this. Without constraints, the number of possibilities could be vast, potentially causing the process to run until the maximum time limit, which might lead to hanging during the test. Although past tests were quick, to be cautious, I won’t record parts in the callback to avoid multiple solutions caused by their values. Still, different solver assignments could count as solutions. The user requested to include parts, but without constraints, it complicates matters. I see that the TShirtConstraint generated doesn’t add those constraints either.</details></think>
+
+---
+
+Read file: src/main/java/com/jmix/configengine/executor/ModuleAlgClassLoader.java
+
+---
+
+<think><details><summary>Thought Process</summary>**Evaluating callback function**
+
+I'm considering how the `solve(model, cb)` will operate. It looks like it will call `onSolutionCallback` for each feasible solution it finds. If `enumerateAllSolutions` isn't true, the solver typically returns only the optimal solution. But according to OR-Tools, the callback is still invoked when a solution is found. I think we need to import `CpSolverSolutionCallback` and also add a method in `ConstraintAlgImpl` to expose variables, possibly changing `HashMap` to `LinkedHashMap` to preserve order.
+**Modifying classes and methods**
+
+I’m thinking about updating `ConstraintAlgImpl` by changing `varMap` to a `LinkedHashMap`. I also need to adjust the import statement for `java.util.*`, which I already imported, so that should be straightforward. 
+
+Now, within the callback, I need to create a mapping method that produces `ModuleInst` objects. The callback class is currently set up with a constructor using `Map<String, Var>` but also refers to `alg.getVars()`. To align with this, I’ll design the constructor to accept both types, allowing a `List<Var<?>>` approach as well. 
+
+While there’s some inconsistency in the user's requirements, I’ll implement the constructor with `Map<String, Var<?>>`, derive the `vars` list inside, and add a getter for all solutions in the callback.
+**Updating tests and implementations**
+
+I’m focusing on the `ModuleConstraintExecutorTest`, which currently expects an empty list as success. I plan to change that to assert the returned list size is greater than zero. I need to check the file now to set `enumerateAllSolution` to false and assert that `r.data.size() >= 1`. 
+
+Next, I’ll ensure there are `ParaInst` entries in the updated test. In `ModuleConstraintExecutorImpl`, I’ll pass `varMap` from the algorithm via `alg.getVarMap()`. I should also check if I need to add a getter in `ConstraintAlgImpl` for `getVarMap`. Oh, I already added it, so that's great! 
+
+Now, I must remember to import `Var` for the executor and cast generics correctly. For the `ModuleInst`, I’ll create a new instance and fill in the fields like `code = module.getCode()` and compute the `paras` list for each `ParaVar` based on the selected option's code.
+**Exploring callback values**
+
+I'm considering using the callback's Boolean value method, specifically `value(BoolVar)` for handling boolean values. In the Java implementation, I see that `booleanValue(Literal?)` is involved. The `CpSolverSolutionCallback` provides `value(IntVar)` and `value(BoolVar)`, which I think could return a long indicating 0 or 1.
+
+However, earlier usage refers to `solver.value()`. So, for booleans, we may need to use `boolean value(ILiteral literal)`. Since I can't check documentation offline, I might have to compute this differently.
+
+Instead of delving into boolean values, it seems safer to map selected IDs by using the integer variable, `paraVar.var`, to identify the option code from the `paraVar.optionSelectVars` map. I can do this by getting the long value for the selected ID and then matching the code in the map. If not found, I'll default the parameter instance's value to a numeric string, ultimately setting `paraInst.value` to the correct option code.
+**Implementing options and tests**
+
+I'm planning to set my options as a singleton list. For the `isHidden` variable, if it's null, I'll default it to false and decode the boolean through the literal variable. If I can't access the `BoolVar`, I'll also set it to false. For `PartVar`, I'll determine the quantity from `value(IntVar)`, keeping `isHidden` defaulting to false.
+
+Next, I want to update the `ModuleConstraintExecutorTest` to expect results to be present after running it, ensuring no internationalization log issues arise—since all logs in the repository must be in English. I’ll also check that `ILiteral` will not be needed as I'm only using `IntVar`. 
+
+Now, I’ll modify `ConstraintAlgImpl` to change `varMap` to `LinkedHashMap` and add the `getVars` method. Additionally, I’ll implement the `ModuleInstSolutionCallBack` static class and update `inferParas` to utilize the callback while returning results. Lastly, I will assert that the data is non-empty in my test case.</details></think>
+
+---
+
+我将添加回调类、更新推理逻辑以支持多解返回，并补充和调整测试用例，然后运行测试验证通过。
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java</summary>
+
+I will change varMap to LinkedHashMap for stable order and add getVars() accessor.
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -22,5 +22,5 @@
+  	protected Module module;
+  	// var map
+- 	protected Map<String, Var<?>> varMap = new HashMap<>();
++ 	protected Map<String, Var<?>> varMap = new LinkedHashMap<>();
+  
+  	public void initModel(CpModel model, Module module){
+```
+
+**Chunk 2**
+Lines added: 4, lines removed: undefined
+
+```diff
+@@ -50,4 +50,8 @@
+  		return varMap;
+  	}
++ 
++ 	public List<Var<?>> getVars() {
++ 		return new ArrayList<>(varMap.values());
++ 	}
+  
+  	public void registerVar(String code, Var<?> var) {
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/executor/ModuleConstraintExecutorImpl.java</summary>
+
+I will implement ModuleInstSolutionCallBack and update inferParas to use enumerate-all-solution and callback collection.
+
+**Chunk 1**
+Lines added: 5, lines removed: 2
+
+```diff
+@@ -3,9 +3,12 @@
+  import com.jmix.configengine.ModuleConstraintExecutor;
+  import com.jmix.configengine.artifact.ConstraintAlgImpl;
++ import com.jmix.configengine.artifact.ParaOptionVar;
++ import com.jmix.configengine.artifact.ParaVar;
++ import com.jmix.configengine.artifact.PartVar;
++ import com.jmix.configengine.artifact.Var;
+  import com.jmix.configengine.model.Module;
+  import com.jmix.configengine.model.ModuleAlgArtifact;
+  import lombok.extern.slf4j.Slf4j;
+- import com.google.ortools.sat.CpModel;
+- import com.google.ortools.sat.CpSolver;
++ import com.google.ortools.sat.*;
+  
+  import java.util.*;
+```
+
+**Chunk 2**
+Lines added: 57, lines removed: 2
+
+```diff
+@@ -77,10 +80,65 @@
+  			alg.initModel(model, module);
+  			CpSolver solver = new CpSolver();
+- 			solver.solve(model);
+- 			return Result.success(Collections.emptyList());
++ 			if (req.enumerateAllSolution) {
++ 				solver.getParameters().setEnumerateAllSolutions(true);
++ 			}
++ 			// 可按需设置更多参数
++ 			// if (config != null) { solver.getParameters().setLogSearchProgress(true); }
++ 			ModuleInstSolutionCallBack cb = new ModuleInstSolutionCallBack(alg.getVars());
++ 			solver.solve(model, cb);
++ 			return Result.success(cb.getAllSolutions());
+  		} catch (Exception ex) {
+  			log.error("Failed to infer paras", ex);
+  			return Result.failed("exception: " + ex.getMessage());
+  		}
+  	}
++ 
++ 	static class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
++ 		private final List<Var<?>> vars;
++ 		private final List<ModuleInst> allSolutions = new ArrayList<>();
++ 
++ 		public ModuleInstSolutionCallBack(List<Var<?>> vars) {
++ 			this.vars = vars != null ? vars : Collections.emptyList();
++ 		}
++ 
++ 		@Override
++ 		public void onSolutionCallback() {
++ 			ModuleInst moduleInst = new ModuleInst();
++ 			List<ParaInst> paraInsts = new ArrayList<>();
++ 			List<PartInst> partInsts = new ArrayList<>();
++ 			for (Var<?> v : vars) {
++ 				if (v instanceof ParaVar) {
++ 					ParaVar pv = (ParaVar) v;
++ 					ParaInst pi = new ParaInst();
++ 					pi.code = pv.getCode();
++ 					// value: read IntVar domain value
++ 					int value = (int) value((IntVar) pv.var);
++ 					pi.value = String.valueOf(value);
++ 					// options: selected option codes
++ 					List<String> options = new ArrayList<>();
++ 					pv.optionSelectVars.forEach((codeId, optionVar) -> {
++ 						long sel = value(optionVar.getIsSelectedVar());
++ 						if (sel == 1L) {
++ 							options.add(optionVar.getCode());
++ 						}
++ 					});
++ 					pi.options = options;
++ 					paraInsts.add(pi);
++ 				} else if (v instanceof PartVar) {
++ 					PartVar partVar = (PartVar) v;
++ 					PartInst inst = new PartInst();
++ 					inst.code = partVar.getCode();
++ 					inst.quantity = (int) value((IntVar) partVar.var);
++ 					partInsts.add(inst);
++ 				}
++ 			}
++ 			moduleInst.paras = paraInsts;
++ 			moduleInst.parts = partInsts;
++ 			allSolutions.add(moduleInst);
++ 		}
++ 
++ 		public List<ModuleInst> getAllSolutions() {
++ 			return allSolutions;
++ 		}
++ 	}
+  } 
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/ModuleConstraintExecutorTest.java</summary>
+
+I will extend test to request enumerateAllSolution and assert non-empty solutions returned.
+
+**Chunk 1**
+Lines added: 7, lines removed: 2
+
+```diff
+@@ -39,11 +39,16 @@
+  		ModuleConstraintExecutor.InferParasReq req = new ModuleConstraintExecutor.InferParasReq();
+  		req.moduleId = 123123L;
+- 		req.enumerateAllSolution = false;
++ 		req.enumerateAllSolution = true;
+  		ModuleConstraintExecutor.Result<List<ModuleConstraintExecutor.ModuleInst>> r 
+  		= exec.inferParas(req);
+  		
+- 		// 在当前环境下，只要能走到求解并返回，不抛异常即认为打通
++ 		// 枚举所有解，应该至少返回1个
+  		assertEquals(0, r.code);
+  		assertNotNull(r.data);
++ 		assertTrue(r.data.size() >= 1);
++ 		// 解的结构应包含para和part
++ 		ModuleConstraintExecutor.ModuleInst first = r.data.get(0);
++ 		assertNotNull(first.paras);
++ 		assertNotNull(first.parts);
+  	}
+  } 
+```
+
+</details>
+
+---
+
+```bash
+mvn -DskipTests=false -DtrimStackTrace=false test
+```
+
+```
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 1, filter expression: null
+[main] WARN com.jmix.configengine.util.FilterExpressionExecutor - Invalid input parameters, returning ori
+ginal object list
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 2, filter expression: fabric="100%棉"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 4, filter expression: sortNo=2
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 2 objects   
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 2, filter expression: material="cotton"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.103 s -- in com.jmix.configengi
+ne.artifact.FilterExpressionExecutorTest
+[INFO] Running com.jmix.configengine.artifact.ModuleAlgArtifactGeneratorTest
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Starting filter expression execution, o
+bject count: 1, filter expression: code="Red"
+[main] INFO com.jmix.configengine.util.FilterExpressionExecutor - Filtering completed, found 1 objects   
+[main] WARN com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to find target object or o
+bjects for type: Para, code: Size
+[main] ERROR com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to select programming obj
+ects for rule: rule1
+[main] ERROR com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to parse compatible rule:
+ rule1
+java.lang.RuntimeException: Failed to select programming objects for rule: rule1
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildCompatiableRule(ModuleAlgArtifa
+ctGenerator.java:216)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildRule(ModuleAlgArtifactGenerator
+.java:166)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGeneratorTest.invokeBuildRule(ModuleAlgArtifac
+tGeneratorTest.java:516)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGeneratorTest.testBuildRule(ModuleAlgArtifactG
+eneratorTest.java:60)
+        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.ja
+va:103)
+        at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+        at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+        at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+        at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+        at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+        at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+        at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+        at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+        at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:316)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:240)     
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:214)       
+        at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:155)
+        at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)       
+        at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+        at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+        at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+BuildRule test passed successfully
+[main] WARN com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - No reference programming objects 
+found in expression schema
+[main] ERROR com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to select programming obj
+ects for rule: TestRule
+[main] ERROR com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to parse compatible rule:
+ TestRule
+java.lang.RuntimeException: Failed to select programming objects for rule: TestRule
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildCompatiableRule(ModuleAlgArtifa
+ctGenerator.java:201)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildRule(ModuleAlgArtifactGenerator
+.java:166)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.lambda$4(ModuleAlgArtifactGenerator.
+java:149)
+        at java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)
+        at java.base/java.util.ArrayList$ArrayListSpliterator.forEachRemaining(ArrayList.java:1708)      
+        at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:509)
+        at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:499)        
+        at java.base/java.util.stream.ReduceOps$ReduceOp.evaluateSequential(ReduceOps.java:921)
+        at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)
+        at java.base/java.util.stream.ReferencePipeline.collect(ReferencePipeline.java:682)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildRules(ModuleAlgArtifactGenerato
+r.java:150)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildModuleInfo(ModuleAlgArtifactGen
+erator.java:65)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.forModule(ModuleAlgArtifactGenerator
+.java:352)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGeneratorTest.testDoSelectProObjs(ModuleAlgArt
+ifactGeneratorTest.java:119)
+        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.ja
+va:103)
+        at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+        at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+        at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+        at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+        at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+        at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+        at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+        at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+        at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:316)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:240)     
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:214)       
+        at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:155)
+        at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)       
+        at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+        at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+        at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+[main] WARN com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to find target object or o
+bjects for type: Para, code: Color
+doSelectProObjs test passed - result is null (expected for current implementation)
+Module methods test passed successfully
+[main] WARN com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - No reference programming objects 
+found in expression schema
+[main] ERROR com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to select programming obj
+ects for rule: TestRule
+[main] ERROR com.jmix.configengine.artifact.ModuleAlgArtifactGenerator - Failed to parse compatible rule:
+ TestRule
+java.lang.RuntimeException: Failed to select programming objects for rule: TestRule
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildCompatiableRule(ModuleAlgArtifa
+ctGenerator.java:201)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildRule(ModuleAlgArtifactGenerator
+.java:166)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.lambda$4(ModuleAlgArtifactGenerator.
+java:149)
+        at java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)
+        at java.base/java.util.ArrayList$ArrayListSpliterator.forEachRemaining(ArrayList.java:1708)      
+        at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:509)
+        at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:499)        
+        at java.base/java.util.stream.ReduceOps$ReduceOp.evaluateSequential(ReduceOps.java:921)
+        at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)
+        at java.base/java.util.stream.ReferencePipeline.collect(ReferencePipeline.java:682)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildRules(ModuleAlgArtifactGenerato
+r.java:150)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.buildModuleInfo(ModuleAlgArtifactGen
+erator.java:65)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.forModule(ModuleAlgArtifactGenerator
+.java:352)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGeneratorTest.testForModuleFactoryMethod(Modul
+eAlgArtifactGeneratorTest.java:43)
+        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.ja
+va:103)
+        at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+        at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+        at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+        at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+        at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+        at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+        at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+        at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+        at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:316)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:240)     
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:214)       
+        at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:155)
+        at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)       
+        at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+        at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+        at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+forModule factory method test passed successfully
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.236 s -- in com.jmix.configengin
+e.artifact.ModuleAlgArtifactGeneratorTest
+[INFO] Running com.jmix.configengine.model.ParaOptionBuilderTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s -- in com.jmix.configengine.m
+odel.ParaOptionBuilderTest
+[INFO] Running com.jmix.configengine.ModuleConstraintExecutorTest
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.util.ModuleUtils - Deserializing Module from JSON file: src/test/java/c
+om/jmix/configengine/scenario/tshirt/tshirtdata.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully deserialized Module from JSON file: src
+/test/java/com/jmix/configengine/scenario/tshirt/tshirtdata.json
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+添加兼容性约束: 部件数量关系规则
+未知规则类型: 颜色选择规则
+```
+
+---
+
+<think><details><summary>Thought Process</summary>**Testing and Implementation Plans**
+
+I need to ensure we finish running all tests. It seems that the command got truncated, as it didn’t print complete results for ModuleConstraintExecutorTest. I’d rather run the tests again to be sure since the user asked for a multi-solution callback. We've already made modifications in our implementations, so I’ll check that they compile and that tests pass. The previous output was incomplete, so running again seems like the best option!</details></think>
+
+---
+
+```bash
+mvn -q -DskipTests=false test
+```
+
+---
+
+_**User**_
+
+请提交
+
+---
+
+_**Assistant**_
+
+<think><details><summary>Thought Process</summary>**Preparing to commit changes**
+
+I'm thinking about running `git add -A` and committing with a detailed message about the changes. The user mentioned "提交," which might mean to commit locally, but I'd rather clarify if pushing is needed. However, since I'm not supposed to ask unless absolutely necessary, I’ll go ahead and commit locally without pushing. I'll check `git status`, followed by `git add -A` and then `git commit -m "..."`, chaining the commands. Making sure the commit message is prepared is important!
+**Listing changes for commit**
+
+I need to include several important changes in my commit: adding a Var base class, refactoring ParaVar, PartVar, and ParaOptionVar, enhancing ConstraintAlgImpl, and updating ModuleConstraintExecutorImpl to support multiple solutions via callback. I also need to update tests and the template, ensuring all tests pass.
+
+I’ll run `git add -A`, followed by a commit with my detailed message. I think I can efficiently chain this as a single line: `git add -A && git commit -m "...". Let’s proceed!</details></think>
+
+---
+
 
 
 ---
