@@ -106,9 +106,6 @@ public class ModuleAlgArtifactGenerator {
         
         // 根据ParaOption.codeId生成domain
         if (para.getOptions() != null) {
-            long[] domain = para.getOptions().stream()
-                    .mapToLong(option -> option.getCodeId())
-                    .toArray();
             // 构建ParaOptionVarInfo
             List<ParaOptionVarInfo> optionInfos = para.getOptions().stream()
                     .map(this::buildParaOptionInfo)

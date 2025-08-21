@@ -1,5 +1,6 @@
 package com.jmix.configengine.artifact;
 
+import com.google.ortools.sat.CpSolverSolutionCallback;
 import com.jmix.configengine.model.Programmable;
 
 /**
@@ -25,6 +26,10 @@ public abstract class Var<T extends Programmable> implements Programmable {
 
 	@Override
 	public String getCode() {
+		return base != null ? base.getCode() : null;
+	}
+
+	public String getVarString(CpSolverSolutionCallback solutionCallback){
 		return base != null ? base.getCode() : null;
 	}
 } 

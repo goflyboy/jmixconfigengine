@@ -1,6 +1,5 @@
 package com.jmix.configengine.artifact;
- 
-import com.jmix.configengine.artifact.*; 
+
 import com.google.ortools.sat.*;
 import com.google.ortools.util.Domain;
 import com.google.ortools.Loader;
@@ -26,12 +25,6 @@ public abstract class ConstraintAlgImpl {
 	public void initModel(CpModel model, Module module){
 		this.model = model;
 		this.module = module;
-		initModelAfter(model);
-		initVariables();
-		initConstraint();
-	}
-	public void initModel(CpModel model){
-		this.model = model;
 		initModelAfter(model);
 		initVariables();
 		initConstraint();
@@ -89,7 +82,8 @@ public abstract class ConstraintAlgImpl {
 		}
 		PartVar partVar = new PartVar();
 		partVar.setBase(part);
-		partVar.var = model.newIntVar(0, 1000, code);
+		partVar.var = model.newIntVar(0, 1, code);
+		// partVar.var = model.newIntVar(0, 1, code);
 		registerVar(code, partVar);
 		return partVar;
 	}

@@ -9,6 +9,7 @@ import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ModuleConstraintExecutorTest {
 	@Test
@@ -41,6 +42,15 @@ public class ModuleConstraintExecutorTest {
 		req.enumerateAllSolution = true;
 		ModuleConstraintExecutor.Result<List<ModuleConstraintExecutor.ModuleInst>> r 
 		= exec.inferParas(req);
+		AtomicInteger i = new AtomicInteger(0);
+		r.data.forEach(inst -> {
+			//打印第一个解
+			System.out.println("--------------------------------");
+			System.out.println("解" + i.incrementAndGet() + ":");
+			System.out.println(ModuleConstraintExecutorImpl.toJson(inst));
+		});
+		
+	
 		
 		// 枚举所有解，应该至少返回1个
 		assertEquals(0, r.code);

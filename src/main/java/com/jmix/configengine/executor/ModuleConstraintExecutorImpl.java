@@ -2,13 +2,13 @@ package com.jmix.configengine.executor;
 
 import com.jmix.configengine.ModuleConstraintExecutor;
 import com.jmix.configengine.artifact.ConstraintAlgImpl;
-import com.jmix.configengine.artifact.ParaOptionVar;
 import com.jmix.configengine.artifact.ParaVar;
 import com.jmix.configengine.artifact.PartVar;
 import com.jmix.configengine.artifact.Var;
 import com.jmix.configengine.model.Module;
-import com.jmix.configengine.model.ModuleAlgArtifact;
 import lombok.extern.slf4j.Slf4j;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.ortools.sat.*;
 
 import java.util.*;
@@ -84,7 +84,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
 			}
 			// 可按需设置更多参数
 			// if (config != null) { solver.getParameters().setLogSearchProgress(true); }
-			ModuleInstSolutionCallBack cb = new ModuleInstSolutionCallBack(alg.getVars());
+			ModuleInstSolutionCallBack cb = new ModuleInstSolutionCallBack(module, alg.getVars());
 			solver.solve(model, cb);
 			return Result.success(cb.getAllSolutions());
 		} catch (Exception ex) {
@@ -94,19 +94,26 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
 	}
 
 	static class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
+		private final Module module;
 		private final List<Var<?>> vars;
 		private final List<ModuleInst> allSolutions = new ArrayList<>();
-
-		public ModuleInstSolutionCallBack(List<Var<?>> vars) {
+		//第几个解
+		private int solutionIndex = 0;
+		public ModuleInstSolutionCallBack(Module module, List<Var<?>> vars) {
 			this.vars = vars != null ? vars : Collections.emptyList();
+			this.module = module;
 		}
 
 		@Override
 		public void onSolutionCallback() {
-			ModuleInst moduleInst = new ModuleInst();
-			List<ParaInst> paraInsts = new ArrayList<>();
-			List<PartInst> partInsts = new ArrayList<>();
+			solutionIndex++;
+			// 创建ModuleInst实例，instanceId从0开始
+			ModuleInst moduleInst = createModuleInst(module, 0);
 			for (Var<?> v : vars) {
+				//打印var.getVarString
+				log.info("-------------varInfos-solutionIndex:{}----------- \n {}"
+				, solutionIndex, v.getVarString(this));
+				//如果不是debug模式，则不打印Var的值
 				if (v instanceof ParaVar) {
 					ParaVar pv = (ParaVar) v;
 					ParaInst pi = new ParaInst();
@@ -123,22 +130,51 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
 						}
 					});
 					pi.options = options;
-					paraInsts.add(pi);
+					moduleInst.addParaInst(pi);
 				} else if (v instanceof PartVar) {
 					PartVar partVar = (PartVar) v;
 					PartInst inst = new PartInst();
 					inst.code = partVar.getCode();
 					inst.quantity = (int) value((IntVar) partVar.var);
-					partInsts.add(inst);
+					moduleInst.addPartInst(inst);
 				}
 			}
-			moduleInst.paras = paraInsts;
-			moduleInst.parts = partInsts;
 			allSolutions.add(moduleInst);
 		}
 
 		public List<ModuleInst> getAllSolutions() {
 			return allSolutions;
+		}
+	}
+	/**
+	 * 创建ModuleInst实例
+	 * @param module 模块对象
+	 * @param instanceId 实例ID，默认为0
+	 * @return ModuleInst实例
+	 */
+	private static ModuleInst createModuleInst(Module module, int instanceId) {
+		ModuleInst moduleInst = new ModuleInst();
+		moduleInst.id = module.getId();
+		moduleInst.code = module.getCode();
+		moduleInst.instanceConfigId = "INST_" + UUID.randomUUID().toString().replace("-", "").substring(0, 16);
+		moduleInst.instanceId = instanceId;
+		moduleInst.quantity = 1;
+		moduleInst.paras = new ArrayList<>();
+		moduleInst.parts = new ArrayList<>();
+		return moduleInst;
+	}
+	
+	/**
+	 * 将ModuleInst对象转换为JSON字符串
+	 * @param inst ModuleInst实例
+	 * @return JSON字符串
+	 */
+	public static String toJson(ModuleInst inst) {
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			return mapper.writeValueAsString(inst);
+		} catch (Exception e) {
+			return "{\"error\": \"序列化失败: " + e.getMessage() + "\"}";
 		}
 	}
 } 
