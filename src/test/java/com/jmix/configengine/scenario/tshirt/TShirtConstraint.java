@@ -2,6 +2,7 @@ package com.jmix.configengine.scenario.tshirt;
 
 import com.jmix.configengine.artifact.*;
 import com.google.ortools.sat.*;
+import java.util.*;
 
 /**
  * 自动生成的约束类：TShirtConstraint
@@ -51,6 +52,19 @@ public class TShirtConstraint extends ConstraintAlgImpl {
      * 规则内容：如果颜色选择红色，则尺寸必须选择大号或小号，不能选择中号
      */
     public void addConstraint_rule1() {
+        addCompatibleConstraint("rule1", this.ColorVar,
+        Arrays.asList(
+                    "Big",
+                    "Small"
+        ), this.SizeVar, Arrays.asList(
+                    "Red"
+        ));
+    }
+    /**
+     * 兼容性规则：颜色和尺寸兼容关系规则
+     * 规则内容：如果颜色选择红色，则尺寸必须选择大号或小号，不能选择中号
+     */
+    public void addConstraint_rule1_comment() { 
             // left:确保只有一个颜色选项被选中,part要考虑TODO
             model.addExactlyOne(this.ColorVar.optionSelectVars.values().stream()
                 .map(option -> option.getIsSelectedVar())

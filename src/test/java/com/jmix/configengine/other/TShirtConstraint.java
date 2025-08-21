@@ -1,6 +1,9 @@
 package com.jmix.configengine.other;
 
 import com.jmix.configengine.artifact.*;
+
+import java.util.Arrays;
+
 import com.google.ortools.sat.*;
 
 /**
@@ -30,45 +33,55 @@ public class TShirtConstraint extends ConstraintAlgImpl {
         addConstraint_rule1();
         addConstraint_rule2();
     }
-
     /**
      * 规则1：颜色和尺寸的约束关系
      * 规则名称：(Color !="Red") Codependent (Size !="Medium")
      */
     private void addConstraint_rule1() {
-        // 确保只有一个颜色选项被选中
-        model.addExactlyOne(this.ColorVar.optionSelectVars.values().stream()
-            .map(option -> option.getIsSelectedVar())
-            .toArray(BoolVar[]::new));
-        // 确保只有一个尺寸选项被选中
-        model.addExactlyOne(this.SizeVar.optionSelectVars.values().stream()
-            .map(option -> option.getIsSelectedVar())
-            .toArray(BoolVar[]::new));
-
-        // 4. 定义筛选后的集合 Set1=(A1,A2,A3) =>筛出的结果A1，A2 (filterCodeIds)
-        // 左表达式：对Color.options执行filter("Color !="Red")的结果为：(Black=10, White=20)
-        BoolVar colorNotRed = model.newBoolVar("ColorNotRed");
-        model.addBoolOr(new Literal[]{
-            this.ColorVar.optionSelectVars.get(10).getIsSelectedVar(),
-            this.ColorVar.optionSelectVars.get(20).getIsSelectedVar()
-        }).onlyEnforceIf(colorNotRed);
-        model.addBoolAnd(new Literal[]{this.ColorVar.optionSelectVars.get(10).getIsSelectedVar().not(),
-            this.ColorVar.optionSelectVars.get(20).getIsSelectedVar().not()
-        }).onlyEnforceIf(colorNotRed.not());
-        
-        // set2: Size非中号 (Big=1, Small=3)
-        BoolVar sizeNotMedium = model.newBoolVar("SizeNotMedium");
-        model.addBoolOr(new Literal[]{
-            this.SizeVar.optionSelectVars.get(1).getIsSelectedVar(),
-            this.SizeVar.optionSelectVars.get(3).getIsSelectedVar()
-        }).onlyEnforceIf(sizeNotMedium);
-        model.addBoolAnd(new Literal[]{this.SizeVar.optionSelectVars.get(1).getIsSelectedVar().not(),
-            this.SizeVar.optionSelectVars.get(2).getIsSelectedVar().not()
-        }).onlyEnforceIf(sizeNotMedium.not());
-        
-        // 5. 实现Codependent关系
-        model.addEquality(colorNotRed, sizeNotMedium);
+        addCompatibleConstraint("rule1", this.ColorVar, 
+        Arrays.asList("Red"), this.SizeVar, Arrays.asList("Medium"));
     }
+
+
+
+    // /**
+    //  * 规则1：颜色和尺寸的约束关系
+    //  * 规则名称：(Color !="Red") Codependent (Size !="Medium")
+    //  */
+    // private void addConstraint_rule1() {
+    //     // 确保只有一个颜色选项被选中
+    //     model.addExactlyOne(this.ColorVar.optionSelectVars.values().stream()
+    //         .map(option -> option.getIsSelectedVar())
+    //         .toArray(BoolVar[]::new));
+    //     // 确保只有一个尺寸选项被选中
+    //     model.addExactlyOne(this.SizeVar.optionSelectVars.values().stream()
+    //         .map(option -> option.getIsSelectedVar())
+    //         .toArray(BoolVar[]::new));
+
+    //     // 4. 定义筛选后的集合 Set1=(A1,A2,A3) =>筛出的结果A1，A2 (filterCodeIds)
+    //     // 左表达式：对Color.options执行filter("Color !="Red")的结果为：(Black=10, White=20)
+    //     BoolVar colorNotRed = model.newBoolVar("ColorNotRed");
+    //     model.addBoolOr(new Literal[]{
+    //         this.ColorVar.optionSelectVars.get(10).getIsSelectedVar(),
+    //         this.ColorVar.optionSelectVars.get(20).getIsSelectedVar()
+    //     }).onlyEnforceIf(colorNotRed);
+    //     model.addBoolAnd(new Literal[]{this.ColorVar.optionSelectVars.get(10).getIsSelectedVar().not(),
+    //         this.ColorVar.optionSelectVars.get(20).getIsSelectedVar().not()
+    //     }).onlyEnforceIf(colorNotRed.not());
+        
+    //     // set2: Size非中号 (Big=1, Small=3)
+    //     BoolVar sizeNotMedium = model.newBoolVar("SizeNotMedium");
+    //     model.addBoolOr(new Literal[]{
+    //         this.SizeVar.optionSelectVars.get(1).getIsSelectedVar(),
+    //         this.SizeVar.optionSelectVars.get(3).getIsSelectedVar()
+    //     }).onlyEnforceIf(sizeNotMedium);
+    //     model.addBoolAnd(new Literal[]{this.SizeVar.optionSelectVars.get(1).getIsSelectedVar().not(),
+    //         this.SizeVar.optionSelectVars.get(2).getIsSelectedVar().not()
+    //     }).onlyEnforceIf(sizeNotMedium.not());
+        
+    //     // 5. 实现Codependent关系
+    //     model.addEquality(colorNotRed, sizeNotMedium);
+    // }
 
     /**
      * 规则2：T恤衫数量关系约束

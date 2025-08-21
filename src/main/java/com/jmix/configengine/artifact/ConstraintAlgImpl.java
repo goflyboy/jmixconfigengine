@@ -8,6 +8,7 @@ import com.jmix.configengine.model.Para;
 import com.jmix.configengine.model.ParaOption;
 import com.jmix.configengine.model.Part;
 import java.util.*;
+
 /**
  * 约束算法实现基类
  */
@@ -101,4 +102,56 @@ public abstract class ConstraintAlgImpl {
 		optionVar.isSelectedVar = model.newBoolVar(paraCode + "_" + option.getCodeId());
 		return optionVar;
 	}
-} 
+
+	 /**
+     * 兼容性规则：颜色和尺寸兼容关系规则
+     * 规则内容：如果颜色选择红色，则尺寸必须选择大号或小号，不能选择中号
+     */
+    public void addCompatibleConstraint(String ruleCode,ParaVar leftParaVar, List<String> leftParaFilterOptionCodes,
+		ParaVar rightParaVar,List<String> rightParaFilterOptionCodes) {
+		// left:确保只有一个颜色选项被选中,part要考虑TODO
+		model.addExactlyOne(leftParaVar.optionSelectVars.values().stream()
+			.map(option -> option.getIsSelectedVar())
+			.toArray(BoolVar[]::new));
+		// right:确保只有一个颜色选项被选中,part要考虑TODO
+		model.addExactlyOne(rightParaVar.optionSelectVars.values().stream()
+			.map(option -> option.getIsSelectedVar())
+			.toArray(BoolVar[]::new));
+
+		// 4. 定义筛选后的集合 Set1=(A1,A2,A3) =>筛出的结果A1，A2 (filterCodeIds)
+		// 左表达式：对Color.options执行filter("Color !="Red")的结果为：(Black=10, White=20)
+
+		// BoolVar leftCond = model.newBoolVar(ruleCode + "_" + "leftCond");
+		// model.addBoolOr(new Literal[]{
+		// 	leftParaVar.getParaOptionByCode("Red").getIsSelectedVar()
+		// }).onlyEnforceIf(leftCond);
+		// model.addBoolAnd(new Literal[]{
+		// 	leftParaVar.getParaOptionByCode("Red").getIsSelectedVar().not()
+		// }).onlyEnforceIf(leftCond.not());
+		BoolVar leftCond = model.newBoolVar(ruleCode + "_" + "leftCond");
+		leftParaVar.optionSelectVars.values().stream().filter(option -> leftParaFilterOptionCodes.contains(option.getCode())).forEach(option -> {
+			model.addBoolOr(new Literal[]{option.getIsSelectedVar()}).onlyEnforceIf(leftCond);
+			model.addBoolAnd(new Literal[]{option.getIsSelectedVar().not()}).onlyEnforceIf(leftCond.not());
+		});
+
+
+		
+		// 右表达式：对Color.options执行filter("Color !="Red")的结果为：(Black=10, White=20)
+		// BoolVar rightCond = model.newBoolVar("rule1" + "_" + "rightCond");
+		// model.addBoolOr(new Literal[]{
+		// 	rightParaVar.getParaOptionByCode("Big").getIsSelectedVar(),
+		// 	rightParaVar.getParaOptionByCode("Small").getIsSelectedVar()
+		// }).onlyEnforceIf(rightCond);
+		// model.addBoolAnd(new Literal[]{
+		// 	rightParaVar.getParaOptionByCode("Big").getIsSelectedVar().not(),
+		// 	rightParaVar.getParaOptionByCode("Small").getIsSelectedVar().not()
+		// }).onlyEnforceIf(rightCond.not());
+		BoolVar rightCond = model.newBoolVar("rule1" + "_" + "rightCond");
+		rightParaVar.optionSelectVars.values().stream().filter(option -> rightParaFilterOptionCodes.contains(option.getCode())).forEach(option -> {
+			model.addBoolOr(new Literal[]{option.getIsSelectedVar()}).onlyEnforceIf(rightCond);
+			model.addBoolAnd(new Literal[]{option.getIsSelectedVar().not()}).onlyEnforceIf(rightCond.not());
+		});
+		// 5. 实现Codependent关系
+		model.addEquality(leftCond, rightCond);
+	}
+}

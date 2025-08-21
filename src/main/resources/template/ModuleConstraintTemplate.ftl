@@ -2,6 +2,7 @@ package ${module.packageName};
 
 import com.jmix.configengine.artifact.*;
 import com.google.ortools.sat.*;
+import java.util.*;
 
 /**
  * 自动生成的约束类：${module.code}Constraint
@@ -58,6 +59,22 @@ public class ${module.code}Constraint extends ConstraintAlgImpl {
      * 规则内容：${rule.normalNaturalCode}
      */
     public void addConstraint_${rule.code}() {
+        addCompatibleConstraint("${rule.code}", this.${rule.left.varName},
+        Arrays.asList(
+                <#list rule.rightFilterCodes as filterCode>
+                    "${filterCode}"<#if filterCode_has_next>,</#if>
+                </#list>
+        ), this.${rule.right.varName}, Arrays.asList(
+                <#list rule.leftFilterCodes as filterCode>
+                    "${filterCode}"<#if filterCode_has_next>,</#if>
+                </#list>
+        ));
+    }
+    /**
+     * 兼容性规则：${rule.name}
+     * 规则内容：${rule.normalNaturalCode}
+     */
+    public void addConstraint_${rule.code}_comment() { 
             // left:确保只有一个颜色选项被选中,part要考虑TODO
             model.addExactlyOne(this.${rule.left.varName}.optionSelectVars.values().stream()
                 .map(option -> option.getIsSelectedVar())
@@ -101,7 +118,7 @@ public class ${module.code}Constraint extends ConstraintAlgImpl {
             // 5. 实现Codependent关系
             <#if rule.leftFilterCodes?? && rule.leftFilterCodes?size gt 0 && rule.rightFilterCodes?? && rule.rightFilterCodes?size gt 0>
             model.addEquality(leftCond, rightCond);
-            </#if>
+            </#if> 
     }
 
 
