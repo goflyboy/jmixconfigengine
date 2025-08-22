@@ -2,6 +2,8 @@ package com.jmix.configengine.model;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.ArrayList;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -14,22 +16,22 @@ public class Para extends ProgrammableObject<String> {
 	/**
 	 * 参数类型
 	 */
-	private ParaType type;
+	private ParaType type= ParaType.ENUM;
 	
 	/**
 	 * 枚举类型下的具体枚举值
 	 */
-	private List<ParaOption> options;
+	private List<ParaOption> options= new ArrayList<>();
 	
 	/**
 	 * Range类型的最小值
 	 */
-	private String minValue;
+	private String minValue= null;
 	
 	/**
 	 * Range类型的最大值
 	 */
-	private String maxValue;
+	private String maxValue= null;
 
 	@JsonIgnore
 	public ParaOption getOption(String optionCode) {

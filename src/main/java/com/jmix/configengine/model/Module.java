@@ -22,7 +22,7 @@ public class Module extends ProgrammableObject<Integer> {
 	/**
 	 * 版本号
 	 */
-	private String version;
+	private String version = "1.0.0";
 	
 	/**
 	 * 包名
@@ -32,22 +32,22 @@ public class Module extends ProgrammableObject<Integer> {
 	/**
 	 * 模块类型
 	 */
-	private ModuleType type;
+	private ModuleType type = ModuleType.GENERAL;
 	
 	/**
 	 * 参数列表
 	 */
-	private List<Para> paras;
+	private List<Para> paras = new ArrayList<>();
 	
 	/**
 	 * 部件列表
 	 */
-	private List<Part> parts;
+	private List<Part> parts = new ArrayList<>();
 	
 	/**
 	 * 规则列表
 	 */
-	private List<Rule> rules;
+	private List<Rule> rules = new ArrayList<>();
 	
 	/**
 	 * 算法制品描述信息

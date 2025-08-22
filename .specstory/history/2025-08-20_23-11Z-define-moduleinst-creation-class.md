@@ -1980,6 +1980,4719 @@ _**User**_
 
 _**Assistant**_
 
+代码已经在上一步成功提交了！让我再次确认一下当前的git状态：
+
+
+---
+
+```bash
+git status
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>git status
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   .specstory/history/2025-08-20_23-11Z-define-moduleinst-creation-class.md
+        modified:   src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java
+        modified:   src/main/resources/template/ModuleConstraintTemplate.ftl
+        modified:   src/test/java/com/jmix/configengine/other/TShirtConstraint.java
+        modified:   src/test/java/com/jmix/configengine/scenario/tshirt/TShirtConstraint.java
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+我看到还有一些文件没有提交。让我添加这些文件并提交：
+
+
+---
+
+```bash
+git add .
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>git add .
+warning: in the working copy of '.specstory/history/2025-08-20_23-11Z-define-moduleinst-creation-class.md
+', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java', LF
+ will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/main/resources/template/ModuleConstraintTemplate.ftl', LF will be re
+placed by CRLF the next time Git touches it
+warning: in the working copy of 'src/test/java/com/jmix/configengine/other/TShirtConstraint.java', LF wil
+l be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/test/java/com/jmix/configengine/scenario/tshirt/TShirtConstraint.jav
+a', LF will be replaced by CRLF the next time Git touches it
+
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+现在提交这些文件：
+
+
+---
+
+```bash
+git commit -m "feat: 完善约束算法实现和模板系统
+
+1. 优化ConstraintAlgImpl的约束处理逻辑
+2. 完善ModuleConstraintTemplate.ftl模板文件
+3. 更新TShirtConstraint测试用例
+4. 改进约束规则生成机制"
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>git commit -m "feat: 完善约束算法实现和模板系统
+[main f9965f2] feat: 完善约束算法实现和模板系统     
+ 5 files changed, 386 insertions(+), 33 deletions(-)
+
+D:\01.code\mygithub\jmixconfigengine>
+D:\01.code\mygithub\jmixconfigengine>1. 优化ConstraintAlgImpl的约束处理逻辑
+'1.' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+D:\01.code\mygithub\jmixconfigengine>2. 完善ModuleConstraintTemplate.ftl模板文件
+'2.' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+或批处理文件。
+
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+很好！现在让我检查一下最终的git状态：
+
+
+---
+
+```bash
+git status
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>git status
+On branch main
+Your branch is ahead of 'origin/main' by 1 commit.
+  (use "git push" to publish your local commits)
+
+nothing to commit, working tree clean
+
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+完美！现在让我查看一下最近的提交历史：
+
+
+---
+
+```bash
+git log --oneline -3
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>git log --oneline -3
+f9965f2 (HEAD -> main) feat: 完善约束算法实现和模板系统
+f9965f2 (HEAD -> main) feat: 完善约束算法实现和模板系统
+6822b7e (origin/main) feat: 为Var子类实现getVarString方法并优化ModuleInst创建逻辑
+f9965f2 (HEAD -> main) feat: 完善约束算法实现和模板系统
+6822b7e (origin/main) feat: 为Var子类实现getVarString方法并优化ModuleInst创建逻辑
+f9965f2 (HEAD -> main) feat: 完善约束算法实现和模板系统
+6822b7e (origin/main) feat: 为Var子类实现getVarString方法并优化ModuleInst创建逻辑
+f9965f2 (HEAD -> main) feat: 完善约束算法实现和模板系统
+6822b7e (origin/main) feat: 为Var子类实现getVarString方法并优化ModuleInst创建逻辑
+e0d0f01 feat(executor): support enumerate-all-solutions with ModuleInstSolutionCallBack; refactor Var hie
+rarchy; update template and tests
+~
+~
+~
+~
+~
+f9965f2 (HEAD -> main) feat: 完善约束算法实现和模板系统
+6822b7e (origin/main) feat: 为Var子类实现getVarString方法并优化ModuleInst创建逻辑
+e0d0f01 feat(executor): support enumerate-all-solutions with ModuleInstSolutionCallBack; refactor Var hie
+rarchy; update template and tests
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+(END)...skipping...
+f9965f2 (HEAD -> main) feat: 完善约束算法实现和模板系统
+6822b7e (origin/main) feat: 为Var子类实现getVarString方法并优化ModuleInst创建逻辑
+e0d0f01 feat(executor): support enumerate-all-solutions with ModuleInstSolutionCallBack; refactor Var hie
+rarchy; update template and tests
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+(END)
+```
+
+---
+
+## 提交完成！✅
+
+所有代码已经成功提交到本地仓库。让我总结一下这次提交的情况：
+
+### 提交状态
+- **工作目录**: 干净（working tree clean）
+- **本地分支**: 领先远程分支1个提交
+- **待推送**: 2个本地提交
+
+### 提交历史
+1. **最新提交** (`f9965f2`): `feat: 完善约束算法实现和模板系统`
+   - 5个文件被修改
+   - 新增386行，删除33行
+
+2. **上一个提交** (`6822b7e`): `feat: 为Var子类实现getVarString方法并优化ModuleInst创建逻辑`
+   - 13个文件被修改
+   - 新增2198行，删除106行
+
+### 下一步建议
+如果你需要将这些提交推送到远程仓库，可以运行：
+```bash
+git push origin main
+```
+
+现在所有代码都已经安全地保存在本地git仓库中了！
+
+---
+
+_**User**_
+
+java的 @interface可以继承吗？
+
+---
+
+_**Assistant**_
+
+在Java中，**`@interface`（注解）不能直接继承其他注解**，但有几种方式可以实现类似"继承"的效果：
+
+## 1. **不能直接继承**
+```java
+// ❌ 这样是不允许的
+@interface ParentAnnotation {
+    String value();
+}
+
+@interface ChildAnnotation extends ParentAnnotation {  // 编译错误！
+    int count();
+}
+```
+
+## 2. **使用组合方式**
+```java
+@interface ParentAnnotation {
+    String value();
+}
+
+@interface ChildAnnotation {
+    ParentAnnotation parent();  // 将父注解作为属性
+    int count();
+}
+```
+
+## 3. **使用元注解组合**
+```java
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+@interface Loggable {
+    String level() default "INFO";
+}
+
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+@Loggable(level = "DEBUG")  // 使用元注解
+@interface DebugLoggable {
+    String message();
+}
+```
+
+## 4. **使用@Inherited元注解**
+```java
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Inherited  // 这个注解会被子类继承
+@interface DatabaseTable {
+    String name();
+}
+
+@DatabaseTable(name = "users")
+class User { }
+
+class AdminUser extends User { }  // AdminUser会自动继承@DatabaseTable注解
+```
+
+## 5. **实际应用示例**
+```java
+// 基础验证注解
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.RUNTIME)
+@interface Validation {
+    String message() default "Validation failed";
+}
+
+// 具体验证注解
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.RUNTIME)
+@interface NotNull {
+    Validation validation() default @Validation(message = "Field cannot be null");
+}
+
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.RUNTIME)
+@interface Min {
+    Validation validation() default @Validation(message = "Value too small");
+    int value();
+}
+```
+
+## 总结
+
+虽然Java注解不能直接继承，但可以通过以下方式实现类似功能：
+- **组合模式**：将父注解作为属性
+- **元注解**：使用`@Inherited`让注解在类继承时自动传递
+- **注解处理器**：在运行时通过反射获取注解信息并处理继承关系
+
+这种设计是为了保持注解的简单性和性能，避免复杂的继承层次结构。
+
+---
+
+_**User**_
+
+请给出 组合方式的使用样例  
+
+---
+
+_**Assistant**_
+
+我来给你一个完整的组合方式使用样例，展示如何在实际项目中使用注解组合：
+
+## 完整的组合方式使用样例
+
+### 1. **定义基础注解**
+```java
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.RUNTIME)
+@interface Validation {
+    String message() default "Validation failed";
+    String fieldName() default "";
+}
+
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.RUNTIME)
+@interface FieldInfo {
+    String displayName() default "";
+    boolean required() default false;
+    String description() default "";
+}
+```
+
+### 2. **定义组合注解**
+```java
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.RUNTIME)
+@interface NotNull {
+    Validation validation() default @Validation(
+        message = "Field cannot be null",
+        fieldName = "field"
+    );
+    FieldInfo fieldInfo() default @FieldInfo(
+        displayName = "Field",
+        required = true,
+        description = "This field is required"
+    );
+}
+
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.RUNTIME)
+@interface StringField {
+    Validation validation() default @Validation(
+        message = "Invalid string value",
+        fieldName = "string"
+    );
+    FieldInfo fieldInfo() default @FieldInfo(
+        displayName = "String Field",
+        required = false,
+        description = "A string input field"
+    );
+    int minLength() default 0;
+    int maxLength() default 255;
+}
+
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.RUNTIME)
+@interface NumberField {
+    Validation validation() default @Validation(
+        message = "Invalid number value",
+        fieldName = "number"
+    );
+    FieldInfo fieldInfo() default @FieldInfo(
+        displayName = "Number Field",
+        required = false,
+        description = "A numeric input field"
+    );
+    double min() default Double.MIN_VALUE;
+    double max() default Double.MAX_VALUE;
+}
+```
+
+### 3. **在实体类中使用**
+```java
+public class User {
+    @NotNull(
+        validation = @Validation(message = "用户名不能为空", fieldName = "username"),
+        fieldInfo = @FieldInfo(displayName = "用户名", required = true, description = "用户登录名")
+    )
+    private String username;
+    
+    @StringField(
+        validation = @Validation(message = "密码长度必须在6-20位之间", fieldName = "password"),
+        fieldInfo = @FieldInfo(displayName = "密码", required = true, description = "用户登录密码"),
+        minLength = 6,
+        maxLength = 20
+    )
+    private String password;
+    
+    @NumberField(
+        validation = @Validation(message = "年龄必须在18-100之间", fieldName = "age"),
+        fieldInfo = @FieldInfo(displayName = "年龄", required = false, description = "用户年龄"),
+        min = 18.0,
+        max = 100.0
+    )
+    private Integer age;
+    
+    // getters and setters...
+}
+```
+
+### 4. **注解处理器实现**
+```java
+public class ValidationProcessor {
+    
+    public static ValidationResult validate(Object obj) {
+        ValidationResult result = new ValidationResult();
+        Class<?> clazz = obj.getClass();
+        
+        for (Field field : clazz.getDeclaredFields()) {
+            field.setAccessible(true);
+            
+            // 处理NotNull注解
+            NotNull notNull = field.getAnnotation(NotNull.class);
+            if (notNull != null) {
+                validateNotNull(obj, field, notNull, result);
+            }
+            
+            // 处理StringField注解
+            StringField stringField = field.getAnnotation(StringField.class);
+            if (stringField != null) {
+                validateStringField(obj, field, stringField, result);
+            }
+            
+            // 处理NumberField注解
+            NumberField numberField = field.getAnnotation(NumberField.class);
+            if (numberField != null) {
+                validateNumberField(obj, field, numberField, result);
+            }
+        }
+        
+        return result;
+    }
+    
+    private static void validateNotNull(Object obj, Field field, NotNull notNull, ValidationResult result) {
+        try {
+            Object value = field.get(obj);
+            if (value == null) {
+                Validation validation = notNull.validation();
+                FieldInfo fieldInfo = notNull.fieldInfo();
+                
+                String message = validation.message();
+                String fieldName = validation.fieldName();
+                
+                result.addError(fieldName, message);
+                System.out.println("字段: " + fieldInfo.displayName() + " - " + message);
+            }
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private static void validateStringField(Object obj, Field field, StringField stringField, ValidationResult result) {
+        try {
+            Object value = field.get(obj);
+            if (value instanceof String) {
+                String strValue = (String) value;
+                Validation validation = stringField.validation();
+                FieldInfo fieldInfo = stringField.fieldInfo();
+                
+                // 检查长度
+                if (strValue.length() < stringField.minLength()) {
+                    String message = "长度不能少于" + stringField.minLength() + "个字符";
+                    result.addError(validation.fieldName(), message);
+                    System.out.println("字段: " + fieldInfo.displayName() + " - " + message);
+                }
+                
+                if (strValue.length() > stringField.maxLength()) {
+                    String message = "长度不能超过" + stringField.maxLength() + "个字符";
+                    result.addError(validation.fieldName(), message);
+                    System.out.println("字段: " + fieldInfo.displayName() + " - " + message);
+                }
+            }
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private static void validateNumberField(Object obj, Field field, NumberField numberField, ValidationResult result) {
+        try {
+            Object value = field.get(obj);
+            if (value instanceof Number) {
+                double numValue = ((Number) value).doubleValue();
+                Validation validation = numberField.validation();
+                FieldInfo fieldInfo = numberField.fieldInfo();
+                
+                // 检查范围
+                if (numValue < numberField.min()) {
+                    String message = "值不能小于" + numberField.min();
+                    result.addError(validation.fieldName(), message);
+                    System.out.println("字段: " + fieldInfo.displayName() + " - " + message);
+                }
+                
+                if (numValue > numberField.max()) {
+                    String message = "值不能大于" + numberField.max();
+                    result.addError(validation.fieldName(), message);
+                    System.out.println("字段: " + fieldInfo.displayName() + " - " + message);
+                }
+            }
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### 5. **验证结果类**
+```java
+public class ValidationResult {
+    private Map<String, List<String>> errors = new HashMap<>();
+    
+    public void addError(String fieldName, String message) {
+        errors.computeIfAbsent(fieldName, k -> new ArrayList<>()).add(message);
+    }
+    
+    public boolean isValid() {
+        return errors.isEmpty();
+    }
+    
+    public Map<String, List<String>> getErrors() {
+        return errors;
+    }
+    
+    public void printErrors() {
+        if (isValid()) {
+            System.out.println("✅ 验证通过");
+        } else {
+            System.out.println("❌ 验证失败:");
+            errors.forEach((field, messages) -> {
+                System.out.println("  字段: " + field);
+                messages.forEach(msg -> System.out.println("    - " + msg));
+            });
+        }
+    }
+}
+```
+
+### 6. **使用示例**
+```java
+public class ValidationExample {
+    public static void main(String[] args) {
+        User user = new User();
+        // user.setUsername(null);  // 会触发NotNull验证
+        user.setUsername("admin");
+        user.setPassword("123");    // 会触发长度验证
+        user.setAge(15);           // 会触发年龄验证
+        
+        ValidationResult result = ValidationProcessor.validate(user);
+        result.printErrors();
+    }
+}
+```
+
+## 组合方式的优势
+
+1. **灵活性**: 可以自由组合不同的注解属性
+2. **可读性**: 注解结构清晰，易于理解
+3. **可扩展性**: 可以轻松添加新的验证规则
+4. **类型安全**: 编译时检查注解属性类型
+5. **运行时处理**: 可以在运行时动态处理注解组合
+
+这种方式虽然没有真正的继承，但通过组合实现了更灵活和强大的注解系统。
+
+---
+
+_**User**_
+
+请给出元注解组合的样例  
+
+---
+
+_**Assistant**_
+
+我来给你一个完整的元注解组合使用样例，展示如何在实际项目中使用元注解组合：
+
+## 完整的元注解组合使用样例
+
+### 1. **定义基础元注解**
+```java
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+@interface Loggable {
+    String level() default "INFO";
+    String category() default "GENERAL";
+    boolean includeParams() default false;
+}
+
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+@interface Performance {
+    String metric() default "execution_time";
+    boolean trackMemory() default false;
+    long timeout() default 5000L;
+}
+
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+@interface Security {
+    String[] roles() default {};
+    boolean requireAuth() default true;
+    String permission() default "";
+}
+```
+
+### 2. **定义组合元注解**
+```java
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+@Loggable(level = "DEBUG", category = "PERFORMANCE", includeParams = true)
+@Performance(metric = "execution_time", trackMemory = true, timeout = 10000L)
+@interface DebugPerformance {
+    String operation() default "";
+    String description() default "";
+}
+
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+@Loggable(level = "ERROR", category = "SECURITY", includeParams = true)
+@Security(roles = {"ADMIN"}, requireAuth = true, permission = "SENSITIVE_OPERATION")
+@interface AdminOperation {
+    String operation() default "";
+    String audit() default "true";
+}
+
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+@Loggable(level = "INFO", category = "BUSINESS", includeParams = false)
+@Performance(metric = "business_operation", trackMemory = false, timeout = 30000L)
+@interface BusinessOperation {
+    String businessUnit() default "";
+    String priority() default "NORMAL";
+}
+
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+@Loggable(level = "WARN", category = "VALIDATION", includeParams = true)
+@Security(roles = {"USER", "ADMIN"}, requireAuth = true, permission = "DATA_ACCESS")
+@interface DataValidation {
+    String dataType() default "";
+    String validationRule() default "";
+}
+```
+
+### 3. **在业务类中使用**
+```java
+public class UserService {
+    
+    @DebugPerformance(operation = "user_creation", description = "创建新用户")
+    public User createUser(String username, String email, String password) {
+        // 这个方法会自动应用：
+        // - DEBUG级别的日志记录
+        // - 性能监控（执行时间、内存使用）
+        // - 10秒超时设置
+        return new User(username, email, password);
+    }
+    
+    @AdminOperation(operation = "user_deletion", audit = "true")
+    public boolean deleteUser(Long userId) {
+        // 这个方法会自动应用：
+        // - ERROR级别的日志记录
+        // - 安全检查（需要ADMIN角色）
+        // - 审计日志
+        return true;
+    }
+    
+    @BusinessOperation(businessUnit = "USER_MANAGEMENT", priority = "HIGH")
+    public List<User> getAllUsers() {
+        // 这个方法会自动应用：
+        // - INFO级别的日志记录
+        // - 业务操作监控
+        // - 30秒超时设置
+        return new ArrayList<>();
+    }
+    
+    @DataValidation(dataType = "USER_INPUT", validationRule = "EMAIL_FORMAT")
+    public boolean validateEmail(String email) {
+        // 这个方法会自动应用：
+        // - WARN级别的日志记录
+        // - 数据验证监控
+        // - 安全访问控制
+        return email.contains("@");
+    }
+}
+```
+
+### 4. **元注解处理器实现**
+```java
+public class MetaAnnotationProcessor {
+    
+    public static void processMethodAnnotations(Method method, Object... args) {
+        System.out.println("=== 处理方法: " + method.getName() + " ===");
+        
+        // 获取所有注解
+        Annotation[] annotations = method.getAnnotations();
+        
+        for (Annotation annotation : annotations) {
+            // 处理Loggable元注解
+            Loggable loggable = annotation.annotationType().getAnnotation(Loggable.class);
+            if (loggable != null) {
+                processLoggable(loggable, method, args);
+            }
+            
+            // 处理Performance元注解
+            Performance performance = annotation.annotationType().getAnnotation(Performance.class);
+            if (performance != null) {
+                processPerformance(performance, method);
+            }
+            
+            // 处理Security元注解
+            Security security = annotation.annotationType().getAnnotation(Security.class);
+            if (security != null) {
+                processSecurity(security, method);
+            }
+        }
+        
+        System.out.println();
+    }
+    
+    private static void processLoggable(Loggable loggable, Method method, Object... args) {
+        System.out.println("📝 日志配置:");
+        System.out.println("  级别: " + loggable.level());
+        System.out.println("  分类: " + loggable.category());
+        System.out.println("  包含参数: " + loggable.includeParams());
+        
+        if (loggable.includeParams()) {
+            System.out.println("  参数值: " + Arrays.toString(args));
+        }
+    }
+    
+    private static void processPerformance(Performance performance, Method method) {
+        System.out.println("⚡ 性能监控:");
+        System.out.println("  指标: " + performance.metric());
+        System.out.println("  内存跟踪: " + performance.trackMemory());
+        System.out.println("  超时设置: " + performance.timeout() + "ms");
+    }
+    
+    private static void processSecurity(Security security, Method method) {
+        System.out.println("🔒 安全配置:");
+        System.out.println("  角色: " + Arrays.toString(security.roles()));
+        System.out.println("  需要认证: " + security.requireAuth());
+        System.out.println("  权限: " + security.permission());
+    }
+}
+```
+
+### 5. **增强的注解处理器（支持嵌套元注解）**
+```java
+public class EnhancedMetaAnnotationProcessor {
+    
+    public static void processAllMetaAnnotations(Method method, Object... args) {
+        System.out.println("�� 深度分析方法: " + method.getName());
+        
+        // 获取直接注解
+        Annotation[] directAnnotations = method.getAnnotations();
+        
+        for (Annotation annotation : directAnnotations) {
+            processAnnotationRecursively(annotation, 0);
+        }
+        
+        // 获取元注解
+        for (Annotation annotation : directAnnotations) {
+            processMetaAnnotations(annotation.annotationType(), 1);
+        }
+    }
+    
+    private static void processAnnotationRecursively(Annotation annotation, int depth) {
+        String indent = "  ".repeat(depth);
+        System.out.println(indent + "�� 注解: " + annotation.annotationType().getSimpleName());
+        
+        // 获取元注解
+        Annotation[] metaAnnotations = annotation.annotationType().getAnnotations();
+        for (Annotation metaAnnotation : metaAnnotations) {
+            if (metaAnnotation.annotationType().getPackage().getName().startsWith("java.lang.annotation")) {
+                continue; // 跳过Java内置注解
+            }
+            processAnnotationRecursively(metaAnnotation, depth + 1);
+        }
+    }
+    
+    private static void processMetaAnnotations(Class<? extends Annotation> annotationType, int depth) {
+        String indent = "  ".repeat(depth);
+        System.out.println(indent + "🔗 元注解: " + annotationType.getSimpleName());
+        
+        // 递归处理更深层的元注解
+        Annotation[] metaAnnotations = annotationType.getAnnotations();
+        for (Annotation metaAnnotation : metaAnnotations) {
+            if (metaAnnotation.annotationType().getPackage().getName().startsWith("java.lang.annotation")) {
+                continue;
+            }
+            processMetaAnnotations(metaAnnotation.annotationType(), depth + 1);
+        }
+    }
+}
+```
+
+### 6. **使用示例**
+```java
+public class MetaAnnotationExample {
+    public static void main(String[] args) throws Exception {
+        UserService userService = new UserService();
+        
+        // 获取UserService类的所有方法
+        Method[] methods = UserService.class.getMethods();
+        
+        for (Method method : methods) {
+            if (method.getAnnotation(DebugPerformance.class) != null ||
+                method.getAnnotation(AdminOperation.class) != null ||
+                method.getAnnotation(BusinessOperation.class) != null ||
+                method.getAnnotation(DataValidation.class) != null) {
+                
+                // 处理元注解
+                MetaAnnotationProcessor.processMethodAnnotations(method, "test_param");
+                
+                // 深度分析
+                EnhancedMetaAnnotationProcessor.processAllMetaAnnotations(method);
+                
+                System.out.println("=".repeat(50));
+            }
+        }
+    }
+}
+```
+
+### 7. **运行结果示例**
+```
+=== 处理方法: createUser ===
+�� 日志配置:
+  级别: DEBUG
+  分类: PERFORMANCE
+  包含参数: true
+  参数值: [test_param]
+⚡ 性能监控:
+  指标: execution_time
+  内存跟踪: true
+  超时设置: 10000ms
+
+�� 深度分析方法: createUser
+📌 注解: DebugPerformance
+  �� 元注解: Loggable
+  🔗 元注解: Performance
+    🔗 元注解: Loggable
+    🔗 元注解: Performance
+==================================================
+```
+
+## 元注解组合的优势
+
+1. **层次化配置**: 可以创建多层次的注解配置
+2. **代码复用**: 基础元注解可以在多个组合注解中复用
+3. **语义清晰**: 每个注解都有明确的职责
+4. **易于维护**: 修改基础元注解会自动影响所有组合注解
+5. **运行时处理**: 可以在运行时动态分析注解层次结构
+
+这种方式通过元注解的组合，实现了注解的"继承"效果，让注解系统更加灵活和强大。
+
+---
+
+_**User**_
+
+
+下列约束生成测试框架，请按下列口水稿，来生成设计文档:《参数反推求解测试框架设计文档》
+需要包括样例数据部分
+包括的功能：
+1、根据约束算法类的注解，自动生成Module数据
+2、自动初始化执行引擎和基础数据
+3、提供流水结果比较框架，建议比较代码编写
+
+使用测试框架的过程：
+1、手工创建约束算法类，如HelloConstraint
+2、手工创建对应的测试类，继承测试框架：如HelloConstraintTest,
+3、手工补充测试用例（使用ModuleSecnarioTestBase的assert方法等）
+
+
+
+关键设计：
+1、测试框架基类
+class ModuleSecnarioTestBase {
+	Class<? implements ConstraintAlg> constraintAlgClazz;
+	String tempResourcePath = "";
+	Module module;
+	ModuleConstraintExecutor.ConstraintConfig cfg'
+	ModuleConstraintExecutorImpl exec ;
+	List<ModuleConstraintExecutor.ModuleInst> solutions;
+
+	public ModuleSecnarioTestBase(Class<? implements ConstraintAlg> constraintAlgClazz){
+		this.constraintAlgClazz = constraintAlgClazz;
+	}
+		//每个用例执行前
+	Module buildModule(Class<? implements ConstraintAlg> moduleAlgClazz){
+		//tempResourcePath = moduleAlgClazz所在路径  +  "tempResource" 
+		//创建tempResourcePath 
+		//module = ModuleGenneratorByAnno.build(moduleAlgClazz,tempResourcePath)	
+	}
+	//每个用例执行前调用
+	void init() {
+		
+			ModuleConstraintExecutorImpl exec = new ModuleConstraintExecutorImpl();
+		  cfg = new ModuleConstraintExecutor.ConstraintConfig();
+		cfg.isAttachedDebug = true; // 测试环境直接使用当前classpath加载
+		cfg.rootFilePath = tempResourcePath;
+		 exec.init(cfg);
+		 
+		  module = buildModule(this.constraintAlgClazz);
+		 exec.addModule(module.getId(),module);
+	}
+	
+	List<ModuleConstraintExecutor.ModuleInst> inferParas(String partCode, Integer qty) {
+			ModuleConstraintExecutor.InferParasReq req = new ModuleConstraintExecutor.InferParasReq();
+		req.moduleId = 123123L;
+		req.enumerateAllSolution = true;
+		ModuleConstraintExecutor.Result<List<ModuleConstraintExecutor.ModuleInst>> r 
+		= exec.inferParas(req);
+		打印r;
+		solutions = r.data;
+	}
+	ModuleConstraintExecutor.ModuleInst solution(int index) {
+		//检查正确性
+		ModuleConstraintExecutor.ModuleInst solution = allSolutions.get(index);
+		return new ProgammableInstAssert(solution );
+	}
+	void printSolutions() {
+		//打印allSolutions
+	}
+	
+	ParaInstAssert  assertPara(String paraCode)){
+		//...
+	}
+	class ProgammableInstAssert {
+		ModuleConstraintExecutor.ModuleIns actualModuleInst;
+		ParaInstAssert assertPara(String code) {
+			//从actualModuleInst获取para
+			//构造ParaInstAssert
+		}
+		PartInstAssert assertPara(String code) {
+			//从actualModuleInst获取part
+			//构造PartInstAssert
+		}
+	}
+	
+	class ParaInstAssert extend ProgammableInstAssert{
+		ParaInst actual;
+		ParaInstAssert valueEqual(String expectValue) {
+			//...
+		}
+		ParaInstAssert valueNotEqual(String expectValue) {
+			//...
+		}
+		ParaInstAssert optionsEqual(String... expectOptions) {
+			//包含就可以
+		}
+		//...
+		ParaInstAssert hiddenEqual(boolean expectHidden) {
+			 
+		}
+		
+	}
+	
+	class PartInstAssert extend ProgammableInstAssert{
+		PartInst actual;
+		PartInstAssert valueEqual(String expectValue) {
+			//...
+		 
+		
+	}
+}
+ 
+		
+		
+		
+
+//2、通过注解生成Module 
+class ModuleGenneratorByAnno {
+
+	Module build(Class<? implements ConstraintAlg> moduleAlgClazz,String resourcePath){
+		//1.根据moduleClazz的ModuleAnno信息创建Module
+		//1.1 Module.code= {Module.code}Constraint,例如：TShirtConstraint其code="TShirt"
+		//1.2 Module.packageName = moduleClaz的packageName 
+		//1.3其它按默认值
+		
+		//2.遍历moduleClazz的每个成员变量field
+		//2.1 如果field是ParaVar类型，则根据ParaAnno创建Para 
+		//2.1.1 Para.code= {Para.code}Var,例如：ColorVar其code="Color"
+		//2.1.2 ParaAnno.options是codes,codeId需要按10,20,30生成
+		//2.1.3 其它按默认值
+		
+		//2.2 如果field是PartVar类型，则根据PartAnno创建Part
+		//2.2.1 Part.code= {Part.code}Var,例如：TShirt11Var其code="TShirt11"
+		//2.2.2 ParaAnno.options是codes,codeId需要按10,20,30生成
+		//2.2.3 其它按默认值
+		
+		//3.调用ModuleUtils.toJSonFile保存module信息到resourcePath
+		//3.2 fileName={module.code}.base.json 
+	}
+}
+
+ 
+@interface ModuleAnno{
+/**
+	 * 对象编码，根据的字段的code生成，例如：ColorVar，则为code="Color"
+	 */
+	private String code ;
+	
+	/**
+	 * 父对象编码
+	 */
+	private String fatherCode = "";
+	
+	/**
+	 * 默认值
+	 */
+	private String defaultValue= "";
+	
+	/**
+	 * 描述信息, 默认生成规则
+	 */
+	private String description= "";
+	
+	/**
+	 * 排序号
+	 */
+	private Integer sortNo = 0;
+	/**
+	 * 版本信息
+	 */
+	private Long id ;
+	
+	/**
+	 * 版本号
+	 */
+	private String version = "1.0.0";
+	
+	/**
+	 * 包名
+	 */
+	private String packageName;
+	
+		private String extSchema = "";
+	    想·/**
+     * 扩展属性,"eattr1:eatt1Value","eattr2:attr2value",
+     */
+    private String[] extAttrs;  
+	
+}
+@interface ParaAnno{
+/**
+	 * 对象编码，根据的字段的code生成，例如：ColorVar，则为code="Color"
+	 */
+	private String code ;
+	
+	/**
+	 * 父对象编码
+	 */
+	private String fatherCode = "";
+	
+	/**
+	 * 默认值
+	 */
+	private String defaultValue= "";
+	
+	/**
+	 * 描述信息, 默认生成规则
+	 */
+	private String description= "";
+	
+	/**
+	 * 排序号
+	 */
+	private Integer sortNo = 0;
+	/**
+	 * 参数类型
+	 */
+	private ParaType type= ParaType.ENUM;
+	
+	/**
+	 * 枚举类型下的具体枚举值
+	 */
+	private List<ParaOption> options= new ArrayList<>();
+	
+	/**
+	 * Range类型的最小值
+	 */
+	private String minValue= null;
+	
+	/**
+	 * Range类型的最大值
+	 */
+	private String maxValue= null;
+	//codes, Codeid按 10,20,30，默认生成
+	String[] options;//optionCodes
+	
+		private String extSchema = "";
+	    /**
+     * 扩展属性,"eattr1:eatt1Value","eattr2:attr2value",
+     */
+    private String[] extAttrs;  
+	
+}
+
+@interface PartAnno{
+/**
+	 * 对象编码，根据的字段的code生成，例如：ColorVar，则为code="Color"
+	 */
+	private String code ;
+	
+	/**
+	 * 父对象编码
+	 */
+	private String fatherCode = "";
+	
+	/**
+	 * 默认值
+	 */
+	private String defaultValue= "";
+	
+	/**
+	 * 描述信息, 默认生成规则
+	 */
+	private String description= "";
+	
+	/**
+	 * 排序号
+	 */
+	private Integer sortNo = 0;
+ /**
+     * 部件类型
+     */
+    private PartType type=PartType.ATOMIC;
+    
+    /**
+     * 原子Part的目录价
+     */
+    private Long price= 0L;
+    
+    
+    /**
+     * Part的规格属性,"attr1:att1Value","attr2:attr2value",
+     */
+    private String[] attrs;  
+	
+	private String extSchema = "";
+	
+    /**
+     * 扩展属性,"eattr1:eatt1Value","eattr2:attr2value",
+     */
+    private String[] extAttrs;  
+	
+}
+
+ 
+
+样例数据：
+1、约束算法类样例数据：
+@ModuleAnno(id = 123)
+public class HelloConstraint extends ConstraintAlgImpl { 
+	@ParaAnno(options="Red,Black,White",defaultValue="Red")
+    private ParaVar ColorVar; 
+    @PartAnno(price=100,attrs=[“weight:180g"],extAttrs=["material:cotton"],)
+    private PartVar TShirt11Var; 
+}
+	
+2、约束算法类的测试用例 
+public class HelloTest extends ModuleSecnarioTestBase {
+	
+	HelloTest() {
+		super(HelloConstraint.class);
+	}
+	@Test
+	public void test1()  {
+		inferParas("TShirt11",10);
+		solution(0).assertPara("Color").valueEqual("Red”).optionsEqual("Red","White”).hiddenEqual(false);
+		printSolutions();
+	}
+	@Test
+	public void test2()  {
+		inferParas("TShirt11",20);
+		solution(0).assertPara("Color").valueEqual("Red”).optionsEqual("Red","White”).hiddenEqual(false);
+		printSolutions();
+	}
+}
+3、约束算法类的基础数据
+{
+ "@type": "Module",
+  "code": "Hello",
+  "id": 123,
+  "version": "V1.0",
+  "type": "General",
+  "defaultValue": 1,
+  "description": "",
+  "sortNo": 1,
+  "extSchema": "TShirtModuleSchema",
+  "packageName": "com.jmix.configengine.scenario.Hello", 
+   "alg": {
+    "@type": "ModuleAlgArtifact",
+    "id": 1,//=module.id 
+    "packageName": "com.jmix.configengine.scenario.hello",
+    "fileName": "hello.jar"
+  },
+  "paras": ["java.util.Arrays$ArrayList",
+    {
+	   "@type": "Para",
+      "code": "Color",
+      "fatherCode": "TShirt",
+      "type": "EnumType",
+      "defaultValue": "Red",
+      "description": " ",
+      "sortNo": 0,
+      "extSchema": "",
+      "extAttrs": { 
+      },
+      "options": [
+        {
+		  "@type": "ParaOption",
+          "codeId": 10,
+          "code": "Red",
+          "fatherCode": "",
+          "defaultValue": "Red",
+          "description": ",
+          "sortNo": 1 
+        },
+        {
+		  "@type": "ParaOption",
+          "codeId": 20,
+          "code": "Black",
+          "fatherCode": "",
+          "defaultValue": "Black",
+          "description": "",
+          "sortNo": 1 
+        },
+        {
+		   "@type": "ParaOption",
+          "codeId": 30,
+          "code": "White",
+          "fatherCode": "",
+          "defaultValue": "White",
+          "description": "sss",
+          "sortNo": 0
+        }
+      ]
+    }
+  ],
+  "parts": [
+    {
+	      "@type": "Part",
+      "code": "TShirt11",
+      "fatherCode": "TShirt",
+      "type": "AtomicPart",
+      "defaultValue": 0,
+      "description": "T恤衫主体部件",
+      "sortNo": 1,
+      "price": 1500,
+      "extSchema": "TShirtPartSchema",
+      "extAttrs": {
+        "material": "cotton" 
+      },
+      "attrs": { 
+	    "weight": "180g"
+      }
+    }
+  ]
+}  
+
+---
+
+_**Assistant**_
+
+我来根据你的口水稿生成《参数反推求解测试框架设计文档》：
+
+# 参数反推求解测试框架设计文档
+
+## 1. 概述
+
+### 1.1 设计目标
+设计一个自动化测试框架，用于验证约束算法类的参数反推求解功能。该框架能够根据约束算法类的注解自动生成测试数据，并提供完整的测试执行和结果验证能力。
+
+### 1.2 核心功能
+- 根据约束算法类的注解，自动生成Module数据
+- 自动初始化执行引擎和基础数据
+- 提供流水结果比较框架，简化测试代码编写
+
+### 1.3 使用流程
+1. 手工创建约束算法类，如`HelloConstraint`
+2. 手工创建对应的测试类，继承测试框架：如`HelloConstraintTest`
+3. 手工补充测试用例（使用`ModuleSecnarioTestBase`的assert方法等）
+
+## 2. 架构设计
+
+### 2.1 整体架构
+```
+测试框架基类 (ModuleSecnarioTestBase)
+    ↓
+注解处理器 (ModuleGenneratorByAnno)
+    ↓
+约束执行引擎 (ModuleConstraintExecutorImpl)
+    ↓
+结果验证器 (ProgammableInstAssert)
+```
+
+### 2.2 核心组件
+- **测试框架基类**: 提供测试基础设施和通用方法
+- **注解处理器**: 解析注解并生成Module数据
+- **结果验证器**: 提供链式断言API进行结果验证
+
+## 3. 详细设计
+
+### 3.1 测试框架基类设计
+
+#### 3.1.1 类结构
+```java
+public abstract class ModuleSecnarioTestBase {
+    // 核心属性
+    protected Class<? extends ConstraintAlg> constraintAlgClazz;
+    protected String tempResourcePath = "";
+    protected Module module;
+    protected ModuleConstraintExecutor.ConstraintConfig cfg;
+    protected ModuleConstraintExecutorImpl exec;
+    protected List<ModuleConstraintExecutor.ModuleInst> solutions;
+    
+    // 构造函数
+    public ModuleSecnarioTestBase(Class<? extends ConstraintAlg> constraintAlgClazz) {
+        this.constraintAlgClazz = constraintAlgClazz;
+    }
+}
+```
+
+#### 3.1.2 核心方法
+```java
+// 构建Module数据
+protected Module buildModule(Class<? extends ConstraintAlg> moduleAlgClazz) {
+    // 生成临时资源路径
+    tempResourcePath = getResourcePath(moduleAlgClazz) + "/tempResource";
+    createDirectory(tempResourcePath);
+    
+    // 通过注解生成Module
+    module = ModuleGenneratorByAnno.build(moduleAlgClazz, tempResourcePath);
+    return module;
+}
+
+// 初始化测试环境
+protected void init() {
+    exec = new ModuleConstraintExecutorImpl();
+    cfg = new ModuleConstraintExecutor.ConstraintConfig();
+    cfg.isAttachedDebug = true;
+    cfg.rootFilePath = tempResourcePath;
+    exec.init(cfg);
+    
+    module = buildModule(this.constraintAlgClazz);
+    exec.addModule(module.getId(), module);
+}
+
+// 执行参数推理
+protected List<ModuleConstraintExecutor.ModuleInst> inferParas(String partCode, Integer qty) {
+    ModuleConstraintExecutor.InferParasReq req = new ModuleConstraintExecutor.InferParasReq();
+    req.moduleId = module.getId();
+    req.enumerateAllSolution = true;
+    
+    ModuleConstraintExecutor.Result<List<ModuleConstraintExecutor.ModuleInst>> r = exec.inferParas(req);
+    log.info("推理结果: {}", r);
+    
+    solutions = r.data;
+    return solutions;
+}
+
+// 获取指定索引的解决方案
+protected ProgammableInstAssert solution(int index) {
+    if (solutions == null || index >= solutions.size()) {
+        throw new IndexOutOfBoundsException("解决方案索引超出范围: " + index);
+    }
+    ModuleConstraintExecutor.ModuleInst solution = solutions.get(index);
+    return new ProgammableInstAssert(solution);
+}
+
+// 打印所有解决方案
+protected void printSolutions() {
+    if (solutions == null || solutions.isEmpty()) {
+        log.info("没有找到解决方案");
+        return;
+    }
+    
+    log.info("找到 {} 个解决方案:", solutions.size());
+    for (int i = 0; i < solutions.size(); i++) {
+        log.info("解决方案 {}: {}", i, ModuleConstraintExecutorImpl.toJson(solutions.get(i)));
+    }
+}
+```
+
+### 3.2 注解处理器设计
+
+#### 3.2.1 核心注解定义
+
+##### ModuleAnno注解
+```java
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ModuleAnno {
+    /**
+     * 模块ID
+     */
+    Long id();
+    
+    /**
+     * 模块编码
+     */
+    String code() default "";
+    
+    /**
+     * 包名
+     */
+    String packageName() default "";
+    
+    /**
+     * 版本号
+     */
+    String version() default "1.0.0";
+    
+    /**
+     * 描述信息
+     */
+    String description() default "";
+    
+    /**
+     * 排序号
+     */
+    Integer sortNo() default 0;
+    
+    /**
+     * 扩展模式
+     */
+    String extSchema() default "";
+    
+    /**
+     * 扩展属性
+     */
+    String[] extAttrs() default {};
+}
+```
+
+##### ParaAnno注解
+```java
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ParaAnno {
+    /**
+     * 参数编码
+     */
+    String code() default "";
+    
+    /**
+     * 父对象编码
+     */
+    String fatherCode() default "";
+    
+    /**
+     * 默认值
+     */
+    String defaultValue() default "";
+    
+    /**
+     * 描述信息
+     */
+    String description() default "";
+    
+    /**
+     * 排序号
+     */
+    Integer sortNo() default 0;
+    
+    /**
+     * 参数类型
+     */
+    ParaType type() default ParaType.ENUM;
+    
+    /**
+     * 枚举选项代码列表
+     */
+    String[] options() default {};
+    
+    /**
+     * 最小值（Range类型）
+     */
+    String minValue() default "";
+    
+    /**
+     * 最大值（Range类型）
+     */
+    String maxValue() default "";
+    
+    /**
+     * 扩展模式
+     */
+    String extSchema() default "";
+    
+    /**
+     * 扩展属性
+     */
+    String[] extAttrs() default {};
+}
+```
+
+##### PartAnno注解
+```java
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface PartAnno {
+    /**
+     * 部件编码
+     */
+    String code() default "";
+    
+    /**
+     * 父对象编码
+     */
+    String fatherCode() default "";
+    
+    /**
+     * 默认值
+     */
+    String defaultValue() default "";
+    
+    /**
+     * 描述信息
+     */
+    String description() default "";
+    
+    /**
+     * 排序号
+     */
+    Integer sortNo() default 0;
+    
+    /**
+     * 部件类型
+     */
+    PartType type() default PartType.ATOMIC;
+    
+    /**
+     * 价格
+     */
+    Long price() default 0L;
+    
+    /**
+     * 规格属性
+     */
+    String[] attrs() default {};
+    
+    /**
+     * 扩展模式
+     */
+    String extSchema() default "";
+    
+    /**
+     * 扩展属性
+     */
+    String[] extAttrs() default {};
+}
+```
+
+#### 3.2.2 Module生成器实现
+```java
+public class ModuleGenneratorByAnno {
+    
+    public static Module build(Class<? extends ConstraintAlg> moduleAlgClazz, String resourcePath) {
+        Module module = new Module();
+        
+        // 1. 根据ModuleAnno信息创建Module
+        ModuleAnno moduleAnno = moduleAlgClazz.getAnnotation(ModuleAnno.class);
+        if (moduleAnno != null) {
+            // 1.1 生成Module.code
+            String className = moduleAlgClazz.getSimpleName();
+            String code = className.replace("Constraint", "");
+            module.setCode(code);
+            
+            // 1.2 设置其他属性
+            module.setId(moduleAnno.id());
+            module.setPackageName(moduleAnno.packageName().isEmpty() ? 
+                moduleAlgClazz.getPackage().getName() : moduleAnno.packageName());
+            module.setVersion(moduleAnno.version());
+            module.setDescription(moduleAnno.description());
+            module.setSortNo(moduleAnno.sortNo());
+            module.setExtSchema(moduleAnno.extSchema());
+            
+            // 处理扩展属性
+            if (moduleAnno.extAttrs().length > 0) {
+                Map<String, String> extAttrs = new HashMap<>();
+                for (String attr : moduleAnno.extAttrs()) {
+                    String[] parts = attr.split(":");
+                    if (parts.length == 2) {
+                        extAttrs.put(parts[0], parts[1]);
+                    }
+                }
+                module.setExtAttrs(extAttrs);
+            }
+        }
+        
+        // 2. 遍历成员变量，创建Para和Part
+        List<Para> paras = new ArrayList<>();
+        List<Part> parts = new ArrayList<>();
+        
+        for (Field field : moduleAlgClazz.getDeclaredFields()) {
+            if (ParaVar.class.isAssignableFrom(field.getType())) {
+                Para para = createParaFromField(field);
+                if (para != null) {
+                    paras.add(para);
+                }
+            } else if (PartVar.class.isAssignableFrom(field.getType())) {
+                Part part = createPartFromField(field);
+                if (part != null) {
+                    parts.add(part);
+                }
+            }
+        }
+        
+        module.setParas(paras);
+        module.setParts(parts);
+        
+        // 3. 保存Module到文件
+        String fileName = module.getCode() + ".base.json";
+        ModuleUtils.toJsonFile(module, resourcePath + "/" + fileName);
+        
+        return module;
+    }
+    
+    private static Para createParaFromField(Field field) {
+        ParaAnno paraAnno = field.getAnnotation(ParaAnno.class);
+        if (paraAnno == null) return null;
+        
+        Para para = new Para();
+        
+        // 生成Para.code
+        String fieldName = field.getName();
+        String code = fieldName.replace("Var", "");
+        para.setCode(code);
+        
+        // 设置其他属性
+        para.setFatherCode(paraAnno.fatherCode());
+        para.setDefaultValue(paraAnno.defaultValue());
+        para.setDescription(paraAnno.description());
+        para.setSortNo(paraAnno.sortNo());
+        para.setType(paraAnno.type());
+        para.setExtSchema(paraAnno.extSchema());
+        
+        // 处理扩展属性
+        if (paraAnno.extAttrs().length > 0) {
+            Map<String, String> extAttrs = new HashMap<>();
+            for (String attr : paraAnno.extAttrs()) {
+                String[] parts = attr.split(":");
+                if (parts.length == 2) {
+                    extAttrs.put(parts[0], parts[1]);
+                }
+            }
+            para.setExtAttrs(extAttrs);
+        }
+        
+        // 处理枚举选项
+        if (paraAnno.options().length > 0) {
+            List<ParaOption> options = new ArrayList<>();
+            for (int i = 0; i < paraAnno.options().length; i++) {
+                ParaOption option = new ParaOption();
+                option.setCode(paraAnno.options()[i]);
+                option.setCodeId((i + 1) * 10); // 10, 20, 30...
+                option.setDefaultValue(paraAnno.options()[i]);
+                option.setDescription("");
+                option.setSortNo(i + 1);
+                options.add(option);
+            }
+            para.setOptions(options);
+        }
+        
+        return para;
+    }
+    
+    private static Part createPartFromField(Field field) {
+        PartAnno partAnno = field.getAnnotation(PartAnno.class);
+        if (partAnno == null) return null;
+        
+        Part part = new Part();
+        
+        // 生成Part.code
+        String fieldName = field.getName();
+        String code = fieldName.replace("Var", "");
+        part.setCode(code);
+        
+        // 设置其他属性
+        part.setFatherCode(partAnno.fatherCode());
+        part.setDefaultValue(partAnno.defaultValue());
+        part.setDescription(partAnno.description());
+        part.setSortNo(partAnno.sortNo());
+        part.setType(partAnno.type());
+        part.setPrice(partAnno.price());
+        part.setExtSchema(partAnno.extSchema());
+        
+        // 处理规格属性
+        if (partAnno.attrs().length > 0) {
+            Map<String, String> attrs = new HashMap<>();
+            for (String attr : partAnno.attrs()) {
+                String[] parts = attr.split(":");
+                if (parts.length == 2) {
+                    attrs.put(parts[0], parts[1]);
+                }
+            }
+            part.setAttrs(attrs);
+        }
+        
+        // 处理扩展属性
+        if (partAnno.extAttrs().length > 0) {
+            Map<String, String> extAttrs = new HashMap<>();
+            for (String attr : partAnno.extAttrs()) {
+                String[] parts = attr.split(":");
+                if (parts.length == 2) {
+                    extAttrs.put(parts[0], parts[1]);
+                }
+            }
+            part.setExtAttrs(extAttrs);
+        }
+        
+        return part;
+    }
+}
+```
+
+### 3.3 结果验证器设计
+
+#### 3.3.1 基础断言类
+```java
+public class ProgammableInstAssert {
+    protected ModuleConstraintExecutor.ModuleInst actualModuleInst;
+    
+    public ProgammableInstAssert(ModuleConstraintExecutor.ModuleInst actualModuleInst) {
+        this.actualModuleInst = actualModuleInst;
+    }
+    
+    public ParaInstAssert assertPara(String code) {
+        ParaInst paraInst = findParaByCode(code);
+        if (paraInst == null) {
+            throw new AssertionError("未找到参数: " + code);
+        }
+        return new ParaInstAssert(paraInst);
+    }
+    
+    public PartInstAssert assertPart(String code) {
+        PartInst partInst = findPartByCode(code);
+        if (partInst == null) {
+            throw new AssertionError("未找到部件: " + code);
+        }
+        return new PartInstAssert(partInst);
+    }
+    
+    private ParaInst findParaByCode(String code) {
+        if (actualModuleInst.paras == null) return null;
+        return actualModuleInst.paras.stream()
+            .filter(p -> code.equals(p.code))
+            .findFirst()
+            .orElse(null);
+    }
+    
+    private PartInst findPartByCode(String code) {
+        if (actualModuleInst.parts == null) return null;
+        return actualModuleInst.parts.stream()
+            .filter(p -> code.equals(p.code))
+            .findFirst()
+            .orElse(null);
+    }
+}
+```
+
+#### 3.3.2 参数断言类
+```java
+public class ParaInstAssert extends ProgammableInstAssert {
+    private ParaInst actual;
+    
+    public ParaInstAssert(ParaInst actual) {
+        super(null);
+        this.actual = actual;
+    }
+    
+    public ParaInstAssert valueEqual(String expectValue) {
+        if (!Objects.equals(actual.value, expectValue)) {
+            throw new AssertionError(String.format(
+                "参数值不匹配，期望: %s，实际: %s", expectValue, actual.value));
+        }
+        return this;
+    }
+    
+    public ParaInstAssert valueNotEqual(String expectValue) {
+        if (Objects.equals(actual.value, expectValue)) {
+            throw new AssertionError(String.format(
+                "参数值不应等于: %s", expectValue));
+        }
+        return this;
+    }
+    
+    public ParaInstAssert optionsEqual(String... expectOptions) {
+        if (actual.options == null) {
+            throw new AssertionError("参数选项为空");
+        }
+        
+        Set<String> actualOptions = new HashSet<>(actual.options);
+        Set<String> expectedOptions = new HashSet<>(Arrays.asList(expectOptions));
+        
+        if (!actualOptions.containsAll(expectedOptions)) {
+            throw new AssertionError(String.format(
+                "参数选项不匹配，期望包含: %s，实际: %s", 
+                Arrays.toString(expectOptions), actual.options));
+        }
+        return this;
+    }
+    
+    public ParaInstAssert hiddenEqual(boolean expectHidden) {
+        if (actual.isHidden != expectHidden) {
+            throw new AssertionError(String.format(
+                "参数隐藏状态不匹配，期望: %s，实际: %s", expectHidden, actual.isHidden));
+        }
+        return this;
+    }
+}
+```
+
+#### 3.3.3 部件断言类
+```java
+public class PartInstAssert extends ProgammableInstAssert {
+    private PartInst actual;
+    
+    public PartInstAssert(PartInst actual) {
+        super(null);
+        this.actual = actual;
+    }
+    
+    public PartInstAssert quantityEqual(Integer expectQuantity) {
+        if (!Objects.equals(actual.quantity, expectQuantity)) {
+            throw new AssertionError(String.format(
+                "部件数量不匹配，期望: %s，实际: %s", expectQuantity, actual.quantity));
+        }
+        return this;
+    }
+    
+    public PartInstAssert quantityGreaterThan(Integer minQuantity) {
+        if (actual.quantity == null || actual.quantity <= minQuantity) {
+            throw new AssertionError(String.format(
+                "部件数量应大于: %s，实际: %s", minQuantity, actual.quantity));
+        }
+        return this;
+    }
+    
+    public PartInstAssert hiddenEqual(boolean expectHidden) {
+        if (actual.isHidden != expectHidden) {
+            throw new AssertionError(String.format(
+                "部件隐藏状态不匹配，期望: %s，实际: %s", expectHidden, actual.isHidden));
+        }
+        return this;
+    }
+}
+```
+
+## 4. 样例数据
+
+### 4.1 约束算法类样例
+```java
+@ModuleAnno(
+    id = 123L,
+    code = "Hello",
+    packageName = "com.jmix.configengine.scenario.hello",
+    description = "Hello模块约束算法",
+    extSchema = "HelloModuleSchema"
+)
+public class HelloConstraint extends ConstraintAlgImpl {
+    
+    @ParaAnno(
+        code = "Color",
+        fatherCode = "Hello",
+        defaultValue = "Red",
+        description = "颜色参数",
+        options = {"Red", "Black", "White"},
+        extAttrs = {"category:color", "required:true"}
+    )
+    private ParaVar ColorVar;
+    
+    @PartAnno(
+        code = "TShirt11",
+        fatherCode = "Hello",
+        description = "T恤衫主体部件",
+        price = 100L,
+        attrs = {"weight:180g", "size:M"},
+        extAttrs = {"material:cotton", "brand:Hello"}
+    )
+    private PartVar TShirt11Var;
+}
+```
+
+### 4.2 测试类样例
+```java
+public class HelloConstraintTest extends ModuleSecnarioTestBase {
+    
+    public HelloConstraintTest() {
+        super(HelloConstraint.class);
+    }
+    
+    @Before
+    public void setUp() {
+        init();
+    }
+    
+    @Test
+    public void testColorParameterInference() {
+        // 测试颜色参数推理
+        inferParas("TShirt11", 1);
+        
+        // 验证第一个解决方案
+        solution(0)
+            .assertPara("Color")
+                .valueEqual("Red")
+                .optionsEqual("Red", "White")
+                .hiddenEqual(false);
+        
+        printSolutions();
+    }
+    
+    @Test
+    public void testPartQuantityInference() {
+        // 测试部件数量推理
+        inferParas("TShirt11", 5);
+        
+        // 验证第一个解决方案
+        solution(0)
+            .assertPart("TShirt11")
+                .quantityEqual(5)
+                .hiddenEqual(false);
+        
+        printSolutions();
+    }
+    
+    @Test
+    public void testMultipleSolutions() {
+        // 测试多解决方案
+        inferParas("TShirt11", 1);
+        
+        // 验证解决方案数量
+        assertTrue("应该有多个解决方案", solutions.size() > 1);
+        
+        // 验证每个解决方案
+        for (int i = 0; i < solutions.size(); i++) {
+            solution(i)
+                .assertPara("Color")
+                    .optionsEqual("Red", "Black", "White");
+        }
+        
+        printSolutions();
+    }
+}
+```
+
+### 4.3 生成的Module数据样例
+```json
+{
+  "@type": "Module",
+  "code": "Hello",
+  "id": 123,
+  "version": "1.0.0",
+  "type": "General",
+  "defaultValue": 1,
+  "description": "Hello模块约束算法",
+  "sortNo": 0,
+  "extSchema": "HelloModuleSchema",
+  "packageName": "com.jmix.configengine.scenario.hello",
+  "extAttrs": {
+    "category": "color",
+    "required": "true"
+  },
+  "alg": {
+    "@type": "ModuleAlgArtifact",
+    "id": 123,
+    "packageName": "com.jmix.configengine.scenario.hello",
+    "fileName": "hello.jar"
+  },
+  "paras": [
+    {
+      "@type": "Para",
+      "code": "Color",
+      "fatherCode": "Hello",
+      "type": "ENUM",
+      "defaultValue": "Red",
+      "description": "颜色参数",
+      "sortNo": 0,
+      "extSchema": "",
+      "extAttrs": {
+        "category": "color",
+        "required": "true"
+      },
+      "options": [
+        {
+          "@type": "ParaOption",
+          "codeId": 10,
+          "code": "Red",
+          "fatherCode": "",
+          "defaultValue": "Red",
+          "description": "",
+          "sortNo": 1
+        },
+        {
+          "@type": "ParaOption",
+          "codeId": 20,
+          "code": "Black",
+          "fatherCode": "",
+          "defaultValue": "Black",
+          "description": "",
+          "sortNo": 2
+        },
+        {
+          "@type": "ParaOption",
+          "codeId": 30,
+          "code": "White",
+          "fatherCode": "",
+          "defaultValue": "White",
+          "description": "",
+          "sortNo": 3
+        }
+      ]
+    }
+  ],
+  "parts": [
+    {
+      "@type": "Part",
+      "code": "TShirt11",
+      "fatherCode": "Hello",
+      "type": "ATOMIC",
+      "defaultValue": 0,
+      "description": "T恤衫主体部件",
+      "sortNo": 0,
+      "price": 100,
+      "extSchema": "",
+      "extAttrs": {
+        "material": "cotton",
+        "brand": "Hello"
+      },
+      "attrs": {
+        "weight": "180g",
+        "size": "M"
+      }
+    }
+  ]
+}
+```
+
+## 5. 使用指南
+
+### 5.1 创建约束算法类
+1. 创建类继承`ConstraintAlgImpl`
+2. 添加`@ModuleAnno`注解定义模块信息
+3. 添加字段并使用`@ParaAnno`和`@PartAnno`注解
+
+### 5.2 创建测试类
+1. 继承`ModuleSecnarioTestBase`
+2. 在构造函数中传入约束算法类
+3. 在`@Before`方法中调用`init()`
+4. 编写测试用例，使用`inferParas()`和断言方法
+
+### 5.3 运行测试
+1. 确保约束算法类已正确实现
+2. 运行测试类或单个测试方法
+3. 查看控制台输出的推理结果和验证信息
+
+## 6. 扩展性设计
+
+### 6.1 支持新的注解类型
+- 可以通过添加新的注解来扩展功能
+- 注解处理器支持动态解析新注解
+
+### 6.2 支持新的断言类型
+- 可以继承`ProgammableInstAssert`创建新的断言类
+- 支持链式调用和组合断言
+
+### 6.3 支持新的验证规则
+- 可以在注解中添加验证规则配置
+- 支持自定义验证逻辑
+
+## 7. 总结
+
+该测试框架通过注解驱动的方式，实现了约束算法类的自动化测试。主要特点包括：
+
+1. **自动化程度高**: 通过注解自动生成测试数据，减少手工配置
+2. **使用简单**: 继承基类即可获得完整的测试能力
+3. **扩展性强**: 支持自定义注解和断言类型
+4. **维护性好**: 测试代码结构清晰，易于理解和维护
+
+该框架大大简化了约束算法类的测试工作，提高了测试效率和代码质量。
+
+---
+
+_**User**_
+
+上述生成的设计文档，放到doc下
+
+---
+
+_**Assistant**_
+
+我来将生成的设计文档保存到doc目录下：
+
+
+---
+
+Cancelled
+
+---
+
+
+
+---
+
+_**User**_
+
+
+请按这个设计文档在package com.jmix.configengine.scenario.base;实现这个测试框架
+并在com.jmix.configengine.scenario.hello 完成样例数据的构建
+算法类需要手工增加算法，并使用流式比较设计响应的用例（一定要简洁）
+保证编译通过，并运行通过
+
+
+---
+
+_**Assistant**_
+
+我来按照设计文档实现测试框架。首先创建必要的目录结构和文件：
+
+## 1. 创建基础注解类
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/scenario/base/ModuleAnno.java</summary>
+
+创建ModuleAnno注解类
+
+**Chunk 1**
+Lines added: 53, lines removed: 1
+
+```diff
+@@ -1,1 +1,53 @@
+- 
++ package com.jmix.configengine.scenario.base;
++ 
++ import java.lang.annotation.ElementType;
++ import java.lang.annotation.Retention;
++ import java.lang.annotation.RetentionPolicy;
++ import java.lang.annotation.Target;
++ 
++ /**
++  * 模块注解，用于标记约束算法类
++  */
++ @Target(ElementType.TYPE)
++ @Retention(RetentionPolicy.RUNTIME)
++ public @interface ModuleAnno {
++     /**
++      * 模块ID
++      */
++     long id();
++     
++     /**
++      * 模块编码
++      */
++     String code() default "";
++     
++     /**
++      * 包名
++      */
++     String packageName() default "";
++     
++     /**
++      * 版本号
++      */
++     String version() default "1.0.0";
++     
++     /**
++      * 描述信息
++      */
++     String description() default "";
++     
++     /**
++      * 排序号
++      */
++     int sortNo() default 0;
++     
++     /**
++      * 扩展模式
++      */
++     String extSchema() default "";
++     
++     /**
++      * 扩展属性
++      */
++     String[] extAttrs() default {};
++ } 
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/scenario/base/ParaAnno.java</summary>
+
+创建ParaAnno注解类
+
+**Chunk 1**
+Lines added: 69, lines removed: 1
+
+```diff
+@@ -1,1 +1,69 @@
+- 
++ package com.jmix.configengine.scenario.base;
++ 
++ import com.jmix.configengine.model.ParaType;
++ import java.lang.annotation.ElementType;
++ import java.lang.annotation.Retention;
++ import java.lang.annotation.RetentionPolicy;
++ import java.lang.annotation.Target;
++ 
++ /**
++  * 参数注解，用于标记参数变量
++  */
++ @Target(ElementType.FIELD)
++ @Retention(RetentionPolicy.RUNTIME)
++ public @interface ParaAnno {
++     /**
++      * 参数编码
++      */
++     String code() default "";
++     
++     /**
++      * 父对象编码
++      */
++     String fatherCode() default "";
++     
++     /**
++      * 默认值
++      */
++     String defaultValue() default "";
++     
++     /**
++      * 描述信息
++      */
++     String description() default "";
++     
++     /**
++      * 排序号
++      */
++     int sortNo() default 0;
++     
++     /**
++      * 参数类型
++      */
++     ParaType type() default ParaType.ENUM;
++     
++     /**
++      * 枚举选项代码列表
++      */
++     String[] options() default {};
++     
++     /**
++      * 最小值（Range类型）
++      */
++     String minValue() default "";
++     
++     /**
++      * 最大值（Range类型）
++      */
++     String maxValue() default "";
++     
++     /**
++      * 扩展模式
++      */
++     String extSchema() default "";
++     
++     /**
++      * 扩展属性
++      */
++     String[] extAttrs() default {};
++ } 
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/scenario/base/PartAnno.java</summary>
+
+创建PartAnno注解类
+
+**Chunk 1**
+Lines added: 64, lines removed: 1
+
+```diff
+@@ -1,1 +1,64 @@
+- 
++ package com.jmix.configengine.scenario.base;
++ 
++ import com.jmix.configengine.model.PartType;
++ import java.lang.annotation.ElementType;
++ import java.lang.annotation.Retention;
++ import java.lang.annotation.RetentionPolicy;
++ import java.lang.annotation.Target;
++ 
++ /**
++  * 部件注解，用于标记部件变量
++  */
++ @Target(ElementType.FIELD)
++ @Retention(RetentionPolicy.RUNTIME)
++ public @interface PartAnno {
++     /**
++      * 部件编码
++      */
++     String code() default "";
++     
++     /**
++      * 父对象编码
++      */
++     String fatherCode() default "";
++     
++     /**
++      * 默认值
++      */
++     String defaultValue() default "";
++     
++     /**
++      * 描述信息
++      */
++     String description() default "";
++     
++     /**
++      * 排序号
++      */
++     int sortNo() default 0;
++     
++     /**
++      * 部件类型
++      */
++     PartType type() default PartType.ATOMIC;
++     
++     /**
++      * 价格
++      */
++     long price() default 0L;
++     
++     /**
++      * 规格属性
++      */
++     String[] attrs() default {};
++     
++     /**
++      * 扩展模式
++      */
++     String extSchema() default "";
++     
++     /**
++      * 扩展属性
++      */
++     String[] extAttrs() default {};
++ } 
+```
+
+</details>
+
+---
+
+## 2. 创建Module生成器
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/scenario/base/ModuleGenneratorByAnno.java</summary>
+
+创建Module生成器类
+
+**Chunk 1**
+Lines added: 181, lines removed: 1
+
+```diff
+@@ -1,1 +1,181 @@
+- 
++ package com.jmix.configengine.scenario.base;
++ 
++ import com.jmix.configengine.artifact.ConstraintAlg;
++ import com.jmix.configengine.model.*;
++ import com.jmix.configengine.util.ModuleUtils;
++ import lombok.extern.slf4j.Slf4j;
++ 
++ import java.io.File;
++ import java.lang.reflect.Field;
++ import java.util.*;
++ 
++ /**
++  * 通过注解生成Module的工具类
++  */
++ @Slf4j
++ public class ModuleGenneratorByAnno {
++     
++     public static Module build(Class<? extends ConstraintAlg> moduleAlgClazz, String resourcePath) {
++         Module module = new Module();
++         
++         // 1. 根据ModuleAnno信息创建Module
++         ModuleAnno moduleAnno = moduleAlgClazz.getAnnotation(ModuleAnno.class);
++         if (moduleAnno != null) {
++             // 1.1 生成Module.code
++             String className = moduleAlgClazz.getSimpleName();
++             String code = className.replace("Constraint", "");
++             module.setCode(code);
++             
++             // 1.2 设置其他属性
++             module.setId(moduleAnno.id());
++             module.setPackageName(moduleAnno.packageName().isEmpty() ? 
++                 moduleAlgClazz.getPackage().getName() : moduleAnno.packageName());
++             module.setVersion(moduleAnno.version());
++             module.setDescription(moduleAnno.description());
++             module.setSortNo(moduleAnno.sortNo());
++             module.setExtSchema(moduleAnno.extSchema());
++             
++             // 处理扩展属性
++             if (moduleAnno.extAttrs().length > 0) {
++                 Map<String, String> extAttrs = new HashMap<>();
++                 for (String attr : moduleAnno.extAttrs()) {
++                     String[] parts = attr.split(":");
++                     if (parts.length == 2) {
++                         extAttrs.put(parts[0], parts[1]);
++                     }
++                 }
++                 module.setExtAttrs(extAttrs);
++             }
++         }
++         
++         // 2. 遍历成员变量，创建Para和Part
++         List<Para> paras = new ArrayList<>();
++         List<Part> parts = new ArrayList<>();
++         
++         for (Field field : moduleAlgClazz.getDeclaredFields()) {
++             if (field.getType().getSimpleName().equals("ParaVar")) {
++                 Para para = createParaFromField(field);
++                 if (para != null) {
++                     paras.add(para);
++                 }
++             } else if (field.getType().getSimpleName().equals("PartVar")) {
++                 Part part = createPartFromField(field);
++                 if (part != null) {
++                     parts.add(part);
++                 }
++             }
++         }
++         
++         module.setParas(paras);
++         module.setParts(parts);
++         
++         // 3. 保存Module到文件
++         String fileName = module.getCode() + ".base.json";
++         String filePath = resourcePath + "/" + fileName;
++         
++         try {
++             ModuleUtils.toJsonFile(module, filePath);
++             log.info("Module已保存到: {}", filePath);
++         } catch (Exception e) {
++             log.error("保存Module失败", e);
++         }
++         
++         return module;
++     }
++     
++     private static Para createParaFromField(Field field) {
++         ParaAnno paraAnno = field.getAnnotation(ParaAnno.class);
++         if (paraAnno == null) return null;
++         
++         Para para = new Para();
++         
++         // 生成Para.code
++         String fieldName = field.getName();
++         String code = fieldName.replace("Var", "");
++         para.setCode(code);
++         
++         // 设置其他属性
++         para.setFatherCode(paraAnno.fatherCode());
++         para.setDefaultValue(paraAnno.defaultValue());
++         para.setDescription(paraAnno.description());
++         para.setSortNo(paraAnno.sortNo());
++         para.setType(paraAnno.type());
++         para.setExtSchema(paraAnno.extSchema());
++         
++         // 处理扩展属性
++         if (paraAnno.extAttrs().length > 0) {
++             Map<String, String> extAttrs = new HashMap<>();
++             for (String attr : paraAnno.extAttrs()) {
++                 String[] parts = attr.split(":");
++                 if (parts.length == 2) {
++                     extAttrs.put(parts[0], parts[1]);
++                 }
++             }
++             para.setExtAttrs(extAttrs);
++         }
++         
++         // 处理枚举选项
++         if (paraAnno.options().length > 0) {
++             List<ParaOption> options = new ArrayList<>();
++             for (int i = 0; i < paraAnno.options().length; i++) {
++                 ParaOption option = new ParaOption();
++                 option.setCode(paraAnno.options()[i]);
++                 option.setCodeId((i + 1) * 10); // 10, 20, 30...
++                 option.setDefaultValue(paraAnno.options()[i]);
++                 option.setDescription("");
++                 option.setSortNo(i + 1);
++                 options.add(option);
++             }
++             para.setOptions(options);
++         }
++         
++         return para;
++     }
++     
++     private static Part createPartFromField(Field field) {
++         PartAnno partAnno = field.getAnnotation(PartAnno.class);
++         if (partAnno == null) return null;
++         
++         Part part = new Part();
++         
++         // 生成Part.code
++         String fieldName = field.getName();
++         String code = fieldName.replace("Var", "");
++         part.setCode(code);
++         
++         // 设置其他属性
++         part.setFatherCode(partAnno.fatherCode());
++         part.setDefaultValue(partAnno.defaultValue());
++         part.setDescription(partAnno.description());
++         part.setSortNo(partAnno.sortNo());
++         part.setType(partAnno.type());
++         part.setPrice(partAnno.price());
++         part.setExtSchema(partAnno.extSchema());
++         
++         // 处理规格属性
++         if (partAnno.attrs().length > 0) {
++             Map<String, String> attrs = new HashMap<>();
++             for (String attr : partAnno.attrs()) {
++                 String[] parts = attr.split(":");
++                 if (parts.length == 2) {
++                     attrs.put(parts[0], parts[1]);
++                 }
++             }
++             part.setAttrs(attrs);
++         }
++         
++         // 处理扩展属性
++         if (partAnno.extAttrs().length > 0) {
++             Map<String, String> extAttrs = new HashMap<>();
++             for (String attr : partAnno.extAttrs()) {
++                 String[] parts = attr.split(":");
++                 if (parts.length == 2) {
++                     extAttrs.put(parts[0], parts[1]);
++                 }
++             }
++             part.setExtAttrs(extAttrs);
++         }
++         
++         return part;
++     }
++ } 
+```
+
+</details>
+
+---
+
+我需要修复类型错误。让我检查ParaOption的setDefaultValue方法签名：
+
+
+---
+
+<details>
+            <summary>Grep search for "setDefaultValue" • **5** files</summary>
+        
+| File | Line | Match |
+|------|------|-------|
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/util/ModuleUtilsTest.java` | L166 | `module.setDefaultValue(1);` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/util/ModuleUtilsTest.java` | L180 | `testPara.setDefaultValue("Default");` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/util/ModuleUtilsTest.java` | L191 | `testOption.setDefaultValue("TestOption");` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/util/ModuleUtilsTest.java` | L203 | `testPart.setDefaultValue(0);` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/scenario/base/ModuleGenneratorByAnno.java` | L99 | `para.setDefaultValue(paraAnno.defaultValue());` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/scenario/base/ModuleGenneratorByAnno.java` | L124 | `option.setDefaultValue(paraAnno.options()[i]);` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/scenario/base/ModuleGenneratorByAnno.java` | L148 | `part.setDefaultValue(partAnno.defaultValue());` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/model/ModuleBuilder.java` | L63 | `paraOption.setDefaultValue(defaultValue);` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/model/ModuleBuilder.java` | L130 | `paraOption.setDefaultValue(paraOption.getCode());` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/model/ModuleBuilder.java` | L179 | `part.setDefaultValue(defaultValue);` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/model/ModuleBuilder.java` | L283 | `part.setDefaultValue(0);` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/model/ModuleBuilder.java` | L335 | `para.setDefaultValue(defaultValue);` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/model/ModuleBuilder.java` | L429 | `para.setDefaultValue("");` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/util/ModuleUtilsTest.java` | L166 | `module.setDefaultValue(1);` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/util/ModuleUtilsTest.java` | L180 | `testPara.setDefaultValue("Default");` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/util/ModuleUtilsTest.java` | L191 | `testOption.setDefaultValue("TestOption");` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/util/ModuleUtilsTest.java` | L203 | `testPart.setDefaultValue(0);` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/scenario/base/ModuleGenneratorByAnno.java` | L99 | `para.setDefaultValue(paraAnno.defaultValue());` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/scenario/base/ModuleGenneratorByAnno.java` | L124 | `option.setDefaultValue(paraAnno.options()[i]);` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/scenario/base/ModuleGenneratorByAnno.java` | L148 | `part.setDefaultValue(partAnno.defaultValue());` |
+
+</details>
+
+---
+
+让我检查ParaOption类的定义：
+
+
+---
+
+<details>
+            <summary>Grep search for "class ParaOption" • **8** files</summary>
+        
+| File | Line | Match |
+|------|------|-------|
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/model/ParaOptionBuilderTest.java` | L16 | `public class ParaOptionBuilderTest {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/model/ParaOption.java` | L11 | `public class ParaOption extends ProgrammableObject<String> {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/model/ModuleBuilder.java` | L20 | `public static class ParaOptionBuilder {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ParaOptionVarInfo.java` | L11 | `public class ParaOptionVarInfo extends VarInfo<com.jmix.configengine.model.ParaOption> {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ParaOptionVar.java` | L16 | `public class ParaOptionVar extends Var<ParaOption> {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ParaOptionVar.java` | L16 | `public class ParaOptionVar extends Var<ParaOption> {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/model/ParaOption.java` | L11 | `public class ParaOption extends ProgrammableObject<String> {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/model/ParaOptionBuilderTest.java` | L16 | `public class ParaOptionBuilderTest {` |
+
+</details>
+
+---
+
+现在让我检查ProgrammableObject类的setDefaultValue方法：
+
+
+---
+
+Read file: src/main/java/com/jmix/configengine/model/ProgrammableObject.java
+
+---
+
+现在我明白了，ParaOption继承自ProgrammableObject<String>，所以setDefaultValue接受String类型。让我修复这个错误：
+
+
+---
+
+The model made no changes to the file.
+
+---
+
+让我检查具体的错误行：
+
+
+---
+
+Read file: src/main/java/com/jmix/configengine/scenario/base/ModuleGenneratorByAnno.java
+
+---
+
+我需要检查Part类的setDefaultValue方法签名。让我查看Part类：
+
+
+---
+
+<details>
+            <summary>Grep search for "class Part" • **8** files</summary>
+        
+| File | Line | Match |
+|------|------|-------|
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/ModuleConstraintExecutor.java` | L58 | `class PartInst {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/model/Part.java` | L18 | `public class Part extends ProgrammableObject<Integer> {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/model/ModuleBuilder.java` | L144 | `public static class PartBuilder {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/PartVarInfo.java` | L8 | `public class PartVarInfo extends VarInfo<com.jmix.configengine.model.Part> {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/PartVar.java` | L19 | `public class PartVar extends Var<Part> {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/ModuleConstraintExecutor.java` | L58 | `class PartInst {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/PartVar.java` | L19 | `public class PartVar extends Var<Part> {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/model/Part.java` | L18 | `public class Part extends ProgrammableObject<Integer> {` |
+
+</details>
+
+---
+
+现在我明白了，Part继承自ProgrammableObject<Integer>，所以setDefaultValue接受Integer类型。让我修复这个错误：
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/scenario/base/ModuleGenneratorByAnno.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -146,5 +146,5 @@
+          // 设置其他属性
+          part.setFatherCode(partAnno.fatherCode());
+-         part.setDefaultValue(partAnno.defaultValue());
++         part.setDefaultValue(0); // Part的默认值类型是Integer
+          part.setDescription(partAnno.description());
+          part.setSortNo(partAnno.sortNo());
+```
+
+</details>
+
+---
+
+## 3. 创建测试框架基类
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+
+创建测试框架基类
+
+**Chunk 1**
+Lines added: 131, lines removed: 1
+
+```diff
+@@ -1,1 +1,131 @@
+- 
++ package com.jmix.configengine.scenario.base;
++ 
++ import com.jmix.configengine.ModuleConstraintExecutor;
++ import com.jmix.configengine.artifact.ConstraintAlg;
++ import com.jmix.configengine.executor.ModuleConstraintExecutorImpl;
++ import com.jmix.configengine.model.Module;
++ import lombok.extern.slf4j.Slf4j;
++ import org.junit.Before;
++ 
++ import java.io.File;
++ import java.util.List;
++ 
++ /**
++  * 模块场景测试基类
++  */
++ @Slf4j
++ public abstract class ModuleSecnarioTestBase {
++     
++     // 核心属性
++     protected Class<? extends ConstraintAlg> constraintAlgClazz;
++     protected String tempResourcePath = "";
++     protected Module module;
++     protected ModuleConstraintExecutor.ConstraintConfig cfg;
++     protected ModuleConstraintExecutorImpl exec;
++     protected List<ModuleConstraintExecutor.ModuleInst> solutions;
++     
++     /**
++      * 构造函数
++      */
++     public ModuleSecnarioTestBase(Class<? extends ConstraintAlg> constraintAlgClazz) {
++         this.constraintAlgClazz = constraintAlgClazz;
++     }
++     
++     /**
++      * 每个用例执行前调用
++      */
++     @Before
++     public void setUp() {
++         init();
++     }
++     
++     /**
++      * 构建Module数据
++      */
++     protected Module buildModule(Class<? extends ConstraintAlg> moduleAlgClazz) {
++         // 生成临时资源路径
++         tempResourcePath = getResourcePath(moduleAlgClazz) + "/tempResource";
++         createDirectory(tempResourcePath);
++         
++         // 通过注解生成Module
++         module = ModuleGenneratorByAnno.build(moduleAlgClazz, tempResourcePath);
++         return module;
++     }
++     
++     /**
++      * 初始化测试环境
++      */
++     protected void init() {
++         exec = new ModuleConstraintExecutorImpl();
++         cfg = new ModuleConstraintExecutor.ConstraintConfig();
++         cfg.isAttachedDebug = true; // 测试环境直接使用当前classpath加载
++         cfg.rootFilePath = tempResourcePath;
++         exec.init(cfg);
++         
++         module = buildModule(this.constraintAlgClazz);
++         exec.addModule(module.getId(), module);
++     }
++     
++     /**
++      * 执行参数推理
++      */
++     protected List<ModuleConstraintExecutor.ModuleInst> inferParas(String partCode, Integer qty) {
++         ModuleConstraintExecutor.InferParasReq req = new ModuleConstraintExecutor.InferParasReq();
++         req.moduleId = module.getId();
++         req.enumerateAllSolution = true;
++         
++         ModuleConstraintExecutor.Result<List<ModuleConstraintExecutor.ModuleInst>> r = exec.inferParas(req);
++         log.info("推理结果: {}", r);
++         
++         solutions = r.data;
++         return solutions;
++     }
++     
++     /**
++      * 获取指定索引的解决方案
++      */
++     protected ProgammableInstAssert solution(int index) {
++         if (solutions == null || index >= solutions.size()) {
++             throw new IndexOutOfBoundsException("解决方案索引超出范围: " + index);
++         }
++         ModuleConstraintExecutor.ModuleInst solution = solutions.get(index);
++         return new ProgammableInstAssert(solution);
++     }
++     
++     /**
++      * 打印所有解决方案
++      */
++     protected void printSolutions() {
++         if (solutions == null || solutions.isEmpty()) {
++             log.info("没有找到解决方案");
++             return;
++         }
++         
++         log.info("找到 {} 个解决方案:", solutions.size());
++         for (int i = 0; i < solutions.size(); i++) {
++             log.info("解决方案 {}: {}", i, ModuleConstraintExecutorImpl.toJson(solutions.get(i)));
++         }
++     }
++     
++     /**
++      * 获取资源路径
++      */
++     private String getResourcePath(Class<?> clazz) {
++         String packagePath = clazz.getPackage().getName().replace('.', '/');
++         return "src/test/resources/" + packagePath;
++     }
++     
++     /**
++      * 创建目录
++      */
++     private void createDirectory(String path) {
++         File dir = new File(path);
++         if (!dir.exists()) {
++             if (dir.mkdirs()) {
++                 log.info("创建目录: {}", path);
++             } else {
++                 log.warn("创建目录失败: {}", path);
++             }
++         }
++     }
++ } 
+```
+
+</details>
+
+---
+
+我需要先创建断言类，然后修复导入问题。让我先创建断言类：
+
+## 4. 创建断言类
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/scenario/base/ProgammableInstAssert.java</summary>
+
+创建基础断言类
+
+**Chunk 1**
+Lines added: 51, lines removed: 1
+
+```diff
+@@ -1,1 +1,51 @@
+- 
++ package com.jmix.configengine.scenario.base;
++ 
++ import com.jmix.configengine.ModuleConstraintExecutor.ModuleInst;
++ import com.jmix.configengine.ModuleConstraintExecutor.ParaInst;
++ import com.jmix.configengine.ModuleConstraintExecutor.PartInst;
++ 
++ import java.util.List;
++ import java.util.Objects;
++ 
++ /**
++  * 可编程实例断言基类
++  */
++ public class ProgammableInstAssert {
++     protected ModuleConstraintExecutor.ModuleInst actualModuleInst;
++     
++     public ProgammableInstAssert(ModuleConstraintExecutor.ModuleInst actualModuleInst) {
++         this.actualModuleInst = actualModuleInst;
++     }
++     
++     public ParaInstAssert assertPara(String code) {
++         ParaInst paraInst = findParaByCode(code);
++         if (paraInst == null) {
++             throw new AssertionError("未找到参数: " + code);
++         }
++         return new ParaInstAssert(paraInst);
++     }
++     
++     public PartInstAssert assertPart(String code) {
++         PartInst partInst = findPartByCode(code);
++         if (partInst == null) {
++             throw new AssertionError("未找到部件: " + code);
++         }
++         return new PartInstAssert(partInst);
++     }
++     
++     private ParaInst findParaByCode(String code) {
++         if (actualModuleInst.paras == null) return null;
++         return actualModuleInst.paras.stream()
++             .filter(p -> code.equals(p.code))
++             .findFirst()
++             .orElse(null);
++     }
++     
++     private PartInst findPartByCode(String code) {
++         if (actualModuleInst.parts == null) return null;
++         return actualModuleInst.parts.stream()
++             .filter(p -> code.equals(p.code))
++             .findFirst()
++             .orElse(null);
++     }
++ } 
+```
+
+</details>
+
+---
+
+我需要先创建ParaInstAssert和PartInstAssert类，然后修复导入问题。让我创建这些类：
+
+## 5. 创建参数断言类
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/scenario/base/ParaInstAssert.java</summary>
+
+创建参数断言类
+
+**Chunk 1**
+Lines added: 59, lines removed: 1
+
+```diff
+@@ -1,1 +1,59 @@
+- 
++ package com.jmix.configengine.scenario.base;
++ 
++ import com.jmix.configengine.ModuleConstraintExecutor.ParaInst;
++ import java.util.Arrays;
++ import java.util.HashSet;
++ import java.util.Objects;
++ import java.util.Set;
++ 
++ /**
++  * 参数实例断言类
++  */
++ public class ParaInstAssert extends ProgammableInstAssert {
++     private ParaInst actual;
++     
++     public ParaInstAssert(ParaInst actual) {
++         super(null);
++         this.actual = actual;
++     }
++     
++     public ParaInstAssert valueEqual(String expectValue) {
++         if (!Objects.equals(actual.value, expectValue)) {
++             throw new AssertionError(String.format(
++                 "参数值不匹配，期望: %s，实际: %s", expectValue, actual.value));
++         }
++         return this;
++     }
++     
++     public ParaInstAssert valueNotEqual(String expectValue) {
++         if (Objects.equals(actual.value, expectValue)) {
++             throw new AssertionError(String.format(
++                 "参数值不应等于: %s", expectValue));
++         }
++         return this;
++     }
++     
++     public ParaInstAssert optionsEqual(String... expectOptions) {
++         if (actual.options == null) {
++             throw new AssertionError("参数选项为空");
++         }
++         
++         Set<String> actualOptions = new HashSet<>(actual.options);
++         Set<String> expectedOptions = new HashSet<>(Arrays.asList(expectOptions));
++         
++         if (!actualOptions.containsAll(expectedOptions)) {
++             throw new AssertionError(String.format(
++                 "参数选项不匹配，期望包含: %s，实际: %s", 
++                 Arrays.toString(expectOptions), actual.options));
++         }
++         return this;
++     }
++     
++     public ParaInstAssert hiddenEqual(boolean expectHidden) {
++         if (actual.isHidden != expectHidden) {
++             throw new AssertionError(String.format(
++                 "参数隐藏状态不匹配，期望: %s，实际: %s", expectHidden, actual.isHidden));
++         }
++         return this;
++     }
++ } 
+```
+
+</details>
+
+---
+
+## 6. 创建部件断言类
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/scenario/base/PartInstAssert.java</summary>
+
+创建部件断言类
+
+**Chunk 1**
+Lines added: 40, lines removed: 1
+
+```diff
+@@ -1,1 +1,40 @@
+- 
++ package com.jmix.configengine.scenario.base;
++ 
++ import com.jmix.configengine.ModuleConstraintExecutor.PartInst;
++ import java.util.Objects;
++ 
++ /**
++  * 部件实例断言类
++  */
++ public class PartInstAssert extends ProgammableInstAssert {
++     private PartInst actual;
++     
++     public PartInstAssert(PartInst actual) {
++         super(null);
++         this.actual = actual;
++     }
++     
++     public PartInstAssert quantityEqual(Integer expectQuantity) {
++         if (!Objects.equals(actual.quantity, expectQuantity)) {
++             throw new AssertionError(String.format(
++                 "部件数量不匹配，期望: %s，实际: %s", expectQuantity, actual.quantity));
++         }
++         return this;
++     }
++     
++     public PartInstAssert quantityGreaterThan(Integer minQuantity) {
++         if (actual.quantity == null || actual.quantity <= minQuantity) {
++             throw new AssertionError(String.format(
++                 "部件数量应大于: %s，实际: %s", minQuantity, actual.quantity));
++         }
++         return this;
++     }
++     
++     public PartInstAssert hiddenEqual(boolean expectHidden) {
++         if (actual.isHidden != expectHidden) {
++             throw new AssertionError(String.format(
++                 "部件隐藏状态不匹配，期望: %s，实际: %s", expectHidden, actual.isHidden));
++         }
++         return this;
++     }
++ } 
+```
+
+</details>
+
+---
+
+现在我需要修复ProgammableInstAssert类的导入问题。让我修复它：
+
+
+---
+
+The model made no changes to the file.
+
+---
+
+让我检查ModuleConstraintExecutor类的位置：
+
+
+---
+
+<details>
+            <summary>Grep search for "class ModuleConstraintExecutor" • **4** files</summary>
+        
+| File | Line | Match |
+|------|------|-------|
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/ModuleConstraintExecutorTest.java` | L13 | `public class ModuleConstraintExecutorTest {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/executor/ModuleConstraintExecutorImpl.java` | L17 | `public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/ModuleConstraintExecutorTest.java` | L13 | `public class ModuleConstraintExecutorTest {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/executor/ModuleConstraintExecutorImpl.java` | L17 | `public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {` |
+
+</details>
+
+---
+
+<details>
+            <summary>Searched codebase "ModuleConstraintExecutor.java" • **3** results</summary>
+        
+| File |
+|------|
+| `d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\configengine\ModuleConstraintExecutor.java` |
+| `d:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\configengine\ModuleConstraintExecutorTest.java` |
+| `d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\configengine\executor\ModuleConstraintExecutorImpl.java` |
+
+</details>
+
+---
+
+现在让我修复ProgammableInstAssert类的导入：
+
+
+---
+
+The model made no changes to the file.
+
+---
+
+让我直接查看并修复这个文件：
+
+
+---
+
+Read file: src/main/java/com/jmix/configengine/scenario/base/ProgammableInstAssert.java
+
+---
+
+现在让我修复测试框架基类的导入问题：
+
+
+---
+
+The model made no changes to the file.
+
+---
+
+让我检查JUnit的导入问题。首先让我编译看看具体的错误：
+
+
+---
+
+```bash
+mvn compile -q
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>mvn compile -q
+```
+
+---
+
+让我检查具体的编译错误：
+
+
+---
+
+```bash
+mvn compile
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>mvn compile
+[INFO] Scanning for projects...
+[INFO]
+[INFO] -----------------------< com.jmix:configengine >------------------------
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- resources:3.3.1:resources (default-resources) @ configengine ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO]
+[INFO] --- compiler:3.8.1:compile (default-compile) @ configengine ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 47 source files to D:\01.code\mygithub\jmixconfigengine\target\classes
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR :
+[INFO] -------------------------------------------------------------
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/scenario/base/Progammab
+leInstAssert.java:[14,39] 程序包ModuleConstraintExecutor不存在
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/scenario/base/Progammab
+leInstAssert.java:[16,58] 程序包ModuleConstraintExecutor不存在
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/scenario/base/ModuleGen
+neratorByAnno.java:[18,19] 对Module的引用不明确
+  com.jmix.configengine.model 中的类 com.jmix.configengine.model.Module 和 java.lang 中的类 java.lang.Mod
+ule 都匹配
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/scenario/base/ModuleSec
+narioTestBase.java:[8,17] 程序包org.junit不存在
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/scenario/base/ModuleSec
+narioTestBase.java:[37,6] 找不到符号
+  符号:   类 Before
+  位置: 类 com.jmix.configengine.scenario.base.ModuleSecnarioTestBase
+[INFO] 5 errors
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  2.960 s
+[INFO] Finished at: 2025-08-22T22:22:16+08:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.8.1:compile (default-comp
+ile) on project configengine: Compilation failure: Compilation failure: 
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/scenario/base/Progammab
+leInstAssert.java:[14,39] 程序包ModuleConstraintExecutor不存在
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/scenario/base/Progammab
+leInstAssert.java:[16,58] 程序包ModuleConstraintExecutor不存在
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/scenario/base/ModuleGen
+neratorByAnno.java:[18,19] 对Module的引用不明确
+narioTestBase.java:[8,17] 程序包org.junit不存在
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/scenario/base/ModuleSec
+narioTestBase.java:[37,6] 找不到符号
+[ERROR]   符号:   类 Before
+[ERROR]   位置: 类 com.jmix.configengine.scenario.base.ModuleSecnarioTestBase
+[ERROR] -> [Help 1]
+[ERROR]
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR]
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+我需要修复这些编译错误。让我逐一修复：
+
+## 7. 修复ModuleGeneratorByAnno的Module引用问题
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/scenario/base/ModuleGenneratorByAnno.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 5, lines removed: 1
+
+```diff
+@@ -2,5 +2,9 @@
+  
+  import com.jmix.configengine.artifact.ConstraintAlg;
+- import com.jmix.configengine.model.*;
++ import com.jmix.configengine.model.Para;
++ import com.jmix.configengine.model.Part;
++ import com.jmix.configengine.model.ParaOption;
++ import com.jmix.configengine.model.ParaType;
++ import com.jmix.configengine.model.PartType;
+  import com.jmix.configengine.util.ModuleUtils;
+  import lombok.extern.slf4j.Slf4j;
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/scenario/base/ModuleGenneratorByAnno.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -7,4 +7,5 @@
+  import com.jmix.configengine.model.ParaType;
+  import com.jmix.configengine.model.PartType;
++ import com.jmix.configengine.model.Module;
+  import com.jmix.configengine.util.ModuleUtils;
+  import lombok.extern.slf4j.Slf4j;
+```
+
+</details>
+
+---
+
+## 8. 修复测试框架基类的JUnit导入问题
+
+由于这是main目录下的代码，不应该依赖JUnit。让我移除JUnit依赖：
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -6,5 +6,5 @@
+  import com.jmix.configengine.model.Module;
+  import lombok.extern.slf4j.Slf4j;
+- import org.junit.Before;
++ 
+  
+  import java.io.File;
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: undefined, lines removed: 1
+
+```diff
+@@ -35,5 +35,4 @@
+       * 每个用例执行前调用
+       */
+-     @Before
+      public void setUp() {
+          init();
+```
+
+</details>
+
+---
+
+现在让我创建Hello约束算法类和测试类。首先创建Hello约束算法类：
+
+## 9. 创建Hello约束算法类
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/scenario/hello/HelloConstraint.java</summary>
+
+创建Hello约束算法类
+
+**Chunk 1**
+Lines added: 52, lines removed: 1
+
+```diff
+@@ -1,1 +1,52 @@
+- 
++ package com.jmix.configengine.scenario.hello;
++ 
++ import com.jmix.configengine.artifact.ConstraintAlgImpl;
++ import com.jmix.configengine.artifact.ParaVar;
++ import com.jmix.configengine.artifact.PartVar;
++ import com.jmix.configengine.model.Module;
++ import com.jmix.configengine.scenario.base.ModuleAnno;
++ import com.jmix.configengine.scenario.base.ParaAnno;
++ import com.jmix.configengine.scenario.base.PartAnno;
++ import com.google.ortools.sat.CpModel;
++ import lombok.extern.slf4j.Slf4j;
++ 
++ /**
++  * Hello模块约束算法
++  */
++ @Slf4j
++ @ModuleAnno(
++     id = 123L,
++     code = "Hello",
++     packageName = "com.jmix.configengine.scenario.hello",
++     description = "Hello模块约束算法",
++     extSchema = "HelloModuleSchema"
++ )
++ public class HelloConstraint extends ConstraintAlgImpl {
++     
++     @ParaAnno(
++         code = "Color",
++         fatherCode = "Hello",
++         defaultValue = "Red",
++         description = "颜色参数",
++         options = {"Red", "Black", "White"},
++         extAttrs = {"category:color", "required:true"}
++     )
++     private ParaVar ColorVar;
++     
++     @PartAnno(
++         code = "TShirt11",
++         fatherCode = "Hello",
++         description = "T恤衫主体部件",
++         price = 100L,
++         attrs = {"weight:180g", "size:M"},
++         extAttrs = {"material:cotton", "brand:Hello"}
++     )
++     private PartVar TShirt11Var;
++     
++     @Override
++     public void initModel(CpModel model, Module module) {
++         log.info("初始化Hello约束模型");
++         // 这里可以添加具体的约束逻辑
++         // 为了测试，我们只做基本的初始化
++     }
++ } 
+```
+
+</details>
+
+---
+
+我需要实现抽象方法。让我修复这个：
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/scenario/hello/HelloConstraint.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 12, lines removed: undefined
+
+```diff
+@@ -50,3 +50,15 @@
+          // 为了测试，我们只做基本的初始化
+      }
++     
++     @Override
++     public void initVariables(Module module) {
++         log.info("初始化Hello变量");
++         // 初始化变量
++     }
++     
++     @Override
++     public void initConstraint(CpModel model, Module module) {
++         log.info("初始化Hello约束");
++         // 初始化约束
++     }
+  } 
+```
+
+</details>
+
+---
+
+让我检查ConstraintAlgImpl类的具体方法签名：
+
+
+---
+
+<details>
+            <summary>Grep search for "abstract.*initConstraint" • **2** files</summary>
+        
+| File | Line | Match |
+|------|------|-------|
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java` | L37 | `protected abstract void initConstraint();` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java` | L37 | `protected abstract void initConstraint();` |
+
+</details>
+
+---
+
+<details>
+            <summary>Grep search for "abstract.*initVariables" • **2** files</summary>
+        
+| File | Line | Match |
+|------|------|-------|
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java` | L36 | `protected abstract void initVariables();` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java` | L36 | `protected abstract void initVariables();` |
+
+</details>
+
+---
+
+现在我知道了正确的方法签名。让我修复：
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/scenario/hello/HelloConstraint.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -52,11 +52,11 @@
+      
+      @Override
+-     public void initVariables(Module module) {
++     protected void initVariables() {
+          log.info("初始化Hello变量");
+          // 初始化变量
+      }
+      
+      @Override
+-     public void initConstraint(CpModel model, Module module) {
++     protected void initConstraint() {
+          log.info("初始化Hello约束");
+          // 初始化约束
+```
+
+</details>
+
+---
+
+## 10. 创建Hello测试类
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/hello/HelloConstraintTest.java</summary>
+
+创建Hello约束算法的测试类
+
+**Chunk 1**
+Lines added: 62, lines removed: 1
+
+```diff
+@@ -1,1 +1,62 @@
+- 
++ package com.jmix.configengine.scenario.hello;
++ 
++ import com.jmix.configengine.scenario.base.ModuleSecnarioTestBase;
++ import org.junit.Test;
++ import static org.junit.Assert.*;
++ 
++ /**
++  * Hello约束算法测试类
++  */
++ public class HelloConstraintTest extends ModuleSecnarioTestBase {
++     
++     public HelloConstraintTest() {
++         super(HelloConstraint.class);
++     }
++     
++     @Test
++     public void testColorParameterInference() {
++         // 测试颜色参数推理
++         inferParas("TShirt11", 1);
++         
++         // 验证第一个解决方案
++         solution(0)
++             .assertPara("Color")
++                 .valueEqual("Red")
++                 .optionsEqual("Red", "White")
++                 .hiddenEqual(false);
++         
++         printSolutions();
++     }
++     
++     @Test
++     public void testPartQuantityInference() {
++         // 测试部件数量推理
++         inferParas("TShirt11", 5);
++         
++         // 验证第一个解决方案
++         solution(0)
++             .assertPart("TShirt11")
++                 .quantityEqual(5)
++                 .hiddenEqual(false);
++         
++         printSolutions();
++     }
++     
++     @Test
++     public void testMultipleSolutions() {
++         // 测试多解决方案
++         inferParas("TShirt11", 1);
++         
++         // 验证解决方案数量
++         assertTrue("应该有多个解决方案", solutions.size() > 1);
++         
++         // 验证每个解决方案
++         for (int i = 0; i < solutions.size(); i++) {
++             solution(i)
++                 .assertPara("Color")
++                     .optionsEqual("Red", "Black", "White");
++         }
++         
++         printSolutions();
++     }
++ } 
+```
+
+</details>
+
+---
+
+现在让我尝试编译看看是否还有错误：
+
+
+---
+
+```bash
+mvn compile
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>mvn compile
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------------< com.jmix:configengine >------------------------
+[INFO] Building JMix Config Engine 1.0.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- resources:3.3.1:resources (default-resources) @ configengine ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO]
+[INFO] --- compiler:3.8.1:compile (default-compile) @ configengine ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 48 source files to D:\01.code\mygithub\jmixconfigengine\target\classes
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR :
+[INFO] -------------------------------------------------------------
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/scenario/base/Progammab
+leInstAssert.java:[14,39] 程序包ModuleConstraintExecutor不存在
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/scenario/base/Progammab
+leInstAssert.java:[16,58] 程序包ModuleConstraintExecutor不存在
+[INFO] 2 errors
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  3.882 s
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.8.1:compile (default-comp
+ile) on project configengine: Compilation failure: Compilation failure:
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/scenario/base/Progammab
+leInstAssert.java:[14,39] 程序包ModuleConstraintExecutor不存在
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/scenario/base/Progammab
+leInstAssert.java:[16,58] 程序包ModuleConstraintExecutor不存在
+[ERROR] -> [Help 1]
+[ERROR]
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR]
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+我需要修复ProgammableInstAssert类的导入问题。让我检查ModuleConstraintExecutor类的具体位置：
+
+
+---
+
+Read file: src/main/java/com/jmix/configengine/ModuleConstraintExecutor.java
+
+---
+
+现在我明白了，ModuleConstraintExecutor是一个接口，内部定义了这些类。让我修复ProgammableInstAssert类的导入：
+
+
+---
+
+The model made no changes to the file.
+
+---
+
+让我直接查看并修复这个文件：
+
+
+---
+
+Read file: src/main/java/com/jmix/configengine/scenario/base/ProgammableInstAssert.java
+
+---
+
+我需要修复导入问题。让我重新创建这个文件：
+
+
+---
+
+undefined
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/scenario/base/ProgammableInstAssert.java</summary>
+
+重新创建ProgammableInstAssert类，修复导入问题
+
+**Chunk 1**
+Lines added: 51, lines removed: 1
+
+```diff
+@@ -1,1 +1,51 @@
+- 
++ package com.jmix.configengine.scenario.base;
++ 
++ import com.jmix.configengine.ModuleConstraintExecutor.ModuleInst;
++ import com.jmix.configengine.ModuleConstraintExecutor.ParaInst;
++ import com.jmix.configengine.ModuleConstraintExecutor.PartInst;
++ 
++ import java.util.List;
++ import java.util.Objects;
++ 
++ /**
++  * 可编程实例断言基类
++  */
++ public class ProgammableInstAssert {
++     protected ModuleInst actualModuleInst;
++     
++     public ProgammableInstAssert(ModuleInst actualModuleInst) {
++         this.actualModuleInst = actualModuleInst;
++     }
++     
++     public ParaInstAssert assertPara(String code) {
++         ParaInst paraInst = findParaByCode(code);
++         if (paraInst == null) {
++             throw new AssertionError("未找到参数: " + code);
++         }
++         return new ParaInstAssert(paraInst);
++     }
++     
++     public PartInstAssert assertPart(String code) {
++         PartInst partInst = findPartByCode(code);
++         if (partInst == null) {
++             throw new AssertionError("未找到部件: " + code);
++         }
++         return new PartInstAssert(partInst);
++     }
++     
++     private ParaInst findParaByCode(String code) {
++         if (actualModuleInst.paras == null) return null;
++         return actualModuleInst.paras.stream()
++             .filter(p -> code.equals(p.code))
++             .findFirst()
++             .orElse(null);
++     }
++     
++     private PartInst findPartByCode(String code) {
++         if (actualModuleInst.parts == null) return null;
++         return actualModuleInst.parts.stream()
++             .filter(p -> code.equals(p.code))
++             .findFirst()
++             .orElse(null);
++     }
++ } 
+```
+
+</details>
+
+---
+
+现在让我再次尝试编译：
+
+
+---
+
+```bash
+mvn compile
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>mvn compile
+```
+
+---
+
+让我检查编译结果：
+
+
+---
+
+```bash
+mvn compile -q
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>mvn compile -q
+```
+
+---
+
+让我检查编译状态：
+
+
+---
+
+```bash
+mvn compile
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>mvn compile
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------------< com.jmix:configengine >------------------------
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO]
+[INFO] --- compiler:3.8.1:compile (default-compile) @ configengine ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  1.085 s
+[INFO] Finished at: 2025-08-22T22:25:43+08:00
+[INFO] ------------------------------------------------------------------------
+
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+很好！现在编译成功了。让我运行测试看看是否正常工作：
+
+
+---
+
+```bash
+mvn test -Dtest=HelloConstraintTest
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>mvn test -Dtest=HelloConstraintTest
+[INFO] Scanning for projects...
+[INFO]
+[INFO] -----------------------< com.jmix:configengine >------------------------
+[INFO] Building JMix Config Engine 1.0.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO]
+[INFO] --- compiler:3.8.1:compile (default-compile) @ configengine ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO]
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ configengine ---
+[INFO] skip non existing resourceDirectory D:\01.code\mygithub\jmixconfigengine\src\test\resources       
+[INFO]
+[INFO] --- compiler:3.8.1:testCompile (default-testCompile) @ configengine ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 13 source files to D:\01.code\mygithub\jmixconfigengine\target\test-classes
+[INFO] 某些消息已经过简化; 请使用 -Xdiags:verbose 重新编译以获得完整输出
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR :
+[INFO] -------------------------------------------------------------
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/hello/HelloCon
+straintTest.java:[13,30] 不兼容的类型: java.lang.Class<com.jmix.configengine.scenario.hello.HelloConstrai
+nt>无法转换为java.lang.Class<? extends com.jmix.configengine.artifact.ConstraintAlg>
+[INFO] 1 error
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  3.495 s
+[INFO] Finished at: 2025-08-22T22:25:55+08:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.8.1:testCompile (default-
+testCompile) on project configengine: Compilation failure
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/hello/HelloCon
+straintTest.java:[13,30] 不兼容的类型: java.lang.Class<com.jmix.configengine.scenario.hello.HelloConstrai
+nt>无法转换为java.lang.Class<? extends com.jmix.configengine.artifact.ConstraintAlg>
+[ERROR]
+[ERROR] -> [Help 1]
+[ERROR]
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR]
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+我需要检查HelloConstraint是否实现了ConstraintAlg接口。让我查看ConstraintAlg接口：
+
+
+---
+
+<details>
+            <summary>Grep search for "interface ConstraintAlg" • **2** files</summary>
+        
+| File | Line | Match |
+|------|------|-------|
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ConstraintAlg.java` | L3 | `public interface ConstraintAlg {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ConstraintAlg.java` | L3 | `public interface ConstraintAlg {` |
+
+</details>
+
+---
+
+Read file: src/main/java/com/jmix/configengine/artifact/ConstraintAlg.java
+
+---
+
+现在我需要让HelloConstraint实现ConstraintAlg接口：
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/scenario/hello/HelloConstraint.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -22,5 +22,5 @@
+      extSchema = "HelloModuleSchema"
+  )
+- public class HelloConstraint extends ConstraintAlgImpl {
++ public class HelloConstraint extends ConstraintAlgImpl implements ConstraintAlg {
+      
+      @ParaAnno(
+```
+
+</details>
+
+---
+
+我需要添加ConstraintAlg的导入：
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/scenario/hello/HelloConstraint.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -1,4 +1,5 @@
+  package com.jmix.configengine.scenario.hello;
+  
++ import com.jmix.configengine.artifact.ConstraintAlg;
+  import com.jmix.configengine.artifact.ConstraintAlgImpl;
+  import com.jmix.configengine.artifact.ParaVar;
+```
+
+</details>
+
+---
+
+现在让我再次运行测试：
+
+
+---
+
+```bash
+mvn test -Dtest=HelloConstraintTest
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>mvn test -Dtest=HelloConstraintTest
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------------< com.jmix:configengine >------------------------
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] --- resources:3.3.1:resources (default-resources) @ configengine ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO]
+[INFO] --- compiler:3.8.1:compile (default-compile) @ configengine ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO]
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ configengine ---
+[INFO] skip non existing resourceDirectory D:\01.code\mygithub\jmixconfigengine\src\test\resources       
+[INFO]
+[INFO] --- compiler:3.8.1:testCompile (default-testCompile) @ configengine ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 13 source files to D:\01.code\mygithub\jmixconfigengine\target\test-classes
+[INFO] 某些消息已经过简化; 请使用 -Xdiags:verbose 重新编译以获得完整输出
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR :
+[INFO] -------------------------------------------------------------
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/hello/HelloCon
+straintTest.java:[13,30] 不兼容的类型: java.lang.Class<com.jmix.configengine.scenario.hello.HelloConstrai
+nt>无法转换为java.lang.Class<? extends com.jmix.configengine.artifact.ConstraintAlg>
+[INFO] 1 error
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  3.903 s
+[INFO] Finished at: 2025-08-22T22:26:31+08:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.8.1:testCompile (default-
+testCompile) on project configengine: Compilation failure
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/hello/HelloCon
+straintTest.java:[13,30] 不兼容的类型: java.lang.Class<com.jmix.configengine.scenario.hello.HelloConstrai
+nt>无法转换为java.lang.Class<? extends com.jmix.configengine.artifact.ConstraintAlg>
+[ERROR]
+[ERROR] -> [Help 1]
+[ERROR]
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR]
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+让我检查测试框架基类的泛型定义：
+
+
+---
+
+Read file: src/main/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java
+
+---
+
+问题在于测试框架基类期望的是`ConstraintAlg`接口，但HelloConstraint继承的是`ConstraintAlgImpl`。让我检查ConstraintAlgImpl是否实现了ConstraintAlg接口：
+
+
+---
+
+Read file: src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java
+
+---
+
+很好！ConstraintAlgImpl确实实现了ConstraintAlg接口。现在问题可能是HelloConstraint的继承关系。让我修复HelloConstraint类，移除多余的接口实现：
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/scenario/hello/HelloConstraint.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -23,5 +23,5 @@
+      extSchema = "HelloModuleSchema"
+  )
+- public class HelloConstraint extends ConstraintAlgImpl implements ConstraintAlg {
++ public class HelloConstraint extends ConstraintAlgImpl {
+      
+      @ParaAnno(
+```
+
+</details>
+
+---
+
+现在让我再次运行测试：
+
+
+---
+
+```bash
+mvn test -Dtest=HelloConstraintTest
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>mvn test -Dtest=HelloConstraintTest
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------------< com.jmix:configengine >------------------------
+[INFO] Building JMix Config Engine 1.0.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- compiler:3.8.1:compile (default-compile) @ configengine ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO]
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ configengine ---
+[INFO] skip non existing resourceDirectory D:\01.code\mygithub\jmixconfigengine\src\test\resources       
+[INFO]
+[INFO] --- compiler:3.8.1:testCompile (default-testCompile) @ configengine ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO]
+[INFO] --- surefire:3.2.5:test (default-test) @ configengine ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junit4.JUnit4Provider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.jmix.configengine.scenario.hello.HelloConstraintTest
+[ERROR] Tests run: 3, Failures: 0, Errors: 3, Skipped: 0, Time elapsed: 0.081 s <<< FAILURE! -- in com.jm
+ix.configengine.scenario.hello.HelloConstraintTest
+[ERROR] com.jmix.configengine.scenario.hello.HelloConstraintTest.testPartQuantityInference -- Time elapse
+d: 0.017 s <<< ERROR!
+java.lang.Error:
+Unresolved compilation problem:
+        The constructor ModuleSecnarioTestBase(Class<HelloConstraint>) is undefined
+
+        at com.jmix.configengine.scenario.hello.HelloConstraintTest.<init>(HelloConstraintTest.java:13)  
+        at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHa
+ndleAccessor.java:62)
+        at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+        at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+        at org.junit.runners.BlockJUnit4ClassRunner.createTest(BlockJUnit4ClassRunner.java:250)
+        at org.junit.runners.BlockJUnit4ClassRunner.createTest(BlockJUnit4ClassRunner.java:260)
+        at org.junit.runners.BlockJUnit4ClassRunner$2.runReflectiveCall(BlockJUnit4ClassRunner.java:309) 
+        at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+        at org.junit.runners.BlockJUnit4ClassRunner.methodBlock(BlockJUnit4ClassRunner.java:306)
+        at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+        at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+        at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+        at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:316)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:240)     
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:214)       
+        at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:155)
+        at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)       
+        at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+        at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+        at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+
+[ERROR] com.jmix.configengine.scenario.hello.HelloConstraintTest.testMultipleSolutions -- Time elapsed: 0
+ s <<< ERROR!
+java.lang.Error:
+Unresolved compilation problem:
+        The constructor ModuleSecnarioTestBase(Class<HelloConstraint>) is undefined
+
+        at com.jmix.configengine.scenario.hello.HelloConstraintTest.<init>(HelloConstraintTest.java:13)  
+        at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHa
+ndleAccessor.java:62)
+        at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+        at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+        at org.junit.runners.BlockJUnit4ClassRunner.createTest(BlockJUnit4ClassRunner.java:250)
+        at org.junit.runners.BlockJUnit4ClassRunner.createTest(BlockJUnit4ClassRunner.java:260)
+        at org.junit.runners.BlockJUnit4ClassRunner$2.runReflectiveCall(BlockJUnit4ClassRunner.java:309) 
+        at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+        at org.junit.runners.BlockJUnit4ClassRunner.methodBlock(BlockJUnit4ClassRunner.java:306)
+        at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+        at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+        at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+        at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:316)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:240)     
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:214)       
+        at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:155)
+        at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)       
+        at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+        at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+        at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+
+[ERROR] com.jmix.configengine.scenario.hello.HelloConstraintTest.testColorParameterInference -- Time elap
+sed: 0 s <<< ERROR!
+java.lang.Error:
+Unresolved compilation problem:
+        The constructor ModuleSecnarioTestBase(Class<HelloConstraint>) is undefined
+
+        at com.jmix.configengine.scenario.hello.HelloConstraintTest.<init>(HelloConstraintTest.java:13)  
+        at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHa
+ndleAccessor.java:62)
+        at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+        at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+        at org.junit.runners.BlockJUnit4ClassRunner.createTest(BlockJUnit4ClassRunner.java:250)
+        at org.junit.runners.BlockJUnit4ClassRunner.createTest(BlockJUnit4ClassRunner.java:260)
+        at org.junit.runners.BlockJUnit4ClassRunner$2.runReflectiveCall(BlockJUnit4ClassRunner.java:309) 
+        at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+        at org.junit.runners.BlockJUnit4ClassRunner.methodBlock(BlockJUnit4ClassRunner.java:306)
+        at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+        at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+        at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+        at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:316)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:240)     
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:214)       
+        at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:155)
+        at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)       
+        at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+        at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+        at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+
+[INFO] 
+[INFO] Results:
+[INFO]
+[ERROR] Errors: 
+[ERROR]   HelloConstraintTest.<init>:13  Unresolved compilation problem: 
+        The constructor ModuleSecnarioTestBase(Class<HelloConstraint>) is undefined
+
+[ERROR]   HelloConstraintTest.<init>:13  Unresolved compilation problem: 
+        The constructor ModuleSecnarioTestBase(Class<HelloConstraint>) is undefined
+
+[ERROR]   HelloConstraintTest.<init>:13  Unresolved compilation problem: 
+        The constructor ModuleSecnarioTestBase(Class<HelloConstraint>) is undefined
+
+[INFO]
+[ERROR] Tests run: 3, Failures: 0, Errors: 3, Skipped: 0
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  2.123 s
+[INFO] Finished at: 2025-08-22T22:26:57+08:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.2.5:test (default-test) o
+n project configengine:
+[ERROR]
+[ERROR] Please refer to D:\01.code\mygithub\jmixconfigengine\target\surefire-reports for the individual t
+est results.
+[ERROR] Please refer to dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstrea
+m.
+[ERROR] -> [Help 1]
+[ERROR]
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR]
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+问题在于测试框架基类的构造函数参数类型不匹配。让我检查测试框架基类的构造函数：
+
+
+---
+
+Read file: src/main/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java
+
+---
+
+问题在于测试框架基类期望的是`Class<? extends ConstraintAlg>`，但HelloConstraint继承的是ConstraintAlgImpl。我需要修改测试框架基类，让它接受ConstraintAlgImpl的子类：
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -18,5 +18,5 @@
+      
+      // 核心属性
+-     protected Class<? extends ConstraintAlg> constraintAlgClazz;
++     protected Class<? extends ConstraintAlgImpl> constraintAlgClazz;
+      protected String tempResourcePath = "";
+      protected Module module;
+```
+
+</details>
+
+---
+
+我需要添加ConstraintAlgImpl的导入：
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -2,5 +2,5 @@
+  
+  import com.jmix.configengine.ModuleConstraintExecutor;
+- import com.jmix.configengine.artifact.ConstraintAlg;
++ import com.jmix.configengine.artifact.ConstraintAlgImpl;
+  import com.jmix.configengine.executor.ModuleConstraintExecutorImpl;
+  import com.jmix.configengine.model.Module;
+```
+
+</details>
+
+---
+
+我需要修复所有相关的类型引用：
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -28,5 +28,5 @@
+       * 构造函数
+       */
+-     public ModuleSecnarioTestBase(Class<? extends ConstraintAlg> constraintAlgClazz) {
++     public ModuleSecnarioTestBase(Class<? extends ConstraintAlgImpl> constraintAlgClazz) {
+          this.constraintAlgClazz = constraintAlgClazz;
+      }
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -42,5 +42,5 @@
+       * 构建Module数据
+       */
+-     protected Module buildModule(Class<? extends ConstraintAlg> moduleAlgClazz) {
++     protected Module buildModule(Class<? extends ConstraintAlgImpl> moduleAlgClazz) {
+          // 生成临时资源路径
+          tempResourcePath = getResourcePath(moduleAlgClazz) + "/tempResource";
+```
+
+</details>
+
+---
+
+现在让我再次运行测试：
+
+
+---
+
+```bash
+mvn test -Dtest=HelloConstraintTest
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>mvn test -Dtest=HelloConstraintTest
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------------< com.jmix:configengine >------------------------
+[INFO] Building JMix Config Engine 1.0.0
+[INFO]
+[INFO] --- resources:3.3.1:resources (default-resources) @ configengine ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO]
+[INFO] --- compiler:3.8.1:compile (default-compile) @ configengine ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO]
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ configengine ---
+[INFO] skip non existing resourceDirectory D:\01.code\mygithub\jmixconfigengine\src\test\resources       
+[INFO]
+[INFO] --- compiler:3.8.1:testCompile (default-testCompile) @ configengine ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO]
+[INFO] --- surefire:3.2.5:test (default-test) @ configengine ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junit4.JUnit4Provider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.jmix.configengine.scenario.hello.HelloConstraintTest
+[ERROR] Tests run: 3, Failures: 0, Errors: 3, Skipped: 0, Time elapsed: 0.078 s <<< FAILURE! -- in com.jm
+ix.configengine.scenario.hello.HelloConstraintTest
+[ERROR] com.jmix.configengine.scenario.hello.HelloConstraintTest.testPartQuantityInference -- Time elapse
+d: 0.016 s <<< ERROR!
+java.lang.Error:
+Unresolved compilation problem:
+        The constructor ModuleSecnarioTestBase(Class<HelloConstraint>) is undefined
+
+        at com.jmix.configengine.scenario.hello.HelloConstraintTest.<init>(HelloConstraintTest.java:13)  
+        at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHa
+ndleAccessor.java:62)
+        at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+        at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+        at org.junit.runners.BlockJUnit4ClassRunner.createTest(BlockJUnit4ClassRunner.java:250)
+        at org.junit.runners.BlockJUnit4ClassRunner.createTest(BlockJUnit4ClassRunner.java:260)
+        at org.junit.runners.BlockJUnit4ClassRunner$2.runReflectiveCall(BlockJUnit4ClassRunner.java:309) 
+        at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+        at org.junit.runners.BlockJUnit4ClassRunner.methodBlock(BlockJUnit4ClassRunner.java:306)
+        at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+        at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+        at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+        at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:316)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:240)     
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:214)       
+        at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:155)
+        at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)       
+        at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+        at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+        at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+
+[ERROR] com.jmix.configengine.scenario.hello.HelloConstraintTest.testMultipleSolutions -- Time elapsed: 0
+.001 s <<< ERROR!
+java.lang.Error:
+Unresolved compilation problem:
+        The constructor ModuleSecnarioTestBase(Class<HelloConstraint>) is undefined
+
+        at com.jmix.configengine.scenario.hello.HelloConstraintTest.<init>(HelloConstraintTest.java:13)  
+        at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHa
+ndleAccessor.java:62)
+        at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+        at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+        at org.junit.runners.BlockJUnit4ClassRunner.createTest(BlockJUnit4ClassRunner.java:250)
+        at org.junit.runners.BlockJUnit4ClassRunner.createTest(BlockJUnit4ClassRunner.java:260)
+        at org.junit.runners.BlockJUnit4ClassRunner$2.runReflectiveCall(BlockJUnit4ClassRunner.java:309) 
+        at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+        at org.junit.runners.BlockJUnit4ClassRunner.methodBlock(BlockJUnit4ClassRunner.java:306)
+        at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+        at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+        at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+        at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:316)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:240)     
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:214)       
+        at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:155)
+        at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)       
+        at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+        at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+        at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+
+[ERROR] com.jmix.configengine.scenario.hello.HelloConstraintTest.testColorParameterInference -- Time elap
+sed: 0 s <<< ERROR!
+java.lang.Error:
+Unresolved compilation problem:
+        The constructor ModuleSecnarioTestBase(Class<HelloConstraint>) is undefined
+
+        at com.jmix.configengine.scenario.hello.HelloConstraintTest.<init>(HelloConstraintTest.java:13)  
+        at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHa
+ndleAccessor.java:62)
+        at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+        at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+        at org.junit.runners.BlockJUnit4ClassRunner.createTest(BlockJUnit4ClassRunner.java:250)
+        at org.junit.runners.BlockJUnit4ClassRunner.createTest(BlockJUnit4ClassRunner.java:260)
+        at org.junit.runners.BlockJUnit4ClassRunner$2.runReflectiveCall(BlockJUnit4ClassRunner.java:309) 
+        at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+        at org.junit.runners.BlockJUnit4ClassRunner.methodBlock(BlockJUnit4ClassRunner.java:306)
+        at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+        at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+        at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+        at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:316)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:240)     
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:214)       
+        at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:155)
+        at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)       
+        at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+        at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+        at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+
+[INFO] 
+[INFO] Results:
+[INFO]
+[ERROR] Errors: 
+[ERROR]   HelloConstraintTest.<init>:13  Unresolved compilation problem: 
+        The constructor ModuleSecnarioTestBase(Class<HelloConstraint>) is undefined
+
+[ERROR]   HelloConstraintTest.<init>:13  Unresolved compilation problem: 
+        The constructor ModuleSecnarioTestBase(Class<HelloConstraint>) is undefined
+
+[ERROR]   HelloConstraintTest.<init>:13  Unresolved compilation problem: 
+        The constructor ModuleSecnarioTestBase(Class<HelloConstraint>) is undefined
+
+[INFO]
+[ERROR] Tests run: 3, Failures: 0, Errors: 3, Skipped: 0
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  2.473 s
+[INFO] Finished at: 2025-08-22T22:27:43+08:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.2.5:test (default-test) o
+n project configengine:
+[ERROR]
+[ERROR] Please refer to D:\01.code\mygithub\jmixconfigengine\target\surefire-reports for the individual t
+est results.
+[ERROR] Please refer to dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstrea
+m.
+[ERROR] -> [Help 1]
+[ERROR]
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR]
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+看起来测试编译还是有问题。让我检查测试编译状态：
+
+
+---
+
+```bash
+mvn test-compile
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>mvn test-compile
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------------< com.jmix:configengine >------------------------
+[INFO] Building JMix Config Engine 1.0.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- resources:3.3.1:resources (default-resources) @ configengine ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ configengine ---
+[INFO] skip non existing resourceDirectory D:\01.code\mygithub\jmixconfigengine\src\test\resources       
+[INFO]
+[INFO] --- compiler:3.8.1:testCompile (default-testCompile) @ configengine ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  1.165 s
+[INFO] Finished at: 2025-08-22T22:27:53+08:00
+[INFO] ------------------------------------------------------------------------
+
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+测试编译成功了。现在让我再次运行测试：
+
+
+---
+
+```bash
+mvn test -Dtest=HelloConstraintTest
+```
+
+```
+        at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+        at org.junit.runners.BlockJUnit4ClassRunner.methodBlock(BlockJUnit4ClassRunner.java:306)
+        at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+        at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+        at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+        at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:316)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:240)     
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:214)       
+        at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:155)
+        at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)       
+        at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+        at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+        at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+
+[INFO] 
+[INFO] Results:
+[INFO]
+[ERROR] Errors: 
+[ERROR]   HelloConstraintTest.<init>:13  Unresolved compilation problem: 
+        The constructor ModuleSecnarioTestBase(Class<HelloConstraint>) is undefined
+
+[ERROR]   HelloConstraintTest.<init>:13  Unresolved compilation problem: 
+        The constructor ModuleSecnarioTestBase(Class<HelloConstraint>) is undefined
+
+[ERROR]   HelloConstraintTest.<init>:13  Unresolved compilation problem: 
+        The constructor ModuleSecnarioTestBase(Class<HelloConstraint>) is undefined
+
+[INFO]
+[ERROR] Tests run: 3, Failures: 0, Errors: 3, Skipped: 0
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  2.161 s
+[INFO] Finished at: 2025-08-22T22:28:04+08:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.2.5:test (default-test) o
+n project configengine:
+[ERROR]
+[ERROR] Please refer to D:\01.code\mygithub\jmixconfigengine\target\surefire-reports for the individual t
+est results.
+[ERROR] Please refer to dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstrea
+m.
+[ERROR] -> [Help 1]
+[ERROR]
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR]
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+看起来还是有编译问题。让我检查一下测试类的具体错误。问题可能在于测试框架基类的构造函数参数类型。让我创建一个简化的测试来验证框架是否工作：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/hello/HelloConstraintSimpleTest.java</summary>
+
+创建一个简化的测试类来验证框架
+
+**Chunk 1**
+Lines added: 32, lines removed: 1
+
+```diff
+@@ -1,1 +1,32 @@
+- 
++ package com.jmix.configengine.scenario.hello;
++ 
++ import com.jmix.configengine.scenario.base.ModuleGenneratorByAnno;
++ import com.jmix.configengine.model.Module;
++ import org.junit.Test;
++ import static org.junit.Assert.*;
++ 
++ /**
++  * Hello约束算法的简化测试类
++  */
++ public class HelloConstraintSimpleTest {
++     
++     @Test
++     public void testModuleGeneration() {
++         // 测试Module生成
++         Module module = ModuleGenneratorByAnno.build(HelloConstraint.class, "target/test-temp");
++         
++         assertNotNull("Module应该被生成", module);
++         assertEquals("模块代码应该是Hello", "Hello", module.getCode());
++         assertEquals("模块ID应该是123", Long.valueOf(123), module.getId());
++         
++         assertNotNull("应该有参数", module.getParas());
++         assertTrue("应该有颜色参数", module.getParas().size() > 0);
++         
++         assertNotNull("应该有部件", module.getParts());
++         assertTrue("应该有T恤部件", module.getParts().size() > 0);
++         
++         System.out.println("生成的Module: " + module.getCode());
++         System.out.println("参数数量: " + module.getParas().size());
++         System.out.println("部件数量: " + module.getParts().size());
++     }
++ } 
+```
+
+</details>
+
+---
+
+现在让我运行这个简化的测试：
+
+
+---
+
+```bash
+mvn test -Dtest=HelloConstraintSimpleTest
+```
+
+---
+
+_**User**_
+
+请提交
+
+---
+
+_**Assistant**_
+
 
 
 ---

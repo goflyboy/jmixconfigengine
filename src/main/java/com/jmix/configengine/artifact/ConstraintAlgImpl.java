@@ -12,7 +12,7 @@ import java.util.*;
 /**
  * 约束算法实现基类
  */
-public abstract class ConstraintAlgImpl {
+public abstract class ConstraintAlgImpl implements ConstraintAlg{
 	static {
 		Loader.loadNativeLibraries();
 	}
