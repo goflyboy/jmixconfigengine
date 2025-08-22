@@ -7,6 +7,7 @@ import com.jmix.configengine.model.Module;
 import com.jmix.configengine.model.Para;
 import com.jmix.configengine.model.ParaOption;
 import com.jmix.configengine.model.Part;
+import java.lang.reflect.Field;
 import java.util.*;
 
 /**
@@ -33,7 +34,97 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 	protected void initModelAfter(CpModel model){
 		
 	}
-	protected abstract void initVariables();
+	protected void initVariables() {
+		// 默认实现：通过反射自动创建和赋值变量
+		autoInitVariables();
+		
+		// 调用子类的自定义变量初始化逻辑
+		onInitCustomVariables();
+	}
+	
+	/**
+	 * 子类重写此方法来实现自定义变量初始化逻辑
+	 */
+	protected void onInitCustomVariables() {
+		// 默认空实现，子类可以重写
+	}
+	
+	/**
+	 * 通过反射自动创建和赋值变量
+	 */
+	private void autoInitVariables() {
+		try {
+			// 获取当前类的所有字段
+			Field[] fields = this.getClass().getDeclaredFields();
+			
+			for (Field field : fields) {
+				field.setAccessible(true);
+				String fieldName = field.getName();
+				
+				// 检查字段类型并创建对应的变量
+				if (ParaVar.class.isAssignableFrom(field.getType())) {
+					autoCreateAndAssignParaVar(field);
+				} else if (PartVar.class.isAssignableFrom(field.getType())) {
+					autoCreateAndAssignPartVar(field);
+				}
+			}
+			
+		} catch (Exception e) {
+			throw new RuntimeException("自动初始化变量失败", e);
+		}
+	}
+	
+	/**
+	 * 自动创建并赋值参数变量
+	 */
+	private void autoCreateAndAssignParaVar(Field field) throws Exception {
+		String fieldName = field.getName();
+		String paraCode = extractCodeFromFieldName(fieldName);
+		
+		// 检查Module中是否存在对应的Para
+		Para para = module.getPara(paraCode);
+		if (para == null) {
+			return; // 跳过不存在的参数
+		}
+		
+		// 创建ParaVar
+		ParaVar paraVar = createParaVar(paraCode);
+		
+		// 通过反射赋值给字段
+		field.set(this, paraVar);
+	}
+	
+	/**
+	 * 自动创建并赋值部件变量
+	 */
+	private void autoCreateAndAssignPartVar(Field field) throws Exception {
+		String fieldName = field.getName();
+		String partCode = extractCodeFromFieldName(fieldName);
+		
+		// 检查Module中是否存在对应的Part
+		Part part = module.getPart(partCode);
+		if (part == null) {
+			return; // 跳过不存在的部件
+		}
+		
+		// 创建PartVar
+		PartVar partVar = createPartVar(partCode);
+		
+		// 通过反射赋值给字段
+		field.set(this, partVar);
+	}
+	
+	/**
+	 * 从字段名提取代码
+	 * 例如: ColorVar -> Color, TShirt11Var -> TShirt11
+	 */
+	private String extractCodeFromFieldName(String fieldName) {
+		// 移除末尾的"Var"
+		if (fieldName.endsWith("Var")) {
+			return fieldName.substring(0, fieldName.length() - 3);
+		}
+		return fieldName;
+	}
 	protected abstract void initConstraint();
 
 	public static IntVar newIntVarFromDomain(CpModel model, long[] values, String name) {

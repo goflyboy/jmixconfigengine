@@ -7,6 +7,7 @@ import com.jmix.configengine.model.ParaOption;
 import com.jmix.configengine.model.ParaType;
 import com.jmix.configengine.model.PartType;
 import com.jmix.configengine.model.Module;
+import com.jmix.configengine.model.ModuleAlgArtifact;
 import com.jmix.configengine.util.ModuleUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,6 +40,13 @@ public class ModuleGenneratorByAnno {
             module.setDescription(moduleAnno.description());
             module.setSortNo(moduleAnno.sortNo());
             module.setExtSchema(moduleAnno.extSchema());
+
+            //生成module.alg
+            ModuleAlgArtifact alg = new ModuleAlgArtifact();
+            alg.setId(module.getId());
+            alg.setFileName(moduleAlgClazz.getName());
+            alg.setPackageName(moduleAlgClazz.getPackage().getName());
+            module.setAlg(alg);
             
             // 处理扩展属性
             if (moduleAnno.extAttrs().length > 0) {

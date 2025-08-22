@@ -43,20 +43,7 @@ public class HelloConstraint extends ConstraintAlgImpl {
         extAttrs = {"material:cotton", "brand:Hello"}
     )
     private PartVar TShirt11Var;
-    
-    @Override
-    public void initModel(CpModel model, Module module) {
-        log.info("初始化Hello约束模型");
-        // 这里可以添加具体的约束逻辑
-        // 为了测试，我们只做基本的初始化
-    }
-    
-    @Override
-    protected void initVariables() {
-        log.info("初始化Hello变量");
-        // 初始化变量
-    }
-    
+ 
     @Override
     protected void initConstraint() {
         log.info("初始化Hello约束");

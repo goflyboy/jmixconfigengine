@@ -17,7 +17,7 @@ public class HelloConstraintTest extends ModuleSecnarioTestBase {
     public void testColorParameterInference() {
         // 测试颜色参数推理
         inferParas("TShirt11", 1);
-        
+        printSolutions();
         // 验证第一个解决方案
         solution(0)
             .assertPara("Color")
@@ -25,7 +25,7 @@ public class HelloConstraintTest extends ModuleSecnarioTestBase {
                 .optionsEqual("Red", "White")
                 .hiddenEqual(false);
         
-        printSolutions();
+      
     }
     
     @Test

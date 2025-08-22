@@ -1,0 +1,99 @@
+{
+  "@type" : "Module",
+  "extSchema" : "HelloModuleSchema",
+  "extAttrs" : {
+    "@class" : "java.util.HashMap"
+  },
+  "code" : "Hello",
+  "fatherCode" : null,
+  "defaultValue" : null,
+  "description" : "Hello模块约束算法",
+  "sortNo" : 0,
+  "id" : 123,
+  "version" : "1.0.0",
+  "packageName" : "com.jmix.configengine.scenario.hello",
+  "type" : "GENERAL",
+  "paras" : [ "java.util.ArrayList", [ {
+    "@type" : "Para",
+    "extSchema" : "",
+    "extAttrs" : {
+      "@class" : "java.util.HashMap",
+      "category" : "color",
+      "required" : "true"
+    },
+    "code" : "Color",
+    "fatherCode" : "Hello",
+    "defaultValue" : "Red",
+    "description" : "颜色参数",
+    "sortNo" : 0,
+    "type" : "ENUM",
+    "options" : [ "java.util.ArrayList", [ {
+      "@type" : "ParaOption",
+      "extSchema" : null,
+      "extAttrs" : {
+        "@class" : "java.util.HashMap"
+      },
+      "code" : "Red",
+      "fatherCode" : null,
+      "defaultValue" : "Red",
+      "description" : "",
+      "sortNo" : 1,
+      "codeId" : 10
+    }, {
+      "@type" : "ParaOption",
+      "extSchema" : null,
+      "extAttrs" : {
+        "@class" : "java.util.HashMap"
+      },
+      "code" : "Black",
+      "fatherCode" : null,
+      "defaultValue" : "Black",
+      "description" : "",
+      "sortNo" : 2,
+      "codeId" : 20
+    }, {
+      "@type" : "ParaOption",
+      "extSchema" : null,
+      "extAttrs" : {
+        "@class" : "java.util.HashMap"
+      },
+      "code" : "White",
+      "fatherCode" : null,
+      "defaultValue" : "White",
+      "description" : "",
+      "sortNo" : 3,
+      "codeId" : 30
+    } ] ],
+    "minValue" : null,
+    "maxValue" : null
+  } ] ],
+  "parts" : [ "java.util.ArrayList", [ {
+    "@type" : "Part",
+    "extSchema" : "",
+    "extAttrs" : {
+      "@class" : "java.util.HashMap",
+      "material" : "cotton",
+      "brand" : "Hello"
+    },
+    "code" : "TShirt11",
+    "fatherCode" : "Hello",
+    "defaultValue" : 0,
+    "description" : "T恤衫主体部件",
+    "sortNo" : 0,
+    "type" : "ATOMIC",
+    "price" : 100,
+    "attrs" : {
+      "@class" : "java.util.HashMap",
+      "size" : "M",
+      "weight" : "180g"
+    },
+    "attrSchemas" : [ "java.util.ArrayList", [ ] ]
+  } ] ],
+  "rules" : [ "java.util.ArrayList", [ ] ],
+  "alg" : {
+    "@type" : "ModuleAlgArtifact",
+    "id" : 123,
+    "fileName" : "com.jmix.configengine.scenario.hello.HelloConstraint",
+    "packageName" : "com.jmix.configengine.scenario.hello"
+  }
+}

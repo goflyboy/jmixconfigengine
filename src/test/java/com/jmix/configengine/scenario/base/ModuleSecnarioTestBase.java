@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.util.List;
 
+import org.junit.Before;
+
 /**
  * 模块场景测试基类
  */
@@ -34,6 +36,7 @@ public abstract class ModuleSecnarioTestBase {
     /**
      * 每个用例执行前调用
      */
+    @Before
     public void setUp() {
         init();
     }
