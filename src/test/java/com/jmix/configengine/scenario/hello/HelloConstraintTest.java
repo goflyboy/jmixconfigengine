@@ -33,27 +33,34 @@ public class HelloConstraintTest extends ModuleSecnarioTestBase {
     
     @Test
     public void testMultiSolution() {
+        // "Red-10", "Black-20", "White-30"
+        // "Small-10", "Medium-20", "Big-30"
+        // if(ColorVar.var ==Red && SizeVar.var == Small  ) {
+        //     TShirt11Var.var = 1;
+        // }
+        // else {
+        //     TShirt11Var.var = 3
+        // }
         // 测试颜色参数推理
         inferParas("TShirt11", 3);
         printSolutions();
-        // 使用resultAssert验证执行结果
+        //反推有8个接口  8=3*3 - 1
         resultAssert()
             .assertSuccess()
             .assertSolutionSizeEqual(8);
+        //if的解肯定不在其中
+        assertSolutionNum("Color:Red,Size:Small",0);
+        //else的解可能解如下：
+        assertSolutionNum("Color:Black,Size:Big",1);
+        assertSolutionNum("Color:White,Size:Medium",1);
+        assertSolutionNum("Color:Red,Size:Medium",1);
+        assertSolutionNum("Color:Black,Size:Medium",1);
+        assertSolutionNum("Color:White,Size:Big",1);
+        assertSolutionNum("Color:Red,Size:Big",1);
+        assertSolutionNum("Color:Black,Size:Small",1);
         printSolutions();
     }
     
-    @Test
-    public void testSolutionNumAssertion() {
-        // 测试解决方案数量断言功能
-        inferParas("TShirt11", 1);
-        
-        // 验证满足条件的解决方案数量
-        assertSolutionNum("Color:Red", 1);
-        assertSolutionNum("TShirt11:1", 1);
-        assertSolutionNum("Color:Red,TShirt11:1", 1);
-        
-        log.info("解决方案数量断言测试通过");
-    }
+ 
 
 }

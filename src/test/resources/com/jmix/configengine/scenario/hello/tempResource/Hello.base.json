@@ -94,9 +94,9 @@
       "extAttrs" : {
         "@class" : "java.util.HashMap"
       },
-      "code" : "Middle",
+      "code" : "Medium",
       "fatherCode" : null,
-      "defaultValue" : "Middle",
+      "defaultValue" : "Medium",
       "description" : "",
       "sortNo" : 2,
       "codeId" : 20

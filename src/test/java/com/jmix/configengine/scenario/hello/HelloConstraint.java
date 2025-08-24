@@ -24,7 +24,7 @@ public class HelloConstraint extends ConstraintAlgImpl {
 
     @ParaAnno(
         defaultValue = "Small",
-        options = {"Small", "Middle", "Big"}
+        options = {"Small", "Medium", "Big"}
     )
     private ParaVar SizeVar;
     @PartAnno(
