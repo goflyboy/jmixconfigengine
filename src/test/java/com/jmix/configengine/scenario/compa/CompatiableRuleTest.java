@@ -74,7 +74,7 @@ public class CompatiableRuleTest extends ModuleSecnarioTestBase {
     }
     
     @Test
-    public void testOnlyOneSolution() {
+    public void test_rule2_if_op11_op21() {
         log.info("testOnlyOneSolution"+ CompatiableRuleConstraint.class.getName());
         // 测试颜色参数推理
         inferParas("PT1", 1); 
@@ -87,7 +87,7 @@ public class CompatiableRuleTest extends ModuleSecnarioTestBase {
 
     
     @Test
-    public void testMultiSolution() { 
+    public void test_rule2_else_op11_op21() {
         inferParas("PT1", 3);
         printSolutions();
         //反推有8个接口  8=3*3 - 1

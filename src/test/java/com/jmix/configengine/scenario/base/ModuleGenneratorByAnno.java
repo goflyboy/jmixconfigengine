@@ -51,7 +51,7 @@ public class ModuleGenneratorByAnno {
             Class<?> enclosingClass = moduleAlgClazz.getEnclosingClass();
             if (enclosingClass != null) {
                 // 是内部类，设置父类名称
-                alg.setParentClassName(enclosingClass.getName());
+                alg.setParentClassName(enclosingClass.getSimpleName());
                 log.info("检测到内部类: {}，父类: {}", moduleAlgClazz.getName(), enclosingClass.getName());
             } else {
                 // 不是内部类，保持默认空字符串

@@ -26,18 +26,15 @@ public class ModuleAlgClassLoader extends ClassLoader {
 		if (algArtifact != null) {
 			// 构建完整的类名，支持内部类场景
 			StringBuilder classNameBuilder = new StringBuilder();
-			
+					// 添加包名和类名
+			classNameBuilder.append(algArtifact.getPackageName())
+				.append(".");
 			// 如果有父类名称，先添加父类
 			if (algArtifact.getParentClassName() != null && !algArtifact.getParentClassName().isEmpty()) {
 				classNameBuilder.append(algArtifact.getParentClassName()).append("$");
 			}
-			
-			// 添加包名和类名
-			classNameBuilder.append(algArtifact.getPackageName())
-				.append(".")
-				.append(moduleCode)
+			classNameBuilder.append(moduleCode)
 				.append("Constraint");
-			
 			this.constraintRuleClassName = classNameBuilder.toString();
 		}
 	}

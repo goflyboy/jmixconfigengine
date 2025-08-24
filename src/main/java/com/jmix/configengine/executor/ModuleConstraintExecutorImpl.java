@@ -78,8 +78,9 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
 			CpModel model = new CpModel();
 			module.init();
 			alg.initModel(model, module);
-			alg.addPartEquality(req.mainPartInst.code, req.mainPartInst.quantity);
-			
+			if (req.mainPartInst != null) {
+				alg.addPartEquality(req.mainPartInst.code, req.mainPartInst.quantity);
+			}
 			CpSolver solver = new CpSolver();
 			if (req.enumerateAllSolution) {
 				solver.getParameters().setEnumerateAllSolutions(true);

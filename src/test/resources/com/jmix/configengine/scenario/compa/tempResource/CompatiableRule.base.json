@@ -140,6 +140,7 @@
     "@type" : "ModuleAlgArtifact",
     "id" : 123,
     "fileName" : "com.jmix.configengine.scenario.compa.CompatiableRuleTest$CompatiableRuleConstraint",
-    "packageName" : "com.jmix.configengine.scenario.compa"
+    "packageName" : "com.jmix.configengine.scenario.compa",
+    "parentClassName" : "CompatiableRuleTest"
   }
 }

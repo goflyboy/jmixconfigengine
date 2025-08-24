@@ -144,6 +144,7 @@
     "@type" : "ModuleAlgArtifact",
     "id" : 123,
     "fileName" : "com.jmix.configengine.scenario.hello.HelloConstraint",
-    "packageName" : "com.jmix.configengine.scenario.hello"
+    "packageName" : "com.jmix.configengine.scenario.hello",
+    "parentClassName" : ""
   }
 }

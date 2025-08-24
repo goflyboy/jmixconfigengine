@@ -59,11 +59,12 @@
     "sortNo" : 1,
     "type" : "ATOMIC",
     "price" : 100,
+    "maxQuantity" : 20,
     "attrs" : {
       "@class" : "java.util.HashMap",
       "partProperty" : "propertyValue"
     },
-    "attrSchemas" : null
+    "attrSchemas" : [ "java.util.ArrayList", [ ] ]
   } ] ],
   "rules" : [ "java.util.Arrays$ArrayList", [ {
     "@type" : "Rule",
