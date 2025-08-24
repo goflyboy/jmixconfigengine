@@ -194,7 +194,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		return optionVar;
 	}
 
-	 /**
+	/**
      * 兼容性规则：颜色和尺寸兼容关系规则
      * 规则内容：如果颜色选择红色，则尺寸必须选择大号或小号，不能选择中号
      */

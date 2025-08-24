@@ -86,7 +86,7 @@ public abstract class ModuleSecnarioTestBase {
     /**
      * 获取指定索引的解决方案
      */
-    protected ProgammableInstAssert solution(int index) {
+    protected ProgammableInstAssert solutions(int index) {
         if (solutions == null || index >= solutions.size()) {
             throw new IndexOutOfBoundsException("解决方案索引超出范围: " + index);
         }
