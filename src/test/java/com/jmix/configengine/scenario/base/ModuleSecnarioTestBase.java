@@ -25,6 +25,7 @@ public abstract class ModuleSecnarioTestBase {
     protected ModuleConstraintExecutor.ConstraintConfig cfg;
     protected ModuleConstraintExecutorImpl exec;
     protected List<ModuleConstraintExecutor.ModuleInst> solutions;
+    protected ModuleConstraintExecutor.Result<List<ModuleConstraintExecutor.ModuleInst>> result;
     
     /**
      * 构造函数
@@ -76,10 +77,10 @@ public abstract class ModuleSecnarioTestBase {
         req.moduleId = module.getId();
         req.enumerateAllSolution = true;
         
-        ModuleConstraintExecutor.Result<List<ModuleConstraintExecutor.ModuleInst>> r = exec.inferParas(req);
-        log.info("推理结果: {}", r);
-        
-        solutions = r.data;
+        ModuleConstraintExecutor.Result<List<ModuleConstraintExecutor.ModuleInst>> result = exec.inferParas(req);
+        log.info("推理结果: {}", result);
+        this.result = result;
+        this.solutions = result.data;
         return solutions;
     }
     
@@ -107,6 +108,16 @@ public abstract class ModuleSecnarioTestBase {
         for (int i = 0; i < solutions.size(); i++) {
             log.info("解决方案 {}: {}", i, ModuleConstraintExecutorImpl.toJson(solutions.get(i)));
         }
+    }
+    
+    /**
+     * 获取结果断言对象，用于验证执行结果
+     */
+    protected ResultAssert resultAssert() {
+        if (result == null) {
+            throw new IllegalStateException("尚未执行推理，无法获取结果断言");
+        }
+        return new ResultAssert(result);
     }
     
     /**

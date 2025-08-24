@@ -24,7 +24,13 @@ public class ParaInstAssert extends ProgammableInstAssert {
         }
         return this;
     }
-    
+    public ParaInstAssert valueIdEqual(String expectValueId) {
+        if (!Objects.equals(actual.value, expectValueId)) {
+            throw new AssertionError(String.format(
+                "参数值不匹配，期望: %s，实际: %s", expectValueId, actual.value));
+        }
+        return this;
+    }
     public ParaInstAssert valueNotEqual(String expectValue) {
         if (Objects.equals(actual.value, expectValue)) {
             throw new AssertionError(String.format(
