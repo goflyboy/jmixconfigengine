@@ -1,6 +1,7 @@
 package com.jmix.configengine.scenario.base;
 
 import com.jmix.configengine.ModuleConstraintExecutor.PartInst;
+import com.jmix.configengine.model.Part;
 import java.util.Objects;
 
 /**
@@ -8,10 +9,17 @@ import java.util.Objects;
  */
 public class PartInstAssert extends ProgammableInstAssert {
     private PartInst actual;
+    private Part part;
     
     public PartInstAssert(PartInst actual) {
         super(null);
         this.actual = actual;
+    }
+    
+    public PartInstAssert(PartInst actual, Part part) {
+        super(null);
+        this.actual = actual;
+        this.part = part;
     }
     
     public PartInstAssert quantityEqual(Integer expectQuantity) {

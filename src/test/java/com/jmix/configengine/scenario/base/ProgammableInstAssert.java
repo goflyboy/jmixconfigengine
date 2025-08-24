@@ -3,6 +3,9 @@ package com.jmix.configengine.scenario.base;
 import com.jmix.configengine.ModuleConstraintExecutor.ModuleInst;
 import com.jmix.configengine.ModuleConstraintExecutor.ParaInst;
 import com.jmix.configengine.ModuleConstraintExecutor.PartInst;
+import com.jmix.configengine.model.Module;
+import com.jmix.configengine.model.Para;
+import com.jmix.configengine.model.Part;
 
 import java.util.List;
 import java.util.Objects;
@@ -12,9 +15,15 @@ import java.util.Objects;
  */
 public class ProgammableInstAssert {
     protected ModuleInst actualModuleInst;
+    protected Module module;
     
     public ProgammableInstAssert(ModuleInst actualModuleInst) {
         this.actualModuleInst = actualModuleInst;
+    }
+    
+    public ProgammableInstAssert(ModuleInst actualModuleInst, Module module) {
+        this.actualModuleInst = actualModuleInst;
+        this.module = module;
     }
     
     public ParaInstAssert assertPara(String code) {
@@ -22,7 +31,8 @@ public class ProgammableInstAssert {
         if (paraInst == null) {
             throw new AssertionError("未找到参数: " + code);
         }
-        return new ParaInstAssert(paraInst);
+        Para para = module != null ? module.getPara(code) : null;
+        return new ParaInstAssert(paraInst, para);
     }
     
     public PartInstAssert assertPart(String code) {
@@ -30,7 +40,8 @@ public class ProgammableInstAssert {
         if (partInst == null) {
             throw new AssertionError("未找到部件: " + code);
         }
-        return new PartInstAssert(partInst);
+        Part part = module != null ? module.getPart(code) : null;
+        return new PartInstAssert(partInst, part);
     }
     
     private ParaInst findParaByCode(String code) {

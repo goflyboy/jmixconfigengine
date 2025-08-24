@@ -1,6 +1,7 @@
 package com.jmix.configengine.scenario.base;
 
 import com.jmix.configengine.ModuleConstraintExecutor.ParaInst;
+import com.jmix.configengine.model.Para;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
@@ -11,10 +12,17 @@ import java.util.Set;
  */
 public class ParaInstAssert extends ProgammableInstAssert {
     private ParaInst actual;
+    private Para para;
     
     public ParaInstAssert(ParaInst actual) {
         super(null);
         this.actual = actual;
+    }
+    
+    public ParaInstAssert(ParaInst actual, Para para) {
+        super(null);
+        this.actual = actual;
+        this.para = para;
     }
     
     public ParaInstAssert valueEqual(String expectValue) {
