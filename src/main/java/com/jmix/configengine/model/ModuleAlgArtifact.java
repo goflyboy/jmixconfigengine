@@ -22,4 +22,9 @@ public class ModuleAlgArtifact {
 	 * 算法制品基础包名
 	 */
 	private String packageName;
+	/**
+	 * 父类名称，用于内部类场景，默认为空字符串
+	 * 如果有父类，加载时需要拼接父类名称
+	 */
+	private String parentClassName = "";
 } 
