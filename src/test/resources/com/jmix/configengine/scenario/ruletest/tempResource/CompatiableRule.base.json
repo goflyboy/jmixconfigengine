@@ -1,0 +1,152 @@
+{
+  "@type" : "Module",
+  "extSchema" : "",
+  "extAttrs" : {
+    "@class" : "java.util.HashMap"
+  },
+  "code" : "CompatiableRule",
+  "fatherCode" : null,
+  "defaultValue" : null,
+  "description" : "",
+  "sortNo" : 0,
+  "id" : 123,
+  "version" : "1.0.0",
+  "packageName" : "com.jmix.configengine.scenario.ruletest",
+  "type" : "GENERAL",
+  "paras" : [ "java.util.ArrayList", [ {
+    "@type" : "Para",
+    "extSchema" : "",
+    "extAttrs" : {
+      "@class" : "java.util.HashMap"
+    },
+    "code" : "A",
+    "fatherCode" : "",
+    "defaultValue" : "a1",
+    "description" : "",
+    "sortNo" : 0,
+    "type" : "ENUM",
+    "options" : [ "java.util.ArrayList", [ {
+      "@type" : "ParaOption",
+      "extSchema" : null,
+      "extAttrs" : {
+        "@class" : "java.util.HashMap"
+      },
+      "code" : "a1",
+      "fatherCode" : null,
+      "defaultValue" : "a1",
+      "description" : "",
+      "sortNo" : 1,
+      "codeId" : 10
+    }, {
+      "@type" : "ParaOption",
+      "extSchema" : null,
+      "extAttrs" : {
+        "@class" : "java.util.HashMap"
+      },
+      "code" : "a2",
+      "fatherCode" : null,
+      "defaultValue" : "a2",
+      "description" : "",
+      "sortNo" : 2,
+      "codeId" : 20
+    }, {
+      "@type" : "ParaOption",
+      "extSchema" : null,
+      "extAttrs" : {
+        "@class" : "java.util.HashMap"
+      },
+      "code" : "a3",
+      "fatherCode" : null,
+      "defaultValue" : "a3",
+      "description" : "",
+      "sortNo" : 3,
+      "codeId" : 30
+    }, {
+      "@type" : "ParaOption",
+      "extSchema" : null,
+      "extAttrs" : {
+        "@class" : "java.util.HashMap"
+      },
+      "code" : "a4",
+      "fatherCode" : null,
+      "defaultValue" : "a4",
+      "description" : "",
+      "sortNo" : 4,
+      "codeId" : 40
+    } ] ],
+    "minValue" : null,
+    "maxValue" : null
+  }, {
+    "@type" : "Para",
+    "extSchema" : "",
+    "extAttrs" : {
+      "@class" : "java.util.HashMap"
+    },
+    "code" : "B",
+    "fatherCode" : "",
+    "defaultValue" : "b1",
+    "description" : "",
+    "sortNo" : 0,
+    "type" : "ENUM",
+    "options" : [ "java.util.ArrayList", [ {
+      "@type" : "ParaOption",
+      "extSchema" : null,
+      "extAttrs" : {
+        "@class" : "java.util.HashMap"
+      },
+      "code" : "b1",
+      "fatherCode" : null,
+      "defaultValue" : "b1",
+      "description" : "",
+      "sortNo" : 1,
+      "codeId" : 10
+    }, {
+      "@type" : "ParaOption",
+      "extSchema" : null,
+      "extAttrs" : {
+        "@class" : "java.util.HashMap"
+      },
+      "code" : "b2",
+      "fatherCode" : null,
+      "defaultValue" : "b2",
+      "description" : "",
+      "sortNo" : 2,
+      "codeId" : 20
+    }, {
+      "@type" : "ParaOption",
+      "extSchema" : null,
+      "extAttrs" : {
+        "@class" : "java.util.HashMap"
+      },
+      "code" : "b3",
+      "fatherCode" : null,
+      "defaultValue" : "b3",
+      "description" : "",
+      "sortNo" : 3,
+      "codeId" : 30
+    }, {
+      "@type" : "ParaOption",
+      "extSchema" : null,
+      "extAttrs" : {
+        "@class" : "java.util.HashMap"
+      },
+      "code" : "b4",
+      "fatherCode" : null,
+      "defaultValue" : "b4",
+      "description" : "",
+      "sortNo" : 4,
+      "codeId" : 40
+    } ] ],
+    "minValue" : null,
+    "maxValue" : null
+  } ] ],
+  "parts" : [ "java.util.ArrayList", [ ] ],
+  "rules" : [ "java.util.ArrayList", [ ] ],
+  "alg" : {
+    "@type" : "ModuleAlgArtifact",
+    "id" : 123,
+    "fileName" : "com.jmix.configengine.scenario.ruletest.CompatiableRuleRequireTest$CompatiableRuleConstraint",
+    "packageName" : "com.jmix.configengine.scenario.ruletest",
+    "parentClassName" : "CompatiableRuleRequireTest"
+  }
+}

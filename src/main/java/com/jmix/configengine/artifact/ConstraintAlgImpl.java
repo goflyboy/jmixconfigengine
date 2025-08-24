@@ -263,4 +263,11 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		// 2. 使用model.addEquality添加数量约束
 		model.addEquality((IntVar) partVar.var, partQuantity);
 	}
+	public void addParaEquality(String paraCode, String paraValue) {
+		ParaVar paraVar = (ParaVar) varMap.get(paraCode);
+		if (paraVar == null) {
+			throw new RuntimeException("ParaVar not found for code: " + paraCode);
+		}
+		model.addEquality((IntVar) paraVar.var, Integer.parseInt(paraValue));
+	}
 }

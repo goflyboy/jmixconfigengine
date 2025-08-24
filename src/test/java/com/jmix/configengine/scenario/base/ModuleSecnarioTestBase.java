@@ -91,6 +91,31 @@ public abstract class ModuleSecnarioTestBase {
         return solutions;
     }
     
+    protected List<ModuleConstraintExecutor.ModuleInst> inferParasByPara(String paraCode, String value) {
+        ModuleConstraintExecutor.InferParasReq req = new ModuleConstraintExecutor.InferParasReq();
+        req.moduleId = module.getId();
+        req.enumerateAllSolution = true;
+        ModuleConstraintExecutor.ParaInst paraInst = new ModuleConstraintExecutor.ParaInst();
+        paraInst.code = paraCode;
+        //根据module.paras中的para.options，找到value对应的option
+        Para para = module.getPara(paraCode);
+        if (para == null) {
+            throw new RuntimeException(String.format("参数 %s 不存在", paraCode));
+        }
+        ParaOption option = para.getOption(value);
+        if (option == null) {
+            throw new RuntimeException(String.format("参数 %s 中未找到选项: %s，可用选项: %s", paraCode, value, Arrays.toString(para.getOptionCodes())));
+        }
+        paraInst.value = String.valueOf(option.getCodeId());
+        req.preParaInsts = Arrays.asList(paraInst);
+
+        ModuleConstraintExecutor.Result<List<ModuleConstraintExecutor.ModuleInst>> result = exec.inferParas(req);
+        log.info("推理结果: {}", result);
+        this.result = result;
+        this.solutions = result.data;
+        return solutions;
+    }
+    
     /**
      * 获取指定索引的解决方案
      */

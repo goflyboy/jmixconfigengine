@@ -64,8 +64,8 @@ public interface ModuleConstraintExecutor {
 	@Data
 	class ParaInst {
 		public String code;
-		public String value;
-		public List<String> options;
+		public String value;//空表示没有赋值
+		public List<String> options;//空表示没有赋值
 		public boolean isHidden = false;
 	}
 	class InferParasReq {

@@ -42,6 +42,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
 		for (Module m : modules) {
 			if (m == null) continue;
 			moduleMap.put(m.getId(), m);
+			m.init();
 			ModuleAlgClassLoader loader = new ModuleAlgClassLoader(config != null && config.isAttachedDebug, config != null ? config.rootFilePath : null);
 			loader.init(m.getCode(), m.getAlg());
 			moduleAlgClassLoaderMap.put(m.getId(), loader);
@@ -80,6 +81,16 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
 			alg.initModel(model, module);
 			if (req.mainPartInst != null) {
 				alg.addPartEquality(req.mainPartInst.code, req.mainPartInst.quantity);
+			}
+			if (req.preParaInsts != null) {
+				for (ParaInst paraInst : req.preParaInsts) {
+					alg.addParaEquality(paraInst.code, paraInst.value);
+				}
+			}
+			if (req.prePartInsts != null) {
+				for (PartInst partInst : req.prePartInsts) {
+					alg.addPartEquality(partInst.code, partInst.quantity);
+				}
 			}
 			CpSolver solver = new CpSolver();
 			if (req.enumerateAllSolution) {

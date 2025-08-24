@@ -1,4 +1,4 @@
-package com.jmix.configengine.scenario.compa;
+package com.jmix.configengine.scenario.ruletest;
 
 import com.google.ortools.sat.*;
 import com.jmix.configengine.artifact.*;
@@ -10,11 +10,11 @@ import lombok.extern.slf4j.Slf4j;
  * Hello约束算法测试类
  */
 @Slf4j
-public class CompatiableRuleTest extends ModuleSecnarioTestBase {
+public class CalculateRuleIfThenTest extends ModuleSecnarioTestBase {
 
     //---------------规则定义start----------------------------------------
     @ModuleAnno(id = 123L)
-    static public class CompatiableRuleConstraint extends ConstraintAlgImpl {
+    static public class CalculateRuleConstraint extends ConstraintAlgImpl {
         
         @ParaAnno(
             defaultValue = "op11",
@@ -69,13 +69,12 @@ public class CompatiableRuleTest extends ModuleSecnarioTestBase {
    //---------------规则定义end----------------------------------------
 
     
-    public CompatiableRuleTest() {
-        super(CompatiableRuleConstraint.class);
+    public CalculateRuleIfThenTest() {
+        super(CalculateRuleConstraint.class);
     }
     
     @Test
-    public void test_rule2_if_op11_op21() {
-        log.info("testOnlyOneSolution"+ CompatiableRuleConstraint.class.getName());
+    public void test_rule2_if_op11_op21() { 
         // 测试颜色参数推理
         inferParas("PT1", 1); 
         
@@ -97,7 +96,7 @@ public class CompatiableRuleTest extends ModuleSecnarioTestBase {
         //if的解肯定不在其中
         assertSolutionNum("P1:op11,P2:op21",0);
         //else的解可能解如下：
-        assertSolutionNum("P1:op12,P2:op22",1); 
+        assertSolutionNum("P1:op12,P2:op22",1);
         printSolutions();
     }
     
