@@ -88,6 +88,10 @@ Thumbs.db
 !src/main/resources/*.properties
 !src/test/resources/*.properties
 
+# Temporary resource directories
+**/tempResource/
+tempResource/
+
 # Logs
 logs/
 *.log
