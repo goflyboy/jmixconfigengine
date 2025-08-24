@@ -27,6 +27,12 @@ public class Part extends ProgrammableObject<Integer> {
     private Long price= 0L;
     
     /**
+     * 原则Part的最大数量
+     */
+    private Integer maxQuantity= 20;
+
+
+    /**
      * 原子Part的规格属性
      */
     private Map<String, String> attrs = new HashMap<>();

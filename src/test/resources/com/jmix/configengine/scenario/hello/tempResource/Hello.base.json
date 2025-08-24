@@ -131,6 +131,7 @@
     "sortNo" : 0,
     "type" : "ATOMIC",
     "price" : 100,
+    "maxQuantity" : 20,
     "attrs" : {
       "@class" : "java.util.HashMap",
       "size" : "M",

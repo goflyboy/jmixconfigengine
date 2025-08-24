@@ -7,20 +7,13 @@ import com.jmix.configengine.model.Module;
 import com.jmix.configengine.model.Para;
 import com.jmix.configengine.model.Part;
 
-import java.util.List;
-import java.util.Objects;
 
 /**
  * 可编程实例断言基类
  */
 public class ProgammableInstAssert {
-    protected ModuleInst actualModuleInst;
-    protected Module module;
-    
-    public ProgammableInstAssert(ModuleInst actualModuleInst) {
-        this.actualModuleInst = actualModuleInst;
-    }
-    
+    private ModuleInst actualModuleInst;
+    private Module module;
     public ProgammableInstAssert(ModuleInst actualModuleInst, Module module) {
         this.actualModuleInst = actualModuleInst;
         this.module = module;
@@ -29,10 +22,13 @@ public class ProgammableInstAssert {
     public ParaInstAssert assertPara(String code) {
         ParaInst paraInst = findParaByCode(code);
         if (paraInst == null) {
-            throw new AssertionError("未找到参数: " + code);
+            throw new AssertionError("未找到参数 in moduleInst: " + code);
         }
-        Para para = module != null ? module.getPara(code) : null;
-        return new ParaInstAssert(paraInst, para);
+        Para para = module.getPara(code);
+        if (para == null) {
+            throw new AssertionError("未找到参数 in module: " + code);
+        }
+        return new ParaInstAssert(actualModuleInst, module, paraInst, para);
     }
     
     public PartInstAssert assertPart(String code) {
@@ -40,8 +36,11 @@ public class ProgammableInstAssert {
         if (partInst == null) {
             throw new AssertionError("未找到部件: " + code);
         }
-        Part part = module != null ? module.getPart(code) : null;
-        return new PartInstAssert(partInst, part);
+        Part part = module.getPart(code);
+        if (part == null) {
+            throw new AssertionError("未找到部件 in module: " + code);
+        }
+        return new PartInstAssert(actualModuleInst, module, partInst, part);
     }
     
     private ParaInst findParaByCode(String code) {

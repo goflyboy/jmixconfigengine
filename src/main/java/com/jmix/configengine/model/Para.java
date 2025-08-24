@@ -51,4 +51,13 @@ public class Para extends ProgrammableObject<String> {
 		}
 		return ids;
 	}
-} 
+	@JsonIgnore
+	public String[] getOptionCodes() {
+		if (options == null || options.isEmpty()) return new String[0];
+		String[] codes = new String[options.size()];
+		for (int i = 0; i < options.size(); i++) {
+			codes[i] = options.get(i).getCode();
+		}
+		return codes;
+	}
+}

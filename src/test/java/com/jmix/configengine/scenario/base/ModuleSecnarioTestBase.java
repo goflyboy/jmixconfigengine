@@ -1,14 +1,18 @@
 package com.jmix.configengine.scenario.base;
 
 import com.jmix.configengine.ModuleConstraintExecutor;
+import com.jmix.configengine.ModuleConstraintExecutor.ParaInst;
+import com.jmix.configengine.ModuleConstraintExecutor.PartInst;
 import com.jmix.configengine.artifact.ConstraintAlgImpl;
 import com.jmix.configengine.executor.ModuleConstraintExecutorImpl;
 import com.jmix.configengine.model.Module;
+import com.jmix.configengine.model.Para;
+import com.jmix.configengine.model.ParaOption;
+import com.jmix.configengine.model.Part;
 import lombok.extern.slf4j.Slf4j;
 
-
 import java.io.File;
-import java.util.List;
+import java.util.*;
 
 import org.junit.Before;
 
@@ -76,6 +80,9 @@ public abstract class ModuleSecnarioTestBase {
         ModuleConstraintExecutor.InferParasReq req = new ModuleConstraintExecutor.InferParasReq();
         req.moduleId = module.getId();
         req.enumerateAllSolution = true;
+        req.mainPartInst = new ModuleConstraintExecutor.PartInst();
+        req.mainPartInst.code = partCode;
+        req.mainPartInst.quantity = qty;
         
         ModuleConstraintExecutor.Result<List<ModuleConstraintExecutor.ModuleInst>> result = exec.inferParas(req);
         log.info("推理结果: {}", result);
@@ -92,7 +99,7 @@ public abstract class ModuleSecnarioTestBase {
             throw new IndexOutOfBoundsException("解决方案索引超出范围: " + index);
         }
         ModuleConstraintExecutor.ModuleInst solution = solutions.get(index);
-        return new ProgammableInstAssert(solution);
+        return new ProgammableInstAssert(solution, module);
     }
     
     /**
@@ -118,6 +125,169 @@ public abstract class ModuleSecnarioTestBase {
             throw new IllegalStateException("尚未执行推理，无法获取结果断言");
         }
         return new ResultAssert(result);
+    }
+    
+    /**
+     * 校验满足条件conditionExpr解的个数是否等于expectSolutionNum
+     * 
+     * @param conditionExpr 条件表达式，格式如："Color:Red,TShirt1:2"
+     * @param expectSolutionNum 期望的解决方案数量
+     */
+    protected void assertSolutionNum(String conditionExpr, int expectSolutionNum) {
+        if (solutions == null || solutions.isEmpty()) {
+            throw new AssertionError("没有解决方案可供验证");
+        }
+        
+        // 解析条件表达式
+        Map<String, String> kvMap = parseConditionExpr(conditionExpr);
+        
+        // 构建条件对象列表
+        List<ConditionElement> conditionElements = buildConditionElements(kvMap);
+        
+        // 计算实际匹配的解决方案数量
+        int actualMatchSolutionNum = countMatchingSolutions(conditionElements);
+        
+        // 比较实际数量和期望数量
+        if (actualMatchSolutionNum != expectSolutionNum) {
+            throw new AssertionError(String.format(
+                "解决方案数量不匹配，期望: %d，实际: %d，条件: %s", 
+                expectSolutionNum, actualMatchSolutionNum, conditionExpr));
+        }
+        
+        log.info("解决方案数量验证通过，条件: {}，数量: {}", conditionExpr, actualMatchSolutionNum);
+    }
+    
+    /**
+     * 解析条件表达式
+     * 格式："Color:Red,TShirt1:2" -> {"Color":"Red", "TShirt1":"2"}
+     */
+    private Map<String, String> parseConditionExpr(String conditionExpr) {
+        Map<String, String> kvMap = new HashMap<>();
+        String[] pairs = conditionExpr.split(",");
+        
+        for (String pair : pairs) {
+            String[] kv = pair.split(":");
+            if (kv.length == 2) {
+                kvMap.put(kv[0].trim(), kv[1].trim());
+            } else {
+                throw new IllegalArgumentException("条件表达式格式错误: " + pair);
+            }
+        }
+        
+        return kvMap;
+    }
+    
+    /**
+     * 构建条件元素列表
+     */
+    private List<ConditionElement> buildConditionElements(Map<String, String> kvMap) {
+        List<ConditionElement> elements = new ArrayList<>();
+        
+        for (Map.Entry<String, String> entry : kvMap.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            
+            // 在module.paras中查找
+            Para para = module.getPara(key);
+            if (para != null) {
+                // 找到Para，进一步根据value在option中查找
+                ParaOption option = para.getOption(value);
+                if (option != null) {
+                    elements.add(new ConditionElement("para", key, String.valueOf(option.getCodeId())));
+                } else {
+                    throw new RuntimeException(String.format(
+                        "参数 %s 中未找到选项: %s，可用选项: %s", 
+                        key, value, Arrays.toString(para.getOptionCodes())));
+                }
+                continue;
+            }
+            
+            // 在module.parts中查找
+            Part part = module.getPart(key);
+            if (part != null) {
+                // 找到Part
+                elements.add(new ConditionElement("part", key, value));
+                continue;
+            }
+            
+            // 都找不到，报错
+            throw new RuntimeException(String.format(
+                "在Module中未找到参数或部件: %s", key));
+        }
+        
+        return elements;
+    }
+    
+    /**
+     * 计算匹配条件的解决方案数量
+     */
+    private int countMatchingSolutions(List<ConditionElement> conditionElements) {
+        int matchCount = 0;
+        
+        for (ModuleConstraintExecutor.ModuleInst solution : solutions) {
+            boolean isMatch = true;
+            
+            for (ConditionElement element : conditionElements) {
+                if ("para".equals(element.type)) {
+                    // 对paraInst，比较value和paraInst.value
+                    ParaInst paraInst = findParaInstByCode(solution, element.code);
+                    if (paraInst == null || !element.value.equals(paraInst.value)) {
+                        isMatch = false;
+                        break;
+                    }
+                } else if ("part".equals(element.type)) {
+                    // 对partInst，比较value和partInst.quantity
+                    PartInst partInst = findPartInstByCode(solution, element.code);
+                    if (partInst == null || !element.value.equals(String.valueOf(partInst.quantity))) {
+                        isMatch = false;
+                        break;
+                    }
+                }
+            }
+            
+            if (isMatch) {
+                matchCount++;
+            }
+        }
+        
+        return matchCount;
+    }
+    
+    /**
+     * 根据代码查找ParaInst
+     */
+    private ParaInst findParaInstByCode(ModuleConstraintExecutor.ModuleInst solution, String code) {
+        if (solution.paras == null) return null;
+        return solution.paras.stream()
+            .filter(p -> code.equals(p.code))
+            .findFirst()
+            .orElse(null);
+    }
+    
+    /**
+     * 根据代码查找PartInst
+     */
+    private PartInst findPartInstByCode(ModuleConstraintExecutor.ModuleInst solution, String code) {
+        if (solution.parts == null) return null;
+        return solution.parts.stream()
+            .filter(p -> code.equals(p.code))
+            .findFirst()
+            .orElse(null);
+    }
+    
+    /**
+     * 条件元素内部类
+     */
+    private static class ConditionElement {
+        final String type;    // "para" 或 "part"
+        final String code;    // 代码
+        final String value;   // 值
+        
+        ConditionElement(String type, String code, String value) {
+            this.type = type;
+            this.code = code;
+            this.value = value;
+        }
     }
     
     /**

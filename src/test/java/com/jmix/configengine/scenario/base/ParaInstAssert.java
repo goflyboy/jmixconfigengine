@@ -1,7 +1,8 @@
 package com.jmix.configengine.scenario.base;
 
-import com.jmix.configengine.ModuleConstraintExecutor.ParaInst;
-import com.jmix.configengine.model.Para;
+import com.jmix.configengine.ModuleConstraintExecutor.*;
+import com.jmix.configengine.model.*;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
@@ -14,19 +15,22 @@ public class ParaInstAssert extends ProgammableInstAssert {
     private ParaInst actual;
     private Para para;
     
-    public ParaInstAssert(ParaInst actual) {
-        super(null);
-        this.actual = actual;
-    }
-    
-    public ParaInstAssert(ParaInst actual, Para para) {
-        super(null);
+    public ParaInstAssert(ModuleInst actualModuleInst, Module module, ParaInst actual, Para para) {
+        super(actualModuleInst, module);
         this.actual = actual;
         this.para = para;
     }
     
     public ParaInstAssert valueEqual(String expectValue) {
-        if (!Objects.equals(actual.value, expectValue)) {
+        //expectValue的值是code值，转化为codeId
+        ParaOption option = para.getOption(expectValue);
+        if (option == null) {
+            throw new AssertionError(String.format(
+                "参数code不存在， %s, para.options: %s", expectValue, Arrays.toString(para.getOptionCodes())));
+        }
+
+        String expectValueId = String.valueOf( option.getCodeId());
+        if (!Objects.equals(actual.value, expectValueId)) {
             throw new AssertionError(String.format(
                 "参数值不匹配，期望: %s，实际: %s", expectValue, actual.value));
         }

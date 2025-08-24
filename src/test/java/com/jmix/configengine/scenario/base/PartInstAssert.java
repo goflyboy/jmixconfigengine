@@ -1,7 +1,7 @@
 package com.jmix.configengine.scenario.base;
 
-import com.jmix.configengine.ModuleConstraintExecutor.PartInst;
-import com.jmix.configengine.model.Part;
+import com.jmix.configengine.ModuleConstraintExecutor.*;
+import com.jmix.configengine.model.*;
 import java.util.Objects;
 
 /**
@@ -9,15 +9,10 @@ import java.util.Objects;
  */
 public class PartInstAssert extends ProgammableInstAssert {
     private PartInst actual;
-    private Part part;
+    private Part part; 
     
-    public PartInstAssert(PartInst actual) {
-        super(null);
-        this.actual = actual;
-    }
-    
-    public PartInstAssert(PartInst actual, Part part) {
-        super(null);
+    public PartInstAssert(ModuleInst actualModuleInst, Module module, PartInst actual, Part part) {
+        super(actualModuleInst, module);
         this.actual = actual;
         this.part = part;
     }

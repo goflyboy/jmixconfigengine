@@ -15,41 +15,45 @@ public class HelloConstraintTest extends ModuleSecnarioTestBase {
     }
     
     @Test
-    public void testColorParameterInference() {
+    public void testOnlyOneSolution() {
         // 测试颜色参数推理
         inferParas("TShirt11", 1);
         
         // 使用resultAssert验证执行结果
         resultAssert()
             .assertSuccess()
-            .assertSolutionSizeEqual(1)
-            .assertCodeEqual(0)
-            .assertDataNotNull();
+            .assertSolutionSizeEqual(1);
         
-        // 验证第一个解决方案
-        solutions(0)
-            .assertPara("Color")
-                .valueEqual("Red");
-        solutions(0)
-            .assertPart("TShirt11")
-                .quantityEqual(1);
-                
+        // 验证第一个解
+        solutions(0).assertPara("Color").valueEqual("Red")
+        .assertPara("Size").valueEqual("Small");
+        printSolutions();
+    }
+
+    
+    @Test
+    public void testMultiSolution() {
+        // 测试颜色参数推理
+        inferParas("TShirt11", 3);
+        printSolutions();
+        // 使用resultAssert验证执行结果
+        resultAssert()
+            .assertSuccess()
+            .assertSolutionSizeEqual(8);
         printSolutions();
     }
     
     @Test
-    public void testResultAssertion() {
-        // 测试结果断言功能
-        inferParas("TShirt11", 2);
+    public void testSolutionNumAssertion() {
+        // 测试解决方案数量断言功能
+        inferParas("TShirt11", 1);
         
-        // 链式断言验证
-        resultAssert()
-            .assertSuccess()
-            .assertSolutionSizeGreaterThan(0)
-            .assertSolutionSizeLessThanOrEqual(10)
-            .assertDataNotNull()
-            .assertCodeEqual(0);
+        // 验证满足条件的解决方案数量
+        assertSolutionNum("Color:Red", 1);
+        assertSolutionNum("TShirt11:1", 1);
+        assertSolutionNum("Color:Red,TShirt11:1", 1);
         
-        log.info("结果断言测试通过");
+        log.info("解决方案数量断言测试通过");
     }
-} 
+
+}
