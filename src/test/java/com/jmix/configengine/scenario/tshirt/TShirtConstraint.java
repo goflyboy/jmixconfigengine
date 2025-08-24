@@ -110,12 +110,31 @@ public class TShirtConstraint extends ConstraintAlgImpl {
         //===================================调试信息===================================
         
     /**
-     * 兼容性规则：部件数量关系规则
-     * 规则内容：装饰部件TShirt12的数量必须等于主体部件TShirt11数量的2倍
+     * 条件数量规则：基于颜色和尺寸的部件数量规则
+     * 规则内容：如果颜色选择红色且尺寸选择小号，则TShirt11数量为1；否则为3
      */
     public void addConstraint_rule2() {
-        // TODO: 实现兼容性约束TODO 
-        System.out.println("添加兼容性约束: 部件数量关系规则");
+        // 创建条件变量：颜色是红色且尺寸是小号
+        BoolVar redAndSmall = model.newBoolVar("rule2_redAndSmall");
+        
+        // 实现条件逻辑：redAndSmall = (Color == Red) AND (Size == Small)
+        model.addBoolAnd(new Literal[]{
+            this.ColorVar.getParaOptionByCode("Red").getIsSelectedVar(),
+            this.SizeVar.getParaOptionByCode("Small").getIsSelectedVar()
+        }).onlyEnforceIf(redAndSmall);
+        
+        // 如果不是红色且小号的组合，则redAndSmall为false
+        model.addBoolOr(new Literal[]{
+            this.ColorVar.getParaOptionByCode("Red").getIsSelectedVar().not(),
+            this.SizeVar.getParaOptionByCode("Small").getIsSelectedVar().not()
+        }).onlyEnforceIf(redAndSmall.not());
+        
+        // 根据条件设置TShirt11的数量
+        // 如果redAndSmall为true，则TShirt11数量为1
+        model.addEquality((IntVar)this.TShirt11Var.var, 1).onlyEnforceIf(redAndSmall);
+        
+        // 如果redAndSmall为false，则TShirt11数量为3
+        model.addEquality((IntVar)this.TShirt11Var.var, 3).onlyEnforceIf(redAndSmall.not());
     }
            
        //===================================类型1===================================
