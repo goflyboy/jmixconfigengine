@@ -24,7 +24,21 @@ public class ModuleAlgClassLoader extends ClassLoader {
 	public void init(String moduleCode, ModuleAlgArtifact algArtifact) {
 		this.algArtifact = algArtifact;
 		if (algArtifact != null) {
-			this.constraintRuleClassName = algArtifact.getPackageName() + "." + moduleCode + "Constraint";
+			// 构建完整的类名，支持内部类场景
+			StringBuilder classNameBuilder = new StringBuilder();
+			
+			// 如果有父类名称，先添加父类
+			if (algArtifact.getParentClassName() != null && !algArtifact.getParentClassName().isEmpty()) {
+				classNameBuilder.append(algArtifact.getParentClassName()).append("$");
+			}
+			
+			// 添加包名和类名
+			classNameBuilder.append(algArtifact.getPackageName())
+				.append(".")
+				.append(moduleCode)
+				.append("Constraint");
+			
+			this.constraintRuleClassName = classNameBuilder.toString();
 		}
 	}
 	

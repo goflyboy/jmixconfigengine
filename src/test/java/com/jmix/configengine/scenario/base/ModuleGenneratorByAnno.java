@@ -46,6 +46,18 @@ public class ModuleGenneratorByAnno {
             alg.setId(module.getId());
             alg.setFileName(moduleAlgClazz.getName());
             alg.setPackageName(moduleAlgClazz.getPackage().getName());
+            
+            // 检查是否为内部类，设置parentClassName
+            Class<?> enclosingClass = moduleAlgClazz.getEnclosingClass();
+            if (enclosingClass != null) {
+                // 是内部类，设置父类名称
+                alg.setParentClassName(enclosingClass.getName());
+                log.info("检测到内部类: {}，父类: {}", moduleAlgClazz.getName(), enclosingClass.getName());
+            } else {
+                // 不是内部类，保持默认空字符串
+                alg.setParentClassName("");
+            }
+            
             module.setAlg(alg);
             
             // 处理扩展属性
