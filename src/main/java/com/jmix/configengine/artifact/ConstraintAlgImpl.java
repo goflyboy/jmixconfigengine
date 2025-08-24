@@ -174,8 +174,8 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		}
 		PartVar partVar = new PartVar();
 		partVar.setBase(part);
-		partVar.var = model.newIntVar(0, 1, code);
 		// partVar.var = model.newIntVar(0, 1, code);
+		partVar.var = model.newIntVar(0, part.getMaxQuantity(), code);
 		registerVar(code, partVar);
 		return partVar;
 	}
@@ -244,5 +244,23 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		});
 		// 5. 实现Codependent关系
 		model.addEquality(leftCond, rightCond);
+	}
+	
+	/**
+	 * 添加部件数量相等约束
+	 * 根据partCode找到对应的partVar，并添加数量相等约束
+	 * 
+	 * @param partCode 部件代码
+	 * @param partQuantity 期望的部件数量
+	 */
+	public void addPartEquality(String partCode, int partQuantity) {
+		// 1. 根据partCode找到对应的partVar
+		PartVar partVar = (PartVar) varMap.get(partCode);
+		if (partVar == null) {
+			throw new RuntimeException("PartVar not found for code: " + partCode);
+		}
+		
+		// 2. 使用model.addEquality添加数量约束
+		model.addEquality((IntVar) partVar.var, partQuantity);
 	}
 }
