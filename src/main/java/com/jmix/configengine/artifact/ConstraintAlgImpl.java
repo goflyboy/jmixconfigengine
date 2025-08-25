@@ -219,11 +219,22 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		// model.addBoolAnd(new Literal[]{
 		// 	leftParaVar.getParaOptionByCode("Red").getIsSelectedVar().not()
 		// }).onlyEnforceIf(leftCond.not());
+
+		//错误1：
+		// BoolVar leftCond = model.newBoolVar(ruleCode + "_" + "leftCond");
+		// leftParaVar.optionSelectVars.values().stream().filter(option -> leftParaFilterOptionCodes.contains(option.getCode())).forEach(option -> {
+		// 	model.addBoolOr(new Literal[]{option.getIsSelectedVar()}).onlyEnforceIf(leftCond);
+		// 	model.addBoolAnd(new Literal[]{option.getIsSelectedVar().not()}).onlyEnforceIf(leftCond.not());
+		// });
+
 		BoolVar leftCond = model.newBoolVar(ruleCode + "_" + "leftCond");
-		leftParaVar.optionSelectVars.values().stream().filter(option -> leftParaFilterOptionCodes.contains(option.getCode())).forEach(option -> {
-			model.addBoolOr(new Literal[]{option.getIsSelectedVar()}).onlyEnforceIf(leftCond);
-			model.addBoolAnd(new Literal[]{option.getIsSelectedVar().not()}).onlyEnforceIf(leftCond.not());
-		});
+		Literal[] leftSelected = leftParaVar.optionSelectVars.values().stream()
+			.filter(option -> leftParaFilterOptionCodes.contains(option.getCode()))
+			.map(option -> (Literal) option.getIsSelectedVar())
+			.toArray(Literal[]::new);
+		// 当leftCond为true时，左侧集合中至少一个被选中；当为false时，左侧集合全部不被选中
+		model.addBoolOr(leftSelected).onlyEnforceIf(leftCond);
+		model.addBoolAnd(Arrays.stream(leftSelected).map(Literal::not).toArray(Literal[]::new)).onlyEnforceIf(leftCond.not());
 
 
 		
@@ -238,10 +249,13 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		// 	rightParaVar.getParaOptionByCode("Small").getIsSelectedVar().not()
 		// }).onlyEnforceIf(rightCond.not());
 		BoolVar rightCond = model.newBoolVar("rule1" + "_" + "rightCond");
-		rightParaVar.optionSelectVars.values().stream().filter(option -> rightParaFilterOptionCodes.contains(option.getCode())).forEach(option -> {
-			model.addBoolOr(new Literal[]{option.getIsSelectedVar()}).onlyEnforceIf(rightCond);
-			model.addBoolAnd(new Literal[]{option.getIsSelectedVar().not()}).onlyEnforceIf(rightCond.not());
-		});
+		Literal[] rightSelected = rightParaVar.optionSelectVars.values().stream()
+			.filter(option -> rightParaFilterOptionCodes.contains(option.getCode()))
+			.map(option -> (Literal) option.getIsSelectedVar())
+			.toArray(Literal[]::new);
+		// 当rightCond为true时，右侧集合中至少一个被选中；当为false时，右侧集合全部不被选中
+		model.addBoolOr(rightSelected).onlyEnforceIf(rightCond);
+		model.addBoolAnd(Arrays.stream(rightSelected).map(Literal::not).toArray(Literal[]::new)).onlyEnforceIf(rightCond.not());
 		// 5. 实现Codependent关系
 		model.addEquality(leftCond, rightCond);
 	}

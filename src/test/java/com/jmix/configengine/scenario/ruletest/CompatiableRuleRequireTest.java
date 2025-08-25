@@ -45,6 +45,9 @@ public class CompatiableRuleRequireTest extends ModuleSecnarioTestBase {
             // 若a1都未被选中，则b1/b2/b3可以任意选择；也就是A.value = a2 then B.value in (b1,b2,b3,b4)
             // 若a3都未被选中，则b1/b2/b3可以任意选择；也就是A.value = a4 then B.value in (b1,b2,b3,b4)
 
+            //反之不成立*
+            
+
             // 则-理解2：--好像不能这么理解？ 选择不同一样的？ TODO：未来options怎么计算呢？
             // 若a1、a3被选中，则b1/b2/b3必须有一项被选中； 也就是A.options= {a1,a3}、A.value=未明确? then B.value in (b1,b2,b3)
             // 若a1、a3都未被选中，则b1/b2/b3可以任意选择；也就是A.options= {a2,a4}、A.value=未明确? then B.value in (b1,b2,b3,b4)
@@ -61,9 +64,9 @@ public class CompatiableRuleRequireTest extends ModuleSecnarioTestBase {
     }
     
     @Test
-    public void test_rule1_a1_selected() { 
+    public void test_rule1_a1_selected() {
         // 测试颜色参数推理
-        inferParasByPara("A", "a1"); 
+        inferParasByPara("A", "a1");
         //反推有8个接口  8=3*3 - 1
         resultAssert()
             .assertSuccess()
@@ -76,7 +79,36 @@ public class CompatiableRuleRequireTest extends ModuleSecnarioTestBase {
 
         printSolutions();
     }
-    //TODO 其它的案例
+
+    @Test
+    public void test_rule1_a3_selected() {
+        // 测试颜色参数推理
+        inferParasByPara("A", "a3");
+        //反推有8个接口  8=3*3 - 1
+        resultAssert()
+            .assertSuccess()
+            .assertSolutionSizeEqual(3);
+        assertSolutionNum("A:a3,B:b1",1);
+        assertSolutionNum("A:a3,B:b2",1);
+        assertSolutionNum("A:a3,B:b3",1);
+        assertSolutionNum("A:a3,B:b4",0);//不满足要求 
+        printSolutions();
+    }
+
+    @Test
+    public void test_rule1_a1a3_not_selected() {//a1，a3都为未被选中
+        // 测试颜色参数推理
+        inferParasByPara("A", "a2");
+        //反推有8个接口  8=3*3 - 1
+        resultAssert()
+            .assertSuccess()
+            .assertSolutionSizeEqual(4);
+        assertSolutionNum("A:a2,B:b1",1);
+        assertSolutionNum("A:a2,B:b2",1);
+        assertSolutionNum("A:a2,B:b3",1);
+        assertSolutionNum("A:a2,B:b4",1);
+        printSolutions();
+    }
     
 
 }
