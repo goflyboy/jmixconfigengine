@@ -99,7 +99,13 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
 			// 可按需设置更多参数
 			// if (config != null) { solver.getParameters().setLogSearchProgress(true); }
 			ModuleInstSolutionCallBack cb = new ModuleInstSolutionCallBack(module, alg.getVars());
-			solver.solve(model, cb);
+			CpSolverStatus status = solver.solve(model, cb);
+			if(status != CpSolverStatus.OPTIMAL && status != CpSolverStatus.FEASIBLE && status != CpSolverStatus.INFEASIBLE){
+				return Result.failed("solver status: " + status);
+			}
+			// if(cb.getAllSolutions().isEmpty()){
+			// 	return Result.noSolution();
+			// }
 			return Result.success(cb.getAllSolutions());
 		} catch (Exception ex) {
 			log.error("Failed to infer paras", ex);

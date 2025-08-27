@@ -159,10 +159,13 @@ public abstract class ModuleSecnarioTestBase {
      * @param expectSolutionNum 期望的解决方案数量
      */
     protected void assertSolutionNum(String conditionExpr, int expectSolutionNum) {
+        //如果expectSolutionNum为0，则不进行验证
+        if (expectSolutionNum == 0 && (solutions == null || solutions.isEmpty())) {
+            return;
+        }
         if (solutions == null || solutions.isEmpty()) {
             throw new AssertionError("没有解决方案可供验证");
         }
-        
         // 解析条件表达式
         Map<String, String> kvMap = parseConditionExpr(conditionExpr);
         

@@ -100,6 +100,22 @@ public class CalculateRuleIfThenTest extends ModuleSecnarioTestBase {
         printSolutions();
     }
     
+    
+    @Test
+    public void test_rule2_no_if_else() {
+        inferParas("PT1", 4);
+        printSolutions();
+        //反推有8个接口  8=3*3 - 1
+        resultAssert()
+            .assertSuccess()
+            .assertSolutionSizeEqual(0);
+        //if的解肯定不在其中
+        assertSolutionNum("P1:op11,P2:op21",0);
+        //else的解可能解如下：
+        assertSolutionNum("P1:op12,P2:op22",0);
+        printSolutions();
+    }
+    
  
 
 }

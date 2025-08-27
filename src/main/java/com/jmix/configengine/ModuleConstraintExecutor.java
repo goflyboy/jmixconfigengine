@@ -17,6 +17,7 @@ public interface ModuleConstraintExecutor {
 	class Result<T> {
 		public static final int SUCCESS = 0;
 		public static final int FAILED = 1;
+		public static final int NO_SOLUTION = 2;
 		public int code = SUCCESS;
 		public T data;
 		public String message;
@@ -30,6 +31,11 @@ public interface ModuleConstraintExecutor {
 			Result<X> r = new Result<>();
 			r.code = FAILED;
 			r.message = msg;
+			return r;
+		}
+		public static <X> Result<X> noSolution(){
+			Result<X> r = new Result<>();
+			r.code = NO_SOLUTION;
 			return r;
 		}
 	}
