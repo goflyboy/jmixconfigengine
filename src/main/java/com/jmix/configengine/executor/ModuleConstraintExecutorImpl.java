@@ -92,6 +92,10 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
 					alg.addPartEquality(partInst.code, partInst.quantity);
 				}
 			}
+			if(config.isLogModelProto){
+				//将module的CpModelProto信息输出到文件config.logFilePath/module.proto.txt
+				model.exportToFile(config.logFilePath + "/" + module.getCode() + ".proto.txt");
+			}
 			CpSolver solver = new CpSolver();
 			if (req.enumerateAllSolution) {
 				solver.getParameters().setEnumerateAllSolutions(true);
