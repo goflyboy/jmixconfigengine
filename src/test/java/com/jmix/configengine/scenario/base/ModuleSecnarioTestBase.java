@@ -50,10 +50,6 @@ public abstract class ModuleSecnarioTestBase {
      * 构建Module数据
      */
     protected Module buildModule(Class<? extends ConstraintAlgImpl> moduleAlgClazz) {
-        // 生成临时资源路径
-        tempResourcePath = getResourcePath(moduleAlgClazz) + "/tempResource";
-        createDirectory(tempResourcePath);
-        
         // 通过注解生成Module
         module = ModuleGenneratorByAnno.build(moduleAlgClazz, tempResourcePath);
         return module;
@@ -63,10 +59,15 @@ public abstract class ModuleSecnarioTestBase {
      * 初始化测试环境
      */
     protected void init() {
+        // 生成临时资源路径
+        tempResourcePath = getResourcePath(constraintAlgClazz) + "/tempResource";
+        createDirectory(tempResourcePath);
         exec = new ModuleConstraintExecutorImpl();
         cfg = new ModuleConstraintExecutor.ConstraintConfig();
         cfg.isAttachedDebug = true; // 测试环境直接使用当前classpath加载
         cfg.rootFilePath = tempResourcePath;
+        cfg.logFilePath = tempResourcePath;
+        cfg.isLogModelProto = true;
         exec.init(cfg);
         
         module = buildModule(this.constraintAlgClazz);
@@ -323,7 +324,7 @@ public abstract class ModuleSecnarioTestBase {
      */
     private String getResourcePath(Class<?> clazz) {
         String packagePath = clazz.getPackage().getName().replace('.', '/');
-        return "src/test/resources/" + packagePath;
+        return "src/test/java/" + packagePath;
     }
     
     /**

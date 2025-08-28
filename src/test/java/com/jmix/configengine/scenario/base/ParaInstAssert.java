@@ -1,7 +1,9 @@
 package com.jmix.configengine.scenario.base;
 
 import com.jmix.configengine.ModuleConstraintExecutor.*;
-import com.jmix.configengine.model.*;
+import com.jmix.configengine.model.Para;
+import com.jmix.configengine.model.ParaOption;
+import com.jmix.configengine.model.Module;
 
 import java.util.Arrays;
 import java.util.HashSet;
