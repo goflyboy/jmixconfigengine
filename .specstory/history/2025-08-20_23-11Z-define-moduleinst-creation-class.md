@@ -13421,6 +13421,158 @@ _**User**_
 
 _**Assistant**_
 
+好的，我来提交刚才修复的编译错误：
+
+
+---
+
+```bash
+git add .
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>git add .
+warning: in the working copy of '.specstory/history/2025-08-20_23-11Z-define-mod
+uleinst-creation-class.md', LF will be replaced by CRLF the next time Git touche
+s it
+warning: in the working copy of 'src/main/java/com/jmix/configengine/ModuleConst
+raintExecutor.java', LF will be replaced by CRLF the next time Git touches it   
+warning: in the working copy of 'src/test/java/com/jmix/configengine/scenario/ba
+se/ModuleSecnarioTestBase.java', LF will be replaced by CRLF the next time Git t
+ouches it
+warning: in the working copy of 'src/test/java/com/jmix/configengine/scenario/ba
+se/ParaInstAssert.java', LF will be replaced by CRLF the next time Git touches i
+t
+warning: in the working copy of 'src/test/java/com/jmix/configengine/scenario/ba
+se/PartInstAssert.java', LF will be replaced by CRLF the next time Git touches i
+t
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+```bash
+git commit -m "修复测试框架中的Module类引用冲突问题
+
+- 修复PartInstAssert和ParaInstAssert中的Module类引用不明确问题
+- 将通配符导入改为具体类导入，避免与java.lang.Module冲突
+- 确保测试框架能够正常编译和运行
+- 验证test_rule2_no_if_else测试执行成功"
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>git commit -m "修复测试框架中的Module类引用冲突问题
+[main ddd378a] 修复测试框架中的Module类引用冲突问题
+ 6 files changed, 718 insertions(+), 159 deletions(-)
+ delete mode 100644 src/test/resources/com/jmix/configengine/scenario/ruletest/tempResource/CompatiableRu
+le.base.json
+
+D:\01.code\mygithub\jmixconfigengine>
+D:\01.code\mygithub\jmixconfigengine>- 修复PartInstAssert和ParaInstAssert中的Module类引用不明确问题      
+'-' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+D:\01.code\mygithub\jmixconfigengine>- 将通配符导入改为具体类导入，避免与java.lang.Module冲突
+D:\01.code\mygithub\jmixconfigengine>- 确保测试框架能够正常编译和运行
+'-' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+D:\01.code\mygithub\jmixconfigengine>- 验证test_rule2_no_if_else测试执行成功"
+'-' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+提交成功了！虽然命令行显示了一些格式问题，但Git已经成功创建了提交。让我检查一下提交状态：
+
+
+---
+
+```bash
+git log --oneline -1
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>git log --oneline -1
+ddd378a (HEAD -> main) 修复测试框架中的Module类引用冲突问题
+ddd378a (HEAD -> main) 修复测试框架中的Module类引用冲突问题
+~
+ddd378a (HEAD -> main) 修复测试框架中的Module类引用冲突问题
+ddd378a (HEAD -> main) 修复测试框架中的Module类引用冲突问题
+~
+~
+~
+~
+ddd378a (HEAD -> main) 修复测试框架中的Module类引用冲突问题
+~
+~
+~
+~
+~
+~
+ddd378a (HEAD -> main) 修复测试框架中的Module类引用冲突问题
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+(END)...skipping...
+ddd378a (HEAD -> main) 修复测试框架中的Module类引用冲突问题
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+(END)
+```
+
+---
+
+很好！提交已经成功创建，提交ID是`ddd378a`。
+
+## 提交完成 ✅
+
+**提交信息**：修复测试框架中的Module类引用冲突问题
+
+**修复内容**：
+- 修复了`PartInstAssert`和`ParaInstAssert`中的`Module`类引用不明确问题
+- 将通配符导入`import com.jmix.configengine.model.*;`改为具体类导入
+- 避免了与Java标准库`java.lang.Module`的命名冲突
+- 确保测试框架能够正常编译和运行
+
+**验证结果**：
+- ✅ 编译成功
+- ✅ `test_rule2_no_if_else`测试执行成功
+- ✅ 约束算法正常工作
+
+现在测试框架可以正常使用了！🎯
+
+---
+
+_**User**_
+
+请提交
+
+---
+
+_**Assistant**_
+
 
 
 ---

@@ -111,11 +111,11 @@ public class CalculateRuleIfThenTest extends ModuleSecnarioTestBase {
             .assertSolutionSizeEqual(0);
         //if的解肯定不在其中
         assertSolutionNum("P1:op11,P2:op21",0);
-        //else的解可能解如下：
+        //else的解也不在其中
         assertSolutionNum("P1:op12,P2:op22",0);
         printSolutions();
     }
     
- 
+
 
 }
