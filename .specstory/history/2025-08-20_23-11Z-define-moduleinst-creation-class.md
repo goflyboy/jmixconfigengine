@@ -13573,6 +13573,236 @@ _**User**_
 
 _**Assistant**_
 
+好的，我来提交刚才的修改：
+
+
+---
+
+```bash
+git add .
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>git add .
+warning: in the working copy of '.specstory/history/2025-08-20_23-11Z-define-mod
+uleinst-creation-class.md', LF will be replaced by CRLF the next time Git touche
+s it
+warning: in the working copy of 'src/test/java/com/jmix/configengine/scenario/ru
+letest/CalculateRuleIfThenTest.java', LF will be replaced by CRLF the next time 
+Git touches it
+warning: in the working copy of 'src/test/java/com/jmix/configengine/scenario/ru
+letest/CalculateRuleSimpleTest.java', LF will be replaced by CRLF the next time 
+Git touches it
+
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+```bash
+git commit -m "优化约束算法性能，使用BoolOr和BoolAnd数组优化
+
+- 重构addCompatibleConstraint方法，使用Stream API收集Literal数组
+- 使用BoolOr和BoolAnd对数组进行操作，提升性能
+- 优化代码可读性，减少重复代码
+- 保持原有功能不变，确保约束逻辑正确性"
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>git commit -m "优化约束算法性能，使用BoolOr和BoolAnd数组优化
+[main dcf4bd5] 优化约束算法性能，使用BoolOr和BoolAnd数组优化
+ 3 files changed, 243 insertions(+), 2 deletions(-)
+ create mode 100644 src/test/java/com/jmix/configengine/scenario/ruletest/CalculateRuleSimpleTest.java   
+
+D:\01.code\mygithub\jmixconfigengine>
+D:\01.code\mygithub\jmixconfigengine>- 重构addCompatibleConstraint方法，使用Stream API收集Literal数组    
+'-' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+D:\01.code\mygithub\jmixconfigengine>- 使用BoolOr和BoolAnd对数组进行操作，提升性能
+'-' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+D:\01.code\mygithub\jmixconfigengine>- 优化代码可读性，减少重复代码
+'-' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+提交成功了！让我检查一下提交状态：
+
+
+---
+
+```bash
+git log --oneline -1
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>git log --oneline -1
+dcf4bd5 (HEAD -> main) 优化约束算法性能，使用BoolOr和BoolAnd数组优化
+dcf4bd5 (HEAD -> main) 优化约束算法性能，使用BoolOr和BoolAnd数组优化
+dcf4bd5 (HEAD -> main) 优化约束算法性能，使用BoolOr和BoolAnd数组优化
+~
+~
+dcf4bd5 (HEAD -> main) 优化约束算法性能，使用BoolOr和BoolAnd数组优化
+~
+~
+~
+~
+dcf4bd5 (HEAD -> main) 优化约束算法性能，使用BoolOr和BoolAnd数组优化
+dcf4bd5 (HEAD -> main) 优化约束算法性能，使用BoolOr和BoolAnd数组优化
+~
+~
+~
+~
+~
+~
+~
+(END)...skipping...
+dcf4bd5 (HEAD -> main) 优化约束算法性能，使用BoolOr和BoolAnd数组优化
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+(END)
+```
+
+---
+
+## 提交完成 ✅
+
+**提交信息**：优化约束算法性能，使用BoolOr和BoolAnd数组优化
+
+**提交ID**：`dcf4bd5`
+
+**修改内容**：
+- 重构了`addCompatibleConstraint`方法，使用Stream API收集Literal数组
+- 使用`BoolOr`和`BoolAnd`对数组进行操作，提升性能
+- 优化了代码可读性，减少重复代码
+- 保持了原有功能不变，确保约束逻辑正确性
+
+**新增文件**：
+- `CalculateRuleSimpleTest.java` - 新增的测试文件
+
+现在约束算法的性能优化已经完成并提交！🎯
+
+---
+
+_**User**_
+
+参考下列代码改选中的代码   \n         model.addBoolOr(new Literal[]{colorOptions[1], colorOptions[2]}).onlyEnforceIf(colorNotRed);
+
+---
+
+_**Assistant**_
+
+我来参考提供的代码，修改选中的`initConstraint`方法：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/CalculateRuleSimpleTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 13, lines removed: 4
+
+```diff
+@@ -27,13 +27,22 @@
+          @Override
+          protected void initConstraint() {
+-             // if(P1Var.var ==op11 ) {
++             // if(P1Var.var == op11) {
+              //     PT1Var.var = 1;
+              // }
+              // else {
+-             //     PT1Var.var = 3
++             //     PT1Var.var = 3;
+              // }
+-             //TODO 
++             
++             // 创建条件变量
++             BoolVar p1IsOp11 = model.newBoolVar("P1_is_op11");
++             BoolVar p1IsNotOp11 = model.newBoolVar("P1_is_not_op11");
+              
+-      
++             // 设置P1Var.var == op11的条件
++             model.addEquality((IntVar) P1Var.var, op11).onlyEnforceIf(p1IsOp11);
++             model.addEquality((IntVar) P1Var.var, op11).onlyEnforceIf(p1IsNotOp11).not();
++             
++             // 设置PT1Var.var的值
++             model.addEquality((IntVar) PT1Var.var, 1).onlyEnforceIf(p1IsOp11);
++             model.addEquality((IntVar) PT1Var.var, 3).onlyEnforceIf(p1IsNotOp11);
+          }
+      } 
+```
+
+</details>
+
+---
+
+我需要先查看这个类的完整代码，了解`op11`变量是如何定义的：
+
+
+---
+
+Read file: src/test/java/com/jmix/configengine/scenario/ruletest/CalculateRuleSimpleTest.java
+
+---
+
+现在我明白了，`op11`是一个字符串常量，不是变量。我需要修复这个问题，使用正确的字符串值：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/CalculateRuleSimpleTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 3, lines removed: 2
+
+```diff
+@@ -39,6 +39,7 @@
+              
+              // 设置P1Var.var == op11的条件
+-             model.addEquality((IntVar) P1Var.var, op11).onlyEnforceIf(p1IsOp11);
+-             model.addEquality((IntVar) P1Var.var, op11).onlyEnforceIf(p1IsNotOp11).not();
++             // 需要根据P1Var的选项值来设置，op11对应codeId为10
++             model.addEquality((IntVar) P1Var.var, 10).onlyEnforceIf(p1IsOp11);
++             model.addEquality((IntVar) P1Var.var, 10).onlyEnforceIf(p1IsNotOp11).not();
+              
+              // 设置PT1Var.var的值
+```
+
+</details>
+
+---
+
+我需要修复`not()`方法的使用问题。`addEquality`返回的是`void`，不能调用`not()`。我需要使用正确的OR-Tools语法：
+
+
+---
+
+
+
+---
+
 
 
 ---
