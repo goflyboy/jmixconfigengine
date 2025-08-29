@@ -1,0 +1,1120 @@
+// 版权所有 2010-2025 Google LLC
+// 根据 Apache 许可证 2.0 版本（"许可证"）授权；
+// 除非遵守许可证，否则不得使用此文件。
+// 您可以在以下网址获取许可证副本：
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// 除非适用法律要求或书面同意，本软件按"原样"分发，
+// 没有任何明示或暗示的担保或条件。
+// 详见许可证中特定的语言管理权限和限制。
+
+// LINT: LEGACY_NAMES
+syntax = "proto2";
+
+package operations_research.sat;
+
+option csharp_namespace = "Google.OrTools.Sat";
+option go_package = "github.com/google/or-tools/ortools/sat/proto/satparameters";
+option java_package = "com.google.ortools.sat";
+option java_multiple_files = true;
+
+// 包含所有 SAT 算法参数的定义及其默认值。
+//
+// NEXT TAG: 316
+message SatParameters {
+  // 在某些场景（如组合搜索）中，可为参数集命名以用于日志记录。
+  optional string name = 171 [default = ""];
+
+  // ==========================================================================
+  // 分支和极性
+  // ==========================================================================
+
+  // 无活动度的变量（即在搜索开始时）将按此优先顺序尝试。
+  enum VariableOrder {
+    IN_ORDER = 0;  // 按问题指定顺序
+    IN_REVERSE_ORDER = 1;
+    IN_RANDOM_ORDER = 2;
+  }
+  optional VariableOrder preferred_variable_order = 1 [default = IN_ORDER];
+
+  // 指定求解器对变量分支时的初始极性（真/假）。后续可由用户或阶段保存启发式修改。
+  //
+  // 注意(user)：由于布尔线性问题的"自然"表达方式，POLARITY_FALSE 通常是良好选择。
+  enum Polarity {
+    POLARITY_TRUE = 0;
+    POLARITY_FALSE = 1;
+    POLARITY_RANDOM = 2;
+  }
+  optional Polarity initial_polarity = 2 [default = POLARITY_FALSE];
+
+  // 若为 true，则变量的极性将为其最后被赋的值，或自 ResetDecisionHeuristic() 调用后从未赋值时的默认极性。
+  //
+  // 实际使用新版实现：遵循当前阶段中最长无冲突部分赋值中的最后一个值。
+  //
+  // 称为"字面量阶段保存"。详见《A Lightweight Component Caching Scheme for Satisfiability Solvers》, K. Pipatsrisawat 和 A.Darwiche, SAT 2007。
+  optional bool use_phase_saving = 44 [default = true];
+
+  // 若非零，则在冲突次数达到该值后以算术递增方式更改极性启发式（首次为 x，第二次为 2*x，依此类推）。
+  optional int32 polarity_rephase_increment = 168 [default = 1000];
+
+  // 若为 true 且存在首解局部搜索（LS）工作器，则在某些阶段尝试遵循违反约束最少的 LS 提示解。
+  optional bool polarity_exploit_ls_hints = 309 [default = false];
+
+  // 随机选择极性的比例。注意此设置优先于阶段保存启发式。与 initial_polarity:POLARITY_RANDOM 不同，它会在每次分支时重新随机选择而非固定初始选择。
+  optional double random_polarity_ratio = 45 [default = 0.0];
+
+  // 介于 0 和 1 之间的数值，表示按给定变量顺序策略选择分支变量时，随机选择分支变量的比例（而非选择第一个变量）。
+  optional double random_branches_ratio = 32 [default = 0.0];
+
+  // 是否使用 ERWA（指数近期加权平均）启发式，参考《Learning Rate Based Branching Heuristic for SAT solvers》, J.H.Liang 等, SAT 2016。
+  optional bool use_erwa_heuristic = 75 [default = false];
+
+  // 变量活动度的初始值。仅当 use_erwa_heuristic 为 true 时非零值有意义。实验表明，结合 ERWA 启发式时，1e-2 比零值略优。其思想是当变量的"学习率"低于此值时，优先分支未探索变量（非 ERWA 论文内容）。
+  optional double initial_variables_activity = 76 [default = 0.0];
+
+  // 若为 true，则冲突中所有变量原因链中的变量也会提升活动度（除冲突变量和冲突解决中使用的变量外）。
+  optional bool also_bump_variables_in_conflict_reasons = 77 [default = false];
+
+  // ==========================================================================
+  // 冲突分析
+  // ==========================================================================
+
+  // 创建冲突时是否尝试（贪婪地）最小化冲突。
+  enum ConflictMinimizationAlgorithm {
+    NONE = 0;
+    SIMPLE = 1;
+    RECURSIVE = 2;
+    EXPERIMENTAL = 3;
+  }
+  optional ConflictMinimizationAlgorithm minimization_algorithm = 4
+      [default = RECURSIVE];
+
+  // 是否利用二元子句进一步最小化学习子句。
+  enum BinaryMinizationAlgorithm {
+    NO_BINARY_MINIMIZATION = 0;
+    BINARY_MINIMIZATION_FIRST = 1;
+    BINARY_MINIMIZATION_FIRST_WITH_TRANSITIVE_REDUCTION = 4;
+    BINARY_MINIMIZATION_WITH_REACHABILITY = 2;
+    EXPERIMENTAL_BINARY_MINIMIZATION = 3;
+  }
+  optional BinaryMinizationAlgorithm binary_minimization_algorithm = 34
+      [default = BINARY_MINIMIZATION_FIRST];
+
+  // 在 1-UIP 冲突计算过程中，可以低成本检测涉及的某些原因是否被当前冲突包含。若为 true，此类子句将被分离并在后续从问题中移除。
+  optional bool subsumption_during_conflict_analysis = 56 [default = true];
+
+  // ==========================================================================
+  // 子句库管理
+  // ==========================================================================
+
+  // 学习到该数量的"可删除"子句时触发清理。
+  optional int32 clause_cleanup_period = 11 [default = 10000];
+
+  // 清理时始终保留该数量的"可删除"子句（不含"受保护"子句）。
+  optional int32 clause_cleanup_target = 13 [default = 0];
+
+  // 若 clause_cleanup_target 为 0，清理时将删除 clause_cleanup_ratio 比例的可删除子句（而非固定保留数量）。
+  optional double clause_cleanup_ratio = 190 [default = 0.5];
+
+  // 子句活动度提升时，有机会在下次清理阶段受保护。注意作为原因的子句始终受保护。
+  enum ClauseProtection {
+    PROTECTION_NONE = 0;    // 无保护
+    PROTECTION_ALWAYS = 1;  // 保护所有活动度提升的子句
+    PROTECTION_LBD = 2;     // 仅保护 LBD 更优的子句
+  }
+  optional ClauseProtection clause_cleanup_protection = 58
+      [default = PROTECTION_NONE];
+
+  // LBD（字面量块距离）小于等于此值的子句将始终保留。
+  optional int32 clause_cleanup_lbd_bound = 59 [default = 5];
+
+  // 清理时保留的子句按此顺序优先。同级子句同留同删。
+  enum ClauseOrdering {
+    // 按活动度降序，再按 LBD 升序排序
+    CLAUSE_ACTIVITY = 0;
+    // 按 LBD 升序，再按活动度降序排序
+    CLAUSE_LBD = 1;
+  }
+  optional ClauseOrdering clause_cleanup_ordering = 60
+      [default = CLAUSE_ACTIVITY];
+
+  // 同子句处理，但针对学习的伪布尔约束。
+  optional int32 pb_cleanup_increment = 46 [default = 200];
+  optional double pb_cleanup_ratio = 47 [default = 0.5];
+
+  // ==========================================================================
+  // 变量和子句活动度
+  // ==========================================================================
+
+  // 每次冲突后，部分变量活动度增加 1，随后所有变量活动度乘以 variable_activity_decay。
+  //
+  // 高效实现：并非每次冲突都衰减所有变量活动度，而是将活动度增量乘以 1 / decay。
+  // 当活动度达到 max_variable_activity_value 时，所有活动度乘以 1 / max_variable_activity_value。
+  optional double variable_activity_decay = 15 [default = 0.8];
+  optional double max_variable_activity_value = 16 [default = 1e100];
+
+  // 活动度从 0.8 开始，每 5000 次冲突增加 0.01 直至 0.95。此"技巧"效果良好，源自：
+  //
+  // 《Glucose 2.3 in the SAT 2013 Competition - SAT Competition 2013》
+  // http://edacc4.informatik.uni-ulm.de/SC13/solver-description-download/136
+  optional double glucose_max_decay = 22 [default = 0.95];
+  optional double glucose_decay_increment = 23 [default = 0.01];
+  optional int32 glucose_decay_increment_period = 24 [default = 5000];
+
+  // 子句活动度参数（同变量处理）。
+  optional double clause_activity_decay = 17 [default = 0.999];
+  optional double max_clause_activity_value = 18 [default = 1e20];
+
+  // ==========================================================================
+  // 重启
+  // ==========================================================================
+
+  // 重启算法。
+  //
+  // 高级算法参考：
+  // Gilles Audemard, Laurent Simon, "Refining Restarts Strategies for SAT and UNSAT", CP 2012, pp 118-126
+  enum RestartAlgorithm {
+    NO_RESTART = 0;
+
+    // 遵循 Luby 序列乘以 restart_period
+    LUBY_RESTART = 1;
+
+    // 基于冲突决策层移动平均的重启
+    DL_MOVING_AVERAGE_RESTART = 2;
+
+    // 基于冲突 LBD 移动平均的重启
+    LBD_MOVING_AVERAGE_RESTART = 3;
+
+    // 固定周期重启（每 restart_period 一次）
+    FIXED_RESTART = 4;
+  }
+
+  // 策略计数器递增时，重启策略会变更。当前策略为列表中索引 strategy_counter 模策略总数的策略。
+  // 注意若列表包含 NO_RESTART，重启时策略计数器仍会递增，但策略不会变更。
+  //
+  // 切换针对 SAT/UNSAT 的搜索策略思想源自 Chanseok Oh 的 COMiniSatPS 求解器（http://cs.nyu.edu/~chanseok/）。
+  // 通常，尝试不同策略似乎非常有益。
+  repeated RestartAlgorithm restart_algorithms = 61;
+  optional string default_restart_algorithms = 70
+      [default =
+           "LUBY_RESTART,LBD_MOVING_AVERAGE_RESTART,DL_MOVING_AVERAGE_RESTART"];
+
+  // FIXED_RESTART 策略的重启周期，也是 LUBY_RESTART 策略的乘数。
+  optional int32 restart_period = 30 [default = 50];
+
+  // 移动平均重启的窗口大小。
+  optional int32 restart_running_window_size = 62 [default = 50];
+
+  // 在移动平均重启算法中，若窗口平均值乘以此比例大于全局平均值，则触发重启。
+  optional double restart_dl_average_ratio = 63 [default = 1.0];
+  optional double restart_lbd_average_ratio = 71 [default = 1.0];
+
+  // 若当前冲突的迹大小大于移动平均值乘以此倍数，则阻止移动重启算法。
+  optional bool use_blocking_restart = 64 [default = false];
+  optional int32 blocking_restart_window_size = 65 [default = 5000];
+  optional double blocking_restart_multiplier = 66 [default = 1.4];
+
+  // 每次重启后，若自上次策略变更以来的冲突数大于此值，则递增"策略计数器"以变更后续重启的搜索策略。
+  optional int32 num_conflicts_before_strategy_changes = 68 [default = 0];
+
+  // 每次策略变更后，num_conflicts_before_strategy_changes 按此比例增加。
+  optional double strategy_change_increase_ratio = 69 [default = 0.0];
+
+  // ==========================================================================
+  // 限制
+  // ==========================================================================
+
+  // 求解问题的最大允许时间（秒），从 Solve() 调用开始时计时。
+  optional double max_time_in_seconds = 36 [default = inf];
+
+  // 求解问题的最大确定时间。确定时间应与求解器实际使用时间相关，单位尽量接近秒。
+  optional double max_deterministic_time = 67 [default = inf];
+
+  // 调度该批次数量后停止（仅当 interleave_search 为 true 时有效）。
+  optional int32 max_num_deterministic_batches = 291 [default = 0];
+
+  // 求解问题的最大冲突数。
+  //
+  // 注意：当前限制针对每次独立内部 SAT 求解，而非所有求解的总冲突数。因此在优化问题中，客户端需注意此限制。
+  optional int64 max_number_of_conflicts = 37
+      [default = 0x7FFFFFFFFFFFFFFF];  // kint64max
+
+  // 包含求解器的整个线程允许的最大内存（MB）。检测到超限时求解器将中止（结果为近似值，通常不会严重超限）。
+  //
+  // 注意：仅纯 SAT 求解器使用，需推广至 CP-SAT。
+  optional int64 max_memory_in_mb = 40 [default = 10000];
+
+  // 当最优可行目标值 (O) 与最佳目标界 (B) 的间隙小于限制时停止搜索。
+  // 定义：
+  // - 绝对间隙: abs(O - B)
+  // - 相对间隙: abs(O - B) / max(1, abs(O))
+  //
+  // 重要：相对间隙依赖于目标偏移量！人为偏移目标将导致相对间隙值差异巨大。
+  //
+  // 注意：达到间隙时搜索状态为 OPTIMAL，但可通过 best_objective_bound 检查实际间隙。
+  //
+  // 若目标为整数，绝对间隙 < 1 将得到真正最优解。浮点目标时，零间隙无意义，因此默认非零值。若报告 OPTIMAL 但间隙大于此绝对间隙，搜索结束时会显示警告。
+  optional double absolute_gap_limit = 159 [default = 1e-4];
+  optional double relative_gap_limit = 160 [default = 0.0];
+
+  // ==========================================================================
+  // 其他参数
+  // ==========================================================================
+
+  // 每次求解开始时，求解器部分使用的随机数生成器将以此种子重新初始化。更改随机种子可能导致求解过程选择不同。
+  //
+  // 对某些问题，运行时间可能因求解算法的微小变化而波动。使用不同种子运行求解器可在评估新特性时获得更稳健的基准测试。
+  optional int32 random_seed = 31 [default = 1];
+
+  // 主要用于测试求解器变异性。若未显式设为 false，测试中所有 3 个选项将设为 true，避免客户端依赖特定最优解（存在多个等效解时）。
+  optional bool permute_variable_randomly = 178 [default = false];
+  optional bool permute_presolve_constraint_order = 179 [default = false];
+  optional bool use_absl_random = 180 [default = false];
+
+  // 求解器是否记录搜索进度。此为主日志参数，若为 false，所有日志（回调、log_to_stdout、log_to_response 等）均无效。
+  optional bool log_search_progress = 41 [default = false];
+
+  // 若为 true 且 log_search_progress 为 true，且搜索工作器数 >1，则显示每个子求解器的搜索统计信息（总会按工作器显示单行统计）。
+  optional bool log_subsolver_statistics = 189 [default = false];
+
+  // 所有日志的前缀。
+  optional string log_prefix = 185 [default = ""];
+
+  // 日志输出到 stdout。
+  optional bool log_to_stdout = 186 [default = true];
+
+  // 日志输出到响应 proto。
+  optional bool log_to_response = 187 [default = false];
+
+  // 是否使用伪布尔消解分析冲突。仅当问题建模使用伪布尔约束时有效（纯子句问题无影响但可能减慢求解）。
+  optional bool use_pb_resolution = 43 [default = false];
+
+  // 伪布尔消解中的替代算法，最小化 ReduceCoefficients() 调用次数（可能耗时）。但搜索空间将不同，若系数较大可能导致整数溢出（否则可预防）。
+  optional bool minimize_reduction_during_pb_resolution = 48 [default = false];
+
+  // LBD 计算时是否考虑假设层级。根据以下文献，不计数在某些假设下可改进求解器：
+  //
+  // Gilles Audemard 等, "Improving Glucose for Incremental SAT Solving with Assumptions: Application to MUS Extraction", SAT 2013.
+  optional bool count_assumption_levels_in_lbd = 49 [default = true];
+
+  // ==========================================================================
+  // 预处理
+  // ==========================================================================
+
+  // 预处理中，仅当变量 x 的出现次数乘 not(x) 的出现次数不超过此阈值时，尝试执行有界变量消除（BVE）。
+  optional int32 presolve_bve_threshold = 54 [default = 500];
+
+  // 预处理中，仅当子句数乘子句字面量数不增加时应用 BVE（权重因子）。
+  optional int32 presolve_bve_clause_weight = 55 [default = 3];
+
+  // 探测的最大"确定时间"限制（零值禁用探测）。
+  //
+  // 注意：第一个参数用于 CP-SAT，另一个用于纯 SAT 预处理。
+  optional double probing_deterministic_time_limit = 226 [default = 1.0];
+  optional double presolve_probing_deterministic_time_limit = 57
+      [default = 30.0];
+
+  // 是否使用启发式检测 SAT 预处理中的阻塞子句基本案例。
+  optional bool presolve_blocked_clause = 88 [default = true];
+
+  // 是否在预处理中使用有界变量加法（BVA）。
+  optional bool presolve_use_bva = 72 [default = true];
+
+  // 当子句数严格减少超过此阈值时应用有界变量加法（BVA）。论文算法使用 0，但快速实验表明 1 为佳值（为减少一个子句新增变量可能不值得）。
+  optional int32 presolve_bva_threshold = 73 [default = 1];
+
+  // 若预处理迭代中约简量大，则执行多次预处理迭代。此参数控制最大预处理迭代次数。
+  optional int32 max_presolve_iterations = 138 [default = 3];
+
+  // 求解前是否预处理 cp_model。
+  optional bool cp_model_presolve = 86 [default = true];
+
+  // 探测工作强度（0 完全禁用）。
+  optional int32 cp_model_probing_level = 110 [default = 2];
+
+  // cp_model_presolve 为 true 时，是否同时使用 sat 预处理。
+  optional bool cp_model_use_sat_presolve = 93 [default = true];
+
+  // 若 cp_model_presolve 为 true 且首次模型复制后固定变量比例大，则在完整预处理开始前将模型重映射到密集变量集（有助于大型模型的 LNS）。
+  optional bool remove_fixed_variables_early = 310 [default = true];
+
+  // 若为 true，检测表约束中唯一且仅用于编码元组成本的变量（通常出现在 WCSP 编码为 CP-SAT 格式时）。
+  //
+  // 可显著加速此类问题，但目前仍为实验性功能。
+  optional bool detect_table_with_cost = 216 [default = false];
+
+  // 表约束的"压缩"程度。更高压缩减少布尔变量并加速传播，但可能降低 LP 松弛质量。值范围 0 到 3（3 始终尝试完全压缩）。2 时自动判断是否值得。
+  optional int32 table_compression_level = 217 [default = 2];
+
+  // 若为 true，扩展非置换的 all_different 约束（置换约束（#变量 = #值）始终扩展）。
+  optional bool expand_alldiff_constraints = 170 [default = false];
+
+  // 若为 true，通过为所有事件间可能的前序关系创建布尔值扩展 reservoir 约束。
+  optional bool expand_reservoir_constraints = 182 [default = true];
+
+  // 主要用于测试。
+  //
+  // 若此参数与 expand_reservoir_constraints 均为 true，则使用 circuit 替代前序的 reservoir 约束编码（通常较慢，但可测试求解器不同部分）。
+  // 注意：与前序编码不同，此编码天然支持可变需求。
+  //
+  // 警告：此编码下约束含义略有不同。必须存在同一时间事件的一个排列，使得在该排列顺序中每个事件后储层水平在范围内。因此，若水平需在 0 到 10 之间（如 reservoir 约束允许），则不能同时出现 +100 和 -100。
+  optional bool expand_reservoir_using_circuit = 288 [default = false];
+
+  // 将具有固定需求和容量的累加约束编码为 reservoir 约束（仅用于测试 reservoir 传播代码！）。
+  optional bool encode_cumulative_as_reservoir = 287 [default = false];
+
+  // 若 lin_max 中的表达式数小于 max_size 参数，模型扩展将目标 = max(xi) 替换为线性约束（引入新布尔变量 bi 满足 bi => target == xi）。
+  //
+  // 主要用于对比自定义 lin_max 传播器的实验。
+  optional int32 max_lin_max_size_for_expansion = 280 [default = 0];
+
+  // 若为 true，禁用所有约束扩展（仅用于测试扩展约束的预处理）。
+  optional bool disable_constraint_expansion = 181 [default = false];
+
+  // 具有复杂右侧的线性约束（非单区间）需扩展，有几种实现方式。
+  optional bool encode_complex_linear_constraint_with_integer = 223
+      [default = false];
+
+  // 预处理中使用最大团启发式合并无重叠约束或至多一个约束。此代码可能较慢，因此在底层图中设置探索节点限制（内部限制为 int64，此处用 double 简化手动输入）。
+  optional double merge_no_overlap_work_limit = 145 [default = 1e12];
+  optional double merge_at_most_one_work_limit = 146 [default = 1e8];
+
+  // 预处理中执行替换（MIP 文献中称自由变量聚合）的强度。当前仅涉及线性约束中的变量。0 关闭，正值执行替换。
+  optional int32 presolve_substitution_level = 147 [default = 1];
+
+  // 若为 true，从线性约束中提取形如"整数变量在边界 => 简化约束"的强制字面量。目前有益，但处理效率不足，可能导致 manna81.mps（LP 松弛不紧）和 neos-3354841-apure.mps.gz（过多字面量）问题。
+  optional bool presolve_extract_integer_enforcement = 174 [default = false];
+
+  // 涉及约束包含关系检测的预处理操作可能因对数级配对数量而复杂。此参数强制本地确定性扫描条目上限（零值完全禁用这些预处理规则）。
+  //
+  // 默认值 1e8。
+  optional int64 presolve_inclusion_work_limit = 201 [default = 100000000];
+
+  // 是否在内部副本中保留用户给定模型的名称。
+  optional bool ignore_names = 202 [default = true];
+
+  // 运行最大团代码检测所有 x != y 关系，推断全异变量集（例如可闭合 neos16.mps）。若模型中无 all_diff 则运行此代码（假设用户添加的 all_diff 已完善）。
+  //
+  // 若关系间存在"偏移"（即 x > y + offset），此操作还会检测并添加 no_overlap 约束。
+  optional bool infer_all_diffs = 233 [default = true];
+
+  // 若为 true，在线性约束矩阵中检测并创建具有相同行的"矩形"大重叠。若矩形足够大，可引入代表公共表达式的新整数变量，显著减少非零数。
+  optional bool find_big_linear_overlap = 234 [default = true];
+
+  // ==========================================================================
+  // 处理中
+  // ==========================================================================
+
+  // 启用或禁用"处理中"（每次重启时对根层级执行的 SAT 预处理）。
+  optional bool use_sat_inprocessing = 163 [default = true];
+
+  // 处理中花费的确定时间比例。每次"重启"时，若比例低于此值则执行处理，否则跳过。
+  optional double inprocessing_dtime_ratio = 273 [default = 0.2];
+
+  // 每次处理中轮次花费的探测确定时间。
+  optional double inprocessing_probing_dtime = 274 [default = 1.0];
+
+  // 类似《An effective learnt clause minimization approach for CDCL Sat Solvers》（https://www.ijcai.org/proceedings/2017/0098.pdf）的启发式。
+  //
+  // 每次处理中阶段花费在此技术上的确定时间。
+  //
+  // 最小化技术与 max-sat 中核心最小化相同。我们不仅最小化永久保留的学习子句，还最小化问题子句。
+  optional double inprocessing_minimization_dtime = 275 [default = 1.0];
+  optional bool inprocessing_minimization_use_conflict_analysis = 297
+      [default = true];
+  optional bool inprocessing_minimization_use_all_orderings = 298
+      [default = false];
+
+  // ==========================================================================
+  // 多线程
+  // ==========================================================================
+
+  // 指定搜索期间使用的并行工作器（线程）数。通常应低于机器的可用 CPU + 超线程数。
+  //
+  // 0 表示尝试使用机器所有核心，1 表示无并行。
+  //
+  // 注意：'num_workers' 是首选名称，但若设为零，仍会读取已弃用的 'num_search_workers'。
+  //
+  // 截至 2020-04-10，若通过 MPSolver 使用 SAT（求解整数规划），未显式设置时此字段会被覆盖为 8。因此请显式设置或通过 MPSolver::SetNumThreads() 设置。
+  optional int32 num_workers = 206 [default = 0];
+  optional int32 num_search_workers = 100 [default = 0];
+
+  // 区分消耗完整线程的子求解器与始终交错的子求解器。若为零，将根据 num_workers 用默认公式修复。但若修改运行内容，可能需要根据 num_workers 固定为特定值。
+  optional int32 num_full_subsolvers = 294 [default = 0];
+
+  // 多线程中，求解器可视为不同参数的组合。此字段指定多线程中使用的参数名称（仅适用于"完整"子求解器）。
+  //
+  // 参见 cp_model_search.cc 查看名称列表及默认值（若为空），例如：
+  // - default_lp           (linearization_level:1)
+  // - fixed                (仅当指定固定搜索或调度时)
+  // - no_lp                (linearization_level:0)
+  // - max_lp               (linearization_level:2)
+  // - pseudo_costs         (仅目标存在时，更改搜索启发式)
+  // - reduced_costs        (仅目标存在时，更改搜索启发式)
+  // - quick_restart        (类探测)
+  // - quick_restart_no_lp  (linearization_level:0 的类探测)
+  // - lb_tree_search       (改进下界，类 MIP 树搜索)
+  // - probing              (连续探测和剃除)
+  //
+  // 注意：某些参数集在无意义时会被忽略（例如无目标时忽略 pseudo_cost 搜索）。基于核心的搜索仅在目标项多时有效，等等。
+  //
+  // 顺序很重要，仅前 num_full_subsolvers 个会被调度。日志会显示给定运行中选择的子求解器。
+  repeated string subsolvers = 207;
+
+  // 便捷添加更多工作器类型（添加到列表开头）。
+  repeated string extra_subsolvers = 219;
+
+  // 相比完全指定子求解器，通常更便捷地移除对特定问题无用或仅保留特定测试的子求解器。每个字符串解释为"通配符"（支持 '*' 和 '?'）。
+  //
+  // 工作方式：仅接受匹配筛选模式（若非空）且不匹配忽略模式的名称。注意这些字段对 LNS 或 LS 名称有效（即使它们当前未通过 subsolvers 字段指定）。
+  repeated string ignore_subsolvers = 209;
+  repeated string filter_subsolvers = 293;
+
+  // 可指定额外的子求解器配置（通过 params.name() 引用）。仅指定字段会"覆盖"基础参数。若 subsolver_params 的名称与现有子求解器配置相同，命名参数将合并到该配置中。
+  repeated SatParameters subsolver_params = 210;
+
+  // 实验性功能。若为 true，则交错所有主要搜索策略并在 num_workers 间分配工作。
+  //
+  // 搜索是确定性的（与 num_workers 无关！），在同步和调度下一批任务前，调度并等待 interleave_batch_size 任务完成。
+  optional bool interleave_search = 136 [default = false];
+  optional int32 interleave_batch_size = 134 [default = 0];
+
+  // 工作器间共享目标边界。
+  optional bool share_objective_bounds = 113 [default = true];
+
+  // 共享层级 0 的修改变量边界。
+  optional bool share_level_zero_bounds = 114 [default = true];
+
+  // 共享冲突中新学习的二元子句。
+  optional bool share_binary_clauses = 203 [default = true];
+
+  // 共享短胶水子句（若 share_binary_clauses 为 false 则隐式禁用）。
+  optional bool share_glue_clauses = 285 [default = false];
+
+  // 导入共享子句后立即最小化并检测包含关系。
+  optional bool minimize_shared_clauses = 300 [default = true];
+
+  // ==========================================================================
+  // 调试参数
+  // ==========================================================================
+
+  // 有两种后处理代码，默认更优且支持更强预处理，但也可使用完整求解器后处理。
+  optional bool debug_postsolve_with_full_solver = 162 [default = false];
+
+  // 若为正数，在应用该次数的预处理规则后尝试停止（主要用于调试预处理）。
+  optional int32 debug_max_num_presolve_operations = 151 [default = 0];
+
+  // 若无法将提示修复为完整解则崩溃。
+  optional bool debug_crash_on_bad_hint = 195 [default = false];
+
+  // 若预处理破坏可行提示则崩溃。
+  optional bool debug_crash_if_presolve_breaks_hint = 306 [default = false];
+
+  // ==========================================================================
+  // Max-sat 参数
+  // ==========================================================================
+
+  // 优化问题中是否遵循提示以寻找更优首解。对带提示的变量，求解器始终尝试遵循提示，否则回退到 variable_branching 默认值。
+  optional bool use_optimization_hints = 35 [default = true];
+
+  // 核心最小化强度（0 关闭，1 使用简单启发式最小化 UNSAT 核心，2 使用传播最小化核心并识别核心中至多一个关系的字面量）。
+  optional int32 core_minimization_level = 50 [default = 2];
+
+  // 在基于核心的 max-SAT 算法中，是否尝试为给定假设集寻找更多独立核心。
+  optional bool find_multiple_cores = 84 [default = true];
+
+  // 若为 true，当 max-sat 算法找到核心时，计算核心中需为真以满足可行解的最小字面量数（也称为核心耗尽）。
+  optional bool cover_optimization = 89 [default = true];
+
+  // 在基于核心的 max-sat 算法中添加假设的顺序。
+  enum MaxSatAssumptionOrder {
+    DEFAULT_ASSUMPTION_ORDER = 0;  // 默认顺序
+    ORDER_ASSUMPTION_BY_DEPTH = 1; // 按深度排序
+    ORDER_ASSUMPTION_BY_WEIGHT = 2; // 按权重排序
+  }
+  optional MaxSatAssumptionOrder max_sat_assumption_order = 51
+      [default = DEFAULT_ASSUMPTION_ORDER];
+
+  // 若为 true，按 max_sat_assumption_order 定义的逆序添加假设。
+  optional bool max_sat_reverse_assumption_order = 52 [default = false];
+
+  // 存在权重时的分层算法。
+  enum MaxSatStratificationAlgorithm {
+    // 无分层
+    STRATIFICATION_NONE = 0;
+    // 从最高权重的字面量开始，SAT 后添加下一权重的字面量，依此类推
+    STRATIFICATION_DESCENT = 1;
+    // 从所有字面量开始。每次找到具有最小权重的核心时，下一核心计算不考虑更低权重的字面量。若子问题 SAT，则如 STRATIFICATION_DESCENT 添加下一权重的字面量。
+    STRATIFICATION_ASCENT = 2;
+  }
+  optional MaxSatStratificationAlgorithm max_sat_stratification = 53
+      [default = STRATIFICATION_DESCENT];
+
+  // ==========================================================================
+  // 约束规划参数
+  // ==========================================================================
+
+  // 某些搜索决策可能导致大域整数变量逐步减少时传播次数激增。若传播次数超过变量数乘此参数，尝试采取对策（0.0 禁用此特性）。
+  //
+  // 注意：类似 10 的值在多数情况下有益，但当前代码存在缺陷，可能导致求解进入无进展的坏状态。
+  optional double propagation_loop_detection_factor = 221 [default = 10.0];
+
+  // 若为 true，析取约束利用时间区间的前序关系进一步传播边界（例如任务 A 和 B 均在 C 前且析取，则任务 C 必须在 duration(A) + duration(B) 后开始，而非 max(duration(A), duration(B))，前提是所有任务的开始时间当前为零）。
+  //
+  // 传播效果更优但通常较慢，根据问题关闭可能加速求解。
+  optional bool use_precedences_in_disjunctive_constraint = 74 [default = true];
+
+  // 为析取约束中每对任务创建一个前序字面量。虽减慢求解，但在完工时间场景下改进目标下界。若区间数小于等于此参数且 use_strong_propagation_in_disjunctive 为 true，则触发。
+  optional int32 max_size_to_create_precedence_literals_in_disjunctive = 229
+      [default = 60];
+
+  // 在 no_overlap 约束上启用更强但更昂贵的传播。
+  optional bool use_strong_propagation_in_disjunctive = 230 [default = false];
+
+  // 是否分支决策"区间 A 在区间 B 前"而非区间边界（通常更优但找到首解稍慢）。
+  //
+  // 这些参数仍为实验性，结果应正确，但在某些极端情况下可能导致求解器 CHECK 失败。
+  optional bool use_dynamic_precedence_in_disjunctive = 263 [default = false];
+  optional bool use_dynamic_precedence_in_cumulative = 268 [default = false];
+
+  // 若为 true，累加约束通过过载检查（基于能量的推理）增强。此额外层级补充默认推理和时间表边发现。
+  //
+  // 传播效果更优但通常较慢，根据问题关闭可能加速求解。
+  optional bool use_overload_checker_in_cumulative = 78 [default = false];
+
+  // 使用启发式通过修正的能量约束求解累加约束（将需求和应用到任务时长的超可加函数（"保守尺度"或"对偶可行函数"）修改通常的能量定义）。
+  //
+  // 此启发式快速但对多数问题帮助不大。
+  optional bool use_conservative_scale_overload_checker = 286 [default = false];
+
+  // 若为 true，累加约束通过时间表边发现（能量和强制部分的结合）增强。此额外层级补充默认推理和过载检查器。
+  //
+  // 传播效果更优但通常较慢，根据问题关闭可能加速求解。
+  optional bool use_timetable_edge_finding_in_cumulative = 79 [default = false];
+
+  // 时间表边发现算法传播的最大区间数（0 禁用约束）。
+  optional int32 max_num_intervals_for_timetable_edge_finding = 260
+      [default = 100];
+
+  // 若为 true，检测并创建累加约束中"位于"一组区间后的整数变量的约束。
+  //
+  // 实验性：默认仅使用"直接"前序。若 exploit_all_precedences 为 true，则探索完整前序图（假设为 DAG，否则失败）。
+  optional bool use_hard_precedences_in_cumulative = 215 [default = false];
+  optional bool exploit_all_precedences = 220 [default = false];
+
+  // 若为 true，累加约束通过析取约束的传播器增强，改进根问题任务集上的推理。此额外层级补充默认推理。
+  //
+  // 若根节点所有任务均为析取，则完全不使用累加约束传播器。
+  //
+  // 传播效果更优但通常较慢，根据问题关闭可能加速求解。
+  optional bool use_disjunctive_constraint_in_cumulative = 80 [default = true];
+
+  // 若为 true，no_overlap_2d 约束通过累加约束的传播器增强（忽略一个位置的矩形位置，并将 no_overlap_2d 投影到另一维度创建累加约束，双轴执行）。此额外层级补充默认推理。
+  optional bool use_timetabling_in_no_overlap_2d = 200 [default = false];
+
+  // 若为 true，no_overlap_2d 约束通过能量推理增强。此额外层级补充默认推理。
+  optional bool use_energetic_reasoning_in_no_overlap_2d = 213
+      [default = false];
+
+  // 若为 true，no_overlap_2d 约束通过基于区域的能量推理增强（可与上述两种重叠启发式结合）。
+  optional bool use_area_energetic_reasoning_in_no_overlap_2d = 271
+      [default = false];
+
+  optional bool use_try_edge_reasoning_in_no_overlap_2d = 299 [default = false];
+
+  // 若需检查的对数低于此阈值，则通过检查所有区间对在 no_overlap_2d 约束中执行额外的传播步骤。
+  optional int32 max_pairs_pairwise_reasoning_in_no_overlap_2d = 276
+      [default = 1250];
+
+  // 检测 no_overlap_2d 约束中项目可放置的空间是否不相交（例如固定框分割域）。此时可为每对 <项目, 组件> 引入布尔值编码项目是否在组件中，并用新布尔值作为区间的强制字面量，将原始 no_overlap_2d 约束替换为每个组件一个 no_overlap_2d 约束（等效于将原始 no_overlap_2d 扩展为装箱问题，每个连通组件为一个箱子）。仅当分割区域数小于此参数时触发此启发式（<=1 禁用）。
+  optional int32 maximum_regions_to_split_in_disconnected_no_overlap_2d = 315
+      [default = 0];
+
+  // 若设置，激活若干调度参数以改进调度问题的下界（多工作器有效，因修改 reduced_cost、lb_tree_search 和探测工作器）。
+  optional bool use_dual_scheduling_heuristics = 214 [default = true];
+
+  // 为电路约束启用额外传播（可能相当慢）。
+  optional bool use_all_different_for_circuit = 311 [default = false];
+
+  // 若 RoutesConstraint 的节点子集大小小于此值，则使用由弧字面量强制的大小为 1 和 2 的线性约束（如容量和时间窗约束）计算该子集的割（除非子集大小小于 routing_cut_subset_size_for_tight_binary_relation_bound，此时使用对应算法）。这些割的算法复杂度为 O(n^3)（n 为子集大小），因此参数值不宜过大（如 10 或 20）。
+  optional int32 routing_cut_subset_size_for_binary_relation_bound = 312
+      [default = 0];
+
+  // 同上，但使用产生更好割的算法（代价是更高的 O(2^n) 复杂度）。因此参数值应较小（如小于 10）。
+  optional int32 routing_cut_subset_size_for_tight_binary_relation_bound = 313
+      [default = 0];
+
+  // 计算路由割的动态规划"工作量"（以基本操作为单位，1e8 值应能在 1 秒内完成）。
+  optional double routing_cut_dp_effort = 314 [default = 1e7];
+
+  // 搜索分支策略，决定如何对未固定节点分支。
+  enum SearchBranching {
+    // 使用底层 SAT 求解器的启发式尝试固定所有字面量，然后生成并固定字面量直至整数变量固定（使用用户指定的固定搜索或默认搜索生成新字面量）。
+    AUTOMATIC_SEARCH = 0;
+
+    // 使用 API 或 CpModelProto search_strategy 字段指定的固定顺序进行所有决策。
+    FIXED_SEARCH = 1;
+
+    // LNS 工作器使用的简单组合搜索。
+    PORTFOLIO_SEARCH = 2;
+
+    // 使用 LP 松弛的启发式（利用松弛中变量的缩减成本）。
+    LP_SEARCH = 3;
+
+    // 使用分支的伪成本（利用决策的历史目标界变化计算伪成本，无论是否使用 LP）。
+    PSEUDO_COST_SEARCH = 4;
+
+    // 主要用于测试。以低冲突限制快速尝试大量随机化启发式，通常提供良好的首解。
+    PORTFOLIO_WITH_QUICK_RESTART_SEARCH = 5;
+
+    // 主要内部使用。类似 FIXED_SEARCH，但遵循 CpModelProto 的 solution_hint 字段而非 search_strategy。
+    HINT_SEARCH = 6;
+
+    // 类似 FIXED_SEARCH，但在固定搜索启发式未列出的变量分支方式不同。始终按指定固定搜索策略开始搜索树，但使用默认自动搜索完成。
+    PARTIAL_FIXED_SEARCH = 7;
+
+    // 随机化搜索（增加搜索熵）。
+    RANDOMIZED_SEARCH = 8;
+  }
+  optional SearchBranching search_branching = 82 [default = AUTOMATIC_SEARCH];
+
+  // 利用提示解阶段的冲突限制。
+  optional int32 hint_conflict_limit = 153 [default = 10];
+
+  // 若为 true，求解器尝试修复给定提示解（在达到 'hint_conflict_limit' 后切换为常规搜索）。若为 false，则使用提示执行 FIXED_SEARCH 直至达到 hint_conflict_limit。
+  optional bool repair_hint = 167 [default = false];
+
+  // 若为 true，出现在提示解中的变量将固定为其提示值。
+  optional bool fix_variables_to_their_hinted_value = 192 [default = false];
+
+  // 若为 true，搜索将持续探测布尔变量和整数变量边界（在探测工作器上并行设置为 true）。
+  optional bool use_probing_search = 176 [default = false];
+
+  // 使用扩展探测（探测 bool_or、at_most_one、exactly_one）。
+  optional bool use_extended_probing = 269 [default = true];
+
+  // 要扫描的变量对或三元组组合数量限制。
+  optional int32 probing_num_combinations_limit = 272 [default = 20000];
+
+  // 在探测搜索中添加剃除阶段（尝试证明变量的下界或上界不可行）。
+  optional bool use_shaving_in_probing_search = 204 [default = true];
+
+  // 指定剃除搜索中每次尝试的确定时间量。
+  optional double shaving_search_deterministic_time = 205 [default = 0.001];
+
+  // 指定剃除过程中两种模式间的阈值。若变量/目标的范围小于此阈值，则逐个值尝试移除。否则，尝试一次移除一个范围。
+  optional int64 shaving_search_threshold = 290 [default = 64];
+
+  // 若为 true，搜索将以目标下界开始按目标值升序搜索（最小化时）。
+  optional bool use_objective_lb_search = 228 [default = false];
+
+  // 此搜索与前者的区别在于：不使用假设限定目标，而是重建具有硬编码目标值的完整模型。
+  optional bool use_objective_shaving_search = 253 [default = false];
+
+  // 此搜索获取所有布尔或整数变量，并最大化或最小化它们以缩减其域。
+  optional bool use_variables_shaving_search = 289 [default = false];
+
+  // 求解器忽略记录数小于此阈值的变量的伪成本。
+  optional int64 pseudo_cost_reliability_threshold = 123 [default = 100];
+
+  // 默认优化方法是简单的"线性扫描"，每次尝试找到优于前次的解。若为 true，则使用基于核心的方法（如 max-SAT），尝试增加下界而非寻找更优解。
+  optional bool optimize_with_core = 83 [default = false];
+
+  // 执行更常规的树搜索（相对于基于 SAT 的搜索），在树中保留所有探索的节点。旨在用于组合中聚焦改进目标下界（保留整棵树允许报告树中最差开放节点的更优目标下界）。
+  optional bool optimize_with_lb_tree_search = 188 [default = false];
+
+  // 实验性功能。在搜索树的每个节点保存当前 LP 基，以便跳转时加载，减少 LP 迭代次数。
+  //
+  // 当前效果尚可，但若 LP 因割或简化而变更，需更多工作使其健壮。
+  optional bool save_lp_basis_in_lb_tree_search = 284 [default = false];
+
+  // 若为非负，对目标变量执行二分搜索以找到求解器在此冲突次数内证明 UNSAT/SAT 的 [min, max] 区间（可快速缩减某些问题的目标域）。
+  optional int32 binary_search_num_conflicts = 99 [default = -1];
+
+  // optimize_with_core 为 false 时无效。若为 true，使用类似 max-SAT 的 max-HS 算法的基于核心算法（混合 MIP/CP 方法，除 CP/SAT 外使用 MIP 求解器）。另与 tobyodavies@ 的博士论文《Automatic Logic-Based Benders Decomposition with MiniZinc》相关（http://aaai.org/ocs/index.php/AAAI/AAAI17/paper/view/14489）。
+  optional bool optimize_with_max_hs = 85 [default = false];
+
+  // 类似《Feasibility Jump: an LP-free Lagrangian MIP heuristic》, Bjørnar Luteberget 等, 2023 的启发式参数。
+  optional bool use_feasibility_jump = 265 [default = true];
+
+  // 禁用其他子求解器类型，设置此参数将 CP-SAT 转为纯局部搜索求解器。
+  optional bool use_ls_only = 240 [default = false];
+
+  // 每次重启时，随机选择是否使用衰减（以此参数）或无衰减。
+  optional double feasibility_jump_decay = 242 [default = 0.95];
+
+  // 局部搜索代码中问题的线性化程度。
+  optional int32 feasibility_jump_linearization_level = 257 [default = 2];
+
+  // 直接影响重启前工作的因子（增加导致重启时间更长）。
+  optional int32 feasibility_jump_restart_factor = 258 [default = 1];
+
+  // 每批 LS 的确定时间量。
+  optional double feasibility_jump_batch_dtime = 292 [default = 0.1];
+
+  // 重启或扰动时变量取非默认值的概率。
+  optional double feasibility_jump_var_randomization_probability = 247
+      [default = 0.05];
+
+  // 扰动值相对变量域范围的最大距离。
+  optional double feasibility_jump_var_perburbation_range_ratio = 248
+      [default = 0.2];
+
+  // 停滞时，可行性跳转将：1) 从默认解重启（可能随机化）；2) 随机扰动当前解。此参数选择第一选项。
+  optional bool feasibility_jump_enable_restarts = 250 [default = true];
+
+  // no_overlap 或 no_overlap_2d 约束的二次扩展最大尺寸（通过扩展此类约束，单变量移动的评估时间从 O(n log n) 降至线性）。
+  optional int32 feasibility_jump_max_expanded_constraint_size = 264
+      [default = 500];
+
+  // 创建不完整的子求解器（非 LNS 子求解器），使用可行性跳转代码寻找改进解（将目标改进视为硬约束）。
+  optional int32 num_violation_ls = 244 [default = 0];
+
+  // violation_ls 在扰动解前的等待时间。
+  optional int32 violation_ls_perturbation_period = 249 [default = 100];
+
+  // 每次重启使用复合移动搜索的概率。
+  optional double violation_ls_compound_move_probability = 259 [default = 0.5];
+
+  // 启用共享树搜索。
+  // 若为正数，启动此数量的完整工作器线程探索共享搜索树。这些工作器通信目标边界和与树共享前缀相关的简单决策非子句，避免相互探索相同子树。
+  // 指定负数时，基于工作器总数启发式选择共享树工作器数。
+  optional int32 shared_tree_num_workers = 235 [default = 0];
+
+  // 在共享子树工作器上设置（用户不应直接设置）。
+  optional bool use_shared_tree_search = 236 [default = false];
+
+  // 工作器替换"不良"子树前的最小重启次数（基于学习子句的平均 LBD）。
+  optional int32 shared_tree_worker_min_restarts_per_subtree = 282
+      [default = 1];
+
+  // 若为 true，工作器共享其本地迹的更多信息（特别是由共享树决策蕴涵的字面量）。
+  optional bool shared_tree_worker_enable_trail_sharing = 295 [default = true];
+
+  // 若为 true，共享树工作器返回分配的子树时共享其目标阶段供下一工作器使用。
+  optional bool shared_tree_worker_enable_phase_sharing = 304 [default = true];
+
+  // 共享树应为每个工作器维护的开放叶节点数。
+  optional double shared_tree_open_leaves_per_worker = 281 [default = 2.0];
+
+  // 为限制总共享内存和通信开销，限制共享树中生成节点的总数（超限时工作器表现为组合工作器）。注意：此限制包含内部节点，不仅是叶节点。
+  optional int32 shared_tree_max_nodes_per_worker = 238 [default = 10000];
+
+  // 共享树分割策略。
+  enum SharedTreeSplitStrategy {
+    // 使用默认策略（当前等价于 SPLIT_STRATEGY_DISCREPANCY）。
+    SPLIT_STRATEGY_AUTO = 0;
+    // 仅当待分割节点的深度+差异为期望叶节点数的最小值时接受分割（差异计算的首选子节点是目标下界最低或原始分支方向（若界相等）。此规则允许两倍工作器在首选子树工作）。
+    SPLIT_STRATEGY_DISCREPANCY = 1;
+    // 仅分割目标下界等于全局下界的节点（无目标时等价于 SPLIT_STRATEGY_FIRST_PROPOSAL）。
+    SPLIT_STRATEGY_OBJECTIVE_LB = 2;
+    // 尝试保持共享树平衡。
+    SPLIT_STRATEGY_BALANCED_TREE = 3;
+    // 工作器竞争分割子树，胜者提案被接受。
+    SPLIT_STRATEGY_FIRST_PROPOSAL = 4;
+  }
+  optional SharedTreeSplitStrategy shared_tree_split_strategy = 239
+      [default = SPLIT_STRATEGY_AUTO];
+
+  // 与理想最大树深相比，仍可接受分割的"平衡"深度容差（无此容差时，树可能仅由单个工作器分割，且可能长时间不生成分割）。容差为 1 时，至少半数工作器在需要时能分割树（仅影响 SPLIT_STRATEGY_BALANCED_TREE 和 SPLIT_STRATEGY_DISCREPANCY）。
+  optional int32 shared_tree_balance_tolerance = 305 [default = 1];
+
+  // 是否枚举无目标问题的所有解（设置 true 会自动禁用可能移除可行解的预处理约简，效果同 keep_all_feasible_solutions_in_presolve）。
+  //
+  // 注意：测试中，若非所有原始变量为整数，可能在预处理和隐含整数检测后得到纯 IP。
+  optional bool enumerate_all_solutions = 87 [default = false];
+
+  // 若为 true，禁用移除搜索空间中可行解的预处理约简（此类解通常被"更优"解支配，但某些场景下需保留所有解）。
+  //
+  // 简单示例：若变量未使用，预处理不会将其固定为任意值，而保留在搜索空间中。
+  optional bool keep_all_feasible_solutions_in_presolve = 173 [default = false];
+
+  // 若为 true，将派生变量域信息添加到 CpSolverResponse（使响应稍大，且后处理构造时略增开销，但应低开销）。详见 CpSolverResponse 的 tightened_variables 字段。
+  optional bool fill_tightened_domains_in_response = 132 [default = false];
+
+  // 若为 true，最终响应的 additional_solutions 字段将填充解池中的所有解。
+  //
+  // 注意：若此字段与 enumerate_all_solutions 均为 true，所有找到的解将复制到池中（因此若 solution_pool_size 足够大，可替代 solution 回调获取所有解）。
+  //
+  // 注意：仅影响"最终"解，不影响传递给 solution 回调的解。
+  optional bool fill_additional_solutions_in_response = 194 [default = false];
+
+  // 若为 true，求解器将添加默认整数分支策略到已定义的搜索策略（否则某些变量在搜索结束时可能未固定，目前假设这些变量可设为其下界）。
+  optional bool instantiate_all_variables = 106 [default = true];
+
+  // 前序传播器尝试检测每个变量是否存在一组"可选传入弧"（其中至少一个存在）。通常有益，但在含大量前序的模型上可能较慢。
+  optional bool auto_detect_greater_than_at_least_one_of = 95 [default = true];
+
+  // 优化问题中，找到解后立即停止求解器。
+  optional bool stop_after_first_solution = 98 [default = false];
+
+  // 主要用于改进预处理。若为 true，预处理完成后停止求解器（或加载和根层级传播后）。
+  optional bool stop_after_presolve = 149 [default = false];
+  optional bool stop_after_root_propagation = 252 [default = false];
+
+  // LNS 参数。
+
+  // 邻域生成的初始参数。
+  optional double lns_initial_difficulty = 307 [default = 0.5];
+  optional double lns_initial_deterministic_limit = 308 [default = 0.1];
+
+  // 测试参数，用于禁用所有 lns 工作器。
+  optional bool use_lns = 283 [default = true];
+
+  // 实验性参数，禁用除 lns 外的所有功能。
+  optional bool use_lns_only = 101 [default = false];
+
+  // 求解器保留的 top-n 不同解的大小（必须 >0，当前仅影响 LNS 片段选择的"基础"解）。
+  optional int32 solution_pool_size = 193 [default = 3];
+
+  // 启用松弛诱导邻域生成器。
+  optional bool use_rins_lns = 129 [default = true];
+
+  // 添加可行性泵子求解器及 lns 子求解器。
+  optional bool use_feasibility_pump = 164 [default = true];
+
+  // 启用基于局部分支 LP 的邻域生成器（参考 Huang 等, "Local Branching Relaxation Heuristics for Integer Linear Programs", 2023）。
+  optional bool use_lb_relax_lns = 255 [default = true];
+
+  // 仅当至少存在此数量的工作器时使用 lb-relax。
+  optional int32 lb_relax_num_workers_threshold = 296 [default = 16];
+
+  // 可行性泵的舍入方法。
+  enum FPRoundingMethod {
+    // 舍入到最接近的整数值。
+    NEAREST_INTEGER = 0;
+
+    // 计算限制变量增加（上锁）和减少（下锁）的线性约束数，向锁数较少的方向舍入。
+    LOCK_BASED = 1;
+
+    // 类似基于锁的舍入，但仅考虑上次 lp 求解中活动的约束锁。
+    ACTIVE_LOCK_BASED = 3;
+
+    // 昂贵的舍入算法：逐个舍入变量并在其间传播边界。若舍入值不在连续域内，则使用当前下/上界（最接近者）替代舍入分数 lp 解值。若舍入值均在域内，则舍入到最接近整数。
+    PROPAGATION_ASSISTED = 2;
+  }
+  optional FPRoundingMethod fp_rounding = 165 [default = PROPAGATION_ASSISTED];
+
+  // 若为 true，使用不同参数注册更多 lns 子求解器。
+  optional bool diversify_lns_params = 137 [default = false];
+
+  // 随机化固定搜索。
+  optional bool randomize_search = 103 [default = false];
+
+  // 搜索随机化将收集前 'search_random_variable_pool_size' 个有价值的变量，并随机选取一个（变量值因策略而异）。
+  optional int64 search_random_variable_pool_size = 104 [default = 0];
+
+  // 实验性代码：指定目标是否将所有任务推向调度的开始。
+  optional bool push_all_tasks_toward_start = 262 [default = false];
+
+  // 若为 true，自动检测约束始终由相同字面量强制的变量，并将其标记为可选（某些情况下可传播它们）。
+  //
+  // 注意：此为实验性功能，可能导致错误最优解（但应给出正确解）。
+  optional bool use_optional_variables = 108 [default = false];
+
+  // 求解器通常利用模型的 LP 松弛。若此选项为 true，则 LP 的任何推断将用于计算 IP 的精确传播（无数值精度问题）。
+  optional bool use_exact_lp_reason = 109 [default = true];
+
+  // 若存在大量无重叠约束但问题中不同区间相对较少（如 1000 个区间，但覆盖它们的无重叠约束中有 1M 个区间），此功能可能有益。
+  optional bool use_combined_no_overlap = 133 [default = false];
+
+  // 尺寸小于等于参数的 at_most_one 约束将替换为二次数量的二元蕴涵。
+  optional int32 at_most_one_max_expansion_size = 270 [default = 3];
+
+  // 调用 solve 时，CP-SAT 层是否捕获 Control-C (SIGINT) 信号（捕获 SIGINT 信号将优雅终止搜索，如同达到时间限制）。
+  optional bool catch_sigint_signal = 135 [default = true];
+
+  // 存储并利用求解器中的"隐含边界"（即形如 字面量 => (变量 >= 边界) 的关系），当前用于推导更强的割。
+  optional bool use_implied_bounds = 144 [default = true];
+
+  // 是否在 LP 求解结束时执行几次退化迭代以最小化基中整数变量的分数性（某些问题上有益，但耗时）。
+  optional bool polish_lp_solution = 175 [default = false];
+
+  // CP-SAT 使用的内部 LP 容差（适用于内部和缩放后问题）。若变量域较大，使用较低容差可能更佳；若为系数小的二元问题，使用较高容差可能加速 lp 求解。
+  optional double lp_primal_tolerance = 266 [default = 1e-7];
+  optional double lp_dual_tolerance = 267 [default = 1e-7];
+
+  // 临时标志（功能更成熟前）。将区间转换为更新的 proto 格式（支持仿射 start/var/end 而不仅是变量）。
+  optional bool convert_intervals = 177 [default = true];
+
+  // 是否自动检测模型中的对称性并利用。当前在级别 1 时预处理中检测并尝试固定布尔变量；级别 2 时在搜索中执行动态对称破缺；级别 3 时检测超大模型的对称性（可能较慢）；级别 4 时预处理中尝试尽可能破缺对称性。
+  optional int32 symmetry_level = 183 [default = 2];
+
+  // 存在对称性时，可将同一轨道中的所有变量"折叠"为单个变量，同时保持相同的 LP 松弛能力（对称问题上帮助显著）。但当前求解器其余部分需在折叠 LP 与问题间转换，存在开销。
+  optional bool use_symmetry_in_lp = 301 [default = false];
+
+  // 实验性功能：一次性计算问题的对称性（所有预处理操作应保持对称群不变或适当修改）。目前支持有限（禁用可能受支持的大量预处理操作）。
+  optional bool keep_symmetry_in_presolve = 303 [default = false];
+
+  // 对称性检测的确定时间限制。
+  optional double symmetry_detection_deterministic_time_limit = 302
+      [default = 1.0];
+
+  // 新的线性传播代码一次性处理所有约束，并采用 Bellman-Ford-Tarjan 的适配以更智能地传播约束，可能更早检测传播循环。
+  optional bool new_linear_propagation = 224 [default = true];
+
+  // 非伪布尔且长于此尺寸的线性约束将被拆分为 sqrt(size) 个中间和，以加速 CP 引擎传播。
+  optional int32 linear_split_size = 256 [default = 100];
+
+  // ==========================================================================
+  // 线性规划松弛
+  // ==========================================================================
+
+  // 指示 LP 松弛中考虑的约束类型（非负级别）。0 级：不使用 LP 松弛；1 级：仅添加线性约束和完整编码；2 级：添加所有布尔约束。
+  optional int32 linearization_level = 90 [default = 1];
+
+  // 指示将整数变量完整编码为布尔值的努力程度（非负级别）。
+  optional int32 boolean_encoding_level = 107 [default = 1];
+
+  // 加载 a*x + b*y ==/!= c 时（x 和 y 均完整编码），若变量域大小低于阈值，求解器可能用子句集替换线性方程。
+  optional int32 max_domain_size_when_encoding_eq_neq_constraints = 191
+      [default = 16];
+
+  // 割池中的割数量限制（达到时不生成新割）。
+  //
+  // 注意：可能应移除此参数，始终生成割但仅保留最佳 n 个。
+  optional int32 max_num_cuts = 91 [default = 10000];
+
+  // 控制全局割工作量（零关闭所有割）。目前仅一个级别（多数割仅在 linearization_level >= 2 时使用）。
+  optional int32 cut_level = 196 [default = 1];
+
+  // 对于可在任何层级生成的割，此参数控制是否仅在根节点尝试生成。
+  optional bool only_add_cuts_at_level_zero = 92 [default = false];
+
+  // LP 目标为分数时，添加强制线性目标表达式大于等于该分数值向上取整的割（与 MIR 启发式结合可缩减系数）。
+  optional bool add_objective_cut = 197 [default = false];
+
+  // 是否在根节点生成并添加 Chvatal-Gomory 割到 LP（当前未深度调优）。
+  optional bool add_cg_cuts = 117 [default = true];
+
+  // 是否在根节点生成 MIR 割（当前未深度调优）。
+  optional bool add_mir_cuts = 120 [default = true];
+
+  // 是否在根节点生成 Zero-Half 割（当前未深度调优）。
+  optional bool add_zero_half_cuts = 169 [default = true];
+
+  // 是否从二元蕴涵图中生成团割（搜索中 SAT 引擎学习的新二元子句会加入此图）。
+  optional bool add_clique_cuts = 172 [default = true];
+
+  // 是否生成 RLT 割（实验性，但有助于处理大量三元子句的二元问题）。
+  optional bool add_rlt_cuts = 279 [default = true];
+
+  // all_diff 约束的割生成器可能为大型 all_diff 添加过多割。此参数限制大型 all_diff 约束的割生成器。
+  optional int32 max_all_diff_cut_size = 148 [default = 64];
+
+  // 对于 lin_max 约束，生成《Strong mixed-integer programming formulations for trained neural networks》（Ross Anderson 等, https://arxiv.org/pdf/1811.01988.pdf）中描述的割。
+  optional bool add_lin_max_cuts = 152 [default = true];
+
+  // MIR 和 Gomory 割使用的整数舍入过程中最大"缩放"值（必须为正）。值越低，割的整数系数越小（低值生成的割不一定劣于高值生成的割）。
+  //
+  // 设为 2 得到 Letchford 和 Lodi 的"强分数舍入"。
+  optional int32 max_integer_rounding_scaling = 119 [default = 600];
+
+  // 若为 true，从空 LP 开始，仅分批添加当前 LP 解不满足的约束（文献中称为"惰性"约束，但当前视所有约束为惰性）。
+  optional bool add_lp_constraints_lazily = 112 [default = true];
+
+  // 即使在根节点，若 LP"困难"也不愿花费过多时间。因此以该迭代次数"块"求解（求解将在树中向下继续或下次返回根节点时继续）。
+  optional int32 root_lp_iterations = 227 [default = 2000];
+
+  // 添加约束时，跳过与已添加约束的正交性低于 'min_orthogonality_for_lp_constraints' 的约束（正交性定义为 1 - 约束向量间的余弦值）。零值禁用此功能。
+  optional double min_orthogonality_for_lp_constraints = 115 [default = 0.05];
+
+  // 层级 0 执行割生成并解析 LP 的最大轮次。
+  optional int32 max_cut_rounds_at_level_zero = 154 [default = 1];
+
+  // 若 LP 中的约束/割在连续 OPTIMAL 求解中不活跃次数达到此值，则从 LP 中移除（若被当前 LP 解违反可能重新添加）。
+  optional int32 max_consecutive_inactive_count = 121 [default = 100];
+
+  // 类似 sat 子句管理活动度参数（仅当生成割超过存储限制时生效）。默认值基于 miplib 实例的实验。
+  optional double cut_max_active_count_value = 155 [default = 1e10];
+  optional double cut_active_count_decay = 156 [default = 0.8];
+
+  // 清理时目标移除的约束数。
+  optional int32 cut_cleanup_target = 157 [default = 1000];
+
+  // 在 LP 中一次性添加该数量的惰性约束（或割）。注意求解开始时添加的数量可能超过此值。
+  optional int32 new_constraints_batch_size = 122 [default = 50];
+
+  // 以下所有"exploit_*"参数以相同方式工作：对整数变量分支时，这些参数影响分支值（当前按出现顺序触发第一个启发式）。
+  //
+  // 注意：或可如重启算法引入枚举和重复字段控制应用顺序。
+
+  // 若为 true 且问题的 LP 松弛存在整数最优解，则尝试利用（注意 LP 松弛可能不包含所有约束，因此此解不一定是完整问题的解）。
+  optional bool exploit_integer_lp_solution = 94 [default = true];
+
+  // 若为 true 且问题的 LP 松弛存在解，则尝试利用（同前者，但 LP 解可能非整数解）。
+  optional bool exploit_all_lp_solution = 116 [default = true];
+
+  // 分支时遵循最后的最佳解值。
+  optional bool exploit_best_solution = 130 [default = false];
+
+  // 分支时遵循最后的最佳松弛解值（使用目标界最紧的松弛）。
+  optional bool exploit_relaxation_solution = 161 [default = false];
+
+  // 分支直接影响目标的变量时，优先选择导致更优目标值的值。
+  optional bool exploit_objective = 131 [default = true];
+
+  // 从问题中的线性约束推断布尔变量或布尔变量乘整数变量的积（可用于某些割，但当前未充分利用）。
+  optional bool detect_linearized_product = 277 [default = false];
+
+  // ==========================================================================
+  // MIP -> CP-SAT（即整数系数的 IP）转换参数（由自动"缩放"算法使用）。
+  //
+  // 注意：自动执行有意义的转换较难。若模型含连续变量，最好自行缩放变量域以获得应用所需精度（系数和约束边界同理）。
+  // ==========================================================================
+
+  // CP-SAT 需限定变量最大量值，此为我们使用的边界（若 MIP 模型期望解中变量值更大，则转换后的模型可能不相关）。
+  optional double mip_max_bound = 124 [default = 1e7];
+
+  // 问题的所有连续变量将乘以此因子（默认不缩放，依赖 MIP 模型以所需精度指定连续变量域）。
+  optional double mip_var_scaling = 125 [default = 1.0];
+
+  // 若为 false，则仅对"小"域变量应用 mip_var_scaling；若为 true，则缩放所有浮点变量（无论其域大小）。
+  optional bool mip_scale_large_domain = 225 [default = false];
+
+  // 若为 true，可能自动缩放某些连续变量（当前仅检测变量是否为常数的整数倍。例如 k * 0.5 形式的变量常见，检测到则缩放域乘 2 使其隐含整数）。
+  optional bool mip_automatically_scale_variables = 166 [default = true];
+
+  // 若尝试用 CP-SAT 求解 MIP 模型，因假设缩放后所有变量为整数，不一定得到正确最优解。但所有可行解有效（仅求解原始问题的更受限版本）。
+  //
+  // 此参数防止用户认为解最优而实际可能非最优（需手动设为 false 以求解最优可能不同的 MIP 模型）。
+  //
+  // 注意：在 MIP 预处理步骤后测试，因此即使非所有原始变量为整数，可能在预处理和隐含整数检测后得到纯 IP。
+  optional bool only_solve_ip = 222 [default = false];
+
+  // 将具有双精度系数的约束缩放为整数系数时，将乘 2 的幂并舍入系数（选择满足无潜在溢出（参见 mip_max_activity_exponent）且最坏情况约束活动误差不超过此阈值的最低幂次）。
+  //
+  // 注意：我们还检测具有有理系数的约束，并在更佳时缩放而非使用 2 的幂。
+  //
+  // 我们还按此绝对值放宽所有约束边界。纯整数约束时，若值低于 1 则无影响（但缩放 MIP 问题时需要）。
+  //
+  // 若成功缩放约束，最大误差为两倍此值（缩放误差一次，放宽边界一次）。若缩放不佳，将显示但仍尽力缩放。
+  optional double mip_wanted_precision = 126 [default = 1e-6];
+
+  // 为避免整数溢出，强制初始变量域下的最大可能约束活动（及目标值）小于 2 的此幂次（因此无法始终达到上述 "mip_wanted_precision"）。
+  //
+  // 最高可达 62，但某些内部算法在可能整数溢出时提前中止，因此保持略低为佳。
+  optional int32 mip_max_activity_exponent = 127 [default = 53];
+
+  // 如 mip_precision 和 mip_max_activity_exponent 所述，缩放时无法始终达到所需精度（使用此阈值在精度不佳时在日志中强调）。
+  optional double mip_check_precision = 128 [default = 1e-4];
+
+  // 即使缩放目标时误差大，也可利用缩放整数版本目标的精确下界推导原始目标的正确下界（应快速完成）。若不在意精确下界，可关闭。
+  optional bool mip_compute_true_objective_bound = 198 [default = true];
+
+  // 输入 MIP 中的任何有限值必须低于此阈值，否则模型报告无效（避免计算边界*系数时浮点溢出）。实践中，用户不应在 MIP 中使用超大值。
+  optional double mip_max_valid_magnitude = 199 [default = 1e20];
+
+  // 默认情况下，量值大于 mip_max_valid_magnitude 的有限变量/约束边界将导致模型无效。此标志改变行为：此类边界被静默转换为 +∞ 或 -∞。
+  //
+  // 建议保持 false，创建有效边界。
+  optional bool mip_treat_high_magnitude_bounds_as_infinity = 278
+      [default = false];
+
+  // 输入 mip 中量值低于此值的任何值设为零（避免 LP 预处理中的问题）。
+  optional double mip_drop_tolerance = 232 [default = 1e-16];
+
+  // 求解 MIP 时，在缩放为整数前执行基本浮点预处理。此参数控制预处理强度（可帮助更好地缩放浮点模型，但行为不总是良好）。
+  optional int32 mip_presolve_level = 261 [default = 2];
+}

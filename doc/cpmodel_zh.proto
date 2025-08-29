@@ -1,0 +1,694 @@
+// 版权所有 2010-2025 Google LLC
+// 根据 Apache 许可证 2.0 版本（“许可证”）授权；
+// 除非符合许可证，否则不得使用此文件。
+// 您可以在以下网址获取许可证副本：
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// 除非适用法律要求或书面同意，根据许可证分发的软件
+// 按“原样”分发，不附带任何明示或暗示的担保或条件。
+// 请参阅许可证了解具体的权限管理语言及限制。
+
+// 描述通用约束规划（CP）问题的协议。
+
+syntax = "proto3";
+
+package operations_research.sat;
+
+option csharp_namespace = "Google.OrTools.Sat";
+option go_package = "github.com/google/or-tools/ortools/sat/proto/cpmodel";
+option java_package = "com.google.ortools.sat";
+option java_multiple_files = true;
+option java_outer_classname = "CpModelProtobuf";
+
+// 一个整型变量。
+//
+// 将通过一个 int32 类型的索引引用，该索引对应于其在 CpModelProto 的 variables 字段中的位置。
+//
+// 根据上下文，引用一个定义域为 [0, 1] 的变量也可以被视为一个布尔值：
+// 当变量值为 1 时表示 true，为 0 时表示 false。在此上下文中使用时，字段名称将始终包含 "literal"（字面量）一词。
+//
+// 负引用（高级用法）：为简化模型创建并提高效率，所有 "literal" 或 "variable" 字段也可以包含负索引。
+// 负索引 i 将引用索引为 -i -1 的整型变量的否定形式，或引用同一索引的 NOT 字面量。
+//
+// 例如：变量索引 4 将引用整型变量 model.variables(4)，而索引 -5 将引用同一变量的否定形式。
+// 字面量索引 4 将引用逻辑事实 model.variable(4) == 1，而字面量索引 -5 将引用逻辑事实 model.variable(4) == 0。
+message IntegerVariableProto {
+  // 仅用于调试/日志记录。可以为空。
+  string name = 1;
+
+  // 变量定义域，以 n 个不相交区间 [min, max] 的排序列表形式给出，
+  // 并编码为 [min_0, max_0, ..., min_{n-1}, max_{n-1}]。
+  //
+  // 最常见的例子是仅包含 [min, max]。
+  // 如果 min == max，则这是一个常量变量。
+  //
+  // 规则如下：
+  //  - domain_size() 始终为偶数。
+  //  - min == domain.front();
+  //  - max == domain.back();
+  //  - 对所有 i < n   :      min_i <= max_i
+  //  - 对所有 i < n-1 :  max_i + 1 < min_{i+1}。
+  //
+  // 注意：我们在验证时会检查变量定义域是否足够小，以避免算法中出现整数溢出。
+  // 因此，您不能直接使用“无界”变量（如 [0, kint64max]），而应尝试指定更严格的定义域。
+  repeated int64 domain = 2;
+}
+
+// 形式为 OP(literals) 的约束的参数。
+message BoolArgumentProto {
+  repeated int32 literals = 1;
+}
+
+// 某些约束支持使用线性表达式，而不仅仅是引用变量。
+// 这在预求解期间对于减少模型大小尤其有用。
+message LinearExpressionProto {
+  repeated int32 vars = 1;
+  repeated int64 coeffs = 2;
+  int64 offset = 3;
+}
+
+message LinearArgumentProto {
+  LinearExpressionProto target = 1;
+  repeated LinearExpressionProto exprs = 2;
+}
+
+// 所有仿射表达式的取值必须互不相同。
+message AllDifferentConstraintProto {
+  repeated LinearExpressionProto exprs = 1;
+}
+
+// 线性求和 vars[i] * coeffs[i] 必须落在给定的定义域内。
+// 该定义域的格式与 IntegerVariableProto 中的相同。
+//
+// 注意：验证代码当前会检查所涉及变量的定义域，确保求和计算不会发生整数溢出，否则会抛出错误。
+message LinearConstraintProto {
+  repeated int32 vars = 1;
+  repeated int64 coeffs = 2;  // 与 vars 大小相同。
+  repeated int64 domain = 3;
+}
+
+// 约束 target = vars[index]。
+// 这强制要求 index 的取值在 [0, vars_size()) 范围内。
+message ElementConstraintProto {
+  int32 index = 1;          // 旧版字段。
+  int32 target = 2;         // 旧版字段。
+  repeated int32 vars = 3;  // 旧版字段。
+  // 下面的所有表达式必须是至多含有一个变量的仿射函数。
+  LinearExpressionProto linear_index = 4;
+  LinearExpressionProto linear_target = 5;
+  repeated LinearExpressionProto exprs = 6;
+}
+
+// 这并不真正是一个约束。它存在是为了让其他约束可以使用这个“区间”概念来引用它。
+//
+// 重要提示：目前，此约束并不强制要求各组件之间存在任何关系，需要客户端在模型中自行添加：
+// - enforcement => start + size == end。
+// - enforcement => size >= 0  // 仅当 size 本身不 >= 0 时需要。
+//
+// 重要提示：目前，我们仅支持仿射关系。我们本可以轻松地创建一个中间变量来支持完整的线性表达式，但当前尚未实现。
+message IntervalConstraintProto {
+  LinearExpressionProto start = 4;
+  LinearExpressionProto end = 5;
+  LinearExpressionProto size = 6;
+}
+
+// 所有区间（IntervalConstraintProto 的索引）必须互不重叠。
+// 更正式地说，必须存在一个序列，使得对于每个连续的区间，满足 end_i <= start_{i+1}。
+// 特别地，大小为零的区间对于此约束也很重要。这在调度中也被称为不重叠约束。
+message NoOverlapConstraintProto {
+  repeated int32 intervals = 1;
+}
+
+// 由 [start_x, end_x) * [start_y, end_y) 定义的框不能重叠。
+// 此外，如果 x 或 y 区间中至少有一个是可选的，则该框是可选的。
+//
+// 注意：大小为零的框的情况比较特殊。以下情况违反约束：
+//   - 位于具有非零面积的框内部的一个点框
+//   - 与具有非零面积的框重叠的一个线框
+//   - 一条垂直线框与一条水平线框相交。
+message NoOverlap2DConstraintProto {
+  repeated int32 x_intervals = 1;
+  repeated int32 y_intervals = 2;  // 与 x_intervals 大小相同。
+}
+
+// 每个区间点上的区间需求之和不能超过容量。
+// 注意：区间被解释为 [start, end)，因此像 [2,3) 和 [3,4) 这样的区间在此约束的观点下不重叠。
+// 此外，大小为零的区间被忽略。
+//
+// 所有需求的定义域中不得包含任何负值。这会在验证时检查。
+// 即使没有区间，此约束也隐式强制要求 capacity >= 0。换句话说，负容量被认为是有效的，但始终不可行。
+message CumulativeConstraintProto {
+  LinearExpressionProto capacity = 1;
+  repeated int32 intervals = 2;
+  repeated LinearExpressionProto demands = 3;  // 与 intervals 大小相同。
+}
+
+// 将水库水位维持在界限内。水位从 0 开始，且在任何时候都必须处于 [min_level, max_level] 范围内。
+//
+// 如果布尔变量 active_literals[i] 为 true，并且表达式 time_exprs[i] 被赋值为 t，
+// 则当前水位在时间 t 变化 level_changes[i]。因此，在任何时间 t：
+//
+// sum(level_changes[i] * active_literals[i] 如果 time_exprs[i] <= t)
+//   处于 [min_level, max_level] 范围内
+//
+// 注意：最低水位 min_level 必须 <= 0，最高水位 max_level 必须 >= 0。
+// 请使用固定的 level_changes 来模拟初始状态。
+//
+// 布尔变量数组 'actives'（如果已定义）指示哪些操作实际执行。
+// 如果未定义此数组，则假定所有操作都将执行。
+message ReservoirConstraintProto {
+  int64 min_level = 1;
+  int64 max_level = 2;
+  repeated LinearExpressionProto time_exprs = 3;  // 仿射表达式。
+  // 当前仅支持常量水位变化。
+  repeated LinearExpressionProto level_changes = 6;  // 仿射表达式。
+  repeated int32 active_literals = 5;
+  reserved 4;
+}
+
+// 电路约束定义在一个图上，其中弧的存在由字面量控制。
+// 每条弧由 tails/heads/literals 列表中的一个索引给出，这些列表必须大小相同。
+//
+// 目前，我们忽略没有入射弧的节点索引。所有其他节点必须恰好有一条入选的和一条出选的弧（即字面量为 true）。
+// 所有选中的非自环弧必须构成一个单一电路。
+// 注意：允许多重弧，但同一时间只能有一条为 true。但禁止多重自环。
+message CircuitConstraintProto {
+  repeated int32 tails = 3;
+  repeated int32 heads = 4;
+  repeated int32 literals = 5;
+}
+
+// “VRP”（车辆路径问题）约束。
+//
+// 直接图（其中弧 #i（从 tails[i] 到 head[i]）存在当且仅当 literals[i] 为 true）必须满足以下属性集：
+// - 除节点 0 外，每个节点的 #incoming arcs == 1。
+// - 除节点 0 外，每个节点的 #outgoing arcs == 1。
+// - 对于节点零，#incoming arcs == #outgoing arcs。
+// - 没有重复的弧。
+// - 允许自环弧，节点 0 除外。
+// - 该图中没有环，除非通过节点 0。
+//
+// 注意：当前此约束期望 [0, num_nodes) 中的所有节点都至少有一条入射弧。
+// 如果不是这种情况，模型将被视为无效。如果需要忽略某些节点，可以添加固定为 1 的自环弧。
+//
+// TODO(user)：很可能可以将此约束推广到一般图中的无环，或具有 sum incoming <= 1 和 sum outgoing <= 1 的无环（更高效的实现）。
+// 另一方面，拥有此特定约束允许我们为 VRP 问题添加特定的“切割”。
+message RoutesConstraintProto {
+  repeated int32 tails = 1;
+  repeated int32 heads = 2;
+  repeated int32 literals = 3;
+
+  // 已弃用。这些字段不再使用。求解器会忽略它们。
+  repeated int32 demands = 4;
+  int64 capacity = 5;
+
+  // 与节点关联的一组线性表达式。
+  message NodeExpressions {
+    // 第 i 个元素是与第 i 个节点关联的线性表达式。
+    // 所有表达式必须是仿射表达式（a * var + b）。
+    repeated LinearExpressionProto exprs = 1;
+  }
+
+  // 与图的节点关联的表达式，例如到达节点的车辆负载或车辆到达节点的时间。
+  // 具有相同“维度”（例如“负载”或“时间”）的表达式必须列在一起。
+  // 此字段是可选的。如果设置，这些表达式中变量之间的大小为 1 或 2 的线性约束将用于为此约束推导切割。
+  // 如果未设置，求解器将尝试从模型中大小为 1 或 2 的线性约束自动推导它（在复杂情况下可能会失败）。
+  repeated NodeExpressions dimensions = 6;
+}
+
+// 给定表达式形成的 n 元组的值只能是 values 中列出的 n 元组之一。
+// n 元组以扁平方式编码：
+//     [tuple0_v0, tuple0_v1, ..., tuple0_v{n-1}, tuple1_v0, ...]。
+// 表达式必须是仿射的（a * var + b）。
+// 特殊情况：
+//  - 如果所有 `vars`、`values` 和 `exprs` 都为空，则无论 `negated` 的值如何，约束都平凡地为真。
+//  - 如果 `values` 为空但 vars 或 exprs 不为空，则如果 `negated` 为 false，约束平凡地为假；如果 `negated` 为 true，则平凡地为真。
+//  - 如果 `vars` 和 `exprs` 为空但 `values` 不为空，则模型无效。
+message TableConstraintProto {
+  repeated int32 vars = 1;  // 旧版字段。
+  repeated int64 values = 2;
+  repeated LinearExpressionProto exprs = 4;
+
+  // 如果为 true，则表示“否定”，即我们禁止任何给定的元组成为可行赋值。
+  bool negated = 3;
+}
+
+// 两个变量数组各表示一个函数，第二个是第一个的逆：f_direct[i] == j <=> f_inverse[j] == i。
+message InverseConstraintProto {
+  repeated int32 f_direct = 1;
+  repeated int32 f_inverse = 2;
+}
+
+// 此约束强制要求一个表达式序列被自动机接受。
+message AutomatonConstraintProto {
+  // 状态由非负数标识。最好将所有状态密集地保持在 [0, num_states) 范围内。
+  // 自动机从 starting_state 开始，并且必须在任一最终状态结束。
+  int64 starting_state = 2;
+  repeated int64 final_states = 3;
+
+  // 转移列表（所有 3 个向量大小相同）。tail 和 head 都是状态，label 是任意变量值。
+  // 从同一状态出发的两个转移不能具有相同的标签。
+  repeated int64 transition_tail = 4;
+  repeated int64 transition_head = 5;
+  repeated int64 transition_label = 6;
+
+  // 旧版字段。
+  repeated int32 vars = 7;
+  // 仿射表达式序列（a * var + b）。自动机运行 exprs_size() 个“步骤”，exprs[i] 的值对应于步骤 i 的转移标签。
+  repeated LinearExpressionProto exprs = 8;
+}
+
+// 一个变量列表，没有任何语义。
+message ListOfVariablesProto {
+  repeated int32 vars = 1;
+}
+
+// 下一个 id: 31
+message ConstraintProto {
+  // 仅用于调试/日志记录。可以为空。
+  string name = 1;
+
+  // 当且仅当此处列出的所有字面量都为 true 时，约束才会被强制执行。
+  // 如果为空，则约束将始终被强制执行。
+  // 被强制执行的约束必须被满足，而未强制执行的约束将被忽略。
+  //
+  // 这也称为半具体化。要在字面量和约束之间建立等价关系（完全具体化），
+  // 必须同时添加一个约束（由字面量 l 控制）及其否定形式（由 l 的否定控制）。
+  //
+  // 重要提示：截至 2018 年 9 月，只有少数约束支持强制执行：
+  // - bool_or, bool_and, linear：完全支持。
+  // - interval：仅支持单个强制执行字面量。
+  // - 其他：不支持（但可以根据需求逐个添加）。
+  repeated int32 enforcement_literal = 2;
+
+  // 具有参数的实际约束。
+  oneof constraint {
+    // bool_or 约束强制要求至少一个字面量为 true。
+    BoolArgumentProto bool_or = 3;
+
+    // bool_and 约束强制要求所有字面量都为 true。
+    //
+    // 这是一个“冗余”约束，因为它可以轻松地用多个 bool_or 或 at_most_one 编码。
+    // 它只是更节省空间，并且在内部处理方式略有不同。
+    BoolArgumentProto bool_and = 4;
+
+    // at_most_one 约束强制要求同一时间最多只有一个字面量为 true。
+    //
+    // 注意：长度为 n 的 at most one 约束可以用 n 个右侧有 n-1 项的 bool_and 约束编码。
+    // 从这个意义上说，此约束直接贡献于模型的“蕴涵图”或 2-SAT 部分。
+    //
+    // 此约束不支持 enforcement_literal。如果需要强制执行，请使用线性约束。
+    // 您也不需要直接使用它，在大多数情况下我们会从模型中提取它。
+    BoolArgumentProto at_most_one = 26;
+
+    // exactly_one 约束强制要求恰好一个字面量为 true，不能多也不能少。
+    //
+    // 任何时候，当一个 bool_or（本可以称为 at_least_one）被包含在一个 at_most_one 中时，
+    // 该 bool_or 实际上就是一个 exactly one 约束，并且 at_most_one 中的额外字面量可以设置为 false。
+    // 因此，在这个意义上，此约束并非真正需要。它在这里只是为了更好地描述问题结构并方便某些算法。
+    //
+    // 此约束不支持 enforcement_literal。如果需要强制执行，请使用线性约束。
+    // 您也不需要直接使用它，在大多数情况下我们会从模型中提取它。
+    BoolArgumentProto exactly_one = 29;
+
+    // bool_xor 约束强制要求字面量为 true 的数量为奇数。
+    BoolArgumentProto bool_xor = 5;
+
+    // int_div 约束强制要求 target 等于 exprs[0] / exprs[1]。
+    // 除法向零“取整”，因此例如可以有 (2 = 12 / 5) 或 (-3 = -10 / 3)。
+    // 如果只想要精确的整数除法，那么您应该使用 int_prod 约束 a = b * t，而不是 t = a / b。
+    //
+    // 如果 0 属于 exprs[1] 的定义域，则模型被视为无效。
+    LinearArgumentProto int_div = 7;
+
+    // int_mod 约束强制要求 target 等于 exprs[0] % exprs[1]。
+    // exprs[1] 的定义域必须严格为正。target 的符号与 exprs[0] 的符号相同。
+    LinearArgumentProto int_mod = 8;
+
+    // int_prod 约束强制要求 target 等于所有变量的乘积。
+    // 按照约定，因为我们可以移除等于 1 的项，空乘积强制 target 为 1。
+    //
+    // 注意：求解器会检查潜在的整数溢出。因此，所有项的最大绝对值（使用初始定义域）的乘积应该适合 int64。
+    // 否则模型将被声明为无效。
+    LinearArgumentProto int_prod = 11;
+
+    // lin_max 约束强制要求 target 等于所有线性表达式的最大值。
+    // 注意：通过否定所有表达式，这可以模拟最小值。
+    LinearArgumentProto lin_max = 27;
+
+    // linear 约束在变量之间强制执行线性不等式，例如 0 <= x + 2y <= 10。
+    LinearConstraintProto linear = 12;
+
+    // all_diff 约束强制要求所有变量取不同的值。
+    AllDifferentConstraintProto all_diff = 13;
+
+    // element 约束强制要求具有给定索引的变量等于 target。
+    ElementConstraintProto element = 14;
+
+    // circuit 约束接受一个图，并强制存在的弧（由字面量指示存在）形成唯一环。
+    CircuitConstraintProto circuit = 15;
+
+    // routes 约束实现车辆路径问题。
+    RoutesConstraintProto routes = 23;
+
+    // table 约束强制规定变量元组可以取的值。
+    TableConstraintProto table = 16;
+
+    // automaton 约束强制要求一个变量序列被自动机接受。
+    AutomatonConstraintProto automaton = 17;
+
+    // inverse 约束强制要求两个数组互为逆：一个的值是另一个的索引，反之亦然。
+    InverseConstraintProto inverse = 18;
+
+    // reservoir 约束强制要求一组活动需求的总和在特定时间内始终处于指定的最小值和最大值之间。
+    ReservoirConstraintProto reservoir = 24;
+
+    // 区间约束。
+    //
+    // 第一个约束定义了什么是“区间”，其他约束则引用它。
+    // 所有 enforcement_literal 设置为 false 的区间将被这些约束忽略。
+    //
+    // TODO(user)：解释大小为零的区间会发生什么。有些约束忽略它们；有些则考虑它们。
+
+    // interval 约束接受 start、end 和 size，并强制 start + size == end。
+    IntervalConstraintProto interval = 19;
+
+    // no_overlap 约束防止一组区间重叠；在调度中，这称为不重叠约束。
+    NoOverlapConstraintProto no_overlap = 20;
+
+    // no_overlap_2d 约束防止一组框重叠。
+    NoOverlap2DConstraintProto no_overlap_2d = 21;
+
+    // cumulative 约束确保对于任何整数点，包含该点的区间的需求之和不超过容量。
+    CumulativeConstraintProto cumulative = 22;
+
+    // 此约束并非供使用，将被求解器拒绝。它旨在测试预求解代码时标记变量。
+    ListOfVariablesProto dummy_constraint = 30;
+  }
+}
+
+// 优化目标。
+message CpObjectiveProto {
+  // 要最小化的目标的线性项。
+  // 对于最大化问题，可以否定目标中的所有系数并将 scaling_factor 设置为 -1。
+  repeated int32 vars = 1;
+  repeated int64 coeffs = 4;
+
+  // 显示的目标始终是：
+  //   scaling_factor * (sum(coefficients[i] * objective_vars[i]) + offset)。
+  // 这是为了在预求解之后或当将双精度问题缩放为整数表达时保持目标一致所必需的。
+  //
+  // 注意：如果 scaling_factor 为零，则假定为 1，因此默认情况下这些字段没有影响。
+  double offset = 2;
+  double scaling_factor = 3;
+
+  // 如果非空，则仅在给定定义域内寻找目标值。
+  // 注意：这不依赖于偏移量或缩放因子，它是仅针对目标项之和的定义域。
+  repeated int64 domain = 5;
+
+  // 内部字段。请勿设置。当我们将 FloatObjectiveProto 缩放为整数版本时，
+  // 如果缩放是精确的（例如，所有原始系数都是整数），则将其设置为 true。
+  //
+  // TODO(user)：改为放置我们计算的误差界限？
+  bool scaling_was_exact = 6;
+
+  // 用于从预求解后的目标恢复原始整数目标界限的内部字段。
+  // 基本上，初始时整数目标适合 int64 并且在 [Initial_lb, Initial_ub] 范围内。
+  // 在预求解期间，我们可能会更改线性表达式，使其具有新的定义域 [Presolved_lb, Presolved_ub]，
+  // 该定义域也将始终适合 int64。
+  //
+  // 两个定义域将始终通过一个仿射变换相关联，形式如下：
+  //   old = (new + before_offset) * integer_scaling_factor + after_offset。
+  // 注意：我们使用两个偏移量以便始终能够在 int64 定义域内进行计算。
+  // 特别地，after_offset 将始终在 (-integer_scaling_factor, integer_scaling_factor) 范围内。
+  int64 integer_before_offset = 7;
+  int64 integer_after_offset = 9;
+  int64 integer_scaling_factor = 8;
+}
+
+// 线性浮点目标：sum coeffs[i] * vars[i] + offset。
+// 注意：变量仍然只能取整数值。
+message FloatObjectiveProto {
+  repeated int32 vars = 1;
+  repeated double coeffs = 2;
+  double offset = 3;
+
+  // 优化方向。默认为最小化。
+  bool maximize = 4;
+}
+
+// 定义求解器需要做出新决策时要遵循的策略。
+// 注意：此策略仅定义在变量的一个子集上。
+message DecisionStrategyProto {
+  // 考虑用于下一个决策的变量。顺序很重要，并且始终在下面定义的变量选择策略标准之后用作决胜局。
+  repeated int32 variables = 1;
+
+  // 如果设置此字段，则 variables 字段必须为空。
+  // 我们目前仅支持仿射表达式。
+  //
+  // 注意：这是必需的，以便如果变量具有仿射代表，我们可以通过预求解正确转换 DecisionStrategyProto。
+  repeated LinearExpressionProto exprs = 5;
+
+  // 上述变量（分别是仿射表达式）应考虑的顺序。
+  // 注意：仅考虑尚未固定的变量。
+  //
+  // TODO(user)：根据需要扩展。
+  enum VariableSelectionStrategy {
+    CHOOSE_FIRST = 0;         // 选择第一个
+    CHOOSE_LOWEST_MIN = 1;    // 选择最小最小值
+    CHOOSE_HIGHEST_MAX = 2;   // 选择最大最大值
+    CHOOSE_MIN_DOMAIN_SIZE = 3; // 选择最小定义域大小
+    CHOOSE_MAX_DOMAIN_SIZE = 4; // 选择最大定义域大小
+  }
+  VariableSelectionStrategy variable_selection_strategy = 2;
+
+  // 一旦选择了一个变量（分别是仿射表达式），此枚举描述对其定义域采取什么决策。
+  //
+  // TODO(user)：根据需要扩展。
+  enum DomainReductionStrategy {
+    SELECT_MIN_VALUE = 0;     // 选择最小值
+    SELECT_MAX_VALUE = 1;     // 选择最大值
+    SELECT_LOWER_HALF = 2;    // 选择下半部分
+    SELECT_UPPER_HALF = 3;    // 选择上半部分
+    SELECT_MEDIAN_VALUE = 4;  // 选择中位数值
+    SELECT_RANDOM_HALF = 5;   // 选择随机一半
+  }
+  DomainReductionStrategy domain_reduction_strategy = 3;
+}
+
+// 此消息编码 CpModelProto 变量的部分（或全部）赋值。
+// 变量索引应是唯一且有效的变量索引。
+message PartialVariableAssignment {
+  repeated int32 vars = 1;
+  repeated int64 values = 2;
+}
+
+// 整数的排列，编码为循环列表，因此是“稀疏”格式。
+// 元素 cycle[i] 的映像是 cycle[(i + 1) % cycle_length]。
+message SparsePermutationProto {
+  // 每个循环按顺序依次列在 support 字段中。
+  // 每个循环的大小在 cycle_sizes 字段中（按顺序）给出。
+  repeated int32 support = 1;
+  repeated int32 cycle_sizes = 2;
+}
+
+// 数字的稠密矩阵，以扁平方式按行编码。
+// 即 matrix[i][j] = entries[i * num_cols + j];
+message DenseMatrixProto {
+  int32 num_rows = 1;
+  int32 num_cols = 2;
+  repeated int32 entries = 3;
+}
+
+// 实验性功能。目前，这旨在供求解器使用，而非由客户端填充。
+//
+// 保存关于可行解集的对称性信息。
+// 如果我们使用此处描述的任一排列来置换任何可行解的变量值，我们应该总是得到另一个可行解。
+//
+// 我们通常还强制要求新解的目标值相同。
+//
+// 此处编码的排列组通常是从模型的编码计算得出的，因此它并非可行解对称性的完整表示，只是一个有效的子组。
+message SymmetryProto {
+  // 保持解的可行空间不变的变量索引排列列表。
+  // 通常，我们只编码该组的生成元集。
+  repeated SparsePermutationProto permutations = 1;
+
+  // 一个轨道类型（orbitope）是解空间的一种特殊对称结构。
+  // 如果将变量索引排列在一个矩阵中（无重复），那么任何列置换都是可行空间的有效排列。
+  //
+  // 这非常常见。典型示例是图着色问题，其中对于每个节点 i，有 j 个布尔值指示其颜色。
+  // 如果将变量 color_of_i_is_j 排列在矩阵 matrix[i][j] 中，那么任何列置换都会保持问题不变。
+  repeated DenseMatrixProto orbitopes = 2;
+}
+
+// 约束规划问题。
+message CpModelProto {
+  // 仅用于调试/日志记录。可以为空。
+  string name = 1;
+
+  // 相关的协议应通过它们在这些字段中的索引来引用。
+  repeated IntegerVariableProto variables = 2;
+  repeated ConstraintProto constraints = 3;
+
+  // 要最小化的目标。对于纯决策问题，可以为空。
+  CpObjectiveProto objective = 4;
+
+  // 高级用法。
+  // 同时拥有目标和浮点目标是无效的。
+  //
+  // 模型的浮点格式目标。求解器将在扩展期间自动将其缩放为整数，从而将其转换为正常的 CpObjectiveProto。
+  // 有关如何控制此缩放的参数，请参阅 mip* 参数。在大多数情况下，精度将足够好，但您可以查看日志以了解当转换为定点表示时所保证的精度。
+  //
+  // 注意：即使精度较差，返回的 objective_value 和 best_objective_bound 也将被正确计算。
+  // 因此在求解结束时，如果您只需要精确的最优解，可以检查间隙。
+  FloatObjectiveProto floating_point_objective = 9;
+
+  // 定义当 search_branching 参数设置为 FIXED_SEARCH 时求解器应遵循的策略。
+  // 注意：当我们不处于固定搜索时，此策略也用作启发式方法。
+  //
+  // 高级用法：如果并非所有变量都出现，并且参数 "instantiate_all_variables" 设置为 false，
+  // 则求解器将不会尝试实例化未出现的变量。
+  // 因此，在搜索结束时，并非所有变量都被固定。当前，我们将在解中将它们设置为其下限。
+  repeated DecisionStrategyProto search_strategy = 5;
+
+  // 解提示。
+  //
+  // 如果已知问题的可行或近似可行解，将其传递给求解器可能会有所帮助，以便可以使用它。
+  // 求解器将尝试使用此信息来创建其初始可行解。
+  //
+  // 注意：向求解器提供这样的提示并不总是会更快。
+  // 也不能保证求解器会使用此提示，或者在存在多个最优解的情况下尝试返回接近此赋值的解。
+  PartialVariableAssignment solution_hint = 6;
+
+  // 字面量列表。模型将在假定所有这些字面量都为真的情况下求解。
+  // 与仅仅固定这些字面量的定义域相比，使用此机制速度较慢，但在模型不可行的情况下，可以获取可能很小的子集用于解释不可行性。
+  //
+  // 可以理解为 (IIS)，但仅关注提供的假设。
+  // 这很强大，因为它允许将一组逻辑相关的约束仅放在一个强制执行字面量下，这可以为您提供对不可行性的良好且可解释的解释。
+  //
+  // 这种不可行性解释将在响应字段 sufficient_assumptions_for_infeasibility 中可用。
+  repeated int32 assumptions = 7;
+
+  // 目前，这并非旨在由编写模型的客户端填充，而是由我们的预处理步骤填充。
+  //
+  // 关于可行解空间对称性的信息。
+  // 这些通常保持目标不变。
+  SymmetryProto symmetry = 8;
+}
+
+// 尝试求解 CpModelProto 的求解器返回的状态。
+enum CpSolverStatus {
+  // 模型状态仍未知。在确定以下任何状态之前已达到搜索限制。
+  UNKNOWN = 0; // 未知
+
+  // 给定的 CpModelProto 未通过验证步骤。您可以通过调用 ValidateCpModel(model_proto) 获取详细错误。
+  MODEL_INVALID = 1; // 模型无效
+
+  // 已找到可行解。但在我们可以证明最优性或枚举完可行性问题的所有解（如果要求）之前，搜索已停止。
+  FEASIBLE = 2; // 可行
+
+  // 问题已被证明不可行。
+  INFEASIBLE = 3; // 不可行
+
+  // 已找到最优可行解。
+  //
+  // 更一般地说，此状态表示成功。因此，对于纯可行性问题或如果指定了间隙限制并且我们返回了在此限制内的解，我们也会返回 OPTIMAL。
+  // 在需要返回所有可行解的情况下，只有在我们枚举了所有解时才会返回此状态；如果我们提前停止，我们将返回 FEASIBLE。
+  OPTIMAL = 4; // 最优
+}
+
+// 仅用于存储稠密解的消息。
+// 由 additional_solutions 字段使用。
+message CpSolverSolution {
+  repeated int64 values = 1;
+}
+
+// 尝试求解 CpModelProto 的求解器返回的响应。
+//
+// 下一个 id: 32
+message CpSolverResponse {
+  // 求解的状态。
+  CpSolverStatus status = 1;
+
+  // 给定问题的可行解。根据返回的状态，它可能是最优的或仅仅是可行的。
+  // 这与 CpModelProto::variables 重复字段一一对应，并列出所有变量的值。
+  repeated int64 solution = 2;
+
+  // 仅对优化问题有意义。返回解的目标值（如果非空）。
+  // 如果没有解，那么对于最小化问题，这将是任何可行解目标的上界，对于最大化问题则是下界。
+  double objective_value = 3;
+
+  // 仅对优化问题有意义。对于最小化问题，这是目标的已证明下界，对于最大化问题则是已证明上界。
+  double best_objective_bound = 4;
+
+  // 如果参数 fill_additional_solutions_in_response 已设置，则我们将内部解池中的所有解复制到此。
+  //
+  // 注意：在 solution 字段中返回的解很可能也会出现在这里。
+  // 不要依赖解的顺序，因为它取决于我们的内部表示（后验求解之后）。
+  repeated CpSolverSolution additional_solutions = 27;
+
+  // 高级用法。
+  //
+  // 如果选项 fill_tightened_domains_in_response 已设置，则此字段将是 CpModelProto.variables 的副本，
+  // 其中每个定义域都已使用求解器能够推导出的信息进行了缩减。
+  // 注意：这仅填充了在正常搜索期间推导出的信息，并且我们没有任何专用算法来改进它。
+  //
+  // 警告：如果您没有设置 keep_all_feasible_solutions_in_presolve，那么这些定义域可能会排除有效的可行解。
+  // 否则，对于可行性问题，所有可行解都应该在其中。
+  //
+  // 警告：对于优化问题，这些将对应于寻找改进到当前找到的最佳解的可行解问题的有效界限。
+  // 如果只想探索可行区域，解决可行性版本可能更好。
+  repeated IntegerVariableProto tightened_variables = 21;
+
+  // 模型 "assumptions" 字段的一个子集。仅当状态为 INFEASIBLE 时才会填充。
+  // 此假设子集足以仍然得到一个不可行的问题。
+  //
+  // 这与所谓的不可约不一致子系统（IIS）有关。只是这里只关注提供的假设。
+  // 也不能保证我们返回一个不可约的（即最小子集）。
+  // 然而，这是基于 SAT 解释的，并且很有希望它不会太大。
+  //
+  // 如果确实想要一个最小子集，一种可能的方法是通过更改模型以最小化错误假设的数量，但这可能是一个更难解决的问题。
+  //
+  // 重要提示：当前，仅在单线程且问题不是优化问题时才会最小化，否则，它将始终包含所有假设。
+  //
+  // TODO(user)：允许一次返回多个核心。
+  repeated int32 sufficient_assumptions_for_infeasibility = 23;
+
+  // 包含内部优化的整数目标。仅当问题具有浮点目标时才会填充，并且是在最终响应上，而不是提供给回调函数的那些。
+  CpObjectiveProto integer_objective = 28;
+
+  // 高级用法。
+  //
+  // 目标整数表达式的下界。这要么是返回的 integer_objective 中表达式的界限，要么是原始目标的整数表达式（如果问题已有整数目标）的界限。
+  //
+  // TODO(user)：这应重命名为 integer_objective_lower_bound。
+  int64 inner_objective_lower_bound = 29;
+
+  // 关于求解的一些统计信息。
+  //
+  // 重要提示：在多线程中，这对应于第一个子求解器的统计信息。这通常是具有用户定义参数的那个。或者如果没有指定，则是默认搜索。
+  int64 num_integers = 30; // 整数变量数
+  int64 num_booleans = 10; // 布尔变量数
+  int64 num_fixed_booleans = 31; // 已固定布尔变量数
+  int64 num_conflicts = 11; // 冲突数
+  int64 num_branches = 12; // 分支数
+  int64 num_binary_propagations = 13; // 二元传播数
+  int64 num_integer_propagations = 14; // 整数传播数
+  int64 num_restarts = 24; // 重启次数
+  int64 num_lp_iterations = 25; // LP 迭代次数
+
+  // 从 Solve() 调用开始计数的时间。
+  double wall_time = 15; // 挂钟时间
+  double user_time = 16; // 用户时间
+  double deterministic_time = 17; // 确定性时间
+
+  // log(1 + absolute_objective_gap) 随时间变化的积分。
+  double gap_integral = 22; // 间隙积分
+
+  // 关于如何找到解的其他信息。它还存储导致模型无效的模型或参数错误。
+  string solution_info = 20; // 解信息
+
+  // 如果参数 log_to_response 设置为 true，则将填充求解日志。
+  string solve_log = 26; // 求解日志
+}

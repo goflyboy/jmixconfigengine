@@ -55,7 +55,7 @@ public class CalculateRuleSimpleTest extends ModuleSecnarioTestBase {
             model.addEquality((IntVar)this.PT1Var.var, 1).onlyEnforceIf(rule1_op11);
             
             // 如果rule1_op11为false，则PT1Var数量为3
-            model.addEquality((IntVar)this.PT1Var.var, 3).onlyEnforceIf(rule1_op11.not());    
+            model.addEquality((IntVar)this.PT1Var.var, 3).onlyEnforceIf(rule1_op11.not());
         }
     } 
    //---------------规则定义end----------------------------------------
