@@ -92,29 +92,68 @@ public abstract class ModuleSecnarioTestBase {
         return solutions;
     }
     
-    protected List<ModuleConstraintExecutor.ModuleInst> inferParasByPara(String paraCode, String value) {
+    /**
+     * 根据多个参数值进行推理（可变参数版本）
+     * @param paraCodeValuePairs 参数代码和值的交替数组，格式：paraCode1, value1, paraCode2, value2, ...
+     * @return 推理结果
+     */
+    protected List<ModuleConstraintExecutor.ModuleInst> inferParasByPara(String... paraCodeValuePairs) {
+        if (paraCodeValuePairs.length % 2 != 0) {
+            throw new IllegalArgumentException("参数必须是偶数个，格式：paraCode1, value1, paraCode2, value2, ...");
+        }
+        
         ModuleConstraintExecutor.InferParasReq req = new ModuleConstraintExecutor.InferParasReq();
         req.moduleId = module.getId();
         req.enumerateAllSolution = true;
-        ModuleConstraintExecutor.ParaInst paraInst = new ModuleConstraintExecutor.ParaInst();
-        paraInst.code = paraCode;
-        //根据module.paras中的para.options，找到value对应的option
-        Para para = module.getPara(paraCode);
-        if (para == null) {
-            throw new RuntimeException(String.format("参数 %s 不存在", paraCode));
+        
+        List<ModuleConstraintExecutor.ParaInst> paraInsts = new ArrayList<>();
+        
+        for (int i = 0; i < paraCodeValuePairs.length; i += 2) {
+            String paraCode = paraCodeValuePairs[i];
+            String value = paraCodeValuePairs[i + 1];
+            
+            ModuleConstraintExecutor.ParaInst paraInst = new ModuleConstraintExecutor.ParaInst();
+            paraInst.code = paraCode;
+            
+            //根据module.paras中的para.options，找到value对应的option
+            Para para = module.getPara(paraCode);
+            if (para == null) {
+                throw new RuntimeException(String.format("参数 %s 不存在", paraCode));
+            }
+            switch (para.getType()) {
+                case INTEGER:
+                    paraInst.value = value;
+                    break;
+                case ENUM:
+                    ParaOption option = para.getOption(value);
+                    if (option == null) {
+                        throw new RuntimeException(String.format("参数 %s 中未找到选项: %s，可用选项: %s", paraCode, value, Arrays.toString(para.getOptionCodes())));
+                    }
+                    paraInst.value = String.valueOf(option.getCodeId());
+                    break;
+                default:
+                    throw new RuntimeException(String.format("参数 %s 类型不支持: %s", paraCode, para.getType()));
+            }
+            paraInsts.add(paraInst);
         }
-        ParaOption option = para.getOption(value);
-        if (option == null) {
-            throw new RuntimeException(String.format("参数 %s 中未找到选项: %s，可用选项: %s", paraCode, value, Arrays.toString(para.getOptionCodes())));
-        }
-        paraInst.value = String.valueOf(option.getCodeId());
-        req.preParaInsts = Arrays.asList(paraInst);
+        
+        req.preParaInsts = paraInsts;
 
         ModuleConstraintExecutor.Result<List<ModuleConstraintExecutor.ModuleInst>> result = exec.inferParas(req);
         log.info("推理结果: {}", result);
         this.result = result;
         this.solutions = result.data;
         return solutions;
+    }
+    
+    /**
+     * 根据单个参数值进行推理（向后兼容）
+     * @param paraCode 参数代码
+     * @param value 参数值
+     * @return 推理结果
+     */
+    protected List<ModuleConstraintExecutor.ModuleInst> inferParasByPara(String paraCode, String value) {
+        return inferParasByPara(new String[]{paraCode, value});
     }
     
     /**
@@ -220,13 +259,24 @@ public abstract class ModuleSecnarioTestBase {
             Para para = module.getPara(key);
             if (para != null) {
                 // 找到Para，进一步根据value在option中查找
-                ParaOption option = para.getOption(value);
-                if (option != null) {
-                    elements.add(new ConditionElement("para", key, String.valueOf(option.getCodeId())));
-                } else {
-                    throw new RuntimeException(String.format(
-                        "参数 %s 中未找到选项: %s，可用选项: %s", 
-                        key, value, Arrays.toString(para.getOptionCodes())));
+                switch (para.getType()) {
+                    case INTEGER:
+                        elements.add(new ConditionElement("para", key, value));
+                        break;
+                    case ENUM:
+                        ParaOption option = para.getOption(value);
+                        if (option != null) {
+                            elements.add(new ConditionElement("para", key, String.valueOf(option.getCodeId())));
+                        } else {
+                            throw new RuntimeException(String.format(
+                                "参数 %s 中未找到选项: %s，可用选项: %s", 
+                                key, value, Arrays.toString(para.getOptionCodes())));
+                        }
+                        break;
+                    default:
+                        throw new RuntimeException(String.format(
+                            "参数 %s 类型不支持: %s", 
+                            key, para.getType()));
                 }
                 continue;
             }

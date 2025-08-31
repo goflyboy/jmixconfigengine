@@ -1,5 +1,6 @@
 package com.jmix.configengine.scenario.base;
 
+import com.jmix.configengine.model.Para;
 import com.jmix.configengine.model.ParaType;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -50,12 +51,12 @@ public @interface ParaAnno {
     /**
      * 最小值（Range类型）
      */
-    String minValue() default "";
+    String minValue() default Para.DEFAULT_MIN_VALUE;//TODO:调成整数型？
     
     /**
      * 最大值（Range类型）
      */
-    String maxValue() default "";
+    String maxValue() default Para.DEFAULT_MAX_VALUE;
     
     /**
      * 扩展模式

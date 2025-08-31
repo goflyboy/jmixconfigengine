@@ -123,6 +123,8 @@ public class ModuleGenneratorByAnno {
         para.setSortNo(paraAnno.sortNo());
         para.setType(paraAnno.type());
         para.setExtSchema(paraAnno.extSchema());
+        para.setMinValue(paraAnno.minValue());
+        para.setMaxValue(paraAnno.maxValue());
         
         // 处理扩展属性
         if (paraAnno.extAttrs().length > 0) {
@@ -170,6 +172,7 @@ public class ModuleGenneratorByAnno {
         part.setDefaultValue(0); // Part的默认值类型是Integer
         part.setDescription(partAnno.description());
         part.setSortNo(partAnno.sortNo());
+        part.setMaxQuantity(partAnno.maxQuantity());
         part.setType(partAnno.type());
         part.setPrice(partAnno.price());
         part.setExtSchema(partAnno.extSchema());

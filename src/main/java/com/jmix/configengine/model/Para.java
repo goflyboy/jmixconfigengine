@@ -13,6 +13,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class Para extends ProgrammableObject<String> {
+    public static final String DEFAULT_MIN_VALUE = "-1000";//TODO
+    public static final String DEFAULT_MAX_VALUE = "1000";
 	/**
 	 * 参数类型
 	 */
@@ -26,12 +28,12 @@ public class Para extends ProgrammableObject<String> {
 	/**
 	 * Range类型的最小值
 	 */
-	private String minValue= null;
+	private String minValue= DEFAULT_MIN_VALUE;
 	
 	/**
 	 * Range类型的最大值
 	 */
-	private String maxValue= null;
+	private String maxValue= DEFAULT_MAX_VALUE;
 
 	@JsonIgnore
 	public ParaOption getOption(String optionCode) {

@@ -25,16 +25,29 @@ public class ParaInstAssert extends ProgammableInstAssert {
     
     public ParaInstAssert valueEqual(String expectValue) {
         //expectValue的值是code值，转化为codeId
-        ParaOption option = para.getOption(expectValue);
-        if (option == null) {
-            throw new AssertionError(String.format(
-                "参数code不存在， %s, para.options: %s", expectValue, Arrays.toString(para.getOptionCodes())));
-        }
+        switch (para.getType()) {
+            case INTEGER:
+                if (!Objects.equals(actual.value, expectValue)) {
+                    throw new AssertionError(String.format(
+                        "参数值不匹配，期望: %s，实际: %s", expectValue, actual.value));
+                }
+                break;
+            case ENUM:
+                ParaOption option = para.getOption(expectValue);
+                if (option == null) {
+                    throw new AssertionError(String.format(
+                        "参数code不存在， %s, para.options: %s", expectValue, Arrays.toString(para.getOptionCodes())));
+                }
 
-        String expectValueId = String.valueOf( option.getCodeId());
-        if (!Objects.equals(actual.value, expectValueId)) {
-            throw new AssertionError(String.format(
-                "参数值不匹配，期望: %s，实际: %s", expectValue, actual.value));
+                String expectValueId = String.valueOf( option.getCodeId());
+                if (!Objects.equals(actual.value, expectValueId)) {
+                    throw new AssertionError(String.format(
+                        "参数值不匹配，期望: %s，实际: %s", expectValue, actual.value));
+                }
+                break;
+            default:
+                throw new AssertionError(String.format(
+                    "参数类型不支持: %s", para.getType()));
         }
         return this;
     }

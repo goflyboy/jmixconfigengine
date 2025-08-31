@@ -1,5 +1,6 @@
 package com.jmix.configengine.scenario.base;
 
+import com.jmix.configengine.model.Part;
 import com.jmix.configengine.model.PartType;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -66,5 +67,5 @@ public @interface PartAnno {
      * 最大数量限制
      * 用于约束部件的最大数量值
      */
-    int maxQuantity() default Integer.MAX_VALUE;
+    int maxQuantity() default Part.MAX_QUANTITY;
 } 

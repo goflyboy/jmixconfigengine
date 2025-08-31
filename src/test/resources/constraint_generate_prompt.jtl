@@ -43,8 +43,11 @@ public class PartVar {
 ## 二、约束代码要求
 
 ### 1. 基类依赖
+- 仅使用Ortool-java的9.12.4544版本的API，不要使用老版本的API
+- 如果生成不出来，就输出生成不出来，不要瞎输出
 - 约束代码依赖的基类已经定义了CPModel信息和变量信息
 - 不需要生成基类，仅需要生成约束代码及initConstraint的部分
+- initConstraint不需要创建变量，例如:model.newIntVar等
 
 ```java
 class ConstraintAlgImpl {
@@ -87,7 +90,9 @@ class ConstraintAlgImpl {
 inferParas(String partCode, Integer qty) -> 解的结果
 
 // 根据输入的Para的值，运行约束求解来求解推理的参数
+// 支持单个参数或多个参数
 inferParasByPara(String paraCode, String value) -> 解的结果
+inferParasByPara(String paraCode1, String value1, String paraCode2, String value2, ...) -> 解的结果
 ```
 
 #### 2.2 结果断言方法
@@ -120,7 +125,7 @@ assertSolutionNum("P1:op11,P2:op21", 0);
 
 ### 1. 技术规范
 - 使用Java语言
-- 使用Ortool的9.12.4544版本
+- 使用Ortool的9.12.4544版本,不要使用老版本的API
 - 输出需要包含依赖Ortool的包，例如：`import com.google.ortools.sat.*;`
 - 仅输出生成的Java代码，前后不要包含注解 ```java、```
 
@@ -129,6 +134,7 @@ assertSolutionNum("P1:op11,P2:op21", 0);
 package ${packageName};
 import com.google.ortools.sat.*;
 import com.jmix.configengine.artifact.*;
+import com.jmix.configengine.model.*;
 import com.jmix.configengine.scenario.base.*;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.*;
@@ -289,6 +295,19 @@ public class HelloSampleTest extends ModuleSecnarioTestBase {
     }
 
     @Test
+    public void testMultipleParaInference() {
+        // 测试多个参数同时推理
+        inferParasByPara("Color", "Red", "Size", "Small");
+        
+        resultAssert()
+                .assertSuccess()
+                .assertSolutionSizeEqual(1);
+        
+        solutions(0).assertPart("TShirt11").quantityEqual(1);
+        printSolutions();
+    }
+
+    @Test
     public void testElseCondition() {
         inferParas("TShirt11", 3);
         printSolutions();
@@ -325,10 +344,11 @@ public class HelloSampleTest extends ModuleSecnarioTestBase {
 
 1. **日志规范**: 所有日志内容必须使用英文，符合项目规范
 2. **代码质量**: 生成的代码应该简洁、清晰、可读性好
-3. **测试覆盖**: 测试用例需要覆盖所有逻辑分支
+3. **测试覆盖**: 测试用例需要覆盖所有逻辑分支，包括多参数推理场景
 4. **错误处理**: 包含适当的异常处理和边界条件测试
 5. **性能考虑**: 约束求解应该高效，避免不必要的复杂性
 6. **输出格式**: 直接输出纯Java代码，不要包含任何Markdown标记
+7. **多参数推理**: 优先使用多参数版本的inferParasByPara方法，提高测试效率
 
 ## 七、重要提醒
 

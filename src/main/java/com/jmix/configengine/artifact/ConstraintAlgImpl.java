@@ -6,6 +6,7 @@ import com.google.ortools.Loader;
 import com.jmix.configengine.model.Module;
 import com.jmix.configengine.model.Para;
 import com.jmix.configengine.model.ParaOption;
+import com.jmix.configengine.model.ParaType;
 import com.jmix.configengine.model.Part;
 import java.lang.reflect.Field;
 import java.util.*;
@@ -152,7 +153,25 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		}
 		ParaVar paraVar = new ParaVar();
 		paraVar.setBase(para);
-		paraVar.var = newIntVarFromDomain(model, para.getOptionIds(), code);
+		//如果para.type为INTEGER
+		switch (para.getType()) {
+			case INTEGER:
+				//如果para.minValue和para.maxValue为空
+				// if (para.getMinValue() == null || para.getMaxValue() == null) {
+				// 	paraVar.var = model.newIntVarFromDomain(Domain.allValues(), code);
+				// } else {
+				// 	paraVar.var = model.newIntVar(Integer.parseInt(para.getMinValue()), Integer.parseInt(para.getMaxValue()), code);
+				// }
+				paraVar.var = model.newIntVar(Integer.parseInt(para.getMinValue()), Integer.parseInt(para.getMaxValue()), code);
+				break;
+			case ENUM:
+				paraVar.var = newIntVarFromDomain(model, para.getOptionIds(), code);
+				break;
+			default:
+				//抛异常
+				throw new RuntimeException("Para type not supported: " + para.getType()); 
+		}
+		
 		if (para.getOptions() != null) {
 			for (ParaOption option : para.getOptions()) {
 				ParaOptionVar optionVar = createParaOptionVar(para.getCode(), option.getCode());

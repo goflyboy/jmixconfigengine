@@ -152,4 +152,7 @@ jspm_packages/
 .dynamodb/
 
 # TernJS port file
-.tern-port 
+.tern-port
+
+# 测试数据
+ModelHelperTestBlockInput.md

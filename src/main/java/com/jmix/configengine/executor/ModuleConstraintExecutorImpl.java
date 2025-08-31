@@ -104,6 +104,14 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
 			// if (config != null) { solver.getParameters().setLogSearchProgress(true); }
 			ModuleInstSolutionCallBack cb = new ModuleInstSolutionCallBack(module, alg.getVars());
 			CpSolverStatus status = solver.solve(model, cb);
+			
+			// 如果模型无效，调用ValidateCpModel获取详细错误信息
+			if(status == CpSolverStatus.MODEL_INVALID) {
+				String validationError = model.validate();
+				log.error("Model validation failed: {}", validationError);
+				return Result.failed("Model validation failed: " + validationError);
+			}
+			
 			if(status != CpSolverStatus.OPTIMAL && status != CpSolverStatus.FEASIBLE && status != CpSolverStatus.INFEASIBLE){
 				return Result.failed("solver status: " + status);
 			}

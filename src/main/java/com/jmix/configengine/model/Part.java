@@ -16,6 +16,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class Part extends ProgrammableObject<Integer> {
+    public static final int MAX_QUANTITY = 20;
+    public static final int MIN_QUANTITY = 0;
     /**
      * 部件类型
      */
@@ -29,7 +31,7 @@ public class Part extends ProgrammableObject<Integer> {
     /**
      * 原子Part的最大数量
      */
-    private Integer maxQuantity= 20;
+    private Integer maxQuantity= MAX_QUANTITY;
 
 
     /**
