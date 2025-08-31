@@ -76,4 +76,21 @@ public class ParaInstAssert extends ProgammableInstAssert {
         }
         return this;
     }
+    
+    public ParaInstAssert valueIn(String... expectValues) {
+        boolean found = false;
+        for (String expectValue : expectValues) {
+            ParaOption option = para.getOption(expectValue);
+            if (option != null && Objects.equals(actual.value, String.valueOf(option.getCodeId()))) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            throw new AssertionError(String.format(
+                "参数值不在期望范围内，期望: %s，实际: %s", 
+                Arrays.toString(expectValues), actual.value));
+        }
+        return this;
+    }
 } 
