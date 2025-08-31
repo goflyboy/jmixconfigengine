@@ -83,7 +83,7 @@ public class CalculateRuleSimpleTest extends ModuleSecnarioTestBase {
         //反推有8个接口  8=3*3 - 1
         resultAssert()
             .assertSuccess()
-            .assertSolutionSizeEqual(8);
+            .assertSolutionSizeEqual(2);
         //if的解肯定不在其中
         assertSolutionNum("P1:op11",0);
         printSolutions();

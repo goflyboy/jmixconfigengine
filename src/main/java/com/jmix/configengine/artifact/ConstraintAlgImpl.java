@@ -8,6 +8,7 @@ import com.jmix.configengine.model.Para;
 import com.jmix.configengine.model.ParaOption;
 import com.jmix.configengine.model.ParaType;
 import com.jmix.configengine.model.Part;
+import com.jmix.configengine.util.ParaTypeHandler;
 import java.lang.reflect.Field;
 import java.util.*;
 
@@ -152,36 +153,31 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 			throw new RuntimeException("Para not found for code: " + code);
 		}
 		ParaVar paraVar = new ParaVar();
-		paraVar.setBase(para);
-		//如果para.type为INTEGER
+		paraVar.setBase(para); 
 		switch (para.getType()) {
 			case INTEGER:
-				//如果para.minValue和para.maxValue为空
-				// if (para.getMinValue() == null || para.getMaxValue() == null) {
-				// 	paraVar.var = model.newIntVarFromDomain(Domain.allValues(), code);
-				// } else {
-				// 	paraVar.var = model.newIntVar(Integer.parseInt(para.getMinValue()), Integer.parseInt(para.getMaxValue()), code);
-				// }
 				paraVar.var = model.newIntVar(Integer.parseInt(para.getMinValue()), Integer.parseInt(para.getMaxValue()), code);
 				break;
 			case ENUM:
+				if (para.getOptions() == null) {
+					throw new RuntimeException("Para options not found for code: " + code);
+				}
 				paraVar.var = newIntVarFromDomain(model, para.getOptionIds(), code);
+
+				for (ParaOption option : para.getOptions()) {
+					ParaOptionVar optionVar = createParaOptionVar(para.getCode(), option.getCode());
+					paraVar.optionSelectVars.put(option.getCodeId(), optionVar);
+				}
+				paraVar.optionSelectVars.forEach((optionId, optionVar) -> {
+					model.addEquality((IntVar) paraVar.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar());
+					model.addDifferent((IntVar) paraVar.var, optionId)
+							.onlyEnforceIf(optionVar.getIsSelectedVar().not());
+				});
 				break;
 			default:
-				//抛异常
-				throw new RuntimeException("Para type not supported: " + para.getType()); 
+				throw new RuntimeException("Para type not supported: " + para.getType());
 		}
-		
-		if (para.getOptions() != null) {
-			for (ParaOption option : para.getOptions()) {
-				ParaOptionVar optionVar = createParaOptionVar(para.getCode(), option.getCode());
-				paraVar.optionSelectVars.put(option.getCodeId(), optionVar);
-			}
-		}
-		paraVar.optionSelectVars.forEach((optionId, optionVar) -> {
-			model.addEquality((IntVar) paraVar.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar());
-			model.addDifferent((IntVar) paraVar.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar().not());
-		});
+
 		registerVar(code, paraVar);
 		return paraVar;
 	}

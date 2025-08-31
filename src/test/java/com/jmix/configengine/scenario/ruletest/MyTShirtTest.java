@@ -12,7 +12,7 @@ public class MyTShirtTest extends ModuleSecnarioTestBase {
     static public class MyTShirtConstraint extends ConstraintAlgImpl {
         @ParaAnno( 
             options = {"Red", "Black", "White"},
-            type = ParaType.INTEGER,
+            type = ParaType.ENUM,
             defaultValue = "0"
         )
         private ParaVar ColorVar;

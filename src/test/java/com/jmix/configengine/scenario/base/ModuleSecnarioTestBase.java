@@ -9,6 +9,7 @@ import com.jmix.configengine.model.Module;
 import com.jmix.configengine.model.Para;
 import com.jmix.configengine.model.ParaOption;
 import com.jmix.configengine.model.Part;
+import com.jmix.configengine.util.ParaTypeHandler;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -120,20 +121,7 @@ public abstract class ModuleSecnarioTestBase {
             if (para == null) {
                 throw new RuntimeException(String.format("参数 %s 不存在", paraCode));
             }
-            switch (para.getType()) {
-                case INTEGER:
-                    paraInst.value = value;
-                    break;
-                case ENUM:
-                    ParaOption option = para.getOption(value);
-                    if (option == null) {
-                        throw new RuntimeException(String.format("参数 %s 中未找到选项: %s，可用选项: %s", paraCode, value, Arrays.toString(para.getOptionCodes())));
-                    }
-                    paraInst.value = String.valueOf(option.getCodeId());
-                    break;
-                default:
-                    throw new RuntimeException(String.format("参数 %s 类型不支持: %s", paraCode, para.getType()));
-            }
+            paraInst.value = ParaTypeHandler.getCodeIdValue(para, value);
             paraInsts.add(paraInst);
         }
         
@@ -259,25 +247,8 @@ public abstract class ModuleSecnarioTestBase {
             Para para = module.getPara(key);
             if (para != null) {
                 // 找到Para，进一步根据value在option中查找
-                switch (para.getType()) {
-                    case INTEGER:
-                        elements.add(new ConditionElement("para", key, value));
-                        break;
-                    case ENUM:
-                        ParaOption option = para.getOption(value);
-                        if (option != null) {
-                            elements.add(new ConditionElement("para", key, String.valueOf(option.getCodeId())));
-                        } else {
-                            throw new RuntimeException(String.format(
-                                "参数 %s 中未找到选项: %s，可用选项: %s", 
-                                key, value, Arrays.toString(para.getOptionCodes())));
-                        }
-                        break;
-                    default:
-                        throw new RuntimeException(String.format(
-                            "参数 %s 类型不支持: %s", 
-                            key, para.getType()));
-                }
+                String codeIdValue = ParaTypeHandler.getCodeIdValue(para, value);
+                elements.add(new ConditionElement("para", key, codeIdValue));
                 continue;
             }
             

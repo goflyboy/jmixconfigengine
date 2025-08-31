@@ -72,6 +72,10 @@ class ConstraintAlgImpl {
 - 使用Ortool-java的9.12.4544版本
 - 不要使用老版本的API
 - 保证编译能通过
+### 3.常见使用生成约束代码的案例：
+3.1.a  逻辑代码： Part1.quantity = P1.value + P2.value
+3.1.b  约束代码为： model.addEquality((IntVar)Part1.var, LinearExpr.sum(new IntVar[]{(IntVar)P1.var, (IntVar)P2.var}));
+
 
 ## 三、测试代码生成要求
 

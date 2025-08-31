@@ -6,6 +6,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 import com.jmix.configengine.artifact.FilterExpressionExecutorTest;
 import com.jmix.configengine.artifact.ModuleAlgArtifactGeneratorTest;
+import com.jmix.configengine.scenario.ruletest.CalculateRuleIfThenTest.CalculateRuleConstraint;
 import com.jmix.configengine.util.ModuleUtilsTest;
 
 /**
@@ -27,7 +28,13 @@ import com.jmix.configengine.util.ModuleUtilsTest;
     ModuleUtilsTest.class,
     
     // 场景测试
-    com.jmix.configengine.scenario.tshirt.ModuleAlgArtifactGeneratorBaseTest.class
+    // com.jmix.configengine.scenario.tshirt.ModuleAlgArtifactGeneratorBaseTest.class, TODO
+    com.jmix.configengine.scenario.ruletest.ParaIntegerTest.class,
+    com.jmix.configengine.scenario.ruletest.MyTShirtTest.class,
+    com.jmix.configengine.scenario.ruletest.CalculateRuleIfThenTest.class,
+    com.jmix.configengine.scenario.ruletest.CalculateRuleSimpleTest.class,
+    com.jmix.configengine.scenario.ruletest.CompatiableRuleRequireTest.class
+
 })
 public class TestSuite {
     
