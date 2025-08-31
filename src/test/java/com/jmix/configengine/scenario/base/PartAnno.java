@@ -61,4 +61,10 @@ public @interface PartAnno {
      * 扩展属性
      */
     String[] extAttrs() default {};
+    
+    /**
+     * 最大数量限制
+     * 用于约束部件的最大数量值
+     */
+    int maxQuantity() default Integer.MAX_VALUE;
 } 

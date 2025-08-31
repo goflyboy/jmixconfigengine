@@ -1,6 +1,7 @@
 package com.jmix.configengine.scenario.ruletest;
 import com.google.ortools.sat.*;
 import com.jmix.configengine.artifact.*;
+import com.jmix.configengine.model.ParaType;
 import com.jmix.configengine.scenario.base.*;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.*;
@@ -10,7 +11,9 @@ public class MyTShirtTest extends ModuleSecnarioTestBase {
     @ModuleAnno(id = 123L)
     static public class MyTShirtConstraint extends ConstraintAlgImpl {
         @ParaAnno( 
-            options = {"Red", "Black", "White"}
+            options = {"Red", "Black", "White"},
+            type = ParaType.INTEGER,
+            defaultValue = "0"
         )
         private ParaVar ColorVar;
 

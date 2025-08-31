@@ -27,7 +27,7 @@ public class Part extends ProgrammableObject<Integer> {
     private Long price= 0L;
     
     /**
-     * 原则Part的最大数量
+     * 原子Part的最大数量
      */
     private Integer maxQuantity= 20;
 

@@ -19,7 +19,7 @@ private ParaVar ColorVar;
 )
 private ParaVar SizeVar;
 
-@PartAnno()
+@PartAnno(maxQuantity = 100)
 private PartVar TShirt11Var;
 ```
 
