@@ -11,6 +11,9 @@ import com.jmix.configengine.scenario.base.ModuleSecnarioTestBase;
 import com.jmix.configengine.scenario.base.ParaAnno;
 import com.jmix.configengine.scenario.base.PartAnno;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Arrays;
+
 import org.junit.Test;
 
 /**
@@ -32,7 +35,14 @@ public class CompatiableRuleRequire2Test extends ModuleSecnarioTestBase {
         private ParaVar BVar;
 
         @Override
-        protected void initConstraint() {
+        protected void initConstraint() {   
+            addCompatibleConstraint("rule1", AVar, Arrays.asList("a1","a3"), BVar,
+            Arrays.asList("b1","b2","b3"));
+         }  
+         //  @Override
+        protected void initConstraint2() {
+            //A=(a1,a2,a3,a4)
+            //B=(b1,b2,b3,b4)
             // 规则内容：(a1,a3) Requires (b1,b2,b3)
             // 解读：
             // 1、正向
@@ -119,10 +129,8 @@ public class CompatiableRuleRequire2Test extends ModuleSecnarioTestBase {
     public void testA1WithB4IsInvalid() {
         // 测试正向规则1.2: 如果A选择a1，则B选择b4是不合法的
         // 设置A=a1且B=b4，应该无解
-        inferParasByPara("A", "a1");
-        inferParasByPara("B", "b4");
-        
-        resultAssert().assertNoSolution();
+        inferParasByPara("A", "a1"); 
+        assertSolutionNum("B:b4", 0);   
     }
 
     @Test

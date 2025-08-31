@@ -261,6 +261,46 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 	}
 	
 	/**
+     * 兼容性规则：Requires关系约束
+     * 规则内容：如果左侧参数选择指定选项，则右侧参数必须选择指定选项
+     * 例如：(a1,a3) Requires (b1,b2,b3) 表示如果A选择a1或a3，则B必须选择b1、b2或b3
+     */
+    public void addCompatibleConstraintRequires(String ruleCode, ParaVar leftParaVar, List<String> leftParaFilterOptionCodes,
+		ParaVar rightParaVar, List<String> rightParaFilterOptionCodes) {
+		// left:确保只有一个参数选项被选中
+		model.addExactlyOne(leftParaVar.optionSelectVars.values().stream()
+			.map(option -> option.getIsSelectedVar())
+			.toArray(BoolVar[]::new));
+		// right:确保只有一个参数选项被选中
+		model.addExactlyOne(rightParaVar.optionSelectVars.values().stream()
+			.map(option -> option.getIsSelectedVar())
+			.toArray(BoolVar[]::new));
+
+		// 定义左侧条件：左侧集合中至少一个被选中
+		BoolVar leftCond = model.newBoolVar(ruleCode + "_" + "leftCond");
+		Literal[] leftSelected = leftParaVar.optionSelectVars.values().stream()
+			.filter(option -> leftParaFilterOptionCodes.contains(option.getCode()))
+			.map(option -> (Literal) option.getIsSelectedVar())
+			.toArray(Literal[]::new);
+		// 当leftCond为true时，左侧集合中至少一个被选中；当为false时，左侧集合全部不被选中
+		model.addBoolOr(leftSelected).onlyEnforceIf(leftCond);
+		model.addBoolAnd(Arrays.stream(leftSelected).map(Literal::not).toArray(Literal[]::new)).onlyEnforceIf(leftCond.not());
+
+		// 定义右侧条件：右侧集合中至少一个被选中
+		BoolVar rightCond = model.newBoolVar(ruleCode + "_" + "rightCond");
+		Literal[] rightSelected = rightParaVar.optionSelectVars.values().stream()
+			.filter(option -> rightParaFilterOptionCodes.contains(option.getCode()))
+			.map(option -> (Literal) option.getIsSelectedVar())
+			.toArray(Literal[]::new);
+		// 当rightCond为true时，右侧集合中至少一个被选中；当为false时，右侧集合全部不被选中
+		model.addBoolOr(rightSelected).onlyEnforceIf(rightCond);
+		model.addBoolAnd(Arrays.stream(rightSelected).map(Literal::not).toArray(Literal[]::new)).onlyEnforceIf(rightCond.not());
+		
+		// 实现Requires关系：如果左侧条件为true，则右侧条件必须为true
+		model.addImplication(leftCond, rightCond);
+	}
+	
+	/**
 	 * 添加部件数量相等约束
 	 * 根据partCode找到对应的partVar，并添加数量相等约束
 	 * 
