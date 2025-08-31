@@ -35,7 +35,7 @@ public class CompatiableRuleRequireTest extends ModuleSecnarioTestBase {
         private ParaVar BVar;
 
         @Override
-        protected void initConstraint() {   
+        protected void initConstraint() {
             addCompatibleConstraintRequires("rule1", AVar, Arrays.asList("a1","a3"), BVar,
             Arrays.asList("b1","b2","b3"));
          }  

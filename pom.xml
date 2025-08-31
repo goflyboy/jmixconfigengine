@@ -26,6 +26,18 @@
     </properties>
 
     <dependencies>
+         <!-- LangChain4j 1.4.0 -->
+         <dependency>
+            <groupId>dev.langchain4j</groupId>
+            <artifactId>langchain4j</artifactId>
+            <version>0.27.1</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.langchain4j</groupId>
+            <artifactId>langchain4j-open-ai</artifactId>
+            <version>0.27.1</version>
+        </dependency>
+        
         <!-- OR-Tools -->
         <dependency>
             <groupId>com.google.ortools</groupId>

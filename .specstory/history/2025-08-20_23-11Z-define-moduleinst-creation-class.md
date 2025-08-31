@@ -15075,7 +15075,105 @@ D:\01.code\mygithub\jmixconfigengine>
    - 反向推理：如果B选择b4，则A不能选择a1或a3（这是正向约束的自然结果）
 
 4. **技术要点**：
-   - 保持与原有方法相同的参
+   - 保持与原有方法相同的参数结构：`(ruleCode, leftParaVar, leftParaFilterOptionCodes, rightParaVar, rightParaFilterOptionCodes)`
+   - 使用相同的条件变量定义逻辑
+   - 支持链式调用和流式API
+
+现在`CompatiableRuleRequire2Test`可以使用新的`addCompatibleConstraintRequires`方法来简化约束定义了！🎯
+
+---
+
+_**User**_
+
+请提交
+
+---
+
+_**Assistant**_
+
+好的，我来提交这个修改：
+
+
+---
+
+```bash
+git add .
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>git add .
+warning: in the working copy of '.specstory/history/2025-08-20_23-11Z-define-moduleinst-creation-class.md
+', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java', LF
+ will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/test/java/com/jmix/configengine/scenario/ruletest/CompatiableRuleReq
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+```bash
+git commit -m "删除旧的addCompatibleConstraint方法，保留新的addCompatibleConstraintRequires方法"
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>git commit -m "删除旧的addCompatibleConstraint方法，保留新的addCompa
+tibleConstraintRequires方法"
+[main 7e24d64] 删除旧的addCompatibleConstraint方法，保留新的addCompatibleConstraintRequires方法
+ 7 files changed, 333 insertions(+), 647 deletions(-)
+ delete mode 100644 src/test/java/com/jmix/configengine/other/TShirtConstraint.java
+ delete mode 100644 src/test/java/com/jmix/configengine/other/TShirtConstraintTest.java
+a
+
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+## 提交完成 ✅
+
+**提交信息**：删除旧的addCompatibleConstraint方法，保留新的addCompatibleConstraintRequires方法
+
+**提交ID**：`7e24d64`
+
+**变更统计**：
+- 7个文件被修改
+- 新增333行代码
+- 删除647行代码
+- 删除了2个文件：
+  - `src/test/java/com/jmix/configengine/other/TShirtConstraint.java`
+  - `src/test/java/com/jmix/configengine/other/TShirtConstraintTest.java`
+
+**主要变更**：
+- 删除了旧的`addCompatibleConstraint`方法（实现Codependent关系）
+- 保留了新的`addCompatibleConstraintRequires`方法（实现Requires关系）
+- 清理了相关的测试文件
+
+现在代码库更加简洁，只保留了实现Requires关系约束的方法！🎯
+
+---
+
+_**User**_
+
+请运行LLMInvokerTest
+
+---
+
+_**Assistant**_
+
+
+
+---
+
+_**User**_
+
+请运行LLMInvokerTest
+
+---
+
+_**Assistant**_
+
+
 
 ---
 

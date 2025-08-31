@@ -1,0 +1,16 @@
+请根据以下信息生成Java代码：
+
+变量模型描述：
+${userVariableModel}
+
+逻辑伪代码：
+${userLogicByPseudocode}
+
+要求：
+1. 生成完整的Java类代码
+2. 包含必要的import语句
+3. 代码要简洁、清晰、可读性好
+4. 遵循Java编码规范
+5. 如果涉及配置，请提供配置示例
+
+请直接返回Java代码，不要包含其他解释。 
