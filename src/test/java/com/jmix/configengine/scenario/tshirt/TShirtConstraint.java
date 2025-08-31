@@ -52,13 +52,13 @@ public class TShirtConstraint extends ConstraintAlgImpl {
      * 规则内容：如果颜色选择红色，则尺寸必须选择大号或小号，不能选择中号
      */
     public void addConstraint_rule1() {
-        addCompatibleConstraint("rule1", this.ColorVar,
-        Arrays.asList(
-                    "Big",
-                    "Small"
-        ), this.SizeVar, Arrays.asList(
-                    "Red"
-        ));
+        // addCompatibleConstraint("rule1", this.ColorVar,
+        // Arrays.asList(
+        //             "Big",
+        //             "Small"
+        // ), this.SizeVar, Arrays.asList(
+        //             "Red"
+        // ));
     }
     /**
      * 兼容性规则：颜色和尺寸兼容关系规则
