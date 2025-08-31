@@ -41,8 +41,10 @@ public class LLMInvokerTest {
 
                 // 测试默认包名生成
                 System.out.println("正在使用默认包名生成代码...");
-                modelHelper.generatorModelFile(modelName, userVariableModel, userLogicByPseudocode);
-                
+                //modelHelper.generatorModelFile(modelName, userVariableModel, userLogicByPseudocode);
+                // 使用默认包名生成并运行
+                modelHelper.generatorRunModelFile(modelName, userVariableModel, userLogicByPseudocode);
+
                 // 测试自定义包名生成
                 System.out.println("\n正在使用自定义包名生成代码...");
                 // String customPackage = "com.jmix.configengine.scenario.custom";
