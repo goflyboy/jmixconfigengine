@@ -4,14 +4,11 @@ import com.jmix.configengine.artifact.ConstraintAlg;
 import com.jmix.configengine.model.Para;
 import com.jmix.configengine.model.Part;
 import com.jmix.configengine.model.ParaOption;
-import com.jmix.configengine.model.ParaType;
-import com.jmix.configengine.model.PartType;
 import com.jmix.configengine.model.Module;
 import com.jmix.configengine.model.ModuleAlgArtifact;
 import com.jmix.configengine.util.ModuleUtils;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.File;
 import java.lang.reflect.Field;
 import java.util.*;
 

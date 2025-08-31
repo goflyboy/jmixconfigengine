@@ -66,13 +66,28 @@ public class PromptTemplateLoader {
     }
     
     /**
-     * 便捷方法：使用两个主要变量渲染Java代码生成模板
+     * 便捷方法：使用三个主要变量渲染Java代码生成模板
+     * @param modelName 模型名称
      * @param userVariableModel 用户变量模型描述
      * @param userLogicByPseudocode 用户逻辑伪代码
      * @return 渲染后的prompt
      */
-    public static String renderJavaCodeTemplate(String userVariableModel, String userLogicByPseudocode) {
+    public static String renderJavaCodeTemplate(String modelName, String userVariableModel, String userLogicByPseudocode) {
+        return renderJavaCodeTemplate("com.jmix.configengine.scenario.ruletest", modelName, userVariableModel, userLogicByPseudocode);
+    }
+    
+    /**
+     * 便捷方法：使用四个主要变量渲染Java代码生成模板
+     * @param packageName 包名
+     * @param modelName 模型名称
+     * @param userVariableModel 用户变量模型描述
+     * @param userLogicByPseudocode 用户逻辑伪代码
+     * @return 渲染后的prompt
+     */
+    public static String renderJavaCodeTemplate(String packageName, String modelName, String userVariableModel, String userLogicByPseudocode) {
         Map<String, String> variables = new HashMap<>();
+        variables.put("packageName", packageName);
+        variables.put("modelName", modelName);
         variables.put("userVariableModel", userVariableModel);
         variables.put("userLogicByPseudocode", userLogicByPseudocode);
         

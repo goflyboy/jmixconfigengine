@@ -1,16 +1,342 @@
-请根据以下信息生成Java代码：
+# 产品配置器建模约束代码生成提示模板
 
-变量模型描述：
-${userVariableModel}
+## 基本信息
+- **包名**: ${packageName}
+- **模型名称**: ${modelName}
+- **变量模型描述**: ${userVariableModel}
+- **逻辑伪代码**: ${userLogicByPseudocode}
 
-逻辑伪代码：
-${userLogicByPseudocode}
+## 核心要求
+你是一名产品配置器建模方面的专家机器人，请根据用户的规则伪代码和变量建模生成Ortools SAT表示约束代码及对应的测试代码。
 
-要求：
-1. 生成完整的Java类代码
-2. 包含必要的import语句
-3. 代码要简洁、清晰、可读性好
-4. 遵循Java编码规范
-5. 如果涉及配置，请提供配置示例
+## 一、约束的变量建模元信息
 
-请直接返回Java代码，不要包含其他解释。 
+### ParaVar类（参数变量）
+```java
+public class ParaVar { 
+    public String code;                    // 参数的code，如:Color
+    public IntVar var;                     // 参数的值，对应一个约束的变量，代表当前选择的值（可选值的codeId，如10）
+    public BoolVar isHiddenVar;            // 本参数是否隐藏（0-表示隐藏，1表示显示），对应约束的一个变量
+    public Map<Integer, ParaOptionVar> optionSelectVars = new HashMap<>(); // 本参数每个可选择值选中状态
+    public ParaOptionVar getParaOptionByCode(String code){...}
+}
+```
+
+### ParaOptionVar类（参数选项变量）
+```java
+public class ParaOptionVar {
+    public Integer codeId;                 // 参数可选值的codeId，整数，如:10 
+    public String code;                    // 参数可选值的Code，如:Red
+    public BoolVar isSelectedVar;          // 对应一个约束的变量，表示是否选中
+}
+```
+
+### PartVar类（部件变量）
+```java
+public class PartVar { 
+    public String code;                    // Part的Code，如:part1
+    public IntVar var;                     // 部件的数量值quantity，对应一个约束的变量
+    public BoolVar isHiddenVar;            // 对应一个约束的变量，本Part是否隐藏（0-表示隐藏，1表示显示）
+}
+```
+
+## 二、约束代码要求
+
+### 1. 基类依赖
+- 约束代码依赖的基类已经定义了CPModel信息和变量信息
+- 不需要生成基类，仅需要生成约束代码及initConstraint的部分
+
+```java
+class ConstraintAlgImpl {
+    protected CpModel model; 
+    protected Module module;
+    
+    protected void initVariables() {
+        // 变量初始化代码
+    } 
+    
+    void createParaVar() {
+        // 参数var和optionSelectVars的关系
+        paraVar.optionSelectVars.forEach((optionId, optionVar) -> {
+            model.addEquality((IntVar) paraVar.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar());
+            model.addDifferent((IntVar) paraVar.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar().not());
+        });
+    }
+}
+```
+
+### 2. 技术规范
+- 使用Ortool-java的9.12.4544版本
+- 不要使用老版本的API
+- 保证编译能通过
+
+## 三、测试代码生成要求
+
+### 1. 基本要求
+- 根据用户逻辑伪代码生成测试用例
+- 用例要求简洁、完备，需要包括代码逻辑的覆盖
+- 基于Junit4实现
+- 用例代码继承ModuleSecnarioTestBase（测试框架）
+
+### 2. 测试方法实现
+每个测试用例基于下列的流比较方法实现：
+
+#### 2.1 参数推理方法
+```java
+// 根据输入的Part的数量，运行约束求解来求解推理的参数
+inferParas(String partCode, Integer qty) -> 解的结果
+
+// 根据输入的Para的值，运行约束求解来求解推理的参数
+inferParasByPara(String paraCode, String value) -> 解的结果
+```
+
+#### 2.2 结果断言方法
+```java
+// 判断结果是正确还是失败，没有解
+resultAssert().assertSuccess() | assertFailure() | assertNoSolution()
+
+// 判断推理结果有几组解
+resultAssert().assertSolutionSizeEqual(int expectedSolutionSize)
+```
+
+#### 2.3 解验证方法
+```java
+// 第一个解(index=0)
+solutions(0)
+    .assertPara("P1").valueEqual("op11")        // 第一个解的参数P1的值是否等于"op11"
+    .assertPart("Part1").quantityEqual(1);      // 第一个解的部件Part1的数量是否等于1
+```
+
+#### 2.4 解数量验证方法
+```java
+// conditionExpr="ParaVar.code:ParaVar.var,PartVar.code:PartVar.var"
+void assertSolutionNum(String conditionExpr, int expectSolutionNum)
+
+// 示例：检查执行推理结果中满足(P1.var=op11 且 P2.var=op21)的个数是否等于0
+assertSolutionNum("P1:op11,P2:op21", 0);
+```
+
+## 四、输出代码要求
+
+### 1. 技术规范
+- 使用Java语言
+- 使用Ortool的9.12.4544版本
+- 输出需要包含依赖Ortool的包，例如：`import com.google.ortools.sat.*;`
+- 仅输出生成的Java代码，前后不要包含注解 ```java、```
+
+### 2. 代码模板
+```java
+package ${packageName};
+import com.google.ortools.sat.*;
+import com.jmix.configengine.artifact.*;
+import com.jmix.configengine.scenario.base.*;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.*;
+@Slf4j
+public class ${modelName}Test extends ModuleSecnarioTestBase {
+    
+    //---------------模型的定义start----------------------------------------
+    @ModuleAnno(id = 123L)
+    static public class ${modelName}Constraint extends ConstraintAlgImpl {
+        ${userVariableModel}
+        
+        @Override
+        protected void initConstraint() {
+            // 伪代码的注释
+            // ${userLogicByPseudocode}
+            ${生成的约束代码}
+        }
+    }
+    //---------------模型的定义end----------------------------------------
+
+    public ${modelName}Test() {
+        super(${modelName}Constraint.class);
+    }
+
+    ${生成的测试用例}
+}
+```
+
+## 五、案例示例
+
+### 案例1：T恤衫配置
+
+#### 输入1：模型名称
+```
+HelloSample
+```
+
+#### 输入2：用户变量建模
+```java
+@ParaAnno( 
+    options = {"Red", "Black", "White"}
+)
+private ParaVar ColorVar;
+
+@ParaAnno( 
+    options = {"Small", "Medium", "Big"}
+)
+private ParaVar SizeVar;
+
+@PartAnno()
+private PartVar TShirt11Var;
+```
+
+#### 输入3：用户逻辑伪代码
+```java
+// "Red-10", "Black-20", "White-30"
+// "Small-10", "Medium-20", "Big-30"
+if(ColorVar.var == Red && SizeVar.var == Small) {
+    TShirt11Var.var = 1;
+}
+else {
+    TShirt11Var.var = 3;
+}
+```
+
+#### 输出：完整的测试代码
+```java
+import com.google.ortools.sat.BoolVar;
+import com.google.ortools.sat.IntVar;
+import com.google.ortools.sat.Literal;
+import com.jmix.configengine.artifact.ConstraintAlgImpl;
+import com.jmix.configengine.artifact.ParaVar;
+import com.jmix.configengine.artifact.PartVar;
+import com.jmix.configengine.scenario.base.ModuleAnno;
+import com.jmix.configengine.scenario.base.ModuleSecnarioTestBase;
+import com.jmix.configengine.scenario.base.ParaAnno;
+import com.jmix.configengine.scenario.base.PartAnno;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.Test;
+
+/**
+ * Hello约束算法测试类
+ */
+@Slf4j
+public class HelloSampleTest extends ModuleSecnarioTestBase {
+    
+    //---------------规则定义start----------------------------------------
+    @ModuleAnno(id = 123L)
+    static public class HelloSampleConstraint extends ConstraintAlgImpl {
+        @ParaAnno(
+                options = {"Red", "Black", "White"}
+        )
+        private ParaVar ColorVar;
+
+        @ParaAnno(
+                options = {"Small", "Medium", "Big"}
+        )
+        private ParaVar SizeVar;
+        
+        @PartAnno()
+        private PartVar TShirt11Var;
+
+        @Override
+        protected void initConstraint() {
+            // 规则内容：如果颜色选择红色且尺寸选择小号，则TShirt11数量为1；否则为3
+            // "Red-10", "Black-20", "White-30"
+            // "Small-10", "Medium-20", "Big-30"
+            // if(ColorVar.var == Red && SizeVar.var == Small) {
+            //     TShirt11Var.var = 1;
+            // }
+            // else {
+            //     TShirt11Var.var = 3;
+            // }
+
+            // 创建条件变量：颜色是红色且尺寸是小号
+            BoolVar redAndSmall = model.newBoolVar("rule2_redAndSmall");
+
+            // 实现条件逻辑：redAndSmall = (Color == Red) AND (Size == Small)
+            model.addBoolAnd(new Literal[]{
+                    this.ColorVar.getParaOptionByCode("Red").getIsSelectedVar(),
+                    this.SizeVar.getParaOptionByCode("Small").getIsSelectedVar()
+            }).onlyEnforceIf(redAndSmall);
+
+            // 如果不是红色且小号的组合，则redAndSmall为false
+            model.addBoolOr(new Literal[]{
+                    this.ColorVar.getParaOptionByCode("Red").getIsSelectedVar().not(),
+                    this.SizeVar.getParaOptionByCode("Small").getIsSelectedVar().not()
+            }).onlyEnforceIf(redAndSmall.not());
+
+            // 根据条件设置TShirt11的数量
+            // 如果redAndSmall为true，则TShirt11数量为1
+            model.addEquality((IntVar)this.TShirt11Var.var, 1).onlyEnforceIf(redAndSmall);
+
+            // 如果redAndSmall为false，则TShirt11数量为3
+            model.addEquality((IntVar)this.TShirt11Var.var, 3).onlyEnforceIf(redAndSmall.not());
+        }
+    }
+    //---------------规则定义end----------------------------------------
+
+    public HelloSampleTest() {
+        super(HelloSampleConstraint.class);
+    }
+
+    @Test
+    public void testIfCondition() {
+        // 测试颜色参数推理
+        inferParas("TShirt11", 1);
+
+        // 使用resultAssert验证执行结果
+        resultAssert()
+                .assertSuccess()
+                .assertSolutionSizeEqual(1);
+
+        // 验证第一个解
+        solutions(0).assertPara("Color").valueEqual("Red")
+                .assertPara("Size").valueEqual("Small");
+        printSolutions();
+    }
+
+    @Test
+    public void testElseCondition() {
+        inferParas("TShirt11", 3);
+        printSolutions();
+        // 反推有8个解  8=3*3 - 1
+        resultAssert()
+                .assertSuccess()
+                .assertSolutionSizeEqual(8);
+        // if的解肯定不在其中
+        assertSolutionNum("Color:Red,Size:Small", 0);
+        // else的解可能解如下：
+        assertSolutionNum("Color:Black,Size:Big", 1);
+        assertSolutionNum("Color:White,Size:Medium", 1);
+        assertSolutionNum("Color:Red,Size:Medium", 1);
+        assertSolutionNum("Color:Black,Size:Medium", 1);
+        assertSolutionNum("Color:White,Size:Big", 1);
+        assertSolutionNum("Color:Red,Size:Big", 1);
+        assertSolutionNum("Color:Black,Size:Small", 1);
+        printSolutions();
+    }
+
+    @Test
+    public void testNoneOfIfElse() {
+        // if/else都没有选择
+        // 测试颜色参数推理
+        inferParas("TShirt11", 10);
+        // 使用resultAssert验证执行结果
+        resultAssert().assertNoSolution();
+        printSolutions();
+    }
+}
+```
+
+## 六、注意事项
+
+1. **日志规范**: 所有日志内容必须使用英文，符合项目规范
+2. **代码质量**: 生成的代码应该简洁、清晰、可读性好
+3. **测试覆盖**: 测试用例需要覆盖所有逻辑分支
+4. **错误处理**: 包含适当的异常处理和边界条件测试
+5. **性能考虑**: 约束求解应该高效，避免不必要的复杂性
+6. **输出格式**: 直接输出纯Java代码，不要包含任何Markdown标记
+
+## 七、重要提醒
+
+**请直接返回Java代码，不要包含以下内容：**
+- 不要包含```java标记
+- 不要包含```标记
+- 不要包含任何Markdown格式
+- 不要包含代码说明或解释
+- 只返回可以直接编译的Java代码
+
+请根据以上模板和要求，生成符合标准的Java代码。
