@@ -201,6 +201,20 @@ public class ResultAssert {
     }
     
     /**
+     * 断言无解
+     */
+    public ResultAssert assertNoSolution() {
+        if (actualResult.code != ModuleConstraintExecutor.Result.SUCCESS || 
+            (actualResult.data instanceof Collection && ((Collection<?>) actualResult.data).size() > 0)) {
+            throw new AssertionError(String.format(
+                "期望无解，实际结果代码: %d，解数量: %s", 
+                actualResult.code, 
+                actualResult.data instanceof Collection ? String.valueOf(((Collection<?>) actualResult.data).size()) : "N/A"));
+        }
+        return this;
+    }
+    
+    /**
      * 断言结果数据不为空
      */
     public ResultAssert assertDataNotNull() {

@@ -122,7 +122,7 @@ public class CompatiableRuleRequire2Test extends ModuleSecnarioTestBase {
         inferParasByPara("A", "a1");
         inferParasByPara("B", "b4");
         
-        resultAssert().asssertNoSolution();
+        resultAssert().assertNoSolution();
     }
 
     @Test
