@@ -179,9 +179,11 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		}
 
 		// 创建可见性模式变量，默认值为0（可见，可改）
-		paraVar.visibilityModeVar = model.newIntVar(0, 2, code + "_visibilityMode");
+		paraVar.visibilityModeVar = model.newIntVar(0, 3, code + "_visibilityMode");
 		// 设置默认值约束为0
 		model.addEquality(paraVar.visibilityModeVar, 0);
+		// 排除值2（HIDDEN_EDITABLE已被去掉）
+		model.addDifferent(paraVar.visibilityModeVar, 2);
 
 		registerVar(code, paraVar);
 		return paraVar;
@@ -198,9 +200,11 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		partVar.var = model.newIntVar(0, part.getMaxQuantity(), code);
 		
 		// 创建可见性模式变量，默认值为0（可见，可改）
-		partVar.visibilityModeVar = model.newIntVar(0, 2, code + "_visibilityMode");
+		partVar.visibilityModeVar = model.newIntVar(0, 3, code + "_visibilityMode");
 		// 设置默认值约束为0
 		model.addEquality(partVar.visibilityModeVar, 0);
+		// 排除值2（HIDDEN_EDITABLE已被去掉）
+		model.addDifferent(partVar.visibilityModeVar, 2);
 		
 		registerVar(code, partVar);
 		return partVar;

@@ -19,7 +19,7 @@ public class ParaVar {
     public IntVar visibilityModeVar;      // 可见性模式属性，对应约束的一个变量
     // 0-可见，可改(默认值）
     // 1-可见，不可改
-    // 2-不可见，不可改
+    // 3-不可见，不可改
     public Map<Integer, ParaOptionVar> optionSelectVars = new HashMap<>(); // 本参数每个可选择值选中状态
     public ParaOptionVar getParaOptionByCode(String code){...}
 }
@@ -42,7 +42,7 @@ public class PartVar {
     public IntVar visibilityModeVar;       // 可见性模式属性，对应约束的一个变量
     // 0-可见，可改(默认值）
     // 1-可见，不可改
-    // 2-不可见，不可改
+    // 3-不可见，不可改
 }
 ```
 

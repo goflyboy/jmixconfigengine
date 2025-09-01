@@ -12725,3 +12725,623 @@ D:\01.code\mygithub\jmixconfigengine>
 
 ---
 
+_**User**_
+
+For the code present, we get this error:
+```
+HIDDEN_EDITABLE cannot be resolved or is not a field
+```
+How can I resolve this? If you propose a fix, please make it concise.
+
+---
+
+_**Assistant**_
+
+需要更新测试文件，移除对已注释掉的`HIDDEN_EDITABLE`常量的引用：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/constant/VisibilityModeConstantsTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 2
+
+```diff
+@@ -13,6 +13,5 @@
+          assertEquals(0, VisibilityModeConstants.VISIBLE_EDITABLE);
+          assertEquals(1, VisibilityModeConstants.VISIBLE_READONLY);
+-         assertEquals(2, VisibilityModeConstants.HIDDEN_EDITABLE);
+-         assertEquals(3, VisibilityModeConstants.HIDDEN_READONLY);
++         assertEquals(2, VisibilityModeConstants.HIDDEN_READONLY);
+      }
+  
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/constant/VisibilityModeConstantsTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 3
+
+```diff
+@@ -20,7 +20,6 @@
+          assertEquals("Visible, Editable", VisibilityModeConstants.getDescription(0));
+          assertEquals("Visible, Read-only", VisibilityModeConstants.getDescription(1));
+-         assertEquals("Hidden, Editable", VisibilityModeConstants.getDescription(2));
+-         assertEquals("Hidden, Read-only", VisibilityModeConstants.getDescription(3));
+-         assertEquals("Unknown", VisibilityModeConstants.getDescription(4));
++         assertEquals("Hidden, Read-only", VisibilityModeConstants.getDescription(2));
++         assertEquals("Unknown", VisibilityModeConstants.getDescription(3));
+      }
+  
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/constant/VisibilityModeConstantsTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 2
+
+```diff
+@@ -28,6 +28,5 @@
+          assertTrue(VisibilityModeConstants.isVisible(0));  // VISIBLE_EDITABLE
+          assertTrue(VisibilityModeConstants.isVisible(1));  // VISIBLE_READONLY
+-         assertFalse(VisibilityModeConstants.isVisible(2)); // HIDDEN_EDITABLE
+-         assertFalse(VisibilityModeConstants.isVisible(3)); // HIDDEN_READONLY
++         assertFalse(VisibilityModeConstants.isVisible(2)); // HIDDEN_READONLY
+      }
+  
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/constant/VisibilityModeConstantsTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 2
+
+```diff
+@@ -35,6 +35,5 @@
+          assertTrue(VisibilityModeConstants.isEditable(0));  // VISIBLE_EDITABLE
+          assertFalse(VisibilityModeConstants.isEditable(1)); // VISIBLE_READONLY
+-         assertTrue(VisibilityModeConstants.isEditable(2));   // HIDDEN_EDITABLE
+-         assertFalse(VisibilityModeConstants.isEditable(3)); // HIDDEN_READONLY
++         assertFalse(VisibilityModeConstants.isEditable(2)); // HIDDEN_READONLY
+      }
+  } 
+```
+
+</details>
+
+---
+
+✅ **修复完成！**
+
+已更新`VisibilityModeConstantsTest.java`，移除了对已注释掉的`HIDDEN_EDITABLE`常量的所有引用，并调整了测试逻辑以匹配新的三状态可见性模式：
+
+- `0`: 可见，可改
+- `1`: 可见，不可改  
+- `2`: 不可见，不可改
+
+现在测试文件与更新后的常量定义保持一致。
+
+---
+
+_**User**_
+
+这个地方改错了，是去掉了HIDDEN_EDITABLE=2，但是还要保留HIDDEN_READONLY=3
+
+---
+
+_**Assistant**_
+
+您说得对！我需要修正这个错误。应该是去掉`HIDDEN_EDITABLE=2`，但保留`HIDDEN_READONLY=3`。让我重新修正：
+
+
+---
+
+The model made no changes to the file.
+
+---
+
+让我检查当前的常量定义：
+
+
+---
+
+Read file: src/main/java/com/jmix/configengine/constant/VisibilityModeConstants.java
+
+---
+
+现在我需要修正`ConstraintAlgImpl`中的范围，应该是0-3（去掉2，但保留3）：
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -180,5 +180,5 @@
+  
+  		// 创建可见性模式变量，默认值为0（可见，可改）
+- 		paraVar.visibilityModeVar = model.newIntVar(0, 2, code + "_visibilityMode");
++ 		paraVar.visibilityModeVar = model.newIntVar(0, 3, code + "_visibilityMode");
+  		// 设置默认值约束为0
+  		model.addEquality(paraVar.visibilityModeVar, 0);
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -199,5 +199,5 @@
+  		
+  		// 创建可见性模式变量，默认值为0（可见，可改）
+- 		partVar.visibilityModeVar = model.newIntVar(0, 2, code + "_visibilityMode");
++ 		partVar.visibilityModeVar = model.newIntVar(0, 3, code + "_visibilityMode");
+  		// 设置默认值约束为0
+  		model.addEquality(partVar.visibilityModeVar, 0);
+```
+
+</details>
+
+---
+
+现在需要添加约束，排除值2（因为HIDDEN_EDITABLE=2被去掉了）：
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: undefined
+
+```diff
+@@ -183,4 +183,6 @@
+  		// 设置默认值约束为0
+  		model.addEquality(paraVar.visibilityModeVar, 0);
++ 		// 排除值2（HIDDEN_EDITABLE已被去掉）
++ 		model.addDifferent(paraVar.visibilityModeVar, 2);
+  
+  		registerVar(code, paraVar);
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: undefined
+
+```diff
+@@ -204,4 +204,6 @@
+  		// 设置默认值约束为0
+  		model.addEquality(partVar.visibilityModeVar, 0);
++ 		// 排除值2（HIDDEN_EDITABLE已被去掉）
++ 		model.addDifferent(partVar.visibilityModeVar, 2);
+  		
+  		registerVar(code, partVar);
+```
+
+</details>
+
+---
+
+现在更新`constraint_generate_prompt.jtl`：
+
+
+---
+
+The model provided an ambiguous search string to replace.
+
+---
+
+让我分别更新两个地方：
+
+
+---
+
+Read file: src/test/resources/constraint_generate_prompt.jtl
+
+---
+
+<details><summary>Edit file: src/test/resources/constraint_generate_prompt.jtl</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -20,5 +20,5 @@
+      // 0-可见，可改(默认值）
+      // 1-可见，不可改
+-     // 2-不可见，不可改
++     // 3-不可见，不可改
+      public Map<Integer, ParaOptionVar> optionSelectVars = new HashMap<>(); // 本参数每个可选择值选中状态
+      public ParaOptionVar getParaOptionByCode(String code){...}
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/resources/constraint_generate_prompt.jtl</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -43,5 +43,5 @@
+      // 0-可见，可改(默认值）
+      // 1-可见，不可改
+-     // 2-不可见，不可改
++     // 3-不可见，不可改
+  }
+  ```
+```
+
+</details>
+
+---
+
+现在更新测试文件：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/constant/VisibilityModeConstantsTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -13,5 +13,5 @@
+          assertEquals(0, VisibilityModeConstants.VISIBLE_EDITABLE);
+          assertEquals(1, VisibilityModeConstants.VISIBLE_READONLY);
+-         assertEquals(2, VisibilityModeConstants.HIDDEN_READONLY);
++         assertEquals(3, VisibilityModeConstants.HIDDEN_READONLY);
+      }
+  
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/constant/VisibilityModeConstantsTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -20,6 +20,6 @@
+          assertEquals("Visible, Editable", VisibilityModeConstants.getDescription(0));
+          assertEquals("Visible, Read-only", VisibilityModeConstants.getDescription(1));
+-         assertEquals("Hidden, Read-only", VisibilityModeConstants.getDescription(2));
+-         assertEquals("Unknown", VisibilityModeConstants.getDescription(3));
++         assertEquals("Hidden, Read-only", VisibilityModeConstants.getDescription(3));
++         assertEquals("Unknown", VisibilityModeConstants.getDescription(2));
+      }
+  
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/constant/VisibilityModeConstantsTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -28,5 +28,5 @@
+          assertTrue(VisibilityModeConstants.isVisible(0));  // VISIBLE_EDITABLE
+          assertTrue(VisibilityModeConstants.isVisible(1));  // VISIBLE_READONLY
+-         assertFalse(VisibilityModeConstants.isVisible(2)); // HIDDEN_READONLY
++         assertFalse(VisibilityModeConstants.isVisible(3)); // HIDDEN_READONLY
+      }
+  
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/constant/VisibilityModeConstantsTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -35,5 +35,5 @@
+          assertTrue(VisibilityModeConstants.isEditable(0));  // VISIBLE_EDITABLE
+          assertFalse(VisibilityModeConstants.isEditable(1)); // VISIBLE_READONLY
+-         assertFalse(VisibilityModeConstants.isEditable(2)); // HIDDEN_READONLY
++         assertFalse(VisibilityModeConstants.isEditable(3)); // HIDDEN_READONLY
+      }
+  } 
+```
+
+</details>
+
+---
+
+现在更新`VisibilityModeParaTest.java`中的逻辑，将2改为3：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/VisibilityModeParaTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -37,5 +37,5 @@
+          protected void initConstraint() {
+              // Logic1: P1.visibilityModeVar and P2.visibilityModeVar are incompatible
+-             // Logic2: if P0.var in (0,1) then P1.visibilityModeVar=2 else P2.visibilityModeVar=2
++             // Logic2: if P0.var in (0,1) then P1.visibilityModeVar=3 else P2.visibilityModeVar=3
+              // Logic3:  if P1.visibilityModeVar=2 then P1.var=0
+              // Logic4:  if P2.visibilityModeVar=2 then P2.var=0
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/VisibilityModeParaTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -38,6 +38,6 @@
+              // Logic1: P1.visibilityModeVar and P2.visibilityModeVar are incompatible
+              // Logic2: if P0.var in (0,1) then P1.visibilityModeVar=3 else P2.visibilityModeVar=3
+-             // Logic3:  if P1.visibilityModeVar=2 then P1.var=0
+-             // Logic4:  if P2.visibilityModeVar=2 then P2.var=0
++             // Logic3:  if P1.visibilityModeVar=3 then P1.var=0
++             // Logic4:  if P2.visibilityModeVar=3 then P2.var=0
+              // Logic5:   if P1.visibilityModeVar=0  才可以对P1.var手工修改（也就是作为inferParasByPara的入参)
+              // Logic6:   if P2.visibilityModeVar=0  才可以对P2.var手工修改（也就是作为inferParasByPara的入参)
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/VisibilityModeParaTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -53,6 +53,6 @@
+              model.addDifferent((IntVar)P0.var, 1).onlyEnforceIf(p0In01.not());
+              
+-             model.addEquality((IntVar)P1.visibilityModeVar, 2).onlyEnforceIf(p0In01);
+-             model.addEquality((IntVar)P2.visibilityModeVar, 2).onlyEnforceIf(p0In01.not());
++             model.addEquality((IntVar)P1.visibilityModeVar, 3).onlyEnforceIf(p0In01);
++             model.addEquality((IntVar)P2.visibilityModeVar, 3).onlyEnforceIf(p0In01.not());
+              
+              // Logic3: if P1.visibilityModeVar=2 then P1.var=0
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/VisibilityModeParaTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 10, lines removed: 10
+
+```diff
+@@ -56,15 +56,15 @@
+              model.addEquality((IntVar)P2.visibilityModeVar, 3).onlyEnforceIf(p0In01.not());
+              
+-             // Logic3: if P1.visibilityModeVar=2 then P1.var=0
+-             BoolVar p1Visibility2 = model.newBoolVar("p1Visibility2");
+-             model.addEquality((IntVar)P1.visibilityModeVar, 2).onlyEnforceIf(p1Visibility2);
+-             model.addDifferent((IntVar)P1.visibilityModeVar, 2).onlyEnforceIf(p1Visibility2.not());
+-             model.addEquality((IntVar)P1.var, 0).onlyEnforceIf(p1Visibility2);
++             // Logic3: if P1.visibilityModeVar=3 then P1.var=0
++             BoolVar p1Visibility3 = model.newBoolVar("p1Visibility3");
++             model.addEquality((IntVar)P1.visibilityModeVar, 3).onlyEnforceIf(p1Visibility3);
++             model.addDifferent((IntVar)P1.visibilityModeVar, 3).onlyEnforceIf(p1Visibility3.not());
++             model.addEquality((IntVar)P1.var, 0).onlyEnforceIf(p1Visibility3);
+              
+-             // Logic4: if P2.visibilityModeVar=2 then P2.var=0
+-             BoolVar p2Visibility2 = model.newBoolVar("p2Visibility2");
+-             model.addEquality((IntVar)P2.visibilityModeVar, 2).onlyEnforceIf(p2Visibility2);
+-             model.addDifferent((IntVar)P2.visibilityModeVar, 2).onlyEnforceIf(p2Visibility2.not());
+-             model.addEquality((IntVar)P2.var, 0).onlyEnforceIf(p2Visibility2);
++             // Logic4: if P2.visibilityModeVar=3 then P2.var=0
++             BoolVar p2Visibility3 = model.newBoolVar("p2Visibility3");
++             model.addEquality((IntVar)P2.visibilityModeVar, 3).onlyEnforceIf(p2Visibility3);
++             model.addDifferent((IntVar)P2.visibilityModeVar, 3).onlyEnforceIf(p2Visibility3.not());
++             model.addEquality((IntVar)P2.var, 0).onlyEnforceIf(p2Visibility3);
+              
+              // Logic5: if P1.visibilityModeVar=0 then P1.var can be manually modified
+```
+
+</details>
+
+---
+
+现在更新测试断言：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/VisibilityModeParaTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -88,7 +88,7 @@
+          
+          solutions(0)
+-                 .assertPara("P1").visibilityModeEqual(2)
++                 .assertPara("P1").visibilityModeEqual(3)
+                  .assertPara("P1").valueEqual("0")
+-                 .assertPara("P2").visibilityModeNotEqual(2);
++                 .assertPara("P2").visibilityModeNotEqual(3);
+      }
+  
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/VisibilityModeParaTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -102,7 +102,7 @@
+          
+          solutions(0)
+-                 .assertPara("P2").visibilityModeEqual(2)
++                 .assertPara("P2").visibilityModeEqual(3)
+                  .assertPara("P2").valueEqual("0")
+-                 .assertPara("P1").visibilityModeNotEqual(2);
++                 .assertPara("P1").visibilityModeNotEqual(3);
+      }
+  
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/VisibilityModeParaTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -157,6 +157,6 @@
+          
+          solutions(0)
+-                 .assertPara("P1").visibilityModeNotEqual(2)
+-                 .assertPara("P2").visibilityModeNotEqual(2);
++                 .assertPara("P1").visibilityModeNotEqual(3)
++                 .assertPara("P2").visibilityModeNotEqual(3);
+      }
+  }
+```
+
+</details>
+
+---
+
+现在编译测试：
+
+
+---
+
+```bash
+mvn test-compile
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>mvn test-compile
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------------< com.jmix:configengine >------------------------
+[INFO]   from pom.xml
+[INFO] --- resources:3.3.1:resources (default-resources) @ configengine ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO]
+[INFO] --- compiler:3.8.1:compile (default-compile) @ configengine ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO]
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ configengine ---
+[INFO] Copying 2 resources from src\test\resources to target\test-classes
+[INFO]
+[INFO] --- compiler:3.8.1:testCompile (default-testCompile) @ configengine ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  1.173 s
+[INFO] Finished at: 2025-09-02T07:40:55+08:00
+[INFO] ------------------------------------------------------------------------
+
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+
+
+---
+
