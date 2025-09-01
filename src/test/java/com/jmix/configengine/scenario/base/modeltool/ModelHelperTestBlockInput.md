@@ -5,30 +5,29 @@ com.jmix.configengine.scenario.ruletest
 
 ##modelName
 ```java
-ParaInteger
+VisibilityModePara
 ```
 ##userVariableModel
 ```java
         @ParaAnno(  
             type = ParaType.INTEGER,
-            defaultValue = "0"
+            defaultValue = "0",
+            minValue = "0",
+            maxValue = "3"
         )
         private ParaVar P1;
         @ParaAnno(  
             type = ParaType.INTEGER,
-            defaultValue = "0"
+            defaultValue = "0",
+            minValue = "0",
+            maxValue = "3"
         )
         private ParaVar P2;	
-		
-
-        @PartAnno(
-			maxQuantity=3
-		)
-        private PartVar Part1;	
+ 
 ```
 
 ##userLogicByPseudocode
 ```java
 //逻辑2：
-Part1.quantity = P1.value+ P2.value 
+P1.visibilityModeVar 和 P1.visibilityModeVar是不兼容的
 ``` 

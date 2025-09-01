@@ -10089,6 +10089,1052 @@ _**User**_
 
 _**Assistant**_
 
+我来运行TestSuite来验证所有重构是否正确：
+
+
+---
+
+```bash
+mvn test -Dtest=TestSuite
+```
+
+```
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.forModule(ModuleAlgArtifactGenerator
+.java:349)
+        at com.jmix.configengine.artifact.ModuleAlgArtifactGeneratorTest.testForModuleFactoryMethod(Modul
+eAlgArtifactGeneratorTest.java:43)
+        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.ja
+va:103)
+        at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+        at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+        at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+        at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+        at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+        at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+        at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+        at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+        at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+        at org.junit.runners.Suite.runChild(Suite.java:128)
+        at org.junit.runners.Suite.runChild(Suite.java:27)
+        at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+        at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:316)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:240)     
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:214)       
+        at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:155)
+        at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)       
+        at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+        at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+        at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+forModule factory method test passed successfully
+=== 测试 validateJsonFile 方法 ===
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: test_module.json   
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: test_mo
+dule.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Deserializing Module from JSON file: test_module.jso
+n
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully deserialized Module from JSON file: tes
+t_module.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Deserializing Module from JSON file: nonexistent.jso
+n
+[main] WARN com.jmix.configengine.util.ModuleUtils - JSON file validation failed: JSON file not found: no
+nexistent.json
+? validateJsonFile测试通过
+=== 测试完整往返流程 ===
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: test_module.json   
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: test_mo
+dule.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Deserializing Module from JSON file: test_module.jso
+n
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully deserialized Module from JSON file: tes
+t_module.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: test_module_roundtr
+ip.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: test_mo
+dule_roundtrip.json
+? 完整往返流程测试通过
+=== 测试 fromJsonFile 方法 ===
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: test_module.json   
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: test_mo
+dule.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Deserializing Module from JSON file: test_module.jso
+n
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully deserialized Module from JSON file: tes
+t_module.json
+? fromJsonFile测试通过
+  加载的模块: TestModule
+  参数数量: 1
+  部件数量: 1
+  规则数量: 1
+=== 测试 toJsonString 和 fromJsonString 方法 ===
+? toJsonString和fromJsonString测试通过
+  JSON字符串长度: 3138
+  加载的模块: TestModule
+=== 测试 toJsonFile 方法 ===
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: test_module.json   
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: test_mo
+dule.json
+? toJsonFile测试通过
+  文件路径: D:\01.code\mygithub\jmixconfigengine\test_module.json
+  文件大小: 3194 字节
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - 检测到内部类: com.jmix.configeng
+ine.scenario.ruletest.ParaIntegerTest$ParaIntegerConstraint，父类: com.jmix.configengine.scenario.ruletes
+t.ParaIntegerTest
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: src/test/java/com/j
+mix/configengine/scenario/ruletest/tempResource/ParaInteger.base.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: src/tes
+t/java/com/jmix/configengine/scenario/ruletest/tempResource/ParaInteger.base.json
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
+m/jmix/configengine/scenario/ruletest/tempResource/ParaInteger.base.json
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=P1,var=2, visibilityMode=0}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=P2,var=1, visibilityMode=0}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ PartVar{code=Part1, var=3, visibilityMode=0}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+ModuleConstraintExecutor$Result@331acdad
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - 检测到内部类: com.jmix.configeng
+ine.scenario.ruletest.ParaIntegerTest$ParaIntegerConstraint，父类: com.jmix.configengine.scenario.ruletes
+t.ParaIntegerTest
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: src/test/java/com/j
+mix/configengine/scenario/ruletest/tempResource/ParaInteger.base.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: src/tes
+t/java/com/jmix/configengine/scenario/ruletest/tempResource/ParaInteger.base.json
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
+m/jmix/configengine/scenario/ruletest/tempResource/ParaInteger.base.json
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=P1,var=0, visibilityMode=0}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=P2,var=3, visibilityMode=0}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ PartVar{code=Part1, var=3, visibilityMode=0}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ Para{code=P1,var=1, visibilityMode=0}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ Para{code=P2,var=2, visibilityMode=0}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ PartVar{code=Part1, var=3, visibilityMode=0}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:3-----------
+ Para{code=P1,var=2, visibilityMode=0}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:3-----------
+ Para{code=P2,var=1, visibilityMode=0}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:3-----------
+ PartVar{code=Part1, var=3, visibilityMode=0}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:4-----------
+ Para{code=P1,var=3, visibilityMode=0}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:4-----------
+ Para{code=P2,var=0, visibilityMode=0}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:4-----------
+ PartVar{code=Part1, var=3, visibilityMode=0}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+ModuleConstraintExecutor$Result@5dd1c9f2
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: P1:0
+,P2:3，数量: 1
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: P1:1
+,P2:2，数量: 1
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: P1:2
+,P2:1，数量: 1
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: P1:3
+,P2:0，数量: 1
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - 检测到内部类: com.jmix.configeng
+ine.scenario.ruletest.ParaIntegerTest$ParaIntegerConstraint，父类: com.jmix.configengine.scenario.ruletes
+t.ParaIntegerTest
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: src/test/java/com/j
+mix/configengine/scenario/ruletest/tempResource/ParaInteger.base.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: src/tes
+t/java/com/jmix/configengine/scenario/ruletest/tempResource/ParaInteger.base.json
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
+m/jmix/configengine/scenario/ruletest/tempResource/ParaInteger.base.json
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=P1,var=2, visibilityMode=0}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=P2,var=1, visibilityMode=0}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ PartVar{code=Part1, var=3, visibilityMode=0}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+ModuleConstraintExecutor$Result@6187d1f5
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - 检测到内部类: com.jmix.configeng
+ine.scenario.ruletest.ParaIntegerTest$ParaIntegerConstraint，父类: com.jmix.configengine.scenario.ruletes
+t.ParaIntegerTest
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: src/test/java/com/j
+mix/configengine/scenario/ruletest/tempResource/ParaInteger.base.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: src/tes
+t/java/com/jmix/configengine/scenario/ruletest/tempResource/ParaInteger.base.json
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
+m/jmix/configengine/scenario/ruletest/tempResource/ParaInteger.base.json
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=P1,var=0, visibilityMode=0}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=P2,var=0, visibilityMode=0}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ PartVar{code=Part1, var=0, visibilityMode=0}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+ModuleConstraintExecutor$Result@7502291e
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - 检测到内部类: com.jmix.configeng
+ine.scenario.ruletest.ParaIntegerTest$ParaIntegerConstraint，父类: com.jmix.configengine.scenario.ruletes
+t.ParaIntegerTest
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: src/test/java/com/j
+mix/configengine/scenario/ruletest/tempResource/ParaInteger.base.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: src/tes
+t/java/com/jmix/configengine/scenario/ruletest/tempResource/ParaInteger.base.json
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
+m/jmix/configengine/scenario/ruletest/tempResource/ParaInteger.base.json
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+ModuleConstraintExecutor$Result@22bac7bc
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - 检测到内部类: com.jmix.configeng
+ine.scenario.ruletest.MyTShirtTest$MyTShirtConstraint，父类: com.jmix.configengine.scenario.ruletest.MyTS
+hirtTest
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: src/test/java/com/j
+mix/configengine/scenario/ruletest/tempResource/MyTShirt.base.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: src/tes
+t/java/com/jmix/configengine/scenario/ruletest/tempResource/MyTShirt.base.json
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
+m/jmix/configengine/scenario/ruletest/tempResource/MyTShirt.base.json
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=Color,var=10, visibilityMode=0, options=ParaOption{code=Black, selected=0},ParaOption{code=Red
+, selected=1},ParaOption{code=White, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=Size,var=10, visibilityMode=0, options=ParaOption{code=Medium, selected=0},ParaOption{code=Sma
+ll, selected=1},ParaOption{code=Big, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ PartVar{code=TShirt11, var=1, visibilityMode=0}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+ModuleConstraintExecutor$Result@49cb9cb5
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - 检测到内部类: com.jmix.configeng
+ine.scenario.ruletest.MyTShirtTest$MyTShirtConstraint，父类: com.jmix.configengine.scenario.ruletest.MyTS
+hirtTest
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: src/test/java/com/j
+mix/configengine/scenario/ruletest/tempResource/MyTShirt.base.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: src/tes
+t/java/com/jmix/configengine/scenario/ruletest/tempResource/MyTShirt.base.json
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
+m/jmix/configengine/scenario/ruletest/tempResource/MyTShirt.base.json
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=Color,var=20, visibilityMode=0, options=ParaOption{code=Black, selected=1},ParaOption{code=Red
+, selected=0},ParaOption{code=White, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=Size,var=10, visibilityMode=0, options=ParaOption{code=Medium, selected=0},ParaOption{code=Sma
+ll, selected=1},ParaOption{code=Big, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ PartVar{code=TShirt11, var=3, visibilityMode=0}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ Para{code=Color,var=30, visibilityMode=0, options=ParaOption{code=Black, selected=0},ParaOption{code=Red
+, selected=0},ParaOption{code=White, selected=1},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ Para{code=Size,var=10, visibilityMode=0, options=ParaOption{code=Medium, selected=0},ParaOption{code=Sma
+ll, selected=1},ParaOption{code=Big, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ PartVar{code=TShirt11, var=3, visibilityMode=0}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:3-----------
+ Para{code=Color,var=30, visibilityMode=0, options=ParaOption{code=Black, selected=0},ParaOption{code=Red
+, selected=0},ParaOption{code=White, selected=1},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:3-----------
+ Para{code=Size,var=20, visibilityMode=0, options=ParaOption{code=Medium, selected=1},ParaOption{code=Sma
+ll, selected=0},ParaOption{code=Big, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:3-----------
+ PartVar{code=TShirt11, var=3, visibilityMode=0}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:4-----------
+ Para{code=Color,var=20, visibilityMode=0, options=ParaOption{code=Black, selected=1},ParaOption{code=Red
+, selected=0},ParaOption{code=White, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:4-----------
+ Para{code=Size,var=20, visibilityMode=0, options=ParaOption{code=Medium, selected=1},ParaOption{code=Sma
+ll, selected=0},ParaOption{code=Big, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:4-----------
+ PartVar{code=TShirt11, var=3, visibilityMode=0}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:5-----------
+ Para{code=Color,var=20, visibilityMode=0, options=ParaOption{code=Black, selected=1},ParaOption{code=Red
+, selected=0},ParaOption{code=White, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:5-----------
+ Para{code=Size,var=30, visibilityMode=0, options=ParaOption{code=Medium, selected=0},ParaOption{code=Sma
+ll, selected=0},ParaOption{code=Big, selected=1},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:5-----------
+ PartVar{code=TShirt11, var=3, visibilityMode=0}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:6-----------
+ Para{code=Color,var=30, visibilityMode=0, options=ParaOption{code=Black, selected=0},ParaOption{code=Red
+, selected=0},ParaOption{code=White, selected=1},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:6-----------
+ Para{code=Size,var=30, visibilityMode=0, options=ParaOption{code=Medium, selected=0},ParaOption{code=Sma
+ll, selected=0},ParaOption{code=Big, selected=1},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:6-----------
+ PartVar{code=TShirt11, var=3, visibilityMode=0}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:7-----------
+ Para{code=Color,var=10, visibilityMode=0, options=ParaOption{code=Black, selected=0},ParaOption{code=Red
+, selected=1},ParaOption{code=White, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:7-----------
+ Para{code=Size,var=30, visibilityMode=0, options=ParaOption{code=Medium, selected=0},ParaOption{code=Sma
+ll, selected=0},ParaOption{code=Big, selected=1},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:7-----------
+ PartVar{code=TShirt11, var=3, visibilityMode=0}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:8-----------
+ Para{code=Color,var=10, visibilityMode=0, options=ParaOption{code=Black, selected=0},ParaOption{code=Red
+, selected=1},ParaOption{code=White, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:8-----------
+ Para{code=Size,var=20, visibilityMode=0, options=ParaOption{code=Medium, selected=1},ParaOption{code=Sma
+ll, selected=0},ParaOption{code=Big, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:8-----------
+ PartVar{code=TShirt11, var=3, visibilityMode=0}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+ModuleConstraintExecutor$Result@2b4c1d96
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: Colo
+r:Red,Size:Small，数量: 0
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: Colo
+r:Black,Size:Big，数量: 1
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: Colo
+r:White,Size:Medium，数量: 1
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: Colo
+r:Red,Size:Medium，数量: 1
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: Colo
+r:Black,Size:Medium，数量: 1
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: Colo
+r:White,Size:Big，数量: 1
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: Colo
+r:Red,Size:Big，数量: 1
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: Colo
+r:Black,Size:Small，数量: 1
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - 检测到内部类: com.jmix.configeng
+ine.scenario.ruletest.MyTShirtTest$MyTShirtConstraint，父类: com.jmix.configengine.scenario.ruletest.MyTS
+hirtTest
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: src/test/java/com/j
+mix/configengine/scenario/ruletest/tempResource/MyTShirt.base.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: src/tes
+t/java/com/jmix/configengine/scenario/ruletest/tempResource/MyTShirt.base.json
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
+m/jmix/configengine/scenario/ruletest/tempResource/MyTShirt.base.json
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+ModuleConstraintExecutor$Result@50468873
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - 检测到内部类: com.jmix.configeng
+ine.scenario.ruletest.CalculateRuleIfThenTest$CalculateRuleConstraint，父类: com.jmix.configengine.scenar
+io.ruletest.CalculateRuleIfThenTest
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: src/test/java/com/j
+mix/configengine/scenario/ruletest/tempResource/CalculateRule.base.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: src/tes
+t/java/com/jmix/configengine/scenario/ruletest/tempResource/CalculateRule.base.json
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
+m/jmix/configengine/scenario/ruletest/tempResource/CalculateRule.base.json
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=P1,var=10, visibilityMode=0, options=ParaOption{code=op12, selected=0},ParaOption{code=op11, s
+elected=1},ParaOption{code=op13, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=P2,var=10, visibilityMode=0, options=ParaOption{code=op22, selected=0},ParaOption{code=op21, s
+elected=1},ParaOption{code=op23, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ PartVar{code=PT1, var=1, visibilityMode=0}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+ModuleConstraintExecutor$Result@76884e4b
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 找到 1 个解决方案:
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案 0: {"id":123,"code":"Ca
+lculateRule","instanceConfigId":"INST_491d173ffc4b4563","instanceId":0,"quantity":1,"paras":[{"code":"P1"
+,"value":"10","options":["op11"],"visibilityMode":0},{"code":"P2","value":"10","options":["op21"],"visibi
+lityMode":0}],"parts":[{"code":"PT1","quantity":1,"selectAttrValue":null,"visibilityMode":0}]}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - 检测到内部类: com.jmix.configeng
+ine.scenario.ruletest.CalculateRuleIfThenTest$CalculateRuleConstraint，父类: com.jmix.configengine.scenar
+io.ruletest.CalculateRuleIfThenTest
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: src/test/java/com/j
+mix/configengine/scenario/ruletest/tempResource/CalculateRule.base.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: src/tes
+t/java/com/jmix/configengine/scenario/ruletest/tempResource/CalculateRule.base.json
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
+m/jmix/configengine/scenario/ruletest/tempResource/CalculateRule.base.json
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+ModuleConstraintExecutor$Result@4879dfad
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 没有找到解决方案
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 没有找到解决方案
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - 检测到内部类: com.jmix.configeng
+ine.scenario.ruletest.CalculateRuleIfThenTest$CalculateRuleConstraint，父类: com.jmix.configengine.scenar
+io.ruletest.CalculateRuleIfThenTest
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: src/test/java/com/j
+mix/configengine/scenario/ruletest/tempResource/CalculateRule.base.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: src/tes
+t/java/com/jmix/configengine/scenario/ruletest/tempResource/CalculateRule.base.json
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
+m/jmix/configengine/scenario/ruletest/tempResource/CalculateRule.base.json
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=P1,var=20, visibilityMode=0, options=ParaOption{code=op12, selected=1},ParaOption{code=op11, s
+elected=0},ParaOption{code=op13, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=P2,var=10, visibilityMode=0, options=ParaOption{code=op22, selected=0},ParaOption{code=op21, s
+elected=1},ParaOption{code=op23, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ PartVar{code=PT1, var=3, visibilityMode=0}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ Para{code=P1,var=30, visibilityMode=0, options=ParaOption{code=op12, selected=0},ParaOption{code=op11, s
+elected=0},ParaOption{code=op13, selected=1},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ Para{code=P2,var=10, visibilityMode=0, options=ParaOption{code=op22, selected=0},ParaOption{code=op21, s
+elected=1},ParaOption{code=op23, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ PartVar{code=PT1, var=3, visibilityMode=0}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:3-----------
+ Para{code=P1,var=30, visibilityMode=0, options=ParaOption{code=op12, selected=0},ParaOption{code=op11, s
+elected=0},ParaOption{code=op13, selected=1},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:3-----------
+ Para{code=P2,var=20, visibilityMode=0, options=ParaOption{code=op22, selected=1},ParaOption{code=op21, s
+elected=0},ParaOption{code=op23, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:3-----------
+ PartVar{code=PT1, var=3, visibilityMode=0}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:4-----------
+ Para{code=P1,var=20, visibilityMode=0, options=ParaOption{code=op12, selected=1},ParaOption{code=op11, s
+elected=0},ParaOption{code=op13, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:4-----------
+ Para{code=P2,var=20, visibilityMode=0, options=ParaOption{code=op22, selected=1},ParaOption{code=op21, s
+elected=0},ParaOption{code=op23, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:4-----------
+ PartVar{code=PT1, var=3, visibilityMode=0}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:5-----------
+ Para{code=P1,var=20, visibilityMode=0, options=ParaOption{code=op12, selected=1},ParaOption{code=op11, s
+elected=0},ParaOption{code=op13, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:5-----------
+ Para{code=P2,var=30, visibilityMode=0, options=ParaOption{code=op22, selected=0},ParaOption{code=op21, s
+elected=0},ParaOption{code=op23, selected=1},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:5-----------
+ PartVar{code=PT1, var=3, visibilityMode=0}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:6-----------
+ Para{code=P1,var=30, visibilityMode=0, options=ParaOption{code=op12, selected=0},ParaOption{code=op11, s
+elected=0},ParaOption{code=op13, selected=1},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:6-----------
+ Para{code=P2,var=30, visibilityMode=0, options=ParaOption{code=op22, selected=0},ParaOption{code=op21, s
+elected=0},ParaOption{code=op23, selected=1},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:6-----------
+ PartVar{code=PT1, var=3, visibilityMode=0}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:7-----------
+ Para{code=P1,var=10, visibilityMode=0, options=ParaOption{code=op12, selected=0},ParaOption{code=op11, s
+elected=1},ParaOption{code=op13, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:7-----------
+ Para{code=P2,var=30, visibilityMode=0, options=ParaOption{code=op22, selected=0},ParaOption{code=op21, s
+elected=0},ParaOption{code=op23, selected=1},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:7-----------
+ PartVar{code=PT1, var=3, visibilityMode=0}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:8-----------
+ Para{code=P1,var=10, visibilityMode=0, options=ParaOption{code=op12, selected=0},ParaOption{code=op11, s
+elected=1},ParaOption{code=op13, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:8-----------
+ Para{code=P2,var=20, visibilityMode=0, options=ParaOption{code=op22, selected=1},ParaOption{code=op21, s
+elected=0},ParaOption{code=op23, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:8-----------
+ PartVar{code=PT1, var=3, visibilityMode=0}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+ModuleConstraintExecutor$Result@74eb909f
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 找到 8 个解决方案:
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案 0: {"id":123,"code":"Ca
+lculateRule","instanceConfigId":"INST_0d66ffdaa8c140e9","instanceId":0,"quantity":1,"paras":[{"code":"P1"
+,"value":"20","options":["op12"],"visibilityMode":0},{"code":"P2","value":"10","options":["op21"],"visibi
+lityMode":0}],"parts":[{"code":"PT1","quantity":3,"selectAttrValue":null,"visibilityMode":0}]}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案 1: {"id":123,"code":"Ca
+lculateRule","instanceConfigId":"INST_ea2a9a56f6fa418b","instanceId":0,"quantity":1,"paras":[{"code":"P1"
+,"value":"30","options":["op13"],"visibilityMode":0},{"code":"P2","value":"10","options":["op21"],"visibi
+lityMode":0}],"parts":[{"code":"PT1","quantity":3,"selectAttrValue":null,"visibilityMode":0}]}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案 2: {"id":123,"code":"Ca
+lculateRule","instanceConfigId":"INST_05202556d6a2404c","instanceId":0,"quantity":1,"paras":[{"code":"P1"
+,"value":"30","options":["op13"],"visibilityMode":0},{"code":"P2","value":"20","options":["op22"],"visibi
+lityMode":0}],"parts":[{"code":"PT1","quantity":3,"selectAttrValue":null,"visibilityMode":0}]}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案 3: {"id":123,"code":"Ca
+lculateRule","instanceConfigId":"INST_6ee8a993beb445b1","instanceId":0,"quantity":1,"paras":[{"code":"P1"
+,"value":"20","options":["op12"],"visibilityMode":0},{"code":"P2","value":"20","options":["op22"],"visibi
+lityMode":0}],"parts":[{"code":"PT1","quantity":3,"selectAttrValue":null,"visibilityMode":0}]}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案 4: {"id":123,"code":"Ca
+lculateRule","instanceConfigId":"INST_09f1ef73c26a418a","instanceId":0,"quantity":1,"paras":[{"code":"P1"
+,"value":"20","options":["op12"],"visibilityMode":0},{"code":"P2","value":"30","options":["op23"],"visibi
+lityMode":0}],"parts":[{"code":"PT1","quantity":3,"selectAttrValue":null,"visibilityMode":0}]}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案 5: {"id":123,"code":"Ca
+lculateRule","instanceConfigId":"INST_51a1a1794d5e4f51","instanceId":0,"quantity":1,"paras":[{"code":"P1"
+,"value":"30","options":["op13"],"visibilityMode":0},{"code":"P2","value":"30","options":["op23"],"visibi
+lityMode":0}],"parts":[{"code":"PT1","quantity":3,"selectAttrValue":null,"visibilityMode":0}]}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案 6: {"id":123,"code":"Ca
+lculateRule","instanceConfigId":"INST_a7c85a047fcf417f","instanceId":0,"quantity":1,"paras":[{"code":"P1"
+,"value":"10","options":["op11"],"visibilityMode":0},{"code":"P2","value":"30","options":["op23"],"visibi
+lityMode":0}],"parts":[{"code":"PT1","quantity":3,"selectAttrValue":null,"visibilityMode":0}]}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案 7: {"id":123,"code":"Ca
+lculateRule","instanceConfigId":"INST_d8bcdb5de56641df","instanceId":0,"quantity":1,"paras":[{"code":"P1"
+,"value":"10","options":["op11"],"visibilityMode":0},{"code":"P2","value":"20","options":["op22"],"visibi
+lityMode":0}],"parts":[{"code":"PT1","quantity":3,"selectAttrValue":null,"visibilityMode":0}]}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: P1:o
+p11,P2:op21，数量: 0
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: P1:o
+p12,P2:op22，数量: 1
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 找到 8 个解决方案:
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案 0: {"id":123,"code":"Ca
+lculateRule","instanceConfigId":"INST_0d66ffdaa8c140e9","instanceId":0,"quantity":1,"paras":[{"code":"P1"
+,"value":"20","options":["op12"],"visibilityMode":0},{"code":"P2","value":"10","options":["op21"],"visibi
+lityMode":0}],"parts":[{"code":"PT1","quantity":3,"selectAttrValue":null,"visibilityMode":0}]}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案 1: {"id":123,"code":"Ca
+lculateRule","instanceConfigId":"INST_ea2a9a56f6fa418b","instanceId":0,"quantity":1,"paras":[{"code":"P1"
+,"value":"30","options":["op13"],"visibilityMode":0},{"code":"P2","value":"10","options":["op21"],"visibi
+lityMode":0}],"parts":[{"code":"PT1","quantity":3,"selectAttrValue":null,"visibilityMode":0}]}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案 2: {"id":123,"code":"Ca
+lculateRule","instanceConfigId":"INST_05202556d6a2404c","instanceId":0,"quantity":1,"paras":[{"code":"P1"
+,"value":"30","options":["op13"],"visibilityMode":0},{"code":"P2","value":"20","options":["op22"],"visibi
+lityMode":0}],"parts":[{"code":"PT1","quantity":3,"selectAttrValue":null,"visibilityMode":0}]}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案 3: {"id":123,"code":"Ca
+lculateRule","instanceConfigId":"INST_6ee8a993beb445b1","instanceId":0,"quantity":1,"paras":[{"code":"P1"
+,"value":"20","options":["op12"],"visibilityMode":0},{"code":"P2","value":"20","options":["op22"],"visibi
+lityMode":0}],"parts":[{"code":"PT1","quantity":3,"selectAttrValue":null,"visibilityMode":0}]}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案 4: {"id":123,"code":"Ca
+lculateRule","instanceConfigId":"INST_09f1ef73c26a418a","instanceId":0,"quantity":1,"paras":[{"code":"P1"
+,"value":"20","options":["op12"],"visibilityMode":0},{"code":"P2","value":"30","options":["op23"],"visibi
+lityMode":0}],"parts":[{"code":"PT1","quantity":3,"selectAttrValue":null,"visibilityMode":0}]}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案 5: {"id":123,"code":"Ca
+lculateRule","instanceConfigId":"INST_51a1a1794d5e4f51","instanceId":0,"quantity":1,"paras":[{"code":"P1"
+,"value":"30","options":["op13"],"visibilityMode":0},{"code":"P2","value":"30","options":["op23"],"visibi
+lityMode":0}],"parts":[{"code":"PT1","quantity":3,"selectAttrValue":null,"visibilityMode":0}]}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案 6: {"id":123,"code":"Ca
+lculateRule","instanceConfigId":"INST_a7c85a047fcf417f","instanceId":0,"quantity":1,"paras":[{"code":"P1"
+,"value":"10","options":["op11"],"visibilityMode":0},{"code":"P2","value":"30","options":["op23"],"visibi
+lityMode":0}],"parts":[{"code":"PT1","quantity":3,"selectAttrValue":null,"visibilityMode":0}]}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案 7: {"id":123,"code":"Ca
+lculateRule","instanceConfigId":"INST_d8bcdb5de56641df","instanceId":0,"quantity":1,"paras":[{"code":"P1"
+,"value":"10","options":["op11"],"visibilityMode":0},{"code":"P2","value":"20","options":["op22"],"visibi
+lityMode":0}],"parts":[{"code":"PT1","quantity":3,"selectAttrValue":null,"visibilityMode":0}]}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - 检测到内部类: com.jmix.configeng
+ine.scenario.ruletest.CalculateRuleSimpleTest$CalculateRuleConstraint，父类: com.jmix.configengine.scenar
+io.ruletest.CalculateRuleSimpleTest
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: src/test/java/com/j
+mix/configengine/scenario/ruletest/tempResource/CalculateRule.base.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: src/tes
+t/java/com/jmix/configengine/scenario/ruletest/tempResource/CalculateRule.base.json
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
+m/jmix/configengine/scenario/ruletest/tempResource/CalculateRule.base.json
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=P1,var=30, visibilityMode=0, options=ParaOption{code=op12, selected=0},ParaOption{code=op11, s
+elected=0},ParaOption{code=op13, selected=1},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ PartVar{code=PT1, var=3, visibilityMode=0}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ Para{code=P1,var=20, visibilityMode=0, options=ParaOption{code=op12, selected=1},ParaOption{code=op11, s
+elected=0},ParaOption{code=op13, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ PartVar{code=PT1, var=3, visibilityMode=0}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+ModuleConstraintExecutor$Result@6179e425
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 找到 2 个解决方案:
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案 0: {"id":123,"code":"Ca
+lculateRule","instanceConfigId":"INST_54997a4e6348487e","instanceId":0,"quantity":1,"paras":[{"code":"P1"
+,"value":"30","options":["op13"],"visibilityMode":0}],"parts":[{"code":"PT1","quantity":3,"selectAttrValu
+e":null,"visibilityMode":0}]}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案 1: {"id":123,"code":"Ca
+lculateRule","instanceConfigId":"INST_f5e38a0b0fa44721","instanceId":0,"quantity":1,"paras":[{"code":"P1"
+,"value":"20","options":["op12"],"visibilityMode":0}],"parts":[{"code":"PT1","quantity":3,"selectAttrValu
+e":null,"visibilityMode":0}]}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: P1:o
+p11，数量: 0
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 找到 2 个解决方案:
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案 0: {"id":123,"code":"Ca
+lculateRule","instanceConfigId":"INST_54997a4e6348487e","instanceId":0,"quantity":1,"paras":[{"code":"P1"
+,"value":"30","options":["op13"],"visibilityMode":0}],"parts":[{"code":"PT1","quantity":3,"selectAttrValu
+e":null,"visibilityMode":0}]}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案 1: {"id":123,"code":"Ca
+lculateRule","instanceConfigId":"INST_f5e38a0b0fa44721","instanceId":0,"quantity":1,"paras":[{"code":"P1"
+,"value":"20","options":["op12"],"visibilityMode":0}],"parts":[{"code":"PT1","quantity":3,"selectAttrValu
+e":null,"visibilityMode":0}]}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - 检测到内部类: com.jmix.configeng
+ine.scenario.ruletest.CalculateRuleSimpleTest$CalculateRuleConstraint，父类: com.jmix.configengine.scenar
+io.ruletest.CalculateRuleSimpleTest
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: src/test/java/com/j
+mix/configengine/scenario/ruletest/tempResource/CalculateRule.base.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: src/tes
+t/java/com/jmix/configengine/scenario/ruletest/tempResource/CalculateRule.base.json
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
+m/jmix/configengine/scenario/ruletest/tempResource/CalculateRule.base.json
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+ModuleConstraintExecutor$Result@53bd8fca
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 没有找到解决方案
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 没有找到解决方案
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - 检测到内部类: com.jmix.configeng
+ine.scenario.ruletest.CalculateRuleSimpleTest$CalculateRuleConstraint，父类: com.jmix.configengine.scenar
+io.ruletest.CalculateRuleSimpleTest
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: src/test/java/com/j
+mix/configengine/scenario/ruletest/tempResource/CalculateRule.base.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: src/tes
+t/java/com/jmix/configengine/scenario/ruletest/tempResource/CalculateRule.base.json
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
+m/jmix/configengine/scenario/ruletest/tempResource/CalculateRule.base.json
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=P1,var=10, visibilityMode=0, options=ParaOption{code=op12, selected=0},ParaOption{code=op11, s
+elected=1},ParaOption{code=op13, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ PartVar{code=PT1, var=1, visibilityMode=0}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+ModuleConstraintExecutor$Result@37c7595
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 找到 1 个解决方案:
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案 0: {"id":123,"code":"Ca
+lculateRule","instanceConfigId":"INST_fbd5a95e67fe422a","instanceId":0,"quantity":1,"paras":[{"code":"P1"
+,"value":"10","options":["op11"],"visibilityMode":0}],"parts":[{"code":"PT1","quantity":1,"selectAttrValu
+e":null,"visibilityMode":0}]}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - 检测到内部类: com.jmix.configeng
+ine.scenario.ruletest.CompatiableRuleRequireTest$CompatiableRuleRequireConstraint，父类: com.jmix.confige
+ngine.scenario.ruletest.CompatiableRuleRequireTest
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: src/test/java/com/j
+mix/configengine/scenario/ruletest/tempResource/CompatiableRuleRequire.base.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: src/tes
+t/java/com/jmix/configengine/scenario/ruletest/tempResource/CompatiableRuleRequire.base.json
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
+m/jmix/configengine/scenario/ruletest/tempResource/CompatiableRuleRequire.base.json
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=A,var=10, visibilityMode=0, options=ParaOption{code=a2, selected=0},ParaOption{code=a4, select
+ed=0},ParaOption{code=a1, selected=1},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=B,var=20, visibilityMode=0, options=ParaOption{code=b2, selected=1},ParaOption{code=b4, select
+ed=0},ParaOption{code=b1, selected=0},ParaOption{code=b3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ Para{code=A,var=10, visibilityMode=0, options=ParaOption{code=a2, selected=0},ParaOption{code=a4, select
+ed=0},ParaOption{code=a1, selected=1},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ Para{code=B,var=30, visibilityMode=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, select
+ed=0},ParaOption{code=b1, selected=0},ParaOption{code=b3, selected=1},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:3-----------
+ Para{code=A,var=10, visibilityMode=0, options=ParaOption{code=a2, selected=0},ParaOption{code=a4, select
+ed=0},ParaOption{code=a1, selected=1},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:3-----------
+ Para{code=B,var=10, visibilityMode=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, select
+ed=0},ParaOption{code=b1, selected=1},ParaOption{code=b3, selected=0},}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+ModuleConstraintExecutor$Result@2dca0d64
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: B:b4
+，数量: 0
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - 检测到内部类: com.jmix.configeng
+ine.scenario.ruletest.CompatiableRuleRequireTest$CompatiableRuleRequireConstraint，父类: com.jmix.confige
+ngine.scenario.ruletest.CompatiableRuleRequireTest
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: src/test/java/com/j
+mix/configengine/scenario/ruletest/tempResource/CompatiableRuleRequire.base.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: src/tes
+t/java/com/jmix/configengine/scenario/ruletest/tempResource/CompatiableRuleRequire.base.json
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
+m/jmix/configengine/scenario/ruletest/tempResource/CompatiableRuleRequire.base.json
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=A,var=40, visibilityMode=0, options=ParaOption{code=a2, selected=0},ParaOption{code=a4, select
+ed=1},ParaOption{code=a1, selected=0},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=B,var=10, visibilityMode=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, select
+ed=0},ParaOption{code=b1, selected=1},ParaOption{code=b3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ Para{code=A,var=30, visibilityMode=0, options=ParaOption{code=a2, selected=0},ParaOption{code=a4, select
+ed=0},ParaOption{code=a1, selected=0},ParaOption{code=a3, selected=1},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ Para{code=B,var=10, visibilityMode=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, select
+ed=0},ParaOption{code=b1, selected=1},ParaOption{code=b3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:3-----------
+ Para{code=A,var=20, visibilityMode=0, options=ParaOption{code=a2, selected=1},ParaOption{code=a4, select
+ed=0},ParaOption{code=a1, selected=0},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:3-----------
+ Para{code=B,var=10, visibilityMode=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, select
+ed=0},ParaOption{code=b1, selected=1},ParaOption{code=b3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:4-----------
+ Para{code=A,var=10, visibilityMode=0, options=ParaOption{code=a2, selected=0},ParaOption{code=a4, select
+ed=0},ParaOption{code=a1, selected=1},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:4-----------
+ Para{code=B,var=10, visibilityMode=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, select
+ed=0},ParaOption{code=b1, selected=1},ParaOption{code=b3, selected=0},}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+ModuleConstraintExecutor$Result@ff684e1
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a1
+，数量: 1
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a2
+，数量: 1
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a3
+，数量: 1
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a4
+，数量: 1
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - 检测到内部类: com.jmix.configeng
+ine.scenario.ruletest.CompatiableRuleRequireTest$CompatiableRuleRequireConstraint，父类: com.jmix.confige
+ngine.scenario.ruletest.CompatiableRuleRequireTest
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: src/test/java/com/j
+mix/configengine/scenario/ruletest/tempResource/CompatiableRuleRequire.base.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: src/tes
+t/java/com/jmix/configengine/scenario/ruletest/tempResource/CompatiableRuleRequire.base.json
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
+m/jmix/configengine/scenario/ruletest/tempResource/CompatiableRuleRequire.base.json
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=A,var=20, visibilityMode=0, options=ParaOption{code=a2, selected=1},ParaOption{code=a4, select
+ed=0},ParaOption{code=a1, selected=0},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=B,var=30, visibilityMode=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, select
+ed=0},ParaOption{code=b1, selected=0},ParaOption{code=b3, selected=1},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ Para{code=A,var=20, visibilityMode=0, options=ParaOption{code=a2, selected=1},ParaOption{code=a4, select
+ed=0},ParaOption{code=a1, selected=0},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ Para{code=B,var=40, visibilityMode=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, select
+ed=1},ParaOption{code=b1, selected=0},ParaOption{code=b3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:3-----------
+ Para{code=A,var=20, visibilityMode=0, options=ParaOption{code=a2, selected=1},ParaOption{code=a4, select
+ed=0},ParaOption{code=a1, selected=0},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:3-----------
+ Para{code=B,var=20, visibilityMode=0, options=ParaOption{code=b2, selected=1},ParaOption{code=b4, select
+ed=0},ParaOption{code=b1, selected=0},ParaOption{code=b3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:4-----------
+ Para{code=A,var=20, visibilityMode=0, options=ParaOption{code=a2, selected=1},ParaOption{code=a4, select
+ed=0},ParaOption{code=a1, selected=0},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:4-----------
+ Para{code=B,var=10, visibilityMode=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, select
+ed=0},ParaOption{code=b1, selected=1},ParaOption{code=b3, selected=0},}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+ModuleConstraintExecutor$Result@5ef6ae06
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: B:b1
+，数量: 1
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: B:b2
+，数量: 1
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: B:b3
+，数量: 1
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: B:b4
+，数量: 1
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=A,var=40, visibilityMode=0, options=ParaOption{code=a2, selected=0},ParaOption{code=a4, select
+ed=1},ParaOption{code=a1, selected=0},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=B,var=30, visibilityMode=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, select
+ed=0},ParaOption{code=b1, selected=0},ParaOption{code=b3, selected=1},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ Para{code=A,var=40, visibilityMode=0, options=ParaOption{code=a2, selected=0},ParaOption{code=a4, select
+ed=1},ParaOption{code=a1, selected=0},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ Para{code=B,var=40, visibilityMode=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, select
+ed=1},ParaOption{code=b1, selected=0},ParaOption{code=b3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:3-----------
+ Para{code=A,var=40, visibilityMode=0, options=ParaOption{code=a2, selected=0},ParaOption{code=a4, select
+ed=1},ParaOption{code=a1, selected=0},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:3-----------
+ Para{code=B,var=20, visibilityMode=0, options=ParaOption{code=b2, selected=1},ParaOption{code=b4, select
+ed=0},ParaOption{code=b1, selected=0},ParaOption{code=b3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:4-----------
+ Para{code=A,var=40, visibilityMode=0, options=ParaOption{code=a2, selected=0},ParaOption{code=a4, select
+ed=1},ParaOption{code=a1, selected=0},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:4-----------
+ Para{code=B,var=10, visibilityMode=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, select
+ed=0},ParaOption{code=b1, selected=1},ParaOption{code=b3, selected=0},}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+ModuleConstraintExecutor$Result@55dfebeb
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - 检测到内部类: com.jmix.configeng
+ine.scenario.ruletest.CompatiableRuleRequireTest$CompatiableRuleRequireConstraint，父类: com.jmix.confige
+ngine.scenario.ruletest.CompatiableRuleRequireTest
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: src/test/java/com/j
+mix/configengine/scenario/ruletest/tempResource/CompatiableRuleRequire.base.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: src/tes
+t/java/com/jmix/configengine/scenario/ruletest/tempResource/CompatiableRuleRequire.base.json
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
+m/jmix/configengine/scenario/ruletest/tempResource/CompatiableRuleRequire.base.json
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=A,var=10, visibilityMode=0, options=ParaOption{code=a2, selected=0},ParaOption{code=a4, select
+ed=0},ParaOption{code=a1, selected=1},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=B,var=20, visibilityMode=0, options=ParaOption{code=b2, selected=1},ParaOption{code=b4, select
+ed=0},ParaOption{code=b1, selected=0},ParaOption{code=b3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ Para{code=A,var=10, visibilityMode=0, options=ParaOption{code=a2, selected=0},ParaOption{code=a4, select
+ed=0},ParaOption{code=a1, selected=1},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ Para{code=B,var=30, visibilityMode=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, select
+ed=0},ParaOption{code=b1, selected=0},ParaOption{code=b3, selected=1},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:3-----------
+ Para{code=A,var=10, visibilityMode=0, options=ParaOption{code=a2, selected=0},ParaOption{code=a4, select
+ed=0},ParaOption{code=a1, selected=1},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:3-----------
+ Para{code=B,var=10, visibilityMode=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, select
+ed=0},ParaOption{code=b1, selected=1},ParaOption{code=b3, selected=0},}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+ModuleConstraintExecutor$Result@1cdc4c27
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: B:b4
+，数量: 0
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - 检测到内部类: com.jmix.configeng
+ine.scenario.ruletest.CompatiableRuleRequireTest$CompatiableRuleRequireConstraint，父类: com.jmix.confige
+ngine.scenario.ruletest.CompatiableRuleRequireTest
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: src/test/java/com/j
+mix/configengine/scenario/ruletest/tempResource/CompatiableRuleRequire.base.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: src/tes
+t/java/com/jmix/configengine/scenario/ruletest/tempResource/CompatiableRuleRequire.base.json
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
+m/jmix/configengine/scenario/ruletest/tempResource/CompatiableRuleRequire.base.json
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=A,var=30, visibilityMode=0, options=ParaOption{code=a2, selected=0},ParaOption{code=a4, select
+ed=0},ParaOption{code=a1, selected=0},ParaOption{code=a3, selected=1},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=B,var=20, visibilityMode=0, options=ParaOption{code=b2, selected=1},ParaOption{code=b4, select
+ed=0},ParaOption{code=b1, selected=0},ParaOption{code=b3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ Para{code=A,var=30, visibilityMode=0, options=ParaOption{code=a2, selected=0},ParaOption{code=a4, select
+ed=0},ParaOption{code=a1, selected=0},ParaOption{code=a3, selected=1},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ Para{code=B,var=30, visibilityMode=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, select
+ed=0},ParaOption{code=b1, selected=0},ParaOption{code=b3, selected=1},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:3-----------
+ Para{code=A,var=30, visibilityMode=0, options=ParaOption{code=a2, selected=0},ParaOption{code=a4, select
+ed=0},ParaOption{code=a1, selected=0},ParaOption{code=a3, selected=1},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:3-----------
+ Para{code=B,var=10, visibilityMode=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, select
+ed=0},ParaOption{code=b1, selected=1},ParaOption{code=b3, selected=0},}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+ModuleConstraintExecutor$Result@5d9b7a8a
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: B:b4
+，数量: 0
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - 检测到内部类: com.jmix.configeng
+ine.scenario.ruletest.CompatiableRuleRequireTest$CompatiableRuleRequireConstraint，父类: com.jmix.confige
+ngine.scenario.ruletest.CompatiableRuleRequireTest
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: src/test/java/com/j
+mix/configengine/scenario/ruletest/tempResource/CompatiableRuleRequire.base.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: src/tes
+t/java/com/jmix/configengine/scenario/ruletest/tempResource/CompatiableRuleRequire.base.json
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
+m/jmix/configengine/scenario/ruletest/tempResource/CompatiableRuleRequire.base.json
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=A,var=40, visibilityMode=0, options=ParaOption{code=a2, selected=0},ParaOption{code=a4, select
+ed=1},ParaOption{code=a1, selected=0},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=B,var=40, visibilityMode=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, select
+ed=1},ParaOption{code=b1, selected=0},ParaOption{code=b3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ Para{code=A,var=20, visibilityMode=0, options=ParaOption{code=a2, selected=1},ParaOption{code=a4, select
+ed=0},ParaOption{code=a1, selected=0},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ Para{code=B,var=40, visibilityMode=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, select
+ed=1},ParaOption{code=b1, selected=0},ParaOption{code=b3, selected=0},}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+ModuleConstraintExecutor$Result@604f2bd2
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a2
+，数量: 1
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a4
+，数量: 1
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a1
+，数量: 0
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a3
+，数量: 0
+[INFO] Tests run: 44, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.562 s -- in com.jmix.configengi
+ne.TestSuite
+[INFO] 
+[INFO] Results:
+[INFO]
+[INFO] Tests run: 44, Failures: 0, Errors: 0, Skipped: 0
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  3.478 s
+[INFO] Finished at: 2025-09-01T08:12:54+08:00
+[INFO] ------------------------------------------------------------------------
+
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+太好了！TestSuite运行成功，所有44个测试都通过了。现在让我们提交这些更改：
+
+
+---
+
+```bash
+git add .
+```
+
+---
+
+_**User**_
+
+通过ModelHelperTest生成代码（如选择部分）有中文乱码，请修正
+
+---
+
+_**Assistant**_
+
 
 
 ---
