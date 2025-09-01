@@ -78,6 +78,16 @@ public class ParaInstAssert extends ProgammableInstAssert {
         return this;
     }
     
+    public ParaInstAssert visibilityModeNotEqual(int expectVisibilityMode) {
+        if (actual.visibilityMode == expectVisibilityMode) {
+            throw new AssertionError(String.format(
+                "参数可见性模式不应等于: %s(%s)，实际: %s(%s)", 
+                expectVisibilityMode, VisibilityModeConstants.getDescription(expectVisibilityMode),
+                actual.visibilityMode, VisibilityModeConstants.getDescription(actual.visibilityMode)));
+        }
+        return this;
+    }
+    
     /**
      * @deprecated 使用visibilityModeEqual替代
      */

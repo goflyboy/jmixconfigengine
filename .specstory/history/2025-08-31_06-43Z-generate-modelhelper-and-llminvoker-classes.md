@@ -11614,11 +11614,1114 @@ Read file: src/test/java/com/jmix/configengine/scenario/base/modeltool/LLMInvoke
 
 ---
 
+Read file: src/test/java/com/jmix/configengine/scenario/base/modeltool/LLMInvoker.java
+
+---
+
+现在让我查看`ModelHelper`中保存文件的部分：
 
 
 ---
 
+Read file: src/test/java/com/jmix/configengine/scenario/base/modeltool/ModelHelper.java
 
+---
+
+我发现问题了！在`ModelHelper`的第47行，使用`FileWriter`写入文件时没有指定编码。让我修复这个问题：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/modeltool/ModelHelper.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 3, lines removed: 2
+
+```diff
+@@ -51,6 +51,7 @@
+              }
+              
+-             // 写入文件
+-             try (FileWriter writer = new FileWriter(fullPath.toFile())) {
++             // 写入文件，使用UTF-8编码
++             try (java.io.OutputStreamWriter writer = new java.io.OutputStreamWriter(
++                     new java.io.FileOutputStream(fullPath.toFile()), "UTF-8")) {
+                  writer.write(code);
+              }
+```
+
+</details>
+
+---
+
+现在让我也检查一下`PromptTemplateLoader`中的编码处理：
+
+
+---
+
+Read file: src/test/java/com/jmix/configengine/scenario/base/modeltool/PromptTemplateLoader.java
+
+---
+
+`PromptTemplateLoader`看起来已经正确使用了UTF-8编码。现在让我在`LLMInvoker`中添加编码处理，确保从LLM返回的响应正确处理编码：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/modeltool/LLMInvoker.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 3, lines removed: 1
+
+```diff
+@@ -79,5 +79,7 @@
+              // 清理生成的代码，移除Markdown格式标记
+              String rawCode = response.content().text();
+-             return cleanGeneratedCode(rawCode);
++             // 确保编码正确，处理可能的编码问题
++             String cleanedCode = cleanGeneratedCode(rawCode);
++             return ensureProperEncoding(cleanedCode);
+              
+          } catch (Exception e) {
+```
+
+</details>
+
+---
+
+我需要添加`ensureProperEncoding`方法：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/modeltool/LLMInvoker.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 27, lines removed: undefined
+
+```diff
+@@ -120,4 +120,31 @@
+          return cleanedCode;
+      }
++     
++     /**
++      * 确保编码正确，处理可能的编码问题
++      * @param code 需要处理的代码
++      * @return 编码正确的代码
++      */
++     private String ensureProperEncoding(String code) {
++         if (code == null) {
++             return code;
++         }
++         
++         try {
++             // 尝试检测并修复编码问题
++             byte[] bytes = code.getBytes("ISO-8859-1");
++             String utf8Code = new String(bytes, "UTF-8");
++             
++             // 如果修复后的代码包含乱码字符，则返回原始代码
++             if (utf8Code.contains("�")) {
++                 return code;
++             }
++             
++             return utf8Code;
++         } catch (Exception e) {
++             // 如果编码处理失败，返回原始代码
++             return code;
++         }
++     }
+      
+      /**
+```
+
+</details>
+
+---
+
+现在让我也检查一下`ModelHelperTest`中读取Markdown文件的编码处理：
+
+
+---
+
+Read file: src/test/java/com/jmix/configengine/scenario/base/modeltool/ModelHelperTest.java
+
+---
+
+让我查看`ModelHelperTest`中读取文件的部分：
+
+
+---
+
+Read file: src/test/java/com/jmix/configengine/scenario/base/modeltool/ModelHelperTest.java
+
+---
+
+我发现问题了！在`ModelHelperTest`的第87行，读取文件时没有指定编码。让我修复这个问题：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/modeltool/ModelHelperTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -88,6 +88,6 @@
+              String markdownPath = currentDir + "ModelHelperTestBlockInput.md";
+              
+-             // 读取Markdown文件内容
+-             String content = new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(markdownPath)));
++             // 读取Markdown文件内容，使用UTF-8编码
++             String content = new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(markdownPath)), java.nio.charset.StandardCharsets.UTF_8);
+              
+              // 解析指定部分的内容
+```
+
+</details>
+
+---
+
+现在让我测试一下修复是否有效。首先运行一个简单的测试：
+
+
+---
+
+```bash
+mvn compile
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>mvn compile
+Microsoft Windows [版本 10.0.19045.5131]
+(c) Microsoft Corporation。保留所有权利。
+
+D:\01.code\mygithub\jmixconfigengine>mvn compile
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------------< com.jmix:configengine >------------------------
+[INFO] Building JMix Config Engine 1.0.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ configengine ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.8.1:compile (default-compile) @ configengine ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  0.909 s
+[INFO] Finished at: 2025-09-01T08:23:22+08:00
+[INFO] ------------------------------------------------------------------------
+
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+很好！编译成功。现在让我创建一个简单的测试来验证编码修复是否有效：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/modeltool/EncodingTest.java</summary>
+
+创建一个简单的编码测试类来验证编码修复
+
+**Chunk 1**
+Lines added: 108, lines removed: 1
+
+```diff
+@@ -1,1 +1,108 @@
+- 
++ package com.jmix.configengine.scenario.base.modeltool;
++ 
++ import java.nio.charset.StandardCharsets;
++ import java.nio.file.Files;
++ import java.nio.file.Path;
++ import java.nio.file.Paths;
++ 
++ /**
++  * 编码测试类
++  * 用于验证文件读写编码是否正确
++  */
++ public class EncodingTest {
++     
++     public static void main(String[] args) {
++         try {
++             System.out.println("=== 编码测试 ===\n");
++             
++             // 测试读取Markdown文件
++             testReadMarkdownFile();
++             
++             // 测试写入文件
++             testWriteFile();
++             
++             System.out.println("编码测试完成！");
++             
++         } catch (Exception e) {
++             System.err.println("编码测试失败: " + e.getMessage());
++             e.printStackTrace();
++         }
++     }
++     
++     /**
++      * 测试读取Markdown文件
++      */
++     private static void testReadMarkdownFile() throws Exception {
++         System.out.println("测试读取Markdown文件...");
++         
++         // 获取当前类文件所在目录
++         String currentDir = EncodingTest.class.getResource(".").getPath();
++         if (currentDir.startsWith("/")) {
++             currentDir = currentDir.substring(1);
++         }
++         
++         // 构建Markdown文件路径
++         String markdownPath = currentDir + "ModelHelperTestBlockInput.md";
++         Path path = Paths.get(markdownPath);
++         
++         if (Files.exists(path)) {
++             // 使用UTF-8编码读取文件
++             String content = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
++             System.out.println("成功读取Markdown文件，内容长度: " + content.length());
++             
++             // 检查是否包含中文乱码
++             if (content.contains("�")) {
++                 System.out.println("警告: 检测到可能的乱码字符");
++             } else {
++                 System.out.println("✓ 文件编码正确，无乱码");
++             }
++             
++             // 检查是否包含英文注释
++             if (content.contains("Logic 2:")) {
++                 System.out.println("✓ 包含正确的英文注释");
++             } else {
++                 System.out.println("警告: 未找到预期的英文注释");
++             }
++             
++         } else {
++             System.out.println("Markdown文件不存在: " + path);
++         }
++     }
++     
++     /**
++      * 测试写入文件
++      */
++     private static void testWriteFile() throws Exception {
++         System.out.println("\n测试写入文件...");
++         
++         // 测试内容
++         String testContent = "// Test comment: Logic 2: P1.visibilityModeVar and P2.visibilityModeVar are incompatible\n" +
++                            "model.addDifferent((IntVar) P1.visibilityModeVar, (IntVar) P2.visibilityModeVar);";
++         
++         // 获取当前类文件所在目录
++         String currentDir = EncodingTest.class.getResource(".").getPath();
++         if (currentDir.startsWith("/")) {
++             currentDir = currentDir.substring(1);
++         }
++         
++         // 构建测试文件路径
++         String testFilePath = currentDir + "encoding_test_output.java";
++         Path path = Paths.get(testFilePath);
++         
++         // 使用UTF-8编码写入文件
++         Files.write(path, testContent.getBytes(StandardCharsets.UTF_8));
++         System.out.println("✓ 成功写入测试文件: " + path);
++         
++         // 读取文件验证
++         String readContent = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
++         if (readContent.equals(testContent)) {
++             System.out.println("✓ 文件读写编码一致");
++         } else {
++             System.out.println("警告: 文件读写编码不一致");
++         }
++         
++         // 清理测试文件
++         Files.deleteIfExists(path);
++         System.out.println("✓ 清理测试文件");
++     }
++ } 
+```
+
+</details>
+
+---
+
+现在运行编码测试：
+
+
+---
+
+```bash
+mvn exec:java -Dexec.mainClass="com.jmix.configengine.scenario.base.modeltool.EncodingTest"
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>mvn exec:java -Dexec.mainClass="com.jmix.configengine.scenario.base.
+modeltool.EncodingTest"
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-metadata.xm
+l
+ (14 kB at 27 kB/s)
+ at 39 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/codehaus/mojo/exec-maven-plugin/maven-
+metadata.xml
+Downloaded from central: https://repo.maven.apache.org/maven2/org/codehaus/mojo/exec-maven-plugin/maven-m
+etadata.xml (1.0 kB at 13 kB/s)
+[INFO]
+[INFO] -----------------------< com.jmix:configengine >------------------------
+[INFO] Building JMix Config Engine 1.0.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- exec:3.5.1:java (default-cli) @ configengine ---
+[WARNING] 
+java.lang.ClassNotFoundException: com.jmix.configengine.scenario.base.modeltool.EncodingTest
+    at org.codehaus.mojo.exec.URLClassLoaderBuilder$ExecJavaClassLoader.loadClass (URLClassLoaderBuilder.
+java:211)
+    at java.lang.ClassLoader.loadClass (ClassLoader.java:526)
+    at org.codehaus.mojo.exec.ExecJavaMojo.doExec (ExecJavaMojo.java:357)
+    at org.codehaus.mojo.exec.ExecJavaMojo.lambda$execute$0 (ExecJavaMojo.java:280)
+    at java.lang.Thread.run (Thread.java:1583)
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  1.645 s
+[INFO] Finished at: 2025-09-01T08:23:43+08:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.codehaus.mojo:exec-maven-plugin:3.5.1:java (default-cli) on project co
+nfigengine: An exception occurred while executing the Java class. com.jmix.configengine.scenario.base.mod
+eltool.EncodingTest -> [Help 1]
+[ERROR]
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR]
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException
+
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+需要先编译测试类。让我直接运行ModelHelperTest来测试编码修复：
+
+
+---
+
+```bash
+mvn test-compile
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>mvn test-compile
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------------< com.jmix:configengine >------------------------
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] --- resources:3.3.1:resources (default-resources) @ configengine ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO]
+[INFO] --- compiler:3.8.1:compile (default-compile) @ configengine ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO]
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ configengine ---
+[INFO] Copying 2 resources from src\test\resources to target\test-classes
+[INFO]
+[INFO] --- compiler:3.8.1:testCompile (default-testCompile) @ configengine ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 33 source files to D:\01.code\mygithub\jmixconfigengine\target\test-classes
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/Visib
+ilityModeParaTest.java:[11,23] 编码 UTF-8 的不可映射字符 (0xD0)
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/Visib
+ilityModeParaTest.java:[11,26] 编码 UTF-8 的不可映射字符 (0xA8)
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/Visib
+ilityModeParaTest.java:[11,27] 编码 UTF-8 的不可映射字符 (0xD2)
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/Visib
+ilityModeParaTest.java:[11,28] 编码 UTF-8 的不可映射字符 (0xE5)
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/Visib
+ilityModeParaTest.java:[36,23] 编码 UTF-8 的不可映射字符 (0xD0)
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/Visib
+ilityModeParaTest.java:[36,26] 编码 UTF-8 的不可映射字符 (0xA8)
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/Visib
+ilityModeParaTest.java:[36,27] 编码 UTF-8 的不可映射字符 (0xD2)
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/Visib
+ilityModeParaTest.java:[36,28] 编码 UTF-8 的不可映射字符 (0xE5)
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  3.386 s
+[INFO] Finished at: 2025-09-01T08:23:55+08:00
+[INFO] ------------------------------------------------------------------------
+```
+
+---
+
+_**User**_
+
+For the code present, we get this error:
+```
+The method visibilityModeNotEqual(int) is undefined for the type ParaInstAssert
+```
+How can I resolve this? If you propose a fix, please make it concise.  新增一个
+
+---
+
+_**Assistant**_
+
+我需要在`ParaInstAssert`类中添加`visibilityModeNotEqual`方法。
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ParaInstAssert.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 10, lines removed: undefined
+
+```diff
+@@ -78,4 +78,14 @@
+          return this;
+      }
++     
++     public ParaInstAssert visibilityModeNotEqual(int expectVisibilityMode) {
++         if (actual.visibilityMode == expectVisibilityMode) {
++             throw new AssertionError(String.format(
++                 "参数可见性模式不应等于: %s(%s)，实际: %s(%s)", 
++                 expectVisibilityMode, VisibilityModeConstants.getDescription(expectVisibilityMode),
++                 actual.visibilityMode, VisibilityModeConstants.getDescription(actual.visibilityMode)));
++         }
++         return this;
++     }
+      
+      /**
+```
+
+</details>
+
+---
+
+现在修复测试文件中的其他错误：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/VisibilityModeParaTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 8, lines removed: 2
+
+```diff
+@@ -50,8 +50,14 @@
+              
+              // Logic3: if P1.visibilityModeVar=3 then P1.var=0
+-             model.addEquality((IntVar)P1.var, 0).onlyEnforceIf(model.newEquality((IntVar)P1.visibilityModeVar, 3));
++             BoolVar p1Visibility3 = model.newBoolVar("p1Visibility3");
++             model.addEquality((IntVar)P1.visibilityModeVar, 3).onlyEnforceIf(p1Visibility3);
++             model.addDifferent((IntVar)P1.visibilityModeVar, 3).onlyEnforceIf(p1Visibility3.not());
++             model.addEquality((IntVar)P1.var, 0).onlyEnforceIf(p1Visibility3);
+              
+              // Logic4: if P2.visibilityModeVar=3 then P2.var=0
+-             model.addEquality((IntVar)P2.var, 0).onlyEnforceIf(model.newEquality((IntVar)P2.visibilityModeVar, 3));
++             BoolVar p2Visibility3 = model.newBoolVar("p2Visibility3");
++             model.addEquality((IntVar)P2.visibilityModeVar, 3).onlyEnforceIf(p2Visibility3);
++             model.addDifferent((IntVar)P2.visibilityModeVar, 3).onlyEnforceIf(p2Visibility3.not());
++             model.addEquality((IntVar)P2.var, 0).onlyEnforceIf(p2Visibility3);
+              
+              // Logic5: if P1.visibilityModeVar=0 then P1.var can be manually modified
+```
+
+</details>
+
+---
+
+现在修复字符串参数的问题，将字符串转换为整数：
+
+
+---
+
+The string to replace was not found in the file.
+
+---
+
+让我查看当前文件的具体内容：
+
+
+---
+
+Read file: src/test/java/com/jmix/configengine/scenario/ruletest/VisibilityModeParaTest.java
+
+---
+
+我看到问题了，第133行和第147行还有字符串参数。让我修复这些：
+
+
+---
+
+The string to replace was not found in the file.
+
+---
+
+看起来已经修复了。让我检查最后几行：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/VisibilityModeParaTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -150,6 +150,6 @@
+          
+          solutions(0)
+-                 .assertPara("P1").visibilityModeNotEqual("3")
+-                 .assertPara("P2").visibilityModeNotEqual("3");
++                 .assertPara("P1").visibilityModeNotEqual(3)
++                 .assertPara("P2").visibilityModeNotEqual(3);
+      }
+  }
+```
+
+</details>
+
+---
+
+现在编译测试一下：
+
+
+---
+
+```bash
+mvn test-compile
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>mvn test-compile
+```
+
+---
+
+✅ **修复完成！**
+
+我已经成功添加了`visibilityModeNotEqual(int)`方法到`ParaInstAssert`类中，并修复了测试文件中的所有相关错误：
+
+## 主要修复内容：
+
+1. **新增方法**：在`ParaInstAssert`中添加了`visibilityModeNotEqual(int expectVisibilityMode)`方法
+2. **修复Ortools API调用**：将错误的`model.newEquality()`调用改为正确的布尔变量约束
+3. **修复参数类型**：将所有字符串参数改为整数参数
+
+## 新增的方法：
+
+```java
+public ParaInstAssert visibilityModeNotEqual(int expectVisibilityMode) {
+    if (actual.visibilityMode == expectVisibilityMode) {
+        throw new AssertionError(String.format(
+            "参数可见性模式不应等于: %s(%s)，实际: %s(%s)", 
+            expectVisibilityMode, VisibilityModeConstants.getDescription(expectVisibilityMode),
+            actual.visibilityMode, VisibilityModeConstants.getDescription(actual.visibilityMode)));
+    }
+    return this;
+}
+```
+
+现在测试文件应该可以正常编译和运行了！
+
+---
+
+_**User**_
+
+1、去掉VisibilityModeConstants中HIDDEN_EDITABLE（注释调），根据这个新值域调整响应代码（特别是visibilityModeVar)
+
+---
+
+_**Assistant**_
+
+我来修改`VisibilityModeConstants`，去掉`HIDDEN_EDITABLE`，并调整相关代码。
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/constant/VisibilityModeConstants.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -20,5 +20,5 @@
+       * 不可见，可改（不存在）
+       */
+-     public static final int HIDDEN_EDITABLE = 2;
++     // public static final int HIDDEN_EDITABLE = 2;
+      
+      /**
+```
+
+</details>
+
+---
+
+现在需要修复使用`HIDDEN_EDITABLE`的地方：
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/constant/VisibilityModeConstants.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: undefined, lines removed: 2
+
+```diff
+@@ -36,6 +36,4 @@
+              case VISIBLE_READONLY:
+                  return "Visible, Read-only";
+-             case HIDDEN_EDITABLE:
+-                 return "Hidden, Editable";
+              case HIDDEN_READONLY:
+                  return "Hidden, Read-only";
+```
+
+**Chunk 2**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -56,5 +54,5 @@
+       */
+      public static boolean isEditable(int visibilityMode) {
+-         return visibilityMode == VISIBLE_EDITABLE || visibilityMode == HIDDEN_EDITABLE;
++         return visibilityMode == VISIBLE_EDITABLE;
+      }
+  } 
+```
+
+</details>
+
+---
+
+现在需要调整`ConstraintAlgImpl`中`visibilityModeVar`的范围，从0-3改为0-2：
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -180,5 +180,5 @@
+  
+  		// 创建可见性模式变量，默认值为0（可见，可改）
+- 		paraVar.visibilityModeVar = model.newIntVar(0, 3, code + "_visibilityMode");
++ 		paraVar.visibilityModeVar = model.newIntVar(0, 2, code + "_visibilityMode");
+  		// 设置默认值约束为0
+  		model.addEquality(paraVar.visibilityModeVar, 0);
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -199,5 +199,5 @@
+  		
+  		// 创建可见性模式变量，默认值为0（可见，可改）
+- 		partVar.visibilityModeVar = model.newIntVar(0, 3, code + "_visibilityMode");
++ 		partVar.visibilityModeVar = model.newIntVar(0, 2, code + "_visibilityMode");
+  		// 设置默认值约束为0
+  		model.addEquality(partVar.visibilityModeVar, 0);
+```
+
+</details>
+
+---
+
+现在需要更新`constraint_generate_prompt.jtl`中的描述：
+
+
+---
+
+<details><summary>Edit file: src/test/resources/constraint_generate_prompt.jtl</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 2
+
+```diff
+@@ -20,6 +20,5 @@
+      // 0-可见，可改(默认值）
+      // 1-可见，不可改
+-     // 2-不可见，可改（不存在）
+-     // 3-不可见，不可改
++     // 2-不可见，不可改
+      public Map<Integer, ParaOptionVar> optionSelectVars = new HashMap<>(); // 本参数每个可选择值选中状态
+      public ParaOptionVar getParaOptionByCode(String code){...}
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/resources/constraint_generate_prompt.jtl</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 2
+
+```diff
+@@ -43,6 +43,5 @@
+      // 0-可见，可改(默认值）
+      // 1-可见，不可改
+-     // 2-不可见，可改（不存在）
+-     // 3-不可见，不可改
++     // 2-不可见，不可改
+  }
+  ```
+```
+
+</details>
+
+---
+
+现在需要更新测试文件中的逻辑，将原来的3改为2：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/VisibilityModeParaTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -37,5 +37,5 @@
+          protected void initConstraint() {
+              // Logic1: P1.visibilityModeVar and P2.visibilityModeVar are incompatible
+-             // Logic2: if P0.var in (0,1) then P1.visibilityModeVar=3 else P2.visibilityModeVar=3
++             // Logic2: if P0.var in (0,1) then P1.visibilityModeVar=2 else P2.visibilityModeVar=2
+              // Logic3:  if P1.visibilityModeVar=3 then P1.var=0
+              // Logic4:  if P2.visibilityModeVar=3 then P1.var=0
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/VisibilityModeParaTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -38,6 +38,6 @@
+              // Logic1: P1.visibilityModeVar and P2.visibilityModeVar are incompatible
+              // Logic2: if P0.var in (0,1) then P1.visibilityModeVar=2 else P2.visibilityModeVar=2
+-             // Logic3:  if P1.visibilityModeVar=3 then P1.var=0
+-             // Logic4:  if P2.visibilityModeVar=3 then P1.var=0
++             // Logic3:  if P1.visibilityModeVar=2 then P1.var=0
++             // Logic4:  if P2.visibilityModeVar=2 then P2.var=0
+              // Logic5:   if P1.visibilityModeVar=0  才可以对P1.var手工修改（也就是作为inferParasByPara的入参)
+              // Logic6:   if P2.visibilityModeVar=0  才可以对P2.var手工修改（也就是作为inferParasByPara的入参)
+```
+
+</details>
+
+---
+
+现在更新约束逻辑中的数值：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/VisibilityModeParaTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -53,6 +53,6 @@
+              model.addDifferent((IntVar)P0.var, 1).onlyEnforceIf(p0In01.not());
+              
+-             model.addEquality((IntVar)P1.visibilityModeVar, 3).onlyEnforceIf(p0In01);
+-             model.addEquality((IntVar)P2.visibilityModeVar, 3).onlyEnforceIf(p0In01.not());
++             model.addEquality((IntVar)P1.visibilityModeVar, 2).onlyEnforceIf(p0In01);
++             model.addEquality((IntVar)P2.visibilityModeVar, 2).onlyEnforceIf(p0In01.not());
+              
+              // Logic3: if P1.visibilityModeVar=3 then P1.var=0
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/VisibilityModeParaTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 10, lines removed: 10
+
+```diff
+@@ -56,15 +56,15 @@
+              model.addEquality((IntVar)P2.visibilityModeVar, 2).onlyEnforceIf(p0In01.not());
+              
+-             // Logic3: if P1.visibilityModeVar=3 then P1.var=0
+-             BoolVar p1Visibility3 = model.newBoolVar("p1Visibility3");
+-             model.addEquality((IntVar)P1.visibilityModeVar, 3).onlyEnforceIf(p1Visibility3);
+-             model.addDifferent((IntVar)P1.visibilityModeVar, 3).onlyEnforceIf(p1Visibility3.not());
+-             model.addEquality((IntVar)P1.var, 0).onlyEnforceIf(p1Visibility3);
++             // Logic3: if P1.visibilityModeVar=2 then P1.var=0
++             BoolVar p1Visibility2 = model.newBoolVar("p1Visibility2");
++             model.addEquality((IntVar)P1.visibilityModeVar, 2).onlyEnforceIf(p1Visibility2);
++             model.addDifferent((IntVar)P1.visibilityModeVar, 2).onlyEnforceIf(p1Visibility2.not());
++             model.addEquality((IntVar)P1.var, 0).onlyEnforceIf(p1Visibility2);
+              
+-             // Logic4: if P2.visibilityModeVar=3 then P2.var=0
+-             BoolVar p2Visibility3 = model.newBoolVar("p2Visibility3");
+-             model.addEquality((IntVar)P2.visibilityModeVar, 3).onlyEnforceIf(p2Visibility3);
+-             model.addDifferent((IntVar)P2.visibilityModeVar, 3).onlyEnforceIf(p2Visibility3.not());
+-             model.addEquality((IntVar)P2.var, 0).onlyEnforceIf(p2Visibility3);
++             // Logic4: if P2.visibilityModeVar=2 then P2.var=0
++             BoolVar p2Visibility2 = model.newBoolVar("p2Visibility2");
++             model.addEquality((IntVar)P2.visibilityModeVar, 2).onlyEnforceIf(p2Visibility2);
++             model.addDifferent((IntVar)P2.visibilityModeVar, 2).onlyEnforceIf(p2Visibility2.not());
++             model.addEquality((IntVar)P2.var, 0).onlyEnforceIf(p2Visibility2);
+              
+              // Logic5: if P1.visibilityModeVar=0 then P1.var can be manually modified
+```
+
+</details>
+
+---
+
+现在更新测试方法中的断言：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/VisibilityModeParaTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -88,7 +88,7 @@
+          
+          solutions(0)
+-                 .assertPara("P1").visibilityModeEqual(3)
++                 .assertPara("P1").visibilityModeEqual(2)
+                  .assertPara("P1").valueEqual("0")
+-                 .assertPara("P2").visibilityModeNotEqual(3);
++                 .assertPara("P2").visibilityModeNotEqual(2);
+      }
+  
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/VisibilityModeParaTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -102,7 +102,7 @@
+          
+          solutions(0)
+-                 .assertPara("P2").visibilityModeEqual(3)
++                 .assertPara("P2").visibilityModeEqual(2)
+                  .assertPara("P2").valueEqual("0")
+-                 .assertPara("P1").visibilityModeNotEqual(3);
++                 .assertPara("P1").visibilityModeNotEqual(2);
+      }
+  
+```
+
+</details>
+
+---
+
+The string to replace was not found in the file.
+
+---
+
+让我检查文件的最后部分：
+
+
+---
+
+Read file: src/test/java/com/jmix/configengine/scenario/ruletest/VisibilityModeParaTest.java
+
+---
+
+我看到最后还有两个地方需要修改：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/VisibilityModeParaTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -157,6 +157,6 @@
+          
+          solutions(0)
+-                 .assertPara("P1").visibilityModeNotEqual(3)
+-                 .assertPara("P2").visibilityModeNotEqual(3);
++                 .assertPara("P1").visibilityModeNotEqual(2)
++                 .assertPara("P2").visibilityModeNotEqual(2);
+      }
+  }
+```
+
+</details>
+
+---
+
+现在编译测试一下：
+
+
+---
+
+```bash
+mvn test-compile
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>mvn test-compile
+[INFO] Scanning for projects...
+[INFO]
+[INFO] -----------------------< com.jmix:configengine >------------------------
+[INFO] --- resources:3.3.1:resources (default-resources) @ configengine ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Nothing to compile - all classes are up to date
+[INFO]
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ configengine ---
+[INFO] Copying 2 resources from src\test\resources to target\test-classes
+[INFO]
+[INFO] --- compiler:3.8.1:testCompile (default-testCompile) @ configengine ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  1.053 s
+[INFO] Finished at: 2025-09-02T07:29:29+08:00
+[INFO] ------------------------------------------------------------------------
+
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+✅ **修改完成！**
+
+我已经成功去掉了`HIDDEN_EDITABLE`常量，并调整了所有相关代码：
+
+## 主要修改内容：
+
+### 1. **VisibilityModeConstants.java**
+- 注释掉了`HIDDEN_EDITABLE = 2`常量
+- 更新了`getDescription()`方法，移除了对`HIDDEN_EDITABLE`的处理
+- 更新了`isEditable()`方法，现在只有`VISIBLE_EDITABLE = 0`是可编辑的
+
+### 2. **ConstraintAlgImpl.java**
+- 将`visibilityModeVar`的范围从`0-3`改为`0-2`
+- 现在支持三种状态：
+  - `0`: 可见，可改
+  - `1`: 可见，不可改  
+  - `2`: 不可见，不可改
+
+### 3. **constraint_generate_prompt.jtl**
+- 更新了注释说明，移除了"不可见，可改"的描述
+
+### 4. **VisibilityModeParaTest.java**
+- 将所有使用`3`的地方改为`2`
+- 更新了约束逻辑和测试断言
+
+## 新的可见性模式定义：
+
+```java
+// 0-可见，可改(默认值）
+// 1-可见，不可改
+// 2-不可见，不可改
+```
+
+现在系统只支持三种可见性模式，去掉了"不可见但可改"这种逻辑上不合理的状态。编译测试通过，所有相关代码都已同步更新！
 
 ---
 

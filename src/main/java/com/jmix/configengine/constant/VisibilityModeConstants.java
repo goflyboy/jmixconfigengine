@@ -19,7 +19,7 @@ public class VisibilityModeConstants {
     /**
      * 不可见，可改（不存在）
      */
-    public static final int HIDDEN_EDITABLE = 2;
+    // public static final int HIDDEN_EDITABLE = 2;
     
     /**
      * 不可见，不可改
@@ -35,8 +35,6 @@ public class VisibilityModeConstants {
                 return "Visible, Editable";
             case VISIBLE_READONLY:
                 return "Visible, Read-only";
-            case HIDDEN_EDITABLE:
-                return "Hidden, Editable";
             case HIDDEN_READONLY:
                 return "Hidden, Read-only";
             default:
@@ -55,6 +53,6 @@ public class VisibilityModeConstants {
      * 检查是否为可编辑状态
      */
     public static boolean isEditable(int visibilityMode) {
-        return visibilityMode == VISIBLE_EDITABLE || visibilityMode == HIDDEN_EDITABLE;
+        return visibilityMode == VISIBLE_EDITABLE;
     }
 } 

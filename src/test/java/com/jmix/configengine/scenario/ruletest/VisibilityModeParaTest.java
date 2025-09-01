@@ -17,20 +17,59 @@ public class VisibilityModeParaTest extends ModuleSecnarioTestBase {
             minValue = "0",
             maxValue = "3"
         )
+        private ParaVar P0;
+        @ParaAnno(  
+            type = ParaType.INTEGER,
+            defaultValue = "0",
+            minValue = "0",
+            maxValue = "2"
+        )
         private ParaVar P1;
         @ParaAnno(  
             type = ParaType.INTEGER,
             defaultValue = "0",
             minValue = "0",
-            maxValue = "3"
+            maxValue = "2"
         )
         private ParaVar P2;
         
         @Override
         protected void initConstraint() {
-            // Logic 2: P1.visibilityModeVar and P2.visibilityModeVar are incompatible
-            // Add constraint that P1 and P2 visibility modes cannot both be 0 (visible and editable)
+            // Logic1: P1.visibilityModeVar and P2.visibilityModeVar are incompatible
+            // Logic2: if P0.var in (0,1) then P1.visibilityModeVar=2 else P2.visibilityModeVar=2
+            // Logic3:  if P1.visibilityModeVar=2 then P1.var=0
+            // Logic4:  if P2.visibilityModeVar=2 then P2.var=0
+            // Logic5:   if P1.visibilityModeVar=0  才可以对P1.var手工修改（也就是作为inferParasByPara的入参)
+            // Logic6:   if P2.visibilityModeVar=0  才可以对P2.var手工修改（也就是作为inferParasByPara的入参)
+
+            // Logic 1: P1.visibilityModeVar and P2.visibilityModeVar are incompatible
             model.addDifferent((IntVar)P1.visibilityModeVar, (IntVar)P2.visibilityModeVar);
+            
+            // Logic 2: if P0.var in (0,1) then P1.visibilityModeVar=3 else P2.visibilityModeVar=3
+            BoolVar p0In01 = model.newBoolVar("p0In01");
+            model.addEquality((IntVar)P0.var, 0).onlyEnforceIf(p0In01);
+            model.addEquality((IntVar)P0.var, 1).onlyEnforceIf(p0In01);
+            model.addDifferent((IntVar)P0.var, 0).onlyEnforceIf(p0In01.not());
+            model.addDifferent((IntVar)P0.var, 1).onlyEnforceIf(p0In01.not());
+            
+            model.addEquality((IntVar)P1.visibilityModeVar, 2).onlyEnforceIf(p0In01);
+            model.addEquality((IntVar)P2.visibilityModeVar, 2).onlyEnforceIf(p0In01.not());
+            
+            // Logic3: if P1.visibilityModeVar=2 then P1.var=0
+            BoolVar p1Visibility2 = model.newBoolVar("p1Visibility2");
+            model.addEquality((IntVar)P1.visibilityModeVar, 2).onlyEnforceIf(p1Visibility2);
+            model.addDifferent((IntVar)P1.visibilityModeVar, 2).onlyEnforceIf(p1Visibility2.not());
+            model.addEquality((IntVar)P1.var, 0).onlyEnforceIf(p1Visibility2);
+            
+            // Logic4: if P2.visibilityModeVar=2 then P2.var=0
+            BoolVar p2Visibility2 = model.newBoolVar("p2Visibility2");
+            model.addEquality((IntVar)P2.visibilityModeVar, 2).onlyEnforceIf(p2Visibility2);
+            model.addDifferent((IntVar)P2.visibilityModeVar, 2).onlyEnforceIf(p2Visibility2.not());
+            model.addEquality((IntVar)P2.var, 0).onlyEnforceIf(p2Visibility2);
+            
+            // Logic5: if P1.visibilityModeVar=0 then P1.var can be manually modified
+            // Logic6: if P2.visibilityModeVar=0 then P2.var can be manually modified
+            // These are handled by the inference engine, no constraints needed
         }
     }
     //---------------?????end----------------------------------------
@@ -40,60 +79,84 @@ public class VisibilityModeParaTest extends ModuleSecnarioTestBase {
     }
 
     @Test
-    public void testVisibilityModesIncompatible() {
-        // Test case 1: Both visibility modes cannot be the same
-        inferParasByPara("P1", "0", "P2", "0");
-        resultAssert().assertFailure();
-    }
-
-    @Test
-    public void testDifferentVisibilityModes() {
-        // Test case 2: Different visibility modes should be valid
-        inferParasByPara("P1", "0", "P2", "1");
-        resultAssert().assertSuccess().assertSolutionSizeEqual(1);
+    public void testP0In01Scenario() {
+        inferParasByPara("P0", "0");
+        
+        resultAssert()
+                .assertSuccess()
+                .assertSolutionSizeEqual(1);
         
         solutions(0)
-            .assertPara("P1").valueEqual("0")
-            .assertPara("P2").valueEqual("1");
+                .assertPara("P1").visibilityModeEqual(2)
+                .assertPara("P1").valueEqual("0")
+                .assertPara("P2").visibilityModeNotEqual(2);
     }
 
     @Test
-    public void testAllVisibilityModeCombinations() {
-        // Test case 3: Verify all valid combinations
-        inferParasByPara("P1", "0");
-        resultAssert().assertSuccess();
+    public void testP0NotIn01Scenario() {
+        inferParasByPara("P0", "2");
         
-        // Check that P2 cannot have the same visibility mode as P1
-        assertSolutionNum("P2:0", 0);
-        assertSolutionNum("P2:1", 1);
-        assertSolutionNum("P2:2", 1);
-        assertSolutionNum("P2:3", 1);
+        resultAssert()
+                .assertSuccess()
+                .assertSolutionSizeEqual(1);
+        
+        solutions(0)
+                .assertPara("P2").visibilityModeEqual(2)
+                .assertPara("P2").valueEqual("0")
+                .assertPara("P1").visibilityModeNotEqual(2);
     }
 
     @Test
-    public void testReverseInference() {
-        // Test case 4: Reverse inference from P2 to P1
-        inferParasByPara("P2", "3");
-        resultAssert().assertSuccess();
+    public void testP0In01WithP1Modification() {
+        inferParasByPara("P0", "1", "P1", "1");
         
-        // P1 cannot have visibility mode 3
-        assertSolutionNum("P1:3", 0);
-        assertSolutionNum("P1:0", 1);
-        assertSolutionNum("P1:1", 1);
-        assertSolutionNum("P1:2", 1);
+        resultAssert().assertNoSolution();
     }
 
     @Test
-    public void testMultipleSolutions() {
-        // Test case 5: Multiple valid solutions should exist
-        inferParasByPara("P1", "1");
-        resultAssert().assertSuccess();
+    public void testP0NotIn01WithP2Modification() {
+        inferParasByPara("P0", "3", "P2", "1");
         
-        // Should have 3 solutions (P2 can be 0, 2, 3 but not 1)
-        resultAssert().assertSolutionSizeEqual(3);
-        assertSolutionNum("P2:0", 1);
-        assertSolutionNum("P2:2", 1);
-        assertSolutionNum("P2:3", 1);
-        assertSolutionNum("P2:1", 0);
+        resultAssert().assertNoSolution();
+    }
+
+    @Test
+    public void testP1VisibilityMode0Modification() {
+        inferParasByPara("P0", "2", "P1", "1");
+        
+        resultAssert()
+                .assertSuccess()
+                .assertSolutionSizeEqual(1);
+        
+        solutions(0)
+                .assertPara("P1").valueEqual("1")
+                .assertPara("P1").visibilityModeEqual(0);
+    }
+
+    @Test
+    public void testP2VisibilityMode0Modification() {
+        inferParasByPara("P0", "0", "P2", "2");
+        
+        resultAssert()
+                .assertSuccess()
+                .assertSolutionSizeEqual(1);
+        
+        solutions(0)
+                .assertPara("P2").valueEqual("2")
+                .assertPara("P2").visibilityModeEqual(0);
+    }
+
+    @Test
+    public void testIncompatibleVisibilityModes() {
+        inferParasByPara("P1", "1", "P2", "2");
+        
+        resultAssert()
+                .assertSuccess();
+        
+        assertSolutionNum("P1:1,P2:2", 1);
+        
+        solutions(0)
+                .assertPara("P1").visibilityModeNotEqual(2)
+                .assertPara("P2").visibilityModeNotEqual(2);
     }
 }
