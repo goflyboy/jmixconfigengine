@@ -78,7 +78,9 @@ public class LLMInvoker {
             );
             // 清理生成的代码，移除Markdown格式标记
             String rawCode = response.content().text();
-            return cleanGeneratedCode(rawCode);
+            // 确保编码正确，处理可能的编码问题
+            String cleanedCode = cleanGeneratedCode(rawCode);
+            return ensureProperEncoding(cleanedCode);
             
         } catch (Exception e) {
             throw new RuntimeException("LLM调用失败: " + e.getMessage(), e);
@@ -116,6 +118,33 @@ public class LLMInvoker {
         cleanedCode = cleanedCode.trim();
         
         return cleanedCode;
+    }
+    
+    /**
+     * 确保编码正确，处理可能的编码问题
+     * @param code 需要处理的代码
+     * @return 编码正确的代码
+     */
+    private String ensureProperEncoding(String code) {
+        if (code == null) {
+            return code;
+        }
+        
+        try {
+            // 尝试检测并修复编码问题
+            byte[] bytes = code.getBytes("ISO-8859-1");
+            String utf8Code = new String(bytes, "UTF-8");
+            
+            // 如果修复后的代码包含乱码字符，则返回原始代码
+            if (utf8Code.contains("�")) {
+                return code;
+            }
+            
+            return utf8Code;
+        } catch (Exception e) {
+            // 如果编码处理失败，返回原始代码
+            return code;
+        }
     }
     
     /**

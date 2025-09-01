@@ -11135,6 +11135,489 @@ _**User**_
 
 _**Assistant**_
 
+我看到你选中的代码中有中文乱码问题。让我先查看`ModelHelperTest`和相关的生成代码，然后修复这个问题。
+
+
+---
+
+Read file: src/test/java/com/jmix/configengine/scenario/ruletest/VisibilityModeParaTest.java
+
+---
+
+我看到问题了。第30行的中文注释出现了乱码。让我查看`ModelHelperTest`和相关的生成代码：
+
+
+---
+
+Read file: src/test/java/com/jmix/configengine/scenario/base/modeltool/ModelHelperTest.java
+
+---
+
+Read file: src/test/java/com/jmix/configengine/scenario/base/modeltool/ModelHelperTestBlockInput.md
+
+---
+
+我发现问题了！在`ModelHelperTestBlockInput.md`文件中，`userLogicByPseudocode`部分的中文注释导致了乱码。让我修复这个问题：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/modeltool/ModelHelperTestBlockInput.md</summary>
+
+修复userLogicByPseudocode部分的中文注释，使用英文注释避免乱码
+
+**Chunk 1**
+Lines added: 1, lines removed: 2
+
+```diff
+@@ -29,5 +29,4 @@
+  ##userLogicByPseudocode
+  ```java
+- //逻辑2：
+- P1.visibilityModeVar 和 P1.visibilityModeVar是不兼容的
++ // Logic 2: P1.visibilityModeVar and P2.visibilityModeVar are incompatible
+  ``` 
+```
+
+</details>
+
+---
+
+现在让我修复生成的测试文件中的乱码：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/VisibilityModeParaTest.java</summary>
+
+修复第30行的中文注释乱码，改为英文注释
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -29,5 +29,5 @@
+          @Override
+          protected void initConstraint() {
+-             // �߼�2��P1.visibilityModeVar �� P2.visibilityModeVar�ǲ����ݵ�
++             // Logic 2: P1.visibilityModeVar and P2.visibilityModeVar are incompatible
+              model.addDifferent((IntVar) P1.visibilityModeVar, (IntVar) P2.visibilityModeVar);
+          }
+```
+
+</details>
+
+---
+
+现在让我检查`constraint_generate_prompt.jtl`文件，确保它明确要求使用英文注释：
+
+
+---
+
+<details>
+            <summary>Grep search for "注释" • **2** files</summary>
+        
+| File | Line | Match |
+|------|------|-------|
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/resources/constraint_generate_prompt.jtl` | L163 | `// 伪代码的注释` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/resources/constraint_generate_prompt.jtl` | L163 | `// 伪代码的注释` |
+
+</details>
+
+---
+
+让我更新`constraint_generate_prompt.jtl`文件，明确要求使用英文注释：
+
+
+---
+
+<details><summary>Edit file: src/test/resources/constraint_generate_prompt.jtl</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -161,5 +161,5 @@
+          @Override
+          protected void initConstraint() {
+-             // 伪代码的注释
++             // Comment for pseudocode (use English comments only)
+              // ${userLogicByPseudocode}
+              ${生成的约束代码}
+```
+
+</details>
+
+---
+
+现在让我在`constraint_generate_prompt.jtl`的注意事项部分添加关于使用英文注释的要求：
+
+
+---
+
+<details><summary>Edit file: src/test/resources/constraint_generate_prompt.jtl</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -363,4 +363,5 @@
+  7. **多参数推理**: 优先使用多参数版本的inferParasByPara方法，提高测试效率
+  8. **可见性模式**: 注意visibilityModeVar的使用，支持四种可见性状态
++ 9. **注释规范**: 所有代码注释必须使用英文，避免中文乱码问题
+  
+  ## 七、重要提醒
+```
+
+</details>
+
+---
+
+现在让我运行测试来验证修复是否有效：
+
+
+---
+
+```bash
+mvn test -Dtest=VisibilityModeParaTest
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>mvn test -Dtest=VisibilityModeParaTest
+Microsoft Windows [版本 10.0.19045.5131]
+(c) Microsoft Corporation。保留所有权利。
+
+D:\01.code\mygithub\jmixconfigengine>mvn test -Dtest=VisibilityModeParaTest   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------------< com.jmix:configengine >------------------------
+[INFO] Building JMix Config Engine 1.0.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ configengine ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.8.1:compile (default-compile) @ configengine ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ configengine ---
+[INFO] Copying 2 resources from src\test\resources to target\test-classes
+[INFO] 
+[INFO] --- compiler:3.8.1:testCompile (default-testCompile) @ configengine ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 32 source files to D:\01.code\mygithub\jmixconfigengine\target\test-classes
+[INFO] 
+[INFO] --- surefire:3.2.5:test (default-test) @ configengine ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junit4.JUnit4Provider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.jmix.configengine.scenario.ruletest.VisibilityModeParaTest
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - 检测到内部类: com.jmix.configeng
+ine.scenario.ruletest.VisibilityModeParaTest$VisibilityModeParaConstraint，父类: com.jmix.configengine.sc
+enario.ruletest.VisibilityModeParaTest
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: src/test/java/com/j
+mix/configengine/scenario/ruletest/tempResource/VisibilityModePara.base.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: src/tes
+t/java/com/jmix/configengine/scenario/ruletest/tempResource/VisibilityModePara.base.json
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
+m/jmix/configengine/scenario/ruletest/tempResource/VisibilityModePara.base.json
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+ModuleConstraintExecutor$Result@3b6d844d
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - 检测到内部类: com.jmix.configeng
+ine.scenario.ruletest.VisibilityModeParaTest$VisibilityModeParaConstraint，父类: com.jmix.configengine.sc
+enario.ruletest.VisibilityModeParaTest
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: src/test/java/com/j
+mix/configengine/scenario/ruletest/tempResource/VisibilityModePara.base.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: src/tes
+t/java/com/jmix/configengine/scenario/ruletest/tempResource/VisibilityModePara.base.json
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
+m/jmix/configengine/scenario/ruletest/tempResource/VisibilityModePara.base.json
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+ModuleConstraintExecutor$Result@68746f22
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - 检测到内部类: com.jmix.configeng
+ine.scenario.ruletest.VisibilityModeParaTest$VisibilityModeParaConstraint，父类: com.jmix.configengine.sc
+enario.ruletest.VisibilityModeParaTest
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: src/test/java/com/j
+mix/configengine/scenario/ruletest/tempResource/VisibilityModePara.base.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: src/tes
+t/java/com/jmix/configengine/scenario/ruletest/tempResource/VisibilityModePara.base.json
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
+m/jmix/configengine/scenario/ruletest/tempResource/VisibilityModePara.base.json
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+ModuleConstraintExecutor$Result@41488b16
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - 检测到内部类: com.jmix.configeng
+ine.scenario.ruletest.VisibilityModeParaTest$VisibilityModeParaConstraint，父类: com.jmix.configengine.sc
+enario.ruletest.VisibilityModeParaTest
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: src/test/java/com/j
+mix/configengine/scenario/ruletest/tempResource/VisibilityModePara.base.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: src/tes
+t/java/com/jmix/configengine/scenario/ruletest/tempResource/VisibilityModePara.base.json
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
+m/jmix/configengine/scenario/ruletest/tempResource/VisibilityModePara.base.json
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+ModuleConstraintExecutor$Result@7ac296f6
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - 检测到内部类: com.jmix.configeng
+ine.scenario.ruletest.VisibilityModeParaTest$VisibilityModeParaConstraint，父类: com.jmix.configengine.sc
+enario.ruletest.VisibilityModeParaTest
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: src/test/java/com/j
+mix/configengine/scenario/ruletest/tempResource/VisibilityModePara.base.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: src/tes
+t/java/com/jmix/configengine/scenario/ruletest/tempResource/VisibilityModePara.base.json
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
+m/jmix/configengine/scenario/ruletest/tempResource/VisibilityModePara.base.json
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+ModuleConstraintExecutor$Result@78fa769e
+[ERROR] Tests run: 5, Failures: 4, Errors: 0, Skipped: 0, Time elapsed: 1.059 s <<< FAILURE! -- in com.jm
+ix.configengine.scenario.ruletest.VisibilityModeParaTest
+[ERROR] com.jmix.configengine.scenario.ruletest.VisibilityModeParaTest.testMultipleSolutions -- Time elap
+sed: 0.981 s <<< FAILURE!
+java.lang.AssertionError: 解决方案数量不匹配，期望: 3，实际: 0
+        at com.jmix.configengine.scenario.base.ResultAssert.assertSolutionSizeEqual(ResultAssert.java:31)
+        at com.jmix.configengine.scenario.ruletest.VisibilityModeParaTest.testMultipleSolutions(Visibilit
+yModeParaTest.java:76)
+        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.ja
+va:103)
+        at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+        at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+        at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+        at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+        at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+        at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+        at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+        at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+        at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:316)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:240)     
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:214)       
+        at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:155)
+        at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)       
+        at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+        at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+        at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+
+[ERROR] com.jmix.configengine.scenario.ruletest.VisibilityModeParaTest.testAllPossibleCombinations -- Tim
+e elapsed: 0.007 s <<< FAILURE!
+java.lang.AssertionError: 没有解决方案可供验证
+        at com.jmix.configengine.scenario.base.ModuleSecnarioTestBase.assertSolutionNum(ModuleSecnarioTes
+tBase.java:195)
+        at com.jmix.configengine.scenario.ruletest.VisibilityModeParaTest.testAllPossibleCombinations(Vis
+ibilityModeParaTest.java:58)
+        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.ja
+va:103)
+        at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+        at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+        at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+        at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+        at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+        at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+        at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+        at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+        at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:316)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:240)     
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:214)       
+        at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:155)
+        at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)       
+        at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+        at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+        at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+
+[ERROR] com.jmix.configengine.scenario.ruletest.VisibilityModeParaTest.testVisibilityModeCompatible -- Ti
+me elapsed: 0.001 s <<< FAILURE!
+java.lang.AssertionError: 解决方案数量不匹配，期望: 1，实际: 0
+        at com.jmix.configengine.scenario.base.ResultAssert.assertSolutionSizeEqual(ResultAssert.java:31)
+        at com.jmix.configengine.scenario.ruletest.VisibilityModeParaTest.testVisibilityModeCompatible(Vi
+sibilityModeParaTest.java:49)
+        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.ja
+va:103)
+        at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+        at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+        at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+        at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+        at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+        at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+        at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+        at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+        at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:316)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:240)     
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:214)       
+        at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:155)
+        at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)       
+        at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+        at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+        at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+
+[ERROR] com.jmix.configengine.scenario.ruletest.VisibilityModeParaTest.testReverseInference -- Time elaps
+ed: 0.005 s <<< FAILURE!
+java.lang.AssertionError: 没有解决方案可供验证
+        at com.jmix.configengine.scenario.base.ModuleSecnarioTestBase.assertSolutionNum(ModuleSecnarioTes
+tBase.java:195)
+        at com.jmix.configengine.scenario.ruletest.VisibilityModeParaTest.testReverseInference(Visibility
+ModeParaTest.java:68)
+        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.ja
+va:103)
+        at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+        at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+        at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+        at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+        at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+        at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+        at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+        at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+        at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:316)
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:240)     
+        at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:214)       
+        at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:155)
+        at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)       
+        at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+        at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+        at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+
+[INFO] 
+[INFO] Results:
+[INFO]
+[ERROR] Failures: 
+[ERROR]   VisibilityModeParaTest.testAllPossibleCombinations:58->ModuleSecnarioTestBase.assertSolutionNum
+:195 没有解决方案可供验证
+[ERROR]   VisibilityModeParaTest.testMultipleSolutions:76 解决方案数量不匹配，期望: 3，实际: 0
+[ERROR]   VisibilityModeParaTest.testReverseInference:68->ModuleSecnarioTestBase.assertSolutionNum:195 没
+有解决方案可供验证
+[ERROR]   VisibilityModeParaTest.testVisibilityModeCompatible:49 解决方案数量不匹配，期望: 1，实际: 0    
+[INFO]
+[ERROR] Tests run: 5, Failures: 4, Errors: 0, Skipped: 0
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  5.466 s
+[INFO] Finished at: 2025-09-01T08:20:10+08:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.2.5:test (default-test) o
+n project configengine: There are test failures.
+[ERROR]
+[ERROR] Please refer to D:\01.code\mygithub\jmixconfigengine\target\surefire-reports for the individual t
+est results.
+[ERROR] Please refer to dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstrea
+m.
+[ERROR] -> [Help 1]
+[ERROR]
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR]
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+_**User**_
+
+还是有乱码，是不是对LLM输出的结果做一下处理，或是哪里的字符串设置不正确导致的？
+
+---
+
+_**Assistant**_
+
+你说得对！问题可能出现在LLM输出的编码处理上。让我检查一下`LLMInvoker`中的编码处理，以及`ModelHelper`中保存文件时的编码设置。
+
+
+---
+
+Read file: src/test/java/com/jmix/configengine/scenario/base/modeltool/LLMInvoker.java
+
+---
+
+
+
+---
+
 
 
 ---

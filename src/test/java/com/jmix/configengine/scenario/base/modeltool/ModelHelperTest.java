@@ -87,8 +87,8 @@ public class ModelHelperTest {
             // 构建Markdown文件路径
             String markdownPath = currentDir + "ModelHelperTestBlockInput.md";
             
-            // 读取Markdown文件内容
-            String content = new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(markdownPath)));
+            // 读取Markdown文件内容，使用UTF-8编码
+            String content = new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(markdownPath)), java.nio.charset.StandardCharsets.UTF_8);
             
             // 解析指定部分的内容
             return parseMarkdownSection(content, section);
