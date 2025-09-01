@@ -178,6 +178,11 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 				throw new RuntimeException("Para type not supported: " + para.getType());
 		}
 
+		// 创建可见性模式变量，默认值为0（可见，可改）
+		paraVar.visibilityModeVar = model.newIntVar(0, 3, code + "_visibilityMode");
+		// 设置默认值约束为0
+		model.addEquality(paraVar.visibilityModeVar, 0);
+
 		registerVar(code, paraVar);
 		return paraVar;
 	}
@@ -191,6 +196,12 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		partVar.setBase(part);
 		// partVar.var = model.newIntVar(0, 1, code);
 		partVar.var = model.newIntVar(0, part.getMaxQuantity(), code);
+		
+		// 创建可见性模式变量，默认值为0（可见，可改）
+		partVar.visibilityModeVar = model.newIntVar(0, 3, code + "_visibilityMode");
+		// 设置默认值约束为0
+		model.addEquality(partVar.visibilityModeVar, 0);
+		
 		registerVar(code, partVar);
 		return partVar;
 	}

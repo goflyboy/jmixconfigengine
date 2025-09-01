@@ -162,12 +162,20 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
 						}
 					});
 					pi.options = options;
+					// visibilityMode: read visibilityModeVar value
+					if (pv.visibilityModeVar != null) {
+						pi.visibilityMode = (int) value(pv.visibilityModeVar);
+					}
 					moduleInst.addParaInst(pi);
 				} else if (v instanceof PartVar) {
 					PartVar partVar = (PartVar) v;
 					PartInst inst = new PartInst();
 					inst.code = partVar.getCode();
 					inst.quantity = (int) value((IntVar) partVar.var);
+					// visibilityMode: read visibilityModeVar value
+					if (partVar.visibilityModeVar != null) {
+						inst.visibilityMode = (int) value(partVar.visibilityModeVar);
+					}
 					moduleInst.addPartInst(inst);
 				}
 			}

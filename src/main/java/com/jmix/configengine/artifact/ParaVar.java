@@ -25,9 +25,13 @@ public class ParaVar extends Var<Para> {
 	public IntVar var;
 	
 	/**
-	 * 显示隐藏属性
+	 * 可见性模式属性
+	 * 0-可见，可改(默认值）
+	 * 1-可见，不可改
+	 * 2-不可见，可改（不存在）
+	 * 3-不可见，不可改
 	 */
-	public BoolVar isHiddenVar;
+	public IntVar visibilityModeVar;
 	
 	/**
 	 * 参数可选值的选中状态(CodeId -> ParaOptionVar)
@@ -65,8 +69,8 @@ public class ParaVar extends Var<Para> {
 			sb.append(",var=").append(solutionCallback.value((IntVar) this.var));
 		 
 		}
-		if (isHiddenVar != null) {
-			sb.append(", hidden=").append(solutionCallback.booleanValue(this.isHiddenVar));
+		if (visibilityModeVar != null) {
+			sb.append(", visibilityMode=").append(solutionCallback.value(this.visibilityModeVar));
 		}
 		if (!optionSelectVars.isEmpty()) {
 			//打印每个option的getVarString

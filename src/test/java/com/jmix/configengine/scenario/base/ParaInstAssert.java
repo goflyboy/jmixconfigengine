@@ -4,7 +4,7 @@ import com.jmix.configengine.ModuleConstraintExecutor.*;
 import com.jmix.configengine.model.Para;
 import com.jmix.configengine.model.ParaOption;
 import com.jmix.configengine.model.Module;
-
+import com.jmix.configengine.constant.VisibilityModeConstants;
 import java.util.Arrays;
 import java.util.HashSet;
 import com.jmix.configengine.util.ParaTypeHandler;
@@ -68,12 +68,23 @@ public class ParaInstAssert extends ProgammableInstAssert {
         return this;
     }
     
-    public ParaInstAssert hiddenEqual(boolean expectHidden) {
-        if (actual.isHidden != expectHidden) {
+    public ParaInstAssert visibilityModeEqual(int expectVisibilityMode) {
+        if (actual.visibilityMode != expectVisibilityMode) {
             throw new AssertionError(String.format(
-                "参数隐藏状态不匹配，期望: %s，实际: %s", expectHidden, actual.isHidden));
+                "参数可见性模式不匹配，期望: %s(%s)，实际: %s(%s)", 
+                expectVisibilityMode, VisibilityModeConstants.getDescription(expectVisibilityMode),
+                actual.visibilityMode, VisibilityModeConstants.getDescription(actual.visibilityMode)));
         }
         return this;
+    }
+    
+    /**
+     * @deprecated 使用visibilityModeEqual替代
+     */
+    @Deprecated
+    public ParaInstAssert hiddenEqual(boolean expectHidden) {
+        int expectedMode = expectHidden ? VisibilityModeConstants.HIDDEN_READONLY : VisibilityModeConstants.VISIBLE_EDITABLE;
+        return visibilityModeEqual(expectedMode);
     }
     
     public ParaInstAssert valueIn(String... expectValues) {

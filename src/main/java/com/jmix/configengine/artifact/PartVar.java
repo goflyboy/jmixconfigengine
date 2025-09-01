@@ -23,9 +23,13 @@ public class PartVar extends Var<Part> {
 	public IntVar var;
 	
 	/**
-	 * 显示隐藏属性
+	 * 可见性模式属性
+	 * 0-可见，可改(默认值）
+	 * 1-可见，不可改
+	 * 2-不可见，可改（不存在）
+	 * 3-不可见，不可改
 	 */
-	public BoolVar isHiddenVar;
+	public IntVar visibilityModeVar;
 	
 	/**
 	 * 子部件选中状态(Part.code -> BoolVar)
@@ -39,8 +43,8 @@ public class PartVar extends Var<Part> {
 		if (var != null) {
 			sb.append(", var=").append(solutionCallback.value(this.var));
 		}
-		if (isHiddenVar != null) {
-			sb.append(", hidden=").append(solutionCallback.value(this.isHiddenVar));
+		if (visibilityModeVar != null) {
+			sb.append(", visibilityMode=").append(solutionCallback.value(this.visibilityModeVar));
 		}
 		if (!subPartSelectedVars.isEmpty()) {//TODO
 			sb.append(", subParts=").append(subPartSelectedVars.size());

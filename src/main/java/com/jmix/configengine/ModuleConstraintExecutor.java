@@ -67,14 +67,28 @@ public interface ModuleConstraintExecutor {
 		public String code;
 		public Integer quantity;
 		public Map<String,String> selectAttrValue;
-		public boolean isHidden = false;
+		/**
+		 * 可见性模式
+		 * 0-可见，可改(默认值）
+		 * 1-可见，不可改
+		 * 2-不可见，可改（不存在）
+		 * 3-不可见，不可改
+		 */
+		public int visibilityMode = 0;
 	}
 	@Data
 	class ParaInst {
 		public String code;
 		public String value;//空表示没有赋值
 		public List<String> options;//空表示没有赋值
-		public boolean isHidden = false;
+		/**
+		 * 可见性模式
+		 * 0-可见，可改(默认值）
+		 * 1-可见，不可改
+		 * 2-不可见，可改（不存在）
+		 * 3-不可见，不可改
+		 */
+		public int visibilityMode = 0;
 	}
 	class InferParasReq {
 		public Long moduleId;

@@ -11,8 +11,11 @@ import java.io.IOException;
 import java.util.*;
 
 public class ModuleConstraintExecutorTest {
-	// @Test TODO
+	@Test
 	public void testInitAddModuleAndInfer()  {
+	}
+	// @Test TODO
+	public void testInitAddModuleAndInfer2()  {
 		ModuleConstraintExecutorImpl exec = new ModuleConstraintExecutorImpl();
 		ModuleConstraintExecutor.ConstraintConfig cfg = new ModuleConstraintExecutor.ConstraintConfig();
 		cfg.isAttachedDebug = true; // 测试环境直接使用当前classpath加载
