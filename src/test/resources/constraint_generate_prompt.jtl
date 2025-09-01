@@ -160,7 +160,7 @@ public class ${modelName}Test extends ModuleSecnarioTestBase {
         
         @Override
         protected void initConstraint() {
-            // 伪代码的注释
+            // Comment for pseudocode (use English comments only)
             // ${userLogicByPseudocode}
             ${生成的约束代码}
         }
@@ -362,6 +362,7 @@ public class HelloSampleTest extends ModuleSecnarioTestBase {
 6. **输出格式**: 直接输出纯Java代码，不要包含任何Markdown标记
 7. **多参数推理**: 优先使用多参数版本的inferParasByPara方法，提高测试效率
 8. **可见性模式**: 注意visibilityModeVar的使用，支持四种可见性状态
+9. **注释规范**: 所有代码注释必须使用英文，避免中文乱码问题
 
 ## 七、重要提醒
 

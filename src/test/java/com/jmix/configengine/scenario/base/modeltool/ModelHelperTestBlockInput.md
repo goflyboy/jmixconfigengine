@@ -28,6 +28,5 @@ VisibilityModePara
 
 ##userLogicByPseudocode
 ```java
-//逻辑2：
-P1.visibilityModeVar 和 P1.visibilityModeVar是不兼容的
+// Logic 2: P1.visibilityModeVar and P2.visibilityModeVar are incompatible
 ``` 
