@@ -46,14 +46,27 @@ public class VisibilityModeParaTest extends ModuleSecnarioTestBase {
             model.addDifferent((IntVar)P1.visibilityModeVar, (IntVar)P2.visibilityModeVar);
             
             // Logic 2: if P0.var in (0,1) then P1.visibilityModeVar=3 else P2.visibilityModeVar=3
-            BoolVar p0In01 = model.newBoolVar("p0In01");
-            model.addEquality((IntVar)P0.var, 0).onlyEnforceIf(p0In01);
-            model.addEquality((IntVar)P0.var, 1).onlyEnforceIf(p0In01);
-            model.addDifferent((IntVar)P0.var, 0).onlyEnforceIf(p0In01.not());
-            model.addDifferent((IntVar)P0.var, 1).onlyEnforceIf(p0In01.not());
+            // BoolVar p0In01 = model.newBoolVar("p0In01");
+            // model.addEquality((IntVar)P0.var, 0).onlyEnforceIf(p0In01);
+            // model.addEquality((IntVar)P0.var, 1).onlyEnforceIf(p0In01);
+            // model.addDifferent((IntVar)P0.var, 0).onlyEnforceIf(p0In01.not());
+            // model.addDifferent((IntVar)P0.var, 1).onlyEnforceIf(p0In01.not());
             
-            model.addEquality((IntVar)P1.visibilityModeVar, 3).onlyEnforceIf(p0In01);
-            model.addEquality((IntVar)P2.visibilityModeVar, 3).onlyEnforceIf(p0In01.not());
+            // model.addEquality((IntVar)P1.visibilityModeVar, 3).onlyEnforceIf(p0In01);
+            // model.addEquality((IntVar)P2.visibilityModeVar, 3).onlyEnforceIf(p0In01.not());
+
+            BoolVar p0In01 = model.newBoolVar("p0In01");
+            BoolVar p0Is0 = model.newBoolVar("p0Is0");
+            BoolVar p0Is1 = model.newBoolVar("p0Is1");
+            model.addEquality(P0.var, 0).onlyEnforceIf(p0Is0);
+            model.addEquality(P0.var, 1).onlyEnforceIf(p0Is1);
+            model.addDifferent(P0.var, 0).onlyEnforceIf(p0Is0.not());
+            model.addDifferent(P0.var, 1).onlyEnforceIf(p0Is1.not());
+            model.addBoolOr(new Literal[]{p0Is0, p0Is1}).onlyEnforceIf(p0In01);
+            model.addBoolAnd(new Literal[]{p0Is0.not(), p0Is1.not()}).onlyEnforceIf(p0In01.not());
+    
+            model.addEquality(P1.visibilityModeVar, 3).onlyEnforceIf(p0In01);
+            model.addEquality(P2.visibilityModeVar, 3).onlyEnforceIf(p0In01.not());
             
             // Logic3: if P1.visibilityModeVar=3 then P1.var=0
             BoolVar p1Visibility3 = model.newBoolVar("p1Visibility3");
@@ -84,12 +97,15 @@ public class VisibilityModeParaTest extends ModuleSecnarioTestBase {
         
         resultAssert()
                 .assertSuccess()
-                .assertSolutionSizeEqual(1);
+                .assertSolutionSizeEqual(3);
         
         solutions(0)
                 .assertPara("P1").visibilityModeEqual(3)
                 .assertPara("P1").valueEqual("0")
                 .assertPara("P2").visibilityModeNotEqual(3);
+        assertSolutionNum("P0:0,P1:0,P2:0", 1);
+        assertSolutionNum("P0:0,P1:0,P2:1", 1);
+        assertSolutionNum("P0:0,P1:0,P3:1", 1);
     }
 
     @Test
@@ -98,12 +114,16 @@ public class VisibilityModeParaTest extends ModuleSecnarioTestBase {
         
         resultAssert()
                 .assertSuccess()
-                .assertSolutionSizeEqual(1);
+                .assertSolutionSizeEqual(3);
         
         solutions(0)
                 .assertPara("P2").visibilityModeEqual(3)
                 .assertPara("P2").valueEqual("0")
                 .assertPara("P1").visibilityModeNotEqual(3);
+            
+        assertSolutionNum("P0:0,P1:0,P2:0", 1);
+        assertSolutionNum("P0:0,P1:1,P2:0", 1);
+        assertSolutionNum("P0:0,P1:2,P3:0", 1);
     }
 
     @Test

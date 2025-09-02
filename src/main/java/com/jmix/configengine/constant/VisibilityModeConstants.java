@@ -26,6 +26,10 @@ public class VisibilityModeConstants {
      */
     public static final int HIDDEN_READONLY = 3;
     
+    public static int[] getVisibleModeValues() {
+        return new int[] {VISIBLE_EDITABLE,VISIBLE_READONLY,VISIBLE_READONLY};
+    }
+
     /**
      * 获取可见性模式的描述
      */

@@ -178,8 +178,9 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 				throw new RuntimeException("Para type not supported: " + para.getType());
 		}
 
-		// 创建可见性模式变量，默认值为0（可见，可改）
+		// 创建可见性模式变量，默认值为0（可见，可改） VisibilityModeConstants
 		paraVar.visibilityModeVar = model.newIntVar(0, 3, code + "_visibilityMode");
+		//paraVar.visibilityModeVar = model.newIntVarFromDomain(Domain.fromValues(VisibilityModeConstants.get),  code + "_visibilityMode");
 		// 设置默认值约束为0
 		model.addEquality(paraVar.visibilityModeVar, 0);
 		// 排除值2（HIDDEN_EDITABLE已被去掉）
