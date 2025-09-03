@@ -5,6 +5,7 @@ import com.jmix.configengine.model.*;
 import com.jmix.configengine.scenario.base.*;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.*;
+//https://claude.hk.cn/share/defa6c51-0346-4e8a-980e-c81073025031
 @Slf4j
 public class ParaIsHiddenTest extends ModuleSecnarioTestBase {
 //---------------模型的定义start----------------------------------------

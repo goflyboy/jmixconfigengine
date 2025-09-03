@@ -73,7 +73,7 @@ public class PromptTemplateLoader {
      * @return 渲染后的prompt
      */
     public static String renderJavaCodeTemplate(String modelName, String userVariableModel, String userLogicByPseudocode) {
-        return renderJavaCodeTemplate("com.jmix.configengine.scenario.ruletest", modelName, userVariableModel, userLogicByPseudocode);
+        return renderJavaCodeTemplate("com.jmix.configengine.scenario.ruletest", modelName, userVariableModel, userLogicByPseudocode, "");
     }
     
     /**
@@ -85,11 +85,25 @@ public class PromptTemplateLoader {
      * @return 渲染后的prompt
      */
     public static String renderJavaCodeTemplate(String packageName, String modelName, String userVariableModel, String userLogicByPseudocode) {
+        return renderJavaCodeTemplate(packageName, modelName, userVariableModel, userLogicByPseudocode, "");
+    }
+    
+    /**
+     * 便捷方法：使用五个主要变量渲染Java代码生成模板（包含用户测试用例特殊规格）
+     * @param packageName 包名
+     * @param modelName 模型名称
+     * @param userVariableModel 用户变量模型描述
+     * @param userLogicByPseudocode 用户逻辑伪代码
+     * @param userTestCaseSpec 用户测试用例特殊规格
+     * @return 渲染后的prompt
+     */
+    public static String renderJavaCodeTemplate(String packageName, String modelName, String userVariableModel, String userLogicByPseudocode, String userTestCaseSpec) {
         Map<String, String> variables = new HashMap<>();
         variables.put("packageName", packageName);
         variables.put("modelName", modelName);
         variables.put("userVariableModel", userVariableModel);
         variables.put("userLogicByPseudocode", userLogicByPseudocode);
+        variables.put("userTestCaseSpec", userTestCaseSpec != null ? userTestCaseSpec : "");
         
         return loadAndRenderTemplate("constraint_generate_prompt.jtl", variables);
     }

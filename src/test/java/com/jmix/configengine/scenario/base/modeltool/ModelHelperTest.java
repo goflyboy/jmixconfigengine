@@ -21,6 +21,7 @@ public class ModelHelperTest {
             String modelName = readFromMarkdown("modelName");
             String userVariableModel = readFromMarkdown("userVariableModel");
             String userLogicByPseudocode = readFromMarkdown("userLogicByPseudocode");
+            String userTestCaseSpec = readFromMarkdown("userTestCaseSpec");
             
             System.out.println("包名: " + packageName);
             System.out.println("模型名: " + modelName);
@@ -52,7 +53,7 @@ public class ModelHelperTest {
                 System.out.println("正在生成并运行测试文件...");
                 
                 // 测试生成并运行功能
-                modelHelper.generatorRunModelFile(packageName, modelName, userVariableModel, userLogicByPseudocode);
+                modelHelper.generatorRunModelFile(packageName, modelName, userVariableModel, userLogicByPseudocode, userTestCaseSpec);
                 
                 System.out.println("测试完成！");
                 
@@ -106,6 +107,8 @@ public class ModelHelperTest {
                 return getDefaultVariableModel();
             } else if ("userLogicByPseudocode".equals(section)) {
                 return getDefaultLogicPseudocode();
+            } else if ("userTestCaseSpec".equals(section)) {
+                return getDefaultTestCaseSpec();
             } else {
                 return "";
             }
@@ -195,5 +198,13 @@ public class ModelHelperTest {
                "            else {\n" +
                "                PT1Var.var = 3;\n" +
                "            }";
+    }
+    
+    /**
+     * 获取默认的测试用例特殊规格
+     * @return 默认测试用例特殊规格
+     */
+    private static String getDefaultTestCaseSpec() {
+        return "";  // 默认为空，表示不指定特殊规格
     }
 } 

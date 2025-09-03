@@ -5,6 +5,7 @@
 - **模型名称**: ${modelName}
 - **变量模型描述**: ${userVariableModel}
 - **逻辑伪代码**: ${userLogicByPseudocode}
+- **用户测试用例特殊规格**: ${userTestCaseSpec}
 
 ## 核心要求
 你是一名产品配置器建模方面的专家机器人，请根据用户的规则伪代码和变量建模生成Ortools SAT表示约束代码及对应的测试代码。
@@ -80,8 +81,10 @@ class ConstraintAlgImpl {
 ## 三、测试代码生成要求
 
 ### 1. 基本要求
-- 根据用户逻辑伪代码生成测试用例
+- **优先处理用户测试用例特殊规格**：如果 ${userTestCaseSpec} 非空，则优先按照用户指定的规格生成测试用例
+- **逻辑完备性测试**：在用户指定用例的基础上，根据约束逻辑的完备性补充生成必要的测试用例
 - 用例要求简洁、完备，需要包括代码逻辑的覆盖
+- 用户制定的用例一定要实现
 - 基于Junit4实现
 - 用例代码继承ModuleSecnarioTestBase（测试框架）
 
@@ -152,6 +155,7 @@ assertSolutionNum("P1:op11,P2:op21", 0);
 - 使用Ortool的9.12.4544版本,不要使用老版本的API
 - 输出需要包含依赖Ortool的包，例如：`import com.google.ortools.sat.*;`
 - 仅输出生成的Java代码，前后不要包含注解 ```java、```
+- 如果输入了多份PackageName和ModelName，则需要生成多份独立Java代码,不要放到一起
 
 ### 2. 代码模板
 ```java

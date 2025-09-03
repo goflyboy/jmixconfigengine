@@ -18,7 +18,7 @@ public class ModelHelper {
      * @param userLogicByPseudocode 用户逻辑伪代码
      */
     public void generatorModelFile(String modelScenarioName, String userVariableModel, String userLogicByPseudocode) {
-        generatorModelFile("com.jmix.configengine.scenario.ruletest", modelScenarioName, userVariableModel, userLogicByPseudocode);
+        generatorModelFile("com.jmix.configengine.scenario.ruletest", modelScenarioName, userVariableModel, userLogicByPseudocode, "");
     }
     
     /**
@@ -29,10 +29,22 @@ public class ModelHelper {
      * @param userLogicByPseudocode 用户逻辑伪代码
      */
     public void generatorModelFile(String packageName, String modelScenarioName, String userVariableModel, String userLogicByPseudocode) {
+        generatorModelFile(packageName, modelScenarioName, userVariableModel, userLogicByPseudocode, "");
+    }
+    
+    /**
+     * 生成ModelFile文件（包含用户测试用例特殊规格）
+     * @param packageName 包名
+     * @param modelScenarioName 模型场景名称
+     * @param userVariableModel 用户变量模型
+     * @param userLogicByPseudocode 用户逻辑伪代码
+     * @param userTestCaseSpec 用户测试用例特殊规格
+     */
+    public void generatorModelFile(String packageName, String modelScenarioName, String userVariableModel, String userLogicByPseudocode, String userTestCaseSpec) {
         try {
             // 调用大模型（如:deepseek,Qwen）的深度思考模式
             LLMInvoker llmInvoker = new LLMInvoker();
-            String code = llmInvoker.generatorModelCode(packageName, modelScenarioName, userVariableModel, userLogicByPseudocode);
+            String code = llmInvoker.generatorModelCode(packageName, modelScenarioName, userVariableModel, userLogicByPseudocode, userTestCaseSpec);
             
             // 根据code生成类 {modelScenarioName}Test.java
             String className = modelScenarioName + "Test";
@@ -86,7 +98,7 @@ public class ModelHelper {
      * @param userLogicByPseudocode 用户逻辑伪代码
      */
     public void generatorRunModelFile(String modelScenarioName, String userVariableModel, String userLogicByPseudocode) {
-        generatorRunModelFile("com.jmix.configengine.scenario.ruletest", modelScenarioName, userVariableModel, userLogicByPseudocode);
+        generatorRunModelFile("com.jmix.configengine.scenario.ruletest", modelScenarioName, userVariableModel, userLogicByPseudocode, "");
     }
     
     /**
@@ -98,9 +110,22 @@ public class ModelHelper {
      */
     public void generatorRunModelFile(String packageName, String modelScenarioName, 
             String userVariableModel, String userLogicByPseudocode) {
+        generatorRunModelFile(packageName, modelScenarioName, userVariableModel, userLogicByPseudocode, "");
+    }
+    
+    /**
+     * 生成ModelFile文件，并运行（包含用户测试用例特殊规格）
+     * @param packageName 包名
+     * @param modelScenarioName 模型场景名称
+     * @param userVariableModel 用户变量模型
+     * @param userLogicByPseudocode 用户逻辑伪代码
+     * @param userTestCaseSpec 用户测试用例特殊规格
+     */
+    public void generatorRunModelFile(String packageName, String modelScenarioName, 
+            String userVariableModel, String userLogicByPseudocode, String userTestCaseSpec) {
         try {
             // 调用generatorModelFile生成文件（是一个测试用例），如：CalculateRuleSimpleTest.java
-            generatorModelFile(packageName, modelScenarioName, userVariableModel, userLogicByPseudocode);
+            generatorModelFile(packageName, modelScenarioName, userVariableModel, userLogicByPseudocode, userTestCaseSpec);
             
             // 运行这个文件（运行这个测试类）
             runTestFile(packageName, modelScenarioName);

@@ -43,7 +43,7 @@ public class LLMInvoker {
      * @return 生成的Java代码
      */
     public String generatorModelCode(String modelScenarioName, String userVariableModel, String userLogicByPseudocode) {
-        return generatorModelCodeWithPackage("com.jmix.configengine.scenario.ruletest", modelScenarioName, userVariableModel, userLogicByPseudocode);
+        return generatorModelCodeWithPackage("com.jmix.configengine.scenario.ruletest", modelScenarioName, userVariableModel, userLogicByPseudocode, "");
     }
     
     /**
@@ -55,7 +55,20 @@ public class LLMInvoker {
      * @return 生成的Java代码
      */
     public String generatorModelCode(String packageName, String modelScenarioName, String userVariableModel, String userLogicByPseudocode) {
-        return generatorModelCodeWithPackage(packageName, modelScenarioName, userVariableModel, userLogicByPseudocode);
+        return generatorModelCodeWithPackage(packageName, modelScenarioName, userVariableModel, userLogicByPseudocode, "");
+    }
+    
+    /**
+     * 生成模型代码（包含用户测试用例特殊规格）
+     * @param packageName 包名
+     * @param modelScenarioName 模型场景名称
+     * @param userVariableModel 用户变量模型描述
+     * @param userLogicByPseudocode 用户逻辑伪代码
+     * @param userTestCaseSpec 用户测试用例特殊规格
+     * @return 生成的Java代码
+     */
+    public String generatorModelCode(String packageName, String modelScenarioName, String userVariableModel, String userLogicByPseudocode, String userTestCaseSpec) {
+        return generatorModelCodeWithPackage(packageName, modelScenarioName, userVariableModel, userLogicByPseudocode, userTestCaseSpec);
     }
     
     /**
@@ -67,8 +80,21 @@ public class LLMInvoker {
      * @return 生成的Java代码
      */
     public String generatorModelCodeWithPackage(String packageName, String modelScenarioName, String userVariableModel, String userLogicByPseudocode) {
+        return generatorModelCodeWithPackage(packageName, modelScenarioName, userVariableModel, userLogicByPseudocode, "");
+    }
+    
+    /**
+     * 使用指定包名生成代码（包含用户测试用例特殊规格）
+     * @param packageName 包名
+     * @param modelScenarioName 模型场景名称
+     * @param userVariableModel 用户变量模型描述
+     * @param userLogicByPseudocode 用户逻辑伪代码
+     * @param userTestCaseSpec 用户测试用例特殊规格
+     * @return 生成的Java代码
+     */
+    public String generatorModelCodeWithPackage(String packageName, String modelScenarioName, String userVariableModel, String userLogicByPseudocode, String userTestCaseSpec) {
         try {
-            String prompt = buildPromptWithPackage(packageName, modelScenarioName, userVariableModel, userLogicByPseudocode);
+            String prompt = buildPromptWithPackage(packageName, modelScenarioName, userVariableModel, userLogicByPseudocode, userTestCaseSpec);
             
             Response<AiMessage> response = llmModel.generate(
                 Arrays.asList(
@@ -91,6 +117,13 @@ public class LLMInvoker {
      */
     private String buildPromptWithPackage(String packageName, String modelName, String userVariableModel, String userLogicByPseudocode) {
         return PromptTemplateLoader.renderJavaCodeTemplate(packageName, modelName, userVariableModel, userLogicByPseudocode);
+    }
+    
+    /**
+     * 构建带包名的prompt模板（包含用户测试用例特殊规格）
+     */
+    private String buildPromptWithPackage(String packageName, String modelName, String userVariableModel, String userLogicByPseudocode, String userTestCaseSpec) {
+        return PromptTemplateLoader.renderJavaCodeTemplate(packageName, modelName, userVariableModel, userLogicByPseudocode, userTestCaseSpec);
     }
     
     /**
