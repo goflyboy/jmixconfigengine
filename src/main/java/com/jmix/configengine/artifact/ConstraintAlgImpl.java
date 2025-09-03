@@ -182,9 +182,9 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		paraVar.visibilityModeVar = model.newIntVar(0, 3, code + "_visibilityMode");
 		//paraVar.visibilityModeVar = model.newIntVarFromDomain(Domain.fromValues(VisibilityModeConstants.get),  code + "_visibilityMode");
 		// 设置默认值约束为0
-		model.addEquality(paraVar.visibilityModeVar, 0);
+		// model.addEquality(paraVar.visibilityModeVar, 0);
 		// 排除值2（HIDDEN_EDITABLE已被去掉）
-		model.addDifferent(paraVar.visibilityModeVar, 2);
+        model.addDifferent(paraVar.visibilityModeVar, 2);
 
 		registerVar(code, paraVar);
 		return paraVar;

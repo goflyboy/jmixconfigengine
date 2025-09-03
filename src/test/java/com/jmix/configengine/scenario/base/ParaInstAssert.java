@@ -24,6 +24,9 @@ public class ParaInstAssert extends ProgammableInstAssert {
         this.para = para;
     }
     
+    public ParaInstAssert valueEqual(int expectValue) {
+        return valueEqual(String.valueOf(expectValue));
+    }
     public ParaInstAssert valueEqual(String expectValue) {
         //expectValue的值是code值，转化为codeId
         try {
