@@ -93,10 +93,30 @@ class ConstraintAlgImpl {
 // 根据输入的Part的数量，运行约束求解来求解推理的参数
 inferParas(String partCode, Integer qty) -> 解的结果
 
+// 根据输入的Part的数量和预定义参数，运行约束求解来求解推理的参数
+// 支持同时指定部件和预定义参数，实现更精确的推理
+inferParas(String partCode, Integer qty, String paraCode1, String value1, String paraCode2, String value2, ...) -> 解的结果
+
 // 根据输入的Para的值，运行约束求解来求解推理的参数
 // 支持单个参数或多个参数
 inferParasByPara(String paraCode, String value) -> 解的结果
 inferParasByPara(String paraCode1, String value1, String paraCode2, String value2, ...) -> 解的结果
+
+#### 2.1.1 典型调用案例
+```java
+// 案例1：仅指定部件数量进行推理
+inferParas("TShirt1", 2);  // 推理TShirt1数量为2时的所有参数组合
+
+// 案例2：指定部件数量+预定义参数进行推理
+inferParas("TShirt1", 2, "Color", "Red");  // 推理TShirt1数量为2且颜色为红色时的参数组合
+inferParas("TShirt1", 2, "Color", "Red", "Size", "L");  // 推理TShirt1数量为2且颜色为红色、尺寸为L时的参数组合
+
+// 案例3：仅指定参数值进行推理
+inferParasByPara("Color", "Red");  // 推理颜色为红色时的所有部件和参数组合
+inferParasByPara("Color", "Red", "Size", "L");  // 推理颜色为红色且尺寸为L时的所有组合
+
+// 案例4：复杂场景推理
+inferParas("TShirt1", 1, "Color", "Red", "Size", "L", "Style", "Casual");  // 推理特定配置的完整参数组合
 ```
 
 #### 2.2 结果断言方法
