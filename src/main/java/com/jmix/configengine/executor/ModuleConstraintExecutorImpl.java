@@ -12,6 +12,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.ortools.sat.*;
 
 import java.util.*;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Slf4j
 public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
@@ -162,6 +164,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
 						}
 					});
 					pi.options = options;
+					pi.isHidden = (int) value((IntVar) pv.isHiddenVar) == 1;
 					moduleInst.addParaInst(pi);
 				} else if (v instanceof PartVar) {
 					PartVar partVar = (PartVar) v;
@@ -188,7 +191,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
 		ModuleInst moduleInst = new ModuleInst();
 		moduleInst.id = module.getId();
 		moduleInst.code = module.getCode();
-		moduleInst.instanceConfigId = "INST_" + UUID.randomUUID().toString().replace("-", "").substring(0, 16);
+		moduleInst.instanceConfigId ="0"; // "INST_" + UUID.randomUUID().toString().replace("-", "").substring(0, 16);
 		moduleInst.instanceId = instanceId;
 		moduleInst.quantity = 1;
 		moduleInst.paras = new ArrayList<>();
@@ -204,6 +207,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
 	public static String toJson(ModuleInst inst) {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
+			mapper.configure(MapperFeature.USE_STD_BEAN_NAMING, true);
 			return mapper.writeValueAsString(inst);
 		} catch (Exception e) {
 			return "{\"error\": \"序列化失败: " + e.getMessage() + "\"}";

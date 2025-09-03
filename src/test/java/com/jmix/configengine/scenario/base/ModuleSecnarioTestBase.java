@@ -77,14 +77,25 @@ public abstract class ModuleSecnarioTestBase {
     
     /**
      * 执行参数推理
+     * @param partCode 部件代码
+     * @param qty 数量
+     * @param paraCodeValuePairs 参数代码和值的交替数组，格式：paraCode1, value1, paraCode2, value2, ...
+     * @return 推理结果
      */
-    protected List<ModuleConstraintExecutor.ModuleInst> inferParas(String partCode, Integer qty) {
+    protected List<ModuleConstraintExecutor.ModuleInst> inferParas(String partCode, Integer qty, String... paraCodeValuePairs) {
         ModuleConstraintExecutor.InferParasReq req = new ModuleConstraintExecutor.InferParasReq();
         req.moduleId = module.getId();
         req.enumerateAllSolution = true;
+        
+        // 设置主部件实例
         req.mainPartInst = new ModuleConstraintExecutor.PartInst();
         req.mainPartInst.code = partCode;
         req.mainPartInst.quantity = qty;
+        
+        // 处理预定义参数（复用公共方法）
+        if (paraCodeValuePairs.length > 0) {
+            req.preParaInsts = buildParaInstsFromPairs(paraCodeValuePairs);
+        }
         
         ModuleConstraintExecutor.Result<List<ModuleConstraintExecutor.ModuleInst>> result = exec.inferParas(req);
         log.info("推理结果: {}", result);
@@ -99,33 +110,12 @@ public abstract class ModuleSecnarioTestBase {
      * @return 推理结果
      */
     protected List<ModuleConstraintExecutor.ModuleInst> inferParasByPara(String... paraCodeValuePairs) {
-        if (paraCodeValuePairs.length % 2 != 0) {
-            throw new IllegalArgumentException("参数必须是偶数个，格式：paraCode1, value1, paraCode2, value2, ...");
-        }
-        
         ModuleConstraintExecutor.InferParasReq req = new ModuleConstraintExecutor.InferParasReq();
         req.moduleId = module.getId();
         req.enumerateAllSolution = true;
         
-        List<ModuleConstraintExecutor.ParaInst> paraInsts = new ArrayList<>();
-        
-        for (int i = 0; i < paraCodeValuePairs.length; i += 2) {
-            String paraCode = paraCodeValuePairs[i];
-            String value = paraCodeValuePairs[i + 1];
-            
-            ModuleConstraintExecutor.ParaInst paraInst = new ModuleConstraintExecutor.ParaInst();
-            paraInst.code = paraCode;
-            
-            //根据module.paras中的para.options，找到value对应的option
-            Para para = module.getPara(paraCode);
-            if (para == null) {
-                throw new RuntimeException(String.format("参数 %s 不存在", paraCode));
-            }
-            paraInst.value = ParaTypeHandler.getCodeIdValue(para, value);
-            paraInsts.add(paraInst);
-        }
-        
-        req.preParaInsts = paraInsts;
+        // 复用公共方法处理参数
+        req.preParaInsts = buildParaInstsFromPairs(paraCodeValuePairs);
 
         ModuleConstraintExecutor.Result<List<ModuleConstraintExecutor.ModuleInst>> result = exec.inferParas(req);
         log.info("推理结果: {}", result);
@@ -164,10 +154,12 @@ public abstract class ModuleSecnarioTestBase {
             return;
         }
         
-        log.info("找到 {} 个解决方案:", solutions.size());
+        log.info("找到 {} 个解决方案:\n", solutions.size());
+        StringBuffer sb = new StringBuffer();
         for (int i = 0; i < solutions.size(); i++) {
-            log.info("解决方案 {}: {}", i, ModuleConstraintExecutorImpl.toJson(solutions.get(i)));
+            sb.append(String.format("\n解决方案%d: %s", i, ModuleConstraintExecutorImpl.toJson(solutions.get(i))));
         }
+        log.info(sb.toString());
     }
     
     /**
@@ -323,6 +315,37 @@ public abstract class ModuleSecnarioTestBase {
             .filter(p -> code.equals(p.code))
             .findFirst()
             .orElse(null);
+    }
+    
+    /**
+     * 根据参数代码值对构建ParaInst列表（公共方法）
+     * @param paraCodeValuePairs 参数代码和值的交替数组
+     * @return ParaInst列表
+     */
+    private List<ModuleConstraintExecutor.ParaInst> buildParaInstsFromPairs(String... paraCodeValuePairs) {
+        if (paraCodeValuePairs.length % 2 != 0) {
+            throw new IllegalArgumentException("参数必须是偶数个，格式：paraCode1, value1, paraCode2, value2, ...");
+        }
+        
+        List<ModuleConstraintExecutor.ParaInst> paraInsts = new ArrayList<>();
+        
+        for (int i = 0; i < paraCodeValuePairs.length; i += 2) {
+            String paraCode = paraCodeValuePairs[i];
+            String value = paraCodeValuePairs[i + 1];
+            
+            ModuleConstraintExecutor.ParaInst paraInst = new ModuleConstraintExecutor.ParaInst();
+            paraInst.code = paraCode;
+            
+            //根据module.paras中的para.options，找到value对应的option
+            Para para = module.getPara(paraCode);
+            if (para == null) {
+                throw new RuntimeException(String.format("参数 %s 不存在", paraCode));
+            }
+            paraInst.value = ParaTypeHandler.getCodeIdValue(para, value);
+            paraInsts.add(paraInst);
+        }
+        
+        return paraInsts;
     }
     
     /**

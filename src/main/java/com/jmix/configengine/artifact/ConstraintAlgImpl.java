@@ -177,7 +177,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 			default:
 				throw new RuntimeException("Para type not supported: " + para.getType());
 		}
-
+		paraVar.isHiddenVar = model.newBoolVar(code + "_is_hidden");
 		registerVar(code, paraVar);
 		return paraVar;
 	}
@@ -191,6 +191,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		partVar.setBase(part);
 		// partVar.var = model.newIntVar(0, 1, code);
 		partVar.var = model.newIntVar(0, part.getMaxQuantity(), code);
+		partVar.isHiddenVar = model.newBoolVar(code + "_is_hidden");
 		registerVar(code, partVar);
 		return partVar;
 	}

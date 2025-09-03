@@ -24,7 +24,7 @@ public class ParaIntegerTest extends ModuleSecnarioTestBase {
             minValue = "0",
             maxValue = "50"
         )
-        private ParaVar P2;	
+        private ParaVar P2;
 		
 
         @PartAnno(

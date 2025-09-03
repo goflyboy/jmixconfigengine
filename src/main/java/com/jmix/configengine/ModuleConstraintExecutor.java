@@ -1,5 +1,6 @@
 package com.jmix.configengine;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.jmix.configengine.model.Module;
 
 import lombok.Data;
@@ -67,6 +68,7 @@ public interface ModuleConstraintExecutor {
 		public String code;
 		public Integer quantity;
 		public Map<String,String> selectAttrValue;
+		// @JsonProperty("isHidden")
 		public boolean isHidden = false;
 	}
 	@Data
@@ -74,6 +76,7 @@ public interface ModuleConstraintExecutor {
 		public String code;
 		public String value;//空表示没有赋值
 		public List<String> options;//空表示没有赋值
+		// @JsonProperty("isHidden")
 		public boolean isHidden = false;
 	}
 	class InferParasReq {

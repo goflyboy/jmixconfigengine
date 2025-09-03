@@ -16,7 +16,7 @@
 public class ParaVar { 
     public String code;                    // 参数的code，如:Color
     public IntVar var;                     // 参数的值，对应一个约束的变量，代表当前选择的值（可选值的codeId，如10）
-    public BoolVar isHiddenVar;            // 本参数是否隐藏（0-表示隐藏，1表示显示），对应约束的一个变量
+    public BoolVar isHiddenVar;            // 本参数是否隐藏（1-表示隐藏，0表示显示），对应约束的一个变量
     public Map<Integer, ParaOptionVar> optionSelectVars = new HashMap<>(); // 本参数每个可选择值选中状态
     public ParaOptionVar getParaOptionByCode(String code){...}
 }
@@ -36,7 +36,7 @@ public class ParaOptionVar {
 public class PartVar { 
     public String code;                    // Part的Code，如:part1
     public IntVar var;                     // 部件的数量值quantity，对应一个约束的变量
-    public BoolVar isHiddenVar;            // 对应一个约束的变量，本Part是否隐藏（0-表示隐藏，1表示显示）
+    public BoolVar isHiddenVar;            // 对应一个约束的变量，本Part是否隐藏（1-表示隐藏，0表示显示）
 }
 ```
 

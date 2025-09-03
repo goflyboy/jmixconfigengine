@@ -8,6 +8,9 @@ import com.jmix.configengine.model.Module;
 import java.util.Arrays;
 import java.util.HashSet;
 import com.jmix.configengine.util.ParaTypeHandler;
+
+import opennlp.tools.stemmer.snowball.indonesianStemmer;
+
 import java.util.Objects;
 import java.util.Set;
 
@@ -24,6 +27,9 @@ public class ParaInstAssert extends ProgammableInstAssert {
         this.para = para;
     }
     
+    public ParaInstAssert valueEqual(Integer expectValue) {
+        return valueEqual(expectValue.toString());
+    }
     public ParaInstAssert valueEqual(String expectValue) {
         //expectValue的值是code值，转化为codeId
         try {
