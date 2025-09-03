@@ -26,7 +26,11 @@ public class ModuleGenneratorByAnno {
         if (moduleAnno != null) {
             // 1.1 生成Module.code
             String className = moduleAlgClazz.getSimpleName();
-            String code = className.replace("Constraint", "");
+            // 优化代码生成逻辑：只去掉末尾的"Constraint"
+            String code = className;
+            if (className.endsWith("Constraint")) {
+                code = className.substring(0, className.length() - "Constraint".length());
+            }
             module.setCode(code);
             
             // 1.2 设置其他属性
