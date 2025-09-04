@@ -29,7 +29,13 @@ ParaIsHidden
             minValue = "0",
             maxValue = "2"
         )
-        private ParaVar P2;	
+        private ParaVar P2;
+        
+        @PartAnno(
+			maxQuantity=3
+		)
+        private PartVar Part1;
+        
  
 ```
 

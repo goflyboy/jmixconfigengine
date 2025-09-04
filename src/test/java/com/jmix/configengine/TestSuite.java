@@ -6,6 +6,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 import com.jmix.configengine.artifact.FilterExpressionExecutorTest;
 import com.jmix.configengine.artifact.ModuleAlgArtifactGeneratorTest;
+import com.jmix.configengine.scenario.hello.HelloConstraintTest;
 import com.jmix.configengine.scenario.ruletest.CalculateRuleIfThenTest.CalculateRuleConstraint;
 import com.jmix.configengine.util.ModuleUtilsTest;
 
@@ -20,12 +21,14 @@ import com.jmix.configengine.util.ModuleUtilsTest;
  */
 @RunWith(Suite.class)
 @SuiteClasses({
+    
     // 核心功能测试
     FilterExpressionExecutorTest.class,
     ModuleAlgArtifactGeneratorTest.class,
     ModuleConstraintExecutorTest.class,
     // 工具类测试
     ModuleUtilsTest.class,
+    HelloConstraintTest.class,
     
     // 场景测试
     // com.jmix.configengine.scenario.tshirt.ModuleAlgArtifactGeneratorBaseTest.class, TODO

@@ -18,7 +18,7 @@ public class HelloConstraint extends ConstraintAlgImpl {
     
     @ParaAnno(
         defaultValue = "Red",
-        options = {"Red", "Black", "White"}
+        options = {"Red:1", "Black:2", "White:3"}
     )
     private ParaVar ColorVar;
 

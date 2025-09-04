@@ -25,10 +25,11 @@ public class ParaVar extends Var<Para> {
 	public IntVar var;
 	
 	/**
-	 * 显示隐藏属性
+	 * 兼容旧模型的隐藏布尔变量
+	 * 0-显示，1-隐藏
 	 */
 	public BoolVar isHiddenVar;
-	
+	 
 	/**
 	 * 参数可选值的选中状态(CodeId -> ParaOptionVar)
 	 */
@@ -66,7 +67,7 @@ public class ParaVar extends Var<Para> {
 		 
 		}
 		if (isHiddenVar != null) {
-			sb.append(", hidden=").append(solutionCallback.booleanValue(this.isHiddenVar));
+			sb.append(", isHidden=").append(solutionCallback.value(this.isHiddenVar));
 		}
 		if (!optionSelectVars.isEmpty()) {
 			//打印每个option的getVarString

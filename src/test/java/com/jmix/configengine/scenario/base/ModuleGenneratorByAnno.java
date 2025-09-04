@@ -146,10 +146,30 @@ public class ModuleGenneratorByAnno {
         if (paraAnno.options().length > 0) {
             List<ParaOption> options = new ArrayList<>();
             for (int i = 0; i < paraAnno.options().length; i++) {
+                String raw = paraAnno.options()[i];
+                String label = raw;
+                Integer explicitId = null;
+                int sep = raw.indexOf(':');
+                if (sep >= 0) {
+                    String left = raw.substring(0, sep).trim();
+                    String right = raw.substring(sep + 1).trim();
+                    // Preferred: label:id
+                    if (!right.isEmpty() && right.chars().allMatch(Character::isDigit)) {
+                        label = left;
+                        explicitId = Integer.parseInt(right);
+                    } else if (!left.isEmpty() && left.chars().allMatch(Character::isDigit)) {
+                        // Backward compatibility: id:label
+                        explicitId = Integer.parseInt(left);
+                        label = right;
+                    } else {
+                        // Fallback: treat whole as label
+                        label = raw.trim();
+                    }
+                }
                 ParaOption option = new ParaOption();
-                option.setCode(paraAnno.options()[i]);
-                option.setCodeId((i + 1) * 10); // 10, 20, 30...
-                option.setDefaultValue(paraAnno.options()[i]);
+                option.setCode(label);
+                option.setCodeId(explicitId != null ? explicitId : (i + 1) * 10);
+                option.setDefaultValue(label);
                 option.setDescription("");
                 option.setSortNo(i + 1);
                 options.add(option);

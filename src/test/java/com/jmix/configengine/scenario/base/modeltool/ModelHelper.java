@@ -62,8 +62,9 @@ public class ModelHelper {
                 Files.delete(fullPath);
             }
             
-            // 写入文件
-            try (FileWriter writer = new FileWriter(fullPath.toFile())) {
+            // 写入文件，使用UTF-8编码
+            try (java.io.OutputStreamWriter writer = new java.io.OutputStreamWriter(
+                    new java.io.FileOutputStream(fullPath.toFile()), "UTF-8")) {
                 writer.write(code);
             }
             
