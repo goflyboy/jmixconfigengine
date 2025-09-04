@@ -49,7 +49,8 @@ public class PartVar {
 - 约束代码依赖的基类已经定义了CPModel信息和变量信息
 - 不需要生成基类，仅需要生成约束代码及initConstraint的部分
 - initConstraint不需要创建变量，例如:model.newIntVar等
-
+- 如果约束代码里使用了isHiddenVar,则该变量需要调用addVarAboutHiddenConstraints(在“约束关联的变量设置地方”)
+-----例如： 有约束 P1.isHiddenVar = P2.isHiddenVar,则需要增加： addVarAboutHiddenConstraints(P1,P2);
 ```java
 class ConstraintAlgImpl {
     protected CpModel model; 
@@ -57,6 +58,8 @@ class ConstraintAlgImpl {
     
     protected void initVariables() {
         // 变量初始化代码
+        // 约束关联的变量设置地方
+
     } 
     
     void createParaVar() {
