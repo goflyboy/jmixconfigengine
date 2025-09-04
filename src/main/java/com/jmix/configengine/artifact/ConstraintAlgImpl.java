@@ -9,12 +9,15 @@ import com.jmix.configengine.model.ParaOption;
 import com.jmix.configengine.model.ParaType;
 import com.jmix.configengine.model.Part;
 import com.jmix.configengine.util.ParaTypeHandler;
+
+import lombok.extern.slf4j.Slf4j;
 import java.lang.reflect.Field;
 import java.util.*;
 
 /**
  * 约束算法实现基类
  */
+@Slf4j
 public abstract class ConstraintAlgImpl implements ConstraintAlg{
 	static {
 		Loader.loadNativeLibraries();
@@ -25,6 +28,18 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 	protected Module module;
 	// var map
 	protected Map<String, Var<?>> varMap = new LinkedHashMap<>();
+	// codes whose visibility are controlled by explicit constraints; skip default binding
+	protected Set<String> codesOfHiddenConstraint = new HashSet<>();
+
+	/**
+	 * 添加和隐藏相关的约束的Var
+	 * @param hiddenVars
+	 */
+	protected void addVarAboutHiddenConstraints(Var<?>... hiddenVars){
+		for (Var<?> v : hiddenVars) {
+			codesOfHiddenConstraint.add(v.getCode());
+		}
+	}
 
 	public void initModel(CpModel model, Module module){
 		this.model = model;
@@ -32,6 +47,25 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		initModelAfter(model);
 		initVariables();
 		initConstraint();
+		// Default visibility: for vars not explicitly controlled, set isHiddenVar == 0
+		for (Map.Entry<String, Var<?>> entry : varMap.entrySet()) {
+			String code = entry.getKey();
+			if (codesOfHiddenConstraint.contains(code)) {
+				continue;
+			}
+			Var<?> v = entry.getValue();
+			if (v instanceof ParaVar) {
+				ParaVar pv = (ParaVar) v;
+				if (pv.isHiddenVar != null) {
+					model.addEquality(pv.isHiddenVar, 0);
+				}
+			} else if (v instanceof PartVar) {
+				PartVar pt = (PartVar) v;
+				if (pt.isHiddenVar != null) {
+					model.addEquality(pt.isHiddenVar, 0);
+				}
+			}
+		}
 	}
 	protected void initModelAfter(CpModel model){
 		

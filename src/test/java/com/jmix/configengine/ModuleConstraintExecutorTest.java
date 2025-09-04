@@ -11,6 +11,9 @@ import java.io.IOException;
 import java.util.*;
 
 public class ModuleConstraintExecutorTest {
+	@Test
+	public void testInitAddModuleAndInfer2()  {
+	}
 	// @Test TODO
 	public void testInitAddModuleAndInfer()  {
 		ModuleConstraintExecutorImpl exec = new ModuleConstraintExecutorImpl();
