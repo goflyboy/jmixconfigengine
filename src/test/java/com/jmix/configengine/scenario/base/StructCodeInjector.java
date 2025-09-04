@@ -10,7 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 简易源码注入器：根据 @AlgAnno(rawcode) 生成方法体片段并写回源文件。
+ * 结构化代码（类似CompatiableRuleAnno、SelectRule等)的注入器 生成方法体片段并写回源文件。
  * 通过文本方式定位方法体，使用标记进行幂等替换。
  */
 public class StructCodeInjector {
@@ -20,38 +20,38 @@ public class StructCodeInjector {
 
     private final PseudoToJavaConverter converter = new PseudoToJavaConverter();
 
-    /**
-     * 将指定类中的带有 @AlgAnno 的方法，根据伪代码生成实现片段并注入到源文件。
-     * @param sourceFile 源码文件路径（.java）
-     * @param fullyQualifiedClassName 目标类全限定名（用于反射读取注解）
-     */
-    public void inject(String sourceFile, String fullyQualifiedClassName) {
-        try {
-            Class<?> clazz = Class.forName(fullyQualifiedClassName);
-            String content = Files.readString(Path.of(sourceFile), StandardCharsets.UTF_8);
-            String updated = content;
+    // /**
+    //  * 将指定类中的带有 @AlgAnno 的方法，根据伪代码生成实现片段并注入到源文件。
+    //  * @param sourceFile 源码文件路径（.java）
+    //  * @param fullyQualifiedClassName 目标类全限定名（用于反射读取注解）
+    //  */
+    // public void inject(String sourceFile, String fullyQualifiedClassName) {
+    //     try {
+    //         Class<?> clazz = Class.forName(fullyQualifiedClassName);
+    //         // String content = Files.readString(Path.of(sourceFile), StandardCharsets.UTF_8);
+    //         String updated = "content";
 
-            // for (var method : clazz.getDeclaredMethods()) {
-            //     AlgAnno alg = method.getAnnotation(AlgAnno.class);
-            //     if (alg == null) continue;
+    //         // for (var method : clazz.getDeclaredMethods()) {
+    //         //     AlgAnno alg = method.getAnnotation(AlgAnno.class);
+    //         //     if (alg == null) continue;
 
-            //     String methodName = method.getName();
-            //     String raw = alg.rawcode();
+    //         //     String methodName = method.getName();
+    //         //     String raw = alg.rawcode();
 
-            //     updated = injectIntoMethod(updated, methodName, raw);
-            // }
+    //         //     updated = injectIntoMethod(updated, methodName, raw);
+    //         // }
 
-            if (!updated.equals(content)) {
-                Files.writeString(Path.of(sourceFile), updated, StandardCharsets.UTF_8);
-            }
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException("找不到类: " + fullyQualifiedClassName, e);
-        } catch (IOException e) {
-            throw new RuntimeException("读写源文件失败: " + sourceFile, e);
-        }
-    }
+    //         if (!updated.equals(content)) {
+    //             Files.writeString(Path.of(sourceFile), updated, StandardCharsets.UTF_8);
+    //         }
+    //     } catch (ClassNotFoundException e) {
+    //         throw new RuntimeException("找不到类: " + fullyQualifiedClassName, e);
+    //     } catch (IOException e) {
+    //         throw new RuntimeException("读写源文件失败: " + sourceFile, e);
+    //     }
+    // }
 
-    private String injectIntoMethod(String source, String methodName, String rawcode) {
+    private String injectIntoMethod(String source, String methodName, String injectedCode) {
         // 粗略匹配方法声明行到对应的花括号范围
         // 支持常见修饰符与返回类型，方法名固定，用第一个左花括号定位方法体起始
         Pattern sig = Pattern.compile("(^\\n|^)\\s*([\\t ]*)([a-zA-Z0-9_<>\\[\\] ,@]+)?\\b" + Pattern.quote(methodName) + "\\s*\\([^)]*\\)\\s*\\{", Pattern.MULTILINE);
@@ -71,7 +71,7 @@ public class StructCodeInjector {
         String indent = detectIndentForBody(body).orElseGet(() -> defaultIndentFromMatcher(m));
 
         // 生成片段
-        String generated = converter.convert(rawcode, indent);
+        String generated = converter.convert(injectedCode, indent);
 
         // 若已有标记，替换标记之间内容
         int existingStart = body.indexOf(GEN_START);
@@ -138,9 +138,9 @@ public class StructCodeInjector {
          * 将简单伪代码转换为Java代码块（不含方法签名）。
          * 生成的字段访问按 .var 形式，比较使用字符串常量包装。
          */
-        public String convert(String rawcode, String indent) {
-            if (rawcode == null) return "";
-            String code = rawcode.trim();
+        public String convert(String injectedCode, String indent) {
+            if (injectedCode == null) return "";
+            String code = injectedCode.trim();
             // 移除末尾单个多余右括号
             if (code.endsWith(")")) {
                 code = code.substring(0, code.length() - 1).trim();

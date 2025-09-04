@@ -1517,3 +1517,200 @@ dule.json
 
 ---
 
+_**User (2025-09-04 22:37Z)**_
+
+###1，需要把CompatiableRuleSchema.operator的枚举值定义为常量，方便调用
+
+    /**
+     * 操作符：Incompatible, CoRefent, Requires
+     */
+    private String operator;
+
+---
+
+_**Assistant**_
+
+我来帮您将 `CompatiableRuleSchema.operator` 的枚举值定义为常量。首先让我查看一下 `CompatiableRuleSchema` 的当前实现：
+
+
+---
+
+Read file: src/main/java/com/jmix/configengine/schema/CompatiableRuleSchema.java
+
+---
+
+现在我来为 `CompatiableRuleSchema` 添加操作符的常量定义：
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/schema/CompatiableRuleSchema.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 24, lines removed: undefined
+
+```diff
+@@ -10,4 +10,28 @@
+  @EqualsAndHashCode(callSuper = true)
+  public class CompatiableRuleSchema extends RuleSchema {
++     
++     /**
++      * 操作符常量定义
++      */
++     public static final class Operator {
++         /**
++          * 不兼容约束：表示两个选项不能同时选择
++          */
++         public static final String INCOMPATIBLE = "Incompatible";
++         
++         /**
++          * 共存性约束：表示两个选项必须同时选择或同时不选择
++          */
++         public static final String CO_REFENT = "CoRefent";
++         
++         /**
++          * 依赖约束：表示选择某个选项时必须选择另一个选项
++          */
++         public static final String REQUIRES = "Requires";
++         
++         private Operator() {
++             // 防止实例化
++         }
++     }
+      /**
+       * 左表达式
+```
+
+</details>
+
+---
+
+现在让我更新注释，使其引用新的常量：
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/schema/CompatiableRuleSchema.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 5, lines removed: 1
+
+```diff
+@@ -40,5 +40,9 @@
+      
+      /**
+-      * 操作符：Incompatible, CoRefent, Requires
++      * 操作符
++      * 可选值：
++      * - {@link Operator#INCOMPATIBLE}: 不兼容约束
++      * - {@link Operator#CO_REFENT}: 共存性约束  
++      * - {@link Operator#REQUIRES}: 依赖约束
+       */
+      private String operator;
+```
+
+</details>
+
+---
+
+现在让我创建一个测试来验证这些常量的使用：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/schema/CompatiableRuleSchemaTest.java</summary>
+
+创建一个测试类来验证CompatiableRuleSchema的常量使用
+
+**Chunk 1**
+Lines added: 61, lines removed: 1
+
+```diff
+@@ -1,1 +1,61 @@
+- 
++ package com.jmix.configengine.schema;
++ 
++ import org.junit.Test;
++ import static org.junit.Assert.*;
++ 
++ /**
++  * CompatiableRuleSchema测试类
++  */
++ public class CompatiableRuleSchemaTest {
++ 
++     @Test
++     public void testOperatorConstants() {
++         // 验证常量值
++         assertEquals("Incompatible", CompatiableRuleSchema.Operator.INCOMPATIBLE);
++         assertEquals("CoRefent", CompatiableRuleSchema.Operator.CO_REFENT);
++         assertEquals("Requires", CompatiableRuleSchema.Operator.REQUIRES);
++         
++         // 验证常量不为空
++         assertNotNull(CompatiableRuleSchema.Operator.INCOMPATIBLE);
++         assertNotNull(CompatiableRuleSchema.Operator.CO_REFENT);
++         assertNotNull(CompatiableRuleSchema.Operator.REQUIRES);
++         
++         // 验证常量不为空字符串
++         assertFalse(CompatiableRuleSchema.Operator.INCOMPATIBLE.isEmpty());
++         assertFalse(CompatiableRuleSchema.Operator.CO_REFENT.isEmpty());
++         assertFalse(CompatiableRuleSchema.Operator.REQUIRES.isEmpty());
++     }
++ 
++     @Test
++     public void testCompatiableRuleSchemaCreation() {
++         // 创建CompatiableRuleSchema实例
++         CompatiableRuleSchema rule = new CompatiableRuleSchema();
++         
++         // 设置操作符使用常量
++         rule.setOperator(CompatiableRuleSchema.Operator.INCOMPATIBLE);
++         assertEquals(CompatiableRuleSchema.Operator.INCOMPATIBLE, rule.getOperator());
++         
++         // 测试其他操作符
++         rule.setOperator(CompatiableRuleSchema.Operator.CO_REFENT);
++         assertEquals(CompatiableRuleSchema.Operator.CO_REFENT, rule.getOperator());
++         
++         rule.setOperator(CompatiableRuleSchema.Operator.REQUIRES);
++         assertEquals(CompatiableRuleSchema.Operator.REQUIRES, rule.getOperator());
++     }
++ 
++     @Test
++     public void testOperatorValidation() {
++         // 验证操作符常量是有效的
++         String[] validOperators = {
++             CompatiableRuleSchema.Operator.INCOMPATIBLE,
++             CompatiableRuleSchema.Operator.CO_REFENT,
++             CompatiableRuleSchema.Operator.REQUIRES
++         };
++         
++         for (String operator : validOperators) {
++             assertNotNull("Operator should not be null", operator);
++             assertFalse("Operator should not be empty", operator.isEmpty());
++             assertTrue("Operator should be a valid string", operator.length() > 0);
++         }
++     }
++ } 
+```
+
+</details>
+
+---
+
+现在让我运行测试来验证常量定义是否正确：
+
+
+---
+
+```bash
+mvn test -Dtest=CompatiableRuleSchemaTest
+```
+
+---
+
+
+
+---
+
