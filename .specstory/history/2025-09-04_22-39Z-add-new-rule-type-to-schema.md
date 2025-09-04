@@ -1714,3 +1714,1193 @@ mvn test -Dtest=CompatiableRuleSchemaTest
 
 ---
 
+_**User (2025-09-04 22:37Z)**_
+
+这个方法提取到base下的CommHelper下
+
+---
+
+_**Assistant**_
+
+我来帮您将 `createTempPath` 方法提取到 `base` 包下的 `CommHelper` 类中。首先让我查看一下当前的 `ModuleSecnarioTestBase` 类：
+
+
+---
+
+Read file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java
+
+---
+
+现在让我查看 `getResourcePath` 和 `createDirectory` 方法，以便了解完整的依赖关系：
+
+
+---
+
+<details>
+            <summary>Grep search for "getResourcePath" • **2** files</summary>
+        
+| File | Line | Match |
+|------|------|-------|
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java` | L60 | `String tempPath = getResourcePath(constraintAlgClazz) + "/tempResource";` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java` | L373 | `private static  String getResourcePath(Class<?> clazz) {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java` | L60 | `String tempPath = getResourcePath(constraintAlgClazz) + "/tempResource";` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java` | L373 | `private static  String getResourcePath(Class<?> clazz) {` |
+
+</details>
+
+---
+
+<details>
+            <summary>Grep search for "createDirectory" • **2** files</summary>
+        
+| File | Line | Match |
+|------|------|-------|
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java` | L61 | `createDirectory(tempPath);` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java` | L381 | `private static void createDirectory(String path) {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java` | L61 | `createDirectory(tempPath);` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java` | L381 | `private static void createDirectory(String path) {` |
+
+</details>
+
+---
+
+让我查看这些方法的完整实现：
+
+
+---
+
+Read file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java
+
+---
+
+现在让我检查是否已经存在 `CommHelper` 类：
+
+
+---
+
+<details>
+            <summary>Searched codebase "CommHelper" • **2** results</summary>
+        
+| File |
+|------|
+| `d:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\configengine\scenario\base\modeltool\ModelHelper.java` |
+| `d:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\configengine\scenario\base\modeltool\ModelHelperTest.java` |
+
+</details>
+
+---
+
+看起来没有 `CommHelper` 类，我需要创建一个。让我创建 `CommHelper` 类并将相关方法移动过去：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/CommHelper.java</summary>
+
+创建CommHelper类，包含createTempPath、getResourcePath和createDirectory方法
+
+**Chunk 1**
+Lines added: 51, lines removed: 1
+
+```diff
+@@ -1,1 +1,51 @@
+- 
++ package com.jmix.configengine.scenario.base;
++ 
++ import org.slf4j.Logger;
++ import org.slf4j.LoggerFactory;
++ import java.io.File;
++ 
++ /**
++  * 通用工具类
++  * 提供测试场景中常用的工具方法
++  */
++ public class CommHelper {
++     
++     private static final Logger log = LoggerFactory.getLogger(CommHelper.class);
++     
++     /**
++      * 创建临时路径
++      * @param constraintAlgClazz 约束算法类
++      * @return 临时资源路径
++      */
++     public static String createTempPath(Class<?> constraintAlgClazz) {
++         // 生成临时资源路径
++         String tempPath = getResourcePath(constraintAlgClazz) + "/tempResource";
++         createDirectory(tempPath);
++         return tempPath;
++     }
++     
++     /**
++      * 获取资源路径
++      * @param clazz 类
++      * @return 资源路径
++      */
++     public static String getResourcePath(Class<?> clazz) {
++         String packagePath = clazz.getPackage().getName().replace('.', '/');
++         return "src/test/java/" + packagePath;
++     }
++     
++     /**
++      * 创建目录
++      * @param path 目录路径
++      */
++     public static void createDirectory(String path) {
++         File dir = new File(path);
++         if (!dir.exists()) {
++             if (dir.mkdirs()) {
++                 log.info("创建目录: {}", path);
++             } else {
++                 log.warn("创建目录失败: {}", path);
++             }
++         }
++     }
++ } 
+```
+
+</details>
+
+---
+
+现在我需要更新 `ModuleSecnarioTestBase` 类，移除这些方法并改为使用 `CommHelper`：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 6
+
+```diff
+@@ -56,10 +56,5 @@
+          return module;
+      }
+-     public static String createTempPath(Class<?> constraintAlgClazz){
+-         // 生成临时资源路径
+-         String tempPath = getResourcePath(constraintAlgClazz) + "/tempResource";
+-         createDirectory(tempPath);
+-         return tempPath;
+-     }
++     // createTempPath方法已移动到CommHelper类中
+      /**
+       * 初始化测试环境
+```
+
+</details>
+
+---
+
+我需要更新调用 `createTempPath` 的地方，改为使用 `CommHelper.createTempPath`：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -62,5 +62,5 @@
+      protected void init() {
+          // 生成临时资源路径
+-         tempResourcePath = createTempPath(constraintAlgClazz);
++         tempResourcePath = CommHelper.createTempPath(constraintAlgClazz);
+          exec = new ModuleConstraintExecutorImpl();
+          cfg = new ModuleConstraintExecutor.ConstraintConfig();
+```
+
+</details>
+
+---
+
+现在我需要移除 `ModuleSecnarioTestBase` 中的 `getResourcePath` 和 `createDirectory` 方法：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 21
+
+```diff
+@@ -363,24 +363,4 @@
+      }
+      
+-     /**
+-      * 获取资源路径
+-      */
+-     private static  String getResourcePath(Class<?> clazz) {
+-         String packagePath = clazz.getPackage().getName().replace('.', '/');
+-         return "src/test/java/" + packagePath;
+-     }
+-     
+-     /**
+-      * 创建目录
+-      */
+-     private static void createDirectory(String path) {
+-         File dir = new File(path);
+-         if (!dir.exists()) {
+-             if (dir.mkdirs()) {
+-                 log.info("创建目录: {}", path);
+-             } else {
+-                 log.warn("创建目录失败: {}", path);
+-             }
+-         }
+-     }
++     // getResourcePath和createDirectory方法已移动到CommHelper类中
+  } 
+```
+
+</details>
+
+---
+
+现在让我创建一个测试来验证 `CommHelper` 类的功能：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/CommHelperTest.java</summary>
+
+创建CommHelper的测试类
+
+**Chunk 1**
+Lines added: 74, lines removed: 1
+
+```diff
+@@ -1,1 +1,74 @@
+- 
++ package com.jmix.configengine.scenario.base;
++ 
++ import org.junit.Test;
++ import static org.junit.Assert.*;
++ import java.io.File;
++ 
++ /**
++  * CommHelper测试类
++  */
++ public class CommHelperTest {
++ 
++     @Test
++     public void testGetResourcePath() {
++         // 测试获取资源路径
++         String path = CommHelper.getResourcePath(CommHelperTest.class);
++         assertNotNull("Resource path should not be null", path);
++         assertTrue("Resource path should contain src/test/java", path.contains("src/test/java"));
++         assertTrue("Resource path should contain package path", path.contains("com/jmix/configengine/scenario/base"));
++     }
++ 
++     @Test
++     public void testCreateDirectory() {
++         // 测试创建目录
++         String testDirPath = "src/test/java/com/jmix/configengine/scenario/base/testDir";
++         
++         // 确保目录不存在
++         File testDir = new File(testDirPath);
++         if (testDir.exists()) {
++             testDir.delete();
++         }
++         
++         // 创建目录
++         CommHelper.createDirectory(testDirPath);
++         
++         // 验证目录已创建
++         assertTrue("Directory should be created", testDir.exists());
++         assertTrue("Should be a directory", testDir.isDirectory());
++         
++         // 清理测试目录
++         testDir.delete();
++     }
++ 
++     @Test
++     public void testCreateTempPath() {
++         // 测试创建临时路径
++         String tempPath = CommHelper.createTempPath(CommHelperTest.class);
++         
++         assertNotNull("Temp path should not be null", tempPath);
++         assertTrue("Temp path should contain tempResource", tempPath.contains("tempResource"));
++         assertTrue("Temp path should contain package path", tempPath.contains("com/jmix/configengine/scenario/base"));
++         
++         // 验证临时目录已创建
++         File tempDir = new File(tempPath);
++         assertTrue("Temp directory should be created", tempDir.exists());
++         assertTrue("Should be a directory", tempDir.isDirectory());
++         
++         // 清理测试目录
++         tempDir.delete();
++     }
++ 
++     @Test
++     public void testCreateTempPathWithExistingDirectory() {
++         // 测试在已存在目录的情况下创建临时路径
++         String tempPath = CommHelper.createTempPath(CommHelperTest.class);
++         
++         // 再次调用，应该不会出错
++         String tempPath2 = CommHelper.createTempPath(CommHelperTest.class);
++         
++         assertEquals("Should return same path for same class", tempPath, tempPath2);
++         
++         // 清理测试目录
++         new File(tempPath).delete();
++     }
++ } 
+```
+
+</details>
+
+---
+
+现在让我编译和测试项目，确保重构没有破坏任何功能：
+
+
+---
+
+```bash
+mvn compile test -Dtest=CommHelperTest
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>mvn compile test -Dtest=CommHelperTest
+Microsoft Windows [版本 10.0.19045.5131]
+(c) Microsoft Corporation。保留所有权利。
+
+D:\01.code\mygithub\jmixconfigengine>mvn compile test -Dtest=CommHelperTest   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------------< com.jmix:configengine >------------------------
+[INFO] Building JMix Config Engine 1.0.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ configengine ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.8.1:compile (default-compile) @ configengine ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ configengine ---
+[INFO] Copying 1 resource from src\main\resources to target\classes        
+[INFO] 
+[INFO] --- compiler:3.8.1:compile (default-compile) @ configengine ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO]
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ configengine ---
+[INFO] Copying 2 resources from src\test\resources to target\test-classes
+[INFO]
+[INFO] --- compiler:3.8.1:testCompile (default-testCompile) @ configengine ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 36 source files to D:\01.code\mygithub\jmixconfigengine\target\test-classes
+[INFO] 
+[INFO] --- surefire:3.2.5:test (default-test) @ configengine ---
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  5.782 s
+[INFO] Finished at: 2025-09-05T07:42:52+08:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.2.5:test (default-test) o
+n project configengine: No tests matching pattern "CommHelperTest" were executed! (Set -Dsurefire.failIfN
+oSpecifiedTests=false to ignore this error.) -> [Help 1]
+[ERROR]
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR]
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+让我使用正确的测试类名：
+
+
+---
+
+```bash
+mvn test -Dtest=CommHelperTest
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>mvn test -Dtest=CommHelperTest
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------------< com.jmix:configengine >------------------------
+[INFO] --- resources:3.3.1:resources (default-resources) @ configengine ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO]
+[INFO] --- compiler:3.8.1:compile (default-compile) @ configengine ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO]
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ configengine ---
+[INFO] Copying 2 resources from src\test\resources to target\test-classes
+[INFO]
+[INFO] --- compiler:3.8.1:testCompile (default-testCompile) @ configengine ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 35 source files to D:\01.code\mygithub\jmixconfigengine\target\test-classes
+[INFO] 
+[INFO] --- surefire:3.2.5:test (default-test) @ configengine ---
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  5.150 s
+[INFO] Finished at: 2025-09-05T07:43:07+08:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.2.5:test (default-test) o
+n project configengine: No tests matching pattern "CommHelperTest" were executed! (Set -Dsurefire.failIfN
+oSpecifiedTests=false to ignore this error.) -> [Help 1]
+[ERROR]
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR]
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+让我使用完整的类名：
+
+
+---
+
+```bash
+mvn test -Dtest=com.jmix.configengine.scenario.base.CommHelperTest
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>mvn test -Dtest=com.jmix.configengine.scenario.base.CommHelperTest
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------------< com.jmix:configengine >------------------------
+[INFO] Building JMix Config Engine 1.0.0
+[INFO]   from pom.xml
+[INFO]
+[INFO] --- resources:3.3.1:resources (default-resources) @ configengine ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO]
+[INFO] --- compiler:3.8.1:compile (default-compile) @ configengine ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO]
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ configengine ---
+[INFO] Copying 2 resources from src\test\resources to target\test-classes
+[INFO]
+[INFO] --- compiler:3.8.1:testCompile (default-testCompile) @ configengine ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO]
+[INFO] --- surefire:3.2.5:test (default-test) @ configengine ---
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  1.624 s
+[INFO] Finished at: 2025-09-05T07:43:16+08:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.2.5:test (default-test) o
+n project configengine: No tests matching pattern "com.jmix.configengine.scenario.base.CommHelperTest" we
+re executed! (Set -Dsurefire.failIfNoSpecifiedTests=false to ignore this error.) -> [Help 1]
+[ERROR]
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR]
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+让我检查一下测试文件是否正确创建：
+
+
+---
+
+<details>
+            <summary>Listed directory src/test/java/com/jmix/configengine/scenario/base • **12** results</summary>
+        
+| Name |
+|-------|
+| 📄 `ModuleSecnarioTestBase.java` |
+| 📄 `CommHelper.java` |
+| 📄 `StructCodeInjector.java` |
+| 📄 `ModuleGenneratorByAnno.java` |
+| 📁 `modeltool` |
+| 📄 `ParaInstAssert.java` |
+| 📄 `PartInstAssert.java` |
+| 📄 `ProgammableInstAssert.java` |
+| 📄 `ParaAnno.java` |
+| 📄 `PartAnno.java` |
+| 📄 `ResultAssert.java` |
+| 📄 `ModuleAnno.java` |
+
+</details>
+
+---
+
+我发现测试文件没有在列表中。让我检查一下文件是否创建成功：
+
+
+---
+
+Could not find file 'src/test/java/com/jmix/configengine/scenario/base/CommHelperTest.java' in the workspace.
+
+---
+
+看起来测试文件没有创建成功。让我重新创建：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/CommHelperTest.java</summary>
+
+重新创建CommHelper的测试类
+
+**Chunk 1**
+Lines added: 74, lines removed: 1
+
+```diff
+@@ -1,1 +1,74 @@
+- 
++ package com.jmix.configengine.scenario.base;
++ 
++ import org.junit.Test;
++ import static org.junit.Assert.*;
++ import java.io.File;
++ 
++ /**
++  * CommHelper测试类
++  */
++ public class CommHelperTest {
++ 
++     @Test
++     public void testGetResourcePath() {
++         // 测试获取资源路径
++         String path = CommHelper.getResourcePath(CommHelperTest.class);
++         assertNotNull("Resource path should not be null", path);
++         assertTrue("Resource path should contain src/test/java", path.contains("src/test/java"));
++         assertTrue("Resource path should contain package path", path.contains("com/jmix/configengine/scenario/base"));
++     }
++ 
++     @Test
++     public void testCreateDirectory() {
++         // 测试创建目录
++         String testDirPath = "src/test/java/com/jmix/configengine/scenario/base/testDir";
++         
++         // 确保目录不存在
++         File testDir = new File(testDirPath);
++         if (testDir.exists()) {
++             testDir.delete();
++         }
++         
++         // 创建目录
++         CommHelper.createDirectory(testDirPath);
++         
++         // 验证目录已创建
++         assertTrue("Directory should be created", testDir.exists());
++         assertTrue("Should be a directory", testDir.isDirectory());
++         
++         // 清理测试目录
++         testDir.delete();
++     }
++ 
++     @Test
++     public void testCreateTempPath() {
++         // 测试创建临时路径
++         String tempPath = CommHelper.createTempPath(CommHelperTest.class);
++         
++         assertNotNull("Temp path should not be null", tempPath);
++         assertTrue("Temp path should contain tempResource", tempPath.contains("tempResource"));
++         assertTrue("Temp path should contain package path", tempPath.contains("com/jmix/configengine/scenario/base"));
++         
++         // 验证临时目录已创建
++         File tempDir = new File(tempPath);
++         assertTrue("Temp directory should be created", tempDir.exists());
++         assertTrue("Should be a directory", tempDir.isDirectory());
++         
++         // 清理测试目录
++         tempDir.delete();
++     }
++ 
++     @Test
++     public void testCreateTempPathWithExistingDirectory() {
++         // 测试在已存在目录的情况下创建临时路径
++         String tempPath = CommHelper.createTempPath(CommHelperTest.class);
++         
++         // 再次调用，应该不会出错
++         String tempPath2 = CommHelper.createTempPath(CommHelperTest.class);
++         
++         assertEquals("Should return same path for same class", tempPath, tempPath2);
++         
++         // 清理测试目录
++         new File(tempPath).delete();
++     }
++ } 
+```
+
+</details>
+
+---
+
+现在让我运行测试：
+
+
+---
+
+```bash
+mvn test -Dtest=CommHelperTest
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>mvn test -Dtest=CommHelperTest
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------------< com.jmix:configengine >------------------------
+[INFO] Building JMix Config Engine 1.0.0
+[INFO]
+[INFO] --- resources:3.3.1:resources (default-resources) @ configengine ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO]
+[INFO] --- compiler:3.8.1:compile (default-compile) @ configengine ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO]
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ configengine ---
+[INFO] Copying 2 resources from src\test\resources to target\test-classes
+[INFO]
+[INFO] --- compiler:3.8.1:testCompile (default-testCompile) @ configengine ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 36 source files to D:\01.code\mygithub\jmixconfigengine\target\test-classes
+[INFO] 
+[INFO] --- surefire:3.2.5:test (default-test) @ configengine ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junit4.JUnit4Provider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.jmix.configengine.scenario.base.CommHelperTest
+[main] INFO com.jmix.configengine.scenario.base.CommHelper - 创建目录: src/test/java/com/jmix/configengin
+e/scenario/base/tempResource
+[main] INFO com.jmix.configengine.scenario.base.CommHelper - 创建目录: src/test/java/com/jmix/configengin
+e/scenario/base/tempResource
+[main] INFO com.jmix.configengine.scenario.base.CommHelper - 创建目录: src/test/java/com/jmix/configengin
+e/scenario/base/testDir
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.093 s -- in com.jmix.configengin
+e.scenario.base.CommHelperTest
+[INFO] 
+[INFO] Results:
+[INFO]
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  5.547 s
+[INFO] Finished at: 2025-09-05T07:43:40+08:00
+[INFO] ------------------------------------------------------------------------
+
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+太好了！测试通过了。现在让我运行一些现有的测试，确保重构没有破坏任何现有功能：
+
+
+---
+
+```bash
+mvn test -Dtest=ModuleSecnarioTestBase
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>mvn test -Dtest=ModuleSecnarioTestBase
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------------< com.jmix:configengine >------------------------
+[INFO] Building JMix Config Engine 1.0.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- resources:3.3.1:resources (default-resources) @ configengine ---
+[INFO]
+[INFO] --- compiler:3.8.1:compile (default-compile) @ configengine ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO]
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ configengine ---
+[INFO] Copying 2 resources from src\test\resources to target\test-classes
+[INFO]
+[INFO] --- compiler:3.8.1:testCompile (default-testCompile) @ configengine ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO]
+[INFO] --- surefire:3.2.5:test (default-test) @ configengine ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junit4.JUnit4Provider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] 
+[INFO] Results:
+[INFO]
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  2.242 s
+[INFO] Finished at: 2025-09-05T07:43:49+08:00
+[INFO] ------------------------------------------------------------------------
+
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+让我运行一个具体的测试类来验证重构是否成功：
+
+
+---
+
+```bash
+mvn test -Dtest=CompatiableRuleRequireTest
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>mvn test -Dtest=CompatiableRuleRequireTest
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------------< com.jmix:configengine >------------------------
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- resources:3.3.1:resources (default-resources) @ configengine ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO]
+[INFO] --- compiler:3.8.1:compile (default-compile) @ configengine ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO]
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ configengine ---
+[INFO] Copying 2 resources from src\test\resources to target\test-classes
+[INFO]
+[INFO] --- compiler:3.8.1:testCompile (default-testCompile) @ configengine ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO]
+[INFO] --- surefire:3.2.5:test (default-test) @ configengine ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junit4.JUnit4Provider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.jmix.configengine.scenario.ruletest.CompatiableRuleRequireTest
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - 检测到内部类: com.jmix.configeng
+ine.scenario.ruletest.CompatiableRuleRequireTest$CompatiableRuleRequireConstraint，父类: com.jmix.confige
+ngine.scenario.ruletest.CompatiableRuleRequireTest
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: src/test/java/com/j
+mix/configengine/scenario/ruletest/tempResource/CompatiableRuleRequire.base.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: src/tes
+t/java/com/jmix/configengine/scenario/ruletest/tempResource/CompatiableRuleRequire.base.json
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
+m/jmix/configengine/scenario/ruletest/tempResource/CompatiableRuleRequire.base.json
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=A,value=10, isHidden=0, options=ParaOption{code=a2, selected=0},ParaOption{code=a4, selected=0
+},ParaOption{code=a1, selected=1},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=B,value=20, isHidden=0, options=ParaOption{code=b2, selected=1},ParaOption{code=b4, selected=0
+},ParaOption{code=b1, selected=0},ParaOption{code=b3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ Para{code=A,value=10, isHidden=0, options=ParaOption{code=a2, selected=0},ParaOption{code=a4, selected=0
+},ParaOption{code=a1, selected=1},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ Para{code=B,value=30, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=0
+},ParaOption{code=b1, selected=0},ParaOption{code=b3, selected=1},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:3-----------
+ Para{code=A,value=10, isHidden=0, options=ParaOption{code=a2, selected=0},ParaOption{code=a4, selected=0
+},ParaOption{code=a1, selected=1},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:3-----------
+ Para{code=B,value=10, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=0
+},ParaOption{code=b1, selected=1},ParaOption{code=b3, selected=0},}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+ModuleConstraintExecutor$Result@4b8729ff
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: B:b4
+，数量: 0
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - 检测到内部类: com.jmix.configeng
+ine.scenario.ruletest.CompatiableRuleRequireTest$CompatiableRuleRequireConstraint，父类: com.jmix.confige
+ngine.scenario.ruletest.CompatiableRuleRequireTest
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: src/test/java/com/j
+mix/configengine/scenario/ruletest/tempResource/CompatiableRuleRequire.base.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: src/tes
+t/java/com/jmix/configengine/scenario/ruletest/tempResource/CompatiableRuleRequire.base.json
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
+m/jmix/configengine/scenario/ruletest/tempResource/CompatiableRuleRequire.base.json
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=A,value=40, isHidden=0, options=ParaOption{code=a2, selected=0},ParaOption{code=a4, selected=1
+},ParaOption{code=a1, selected=0},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=B,value=10, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=0
+},ParaOption{code=b1, selected=1},ParaOption{code=b3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ Para{code=A,value=30, isHidden=0, options=ParaOption{code=a2, selected=0},ParaOption{code=a4, selected=0
+},ParaOption{code=a1, selected=0},ParaOption{code=a3, selected=1},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ Para{code=B,value=10, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=0
+},ParaOption{code=b1, selected=1},ParaOption{code=b3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:3-----------
+ Para{code=A,value=20, isHidden=0, options=ParaOption{code=a2, selected=1},ParaOption{code=a4, selected=0
+},ParaOption{code=a1, selected=0},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:3-----------
+ Para{code=B,value=10, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=0
+},ParaOption{code=b1, selected=1},ParaOption{code=b3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:4-----------
+ Para{code=A,value=10, isHidden=0, options=ParaOption{code=a2, selected=0},ParaOption{code=a4, selected=0
+},ParaOption{code=a1, selected=1},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:4-----------
+ Para{code=B,value=10, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=0
+},ParaOption{code=b1, selected=1},ParaOption{code=b3, selected=0},}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+ModuleConstraintExecutor$Result@7ac296f6
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a1
+，数量: 1
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a2
+，数量: 1
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a3
+，数量: 1
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a4
+，数量: 1
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - 检测到内部类: com.jmix.configeng
+ine.scenario.ruletest.CompatiableRuleRequireTest$CompatiableRuleRequireConstraint，父类: com.jmix.confige
+ngine.scenario.ruletest.CompatiableRuleRequireTest
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: src/test/java/com/j
+mix/configengine/scenario/ruletest/tempResource/CompatiableRuleRequire.base.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: src/tes
+t/java/com/jmix/configengine/scenario/ruletest/tempResource/CompatiableRuleRequire.base.json
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
+m/jmix/configengine/scenario/ruletest/tempResource/CompatiableRuleRequire.base.json
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=A,value=20, isHidden=0, options=ParaOption{code=a2, selected=1},ParaOption{code=a4, selected=0
+},ParaOption{code=a1, selected=0},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=B,value=30, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=0
+},ParaOption{code=b1, selected=0},ParaOption{code=b3, selected=1},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ Para{code=A,value=20, isHidden=0, options=ParaOption{code=a2, selected=1},ParaOption{code=a4, selected=0
+},ParaOption{code=a1, selected=0},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ Para{code=B,value=40, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=1
+},ParaOption{code=b1, selected=0},ParaOption{code=b3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:3-----------
+ Para{code=A,value=20, isHidden=0, options=ParaOption{code=a2, selected=1},ParaOption{code=a4, selected=0
+},ParaOption{code=a1, selected=0},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:3-----------
+ Para{code=B,value=20, isHidden=0, options=ParaOption{code=b2, selected=1},ParaOption{code=b4, selected=0
+},ParaOption{code=b1, selected=0},ParaOption{code=b3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:4-----------
+ Para{code=A,value=20, isHidden=0, options=ParaOption{code=a2, selected=1},ParaOption{code=a4, selected=0
+},ParaOption{code=a1, selected=0},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:4-----------
+ Para{code=B,value=10, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=0
+},ParaOption{code=b1, selected=1},ParaOption{code=b3, selected=0},}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+ModuleConstraintExecutor$Result@22f59fa
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: B:b1
+，数量: 1
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: B:b2
+，数量: 1
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: B:b3
+，数量: 1
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: B:b4
+，数量: 1
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=A,value=40, isHidden=0, options=ParaOption{code=a2, selected=0},ParaOption{code=a4, selected=1
+},ParaOption{code=a1, selected=0},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=B,value=30, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=0
+},ParaOption{code=b1, selected=0},ParaOption{code=b3, selected=1},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ Para{code=A,value=40, isHidden=0, options=ParaOption{code=a2, selected=0},ParaOption{code=a4, selected=1
+},ParaOption{code=a1, selected=0},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ Para{code=B,value=40, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=1
+},ParaOption{code=b1, selected=0},ParaOption{code=b3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:3-----------
+ Para{code=A,value=40, isHidden=0, options=ParaOption{code=a2, selected=0},ParaOption{code=a4, selected=1
+},ParaOption{code=a1, selected=0},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:3-----------
+ Para{code=B,value=20, isHidden=0, options=ParaOption{code=b2, selected=1},ParaOption{code=b4, selected=0
+},ParaOption{code=b1, selected=0},ParaOption{code=b3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:4-----------
+ Para{code=A,value=40, isHidden=0, options=ParaOption{code=a2, selected=0},ParaOption{code=a4, selected=1
+},ParaOption{code=a1, selected=0},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:4-----------
+ Para{code=B,value=10, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=0
+},ParaOption{code=b1, selected=1},ParaOption{code=b3, selected=0},}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+ModuleConstraintExecutor$Result@78fa769e
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - 检测到内部类: com.jmix.configeng
+ine.scenario.ruletest.CompatiableRuleRequireTest$CompatiableRuleRequireConstraint，父类: com.jmix.confige
+ngine.scenario.ruletest.CompatiableRuleRequireTest
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: src/test/java/com/j
+mix/configengine/scenario/ruletest/tempResource/CompatiableRuleRequire.base.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: src/tes
+t/java/com/jmix/configengine/scenario/ruletest/tempResource/CompatiableRuleRequire.base.json
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
+m/jmix/configengine/scenario/ruletest/tempResource/CompatiableRuleRequire.base.json
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=A,value=10, isHidden=0, options=ParaOption{code=a2, selected=0},ParaOption{code=a4, selected=0
+},ParaOption{code=a1, selected=1},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=B,value=20, isHidden=0, options=ParaOption{code=b2, selected=1},ParaOption{code=b4, selected=0
+},ParaOption{code=b1, selected=0},ParaOption{code=b3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ Para{code=A,value=10, isHidden=0, options=ParaOption{code=a2, selected=0},ParaOption{code=a4, selected=0
+},ParaOption{code=a1, selected=1},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ Para{code=B,value=30, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=0
+},ParaOption{code=b1, selected=0},ParaOption{code=b3, selected=1},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:3-----------
+ Para{code=A,value=10, isHidden=0, options=ParaOption{code=a2, selected=0},ParaOption{code=a4, selected=0
+},ParaOption{code=a1, selected=1},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:3-----------
+ Para{code=B,value=10, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=0
+},ParaOption{code=b1, selected=1},ParaOption{code=b3, selected=0},}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+ModuleConstraintExecutor$Result@54e041a4
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: B:b4
+，数量: 0
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - 检测到内部类: com.jmix.configeng
+ine.scenario.ruletest.CompatiableRuleRequireTest$CompatiableRuleRequireConstraint，父类: com.jmix.confige
+ngine.scenario.ruletest.CompatiableRuleRequireTest
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: src/test/java/com/j
+mix/configengine/scenario/ruletest/tempResource/CompatiableRuleRequire.base.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: src/tes
+t/java/com/jmix/configengine/scenario/ruletest/tempResource/CompatiableRuleRequire.base.json
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
+m/jmix/configengine/scenario/ruletest/tempResource/CompatiableRuleRequire.base.json
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=A,value=30, isHidden=0, options=ParaOption{code=a2, selected=0},ParaOption{code=a4, selected=0
+},ParaOption{code=a1, selected=0},ParaOption{code=a3, selected=1},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=B,value=20, isHidden=0, options=ParaOption{code=b2, selected=1},ParaOption{code=b4, selected=0
+},ParaOption{code=b1, selected=0},ParaOption{code=b3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ Para{code=A,value=30, isHidden=0, options=ParaOption{code=a2, selected=0},ParaOption{code=a4, selected=0
+},ParaOption{code=a1, selected=0},ParaOption{code=a3, selected=1},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ Para{code=B,value=30, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=0
+},ParaOption{code=b1, selected=0},ParaOption{code=b3, selected=1},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:3-----------
+ Para{code=A,value=30, isHidden=0, options=ParaOption{code=a2, selected=0},ParaOption{code=a4, selected=0
+},ParaOption{code=a1, selected=0},ParaOption{code=a3, selected=1},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:3-----------
+ Para{code=B,value=10, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=0
+},ParaOption{code=b1, selected=1},ParaOption{code=b3, selected=0},}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+ModuleConstraintExecutor$Result@79defdc
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: B:b4
+，数量: 0
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - 检测到内部类: com.jmix.configeng
+ine.scenario.ruletest.CompatiableRuleRequireTest$CompatiableRuleRequireConstraint，父类: com.jmix.confige
+ngine.scenario.ruletest.CompatiableRuleRequireTest
+[main] INFO com.jmix.configengine.util.ModuleUtils - Serializing Module to JSON file: src/test/java/com/j
+mix/configengine/scenario/ruletest/tempResource/CompatiableRuleRequire.base.json
+[main] INFO com.jmix.configengine.util.ModuleUtils - Successfully serialized Module to JSON file: src/tes
+t/java/com/jmix/configengine/scenario/ruletest/tempResource/CompatiableRuleRequire.base.json
+[main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
+m/jmix/configengine/scenario/ruletest/tempResource/CompatiableRuleRequire.base.json
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=A,value=40, isHidden=0, options=ParaOption{code=a2, selected=0},ParaOption{code=a4, selected=1
+},ParaOption{code=a1, selected=0},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:1-----------
+ Para{code=B,value=40, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=1
+},ParaOption{code=b1, selected=0},ParaOption{code=b3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ Para{code=A,value=20, isHidden=0, options=ParaOption{code=a2, selected=1},ParaOption{code=a4, selected=0
+},ParaOption{code=a1, selected=0},ParaOption{code=a3, selected=0},}
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
+ndex:2-----------
+ Para{code=B,value=40, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=1
+},ParaOption{code=b1, selected=0},ParaOption{code=b3, selected=0},}
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+ModuleConstraintExecutor$Result@4e0ae11f
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a2
+，数量: 1
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a4
+，数量: 1
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a1
+，数量: 0
+[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a3
+，数量: 0
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.645 s -- in com.jmix.configengin
+e.scenario.ruletest.CompatiableRuleRequireTest
+[INFO] 
+[INFO] Results:
+[INFO]
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  4.376 s
+[INFO] Finished at: 2025-09-05T07:44:00+08:00
+[INFO] ------------------------------------------------------------------------
+
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+完美！测试通过了。现在让我总结一下完成的重构工作：
+
+## 重构完成总结
+
+我已经成功将 `createTempPath` 方法从 `ModuleSecnarioTestBase` 提取到 `base` 包下的 `CommHelper` 类中，具体完成的工作包括：
+
+### 1. 创建了 `CommHelper` 工具类
+- **位置**: `src/test/java/com/jmix/configengine/scenario/base/CommHelper.java`
+- **功能**: 提供测试场景中常用的工具方法
+- **包含方法**:
+  - `createTempPath(Class<?> constraintAlgClazz)`: 创建临时路径
+  - `getResourcePath(Class<?> clazz)`: 获取资源路径
+  - `createDirectory(String path)`: 创建目录
+
+### 2. 更新了 `ModuleSecnarioTestBase` 类
+- 移除了 `createTempPath`、`getResourcePath` 和 `createDirectory` 方法
+- 更新了 `init()` 方法中的调用，改为使用 `CommHelper.createTempPath(constraintAlgClazz)`
+- 添加了注释说明方法已移动到 `CommHelper` 类中
+
+### 3. 创建了完整的测试
+- **测试类**: `src/test/java/com/jmix/configengine/scenario/base/CommHelperTest.java`
+- **测试内容**:
+  - `testGetResourcePath()`: 测试获取资源路径功能
+  - `testCreateDirectory()`: 测试创建目录功能
+  - `testCreateTempPath()`: 测试创建临时路径功能
+  - `testCreateTempPathWithExistingDirectory()`: 测试重复创建目录的情况
+
+### 4. 验证了重构的正确性
+- 所有测试通过（4个测试用例）
+- 现有功能测试通过（`CompatiableRuleRequireTest` 6个测试用例）
+- 项目编译无错误
+
+### 主要优势
+
+1. **代码复用**: 将通用工具方法提取到独立的工具类中，便于其他测试类使用
+2. **职责分离**: `ModuleSecnarioTestBase` 专注于测试基类功能，`CommHelper` 专注于工具方法
+3. **维护性**: 工具方法集中管理，便于维护和扩展
+4. **测试覆盖**: 为新的工具类提供了完整的测试覆盖
+
+### 使用方式
+
+现在其他测试类可以通过以下方式使用这些工具方法：
+
+```java
+// 创建临时路径
+String tempPath = CommHelper.createTempPath(MyTestClass.class);
+
+// 获取资源路径
+String resourcePath = CommHelper.getResourcePath(MyTestClass.class);
+
+// 创建目录
+CommHelper.createDirectory("path/to/directory");
+```
+
+重构已经完成，所有功能正常工作，代码结构更加清晰和模块化。
+
+---
+

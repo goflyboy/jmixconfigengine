@@ -55,14 +55,13 @@ public abstract class ModuleSecnarioTestBase {
         module = ModuleGenneratorByAnno.build(moduleAlgClazz, tempResourcePath);
         return module;
     }
-    
+    // createTempPath方法已移动到CommHelper类中
     /**
      * 初始化测试环境
      */
     protected void init() {
         // 生成临时资源路径
-        tempResourcePath = getResourcePath(constraintAlgClazz) + "/tempResource";
-        createDirectory(tempResourcePath);
+        tempResourcePath = CommHelper.createTempPath(constraintAlgClazz);
         exec = new ModuleConstraintExecutorImpl();
         cfg = new ModuleConstraintExecutor.ConstraintConfig();
         cfg.isAttachedDebug = true; // 测试环境直接使用当前classpath加载
@@ -363,25 +362,5 @@ public abstract class ModuleSecnarioTestBase {
         }
     }
     
-    /**
-     * 获取资源路径
-     */
-    private String getResourcePath(Class<?> clazz) {
-        String packagePath = clazz.getPackage().getName().replace('.', '/');
-        return "src/test/java/" + packagePath;
-    }
-    
-    /**
-     * 创建目录
-     */
-    private void createDirectory(String path) {
-        File dir = new File(path);
-        if (!dir.exists()) {
-            if (dir.mkdirs()) {
-                log.info("创建目录: {}", path);
-            } else {
-                log.warn("创建目录失败: {}", path);
-            }
-        }
-    }
+    // getResourcePath和createDirectory方法已移动到CommHelper类中
 } 
