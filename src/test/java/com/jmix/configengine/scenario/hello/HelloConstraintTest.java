@@ -35,12 +35,12 @@ public class HelloConstraintTest extends ModuleSecnarioTestBase {
     public void testMultiSolution() {
         // "Red-10", "Black-20", "White-30"
         // "Small-10", "Medium-20", "Big-30"
-        // if(ColorVar.var ==Red && SizeVar.var == Small  ) {
-        //     TShirt11Var.var = 1;
-        // }
-        // else {
-        //     TShirt11Var.var = 3
-        // }
+                    // if(ColorVar.value ==Red && SizeVar.value == Small  ) {
+            //     TShirt11Var.qty = 1;
+            // }
+            // else {
+            //     TShirt11Var.qty = 3
+            // }
         // 测试颜色参数推理
         inferParas("TShirt11", 3);
         printSolutions();

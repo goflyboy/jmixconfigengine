@@ -35,7 +35,7 @@ public class ParaIntegerTest extends ModuleSecnarioTestBase {
         @Override
         protected void initConstraint() {
             // Part1.quantity = P1.value + P2.value
-            model.addEquality((IntVar)Part1.var, LinearExpr.sum(new IntVar[]{(IntVar)P1.var, (IntVar)P2.var}));
+            model.addEquality((IntVar)Part1.qty, LinearExpr.sum(new IntVar[]{(IntVar)P1.value, (IntVar)P2.value}));
         }
     }
     //---------------ģ�͵Ķ���end----------------------------------------

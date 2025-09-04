@@ -30,11 +30,11 @@ public class CalculateRuleSimpleTest extends ModuleSecnarioTestBase {
         }
         
         public void addConstraint_rule1() {
-            // if(P1Var.var == op11) {
-            //     PT1Var.var = 1;
+            // if(P1Var.value == op11) {
+            //     PT1Var.qty = 1;
             // }
             // else {
-            //     PT1Var.var = 3;
+            //     PT1Var.qty = 3;
             // }
             
             // 创建条件变量：P1是op11
@@ -52,10 +52,10 @@ public class CalculateRuleSimpleTest extends ModuleSecnarioTestBase {
             
             // 根据条件设置PT1Var的数量
             // 如果rule1_op11为true，则PT1Var数量为1
-            model.addEquality((IntVar)this.PT1Var.var, 1).onlyEnforceIf(rule1_op11);
+            model.addEquality((IntVar)this.PT1Var.qty, 1).onlyEnforceIf(rule1_op11);
             
             // 如果rule1_op11为false，则PT1Var数量为3
-            model.addEquality((IntVar)this.PT1Var.var, 3).onlyEnforceIf(rule1_op11.not());
+            model.addEquality((IntVar)this.PT1Var.qty, 3).onlyEnforceIf(rule1_op11.not());
         }
     } 
    //---------------规则定义end----------------------------------------

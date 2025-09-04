@@ -20,12 +20,12 @@ public class PartVar extends Var<Part> {
 	/**
 	 * 部件的数量值
 	 */
-	public IntVar var;
+	public IntVar qty;
 	
 	/**
 	 * 显示隐藏属性
 	 */
-	public BoolVar isHiddenVar;
+	public BoolVar isHidden;
 	
 	/**
 	 * 子部件选中状态(Part.code -> BoolVar)
@@ -36,11 +36,11 @@ public class PartVar extends Var<Part> {
 	public String getVarString(CpSolverSolutionCallback solutionCallback) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("PartVar{code=").append(getCode());
-		if (var != null) {
-			sb.append(", var=").append(solutionCallback.value(this.var));
+		if (qty != null) {
+			sb.append(", qty=").append(solutionCallback.value(this.qty));
 		}
-		if (isHiddenVar != null) {
-			sb.append(", hidden=").append(solutionCallback.value(this.isHiddenVar));
+		if (isHidden != null) {
+			sb.append(", hidden=").append(solutionCallback.value(this.isHidden));
 		}
 		if (!subPartSelectedVars.isEmpty()) {//TODO
 			sb.append(", subParts=").append(subPartSelectedVars.size());

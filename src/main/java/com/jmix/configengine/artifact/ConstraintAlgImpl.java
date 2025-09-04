@@ -56,13 +56,13 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 			Var<?> v = entry.getValue();
 			if (v instanceof ParaVar) {
 				ParaVar pv = (ParaVar) v;
-				if (pv.isHiddenVar != null) {
-					model.addEquality(pv.isHiddenVar, 0);
+				if (pv.isHidden != null) {
+					model.addEquality(pv.isHidden, 0);
 				}
 			} else if (v instanceof PartVar) {
 				PartVar pt = (PartVar) v;
-				if (pt.isHiddenVar != null) {
-					model.addEquality(pt.isHiddenVar, 0);
+				if (pt.isHidden != null) {
+					model.addEquality(pt.isHidden, 0);
 				}
 			}
 		}
@@ -190,28 +190,28 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		paraVar.setBase(para); 
 		switch (para.getType()) {
 			case INTEGER:
-				paraVar.var = model.newIntVar(Integer.parseInt(para.getMinValue()), Integer.parseInt(para.getMaxValue()), code);
+				paraVar.value = model.newIntVar(Integer.parseInt(para.getMinValue()), Integer.parseInt(para.getMaxValue()), code);
 				break;
 			case ENUM:
 				if (para.getOptions() == null) {
 					throw new RuntimeException("Para options not found for code: " + code);
 				}
-				paraVar.var = newIntVarFromDomain(model, para.getOptionIds(), code);
+				paraVar.value = newIntVarFromDomain(model, para.getOptionIds(), code);
 
 				for (ParaOption option : para.getOptions()) {
 					ParaOptionVar optionVar = createParaOptionVar(para.getCode(), option.getCode());
 					paraVar.optionSelectVars.put(option.getCodeId(), optionVar);
 				}
 				paraVar.optionSelectVars.forEach((optionId, optionVar) -> {
-					model.addEquality((IntVar) paraVar.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar());
-					model.addDifferent((IntVar) paraVar.var, optionId)
+					model.addEquality((IntVar) paraVar.value, optionId).onlyEnforceIf(optionVar.getIsSelectedVar());
+					model.addDifferent((IntVar) paraVar.value, optionId)
 							.onlyEnforceIf(optionVar.getIsSelectedVar().not());
 				});
 				break;
 			default:
 				throw new RuntimeException("Para type not supported: " + para.getType());
 		}
-		paraVar.isHiddenVar = model.newBoolVar(code + "_is_hidden");
+		paraVar.isHidden = model.newBoolVar(code + "_is_hidden");
 		registerVar(code, paraVar);
 		return paraVar;
 	}
@@ -223,9 +223,9 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		}
 		PartVar partVar = new PartVar();
 		partVar.setBase(part);
-		// partVar.var = model.newIntVar(0, 1, code);
-		partVar.var = model.newIntVar(0, part.getMaxQuantity(), code);
-		partVar.isHiddenVar = model.newBoolVar(code + "_is_hidden");
+		// partVar.qty = model.newIntVar(0, 1, code);
+		partVar.qty = model.newIntVar(0, part.getMaxQuantity(), code);
+		partVar.isHidden = model.newBoolVar(code + "_is_hidden");
 		registerVar(code, partVar);
 		return partVar;
 	}
@@ -299,13 +299,13 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		}
 		
 		// 2. 使用model.addEquality添加数量约束
-		model.addEquality((IntVar) partVar.var, partQuantity);
+		model.addEquality((IntVar) partVar.qty, partQuantity);
 	}
 	public void addParaEquality(String paraCode, String paraValue) {
 		ParaVar paraVar = (ParaVar) varMap.get(paraCode);
 		if (paraVar == null) {
 			throw new RuntimeException("ParaVar not found for code: " + paraCode);
 		}
-		model.addEquality((IntVar) paraVar.var, Integer.parseInt(paraValue));
+		model.addEquality((IntVar) paraVar.value, Integer.parseInt(paraValue));
 	}
 }

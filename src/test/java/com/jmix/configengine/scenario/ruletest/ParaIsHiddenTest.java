@@ -40,36 +40,36 @@ public class ParaIsHiddenTest extends ModuleSecnarioTestBase {
         
         @Override
         protected void initConstraint() {
-            // Logic1: P1.isHiddenVar and P2.isHiddenVar are incompatible
-            model.addBoolOr(new Literal[]{P1.isHiddenVar.not(), P2.isHiddenVar.not()});
+            // Logic1: P1.isHidden and P2.isHidden are incompatible
+            model.addBoolOr(new Literal[]{P1.isHidden.not(), P2.isHidden.not()});
             addVarAboutHiddenConstraints(P1, P2);
             
-            // Logic2: if P0.var in (0,1) then P1.isHiddenVar=1 else P2.isHiddenVar=1
+            // Logic2: if P0.value in (0,1) then P1.isHidden=1 else P2.isHidden=1
             BoolVar p0Eq0 = model.newBoolVar("p0_eq_0");
             BoolVar p0Eq1 = model.newBoolVar("p0_eq_1");
-            model.addEquality((IntVar)P0.var, 0).onlyEnforceIf(p0Eq0);
-            model.addDifferent((IntVar)P0.var, 0).onlyEnforceIf(p0Eq0.not());
-            model.addEquality((IntVar)P0.var, 1).onlyEnforceIf(p0Eq1);
-            model.addDifferent((IntVar)P0.var, 1).onlyEnforceIf(p0Eq1.not());
+            model.addEquality((IntVar)P0.value, 0).onlyEnforceIf(p0Eq0);
+            model.addDifferent((IntVar)P0.value, 0).onlyEnforceIf(p0Eq0.not());
+            model.addEquality((IntVar)P0.value, 1).onlyEnforceIf(p0Eq1);
+            model.addDifferent((IntVar)P0.value, 1).onlyEnforceIf(p0Eq1.not());
             
-            // p0In01 is true iff P0.var == 0 or P0.var == 1
+            // p0In01 is true iff P0.value == 0 or P0.value == 1
             BoolVar p0In01 = model.newBoolVar("p0_in_01");
             model.addBoolOr(new Literal[]{p0Eq0, p0Eq1}).onlyEnforceIf(p0In01);
             model.addBoolAnd(new Literal[]{p0Eq0.not(), p0Eq1.not()}).onlyEnforceIf(p0In01.not());
             // Ensure not both p0Eq0 and p0Eq1 are true simultaneously
             model.addBoolOr(new Literal[]{p0Eq0.not(), p0Eq1.not()});
             
-            model.addEquality(P1.isHiddenVar, 1).onlyEnforceIf(p0In01);
-            model.addEquality(P2.isHiddenVar, 1).onlyEnforceIf(p0In01.not());
+            model.addEquality(P1.isHidden, 1).onlyEnforceIf(p0In01);
+            model.addEquality(P2.isHidden, 1).onlyEnforceIf(p0In01.not());
 
-            // Logic3: if P1.isHiddenVar=1 then P1.var=0
-            model.addEquality((IntVar)P1.var, 0).onlyEnforceIf(P1.isHiddenVar);
+            // Logic3: if P1.isHidden=1 then P1.value=0
+            model.addEquality((IntVar)P1.value, 0).onlyEnforceIf(P1.isHidden);
             
-            // Logic4: if P2.isHiddenVar=1 then P2.var=0
-            model.addEquality((IntVar)P2.var, 0).onlyEnforceIf(P2.isHiddenVar);
+            // Logic4: if P2.isHidden=1 then P2.value=0
+            model.addEquality((IntVar)P2.value, 0).onlyEnforceIf(P2.isHidden);
             
             // Logic5: Part1.quantity = P1.value + P2.value
-            model.addEquality((IntVar)Part1.var, LinearExpr.sum(new IntVar[]{(IntVar)P1.var, (IntVar)P2.var}));
+            model.addEquality((IntVar)Part1.qty, LinearExpr.sum(new IntVar[]{(IntVar)P1.value, (IntVar)P2.value}));
         }
     }
     //---------------?????end----------------------------------------

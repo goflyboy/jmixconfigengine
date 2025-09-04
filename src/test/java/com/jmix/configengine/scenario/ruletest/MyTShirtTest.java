@@ -29,11 +29,11 @@ public class MyTShirtTest extends ModuleSecnarioTestBase {
         protected void initConstraint() {
             // "Red-10", "Black-20", "White-30"
             // "Small-10", "Medium-20", "Big-30"
-            // if(ColorVar.var == Red && SizeVar.var == Small) {
-            //     TShirt11Var.var = 1;
+            // if(ColorVar.value == Red && SizeVar.value == Small) {
+            //     TShirt11Var.qty = 1;
             // }
             // else {
-            //     TShirt11Var.var = 3;
+            //     TShirt11Var.qty = 3;
             // }
             
             BoolVar redAndSmall = model.newBoolVar("redAndSmall");
@@ -48,8 +48,8 @@ public class MyTShirtTest extends ModuleSecnarioTestBase {
                 SizeVar.getParaOptionByCode("Small").getIsSelectedVar().not()
             }).onlyEnforceIf(redAndSmall.not());
             
-            model.addEquality((IntVar)TShirt11Var.var, 1).onlyEnforceIf(redAndSmall);
-            model.addEquality((IntVar)TShirt11Var.var, 3).onlyEnforceIf(redAndSmall.not());
+            model.addEquality((IntVar)TShirt11Var.qty, 1).onlyEnforceIf(redAndSmall);
+            model.addEquality((IntVar)TShirt11Var.qty, 3).onlyEnforceIf(redAndSmall.not());
         }
     }
 

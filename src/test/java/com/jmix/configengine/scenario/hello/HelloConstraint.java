@@ -47,12 +47,12 @@ public class HelloConstraint extends ConstraintAlgImpl {
 	
         // "Red-10", "Black-20", "White-30"
         // "Small-10", "Medium-20", "Big-30"
-        // if(ColorVar.var ==Red && SizeVar.var == Small  ) {
-        //     TShirt11Var.var = 1;
-        // }
-        // else {
-        //     TShirt11Var.var = 3
-        // }
+                    // if(ColorVar.value ==Red && SizeVar.value == Small  ) {
+            //     TShirt11Var.qty = 1;
+            // }
+            // else {
+            //     TShirt11Var.qty = 3
+            // }
 
         // 创建条件变量：颜色是红色且尺寸是小号
         BoolVar redAndSmall = model.newBoolVar("rule2_redAndSmall");
@@ -71,9 +71,9 @@ public class HelloConstraint extends ConstraintAlgImpl {
         
         // 根据条件设置TShirt11的数量
         // 如果redAndSmall为true，则TShirt11数量为1
-        model.addEquality((IntVar)this.TShirt11Var.var, 1).onlyEnforceIf(redAndSmall);
+        model.addEquality((IntVar)this.TShirt11Var.qty, 1).onlyEnforceIf(redAndSmall);
         
         // 如果redAndSmall为false，则TShirt11数量为3
-        model.addEquality((IntVar)this.TShirt11Var.var, 3).onlyEnforceIf(redAndSmall.not());
+        model.addEquality((IntVar)this.TShirt11Var.qty, 3).onlyEnforceIf(redAndSmall.not());
     }
 } 

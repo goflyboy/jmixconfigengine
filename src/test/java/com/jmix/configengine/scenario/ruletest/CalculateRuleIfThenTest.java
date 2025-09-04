@@ -36,11 +36,11 @@ public class CalculateRuleIfThenTest extends ModuleSecnarioTestBase {
         }
         public void addConstraint_rule2() {
         
-            // if(P1Var.var ==op11 && P2Var.var == op21  ) {
-            //     PT1Var.var = 1;
+            // if(P1Var.value ==op11 && P2Var.value == op21  ) {
+            //     PT1Var.qty = 1;
             // }
             // else {
-            //     PT1Var.var = 3
+            //     PT1Var.qty = 3
             // }
     
             // 创建条件变量：颜色是红色且尺寸是小号
@@ -60,10 +60,10 @@ public class CalculateRuleIfThenTest extends ModuleSecnarioTestBase {
             
             // 根据条件设置PT1Var的数量
             // 如果op11Andop2为true，则PT1Var数量为1
-            model.addEquality((IntVar)this.PT1Var.var, 1).onlyEnforceIf(rule2_op11Andop21);
+            model.addEquality((IntVar)this.PT1Var.qty, 1).onlyEnforceIf(rule2_op11Andop21);
             
             // 如果op11Andop2为false，则PT1Var数量为3
-            model.addEquality((IntVar)this.PT1Var.var, 3).onlyEnforceIf(rule2_op11Andop21.not());
+            model.addEquality((IntVar)this.PT1Var.qty, 3).onlyEnforceIf(rule2_op11Andop21.not());
         }
     } 
    //---------------规则定义end----------------------------------------

@@ -22,13 +22,13 @@ public class ParaVar extends Var<Para> {
 	/**
 	 * 参数值状态
 	 */
-	public IntVar var;
+	public IntVar value;
 	
 	/**
 	 * 兼容旧模型的隐藏布尔变量
 	 * 0-显示，1-隐藏
 	 */
-	public BoolVar isHiddenVar;
+	public BoolVar isHidden;
 	 
 	/**
 	 * 参数可选值的选中状态(CodeId -> ParaOptionVar)
@@ -62,12 +62,12 @@ public class ParaVar extends Var<Para> {
 	public String getVarString(CpSolverSolutionCallback solutionCallback) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Para{code=").append(getCode());
-		if (var != null) {
-			sb.append(",var=").append(solutionCallback.value((IntVar) this.var));
+		if (value != null) {
+			sb.append(",value=").append(solutionCallback.value((IntVar) this.value));
 		 
 		}
-		if (isHiddenVar != null) {
-			sb.append(", isHidden=").append(solutionCallback.value(this.isHiddenVar));
+		if (isHidden != null) {
+			sb.append(", isHidden=").append(solutionCallback.value(this.isHidden));
 		}
 		if (!optionSelectVars.isEmpty()) {
 			//打印每个option的getVarString

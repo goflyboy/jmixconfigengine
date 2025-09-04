@@ -153,7 +153,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
 					ParaInst pi = new ParaInst();
 					pi.code = pv.getCode();
 					// value: read IntVar domain value
-					int value = (int) value((IntVar) pv.var);
+					int value = (int) value((IntVar) pv.value);
 					pi.value = String.valueOf(value);
 					// options: selected option codes
 					List<String> options = new ArrayList<>();
@@ -164,13 +164,13 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
 						}
 					});
 					pi.options = options;
-					pi.isHidden = (int) value((IntVar) pv.isHiddenVar) == 1;
+					pi.isHidden = (int) value((IntVar) pv.isHidden) == 1;
 					moduleInst.addParaInst(pi);
 				} else if (v instanceof PartVar) {
 					PartVar partVar = (PartVar) v;
 					PartInst inst = new PartInst();
 					inst.code = partVar.getCode();
-					inst.quantity = (int) value((IntVar) partVar.var);
+					inst.quantity = (int) value((IntVar) partVar.qty);
 					moduleInst.addPartInst(inst);
 				}
 			}

@@ -41,12 +41,12 @@ public class ModelHelperTest {
                     "        private ParaVar P2Var;\n" +
                     "        @PartAnno\n" +
                     "        private ParaVar PT1Var;";            
-            String userLogicByPseudocode = "if(P1Var.var == op11 && P2Var.var == op21) {\n" +
-                    "                PT1Var.var = 1;\n" +
-                    "            }\n" +
-                    "            else {\n" +
-                    "                PT1Var.var = 3;\n" +
-                    "            }";
+                    String userLogicByPseudocode = "if(P1Var.value == op11 && P2Var.value == op21) {\n" +
+                "                PT1Var.qty = 1;\n" +
+                "            }\n" +
+                "            else {\n" +
+                "                PT1Var.qty = 3;\n" +
+                "            }";
             */
             
             try {
@@ -192,12 +192,12 @@ public class ModelHelperTest {
      * @return 默认逻辑伪代码
      */
     private static String getDefaultLogicPseudocode() {
-        return "if(P1Var.var == op11 && P2Var.var == op21) {\n" +
-               "                PT1Var.var = 1;\n" +
-               "            }\n" +
-               "            else {\n" +
-               "                PT1Var.var = 3;\n" +
-               "            }";
+                return "if(P1Var.value == op11 && P2Var.value == op21) {\n" +
+                "                PT1Var.qty = 1;\n" +
+                "            }\n" +
+                "            else {\n" +
+                "                PT1Var.qty = 3;\n" +
+                "            }";
     }
     
     /**

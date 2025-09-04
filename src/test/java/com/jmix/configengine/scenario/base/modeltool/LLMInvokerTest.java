@@ -29,12 +29,12 @@ public class LLMInvokerTest {
                     "        private ParaVar P2Var;\n" +
                     "        @PartAnno\n" +
                     "        private PartVar PT1Var;";
-            String userLogicByPseudocode = "if(P1Var.var == op11 && P2Var.var == op21) {\n" +
-                    "                PT1Var.var = 1;\n" +
-                    "            }\n" +
-                    "            else {\n" +
-                    "                PT1Var.var = 3;\n" +
-                    "            }";
+                    String userLogicByPseudocode = "if(P1Var.value == op11 && P2Var.value == op21) {\n" +
+                "                PT1Var.qty = 1;\n" +
+                "            }\n" +
+                "            else {\n" +
+                "                PT1Var.qty = 3;\n" +
+                "            }";
             
             try {
                 System.out.println("正在调用LLM生成代码...");
