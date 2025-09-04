@@ -12,8 +12,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 @JsonSubTypes({
     @JsonSubTypes.Type(value = CompatiableRuleSchema.class, name = "CompatiableRule"),
     @JsonSubTypes.Type(value = CalculateRuleSchema.class, name = "CalculateRule"),
-    @JsonSubTypes.Type(value = SelectRuleSchema.class, name = "SelectRule"),
-    @JsonSubTypes.Type(value = CodeRuleSchema.class, name = "CodeRule")
+    @JsonSubTypes.Type(value = SelectRuleSchema.class, name = "SelectRule")
 })
 public abstract class RuleSchema {
     /**
@@ -26,8 +25,7 @@ public abstract class RuleSchema {
      * - SelectRule: 选择规则，用于定义参数或部件的选择约束
      *   * single: 单选约束，必须且只能选择一个选项
      *   * multiple: 多选约束，可以选择多个选项
-     * - CalculateRule: 计算规则，用于定义数量、价格等计算关系
-     * - CodeRule: 代码规则，用于表示没有结构化的规则，代码是Code（需要手工转化为约束规则）
+     * - CalculateRule: 计算规则，用于定义数量、价格等计算关系 
      * 这些类型对应不同的业务场景，每种类型都有其特定的Schema结构和处理逻辑
      */
     private String type;
@@ -36,4 +34,4 @@ public abstract class RuleSchema {
      * Schema版本
      */
     private String version;
-}
+} 

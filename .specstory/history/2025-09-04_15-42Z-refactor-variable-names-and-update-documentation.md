@@ -2459,3 +2459,348 @@ D:\01.code\mygithub\jmixconfigengine>
 
 ---
 
+_**User (2025-09-04 15:10Z)**_
+
+请做如下重构：
+1、重构ModuleInst 
+1.1. Integer quantity改成 Integer qty 
+2、重构PartInst 
+2.1. Integer quantity改成 Integer qty 
+ 
+3、记得同步修改constraint_generate_prompt.jtl  
+4、同步修改doc里的内容
+4、不考虑兼容性  
+5、请跑通用例TestSuite
+
+---
+
+_**Assistant**_
+
+我来帮您重构ModuleInst和PartInst类，将quantity字段重命名为qty。首先让我查看当前的代码结构。
+
+
+---
+
+<details>
+            <summary>Searched codebase "ModuleInst" • **4** results</summary>
+        
+| File |
+|------|
+| `d:\01.code\mygithub\jmixconfigengine\.specstory\history\2025-08-20_23-11Z-define-moduleinst-creation-class.md` |
+| `d:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\configengine\ModuleConstraintExecutorTest.java` |
+| `d:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\configengine\artifact\ModuleAlgArtifactGeneratorTest.java` |
+| `d:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\configengine\scenario\tshirt\ModuleAlgArtifactGeneratorBaseTest.java` |
+
+</details>
+
+---
+
+<details>
+            <summary>Grep search for "class ModuleInst|class PartInst" • **5** files</summary>
+        
+| File | Line | Match |
+|------|------|-------|
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/PartInstAssert.java` | L11 | `public class PartInstAssert extends ProgammableInstAssert {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/ModuleConstraintExecutor.java` | L51 | `class ModuleInst {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/ModuleConstraintExecutor.java` | L67 | `class PartInst {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/executor/ModuleConstraintExecutorImpl.java` | L130 | `static class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/executor/ModuleConstraintExecutorImpl.java` | L130 | `static class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/ModuleConstraintExecutor.java` | L51 | `class ModuleInst {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/ModuleConstraintExecutor.java` | L67 | `class PartInst {` |
+
+</details>
+
+---
+
+Read file: src/main/java/com/jmix/configengine/ModuleConstraintExecutor.java
+
+---
+
+现在开始重构。首先修改ModuleInst类：
+
+
+---
+
+Tool search_replace not found.
+
+---
+
+Read file: src/main/java/com/jmix/configengine/ModuleConstraintExecutor.java
+
+---
+
+现在我需要使用edit_file来修改文件：
+
+
+---
+
+Tool edit_file not found.
+
+---
+
+我需要使用run_terminal_cmd来修改文件。让我先创建一个临时文件：
+
+
+---
+
+```bash
+cp src/main/java/com/jmix/configengine/ModuleConstraintExecutor.java src/main/java/com/jmix/configengine/ModuleConstraintExecutor.java.bak
+```
+
+---
+
+_**User (2025-09-04 15:10Z)**_
+
+
+参考SelectRuleSchema，增加一个规则类型：
+//没有结构化的Rule，代码是Code（需要手工转化为约束规则）
+public class CodeRuleSchema extends RuleSchema {
+      /**
+     * 原始代码
+     */
+    private String rawCode;
+   //引用编程对象
+   private List<RefProgObjSchema> refProgObjs;
+}
+
+---
+
+_**Assistant**_
+
+我来帮您参考SelectRuleSchema增加一个CodeRuleSchema规则类型。首先让我查看SelectRuleSchema的结构。
+
+
+---
+
+Read file: src/main/java/com/jmix/configengine/schema/SelectRuleSchema.java
+
+---
+
+现在让我查看RuleSchema基类：
+
+
+---
+
+Read file: src/main/java/com/jmix/configengine/schema/RuleSchema.java
+
+---
+
+现在让我查看RefProgObjSchema类：
+
+
+---
+
+Read file: src/main/java/com/jmix/configengine/schema/RefProgObjSchema.java
+
+---
+
+现在我来创建CodeRuleSchema类：
+
+
+---
+
+```bash
+cat > src/main/java/com/jmix/configengine/schema/CodeRuleSchema.java << 'EOF'
+package com.jmix.configengine.schema;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import java.util.List;
+
+/**
+ * 代码规则Schema
+ * 用于没有结构化的Rule，代码是Code（需要手工转化为约束规则）
+ */
+@Data
+@EqualsAndHashCode(callSuper = true)
+public class CodeRuleSchema extends RuleSchema {
+    /**
+     * 原始代码
+     */
+    private String rawCode;
+    
+    /**
+     * 引用编程对象
+     */
+    private List<RefProgObjSchema> refProgObjs;
+}
+EOF
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>cat > src/main/java/com/jmix/configengine/s
+chema/CodeRuleSchema.java << 'EOF'
+此时不应有 <<。
+
+D:\01.code\mygithub\jmixconfigengine>package com.jmix.configengine.schema;
+'package' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+D:\01.code\mygithub\jmixconfigengine>
+D:\01.code\mygithub\jmixconfigengine>import lombok.Data;
+'import' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+D:\01.code\mygithub\jmixconfigengine>import lombok.EqualsAndHashCode;
+'import' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+D:\01.code\mygithub\jmixconfigengine>import java.util.List;
+'import' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+D:\01.code\mygithub\jmixconfigengine>
+D:\01.code\mygithub\jmixconfigengine>/**
+'/**' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+D:\01.code\mygithub\jmixconfigengine> * 代码规则Schema
+'*' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+D:\01.code\mygithub\jmixconfigengine> * 用于没有结构化的Rule，代码是Code（需要手
+工转化为约束规则）
+'*' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+D:\01.code\mygithub\jmixconfigengine> */
+'*' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+D:\01.code\mygithub\jmixconfigengine>@Data
+'Data' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+D:\01.code\mygithub\jmixconfigengine>@EqualsAndHashCode(callSuper = true)       
+'EqualsAndHashCode' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+D:\01.code\mygithub\jmixconfigengine>public class CodeRuleSchema extends RuleSch
+ema {
+'public' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+D:\01.code\mygithub\jmixconfigengine>    /**
+'/**' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+D:\01.code\mygithub\jmixconfigengine>     * 原始代码
+'*' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+D:\01.code\mygithub\jmixconfigengine>     */
+'*' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+D:\01.code\mygithub\jmixconfigengine>    private String rawCode;
+'private' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+D:\01.code\mygithub\jmixconfigengine>
+D:\01.code\mygithub\jmixconfigengine>    /**
+'/**' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+D:\01.code\mygithub\jmixconfigengine>     * 引用编程对象
+'*' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+D:\01.code\mygithub\jmixconfigengine>     */
+'*' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+D:\01.code\mygithub\jmixconfigengine>    private List<RefProgObjSchema> refProgO
+bjs;
+系统找不到指定的文件。
+
+D:\01.code\mygithub\jmixconfigengine>}
+'}' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+D:\01.code\mygithub\jmixconfigengine>EOF
+'EOF' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+D:\01.code\mygithub\jmixconfigengine>    private String rawCode;
+'private' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+D:\01.code\mygithub\jmixconfigengine>
+D:\01.code\mygithub\jmixconfigengine>    /**
+'/**' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+D:\01.code\mygithub\jmixconfigengine>     * 引用编程对象
+'*' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+D:\01.code\mygithub\jmixconfigengine>     */
+'*' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+D:\01.code\mygithub\jmixconfigengine>    private List<RefProgObjSchema> refPro
+gObjs;
+系统找不到指定的文件。
+
+D:\01.code\mygithub\jmixconfigengine>}
+'}' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+D:\01.code\mygithub\jmixconfigengine>EOF
+'EOF' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+在Windows环境下，我需要使用不同的方法创建文件。让我使用echo命令：
+
+
+---
+
+```bash
+echo package com.jmix.configengine.schema; > src/main/java/com/jmix/configengine/schema/CodeRuleSchema.java
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>echo package com.jmix.configengine.schema; > src/main/java/com/jmix/
+configengine/schema/CodeRuleSchema.java
+
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+Cancelled
+
+---
+
+
+
+---
+
+_**User (2025-09-04 16:14Z)**_
+
+
+参考SelectRuleSchema，增加一个规则类型：
+//没有结构化的Rule，代码是Code（需要手工转化为约束规则）
+public class CodeRuleSchema extends RuleSchema {
+      /**
+     * 原始代码
+     */
+    private String rawCode;
+	String normalNaturalCode;
+   //引用编程对象
+   private List<RefProgObjSchema> refProgObjs;
+}
+
+---
+
+_**Assistant**_
+
+
+
+---
+

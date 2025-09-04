@@ -27,4 +27,4 @@ public class RefProgObjSchema {
      * 可编程对象属性
      */
     private String progObjField;
-} 
+}

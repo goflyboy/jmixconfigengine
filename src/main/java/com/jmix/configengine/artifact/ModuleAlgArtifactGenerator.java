@@ -57,7 +57,7 @@ public class ModuleAlgArtifactGenerator {
     /**
      * 构建模块信息
      */
-    private ModuleVarInfo buildModuleInfo(com.jmix.configengine.model.Module module) {
+    public ModuleVarInfo buildModuleInfo(com.jmix.configengine.model.Module module) {
         ModuleVarInfo moduleInfo =buildModuleInfoBase(module);
         
         // 调用buildRules生成RuleInfos
@@ -176,7 +176,7 @@ public class ModuleAlgArtifactGenerator {
     /**
      * 构建兼容规则
      */
-    private void buildCompatiableRule(RuleInfo ruleInfo, ModuleVarInfo moduleInfo, Rule rule) {
+    public void buildCompatiableRule(RuleInfo ruleInfo, ModuleVarInfo moduleInfo, Rule rule) {
         try {
             // 直接使用RuleSchema对象
             RuleSchema rawCode = rule.getRawCode();
@@ -222,7 +222,7 @@ public class ModuleAlgArtifactGenerator {
     /**
      * 构建计算规则
      */
-    private void buildCalculateRule(RuleInfo ruleInfo, ModuleVarInfo moduleInfo, Rule rule) {
+    public void buildCalculateRule(RuleInfo ruleInfo, ModuleVarInfo moduleInfo, Rule rule) {
         ruleInfo.setLeftTypeName("PartVar");
         ruleInfo.setRightTypeName("PartVar");
     }
@@ -230,7 +230,7 @@ public class ModuleAlgArtifactGenerator {
     /**
      * 构建选择规则
      */
-    private void buildSelectRule(RuleInfo ruleInfo, ModuleVarInfo moduleInfo, Rule rule) {
+    public void buildSelectRule(RuleInfo ruleInfo, ModuleVarInfo moduleInfo, Rule rule) {
         ruleInfo.setLeftTypeName("ParaVar");
         ruleInfo.setRightTypeName("ParaVar");
     }
@@ -239,7 +239,7 @@ public class ModuleAlgArtifactGenerator {
      * 选择编程对象
      */
     @SuppressWarnings("rawtypes")
-    private Pair<VarInfo<? extends Extensible>, List<String>> doSelectProObjs(ModuleVarInfo moduleInfo, ExprSchema exprSchema) {
+    public Pair<VarInfo<? extends Extensible>, List<String>> doSelectProObjs(ModuleVarInfo moduleInfo, ExprSchema exprSchema) {
         // 1. 根据exprSchema的progObjType、progObjCode、progObjField根据待过滤objects
         if (exprSchema.getRefProgObjs() == null || exprSchema.getRefProgObjs().isEmpty()) {
             log.warn("No reference programming objects found in expression schema");
