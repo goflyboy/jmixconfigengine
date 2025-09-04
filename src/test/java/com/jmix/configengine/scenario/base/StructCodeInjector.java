@@ -1,0 +1,174 @@
+package com.jmix.configengine.scenario.base;
+ 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * 简易源码注入器：根据 @AlgAnno(rawcode) 生成方法体片段并写回源文件。
+ * 通过文本方式定位方法体，使用标记进行幂等替换。
+ */
+public class StructCodeInjector {
+
+    private static final String GEN_START = "//自动生成，请勿编辑--start";
+    private static final String GEN_END = "//自动生成，请勿编辑--end";
+
+    private final PseudoToJavaConverter converter = new PseudoToJavaConverter();
+
+    /**
+     * 将指定类中的带有 @AlgAnno 的方法，根据伪代码生成实现片段并注入到源文件。
+     * @param sourceFile 源码文件路径（.java）
+     * @param fullyQualifiedClassName 目标类全限定名（用于反射读取注解）
+     */
+    public void inject(String sourceFile, String fullyQualifiedClassName) {
+        try {
+            Class<?> clazz = Class.forName(fullyQualifiedClassName);
+            String content = Files.readString(Path.of(sourceFile), StandardCharsets.UTF_8);
+            String updated = content;
+
+            // for (var method : clazz.getDeclaredMethods()) {
+            //     AlgAnno alg = method.getAnnotation(AlgAnno.class);
+            //     if (alg == null) continue;
+
+            //     String methodName = method.getName();
+            //     String raw = alg.rawcode();
+
+            //     updated = injectIntoMethod(updated, methodName, raw);
+            // }
+
+            if (!updated.equals(content)) {
+                Files.writeString(Path.of(sourceFile), updated, StandardCharsets.UTF_8);
+            }
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("找不到类: " + fullyQualifiedClassName, e);
+        } catch (IOException e) {
+            throw new RuntimeException("读写源文件失败: " + sourceFile, e);
+        }
+    }
+
+    private String injectIntoMethod(String source, String methodName, String rawcode) {
+        // 粗略匹配方法声明行到对应的花括号范围
+        // 支持常见修饰符与返回类型，方法名固定，用第一个左花括号定位方法体起始
+        Pattern sig = Pattern.compile("(^\\n|^)\\s*([\\t ]*)([a-zA-Z0-9_<>\\[\\] ,@]+)?\\b" + Pattern.quote(methodName) + "\\s*\\([^)]*\\)\\s*\\{", Pattern.MULTILINE);
+        Matcher m = sig.matcher(source);
+        if (!m.find()) return source; // 未找到方法，跳过
+
+        int braceOpen = source.indexOf('{', m.end() - 1);
+        if (braceOpen < 0) return source;
+
+        int bodyStart = braceOpen + 1;
+        int bodyEnd = findMatchingBrace(source, braceOpen);
+        if (bodyEnd < 0) return source;
+
+        String body = source.substring(bodyStart, bodyEnd);
+
+        // 计算缩进：以方法体第一行缩进为准，否则沿用声明行缩进+一个制表符/4空格
+        String indent = detectIndentForBody(body).orElseGet(() -> defaultIndentFromMatcher(m));
+
+        // 生成片段
+        String generated = converter.convert(rawcode, indent);
+
+        // 若已有标记，替换标记之间内容
+        int existingStart = body.indexOf(GEN_START);
+        int existingEnd = body.indexOf(GEN_END);
+        String newBody;
+        if (existingStart >= 0 && existingEnd > existingStart) {
+            int replaceStart = existingStart;
+            int replaceEnd = existingEnd + GEN_END.length();
+            newBody = body.substring(0, replaceStart) + generated + body.substring(replaceEnd);
+        } else {
+            // 否则插入到方法体顶部（去除首行换行）
+            String prefix = body.startsWith("\n") ? "" : "\n";
+            newBody = prefix + generated + body;
+        }
+
+        return source.substring(0, bodyStart) + newBody + source.substring(bodyEnd);
+    }
+
+    private Optional<String> detectIndentForBody(String body) {
+        String[] lines = body.split("\n", -1);
+        for (String line : lines) {
+            String trimmed = line.trim();
+            if (trimmed.isEmpty()) continue;
+            int idx = 0;
+            while (idx < line.length() && (line.charAt(idx) == ' ' || line.charAt(idx) == '\t')) idx++;
+            return Optional.of(line.substring(0, idx));
+        }
+        return Optional.empty();
+    }
+
+    private String defaultIndentFromMatcher(Matcher m) {
+        String declIndent = m.group(2) == null ? "" : m.group(2);
+        // 保持风格：若声明行以tab开头则+"\t"，否则+4空格
+        if (declIndent.contains("\t")) return declIndent + "\t";
+        return declIndent + "    ";
+    }
+
+    private int findMatchingBrace(String s, int openIndex) {
+        int depth = 0;
+        for (int i = openIndex; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c == '{') depth++;
+            else if (c == '}') {
+                depth--;
+                if (depth == 0) return i; // 返回匹配的闭合大括号索引
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * 简易伪代码到Java片段转换器。
+     * 目前支持：
+     * if <CondVar>.var==<Value> then <TargetVar>.var=<Value>
+     * 结尾多余右括号会被忽略。
+     */
+    public static class PseudoToJavaConverter {
+
+        private static final Pattern SIMPLE_IF_ASSIGN = Pattern.compile(
+                "^\\s*if\\s+([A-Za-z_][A-Za-z0-9_]*)\\.var\\s*==\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*then\\s*([A-Za-z_][A-Za-z0-9_]*)\\.var\\s*=\\s*([A-Za-z_][A-Za-z0-9_]*)\\)?\\s*$",
+                Pattern.CASE_INSENSITIVE);
+
+        /**
+         * 将简单伪代码转换为Java代码块（不含方法签名）。
+         * 生成的字段访问按 .var 形式，比较使用字符串常量包装。
+         */
+        public String convert(String rawcode, String indent) {
+            if (rawcode == null) return "";
+            String code = rawcode.trim();
+            // 移除末尾单个多余右括号
+            if (code.endsWith(")")) {
+                code = code.substring(0, code.length() - 1).trim();
+            }
+            Matcher m = SIMPLE_IF_ASSIGN.matcher(code);
+            if (m.matches()) {
+                String condVar = m.group(1);
+                String condVal = m.group(2);
+                String targetVar = m.group(3);
+                String targetVal = m.group(4);
+                StringBuilder sb = new StringBuilder();
+                sb.append(indent).append("//自动生成，请勿编辑--start\n");
+                sb.append(indent).append("if (\"").append(condVal).append("\".equals(String.valueOf(")
+                  .append(condVar).append(".var))) {\n");
+                sb.append(indent).append("\t").append(targetVar).append(".var = \"")
+                  .append(targetVal).append("\";\n");
+                sb.append(indent).append("}\n");
+                sb.append(indent).append("//自动生成，请勿编辑--end\n");
+                return sb.toString();
+            }
+            // 默认回退为注释块，避免破坏编译
+            return indent + "//自动生成，请勿编辑--start\n"
+                 + indent + "// 未识别的伪代码: " + escapeForComment(code) + "\n"
+                 + indent + "//自动生成，请勿编辑--end\n";
+        }
+
+        private String escapeForComment(String s) {
+            return s.replace("*/", "* /");
+        }
+    }
+} 
