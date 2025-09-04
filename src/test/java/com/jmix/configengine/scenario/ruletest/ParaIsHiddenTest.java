@@ -8,7 +8,7 @@ import org.junit.*;
 @Slf4j
 public class ParaIsHiddenTest extends ModuleSecnarioTestBase {
     
-    //---------------模型的定义start----------------------------------------
+    //---------------模锟酵的讹拷锟斤拷start----------------------------------------
     @ModuleAnno(id = 123L)
     static public class ParaIsHiddenConstraint extends ConstraintAlgImpl {
         @ParaAnno(  
@@ -33,111 +33,139 @@ public class ParaIsHiddenTest extends ModuleSecnarioTestBase {
         )
         private ParaVar P2;
         
+        @PartAnno(
+			maxQuantity=3
+		)
+        private PartVar Part1;
+        
         @Override
         protected void initConstraint() {
-            // Logic 1: P1.isHiddenVar and P2.isHiddenVar are incompatible
+            // Logic1: P1.isHiddenVar and P2.isHiddenVar are incompatible
             model.addBoolOr(new Literal[]{P1.isHiddenVar.not(), P2.isHiddenVar.not()});
-
-            // Logic 2: if P0.var in (0,1) then P1.isHiddenVar=1 else P2.isHiddenVar=1
-            BoolVar p0In01 = model.newBoolVar("p0In01");
-            model.addLessOrEqual((IntVar)P0.var, 1).onlyEnforceIf(p0In01);
-            model.addGreaterThan((IntVar)P0.var, 1).onlyEnforceIf(p0In01.not());
+            addVarAboutHiddenConstraints(P1, P2);
+            
+            // Logic2: if P0.var in (0,1) then P1.isHiddenVar=1 else P2.isHiddenVar=1
+            BoolVar p0Eq0 = model.newBoolVar("p0_eq_0");
+            BoolVar p0Eq1 = model.newBoolVar("p0_eq_1");
+            model.addEquality((IntVar)P0.var, 0).onlyEnforceIf(p0Eq0);
+            model.addDifferent((IntVar)P0.var, 0).onlyEnforceIf(p0Eq0.not());
+            model.addEquality((IntVar)P0.var, 1).onlyEnforceIf(p0Eq1);
+            model.addDifferent((IntVar)P0.var, 1).onlyEnforceIf(p0Eq1.not());
+            
+            // p0In01 is true iff P0.var == 0 or P0.var == 1
+            BoolVar p0In01 = model.newBoolVar("p0_in_01");
+            model.addBoolOr(new Literal[]{p0Eq0, p0Eq1}).onlyEnforceIf(p0In01);
+            model.addBoolAnd(new Literal[]{p0Eq0.not(), p0Eq1.not()}).onlyEnforceIf(p0In01.not());
+            // Ensure not both p0Eq0 and p0Eq1 are true simultaneously
+            model.addBoolOr(new Literal[]{p0Eq0.not(), p0Eq1.not()});
             
             model.addEquality(P1.isHiddenVar, 1).onlyEnforceIf(p0In01);
             model.addEquality(P2.isHiddenVar, 1).onlyEnforceIf(p0In01.not());
 
             // Logic3: if P1.isHiddenVar=1 then P1.var=0
             model.addEquality((IntVar)P1.var, 0).onlyEnforceIf(P1.isHiddenVar);
-
+            
             // Logic4: if P2.isHiddenVar=1 then P2.var=0
             model.addEquality((IntVar)P2.var, 0).onlyEnforceIf(P2.isHiddenVar);
-
-            // Logic5: if P1.isHiddenVar=0 then P1.var can be manually modified (as input for inferParasByPara)
-            // Logic6: if P2.isHiddenVar=0 then P2.var can be manually modified (as input for inferParasByPara)
-            // These are handled by the framework, no constraints needed
+            
+            // Logic5: Part1.quantity = P1.value + P2.value
+            model.addEquality((IntVar)Part1.var, LinearExpr.sum(new IntVar[]{(IntVar)P1.var, (IntVar)P2.var}));
         }
     }
-    //---------------模型的定义end----------------------------------------
+    //---------------?????end----------------------------------------
 
     public ParaIsHiddenTest() {
         super(ParaIsHiddenConstraint.class);
     }
 
     @Test
-    public void testP0In01_HidesP1() {
-        inferParasByPara("P0", "0");
-        resultAssert().assertSuccess().assertSolutionSizeEqual(1);
+    public void testP0Value0P1Hidden() {
+        // Test when P0=0, P1 should be hidden and P1.var=0
+        inferParas("Part1", 1, "P0", "0");
+        printSolutions();
+        resultAssert()
+                .assertSuccess()
+                .assertSolutionSizeEqual(1);
+            
         solutions(0)
-            .assertPara("P0").valueEqual("0")
-            .assertPara("P1").valueEqual("0")
-            .assertPara("P2").valueEqual("0");
+        .assertPara("P0").valueEqual(0).hiddenEqual(false)
+        .assertPara("P1").valueEqual(0).hiddenEqual(true)
+        .assertPara("P2").valueEqual(1).hiddenEqual(false)
+        .assertPara("P2").valueEqual(1).hiddenEqual(false)
+        .assertPart("Part1").quantityEqual(1).hiddenEqual(false);
+    }
+    
+    @Test
+    public void testP0Value1P1Hidden() {
+        // Test when P0=0, P1 should be hidden and P1.var=0
+        inferParas("Part1", 1, "P0", "1");
+        printSolutions();
+        resultAssert()
+                .assertSuccess()
+                .assertSolutionSizeEqual(1);
+            
+        solutions(0)
+        .assertPara("P0").valueEqual(1).hiddenEqual(false)
+        .assertPara("P1").valueEqual(0).hiddenEqual(true)
+        .assertPara("P2").valueEqual(1).hiddenEqual(false)
+        .assertPara("P2").valueEqual(1).hiddenEqual(false)
+        .assertPart("Part1").quantityEqual(1).hiddenEqual(false);
+    }
+    @Test
+    public void testP0Value2P2Hidden() {
+        // Test when P0=0, P1 should be hidden and P1.var=0
+        inferParas("Part1", 1, "P0", "2");
+        printSolutions();
+        resultAssert()
+                .assertSuccess()
+                .assertSolutionSizeEqual(1);
+            
+        solutions(0)
+        .assertPara("P0").valueEqual(2).hiddenEqual(false)
+        .assertPara("P1").valueEqual(1).hiddenEqual(false)
+        .assertPara("P2").valueEqual(0).hiddenEqual(true)
+        .assertPart("Part1").quantityEqual(1).hiddenEqual(false);
+    }
+
+    
+    @Test
+    public void testP2ToPart1() {
+        // Test when P0=0, P1 should be hidden and P1.var=0
+        inferParasByPara("P0", "1", "P2", "2");
+        printSolutions();
+        resultAssert()
+                .assertSuccess()
+                .assertSolutionSizeEqual(1);
+            
+        solutions(0)
+        .assertPara("P0").valueEqual(1).hiddenEqual(false)
+        .assertPara("P1").valueEqual(0).hiddenEqual(true)
+        .assertPara("P2").valueEqual(2).hiddenEqual(false)
+        .assertPart("Part1").quantityEqual(2).hiddenEqual(false);
+    }
+    @Test
+    public void testP1ToPart1() {
+        // Test when P0=0, P1 should be hidden and P1.var=0
+        inferParasByPara("P0", "2", "P1", "2");
+        printSolutions();
+        resultAssert()
+                .assertSuccess()
+                .assertSolutionSizeEqual(1);
+            
+        solutions(0)
+        .assertPara("P0").valueEqual(2).hiddenEqual(false)
+        .assertPara("P1").valueEqual(2).hiddenEqual(false)
+        .assertPara("P2").valueEqual(0).hiddenEqual(true)
+        .assertPart("Part1").quantityEqual(2).hiddenEqual(false);
     }
 
     @Test
-    public void testP0In01_HidesP1_Alternative() {
-        inferParasByPara("P0", "1");
-        resultAssert().assertSuccess().assertSolutionSizeEqual(1);
-        solutions(0)
-            .assertPara("P0").valueEqual("1")
-            .assertPara("P1").valueEqual("0")
-            .assertPara("P2").valueEqual("0");
-    }
-
-    @Test
-    public void testP0NotIn01_HidesP2() {
-        inferParasByPara("P0", "2");
-        resultAssert().assertSuccess().assertSolutionSizeEqual(1);
-        solutions(0)
-            .assertPara("P0").valueEqual("2")
-            .assertPara("P1").valueEqual("0")
-            .assertPara("P2").valueEqual("0");
-    }
-
-    @Test
-    public void testP0NotIn01_HidesP2_Alternative() {
-        inferParasByPara("P0", "3");
-        resultAssert().assertSuccess().assertSolutionSizeEqual(1);
-        solutions(0)
-            .assertPara("P0").valueEqual("3")
-            .assertPara("P1").valueEqual("0")
-            .assertPara("P2").valueEqual("0");
-    }
-
-    @Test
-    public void testP1HiddenCannotBeModified() {
-        inferParasByPara("P0", "0", "P1", "1");
+    public void testP1ToPart1InvalidInput() {
+        // Test when P0=0, P1 should be hidden and P1.var=0
+        inferParasByPara("P0", "2", "P1", "3");//瓒呭嚭P1鍊煎煙
+        printSolutions();
         resultAssert().assertNoSolution();
+    
     }
 
-    @Test
-    public void testP2HiddenCannotBeModified() {
-        inferParasByPara("P0", "2", "P2", "1");
-        resultAssert().assertNoSolution();
-    }
-
-    @Test
-    public void testP1VisibleCanBeModified() {
-        inferParasByPara("P0", "2", "P1", "1");
-        resultAssert().assertSuccess().assertSolutionSizeEqual(1);
-        solutions(0)
-            .assertPara("P0").valueEqual("2")
-            .assertPara("P1").valueEqual("1")
-            .assertPara("P2").valueEqual("0");
-    }
-
-    @Test
-    public void testP2VisibleCanBeModified() {
-        inferParasByPara("P0", "0", "P2", "1");
-        resultAssert().assertSuccess().assertSolutionSizeEqual(1);
-        solutions(0)
-            .assertPara("P0").valueEqual("0")
-            .assertPara("P1").valueEqual("0")
-            .assertPara("P2").valueEqual("1");
-    }
-
-    @Test
-    public void testBothCannotBeHiddenSimultaneously() {
-        inferParasByPara("P0", "0", "P0", "2");
-        resultAssert().assertNoSolution();
-    }
 }

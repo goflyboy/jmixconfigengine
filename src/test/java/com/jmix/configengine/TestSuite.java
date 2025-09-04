@@ -36,7 +36,8 @@ import com.jmix.configengine.util.ModuleUtilsTest;
     com.jmix.configengine.scenario.ruletest.MyTShirtTest.class,
     com.jmix.configengine.scenario.ruletest.CalculateRuleIfThenTest.class,
     com.jmix.configengine.scenario.ruletest.CalculateRuleSimpleTest.class,
-    com.jmix.configengine.scenario.ruletest.CompatiableRuleRequireTest.class
+    com.jmix.configengine.scenario.ruletest.CompatiableRuleRequireTest.class,
+    com.jmix.configengine.scenario.ruletest.ParaIsHiddenTest.class
 
 })
 public class TestSuite {
