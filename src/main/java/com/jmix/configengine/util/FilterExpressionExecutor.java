@@ -128,11 +128,12 @@ public class FilterExpressionExecutor {
             
             String fieldValueStr = fieldValue.toString();
             log.debug("Evaluating condition - field: {}, operator: {}, field value: {}, compare value: {}", 
-                     fieldName, operator, fieldValueStr, value);
+                    fieldName, operator, fieldValueStr, value);
             
             boolean result = false;
             switch (operator) {
                 case "=":
+                case "==":
                     result = fieldValueStr.equals(value);
                     break;
                 case "!=":

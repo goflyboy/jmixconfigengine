@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.checkerframework.checker.units.qual.s;
+
 import com.jmix.configengine.artifact.RuleInfo;
 
 /**
@@ -74,7 +77,7 @@ public class StructCodeInjector {
 
         // 生成片段
         String generated = converter.convert(injectedCode, indent);
-
+        System.out.println("generated: \n" + generated);
         // 若已有标记，替换标记之间内容
         int existingStart = body.indexOf(GEN_START);
         int existingEnd = body.indexOf(GEN_END);
@@ -164,9 +167,10 @@ public class StructCodeInjector {
                 return sb.toString();
             }
             // 默认回退为注释块，避免破坏编译
-            return indent + "//自动生成，请勿编辑--start\n"
-                 + indent + "// 未识别的伪代码: " + escapeForComment(code) + "\n"
-                 + indent + "//自动生成，请勿编辑--end\n";
+            return indent + "\n\n" + indent + "//自动生成，请勿编辑--start\n"
+                //  + indent + "// 未识别的伪代码: " + escapeForComment(code) + "\n"
+                 + indent  + escapeForComment(code) + "\n"
+                 + indent  + "//自动生成，请勿编辑--end\n";
         }
 
         private String escapeForComment(String s) {
@@ -236,10 +240,23 @@ public class StructCodeInjector {
         
         // 这里简化处理，实际应该根据ruleInfo的schema解析左右表达式
         sb.append("this.").append(ruleInfo.getCode()).append("Left, ");
-        sb.append("Arrays.asList(\"filterCode1\", \"filterCode2\"), ");
-        sb.append("this.").append(ruleInfo.getCode()).append("Right, ");
-        sb.append("Arrays.asList(\"filterCode3\", \"filterCode4\"));");
-        
+        sb.append(toArgumentString(ruleInfo.getLeftFilterCodes()));
+        sb.append(", this.").append(ruleInfo.getCode()).append("Right, ");
+        sb.append(toArgumentString(ruleInfo.getRightFilterCodes()));
+        sb.append(");");
+        System.out.println("sb: \n" + sb.toString());
+        return sb.toString();
+    }
+    private String toArgumentString(List<String> filterCodes) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Arrays.asList(");
+        for (int i = 0; i < filterCodes.size(); i++) {
+            sb.append("\"").append(filterCodes.get(i)).append("\"");
+            if (i < filterCodes.size() - 1) {
+                sb.append(", ");
+            }
+        }
+        sb.append(")");
         return sb.toString();
     }
 } 
