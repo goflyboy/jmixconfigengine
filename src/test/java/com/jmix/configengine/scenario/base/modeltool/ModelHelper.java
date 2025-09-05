@@ -1,6 +1,5 @@
 package com.jmix.configengine.scenario.base.modeltool;
 
-import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -289,19 +288,33 @@ public class ModelHelper {
             System.err.println("请确保已安装Java编译器(javac)");
         }
     }
-    
+        /**
+     * 自动注入约束代码
+     * @param className 类名
+     * @param packageName 包名
+     * @return 是否需要注入
+     */
+    public boolean autoInjectConstraintCode(String className, String packageName) {
+        // 获取完整的类名
+        String fullClassName = packageName + "." + className;
+        Class<?> injectedClazz;
+        try {
+            injectedClazz = Class.forName(fullClassName);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("类未找到: " + fullClassName, e);
+        }
+        return autoInjectConstraintCode(injectedClazz);
+    }
+        
+
     /**
      * 自动注入约束代码
      * @param className 类名
      * @param packageName 包名
      * @return 是否需要注入
      */
-    private boolean autoInjectConstraintCode(String className, String packageName) {
+    public boolean autoInjectConstraintCode(Class<?> injectedClazz) {
         try {
-            // 获取完整的类名
-            String fullClassName = packageName + "." + className;
-            Class<?> injectedClazz = Class.forName(fullClassName);
-            
             // 创建临时路径
             String tempPath = CommHelper.createTempPath(injectedClazz);
             

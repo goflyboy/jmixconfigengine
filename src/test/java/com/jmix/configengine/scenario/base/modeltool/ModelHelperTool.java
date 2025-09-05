@@ -1,12 +1,33 @@
 package com.jmix.configengine.scenario.base.modeltool;
 
+import com.jmix.configengine.scenario.autoruletest.InjectConstraintTest.InjectConstraint;
+
 /**
  * ModelHelper测试类
  * 测试生成并运行模型文件的功能
  */
-public class ModelHelperTest {
-    
+public class ModelHelperTool {
     public static void main(String[] args) {
+        // generatorModelFile();
+        injectConstraintCode();
+
+    }
+    public static void injectConstraintCode() {
+        try {
+            ModelHelper modelHelper = new ModelHelper();
+            modelHelper.autoInjectConstraintCode(InjectConstraint.class);//
+            System.out.println("正在注入约束代码...");
+        } catch (Exception e) {
+            System.out.println("注入约束代码失败: " + e.getMessage());
+        }
+    }
+
+
+
+    /**
+     * 调用大模型生成模型文件和测试文件
+     */
+    public static void generatorModelFile() {
         try {
             System.out.println("=== ModelHelper测试 ===\n");
             
@@ -80,7 +101,7 @@ public class ModelHelperTest {
     private static String readFromMarkdown(String section) {
         try {
             // 获取当前类文件所在目录
-            String currentDir = ModelHelperTest.class.getResource(".").getPath();
+            String currentDir = ModelHelperTool.class.getResource(".").getPath();
             if (currentDir.startsWith("/")) {
                 currentDir = currentDir.substring(1);
             }

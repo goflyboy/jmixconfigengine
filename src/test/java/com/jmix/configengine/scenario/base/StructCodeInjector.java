@@ -192,7 +192,7 @@ public class StructCodeInjector {
      */
     public void injectRule(Class<?> clazz, RuleInfo ruleInfo) {
         // 根据ruleInfo：对CompatiableRule做下列处理，其它暂时不处理
-        if (!"CompatiableRule".equals(ruleInfo.getRuleSchemaTypeFullName())) {
+        if (!ruleInfo.getRuleSchemaTypeFullName().contains("CompatiableRule")) {
             return; // 暂时只处理CompatiableRule
         }
         
@@ -217,9 +217,14 @@ public class StructCodeInjector {
      * 获取类的源文件路径
      */
     private String getSourceFile(Class<?> clazz) {
-        String className = clazz.getName();
+        String fileName = clazz.getSimpleName();
+        Class<?> enclosingClass = clazz.getEnclosingClass();
+        if (enclosingClass != null) {
+            // 是内部类，设置父类名称
+            fileName = enclosingClass.getSimpleName();
+        }
         String packagePath = clazz.getPackage().getName().replace('.', '/');
-        return "src/test/java/" + packagePath + "/" + clazz.getSimpleName() + ".java";
+        return "src/test/java/" + packagePath + "/" + fileName+ ".java";
     }
     
     /**

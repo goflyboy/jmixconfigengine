@@ -99,7 +99,7 @@ public class ModuleGenneratorByAnno {
         
         module.setParas(paras);
         module.setParts(parts);
-        
+        module.init();//保证后续能使用getPara等函数
         // 4. 生成规则
         List<Rule> rules = createRulesFromMethods(moduleAlgClazz, module);
         module.setRules(rules);
@@ -356,7 +356,7 @@ public class ModuleGenneratorByAnno {
             } else if (currentModule.getPart(progObject.getObjCode()) != null) {
                 refProgObjSchema.setProgObjType("Part");
             } else {
-                refProgObjSchema.setProgObjType("Unknown");
+                throw new RuntimeException("未找到对象: " + progObject.getObjCode());
             }
             
             refProgObjs.add(refProgObjSchema);
@@ -377,6 +377,10 @@ public class ModuleGenneratorByAnno {
         
         while (matcher.find()) {
             String objCode = matcher.group(1);
+            //如果objCode="ColorVar"，则objCode="Color"
+            if (objCode.endsWith("Var")) {
+                objCode = objCode.substring(0, objCode.length() - "Var".length());
+            }
             String objField = matcher.group(2);
             progObjects.add(new ProgObject(objCode, objField));
         }

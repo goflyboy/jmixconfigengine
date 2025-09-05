@@ -8,9 +8,6 @@ import com.jmix.configengine.model.Module;
 import java.util.Arrays;
 import java.util.HashSet;
 import com.jmix.configengine.util.ParaTypeHandler;
-
-import opennlp.tools.stemmer.snowball.indonesianStemmer;
-
 import java.util.Objects;
 import java.util.Set;
 

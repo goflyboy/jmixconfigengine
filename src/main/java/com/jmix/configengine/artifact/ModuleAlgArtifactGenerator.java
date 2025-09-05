@@ -264,7 +264,9 @@ public class ModuleAlgArtifactGenerator {
                 if (para != null) {
                     objects = para.getOptions();
                 }
-                parsedRawCode = replaceToOptionCode(exprSchema.getRawCode(), progObjCode, "code");
+                // parsedRawCode = replaceToOptionCode(exprSchema.getRawCode(), progObjCode, "code");
+                //例如：SizeVar.value == Small --> SizeVar.code == Small(本质是对option的code进行搜索)
+                parsedRawCode = replaceToOptionCode(exprSchema.getRawCode(), "value", "code");
             }
         }
         // 根据exprSchema.refProgObjs.progObjType = Part
