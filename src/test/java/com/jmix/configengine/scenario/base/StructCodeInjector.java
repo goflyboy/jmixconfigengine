@@ -4,10 +4,12 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.jmix.configengine.artifact.RuleInfo;
 
 /**
  * 结构化代码（类似CompatiableRuleAnno、SelectRule等)的注入器 生成方法体片段并写回源文件。
@@ -170,5 +172,69 @@ public class StructCodeInjector {
         private String escapeForComment(String s) {
             return s.replace("*/", "* /");
         }
+    }
+    
+    /**
+     * 注入规则到类中
+     * @param clazz 目标类
+     * @param ruleInfos 规则信息列表
+     */
+    public void injectRule(Class<?> clazz, List<RuleInfo> ruleInfos) {
+        for (RuleInfo ruleInfo : ruleInfos) {
+            injectRule(clazz, ruleInfo);
+        }
+    }
+    
+    /**
+     * 注入单个规则到类中
+     * @param clazz 目标类
+     * @param ruleInfo 规则信息
+     */
+    public void injectRule(Class<?> clazz, RuleInfo ruleInfo) {
+        // 根据ruleInfo：对CompatiableRule做下列处理，其它暂时不处理
+        if (!"CompatiableRule".equals(ruleInfo.getRuleSchemaTypeFullName())) {
+            return; // 暂时只处理CompatiableRule
+        }
+        
+        // 根据clazz得到source
+        String sourceFile = getSourceFile(clazz);
+        try {
+            String content = new String(Files.readAllBytes(Paths.get(sourceFile)), StandardCharsets.UTF_8);
+            String methodName = ruleInfo.getCode();
+            String injectedCodeTmp = generatorInjectorCode(ruleInfo);
+            String updated = injectIntoMethod(content, methodName, injectedCodeTmp);
+            
+            // 注入
+            if (!updated.equals(content)) {
+                Files.write(Paths.get(sourceFile), updated.getBytes(StandardCharsets.UTF_8));
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("读写源文件失败: " + sourceFile, e);
+        }
+    }
+    
+    /**
+     * 获取类的源文件路径
+     */
+    private String getSourceFile(Class<?> clazz) {
+        String className = clazz.getName();
+        String packagePath = clazz.getPackage().getName().replace('.', '/');
+        return "src/test/java/" + packagePath + "/" + clazz.getSimpleName() + ".java";
+    }
+    
+    /**
+     * 生成注入代码
+     */
+    private String generatorInjectorCode(RuleInfo ruleInfo) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("addCompatibleConstraint(\"").append(ruleInfo.getCode()).append("\", ");
+        
+        // 这里简化处理，实际应该根据ruleInfo的schema解析左右表达式
+        sb.append("this.").append(ruleInfo.getCode()).append("Left, ");
+        sb.append("Arrays.asList(\"filterCode1\", \"filterCode2\"), ");
+        sb.append("this.").append(ruleInfo.getCode()).append("Right, ");
+        sb.append("Arrays.asList(\"filterCode3\", \"filterCode4\"));");
+        
+        return sb.toString();
     }
 } 

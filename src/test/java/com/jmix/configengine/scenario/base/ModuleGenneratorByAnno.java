@@ -6,6 +6,11 @@ import com.jmix.configengine.model.Part;
 import com.jmix.configengine.model.ParaOption;
 import com.jmix.configengine.model.Module;
 import com.jmix.configengine.model.ModuleAlgArtifact;
+import com.jmix.configengine.model.Rule;
+import com.jmix.configengine.schema.CompatiableRuleSchema;
+import com.jmix.configengine.schema.CodeRuleSchema;
+import com.jmix.configengine.schema.ExprSchema;
+import com.jmix.configengine.schema.RefProgObjSchema;
 import com.jmix.configengine.util.ModuleUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -94,6 +99,10 @@ public class ModuleGenneratorByAnno {
         
         module.setParas(paras);
         module.setParts(parts);
+        
+        // 4. 生成规则
+        List<Rule> rules = createRulesFromMethods(moduleAlgClazz, module);
+        module.setRules(rules);
         
         // 3. 保存Module到文件
         String fileName = module.getCode() + ".base.json";
@@ -226,5 +235,152 @@ public class ModuleGenneratorByAnno {
         }
         
         return part;
+    }
+    
+    /**
+     * 从方法中创建规则
+     */
+    private static List<Rule> createRulesFromMethods(Class<?> moduleAlgClazz, Module module) {
+        List<Rule> rules = new ArrayList<>();
+        
+        // 遍历所有方法
+        for (java.lang.reflect.Method method : moduleAlgClazz.getDeclaredMethods()) {
+            // 检查是否有CompatiableRuleAnno注解
+            CompatiableRuleAnno compatiableRuleAnno = method.getAnnotation(CompatiableRuleAnno.class);
+            if (compatiableRuleAnno != null) {
+                Rule rule = createCompatiableRule(method, compatiableRuleAnno, module);
+                if (rule != null) {
+                    rules.add(rule);
+                }
+            }
+            
+            // 检查是否有CodeRuleAnno注解
+            CodeRuleAnno codeRuleAnno = method.getAnnotation(CodeRuleAnno.class);
+            if (codeRuleAnno != null) {
+                Rule rule = createCodeRule(method, codeRuleAnno, module);
+                if (rule != null) {
+                    rules.add(rule);
+                }
+            }
+        }
+        
+        return rules;
+    }
+    
+    /**
+     * 创建兼容性规则
+     */
+    private static Rule createCompatiableRule(java.lang.reflect.Method method, CompatiableRuleAnno anno, Module module) {
+        Rule rule = new Rule();
+        
+        // 设置基本信息
+        String methodName = method.getName();
+        rule.setCode(methodName);
+        rule.setName(methodName);
+        rule.setProgObjType("Module");
+        rule.setProgObjCode(module.getCode());
+        rule.setProgObjField("constraints");
+        rule.setNormalNaturalCode(anno.normalNaturalCode());
+        rule.setRuleSchemaTypeFullName("CDSL.V5.Struct.CompatiableRule");
+        
+        // 创建CompatiableRuleSchema
+        CompatiableRuleSchema schema = new CompatiableRuleSchema();
+        schema.setType("CompatiableRule");
+        schema.setVersion("1.0");
+        
+        // 创建左表达式
+        if (!anno.leftExprCode().isEmpty()) {
+            ExprSchema leftExpr = new ExprSchema();
+            leftExpr.setRawCode(anno.leftExprCode());
+            leftExpr.setRefProgObjs(generateRefProgObjSchemas(anno.leftExprCode(), module));
+            schema.setLeftExpr(leftExpr);
+        }
+        
+        // 设置操作符
+        schema.setOperator(anno.operator());
+        
+        // 创建右表达式
+        if (!anno.rightExprCode().isEmpty()) {
+            ExprSchema rightExpr = new ExprSchema();
+            rightExpr.setRawCode(anno.rightExprCode());
+            rightExpr.setRefProgObjs(generateRefProgObjSchemas(anno.rightExprCode(), module));
+            schema.setRightExpr(rightExpr);
+        }
+        
+        rule.setRawCode(schema);
+        return rule;
+    }
+    
+    /**
+     * 创建代码规则
+     */
+    private static Rule createCodeRule(java.lang.reflect.Method method, CodeRuleAnno anno, Module module) {
+        Rule rule = new Rule();
+        
+        // 设置基本信息
+        String methodName = method.getName();
+        rule.setCode(methodName);
+        rule.setName(methodName);
+        rule.setProgObjType("Module");
+        rule.setProgObjCode(module.getCode());
+        rule.setProgObjField("constraints");
+        rule.setNormalNaturalCode(anno.normalNaturalCode());
+        rule.setRuleSchemaTypeFullName("CDSL.V5.Struct.CodeRule");
+        
+        // 创建CodeRuleSchema
+        CodeRuleSchema schema = new CodeRuleSchema();
+        schema.setType("CodeRule");
+        schema.setVersion("1.0");
+        schema.setRawCode(anno.code());
+        schema.setRefProgObjs(new ArrayList<>()); // 代码规则暂时不解析引用对象
+        
+        rule.setRawCode(schema);
+        return rule;
+    }
+    
+    /**
+     * 生成引用编程对象Schema列表
+     */
+    private static List<RefProgObjSchema> generateRefProgObjSchemas(String code, Module currentModule) {
+        List<RefProgObjSchema> refProgObjs = new ArrayList<>();
+        List<ProgObject> progObjects = parseVariableObjects(code);
+        
+        for (ProgObject progObject : progObjects) {
+            RefProgObjSchema refProgObjSchema = new RefProgObjSchema();
+            refProgObjSchema.setProgObjCode(progObject.getObjCode());
+            refProgObjSchema.setProgObjField(progObject.getObjField());
+            
+            // 判断是Part还是Para
+            if (currentModule.getPara(progObject.getObjCode()) != null) {
+                refProgObjSchema.setProgObjType("Para");
+            } else if (currentModule.getPart(progObject.getObjCode()) != null) {
+                refProgObjSchema.setProgObjType("Part");
+            } else {
+                refProgObjSchema.setProgObjType("Unknown");
+            }
+            
+            refProgObjs.add(refProgObjSchema);
+        }
+        
+        return refProgObjs;
+    }
+    
+    /**
+     * 解析代码中的变量对象
+     */
+    private static List<ProgObject> parseVariableObjects(String code) {
+        List<ProgObject> progObjects = new ArrayList<>();
+        
+        // 使用正则表达式匹配 "Object.Field" 模式
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("([A-Za-z_][A-Za-z0-9_]*)\\.([A-Za-z_][A-Za-z0-9_]*)");
+        java.util.regex.Matcher matcher = pattern.matcher(code);
+        
+        while (matcher.find()) {
+            String objCode = matcher.group(1);
+            String objField = matcher.group(2);
+            progObjects.add(new ProgObject(objCode, objField));
+        }
+        
+        return progObjects;
     }
 } 

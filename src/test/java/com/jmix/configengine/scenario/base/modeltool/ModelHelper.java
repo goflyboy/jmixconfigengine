@@ -4,6 +4,11 @@ import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import com.jmix.configengine.scenario.base.CommHelper;
+import com.jmix.configengine.scenario.base.ModuleGenneratorByAnno;
+import com.jmix.configengine.scenario.base.StructCodeInjector;
+import com.jmix.configengine.artifact.ModuleAlgArtifactGenerator;
+import com.jmix.configengine.model.Module;
 
 /**
  * 模型文件生成器
@@ -72,6 +77,12 @@ public class ModelHelper {
             
             // 尝试编译生成的Java文件
             compileJavaFile(fullPath);
+            
+            // 新增代码：自动注入约束代码
+            boolean isNeedInject = autoInjectConstraintCode(className, packageName);
+            if (isNeedInject) {
+                compileJavaFile(fullPath); // 再次编译这个文件
+            }
             
         } catch (Exception e) {
             throw new RuntimeException("生成模型文件失败: " + e.getMessage(), e);
@@ -276,6 +287,56 @@ public class ModelHelper {
         } catch (Exception e) {
             System.err.println("编译Java文件失败: " + e.getMessage());
             System.err.println("请确保已安装Java编译器(javac)");
+        }
+    }
+    
+    /**
+     * 自动注入约束代码
+     * @param className 类名
+     * @param packageName 包名
+     * @return 是否需要注入
+     */
+    private boolean autoInjectConstraintCode(String className, String packageName) {
+        try {
+            // 获取完整的类名
+            String fullClassName = packageName + "." + className;
+            Class<?> injectedClazz = Class.forName(fullClassName);
+            
+            // 创建临时路径
+            String tempPath = CommHelper.createTempPath(injectedClazz);
+            
+            // 生成Module
+            Module module = ModuleGenneratorByAnno.build((Class<? extends com.jmix.configengine.artifact.ConstraintAlg>) injectedClazz, tempPath);
+            
+            // 检查是否需要注入：如果module.getRules()都不是CompatiableRule，则为false，否则为true
+            boolean isNeedInject = false;
+            if (module.getRules() != null) {
+                for (com.jmix.configengine.model.Rule rule : module.getRules()) {
+                    if ("CDSL.V5.Struct.CompatiableRule".equals(rule.getRuleSchemaTypeFullName())) {
+                        isNeedInject = true;
+                        break;
+                    }
+                }
+            }
+            
+            if (isNeedInject) {
+                // 生成ModuleInfo
+                ModuleAlgArtifactGenerator generator = new ModuleAlgArtifactGenerator();
+                com.jmix.configengine.artifact.ModuleVarInfo moduleInfo = generator.buildModuleInfo(module);
+                
+                // 注入规则
+                StructCodeInjector injector = new StructCodeInjector();
+                injector.injectRule(injectedClazz, moduleInfo.getRules());
+                
+                System.out.println("✓ 自动注入约束代码完成");
+            }
+            
+            return isNeedInject;
+            
+        } catch (Exception e) {
+            System.err.println("自动注入约束代码失败: " + e.getMessage());
+            e.printStackTrace();
+            return false;
         }
     }
 } 
