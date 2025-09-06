@@ -1,6 +1,5 @@
 package com.jmix.configengine;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.jmix.configengine.model.Module;
 
 import lombok.Data;
@@ -14,6 +13,20 @@ public interface ModuleConstraintExecutor {
 	Result<Void> addModule(Long rootModuleId, Module... modules);
 	Result<Void> removeModule(Long moduleId);
 	Result<List<ModuleInst>> inferParas(InferParasReq req);
+	
+	/**
+	 * 注册扩展处理器
+	 * @param eProcess 扩展处理器
+	 * @return 注册结果
+	 */
+	Result<Void> registerExtensible(ExtensibleProcess eProcess);
+	
+	/**
+	 * 注销扩展处理器
+	 * @param eProcess 扩展处理器
+	 * @return 注销结果
+	 */
+	Result<Void> unregisterExtensible(ExtensibleProcess eProcess);
 	
 	class Result<T> {
 		public static final int SUCCESS = 0;
