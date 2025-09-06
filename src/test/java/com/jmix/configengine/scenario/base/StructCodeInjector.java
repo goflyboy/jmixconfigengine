@@ -235,6 +235,13 @@ public class StructCodeInjector {
      * 生成注入代码
      */
     private String generatorInjectorCode(RuleInfo ruleInfo) {
+        if (ruleInfo.getRuleSchemaTypeFullName().contains("CompatiableRule")) {
+            return generatorInjectorCode4Compatible(ruleInfo);
+        }
+        throw new RuntimeException("不支持的规则类型: " + ruleInfo.getRuleSchemaTypeFullName()); 
+    }
+    
+    private String generatorInjectorCode4Compatible(RuleInfo ruleInfo) {
         StringBuilder sb = new StringBuilder();
         sb.append("addCompatibleConstraint(\"").append(ruleInfo.getCode()).append("\", ");
         

@@ -53,8 +53,8 @@ public class InjectConstraintTest extends ModuleSecnarioTestBase {
             
         }
 
-        @CompatiableRuleAnno(leftExprCode = "ColorVar.value == Red",
-        rightExprCode = "SizeVar.value == Small",operator = "Requires")
+        @CompatiableRuleAnno(leftExprCode = "ColorVar.value == Red",operator = "Requires"
+        ,rightExprCode = "SizeVar.value == Small")
         protected void rule2() {
             
         }
