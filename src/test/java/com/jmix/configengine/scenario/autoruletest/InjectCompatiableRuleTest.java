@@ -18,16 +18,13 @@ public class InjectCompatiableRuleTest extends ModuleSecnarioTestBase {
             options = {"Small", "Medium", "Big"}
         )
         private ParaVar SizeVar;
-
-        @PartAnno()
-        private PartVar TShirt11Var;
         
-        @Override
-        protected void initConstraint() { 
-        }
+        // @Override
+        // protected void initConstraint() {//不能有这个代码
+        // }
         @CodeRuleAnno(code = "rule1")
         protected void rule1() {
-            
+            System.out.println("****************rule1****************");
         }
 
         @CompatiableRuleAnno(leftExprCode = "ColorVar.value == Red",operator = "Requires"

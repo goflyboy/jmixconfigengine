@@ -8,10 +8,12 @@ import com.jmix.configengine.model.Para;
 import com.jmix.configengine.model.ParaOption;
 import com.jmix.configengine.model.ParaType;
 import com.jmix.configengine.model.Part;
+import com.jmix.configengine.model.Rule;
 import com.jmix.configengine.util.ParaTypeHandler;
 
 import lombok.extern.slf4j.Slf4j;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.*;
 
 /**
@@ -161,11 +163,64 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		}
 		return fieldName;
 	}
+
+	/**
+	 * 自动添加约束方法
+	 * 遍历module.rules，根据rule.code找到对应的方法并调用
+	 */
+	protected void autoAddConstraints(Module module) {
+		if (module == null || module.getRules() == null || module.getRules().isEmpty()) {
+			log.debug("No rules found in module, skipping auto constraint registration");
+			return;
+		}
+		
+		try {
+			// 获取当前类的所有方法
+			Method[] methods = this.getClass().getDeclaredMethods();
+			Map<String, Method> methodMap = new HashMap<>();
+			
+			// 构建方法名到方法的映射，方便查找
+			for (Method method : methods) {
+				methodMap.put(method.getName(), method);
+			}
+			
+			// 遍历所有规则
+			for (Rule rule : module.getRules()) {
+				if (rule == null || rule.getCode() == null || rule.getCode().trim().isEmpty()) {
+					continue;
+				}
+				
+				String ruleCode = rule.getCode();
+				// 构造方法名：addConstraint_ + ruleCode
+				String methodName = "" + ruleCode;
+				
+				// 查找对应的方法
+				Method ruleMethod = methodMap.get(methodName);
+				if (ruleMethod != null) {
+					try {
+						// 设置方法可访问（处理protected方法）
+						ruleMethod.setAccessible(true);
+						// 调用方法
+						ruleMethod.invoke(this);
+						log.info("Successfully registered constraint for rule: {}", ruleCode);
+					} catch (Exception e) {
+						log.error("Failed to invoke rule method: {} for rule: {}", methodName, ruleCode, e);
+					}
+				} else {
+					log.warn("Rule method not found: {} for rule: {}", methodName, ruleCode);
+				}
+			}
+		} catch (Exception e) {
+			log.error("Failed to auto register constraints", e);
+		}
+	}
+
 	/**
 	 * 初始约束
 	 */
 	protected void initConstraint(){
-
+		// 自动添加约束
+		autoAddConstraints(module);
 	}
 
 	public static IntVar newIntVarFromDomain(CpModel model, long[] values, String name) {
