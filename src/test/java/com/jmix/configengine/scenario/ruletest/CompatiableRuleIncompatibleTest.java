@@ -45,7 +45,7 @@ public class CompatiableRuleIncompatibleTest extends ModuleSecnarioTestBase {
             // 2.1 如果BVar.value取CB的一个值(在CB中)，则AVar.value一定不是CA的一个值，取CA内的值是非法的，只能是NCA内的值，如:如果BVar.var=b1,则AVar.var=a2或a4或a5(NCA),不可以是a1 或 a3(CA)
             // 2.2 如果BVar.value取NCB一个值(不在CB中)，则AVar.value可以是CA的一个值，也可以是NCA的一个值，如：如果BVar.var=b4,则AVar.var=a1 或 a3(CA),也可以是a2 或 a4或a5(NCA)
             // 使用泛化的Incompatible约束方法
-            addCompatibleConstraintIncompatible("rule1", AVar, Arrays.asList("a1","a3"), BVar, Arrays.asList("b1","b2","b3"));
+            addCompatibleConstraintInCompatible("rule1", AVar, Arrays.asList("a1","a3"), BVar, Arrays.asList("b1","b2","b3"));
         }
 
         protected void addCompatibleConstraintIncompatible_note() {   

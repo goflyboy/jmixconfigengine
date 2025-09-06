@@ -161,7 +161,12 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		}
 		return fieldName;
 	}
-	protected abstract void initConstraint();
+	/**
+	 * 初始约束
+	 */
+	protected void initConstraint(){
+
+	}
 
 	public static IntVar newIntVarFromDomain(CpModel model, long[] values, String name) {
 		return model.newIntVarFromDomain(Domain.fromValues(values), name);
@@ -392,7 +397,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
      * - 如果B选择b1、b2或b3，则A不能选择a1或a3（必须选择a2、a4或a5）
      * - 如果B选择b4或b5，则A可以选择任意值
      */
-    public void addCompatibleConstraintIncompatible(String ruleCode, ParaVar leftParaVar, List<String> leftParaFilterOptionCodes,
+    public void addCompatibleConstraintInCompatible(String ruleCode, ParaVar leftParaVar, List<String> leftParaFilterOptionCodes,
 		ParaVar rightParaVar, List<String> rightParaFilterOptionCodes) {
 		// left:确保只有一个参数选项被选中
 		model.addExactlyOne(leftParaVar.optionSelectVars.values().stream()
@@ -455,5 +460,15 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		
 		// 反向2.2：如果右侧非条件为true，则左侧可以是任意值（无约束）
 		// 这个约束不需要显式添加，因为默认允许
+	}
+	
+	/**
+	 * 创建字符串列表的工具方法
+	 * 封装Arrays.asList，提供更简洁的API
+	 * @param codes 字符串数组
+	 * @return List<String>
+	 */
+	protected List<String> listOf(String... codes) {
+		return Arrays.asList(codes);
 	}
 }

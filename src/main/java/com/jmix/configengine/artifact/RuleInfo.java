@@ -70,6 +70,18 @@ public class RuleInfo {
      */
     public String compatiableOperator;
     
+    /**
+     * 左变量名称
+     * 例如：ColorVar、SizeVar等
+     */
+    public String leftVarName;
+    
+    /**
+     * 右变量名称
+     * 例如：ColorVar、SizeVar等
+     */
+    public String rightVarName;
+    
     public boolean isCompatibleRule(){
         return RuleTypeConstants.isCompatiableRule(this.ruleSchemaTypeFullName);
     }

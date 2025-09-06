@@ -195,6 +195,8 @@ public class ModuleAlgArtifactGenerator {
                     if (pair != null) {
                         ruleInfo.setLeft(pair.getFirst());
                         ruleInfo.setLeftFilterCodes(pair.getSecond());
+                        // 设置左变量名称
+                        ruleInfo.setLeftVarName(pair.getFirst().getVarName());
                     }
                     else {
                         log.error("Failed to select programming objects for rule: {}", rule.getCode());
@@ -210,6 +212,8 @@ public class ModuleAlgArtifactGenerator {
                     if (pair != null) {
                         ruleInfo.setRight(pair.getFirst());
                         ruleInfo.setRightFilterCodes(pair.getSecond());
+                        // 设置右变量名称
+                        ruleInfo.setRightVarName(pair.getFirst().getVarName());
                     }
                     else {
                         log.error("Failed to select programming objects for rule: {}", rule.getCode());

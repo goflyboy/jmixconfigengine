@@ -1,6 +1,6 @@
 package com.jmix.configengine.scenario.base.modeltool;
 
-import com.jmix.configengine.scenario.autoruletest.InjectConstraintTest.InjectConstraint;
+import com.jmix.configengine.scenario.autoruletest.InjectCompatiableRuleTest.InjectCompatiableRuleConstraint;
 
 /**
  * ModelHelper测试类
@@ -15,7 +15,7 @@ public class ModelHelperTool {
     public static void injectConstraintCode() {
         try {
             ModelHelper modelHelper = new ModelHelper();
-            modelHelper.autoInjectConstraintCode(InjectConstraint.class);//
+            modelHelper.autoInjectConstraintCode(InjectCompatiableRuleConstraint.class);//
             System.out.println("正在注入约束代码...");
         } catch (Exception e) {
             System.out.println("注入约束代码失败: " + e.getMessage());

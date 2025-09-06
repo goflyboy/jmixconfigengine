@@ -246,9 +246,9 @@ public class StructCodeInjector {
         sb.append("addCompatibleConstraint").append(ruleInfo.getCompatiableOperator()).append("(\"").append(ruleInfo.getCode()).append("\", ");
         
         // 这里简化处理，实际应该根据ruleInfo的schema解析左右表达式
-        sb.append("this.").append(ruleInfo.getCode()).append("Left, ");
+        sb.append("this.").append(ruleInfo.getLeftVarName()).append(", ");
         sb.append(toArgumentString(ruleInfo.getLeftFilterCodes()));
-        sb.append(", this.").append(ruleInfo.getCode()).append("Right, ");
+        sb.append(", this.").append(ruleInfo.getRightVarName()).append(", ");
         sb.append(toArgumentString(ruleInfo.getRightFilterCodes()));
         sb.append(");");
         System.out.println("sb: \n" + sb.toString());
@@ -256,7 +256,7 @@ public class StructCodeInjector {
     }
     private String toArgumentString(List<String> filterCodes) {
         StringBuilder sb = new StringBuilder();
-        sb.append("Arrays.asList(");
+        sb.append("listOf(");
         for (int i = 0; i < filterCodes.size(); i++) {
             sb.append("\"").append(filterCodes.get(i)).append("\"");
             if (i < filterCodes.size() - 1) {
