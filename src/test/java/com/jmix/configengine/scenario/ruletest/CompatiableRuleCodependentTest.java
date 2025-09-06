@@ -1,15 +1,12 @@
 package com.jmix.configengine.scenario.ruletest;
 
 import com.google.ortools.sat.BoolVar;
-import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.Literal;
 import com.jmix.configengine.artifact.ConstraintAlgImpl;
 import com.jmix.configengine.artifact.ParaVar;
-import com.jmix.configengine.artifact.PartVar;
 import com.jmix.configengine.scenario.base.ModuleAnno;
 import com.jmix.configengine.scenario.base.ModuleSecnarioTestBase;
 import com.jmix.configengine.scenario.base.ParaAnno;
-import com.jmix.configengine.scenario.base.PartAnno;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
@@ -48,7 +45,7 @@ public class CompatiableRuleCodependentTest extends ModuleSecnarioTestBase {
             // 2.2 如果BVar.value取CB外的一个值(不在CB中)，则AVar.value一定取CA外的一个值(不在CA中)，取CA内的值是非法的，如：如果BVar.var=b4,则AVar.var=a2 或 a4或a5
             addCompatibleConstraintCoDependent("rule1", AVar, Arrays.asList("a1","a3"), BVar,
             Arrays.asList("b1","b2","b3"));
-            
+
         }
         
         protected void addCompatibleConstraintCoDependent_note() { 

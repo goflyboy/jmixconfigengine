@@ -382,4 +382,78 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		// 反向2.2：如果右侧非条件为true，则左侧非条件必须为true
 		model.addImplication(rightNotCond, leftNotCond);
 	}
+	
+	/**
+     * 兼容性规则：Incompatible关系约束
+     * 规则内容：双向不兼容关系，左侧参数和右侧参数不能在对应的组内同时存在
+     * 例如：(a1,a3) Incompatible (b1,b2,b3) 表示：
+     * - 如果A选择a1或a3，则B不能选择b1、b2或b3（必须选择b4或b5）
+     * - 如果A选择a2、a4或a5，则B可以选择任意值
+     * - 如果B选择b1、b2或b3，则A不能选择a1或a3（必须选择a2、a4或a5）
+     * - 如果B选择b4或b5，则A可以选择任意值
+     */
+    public void addCompatibleConstraintIncompatible(String ruleCode, ParaVar leftParaVar, List<String> leftParaFilterOptionCodes,
+		ParaVar rightParaVar, List<String> rightParaFilterOptionCodes) {
+		// left:确保只有一个参数选项被选中
+		model.addExactlyOne(leftParaVar.optionSelectVars.values().stream()
+			.map(option -> option.getIsSelectedVar())
+			.toArray(BoolVar[]::new));
+		// right:确保只有一个参数选项被选中
+		model.addExactlyOne(rightParaVar.optionSelectVars.values().stream()
+			.map(option -> option.getIsSelectedVar())
+			.toArray(BoolVar[]::new));
+
+		// 定义左侧条件：左侧集合中至少一个被选中
+		BoolVar leftCond = model.newBoolVar(ruleCode + "_" + "leftCond");
+		Literal[] leftSelected = leftParaVar.optionSelectVars.values().stream()
+			.filter(option -> leftParaFilterOptionCodes.contains(option.getCode()))
+			.map(option -> (Literal) option.getIsSelectedVar())
+			.toArray(Literal[]::new);
+		// 当leftCond为true时，左侧集合中至少一个被选中；当为false时，左侧集合全部不被选中
+		model.addBoolOr(leftSelected).onlyEnforceIf(leftCond);
+		model.addBoolAnd(Arrays.stream(leftSelected).map(Literal::not).toArray(Literal[]::new)).onlyEnforceIf(leftCond.not());
+
+		// 定义右侧条件：右侧集合中至少一个被选中
+		BoolVar rightCond = model.newBoolVar(ruleCode + "_" + "rightCond");
+		Literal[] rightSelected = rightParaVar.optionSelectVars.values().stream()
+			.filter(option -> rightParaFilterOptionCodes.contains(option.getCode()))
+			.map(option -> (Literal) option.getIsSelectedVar())
+			.toArray(Literal[]::new);
+		// 当rightCond为true时，右侧集合中至少一个被选中；当为false时，右侧集合全部不被选中
+		model.addBoolOr(rightSelected).onlyEnforceIf(rightCond);
+		model.addBoolAnd(Arrays.stream(rightSelected).map(Literal::not).toArray(Literal[]::new)).onlyEnforceIf(rightCond.not());
+
+		// 定义左侧非条件：左侧集合外至少一个被选中
+		BoolVar leftNotCond = model.newBoolVar(ruleCode + "_" + "leftNotCond");
+		Literal[] leftNotSelected = leftParaVar.optionSelectVars.values().stream()
+			.filter(option -> !leftParaFilterOptionCodes.contains(option.getCode()))
+			.map(option -> (Literal) option.getIsSelectedVar())
+			.toArray(Literal[]::new);
+		// 当leftNotCond为true时，左侧集合外至少一个被选中；当为false时，左侧集合外全部不被选中
+		model.addBoolOr(leftNotSelected).onlyEnforceIf(leftNotCond);
+		model.addBoolAnd(Arrays.stream(leftNotSelected).map(Literal::not).toArray(Literal[]::new)).onlyEnforceIf(leftNotCond.not());
+
+		// 定义右侧非条件：右侧集合外至少一个被选中
+		BoolVar rightNotCond = model.newBoolVar(ruleCode + "_" + "rightNotCond");
+		Literal[] rightNotSelected = rightParaVar.optionSelectVars.values().stream()
+			.filter(option -> !rightParaFilterOptionCodes.contains(option.getCode()))
+			.map(option -> (Literal) option.getIsSelectedVar())
+			.toArray(Literal[]::new);
+		// 当rightNotCond为true时，右侧集合外至少一个被选中；当为false时，右侧集合外全部不被选中
+		model.addBoolOr(rightNotSelected).onlyEnforceIf(rightNotCond);
+		model.addBoolAnd(Arrays.stream(rightNotSelected).map(Literal::not).toArray(Literal[]::new)).onlyEnforceIf(rightNotCond.not());
+		
+		// 实现Incompatible双向关系：
+		// 正向1.1：如果左侧条件为true，则右侧条件必须为false（右侧非条件必须为true）
+		model.addImplication(leftCond, rightNotCond);
+		
+		// 正向1.2：如果左侧非条件为true，则右侧可以是任意值（无约束）
+		// 这个约束不需要显式添加，因为默认允许
+		
+		// 反向2.1：如果右侧条件为true，则左侧条件必须为false（左侧非条件必须为true）
+		model.addImplication(rightCond, leftNotCond);
+		
+		// 反向2.2：如果右侧非条件为true，则左侧可以是任意值（无约束）
+		// 这个约束不需要显式添加，因为默认允许
+	}
 }
