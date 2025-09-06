@@ -243,7 +243,7 @@ public class StructCodeInjector {
     
     private String generatorInjectorCode4Compatible(RuleInfo ruleInfo) {
         StringBuilder sb = new StringBuilder();
-        sb.append("addCompatibleConstraint(\"").append(ruleInfo.getCode()).append("\", ");
+        sb.append("addCompatibleConstraint").append(ruleInfo.getCompatiableOperator()).append("(\"").append(ruleInfo.getCode()).append("\", ");
         
         // 这里简化处理，实际应该根据ruleInfo的schema解析左右表达式
         sb.append("this.").append(ruleInfo.getCode()).append("Left, ");

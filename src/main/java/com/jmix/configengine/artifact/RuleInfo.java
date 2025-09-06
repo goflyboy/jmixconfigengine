@@ -64,6 +64,12 @@ public class RuleInfo {
      */
     public List<String> rightFilterCodes;
     
+    /**
+     * 兼容性操作符
+     * 例如：Requires、Incompatible、CoDependent
+     */
+    public String compatiableOperator;
+    
     public boolean isCompatibleRule(){
         return RuleTypeConstants.isCompatiableRule(this.ruleSchemaTypeFullName);
     }

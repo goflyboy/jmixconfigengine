@@ -183,6 +183,9 @@ public class ModuleAlgArtifactGenerator {
             if (rawCode instanceof CompatiableRuleSchema) {
                 CompatiableRuleSchema compatiableRule = (CompatiableRuleSchema) rawCode;
                 
+                // 设置兼容性操作符
+                ruleInfo.setCompatiableOperator(compatiableRule.getOperator());
+                
                 // 处理左表达式
                 if (compatiableRule.getLeftExpr() != null) {
                     ruleInfo.setLeftTypeName("ParaVar");
