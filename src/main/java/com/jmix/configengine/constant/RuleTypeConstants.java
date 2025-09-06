@@ -54,7 +54,7 @@ public final class RuleTypeConstants {
     /**
      * 共存性操作符（Codependent）
      */
-    public static final String OPERATOR_CODEPENDENT = "CoRefent";
+    public static final String OPERATOR_CODEPENDENT = "CoDependent";
     
     /**
      * 依赖操作符

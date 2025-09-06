@@ -1011,13 +1011,13 @@ Read file: doc/约束规则生成设计.md
 ---
 
 <details>
-            <summary>Grep search for "Incompatible|CoRefent|Requires" • **1** files</summary>
+            <summary>Grep search for "Incompatible|CoDependent|Requires" • **1** files</summary>
         
 | File | Line | Match |
 |------|------|-------|
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/doc/%E7%BA%A6%E6%9D%9F%E8%A7%84%E5%88%99%E7%94%9F%E6%88%90%E8%AE%BE%E8%AE%A1.md` | L142 | `String operator;                      // 操作符：Incompatible, CoRefent, Requires` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/doc/%E7%BA%A6%E6%9D%9F%E8%A7%84%E5%88%99%E7%94%9F%E6%88%90%E8%AE%BE%E8%AE%A1.md` | L142 | `String operator;                      // 操作符：Incompatible, CoDependent, Requires` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/doc/%E7%BA%A6%E6%9D%9F%E8%A7%84%E5%88%99%E7%94%9F%E6%88%90%E8%AE%BE%E8%AE%A1.md` | L406 | `- Incompatible：建立不兼容约束` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/doc/%E7%BA%A6%E6%9D%9F%E8%A7%84%E5%88%99%E7%94%9F%E6%88%90%E8%AE%BE%E8%AE%A1.md` | L407 | `- CoRefent：建立共存性约束` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/doc/%E7%BA%A6%E6%9D%9F%E8%A7%84%E5%88%99%E7%94%9F%E6%88%90%E8%AE%BE%E8%AE%A1.md` | L407 | `- CoDependent：建立共存性约束` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/doc/%E7%BA%A6%E6%9D%9F%E8%A7%84%E5%88%99%E7%94%9F%E6%88%90%E8%AE%BE%E8%AE%A1.md` | L408 | `- Requires：建立依赖约束` |
 
 </details>
@@ -1162,7 +1162,7 @@ Lines added: 7, lines removed: undefined
        * 支持的类型包括：
        * - CompatiableRule: 兼容性规则，用于定义参数或部件之间的兼容关系
 +      *   * Incompatible: 不兼容约束，表示两个选项不能同时选择
-+      *   * CoRefent: 共存性约束，表示两个选项必须同时选择或同时不选择
++      *   * CoDependent: 共存性约束，表示两个选项必须同时选择或同时不选择
 +      *   * Requires: 依赖约束，表示选择某个选项时必须选择另一个选项
        * - SelectRule: 选择规则，用于定义参数或部件的选择约束
 +      *   * single: 单选约束，必须且只能选择一个选项
@@ -1262,7 +1262,7 @@ D:\01.code\mygithub\jmixconfigengine>
 - **用途**：定义参数或部件之间的兼容关系
 - **操作符**：
   - `Incompatible`：不兼容约束，表示两个选项不能同时选择
-  - `CoRefent`：共存性约束，表示两个选项必须同时选择或同时不选择  
+  - `CoDependent`：共存性约束，表示两个选项必须同时选择或同时不选择  
   - `Requires`：依赖约束，表示选择某个选项时必须选择另一个选项
 - **结构**：包含左表达式、操作符、右表达式
 
@@ -1513,7 +1513,7 @@ Lines added: 1, lines removed: 1
           rule1.setNormalNaturalCode("如果颜色是红色，则尺寸必须是大号或小号");
 -         rule1.setRuleSchema("CDSL.V5.Struct.CompatiableRule");
 +         rule1.setRuleSchemaTypeFullName("CDSL.V5.Struct.CompatiableRule");
-          rule1.setRawCode("{\"leftExpr\":{\"rawCode\":\"Color!=\\\"Red\\\"\",\"refProgObjs\":[{\"progObjType\":\"Para\",\"progObjCode\":\"Color\",\"progObjField\":\"options\"}]},\"operator\":\"CoRefent\",\"rightExpr\":{\"rawCode\":\"Size!=\\\"Medium\\\"\",\"refProgObjs\":[{\"progObjType\":\"Para\",\"progObjCode\":\"Size\",\"progObjField\":\"options\"}]}}");
+          rule1.setRawCode("{\"leftExpr\":{\"rawCode\":\"Color!=\\\"Red\\\"\",\"refProgObjs\":[{\"progObjType\":\"Para\",\"progObjCode\":\"Color\",\"progObjField\":\"options\"}]},\"operator\":\"CoDependent\",\"rightExpr\":{\"rawCode\":\"Size!=\\\"Medium\\\"\",\"refProgObjs\":[{\"progObjType\":\"Para\",\"progObjCode\":\"Size\",\"progObjField\":\"options\"}]}}");
           
 ```
 

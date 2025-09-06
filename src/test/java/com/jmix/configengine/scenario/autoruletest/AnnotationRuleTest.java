@@ -1,4 +1,4 @@
-package com.jmix.configengine.scenario.ruletest;
+package com.jmix.configengine.scenario.autoruletest;
 
 import com.jmix.configengine.artifact.ConstraintAlg;
 import com.jmix.configengine.artifact.ConstraintAlgImpl;

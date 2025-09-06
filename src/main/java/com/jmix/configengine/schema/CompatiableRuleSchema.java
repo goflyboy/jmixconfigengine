@@ -22,7 +22,7 @@ public class CompatiableRuleSchema extends RuleSchema {
         /**
          * 共存性约束：表示两个选项必须同时选择或同时不选择
          */
-        public static final String CO_REFENT = "CoRefent";
+        public static final String CO_REFENT = "CoDependent";
         
         /**
          * 依赖约束：表示选择某个选项时必须选择另一个选项

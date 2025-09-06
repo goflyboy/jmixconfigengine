@@ -1,4 +1,4 @@
-package com.jmix.configengine.scenario.ruletest;
+package com.jmix.configengine.scenario.autoruletest;
 
 import com.jmix.configengine.artifact.ConstraintAlgImpl;
 import com.jmix.configengine.scenario.base.*;
@@ -136,7 +136,7 @@ public class AnnotationRuleIntegrationTest {
     public void testAnnotationConstants() {
         // 测试CompatiableRuleSchema.Operator常量
         assertEquals("INCOMPATIBLE should be Incompatible", "Incompatible", CompatiableRuleSchema.Operator.INCOMPATIBLE);
-        assertEquals("CO_REFENT should be CoRefent", "CoRefent", CompatiableRuleSchema.Operator.CO_REFENT);
+        assertEquals("CO_REFENT should be CoDependent", "CoDependent", CompatiableRuleSchema.Operator.CO_REFENT);
         assertEquals("REQUIRES should be Requires", "Requires", CompatiableRuleSchema.Operator.REQUIRES);
         
         System.out.println("✓ 注解常量测试通过");

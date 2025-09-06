@@ -1522,7 +1522,7 @@ _**User (2025-09-04 22:37Z)**_
 ###1，需要把CompatiableRuleSchema.operator的枚举值定义为常量，方便调用
 
     /**
-     * 操作符：Incompatible, CoRefent, Requires
+     * 操作符：Incompatible, CoDependent, Requires
      */
     private String operator;
 
@@ -1568,7 +1568,7 @@ Lines added: 24, lines removed: undefined
 +         /**
 +          * 共存性约束：表示两个选项必须同时选择或同时不选择
 +          */
-+         public static final String CO_REFENT = "CoRefent";
++         public static final String CO_REFENT = "CoDependent";
 +         
 +         /**
 +          * 依赖约束：表示选择某个选项时必须选择另一个选项
@@ -1603,7 +1603,7 @@ Lines added: 5, lines removed: 1
 @@ -40,5 +40,9 @@
       
       /**
--      * 操作符：Incompatible, CoRefent, Requires
+-      * 操作符：Incompatible, CoDependent, Requires
 +      * 操作符
 +      * 可选值：
 +      * - {@link Operator#INCOMPATIBLE}: 不兼容约束
@@ -1646,7 +1646,7 @@ Lines added: 61, lines removed: 1
 +     public void testOperatorConstants() {
 +         // 验证常量值
 +         assertEquals("Incompatible", CompatiableRuleSchema.Operator.INCOMPATIBLE);
-+         assertEquals("CoRefent", CompatiableRuleSchema.Operator.CO_REFENT);
++         assertEquals("CoDependent", CompatiableRuleSchema.Operator.CO_REFENT);
 +         assertEquals("Requires", CompatiableRuleSchema.Operator.REQUIRES);
 +         
 +         // 验证常量不为空
@@ -5228,7 +5228,7 @@ Lines added: 163, lines removed: 1
 +     public void testAnnotationConstants() {
 +         // 测试CompatiableRuleSchema.Operator常量
 +         assertEquals("INCOMPATIBLE should be Incompatible", "Incompatible", CompatiableRuleSchema.Operator.INCOMPATIBLE);
-+         assertEquals("CO_REFENT should be CoRefent", "CoRefent", CompatiableRuleSchema.Operator.CO_REFENT);
++         assertEquals("CO_REFENT should be CoDependent", "CoDependent", CompatiableRuleSchema.Operator.CO_REFENT);
 +         assertEquals("REQUIRES should be Requires", "Requires", CompatiableRuleSchema.Operator.REQUIRES);
 +         
 +         System.out.println("✓ 注解常量测试通过");

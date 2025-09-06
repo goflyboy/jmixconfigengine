@@ -12,7 +12,7 @@ public class CompatiableRuleSchemaTest {
     public void testOperatorConstants() {
         // 验证常量值
         assertEquals("Incompatible", CompatiableRuleSchema.Operator.INCOMPATIBLE);
-        assertEquals("CoRefent", CompatiableRuleSchema.Operator.CO_REFENT);
+        assertEquals("CoDependent", CompatiableRuleSchema.Operator.CO_REFENT);
         assertEquals("Requires", CompatiableRuleSchema.Operator.REQUIRES);
         
         // 验证常量不为空

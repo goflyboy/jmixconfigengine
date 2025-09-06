@@ -36,22 +36,22 @@ public class CompatiableRuleRequireTest extends ModuleSecnarioTestBase {
 
         @Override
         protected void initConstraint() {
+            //natural code: AVar.value in (a1,a3) Requires BVar.value in (b1,b2,b3)
+            //A=(a1,a2,a3,a4)
+            //B=(b1,b2,b3,b4)
+            // 规则内容：(a1,a3) Requires (b1,b2,b3)，则CA=(a1,a3),CB=(b1,b2,b3)
+            // 解读：
+            // 1、正向
+            // 1.1 在CA中，如果AVar.var=a1,则BVar.var=b1 或 b2 或 b3
+            // 1.2 不在CA中，如果AVar.var=a1,则BVar.var=b4，是不合法的
+            // 2.反向 
+            // 2.1 在CB中，如果BVar.var=b1,则AVar.var=a1 或 a2 或 a3 或 a4
+            // 2.2 不在CB中，如果BVar.var=b4,则AVar.var=a2 或 a4
             addCompatibleConstraintRequires("rule1", AVar, Arrays.asList("a1","a3"), BVar,
             Arrays.asList("b1","b2","b3"));
          }  
          //  @Override
         protected void initConstraint2() {
-            //A=(a1,a2,a3,a4)
-            //B=(b1,b2,b3,b4)
-            // 规则内容：(a1,a3) Requires (b1,b2,b3)
-            // 解读：
-            // 1、正向
-            // 1.1 如果AVar.var=a1,则BVar.var=b1 或 b2 或 b3
-            // 1.2 如果AVar.var=a1,则BVar.var=b4，是不合法的
-            // 2.反向 
-            // 2.1 如果BVar.var=b1,则AVar.var=a1 或 a2 或 a3 或 a4
-            // 2.2 如果BVar.var=b4,则AVar.var=a2 或 a4
-
             // 创建条件变量：A是a1或a3
             BoolVar a1OrA3 = model.newBoolVar("a1OrA3");
             model.addBoolOr(new Literal[]{
