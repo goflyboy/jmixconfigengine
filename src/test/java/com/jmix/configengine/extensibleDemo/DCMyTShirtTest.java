@@ -15,12 +15,16 @@ import static org.junit.Assert.*;
 @Slf4j
 public class DCMyTShirtTest {
     
+    private DCModuleConstraintExecutor dcExecutor;
     private ModuleConstraintExecutor executor;
     private DCDeliveryTypePostProcess postProcess;
     
     @Before
     public void setUp() {
-        // 创建执行器
+        // 创建DC执行器
+        dcExecutor = new DCModuleConstraintExecutorImpl();
+        
+        // 创建标准执行器（用于兼容性测试）
         executor = new ModuleConstraintExecutorImpl();
         
         // 初始化配置
@@ -30,13 +34,17 @@ public class DCMyTShirtTest {
         config.logFilePath = "target/logs";
         config.isLogModelProto = false;
         
+        // 初始化两个执行器
+        dcExecutor.init(config);
         executor.init(config);
         
         // 注册后处理器
         postProcess = new DCDeliveryTypePostProcess();
+        dcExecutor.registerExtensible(postProcess);
         executor.registerExtensible(postProcess);
         
         // 添加模块
+        dcExecutor.addDCModule(1L, getDCModule());
         executor.addModule(1L, getModule());
     }
     
@@ -46,7 +54,8 @@ public class DCMyTShirtTest {
         
         // 由于模块没有算法制品，我们跳过实际的推理测试
         // 这里主要测试扩展性功能的注册和管理
-        assertNotNull("Executor should not be null", executor);
+        assertNotNull("DC Executor should not be null", dcExecutor);
+        assertNotNull("Standard Executor should not be null", executor);
         assertNotNull("Post process should not be null", postProcess);
         
         // 验证后处理器已注册
@@ -54,6 +63,31 @@ public class DCMyTShirtTest {
         assertEquals("Post process name should be correct", "DCDeliveryTypePostProcess", postProcess.getProcessName());
         
         log.info("Basic inference test passed - extension functionality verified");
+    }
+    
+    @Test
+    public void testDCWrapperFunctionality() {
+        log.info("Testing DC wrapper functionality");
+        
+        // 测试DC执行器的基本功能
+        assertNotNull("DC Executor should not be null", dcExecutor);
+        
+        // 测试DC模块添加
+        DCModule testModule = getDCModule();
+        ModuleConstraintExecutor.Result<Void> addResult = dcExecutor.addDCModule(2L, testModule);
+        assertEquals("DC module addition should be successful", ModuleConstraintExecutor.Result.SUCCESS, addResult.code);
+        
+        // 测试DC推理请求
+        DCModuleConstraintExecutor.DCInferParasReq dcReq = new DCModuleConstraintExecutor.DCInferParasReq();
+        dcReq.moduleCode = "TShirt11";
+        dcReq.mainPartInst = createDCPartInst("TShirt11", 1);
+        dcReq.enumerateAllSolution = true;
+        
+        // 由于没有算法制品，这里主要测试接口调用
+        ModuleConstraintExecutor.Result<java.util.List<DCModuleInst>> result = dcExecutor.inferDCParas(dcReq);
+        assertNotNull("DC inference result should not be null", result);
+        
+        log.info("DC wrapper functionality test passed");
     }
     
     @Test
@@ -185,6 +219,32 @@ public class DCMyTShirtTest {
         partInst.setQuantity(quantity);
         partInst.setHidden(false);
         return partInst;
+    }
+    
+    /**
+     * 创建DC部件实例
+     */
+    private DCPartInst createDCPartInst(String code, Integer quantity) {
+        DCPartInst partInst = new DCPartInst();
+        partInst.setCode(code);
+        partInst.setQuantity(quantity);
+        partInst.setHidden(false);
+        return partInst;
+    }
+    
+    /**
+     * 获取DC测试模块
+     */
+    private DCModule getDCModule() {
+        DCModule dcModule = new DCModule();
+        dcModule.setId(123L);
+        dcModule.setCode("TShirt11");
+        dcModule.setDccode("DC_TShirt11");
+        dcModule.setVersion("1.0.0");
+        dcModule.setPackageName("com.jmix.configengine.test");
+        dcModule.setSeason("Spring");
+        dcModule.init();
+        return dcModule;
     }
     
     /**
