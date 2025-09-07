@@ -74,8 +74,10 @@ public class DCMyTShirtTest {
         
         // 测试DC模块添加
         DCModule testModule = getDCModule();
-        ModuleConstraintExecutor.Result<Void> addResult = dcExecutor.addDCModule(2L, testModule);
+        DCResult<Void> addResult = dcExecutor.addDCModule(2L, testModule);
         assertEquals("DC module addition should be successful", ModuleConstraintExecutor.Result.SUCCESS, addResult.code);
+        assertNotNull("DC result code should not be null", addResult.getDcResultCode());
+        assertEquals("DC result code should be correct", "DC_ADD_MODULE_SUCCESS", addResult.getDcResultCode());
         
         // 测试DC推理请求
         DCModuleConstraintExecutor.DCInferParasReq dcReq = new DCModuleConstraintExecutor.DCInferParasReq();
@@ -84,8 +86,10 @@ public class DCMyTShirtTest {
         dcReq.enumerateAllSolution = true;
         
         // 由于没有算法制品，这里主要测试接口调用
-        ModuleConstraintExecutor.Result<java.util.List<DCModuleInst>> result = dcExecutor.inferDCParas(dcReq);
+        DCResult<java.util.List<DCModuleInst>> result = dcExecutor.inferDCParas(dcReq);
         assertNotNull("DC inference result should not be null", result);
+        assertNotNull("DC result code should not be null", result.getDcResultCode());
+        assertTrue("DC result should have process timestamp", result.getProcessTimestamp() > 0);
         
         log.info("DC wrapper functionality test passed");
     }

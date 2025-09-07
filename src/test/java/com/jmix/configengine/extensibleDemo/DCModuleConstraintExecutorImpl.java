@@ -28,21 +28,29 @@ public class DCModuleConstraintExecutorImpl implements DCModuleConstraintExecuto
     }
     
     @Override
-    public ModuleConstraintExecutor.Result<Void> init(ModuleConstraintExecutor.ConstraintConfig config) {
+    public DCResult<Void> init(ModuleConstraintExecutor.ConstraintConfig config) {
         log.info("Initializing DC Module Constraint Executor");
-        return wrappedExecutor.init(config);
+        ModuleConstraintExecutor.Result<Void> result = wrappedExecutor.init(config);
+        DCResult<Void> dcResult = new DCResult<>(result);
+        dcResult.setDcResultCode("DC_INIT_SUCCESS");
+        dcResult.setExtAttr("executorType", "DCModuleConstraintExecutor");
+        return dcResult;
     }
     
     @Override
-    public ModuleConstraintExecutor.Result<Void> fini() {
+    public DCResult<Void> fini() {
         log.info("Finalizing DC Module Constraint Executor");
-        return wrappedExecutor.fini();
+        ModuleConstraintExecutor.Result<Void> result = wrappedExecutor.fini();
+        DCResult<Void> dcResult = new DCResult<>(result);
+        dcResult.setDcResultCode("DC_FINI_SUCCESS");
+        dcResult.setExtAttr("executorType", "DCModuleConstraintExecutor");
+        return dcResult;
     }
     
     @Override
-    public ModuleConstraintExecutor.Result<Void> addDCModule(Long rootModuleId, DCModule... dcModules) {
+    public DCResult<Void> addDCModule(Long rootModuleId, DCModule... dcModules) {
         if (dcModules == null) {
-            return ModuleConstraintExecutor.Result.failed("DC modules is null");
+            return DCResult.failed("DC modules is null", "DC_ADD_MODULE_FAILED");
         }
         
         // 将DCModule转换为Module
@@ -52,19 +60,28 @@ public class DCModuleConstraintExecutorImpl implements DCModuleConstraintExecuto
         }
         
         log.info("Adding {} DC modules", dcModules.length);
-        return wrappedExecutor.addModule(rootModuleId, modules);
+        ModuleConstraintExecutor.Result<Void> result = wrappedExecutor.addModule(rootModuleId, modules);
+        DCResult<Void> dcResult = new DCResult<>(result);
+        dcResult.setDcResultCode("DC_ADD_MODULE_SUCCESS");
+        dcResult.setExtAttr("moduleCount", String.valueOf(dcModules.length));
+        dcResult.setExtAttr("rootModuleId", String.valueOf(rootModuleId));
+        return dcResult;
     }
     
     @Override
-    public ModuleConstraintExecutor.Result<Void> removeModule(Long moduleId) {
+    public DCResult<Void> removeModule(Long moduleId) {
         log.info("Removing module: {}", moduleId);
-        return wrappedExecutor.removeModule(moduleId);
+        ModuleConstraintExecutor.Result<Void> result = wrappedExecutor.removeModule(moduleId);
+        DCResult<Void> dcResult = new DCResult<>(result);
+        dcResult.setDcResultCode("DC_REMOVE_MODULE_SUCCESS");
+        dcResult.setExtAttr("moduleId", String.valueOf(moduleId));
+        return dcResult;
     }
     
     @Override
-    public ModuleConstraintExecutor.Result<List<DCModuleInst>> inferDCParas(DCInferParasReq req) {
+    public DCResult<List<DCModuleInst>> inferDCParas(DCInferParasReq req) {
         if (req == null) {
-            return ModuleConstraintExecutor.Result.failed("DC request is null");
+            return DCResult.failed("DC request is null", "DC_INFER_FAILED");
         }
         
         // 将DC请求转换为标准请求
@@ -75,7 +92,7 @@ public class DCModuleConstraintExecutorImpl implements DCModuleConstraintExecuto
                 wrappedExecutor.inferParas(standardReq);
         
         if (result.code != ModuleConstraintExecutor.Result.SUCCESS) {
-            return ModuleConstraintExecutor.Result.failed("Inference failed: " + result.message);
+            return DCResult.failed("Inference failed: " + result.message, "DC_INFER_FAILED");
         }
         
         // 将结果转换为DC格式
@@ -88,19 +105,31 @@ public class DCModuleConstraintExecutorImpl implements DCModuleConstraintExecuto
         }
         
         log.info("Inferred {} DC solutions", dcSolutions.size());
-        return ModuleConstraintExecutor.Result.success(dcSolutions);
+        DCResult<List<DCModuleInst>> dcResult = DCResult.success(dcSolutions, "DC_INFER_SUCCESS");
+        dcResult.setExtAttr("solutionCount", String.valueOf(dcSolutions.size()));
+        dcResult.setExtAttr("moduleCode", req.moduleCode);
+        return dcResult;
     }
     
     @Override
-    public ModuleConstraintExecutor.Result<Void> registerExtensible(com.jmix.configengine.ExtensibleProcess eProcess) {
+    public DCResult<Void> registerExtensible(com.jmix.configengine.ExtensibleProcess eProcess) {
         log.info("Registering extensible process: {}", eProcess.getProcessName());
-        return wrappedExecutor.registerExtensible(eProcess);
+        ModuleConstraintExecutor.Result<Void> result = wrappedExecutor.registerExtensible(eProcess);
+        DCResult<Void> dcResult = new DCResult<>(result);
+        dcResult.setDcResultCode("DC_REGISTER_EXTENSIBLE_SUCCESS");
+        dcResult.setExtAttr("processName", eProcess.getProcessName());
+        dcResult.setExtAttr("processPriority", String.valueOf(eProcess.getPriority()));
+        return dcResult;
     }
     
     @Override
-    public ModuleConstraintExecutor.Result<Void> unregisterExtensible(com.jmix.configengine.ExtensibleProcess eProcess) {
+    public DCResult<Void> unregisterExtensible(com.jmix.configengine.ExtensibleProcess eProcess) {
         log.info("Unregistering extensible process: {}", eProcess.getProcessName());
-        return wrappedExecutor.unregisterExtensible(eProcess);
+        ModuleConstraintExecutor.Result<Void> result = wrappedExecutor.unregisterExtensible(eProcess);
+        DCResult<Void> dcResult = new DCResult<>(result);
+        dcResult.setDcResultCode("DC_UNREGISTER_EXTENSIBLE_SUCCESS");
+        dcResult.setExtAttr("processName", eProcess.getProcessName());
+        return dcResult;
     }
     
     /**

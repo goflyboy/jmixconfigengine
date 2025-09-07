@@ -1,4 +1,4 @@
-package com.jmix.configengine.extensibleDemo;
+    package com.jmix.configengine.extensibleDemo;
 
 import lombok.Data;
 

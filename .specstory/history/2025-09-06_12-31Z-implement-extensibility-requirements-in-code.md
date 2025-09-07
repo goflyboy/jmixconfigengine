@@ -3175,3 +3175,768 @@ src/test/java/com/jmix/configengine/extensibleDemo/
 
 ---
 
+_**User (2025-09-06 12:31Z)**_
+
+再新增一个DCResult
+
+---
+
+_**Assistant**_
+
+我来新增一个DCResult类，用于包装DC特有的结果数据。
+
+
+---
+
+
+
+---
+
+现在更新DCModuleConstraintExecutor接口，使用DCResult：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/extensibleDemo/DCModuleConstraintExecutor.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -16,11 +16,11 @@
+       * @return 初始化结果
+       */
+-     ModuleConstraintExecutor.Result<Void> init(ModuleConstraintExecutor.ConstraintConfig config);
++     DCResult<Void> init(ModuleConstraintExecutor.ConstraintConfig config);
+      
+      /**
+       * 销毁执行器
+       * @return 销毁结果
+       */
+-     ModuleConstraintExecutor.Result<Void> fini();
++     DCResult<Void> fini();
+      
+      /**
+```
+
+**Chunk 2**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -30,5 +30,5 @@
+       * @return 添加结果
+       */
+-     ModuleConstraintExecutor.Result<Void> addDCModule(Long rootModuleId, DCModule... dcModules);
++     DCResult<Void> addDCModule(Long rootModuleId, DCModule... dcModules);
+      
+      /**
+```
+
+**Chunk 3**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -37,5 +37,5 @@
+       * @return 移除结果
+       */
+-     ModuleConstraintExecutor.Result<Void> removeModule(Long moduleId);
++     DCResult<Void> removeModule(Long moduleId);
+      
+      /**
+```
+
+**Chunk 4**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -44,5 +44,5 @@
+       * @return 推理结果
+       */
+-     ModuleConstraintExecutor.Result<List<DCModuleInst>> inferDCParas(DCInferParasReq req);
++     DCResult<List<DCModuleInst>> inferDCParas(DCInferParasReq req);
+      
+      /**
+```
+
+**Chunk 5**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -51,5 +51,5 @@
+       * @return 注册结果
+       */
+-     ModuleConstraintExecutor.Result<Void> registerExtensible(com.jmix.configengine.ExtensibleProcess eProcess);
++     DCResult<Void> registerExtensible(com.jmix.configengine.ExtensibleProcess eProcess);
+      
+      /**
+```
+
+**Chunk 6**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -58,5 +58,5 @@
+       * @return 注销结果
+       */
+-     ModuleConstraintExecutor.Result<Void> unregisterExtensible(com.jmix.configengine.ExtensibleProcess eProcess);
++     DCResult<Void> unregisterExtensible(com.jmix.configengine.ExtensibleProcess eProcess);
+      
+      /**
+```
+
+</details>
+
+---
+
+现在更新DCModuleConstraintExecutorImpl实现类，使用DCResult：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/extensibleDemo/DCModuleConstraintExecutorImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 14, lines removed: 6
+
+```diff
+@@ -29,19 +29,27 @@
+      
+      @Override
+-     public ModuleConstraintExecutor.Result<Void> init(ModuleConstraintExecutor.ConstraintConfig config) {
++     public DCResult<Void> init(ModuleConstraintExecutor.ConstraintConfig config) {
+          log.info("Initializing DC Module Constraint Executor");
+-         return wrappedExecutor.init(config);
++         ModuleConstraintExecutor.Result<Void> result = wrappedExecutor.init(config);
++         DCResult<Void> dcResult = new DCResult<>(result);
++         dcResult.setDcResultCode("DC_INIT_SUCCESS");
++         dcResult.setExtAttr("executorType", "DCModuleConstraintExecutor");
++         return dcResult;
+      }
+      
+      @Override
+-     public ModuleConstraintExecutor.Result<Void> fini() {
++     public DCResult<Void> fini() {
+          log.info("Finalizing DC Module Constraint Executor");
+-         return wrappedExecutor.fini();
++         ModuleConstraintExecutor.Result<Void> result = wrappedExecutor.fini();
++         DCResult<Void> dcResult = new DCResult<>(result);
++         dcResult.setDcResultCode("DC_FINI_SUCCESS");
++         dcResult.setExtAttr("executorType", "DCModuleConstraintExecutor");
++         return dcResult;
+      }
+      
+      @Override
+-     public ModuleConstraintExecutor.Result<Void> addDCModule(Long rootModuleId, DCModule... dcModules) {
++     public DCResult<Void> addDCModule(Long rootModuleId, DCModule... dcModules) {
+          if (dcModules == null) {
+-             return ModuleConstraintExecutor.Result.failed("DC modules is null");
++             return DCResult.failed("DC modules is null", "DC_ADD_MODULE_FAILED");
+          }
+          
+```
+
+**Chunk 2**
+Lines added: 14, lines removed: 5
+
+```diff
+@@ -53,17 +61,26 @@
+          
+          log.info("Adding {} DC modules", dcModules.length);
+-         return wrappedExecutor.addModule(rootModuleId, modules);
++         ModuleConstraintExecutor.Result<Void> result = wrappedExecutor.addModule(rootModuleId, modules);
++         DCResult<Void> dcResult = new DCResult<>(result);
++         dcResult.setDcResultCode("DC_ADD_MODULE_SUCCESS");
++         dcResult.setExtAttr("moduleCount", String.valueOf(dcModules.length));
++         dcResult.setExtAttr("rootModuleId", String.valueOf(rootModuleId));
++         return dcResult;
+      }
+      
+      @Override
+-     public ModuleConstraintExecutor.Result<Void> removeModule(Long moduleId) {
++     public DCResult<Void> removeModule(Long moduleId) {
+          log.info("Removing module: {}", moduleId);
+-         return wrappedExecutor.removeModule(moduleId);
++         ModuleConstraintExecutor.Result<Void> result = wrappedExecutor.removeModule(moduleId);
++         DCResult<Void> dcResult = new DCResult<>(result);
++         dcResult.setDcResultCode("DC_REMOVE_MODULE_SUCCESS");
++         dcResult.setExtAttr("moduleId", String.valueOf(moduleId));
++         return dcResult;
+      }
+      
+      @Override
+-     public ModuleConstraintExecutor.Result<List<DCModuleInst>> inferDCParas(DCInferParasReq req) {
++     public DCResult<List<DCModuleInst>> inferDCParas(DCInferParasReq req) {
+          if (req == null) {
+-             return ModuleConstraintExecutor.Result.failed("DC request is null");
++             return DCResult.failed("DC request is null", "DC_INFER_FAILED");
+          }
+          
+```
+
+**Chunk 3**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -76,5 +93,5 @@
+          
+          if (result.code != ModuleConstraintExecutor.Result.SUCCESS) {
+-             return ModuleConstraintExecutor.Result.failed("Inference failed: " + result.message);
++             return DCResult.failed("Inference failed: " + result.message, "DC_INFER_FAILED");
+          }
+          
+```
+
+**Chunk 4**
+Lines added: 17, lines removed: 5
+
+```diff
+@@ -89,17 +106,29 @@
+          
+          log.info("Inferred {} DC solutions", dcSolutions.size());
+-         return ModuleConstraintExecutor.Result.success(dcSolutions);
++         DCResult<List<DCModuleInst>> dcResult = DCResult.success(dcSolutions, "DC_INFER_SUCCESS");
++         dcResult.setExtAttr("solutionCount", String.valueOf(dcSolutions.size()));
++         dcResult.setExtAttr("moduleCode", req.moduleCode);
++         return dcResult;
+      }
+      
+      @Override
+-     public ModuleConstraintExecutor.Result<Void> registerExtensible(com.jmix.configengine.ExtensibleProcess eProcess) {
++     public DCResult<Void> registerExtensible(com.jmix.configengine.ExtensibleProcess eProcess) {
+          log.info("Registering extensible process: {}", eProcess.getProcessName());
+-         return wrappedExecutor.registerExtensible(eProcess);
++         ModuleConstraintExecutor.Result<Void> result = wrappedExecutor.registerExtensible(eProcess);
++         DCResult<Void> dcResult = new DCResult<>(result);
++         dcResult.setDcResultCode("DC_REGISTER_EXTENSIBLE_SUCCESS");
++         dcResult.setExtAttr("processName", eProcess.getProcessName());
++         dcResult.setExtAttr("processPriority", String.valueOf(eProcess.getPriority()));
++         return dcResult;
+      }
+      
+      @Override
+-     public ModuleConstraintExecutor.Result<Void> unregisterExtensible(com.jmix.configengine.ExtensibleProcess eProcess) {
++     public DCResult<Void> unregisterExtensible(com.jmix.configengine.ExtensibleProcess eProcess) {
+          log.info("Unregistering extensible process: {}", eProcess.getProcessName());
+-         return wrappedExecutor.unregisterExtensible(eProcess);
++         ModuleConstraintExecutor.Result<Void> result = wrappedExecutor.unregisterExtensible(eProcess);
++         DCResult<Void> dcResult = new DCResult<>(result);
++         dcResult.setDcResultCode("DC_UNREGISTER_EXTENSIBLE_SUCCESS");
++         dcResult.setExtAttr("processName", eProcess.getProcessName());
++         return dcResult;
+      }
+      
+```
+
+</details>
+
+---
+
+现在更新测试类，使用DCResult：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/extensibleDemo/DCMyTShirtTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 3, lines removed: 1
+
+```diff
+@@ -75,6 +75,8 @@
+          // 测试DC模块添加
+          DCModule testModule = getDCModule();
+-         ModuleConstraintExecutor.Result<Void> addResult = dcExecutor.addDCModule(2L, testModule);
++         DCResult<Void> addResult = dcExecutor.addDCModule(2L, testModule);
+          assertEquals("DC module addition should be successful", ModuleConstraintExecutor.Result.SUCCESS, addResult.code);
++         assertNotNull("DC result code should not be null", addResult.getDcResultCode());
++         assertEquals("DC result code should be correct", "DC_ADD_MODULE_SUCCESS", addResult.getDcResultCode());
+          
+          // 测试DC推理请求
+```
+
+**Chunk 2**
+Lines added: 3, lines removed: 1
+
+```diff
+@@ -85,6 +87,8 @@
+          
+          // 由于没有算法制品，这里主要测试接口调用
+-         ModuleConstraintExecutor.Result<java.util.List<DCModuleInst>> result = dcExecutor.inferDCParas(dcReq);
++         DCResult<java.util.List<DCModuleInst>> result = dcExecutor.inferDCParas(dcReq);
+          assertNotNull("DC inference result should not be null", result);
++         assertNotNull("DC result code should not be null", result.getDcResultCode());
++         assertTrue("DC result should have process timestamp", result.getProcessTimestamp() > 0);
+          
+          log.info("DC wrapper functionality test passed");
+```
+
+</details>
+
+---
+
+_**User (2025-09-06 12:31Z)**_
+
+同步刷新"扩展性功能实现总结.md"
+
+---
+
+_**Assistant**_
+
+我来同步刷新"扩展性功能实现总结.md"文档，添加DCResult的相关内容。
+
+
+---
+
+<details><summary>Edit file: doc/扩展性功能实现总结.md</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -42,4 +42,5 @@
+  - **DCParaInst**: 扩展ParaInst，添加`deliveryType`字段
+  - **DCPartInst**: 扩展PartInst，添加DC特有字段
++ - **DCResult**: 扩展Result，添加DC特有的结果字段和功能
+  
+  #### 2.2 DC执行器包装器
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: doc/扩展性功能实现总结.md</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 11, lines removed: undefined
+
+```diff
+@@ -52,4 +52,15 @@
+    - 保持与原有接口的兼容性
+    - 提供DC特有的推理请求格式
++   - 使用DCResult提供增强的结果信息
++ 
++ #### 2.3 DCResult增强结果类
++ - **DCResult**: 扩展了原有的Result类，添加DC特有的功能
++ - **功能特性**:
++   - 添加`dcResultCode`字段：DC特有的结果编码
++   - 添加`processTimestamp`字段：处理时间戳
++   - 添加`extAttrs`字段：扩展属性映射
++   - 提供便捷的静态工厂方法
++   - 支持处理耗时计算
++   - 支持扩展属性管理
+  
+  #### 2.3 适配器模式
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: doc/扩展性功能实现总结.md</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -64,5 +64,5 @@
+    - 支持扩展属性管理
+  
+- #### 2.3 适配器模式
++ #### 2.4 适配器模式
+  - **AdapterInfo**: 适配器信息基类，定义字段映射和扩展属性
+  - **DCModuleAdapter**: Module到DCModule的适配器
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: doc/扩展性功能实现总结.md</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -70,5 +70,5 @@
+  - **DCPartInstAdapter**: PartInst到DCPartInst的适配器
+  
+- #### 2.4 业务后处理器
++ #### 2.5 业务后处理器
+  - **DCDeliveryTypePostProcess**: 根据Part类型和数量计算交付类型
+  - **业务规则**:
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: doc/扩展性功能实现总结.md</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -84,4 +84,5 @@
+    - 扩展处理器注册/注销
+    - DC包装器功能验证
++   - DCResult功能验证
+    - 适配器功能验证
+    - 后处理器业务逻辑
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: doc/扩展性功能实现总结.md</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 8, lines removed: 1
+
+```diff
+@@ -119,5 +119,12 @@
+  dcReq.moduleCode = "TShirt11";
+  dcReq.mainPartInst = createDCPartInst("TShirt11", 1);
+- dcExecutor.inferDCParas(dcReq);
++ DCResult<List<DCModuleInst>> dcResult = dcExecutor.inferDCParas(dcReq);
++ 
++ // 检查DC结果
++ if (dcResult.isSuccess()) {
++     System.out.println("DC Result Code: " + dcResult.getDcResultCode());
++     System.out.println("Process Duration: " + dcResult.getProcessDuration() + "ms");
++     System.out.println("Solution Count: " + dcResult.getExtAttr("solutionCount"));
++ }
+  ```
+  
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: doc/扩展性功能实现总结.md</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 20, lines removed: 1
+
+```diff
+@@ -129,5 +129,24 @@
+  ```
+  
+- ### 2. 使用适配器
++ ### 2. 使用DCResult
++ 
++ ```java
++ // 创建DC结果
++ DCResult<String> dcResult = DCResult.success("Operation completed", "DC_OPERATION_SUCCESS");
++ dcResult.setExtAttr("operationType", "dataProcessing");
++ dcResult.setExtAttr("userId", "user123");
++ 
++ // 检查结果状态
++ if (dcResult.isSuccess()) {
++     System.out.println("Result Code: " + dcResult.getDcResultCode());
++     System.out.println("Process Duration: " + dcResult.getProcessDuration() + "ms");
++     System.out.println("Operation Type: " + dcResult.getExtAttr("operationType"));
++ }
++ 
++ // 创建失败结果
++ DCResult<Void> failedResult = DCResult.failed("Operation failed", "DC_OPERATION_FAILED");
++ ```
++ 
++ ### 3. 使用适配器
+  
+  ```java
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: doc/扩展性功能实现总结.md</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -158,5 +158,5 @@
+  ```
+  
+- ### 3. 自定义后处理
++ ### 4. 自定义后处理
+  
+  ```java
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: doc/扩展性功能实现总结.md</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -171,5 +171,5 @@
+  ```
+  
+- ### 4. 使用标准执行器（兼容性）
++ ### 5. 使用标准执行器（兼容性）
+  
+  ```java
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: doc/扩展性功能实现总结.md</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -244,4 +244,5 @@
+  - `src/test/java/com/jmix/configengine/extensibleDemo/DCParaInst.java` - DC参数实例包装类
+  - `src/test/java/com/jmix/configengine/extensibleDemo/DCPartInst.java` - DC部件实例包装类
++ - `src/test/java/com/jmix/configengine/extensibleDemo/DCResult.java` - DC结果包装类
+  
+  ### 适配器文件
+```
+
+</details>
+
+---
+
+现在运行测试验证DCResult功能：
+
+
+---
+
+```bash
+mvn test -Dtest=DCMyTShirtTest
+```
+
+```
+D:\01.code\mygithub\jmixconfigengine>mvn test -Dtest=DCMyTShirtTest
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------------< com.jmix:configengine >------------------------
+[INFO]   from pom.xml
+[INFO] --- resources:3.3.1:resources (default-resources) @ configengine ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO]
+[INFO] --- compiler:3.8.1:compile (default-compile) @ configengine ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO]
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ configengine ---
+[INFO] Copying 2 resources from src\test\resources to target\test-classes
+[INFO]
+[INFO] --- compiler:3.8.1:testCompile (default-testCompile) @ configengine ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 59 source files to D:\01.code\mygithub\jmixconfigengine\target\test-classes
+[INFO] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/modeltool/
+ModelHelper.java: D:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\configengine\scenario\base\
+modeltool\ModelHelper.java使用了未经检查或不安全的操作。
+[INFO] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/modeltool/
+ModelHelper.java: 有关详细信息, 请使用 -Xlint:unchecked 重新编译。
+[INFO]
+[INFO] --- surefire:3.2.5:test (default-test) @ configengine ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junit4.JUnit4Provider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.jmix.configengine.extensibleDemo.DCMyTShirtTest
+[main] INFO com.jmix.configengine.extensibleDemo.DCModuleConstraintExecutorImpl - Initializing DC Module 
+Constraint Executor
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.extensibleDemo.DCModuleConstraintExecutorImpl - Registering extensible 
+process: DCDeliveryTypePostProcess
+[main] INFO com.jmix.configengine.ExtensibleProcess - Initializing extensible process: DCDeliveryTypePost
+Process
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Registered extensible process: 
+DCDeliveryTypePostProcess with priority: 50
+[main] INFO com.jmix.configengine.ExtensibleProcess - Initializing extensible process: DCDeliveryTypePost
+Process
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Registered extensible process: 
+DCDeliveryTypePostProcess with priority: 50
+[main] INFO com.jmix.configengine.extensibleDemo.DCModuleConstraintExecutorImpl - Adding 1 DC modules    
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.extensibleDemo.DCMyTShirtTest - Testing extensible process management  
+[main] INFO com.jmix.configengine.ExtensibleProcess - Initializing extensible process: DCDeliveryTypePost
+Process
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Registered extensible process: 
+DCDeliveryTypePostProcess with priority: 50
+[main] INFO com.jmix.configengine.ExtensibleProcess - Destroying extensible process: DCDeliveryTypePostPr
+ocess
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Unregistered extensible process
+: DCDeliveryTypePostProcess
+[main] INFO com.jmix.configengine.extensibleDemo.DCModuleConstraintExecutorImpl - Initializing DC Module 
+Constraint Executor
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.extensibleDemo.DCModuleConstraintExecutorImpl - Registering extensible 
+process: DCDeliveryTypePostProcess
+[main] INFO com.jmix.configengine.ExtensibleProcess - Initializing extensible process: DCDeliveryTypePost
+Process
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Registered extensible process: 
+DCDeliveryTypePostProcess with priority: 50
+[main] INFO com.jmix.configengine.ExtensibleProcess - Initializing extensible process: DCDeliveryTypePost
+Process
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Registered extensible process: 
+DCDeliveryTypePostProcess with priority: 50
+[main] INFO com.jmix.configengine.extensibleDemo.DCModuleConstraintExecutorImpl - Adding 1 DC modules    
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.extensibleDemo.DCMyTShirtTest - Testing delivery type calculation      
+[main] WARN com.jmix.configengine.extensibleDemo.DCDeliveryTypePostProcess - Part not found for code: Col
+or
+[main] INFO com.jmix.configengine.extensibleDemo.DCDeliveryTypePostProcess - Processed 1 solutions with d
+elivery type calculation
+[main] INFO com.jmix.configengine.extensibleDemo.DCMyTShirtTest - Found 1 processed solutions with delive
+ry type calculation
+[main] INFO com.jmix.configengine.extensibleDemo.DCModuleConstraintExecutorImpl - Initializing DC Module 
+Constraint Executor
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.extensibleDemo.DCModuleConstraintExecutorImpl - Registering extensible 
+process: DCDeliveryTypePostProcess
+[main] INFO com.jmix.configengine.ExtensibleProcess - Initializing extensible process: DCDeliveryTypePost
+Process
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Registered extensible process: 
+DCDeliveryTypePostProcess with priority: 50
+[main] INFO com.jmix.configengine.ExtensibleProcess - Initializing extensible process: DCDeliveryTypePost
+Process
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Registered extensible process: 
+DCDeliveryTypePostProcess with priority: 50
+[main] INFO com.jmix.configengine.extensibleDemo.DCModuleConstraintExecutorImpl - Adding 1 DC modules    
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.extensibleDemo.DCMyTShirtTest - Testing basic inference with DC extensi
+ons
+[main] INFO com.jmix.configengine.extensibleDemo.DCMyTShirtTest - Basic inference test passed - extension
+ functionality verified
+[main] INFO com.jmix.configengine.extensibleDemo.DCModuleConstraintExecutorImpl - Initializing DC Module 
+Constraint Executor
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.extensibleDemo.DCModuleConstraintExecutorImpl - Registering extensible 
+process: DCDeliveryTypePostProcess
+[main] INFO com.jmix.configengine.ExtensibleProcess - Initializing extensible process: DCDeliveryTypePost
+Process
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Registered extensible process: 
+DCDeliveryTypePostProcess with priority: 50
+[main] INFO com.jmix.configengine.ExtensibleProcess - Initializing extensible process: DCDeliveryTypePost
+Process
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Registered extensible process: 
+DCDeliveryTypePostProcess with priority: 50
+[main] INFO com.jmix.configengine.extensibleDemo.DCModuleConstraintExecutorImpl - Adding 1 DC modules    
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.extensibleDemo.DCMyTShirtTest - Testing DC wrapper functionality       
+[main] INFO com.jmix.configengine.extensibleDemo.DCModuleConstraintExecutorImpl - Adding 1 DC modules    
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.extensibleDemo.DCMyTShirtTest - DC wrapper functionality test passed   
+[main] INFO com.jmix.configengine.extensibleDemo.DCModuleConstraintExecutorImpl - Initializing DC Module 
+Constraint Executor
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.extensibleDemo.DCModuleConstraintExecutorImpl - Registering extensible 
+process: DCDeliveryTypePostProcess
+[main] INFO com.jmix.configengine.ExtensibleProcess - Initializing extensible process: DCDeliveryTypePost
+Process
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Registered extensible process: 
+DCDeliveryTypePostProcess with priority: 50
+[main] INFO com.jmix.configengine.ExtensibleProcess - Initializing extensible process: DCDeliveryTypePost
+Process
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Registered extensible process: 
+DCDeliveryTypePostProcess with priority: 50
+[main] INFO com.jmix.configengine.extensibleDemo.DCModuleConstraintExecutorImpl - Adding 1 DC modules    
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.extensibleDemo.DCMyTShirtTest - Testing adapter functionality
+[main] INFO com.jmix.configengine.extensibleDemo.DCMyTShirtTest - DCModule adapted: dccode=TShirt11, seas
+on=Spring
+[main] INFO com.jmix.configengine.extensibleDemo.DCMyTShirtTest - DCParaInst adapted: code=Color, value=R
+ed, deliveryType=Standard
+[main] INFO com.jmix.configengine.extensibleDemo.DCModuleConstraintExecutorImpl - Initializing DC Module 
+Constraint Executor
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
+ialized
+[main] INFO com.jmix.configengine.extensibleDemo.DCModuleConstraintExecutorImpl - Registering extensible 
+process: DCDeliveryTypePostProcess
+[main] INFO com.jmix.configengine.ExtensibleProcess - Initializing extensible process: DCDeliveryTypePost
+Process
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Registered extensible process: 
+DCDeliveryTypePostProcess with priority: 50
+[main] INFO com.jmix.configengine.ExtensibleProcess - Initializing extensible process: DCDeliveryTypePost
+Process
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Registered extensible process: 
+DCDeliveryTypePostProcess with priority: 50
+[main] INFO com.jmix.configengine.extensibleDemo.DCModuleConstraintExecutorImpl - Adding 1 DC modules    
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.configengine.extensibleDemo.DCMyTShirtTest - Testing no solution scenario
+[main] INFO com.jmix.configengine.extensibleDemo.DCMyTShirtTest - No solution test passed - empty solutio
+ns handled correctly
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.105 s -- in com.jmix.configengin
+e.extensibleDemo.DCMyTShirtTest
+[INFO] 
+[INFO] Results:
+[INFO]
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  5.276 s
+[INFO] Finished at: 2025-09-08T06:25:13+08:00
+[INFO] ------------------------------------------------------------------------
+
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+

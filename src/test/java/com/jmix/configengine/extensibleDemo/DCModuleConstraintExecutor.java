@@ -15,13 +15,13 @@ public interface DCModuleConstraintExecutor {
      * @param config 约束配置
      * @return 初始化结果
      */
-    ModuleConstraintExecutor.Result<Void> init(ModuleConstraintExecutor.ConstraintConfig config);
+    DCResult<Void> init(ModuleConstraintExecutor.ConstraintConfig config);
     
     /**
      * 销毁执行器
      * @return 销毁结果
      */
-    ModuleConstraintExecutor.Result<Void> fini();
+    DCResult<Void> fini();
     
     /**
      * 添加DC模块
@@ -29,35 +29,35 @@ public interface DCModuleConstraintExecutor {
      * @param dcModules DC模块数组
      * @return 添加结果
      */
-    ModuleConstraintExecutor.Result<Void> addDCModule(Long rootModuleId, DCModule... dcModules);
+    DCResult<Void> addDCModule(Long rootModuleId, DCModule... dcModules);
     
     /**
      * 移除模块
      * @param moduleId 模块ID
      * @return 移除结果
      */
-    ModuleConstraintExecutor.Result<Void> removeModule(Long moduleId);
+    DCResult<Void> removeModule(Long moduleId);
     
     /**
      * 推理DC参数
      * @param req 推理请求
      * @return 推理结果
      */
-    ModuleConstraintExecutor.Result<List<DCModuleInst>> inferDCParas(DCInferParasReq req);
+    DCResult<List<DCModuleInst>> inferDCParas(DCInferParasReq req);
     
     /**
      * 注册扩展处理器
      * @param eProcess 扩展处理器
      * @return 注册结果
      */
-    ModuleConstraintExecutor.Result<Void> registerExtensible(com.jmix.configengine.ExtensibleProcess eProcess);
+    DCResult<Void> registerExtensible(com.jmix.configengine.ExtensibleProcess eProcess);
     
     /**
      * 注销扩展处理器
      * @param eProcess 扩展处理器
      * @return 注销结果
      */
-    ModuleConstraintExecutor.Result<Void> unregisterExtensible(com.jmix.configengine.ExtensibleProcess eProcess);
+    DCResult<Void> unregisterExtensible(com.jmix.configengine.ExtensibleProcess eProcess);
     
     /**
      * DC推理请求类
