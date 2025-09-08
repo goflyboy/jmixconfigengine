@@ -1,6 +1,7 @@
 package com.jmix.configengine.executor;
 
 import com.jmix.configengine.artifact.ConstraintAlgImpl;
+import com.jmix.configengine.artifact.OtherVar;
 import com.jmix.configengine.artifact.ParaVar;
 import com.jmix.configengine.artifact.PartVar;
 import com.jmix.configengine.artifact.Var;
@@ -14,7 +15,6 @@ import com.jmix.configengine.inf.PartInst;
 import com.jmix.configengine.inf.Result;
 import com.jmix.configengine.model.Module;
 
-import lombok.experimental.var;
 import lombok.extern.slf4j.Slf4j;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -125,7 +125,7 @@ public class ModuleConstraintExecutorImpl {
 			}
 			// 可按需设置更多参数
 			// if (config != null) { solver.getParameters().setLogSearchProgress(true); }
-			ModuleInstSolutionCallBack cb = new ModuleInstSolutionCallBack(module, alg.getVars());
+			ModuleInstSolutionCallBack cb = new ModuleInstSolutionCallBack(module, alg.getVars(), alg.otherVarMap);
 			CpSolverStatus status = solver.solve(model, cb);
 			
 			// 如果模型无效，调用ValidateCpModel获取详细错误信息
@@ -159,9 +159,20 @@ public class ModuleConstraintExecutorImpl {
 		private final List<ModuleInst> allSolutions = new ArrayList<>();
 		//第几个解
 		private int solutionIndex = 0;
+		// 其他变量映射
+		private Map<String, OtherVar> otherVarMap;
+		// 常量定义
+		private static final String OTHER_VARIABLES_VALUE_KEY = "OTHER_VARIABLES_VALUE";
+		private static final String OTHER_VARIABLES_MEMO_KEY = "OTHER_VARIABLES_MEMO";
 		public ModuleInstSolutionCallBack(Module module, List<Var<?>> vars) {
 			this.vars = vars != null ? vars : Collections.emptyList();
 			this.module = module;
+		}
+		
+		public ModuleInstSolutionCallBack(Module module, List<Var<?>> vars, Map<String, OtherVar> otherVarMap) {
+			this.vars = vars != null ? vars : Collections.emptyList();
+			this.module = module;
+			this.otherVarMap = otherVarMap;
 		}
 
 		@Override
@@ -200,6 +211,19 @@ public class ModuleConstraintExecutorImpl {
 					moduleInst.addPartInst(inst);
 				}
 			}
+			
+			// 如果isLogVariables为true，则增加根据otherVarMap值的获取,组织otherVarKeyMap
+			if (otherVarMap != null && !otherVarMap.isEmpty()) {
+				Map<String, Long> otherVarKeyMap = new HashMap<>();
+				for (Map.Entry<String, OtherVar> entry : otherVarMap.entrySet()) {
+					OtherVar otherVar = entry.getValue();
+					long varValue = value(otherVar.var);
+					otherVarKeyMap.put(otherVar.shortCode, varValue);
+				}
+				moduleInst.extAttrs.put(OTHER_VARIABLES_VALUE_KEY, otherVarKeyMap);
+				moduleInst.extAttrs.put(OTHER_VARIABLES_MEMO_KEY, otherVarMap);
+			}
+			
 			allSolutions.add(moduleInst);
 		}
 

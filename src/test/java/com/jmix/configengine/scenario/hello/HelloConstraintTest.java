@@ -28,6 +28,7 @@ public class HelloConstraintTest extends ModuleSecnarioTestBase {
         solutions(0).assertPara("Color").valueEqual("Red")
         .assertPara("Size").valueEqual("Small");
         printSolutions();
+        printShortSolutions(module, solutions);
     }
 
     
@@ -59,6 +60,7 @@ public class HelloConstraintTest extends ModuleSecnarioTestBase {
         assertSolutionNum("Color:Red,Size:Big",1);
         assertSolutionNum("Color:Black,Size:Small",1);
         printSolutions();
+        printShortSolutions(module, solutions);
     }
     
  

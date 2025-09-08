@@ -16,4 +16,25 @@ public class ParaInst {
     public boolean isHidden = false;
     public Map<String,Object> extAttrs;
 
+    /**
+     * 生成短字符串表示
+     * @return 短字符串，例如：P1(V:1,H:0)
+     */
+    public String toShortString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(code).append("(");
+        
+        // 添加值信息
+        if (value != null) {
+            sb.append("V:").append(value);
+        }
+        
+        // 添加隐藏状态
+        if (sb.length() > code.length() + 1) sb.append(",");
+        sb.append("H:").append(isHidden ? 1 : 0);
+        
+        sb.append(")");
+        return sb.toString();
+    }
+
 }

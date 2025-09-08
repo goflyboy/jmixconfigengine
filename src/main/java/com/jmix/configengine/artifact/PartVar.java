@@ -20,9 +20,9 @@ public class PartVar extends Var<Part> {
 	/**
 	 * 部件变量命名模式常量
 	 */
-	public static final String PART_PATTEN_PREFIX = "##Part.";
-	public static final String QTY_PATTEN = PART_PATTEN_PREFIX + "qty.%s"; // ##Part.qty.{code}
-	public static final String HIDDEN_PATTEN = PART_PATTEN_PREFIX + "isHidden.%s"; // ##Part.isHidden.{code}
+	public static final String VAR_PATTEN_PREFIX = "##Part.";
+	public static final String QTY_PATTEN = VAR_PATTEN_PREFIX + "qty.%s"; // ##Part.qty.{code}
+	public static final String HIDDEN_PATTEN = VAR_PATTEN_PREFIX + "isHidden.%s"; // ##Part.isHidden.{code}
 	public static final String QTY_SHORT_NAME = "Q";
 	public static final String HIDDEN_SHORT_NAME = "H";
 

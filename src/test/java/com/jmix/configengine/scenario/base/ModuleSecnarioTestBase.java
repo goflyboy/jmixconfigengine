@@ -2,7 +2,9 @@ package com.jmix.configengine.scenario.base;
  
 import com.jmix.configengine.ModuleConstraintExecutor;
 import com.jmix.configengine.artifact.ConstraintAlgImpl;
+import com.jmix.configengine.artifact.OtherVar;
 import com.jmix.configengine.executor.ModuleConstraintExecutorImpl;
+import com.jmix.configengine.inf.ModuleInst;
 import com.jmix.configengine.inf.ParaInst;
 import com.jmix.configengine.inf.PartInst;
 import com.jmix.configengine.model.Module;
@@ -365,6 +367,49 @@ public abstract class ModuleSecnarioTestBase {
             this.type = type;
             this.code = code;
             this.value = value;
+        }
+    }
+    
+    /**
+     * 打印短格式解信息
+     * @param module 模块
+     * @param solutions 解列表
+     */
+    protected void printShortSolutions(Module module, List<ModuleInst> solutions) {
+        if (solutions == null || solutions.isEmpty()) {
+            System.out.println("No solutions found");
+            return;
+        }
+        
+        // 打印缩语解释
+        System.out.println("缩语解释:");
+        
+        // 1. Attrs(V:value, H:isHidden, Q:qty)
+        System.out.println("1、Attrs(V:value, H:isHidden, Q:qty)");
+        
+        // 2. shortCodes(P1:Size, P2:Color,PT1:part1)
+        System.out.println("2、shortCodes(" + module.getProgObjShortCodeMemo() + ")");
+        
+        // 3. Other Variable shortName
+        System.out.println("3、Other Variable shortName:");
+        if (!solutions.isEmpty()) {
+            ModuleInst firstSolution = solutions.get(0);
+            Object otherVarsMemo = firstSolution.extAttrs.get(ModuleInst.OTHER_VARIABLES_MEMO_KEY);
+            if (otherVarsMemo instanceof Map) {
+                @SuppressWarnings("unchecked")
+                Map<String, OtherVar> otherVarMap = (Map<String, OtherVar>) otherVarsMemo;
+                for (Map.Entry<String, OtherVar> entry : otherVarMap.entrySet()) {
+                    OtherVar otherVar = entry.getValue();
+                    System.out.println(" " + otherVar.shortCode + ":" + otherVar.code);
+                }
+            }
+        }
+        
+        System.out.println();
+        
+        // 打印解
+        for (int i = 0; i < solutions.size(); i++) {
+            System.out.println("解" + (i + 1) + "： " + solutions.get(i).toShortString());
         }
     }
     
