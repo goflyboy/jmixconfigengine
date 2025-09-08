@@ -19,13 +19,11 @@ import static org.junit.Assert.*;
 @Slf4j
 public class DCMyTShirtTest {
     
-    private DCModuleConstraintExecutor dcExecutor;
     private DCDeliveryTypePostProcess postProcess;
     
     @Before
     public void setUp() {
-        // 创建DC执行器
-        dcExecutor = new DCModuleConstraintExecutorImpl();
+        // 使用单例DC执行器
         
         // 初始化配置
         com.jmix.configengine.inf.ConstraintConfig config = new com.jmix.configengine.inf.ConstraintConfig();
@@ -35,22 +33,20 @@ public class DCMyTShirtTest {
         config.isLogModelProto = false;
         
         // 初始化DC执行器
-        dcExecutor.init(config);
+        DCModuleConstraintExecutor.INST.init(config);
         
         // 注册后处理器
         postProcess = new DCDeliveryTypePostProcess();
-        dcExecutor.registerExtensible(postProcess);
+        DCModuleConstraintExecutor.INST.registerExtensible(postProcess);
         
         // 添加模块
-        dcExecutor.addDCModule(1L, getDCModule());
+        DCModuleConstraintExecutor.INST.addDCModule(1L, getDCModule());
     }
     
     @After
     public void tearDown() {
         // 清理资源
-        if (dcExecutor != null) {
-            dcExecutor.fini();
-        }
+        DCModuleConstraintExecutor.INST.fini();
         ModuleConstraintExecutor.INST.fini();
     }
     
@@ -60,7 +56,7 @@ public class DCMyTShirtTest {
         
         // 由于模块没有算法制品，我们跳过实际的推理测试
         // 这里主要测试扩展性功能的注册和管理
-        assertNotNull("DC Executor should not be null", dcExecutor);
+        assertNotNull("DC Executor should not be null", DCModuleConstraintExecutor.INST);
         // assertNotNull("Standard Executor should not be null", executor);
         assertNotNull("Post process should not be null", postProcess);
         
@@ -69,6 +65,9 @@ public class DCMyTShirtTest {
         assertEquals("Post process name should be correct", "DCDeliveryTypePostProcess", postProcess.getProcessName());
         
         log.info("Basic inference test passed - extension functionality verified");
+        
+        // 测试完成后清理
+        ModuleConstraintExecutor.INST.fini();
     }
     
     @Test
@@ -76,11 +75,11 @@ public class DCMyTShirtTest {
         log.info("Testing DC wrapper functionality");
         
         // 测试DC执行器的基本功能
-        assertNotNull("DC Executor should not be null", dcExecutor);
+        assertNotNull("DC Executor should not be null", DCModuleConstraintExecutor.INST);
         
         // 测试DC模块添加
         DCModule testModule = getDCModule();
-        DCResult<Void> addResult = dcExecutor.addDCModule(2L, testModule);
+        DCResult<Void> addResult = DCModuleConstraintExecutor.INST.addDCModule(2L, testModule);
         assertEquals("DC module addition should be successful", Result.SUCCESS, addResult.code);
         assertNotNull("DC result code should not be null", addResult.getDcResultCode());
         assertEquals("DC result code should be correct", "DC_ADD_MODULE_SUCCESS", addResult.getDcResultCode());
@@ -92,12 +91,15 @@ public class DCMyTShirtTest {
         dcReq.enumerateAllSolution = true;
         
         // 由于没有算法制品，这里主要测试接口调用
-        DCResult<java.util.List<DCModuleInst>> result = dcExecutor.inferDCParas(dcReq);
+        DCResult<java.util.List<DCModuleInst>> result = DCModuleConstraintExecutor.INST.inferDCParas(dcReq);
         assertNotNull("DC inference result should not be null", result);
         assertNotNull("DC result code should not be null", result.getDcResultCode());
         assertTrue("DC result should have process timestamp", result.getProcessTimestamp() > 0);
         
         log.info("DC wrapper functionality test passed");
+        
+        // 测试完成后清理
+        ModuleConstraintExecutor.INST.fini();
     }
     
     @Test
@@ -148,6 +150,9 @@ public class DCMyTShirtTest {
         // 验证后处理器是否被调用
         assertTrue("Post process should be enabled", postProcess.isEnabled());
         assertEquals("Post process name should be correct", "DCDeliveryTypePostProcess", postProcess.getProcessName());
+        
+        // 测试完成后清理
+        ModuleConstraintExecutor.INST.fini();
     }
     
     @Test
@@ -181,6 +186,9 @@ public class DCMyTShirtTest {
         
         log.info("DCParaInst adapted: code={}, value={}, deliveryType={}", 
                 dcParaInst.getCode(), dcParaInst.getValue(), dcParaInst.getDeliveryType());
+        
+        // 测试完成后清理
+        ModuleConstraintExecutor.INST.fini();
     }
     
     @Test
@@ -197,6 +205,9 @@ public class DCMyTShirtTest {
         Result<Void> unregisterResult = ModuleConstraintExecutor.INST.unregisterExtensible(newPostProcess);
         
         assertEquals("Unregistration should be successful", Result.SUCCESS, unregisterResult.code);
+        
+        // 测试完成后清理
+        ModuleConstraintExecutor.INST.fini();
     }
     
     @Test
@@ -218,18 +229,11 @@ public class DCMyTShirtTest {
         assertTrue("Should have empty processed solutions", result.data.isEmpty());
         
         log.info("No solution test passed - empty solutions handled correctly");
+        
+        // 测试完成后清理
+        ModuleConstraintExecutor.INST.fini();
     }
     
-    /**
-     * 创建部件实例
-     */
-    private PartInst createPartInst(String code, Integer quantity) {
-        PartInst partInst = new PartInst();
-        partInst.setCode(code);
-        partInst.setQuantity(quantity);
-        partInst.setHidden(false);
-        return partInst;
-    }
     
     /**
      * 创建DC部件实例

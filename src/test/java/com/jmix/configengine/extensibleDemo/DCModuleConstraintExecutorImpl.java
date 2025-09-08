@@ -15,9 +15,10 @@ import java.util.List;
 /**
  * DC公司的模块约束执行器实现
  * 包装了原有的ModuleConstraintExecutorImpl，提供DC特有的功能
+ * 内部实现类，外部不应直接访问
  */
 @Slf4j
-public class DCModuleConstraintExecutorImpl implements DCModuleConstraintExecutor {
+class DCModuleConstraintExecutorImpl {
     
     // 使用单例访问，不需要包装实例
     private final DCModuleAdapter moduleAdapter;
@@ -30,7 +31,6 @@ public class DCModuleConstraintExecutorImpl implements DCModuleConstraintExecuto
         this.partInstAdapter = new DCPartInstAdapter();
     }
     
-    @Override
     public DCResult<Void> init(com.jmix.configengine.inf.ConstraintConfig config) {
         log.info("Initializing DC Module Constraint Executor");
         Result<Void> result = ModuleConstraintExecutor.INST.init(config);
@@ -40,7 +40,6 @@ public class DCModuleConstraintExecutorImpl implements DCModuleConstraintExecuto
         return dcResult;
     }
     
-    @Override
     public DCResult<Void> fini() {
         log.info("Finalizing DC Module Constraint Executor");
         Result<Void> result = ModuleConstraintExecutor.INST.fini();
@@ -50,7 +49,6 @@ public class DCModuleConstraintExecutorImpl implements DCModuleConstraintExecuto
         return dcResult;
     }
     
-    @Override
     public DCResult<Void> addDCModule(Long rootModuleId, DCModule... dcModules) {
         if (dcModules == null) {
             return DCResult.failed("DC modules is null", "DC_ADD_MODULE_FAILED");
@@ -71,7 +69,6 @@ public class DCModuleConstraintExecutorImpl implements DCModuleConstraintExecuto
         return dcResult;
     }
     
-    @Override
     public DCResult<Void> removeModule(Long moduleId) {
         log.info("Removing module: {}", moduleId);
         Result<Void> result = ModuleConstraintExecutor.INST.removeModule(moduleId);
@@ -81,8 +78,7 @@ public class DCModuleConstraintExecutorImpl implements DCModuleConstraintExecuto
         return dcResult;
     }
     
-    @Override
-    public DCResult<List<DCModuleInst>> inferDCParas(DCInferParasReq req) {
+    public DCResult<List<DCModuleInst>> inferDCParas(DCModuleConstraintExecutor.DCInferParasReq req) {
         if (req == null) {
             return DCResult.failed("DC request is null", "DC_INFER_FAILED");
         }
@@ -114,7 +110,6 @@ public class DCModuleConstraintExecutorImpl implements DCModuleConstraintExecuto
         return dcResult;
     }
     
-    @Override
     public DCResult<Void> registerExtensible(com.jmix.configengine.inf.ExtensibleProcess eProcess) {
         log.info("Registering extensible process: {}", eProcess.getProcessName());
         Result<Void> result = ModuleConstraintExecutor.INST.registerExtensible(eProcess);
@@ -125,7 +120,6 @@ public class DCModuleConstraintExecutorImpl implements DCModuleConstraintExecuto
         return dcResult;
     }
     
-    @Override
     public DCResult<Void> unregisterExtensible(com.jmix.configengine.inf.ExtensibleProcess eProcess) {
         log.info("Unregistering extensible process: {}", eProcess.getProcessName());
         Result<Void> result = ModuleConstraintExecutor.INST.unregisterExtensible(eProcess);
@@ -162,7 +156,7 @@ public class DCModuleConstraintExecutorImpl implements DCModuleConstraintExecuto
     /**
      * 将DC请求转换为标准请求
      */
-    private InferParasReq convertToStandardReq(DCInferParasReq dcReq) {
+    private InferParasReq convertToStandardReq(DCModuleConstraintExecutor.DCInferParasReq dcReq) {
         InferParasReq standardReq = new InferParasReq();
         standardReq.moduleId = dcReq.moduleId;
         standardReq.moduleCode = dcReq.moduleCode;
