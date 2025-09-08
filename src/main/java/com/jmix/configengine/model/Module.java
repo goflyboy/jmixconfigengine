@@ -78,8 +78,40 @@ public class Module extends ProgrammableObject<Integer> {
 				partMap.put(part.getCode(), part);
 			}
 		}
+		initShortCode();
 	}
-	
+	private void initShortCode() {
+		int index = 0;
+		for (Para para : paras) {
+			para.setShortCode(Para.SHORT_CODE_PREFIX + index);
+			index++;
+		}
+		index = 0;
+		for (Part part : parts) {
+			part.setShortCode(Part.SHORT_CODE_PREFIX + index);
+			index++;
+		}
+	}
+	@JsonIgnore
+	public String getProgObjShortCodeMemo() {
+		//2、shortCodes(P1:Size, P2:Color,PT1:part1,PT2:part2)
+		StringBuilder sb = new StringBuilder();
+		sb.append("ProgObjs(");
+		for (Para para : paras) {
+			sb.append(para.getShortCode()).append(":").append(para.getCode()).append(",");
+		}
+		for (Part part : parts) {
+			sb.append(part.getShortCode()).append(":").append(part.getCode()).append(",");
+		}
+		sb.append(")");
+		return sb.toString();
+	}
+
+	@JsonIgnore
+	public String getAttrShortCodeMemo() {
+		return "Attrs(V:value, H:isHidden, Q:qty)";
+	}
+
 	/**
 	 * 根据编码获取参数对象
 	 */

@@ -3,6 +3,7 @@ package com.jmix.configengine.model;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 
 /**
@@ -22,6 +23,7 @@ public class ProgrammableObject<T> extends Extensible implements Programmable {
 	 * 对象编码
 	 */
 	private String code;
+
 	
 	/**
 	 * 父对象编码
@@ -42,4 +44,10 @@ public class ProgrammableObject<T> extends Extensible implements Programmable {
 	 * 排序号
 	 */
 	private Integer sortNo;
+
+	/**
+	 * 短编码,仅用于调试
+	 */
+	@JsonIgnore
+	private String shortCode;
 } 

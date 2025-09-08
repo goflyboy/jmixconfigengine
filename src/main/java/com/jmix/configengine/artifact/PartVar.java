@@ -23,6 +23,9 @@ public class PartVar extends Var<Part> {
 	public static final String PART_PATTEN_PREFIX = "##Part.";
 	public static final String QTY_PATTEN = PART_PATTEN_PREFIX + "qty.%s"; // ##Part.qty.{code}
 	public static final String HIDDEN_PATTEN = PART_PATTEN_PREFIX + "isHidden.%s"; // ##Part.isHidden.{code}
+	public static final String QTY_SHORT_NAME = "Q";
+	public static final String HIDDEN_SHORT_NAME = "H";
+
 	/**
 	 * 部件的数量值
 	 */
@@ -53,5 +56,12 @@ public class PartVar extends Var<Part> {
 		}
 		sb.append("}");
 		return sb.toString();
+	}
+	
+	@Override
+	public String getShortString(CpSolverSolutionCallback solutionCallback) {
+		//P1(Q:1,H:0)
+		return String.format("%s(%s:%s,%s:%s)", getCode(), QTY_SHORT_NAME,
+		solutionCallback.value((IntVar) this.qty), HIDDEN_SHORT_NAME, solutionCallback.value(this.isHidden));
 	}
 } 

@@ -32,4 +32,8 @@ public abstract class Var<T extends Programmable> implements Programmable {
 	public String getVarString(CpSolverSolutionCallback solutionCallback){
 		return base != null ? base.getCode() : null;
 	}
-} 
+
+	public String getShortString(CpSolverSolutionCallback solutionCallback){
+		return "";
+	}
+}

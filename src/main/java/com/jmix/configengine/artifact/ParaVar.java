@@ -26,6 +26,8 @@ public class ParaVar extends Var<Para> {
 	public static final String VALUE_PATTEN = PARA_PATTEN_PREFIX + "value.%s"; // ##Para.value.{code}
 	public static final String HIDDEN_PATTEN = PARA_PATTEN_PREFIX + "isHidden.%s"; // ##Para.isHidden.{code}
 	public static final String OPTIONS_PATTEN = PARA_PATTEN_PREFIX + "options.%s.%s"; // ##Para.options.{code}.{optionCode}
+	public static final String VALUE_SHORT_NAME = "V";
+	public static final String HIDDEN_SHORT_NAME = "H"; 
 	/**
 	 * 参数值状态
 	 */
@@ -85,5 +87,11 @@ public class ParaVar extends Var<Para> {
 		}
 		sb.append("}");
 		return sb.toString();
+	}
+	@Override
+	public String getShortString(CpSolverSolutionCallback solutionCallback) {
+		//P1(V:1,H:0)
+		return String.format("%s(%s:%s,%s:%s)", getCode(), VALUE_SHORT_NAME,
+		solutionCallback.value((IntVar) this.value), HIDDEN_SHORT_NAME, solutionCallback.value(this.isHidden));
 	}
 } 
