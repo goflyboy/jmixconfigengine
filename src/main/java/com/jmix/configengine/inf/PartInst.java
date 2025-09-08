@@ -13,4 +13,5 @@ public class PartInst {
     public Integer quantity;
     public Map<String,String> selectAttrValue;
     public boolean isHidden = false;
+    public Map<String,Object> extAttrs;
 }

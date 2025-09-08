@@ -18,6 +18,12 @@ import com.jmix.configengine.model.Part;
 @EqualsAndHashCode(callSuper = true)
 public class PartVar extends Var<Part> {
 	/**
+	 * 部件变量命名模式常量
+	 */
+	public static final String PART_PATTEN_PREFIX = "##Part.";
+	public static final String QTY_PATTEN = PART_PATTEN_PREFIX + "qty.%s"; // ##Part.qty.{code}
+	public static final String HIDDEN_PATTEN = PART_PATTEN_PREFIX + "isHidden.%s"; // ##Part.isHidden.{code}
+	/**
 	 * 部件的数量值
 	 */
 	public IntVar qty;

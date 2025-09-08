@@ -13,6 +13,8 @@ import com.jmix.configengine.inf.ParaInst;
 import com.jmix.configengine.inf.PartInst;
 import com.jmix.configengine.inf.Result;
 import com.jmix.configengine.model.Module;
+
+import lombok.experimental.var;
 import lombok.extern.slf4j.Slf4j;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -109,6 +111,13 @@ public class ModuleConstraintExecutorImpl {
 			if(config.isLogModelProto){
 				//将module的CpModelProto信息输出到文件config.logFilePath/module.proto.txt
 				model.exportToFile(config.logFilePath + "/" + module.getCode() + ".proto.txt");
+				model.model().getVariablesList().forEach(variable -> {
+					log.info("variable: {}", variable.toString());
+					variable.getName();
+				});
+				java.util.List<com.google.ortools.sat.IntegerVariableProto> variables = model.model().getVariablesList();
+
+					
 			}
 			CpSolver solver = new CpSolver();
 			if (req.enumerateAllSolution) {

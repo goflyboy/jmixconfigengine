@@ -1,5 +1,7 @@
 package com.jmix.configengine.inf;
 
+import java.util.Map;
+
 /**
  * 结果类
  * 用于封装操作结果
@@ -11,7 +13,8 @@ public class Result<T> {
     public int code = SUCCESS;
     public T data;
     public String message;
-    
+    public Map<String,Object> extAttrs;
+
     public static <X> Result<X> success(X data){
         Result<X> r = new Result<>();
         r.code = SUCCESS;

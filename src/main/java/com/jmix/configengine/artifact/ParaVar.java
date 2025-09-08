@@ -20,6 +20,13 @@ import com.jmix.configengine.model.Para;
 @EqualsAndHashCode(callSuper = true)
 public class ParaVar extends Var<Para> {
 	/**
+	 * 参数变量命名模式常量
+	 */
+	public static final String PARA_PATTEN_PREFIX = "##Para.";
+	public static final String VALUE_PATTEN = PARA_PATTEN_PREFIX + "value.%s"; // ##Para.value.{code}
+	public static final String HIDDEN_PATTEN = PARA_PATTEN_PREFIX + "isHidden.%s"; // ##Para.isHidden.{code}
+	public static final String OPTIONS_PATTEN = PARA_PATTEN_PREFIX + "options.%s.%s"; // ##Para.options.{code}.{optionCode}
+	/**
 	 * 参数值状态
 	 */
 	public IntVar value;

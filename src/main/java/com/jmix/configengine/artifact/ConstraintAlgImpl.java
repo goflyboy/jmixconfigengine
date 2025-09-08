@@ -95,7 +95,6 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 			
 			for (Field field : fields) {
 				field.setAccessible(true);
-				String fieldName = field.getName();
 				
 				// 检查字段类型并创建对应的变量
 				if (ParaVar.class.isAssignableFrom(field.getType())) {
@@ -248,13 +247,13 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		paraVar.setBase(para); 
 		switch (para.getType()) {
 			case INTEGER:
-				paraVar.value = model.newIntVar(Integer.parseInt(para.getMinValue()), Integer.parseInt(para.getMaxValue()), code);
+				paraVar.value = model.newIntVar(Integer.parseInt(para.getMinValue()), Integer.parseInt(para.getMaxValue()), f(ParaVar.VALUE_PATTEN, code));
 				break;
 			case ENUM:
 				if (para.getOptions() == null) {
 					throw new RuntimeException("Para options not found for code: " + code);
 				}
-				paraVar.value = newIntVarFromDomain(model, para.getOptionIds(), code);
+				paraVar.value = newIntVarFromDomain(model, para.getOptionIds(), f(ParaVar.VALUE_PATTEN, code));
 
 				for (ParaOption option : para.getOptions()) {
 					ParaOptionVar optionVar = createParaOptionVar(para.getCode(), option.getCode());
@@ -269,7 +268,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 			default:
 				throw new RuntimeException("Para type not supported: " + para.getType());
 		}
-		paraVar.isHidden = model.newBoolVar(code + "_is_hidden");
+		paraVar.isHidden = model.newBoolVar(f(ParaVar.HIDDEN_PATTEN, code));
 		registerVar(code, paraVar);
 		return paraVar;
 	}
@@ -282,8 +281,8 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		PartVar partVar = new PartVar();
 		partVar.setBase(part);
 		// partVar.qty = model.newIntVar(0, 1, code);
-		partVar.qty = model.newIntVar(0, part.getMaxQuantity(), code);
-		partVar.isHidden = model.newBoolVar(code + "_is_hidden");
+		partVar.qty = model.newIntVar(0, part.getMaxQuantity(), f(PartVar.QTY_PATTEN, code));
+		partVar.isHidden = model.newBoolVar(f(PartVar.HIDDEN_PATTEN, code));
 		registerVar(code, partVar);
 		return partVar;
 	}
@@ -298,7 +297,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 			throw new RuntimeException("ParaOption not found for code: " + optionCode);
 		}
 		ParaOptionVar optionVar = new ParaOptionVar(option);
-		optionVar.isSelectedVar = model.newBoolVar(paraCode + "_" + option.getCodeId());
+		optionVar.isSelectedVar = model.newBoolVar(f(ParaVar.OPTIONS_PATTEN, paraCode, option.getCode()));
 		return optionVar;
 	}
 	
@@ -319,7 +318,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 			.toArray(BoolVar[]::new));
 
 		// 定义左侧条件：左侧集合中至少一个被选中
-		BoolVar leftCond = model.newBoolVar(ruleCode + "_" + "leftCond");
+		BoolVar leftCond = model.newBoolVar(f("%s_leftCond", ruleCode));
 		Literal[] leftSelected = leftParaVar.optionSelectVars.values().stream()
 			.filter(option -> leftParaFilterOptionCodes.contains(option.getCode()))
 			.map(option -> (Literal) option.getIsSelectedVar())
@@ -329,7 +328,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		model.addBoolAnd(Arrays.stream(leftSelected).map(Literal::not).toArray(Literal[]::new)).onlyEnforceIf(leftCond.not());
 
 		// 定义右侧条件：右侧集合中至少一个被选中
-		BoolVar rightCond = model.newBoolVar(ruleCode + "_" + "rightCond");
+		BoolVar rightCond = model.newBoolVar(f("%s_rightCond", ruleCode));
 		Literal[] rightSelected = rightParaVar.optionSelectVars.values().stream()
 			.filter(option -> rightParaFilterOptionCodes.contains(option.getCode()))
 			.map(option -> (Literal) option.getIsSelectedVar())
@@ -388,7 +387,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 			.toArray(BoolVar[]::new));
 
 		// 定义左侧条件：左侧集合中至少一个被选中
-		BoolVar leftCond = model.newBoolVar(ruleCode + "_" + "leftCond");
+		BoolVar leftCond = model.newBoolVar(f("%s_leftCond", ruleCode));
 		Literal[] leftSelected = leftParaVar.optionSelectVars.values().stream()
 			.filter(option -> leftParaFilterOptionCodes.contains(option.getCode()))
 			.map(option -> (Literal) option.getIsSelectedVar())
@@ -398,7 +397,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		model.addBoolAnd(Arrays.stream(leftSelected).map(Literal::not).toArray(Literal[]::new)).onlyEnforceIf(leftCond.not());
 
 		// 定义右侧条件：右侧集合中至少一个被选中
-		BoolVar rightCond = model.newBoolVar(ruleCode + "_" + "rightCond");
+		BoolVar rightCond = model.newBoolVar(f("%s_rightCond", ruleCode));
 		Literal[] rightSelected = rightParaVar.optionSelectVars.values().stream()
 			.filter(option -> rightParaFilterOptionCodes.contains(option.getCode()))
 			.map(option -> (Literal) option.getIsSelectedVar())
@@ -408,7 +407,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		model.addBoolAnd(Arrays.stream(rightSelected).map(Literal::not).toArray(Literal[]::new)).onlyEnforceIf(rightCond.not());
 
 		// 定义左侧非条件：左侧集合外至少一个被选中
-		BoolVar leftNotCond = model.newBoolVar(ruleCode + "_" + "leftNotCond");
+		BoolVar leftNotCond = model.newBoolVar(f("%s_leftNotCond", ruleCode));
 		Literal[] leftNotSelected = leftParaVar.optionSelectVars.values().stream()
 			.filter(option -> !leftParaFilterOptionCodes.contains(option.getCode()))
 			.map(option -> (Literal) option.getIsSelectedVar())
@@ -418,7 +417,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		model.addBoolAnd(Arrays.stream(leftNotSelected).map(Literal::not).toArray(Literal[]::new)).onlyEnforceIf(leftNotCond.not());
 
 		// 定义右侧非条件：右侧集合外至少一个被选中
-		BoolVar rightNotCond = model.newBoolVar(ruleCode + "_" + "rightNotCond");
+		BoolVar rightNotCond = model.newBoolVar(f("%s_rightNotCond", ruleCode));
 		Literal[] rightNotSelected = rightParaVar.optionSelectVars.values().stream()
 			.filter(option -> !rightParaFilterOptionCodes.contains(option.getCode()))
 			.map(option -> (Literal) option.getIsSelectedVar())
@@ -462,7 +461,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 			.toArray(BoolVar[]::new));
 
 		// 定义左侧条件：左侧集合中至少一个被选中
-		BoolVar leftCond = model.newBoolVar(ruleCode + "_" + "leftCond");
+		BoolVar leftCond = model.newBoolVar(f("%s_leftCond", ruleCode));
 		Literal[] leftSelected = leftParaVar.optionSelectVars.values().stream()
 			.filter(option -> leftParaFilterOptionCodes.contains(option.getCode()))
 			.map(option -> (Literal) option.getIsSelectedVar())
@@ -472,7 +471,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		model.addBoolAnd(Arrays.stream(leftSelected).map(Literal::not).toArray(Literal[]::new)).onlyEnforceIf(leftCond.not());
 
 		// 定义右侧条件：右侧集合中至少一个被选中
-		BoolVar rightCond = model.newBoolVar(ruleCode + "_" + "rightCond");
+		BoolVar rightCond = model.newBoolVar(f("%s_rightCond", ruleCode));
 		Literal[] rightSelected = rightParaVar.optionSelectVars.values().stream()
 			.filter(option -> rightParaFilterOptionCodes.contains(option.getCode()))
 			.map(option -> (Literal) option.getIsSelectedVar())
@@ -482,7 +481,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		model.addBoolAnd(Arrays.stream(rightSelected).map(Literal::not).toArray(Literal[]::new)).onlyEnforceIf(rightCond.not());
 
 		// 定义左侧非条件：左侧集合外至少一个被选中
-		BoolVar leftNotCond = model.newBoolVar(ruleCode + "_" + "leftNotCond");
+		BoolVar leftNotCond = model.newBoolVar(f("%s_leftNotCond", ruleCode));
 		Literal[] leftNotSelected = leftParaVar.optionSelectVars.values().stream()
 			.filter(option -> !leftParaFilterOptionCodes.contains(option.getCode()))
 			.map(option -> (Literal) option.getIsSelectedVar())
@@ -492,7 +491,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		model.addBoolAnd(Arrays.stream(leftNotSelected).map(Literal::not).toArray(Literal[]::new)).onlyEnforceIf(leftNotCond.not());
 
 		// 定义右侧非条件：右侧集合外至少一个被选中
-		BoolVar rightNotCond = model.newBoolVar(ruleCode + "_" + "rightNotCond");
+		BoolVar rightNotCond = model.newBoolVar(f("%s_rightNotCond", ruleCode));
 		Literal[] rightNotSelected = rightParaVar.optionSelectVars.values().stream()
 			.filter(option -> !rightParaFilterOptionCodes.contains(option.getCode()))
 			.map(option -> (Literal) option.getIsSelectedVar())
@@ -515,6 +514,16 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		// 这个约束不需要显式添加，因为默认允许
 	}
 	
+	/**
+	 * 字符串格式化工具方法
+	 * @param fstr 格式化字符串
+	 * @param values 参数值
+	 * @return 格式化后的字符串
+	 */
+	private String f(String fstr, String... values) {
+		return String.format(fstr, (Object[]) values);
+	}
+
 	/**
 	 * 创建字符串列表的工具方法
 	 * 封装Arrays.asList，提供更简洁的API

@@ -3,6 +3,7 @@ package com.jmix.configengine.inf;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 模块实例类
@@ -16,6 +17,7 @@ public class ModuleInst {
     public Integer quantity; // quantity
     public List<ParaInst> paras; // paras
     public List<PartInst> parts; // parts
+    public Map<String,Object> extAttrs;
     
     public void addParaInst(ParaInst paraInst){
         paras.add(paraInst);
