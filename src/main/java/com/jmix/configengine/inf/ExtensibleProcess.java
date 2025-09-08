@@ -1,4 +1,5 @@
-package com.jmix.configengine;
+package com.jmix.configengine.inf;
+
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,18 +45,18 @@ public abstract class ExtensibleProcess {
      * 初始化扩展处理
      * @return 初始化结果
      */
-    public ModuleConstraintExecutor.Result<Void> init() {
+    public Result<Void> init() {
         log.info("Initializing extensible process: {}", processName);
-        return ModuleConstraintExecutor.Result.success(null);
+        return Result.success(null);
     }
     
     /**
      * 销毁扩展处理
      * @return 销毁结果
      */
-    public ModuleConstraintExecutor.Result<Void> destroy() {
+    public Result<Void> destroy() {
         log.info("Destroying extensible process: {}", processName);
-        return ModuleConstraintExecutor.Result.success(null);
+        return Result.success(null);
     }
     
     /**

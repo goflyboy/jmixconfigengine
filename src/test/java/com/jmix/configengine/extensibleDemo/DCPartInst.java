@@ -1,6 +1,7 @@
 package com.jmix.configengine.extensibleDemo;
 
-import com.jmix.configengine.ModuleConstraintExecutor.PartInst;
+import com.jmix.configengine.inf.PartInst;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

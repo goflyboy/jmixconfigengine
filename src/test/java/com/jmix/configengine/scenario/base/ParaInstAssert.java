@@ -1,6 +1,7 @@
 package com.jmix.configengine.scenario.base;
 
-import com.jmix.configengine.ModuleConstraintExecutor.*;
+import com.jmix.configengine.inf.ModuleInst;
+import com.jmix.configengine.inf.ParaInst;
 import com.jmix.configengine.model.Para;
 import com.jmix.configengine.model.ParaOption;
 import com.jmix.configengine.model.Module;

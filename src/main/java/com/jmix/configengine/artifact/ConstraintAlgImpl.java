@@ -5,11 +5,9 @@ import com.google.ortools.util.Domain;
 import com.google.ortools.Loader;
 import com.jmix.configengine.model.Module;
 import com.jmix.configengine.model.Para;
-import com.jmix.configengine.model.ParaOption;
-import com.jmix.configengine.model.ParaType;
+import com.jmix.configengine.model.ParaOption; 
 import com.jmix.configengine.model.Part;
 import com.jmix.configengine.model.Rule;
-import com.jmix.configengine.util.ParaTypeHandler;
 
 import lombok.extern.slf4j.Slf4j;
 import java.lang.reflect.Field;

@@ -1,12 +1,17 @@
 package com.jmix.configengine.executor;
 
-import com.jmix.configengine.ModuleConstraintExecutor;
-import com.jmix.configengine.ExtensibleProcess;
-import com.jmix.configengine.InferParasPostProcess;
 import com.jmix.configengine.artifact.ConstraintAlgImpl;
 import com.jmix.configengine.artifact.ParaVar;
 import com.jmix.configengine.artifact.PartVar;
 import com.jmix.configengine.artifact.Var;
+import com.jmix.configengine.inf.ConstraintConfig;
+import com.jmix.configengine.inf.ExtensibleProcess;
+import com.jmix.configengine.inf.InferParasPostProcess;
+import com.jmix.configengine.inf.InferParasReq;
+import com.jmix.configengine.inf.ModuleInst;
+import com.jmix.configengine.inf.ParaInst;
+import com.jmix.configengine.inf.PartInst;
+import com.jmix.configengine.inf.Result;
 import com.jmix.configengine.model.Module;
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,20 +23,18 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import com.fasterxml.jackson.databind.MapperFeature;
 
 @Slf4j
-public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
+public class ModuleConstraintExecutorImpl {
 	private final Map<Long, Module> moduleMap = new HashMap<>();
 	private final Map<Long, ModuleAlgClassLoader> moduleAlgClassLoaderMap = new HashMap<>();
 	private final List<ExtensibleProcess> extensibleProcesses = new CopyOnWriteArrayList<>();
 	private ConstraintConfig config;
 	
-	@Override
 	public Result<Void> init(ConstraintConfig config) {
 		this.config = config;
 		log.info("Module constraint executor initialized");
 		return Result.success(null);
 	}
 	
-	@Override
 	public Result<Void> fini() {
 		// 销毁所有扩展处理器
 		for (ExtensibleProcess process : extensibleProcesses) {
@@ -48,7 +51,6 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
 		return Result.success(null);
 	}
 	
-	@Override
 	public Result<Void> addModule(Long rootModuleId, Module... modules) {
 		if (modules == null) {
 			return Result.failed("modules is null");
@@ -65,7 +67,6 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
 		return Result.success(null);
 	}
 	
-	@Override
 	public Result<Void> removeModule(Long moduleId) {
 		moduleAlgClassLoaderMap.remove(moduleId);
 		moduleMap.remove(moduleId);
@@ -73,7 +74,6 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
 		return Result.success(null);
 	}
 	
-	@Override
 	public Result<List<ModuleInst>> inferParas(InferParasReq req) {
 		if (req == null) return Result.failed("req is null");
 		Module module = null;
@@ -216,7 +216,6 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
 		return moduleInst;
 	}
 	
-	@Override
 	public Result<Void> registerExtensible(ExtensibleProcess eProcess) {
 		if (eProcess == null) {
 			return Result.failed("ExtensibleProcess is null");
@@ -228,8 +227,8 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
 		}
 		
 		try {
-			ModuleConstraintExecutor.Result<Void> initResult = eProcess.init();
-			if (initResult.code != ModuleConstraintExecutor.Result.SUCCESS) {
+			Result<Void> initResult = eProcess.init();
+			if (initResult.code != Result.SUCCESS) {
 				return Result.failed("Failed to initialize extensible process: " + initResult.message);
 			}
 			
@@ -246,7 +245,6 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
 		}
 	}
 	
-	@Override
 	public Result<Void> unregisterExtensible(ExtensibleProcess eProcess) {
 		if (eProcess == null) {
 			return Result.failed("ExtensibleProcess is null");
@@ -285,9 +283,9 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
 			if (process instanceof InferParasPostProcess) {
 				try {
 					InferParasPostProcess postProcess = (InferParasPostProcess) process;
-					ModuleConstraintExecutor.Result<List<ModuleInst>> processResult = postProcess.postProcess(module, result);
+					Result<List<ModuleInst>> processResult = postProcess.postProcess(module, result);
 					
-					if (processResult.code == ModuleConstraintExecutor.Result.SUCCESS && processResult.data != null) {
+					if (processResult.code == Result.SUCCESS && processResult.data != null) {
 						result = processResult.data;
 						log.debug("Applied post process: {} successfully", process.getProcessName());
 					} else {

@@ -2,16 +2,13 @@ package com.jmix.configengine.scenario.base;
  
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.Files; 
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.checkerframework.checker.units.qual.s;
-
+ 
 import com.jmix.configengine.artifact.RuleInfo;
 
 /**

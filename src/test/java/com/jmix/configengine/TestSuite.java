@@ -7,7 +7,6 @@ import org.junit.runners.Suite.SuiteClasses;
 import com.jmix.configengine.artifact.FilterExpressionExecutorTest;
 import com.jmix.configengine.artifact.ModuleAlgArtifactGeneratorTest;
 import com.jmix.configengine.scenario.hello.HelloConstraintTest;
-import com.jmix.configengine.scenario.ruletest.CalculateRuleIfThenTest.CalculateRuleConstraint;
 import com.jmix.configengine.util.ModuleUtilsTest;
 
 /**

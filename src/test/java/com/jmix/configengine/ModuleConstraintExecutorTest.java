@@ -1,8 +1,10 @@
 package com.jmix.configengine;
 import com.jmix.configengine.util.ModuleUtils;
-import com.jmix.configengine.model.ModuleAlgArtifact;
-import com.jmix.configengine.artifact.*;
 import com.jmix.configengine.executor.ModuleConstraintExecutorImpl;
+import com.jmix.configengine.inf.ConstraintConfig;
+import com.jmix.configengine.inf.InferParasReq;
+import com.jmix.configengine.inf.ModuleInst;
+import com.jmix.configengine.inf.Result;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -17,7 +19,7 @@ public class ModuleConstraintExecutorTest {
 	// @Test TODO
 	public void testInitAddModuleAndInfer()  {
 		ModuleConstraintExecutorImpl exec = new ModuleConstraintExecutorImpl();
-		ModuleConstraintExecutor.ConstraintConfig cfg = new ModuleConstraintExecutor.ConstraintConfig();
+		ConstraintConfig cfg = new ConstraintConfig();
 		cfg.isAttachedDebug = true; // 测试环境直接使用当前classpath加载
 		cfg.rootFilePath = "";
 		assertEquals(0, exec.init(cfg).code);
@@ -39,11 +41,10 @@ public class ModuleConstraintExecutorTest {
         m.init();
 		assertEquals(0, exec.addModule(123123L, m).code);
 		
-		ModuleConstraintExecutor.InferParasReq req = new ModuleConstraintExecutor.InferParasReq();
+		InferParasReq req = new InferParasReq();
 		req.moduleId = 123123L;
 		req.enumerateAllSolution = true;
-		ModuleConstraintExecutor.Result<List<ModuleConstraintExecutor.ModuleInst>> r 
-		= exec.inferParas(req);
+		Result<List<ModuleInst>> r = exec.inferParas(req);
 		int i = 0;
 		r.data.forEach(inst -> {
 			//打印第一个解
@@ -58,7 +59,7 @@ public class ModuleConstraintExecutorTest {
 		assertNotNull(r.data);
 		assertTrue(r.data.size() >= 1);
 		// 解的结构应包含para和part
-		ModuleConstraintExecutor.ModuleInst first = r.data.get(0);
+		ModuleInst first = r.data.get(0);
 		assertNotNull(first.paras);
 		assertNotNull(first.parts);
 	}

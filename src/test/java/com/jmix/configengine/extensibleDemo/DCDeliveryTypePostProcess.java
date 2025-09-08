@@ -1,11 +1,12 @@
 package com.jmix.configengine.extensibleDemo;
 
-import com.jmix.configengine.ExtensibleProcess;
-import com.jmix.configengine.InferParasPostProcess;
 import com.jmix.configengine.ModuleConstraintExecutor;
-import com.jmix.configengine.ModuleConstraintExecutor.ModuleInst;
-import com.jmix.configengine.ModuleConstraintExecutor.ParaInst;
-import com.jmix.configengine.ModuleConstraintExecutor.PartInst;
+import com.jmix.configengine.inf.Result;
+import com.jmix.configengine.inf.ModuleInst;
+import com.jmix.configengine.inf.ParaInst;
+import com.jmix.configengine.inf.PartInst;
+import com.jmix.configengine.inf.ExtensibleProcess;
+import com.jmix.configengine.inf.InferParasPostProcess;
 import com.jmix.configengine.model.Module;
 import com.jmix.configengine.model.Part;
 import com.jmix.configengine.model.PartType;
@@ -29,10 +30,10 @@ public class DCDeliveryTypePostProcess extends ExtensibleProcess implements Infe
     }
     
     @Override
-    public ModuleConstraintExecutor.Result<List<ModuleInst>> postProcess(Module module, List<ModuleInst> solutions) {
+    public Result<List<ModuleInst>> postProcess(Module module, List<ModuleInst> solutions) {
         if (solutions == null || solutions.isEmpty()) {
             log.debug("No solutions to process");
-            return ModuleConstraintExecutor.Result.success(solutions);
+            return Result.success(solutions);
         }
         
         List<ModuleInst> processedSolutions = new ArrayList<>();
@@ -43,7 +44,7 @@ public class DCDeliveryTypePostProcess extends ExtensibleProcess implements Infe
         }
         
         log.info("Processed {} solutions with delivery type calculation", solutions.size());
-        return ModuleConstraintExecutor.Result.success(processedSolutions);
+        return Result.success(processedSolutions);
     }
     
     /**

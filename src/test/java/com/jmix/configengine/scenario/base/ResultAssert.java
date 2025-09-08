@@ -1,6 +1,6 @@
 package com.jmix.configengine.scenario.base;
 
-import com.jmix.configengine.ModuleConstraintExecutor;
+import com.jmix.configengine.inf.Result;
 import lombok.extern.slf4j.Slf4j;
 import java.util.Collection;
 
@@ -10,9 +10,9 @@ import java.util.Collection;
 @Slf4j
 public class ResultAssert {
     
-    private final ModuleConstraintExecutor.Result<?> actualResult;
+    private final Result<?> actualResult;
     
-    public ResultAssert(ModuleConstraintExecutor.Result<?> actualResult) {
+    public ResultAssert(Result<?> actualResult) {
         this.actualResult = actualResult;
     }
     
@@ -180,7 +180,7 @@ public class ResultAssert {
      * 断言执行成功
      */
     public ResultAssert assertSuccess() {
-        if (actualResult.code != ModuleConstraintExecutor.Result.SUCCESS) {
+        if (actualResult.code != Result.SUCCESS) {
             throw new AssertionError(String.format(
                 "期望执行成功，实际结果代码: %d，消息: %s", 
                 actualResult.code, actualResult.message));
@@ -192,7 +192,7 @@ public class ResultAssert {
      * 断言执行失败
      */
     public ResultAssert assertFailure() {
-        if (actualResult.code == ModuleConstraintExecutor.Result.SUCCESS) {
+        if (actualResult.code == Result.SUCCESS) {
             throw new AssertionError(String.format(
                 "期望执行失败，实际结果代码: %d，消息: %s", 
                 actualResult.code, actualResult.message));
@@ -204,7 +204,7 @@ public class ResultAssert {
      * 断言无解
      */
     public ResultAssert assertNoSolution() {
-        if (actualResult.code != ModuleConstraintExecutor.Result.SUCCESS || 
+        if (actualResult.code != Result.SUCCESS || 
             (actualResult.data instanceof Collection && ((Collection<?>) actualResult.data).size() > 0)) {
             throw new AssertionError(String.format(
                 "期望无解，实际结果代码: %d，解数量: %s", 

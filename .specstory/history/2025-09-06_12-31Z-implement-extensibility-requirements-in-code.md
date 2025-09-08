@@ -3940,3 +3940,2008 @@ D:\01.code\mygithub\jmixconfigengine>
 
 ---
 
+_**User (2025-09-06 12:31Z)**_
+
+
+做下列重构
+1.把ModuleConstraintExecutor里的内部类拆到inf中
+2.ModuleConstraintExecutor抽取为单例访问，且外部只能访问接口ModuleConstraintExecutor，不要访问ModuleConstraintExecutorImpl
+2.1 ModuleConstraintExecutor调整为：
+class ModuleConstraintExecutor{
+....
+  ModuleConstraintExecutorImpl ins = new ModuleConstraintExecutorImpl();
+...
+
+2.2 类似访问端，如：ModuleSecnarioTestBase 
+原来：
+ protected ModuleConstraintExecutorImpl exec;
+ .....
+  exec.addModule(module.getId(), module);
+....
+改为:
+ ModuleConstraintExecutor.INST.addModule(module.getId(), module);
+
+另外每个测试用例访问后，需要调用：
+ ModuleConstraintExecutor.INST.fini()
+
+---
+
+_**Assistant**_
+
+我来按照您的要求进行重构。首先将ModuleConstraintExecutor的内部类拆分到独立的文件中，然后将其改为单例模式。
+
+
+---
+
+## Todo List
+
+- [-] 将ModuleConstraintExecutor内部类拆分到独立文件
+- [ ] 将ModuleConstraintExecutor改为单例模式
+- [ ] 更新ModuleSecnarioTestBase使用单例访问
+- [ ] 更新测试用例添加fini调用
+
+---
+
+首先创建独立的内部类文件：
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+现在重构ModuleConstraintExecutor为单例模式：
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/ModuleConstraintExecutor.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 85, lines removed: 97
+
+```diff
+@@ -2,102 +2,90 @@
+  
+  import com.jmix.configengine.model.Module;
+- 
+- import lombok.Data;
+  
+  import java.util.List;
+- import java.util.Map;
+- 
+- public interface ModuleConstraintExecutor {
+- 	Result<Void> init(ConstraintConfig config);
+- 	Result<Void> fini();
+- 	Result<Void> addModule(Long rootModuleId, Module... modules);
+- 	Result<Void> removeModule(Long moduleId);
+- 	Result<List<ModuleInst>> inferParas(InferParasReq req);
+- 	
+- 	/**
+- 	 * 注册扩展处理器
+- 	 * @param eProcess 扩展处理器
+- 	 * @return 注册结果
+- 	 */
+- 	Result<Void> registerExtensible(ExtensibleProcess eProcess);
+- 	
+- 	/**
+- 	 * 注销扩展处理器
+- 	 * @param eProcess 扩展处理器
+- 	 * @return 注销结果
+- 	 */
+- 	Result<Void> unregisterExtensible(ExtensibleProcess eProcess);
+- 	
+- 	class Result<T> {
+- 		public static final int SUCCESS = 0;
+- 		public static final int FAILED = 1;
+- 		public static final int NO_SOLUTION = 2;
+- 		public int code = SUCCESS;
+- 		public T data;
+- 		public String message;
+- 		public static <X> Result<X> success(X data){
+- 			Result<X> r = new Result<>();
+- 			r.code = SUCCESS;
+- 			r.data = data;
+- 			return r;
+- 		}
+- 		public static <X> Result<X> failed(String msg){
+- 			Result<X> r = new Result<>();
+- 			r.code = FAILED;
+- 			r.message = msg;
+- 			return r;
+- 		}
+- 		public static <X> Result<X> noSolution(){
+- 			Result<X> r = new Result<>();
+- 			r.code = NO_SOLUTION;
+- 			return r;
+- 		}
+- 	}
+- 	
+- 	class ConstraintConfig {
+- 		public boolean isAttachedDebug;
+- 		public String rootFilePath;
+- 		public String logFilePath;
+- 		public boolean isLogModelProto=false;//是否输出ModelProto信息，方便定位
+- 	}
+- 	@Data
+- 	class ModuleInst {
+- 		public Long id;//module id
+- 		public String code;//module code
+- 		public String instanceConfigId;//instance config id
+- 		public int instanceId;//instance id 默认为0，多个实例，从0开始，如：0，1,2，....
+- 		public Integer quantity;//quantity
+- 		public List<ParaInst> paras;//paras
+- 		public List<PartInst> parts;//parts
+- 		public void addParaInst(ParaInst paraInst){
+- 			paras.add(paraInst);
+- 		}
+- 		public void addPartInst(PartInst partInst){
+- 			parts.add(partInst);
+- 		}
+- 	}
+- 	@Data
+- 	class PartInst {
+- 		public String code;
+- 		public Integer quantity;
+- 		public Map<String,String> selectAttrValue;
+- 		// @JsonProperty("isHidden")
+- 		public boolean isHidden = false;
+- 	}
+- 	@Data
+- 	class ParaInst {
+- 		public String code;
+- 		public String value;//空表示没有赋值
+- 		public List<String> options;//空表示没有赋值
+- 		// @JsonProperty("isHidden")
+- 		public boolean isHidden = false;
+- 	}
+- 	class InferParasReq {
+- 		public Long moduleId;
+- 		public String moduleCode;
+- 		public PartInst mainPartInst;
+- 		public List<ParaInst> preParaInsts;
+- 		public List<PartInst> prePartInsts;
+- 		public boolean enumerateAllSolution;
+- 	}
++ 
++ /**
++  * 模块约束执行器单例类
++  * 提供全局访问点，外部只能通过此接口访问功能
++  */
++ public class ModuleConstraintExecutor {
++     
++     /**
++      * 单例实例
++      */
++     public static final ModuleConstraintExecutor INST = new ModuleConstraintExecutor();
++     
++     /**
++      * 内部实现实例
++      */
++     private final ModuleConstraintExecutorImpl impl = new ModuleConstraintExecutorImpl();
++     
++     /**
++      * 私有构造函数，防止外部实例化
++      */
++     private ModuleConstraintExecutor() {
++     }
++     
++     /**
++      * 初始化执行器
++      * @param config 约束配置
++      * @return 初始化结果
++      */
++     public Result<Void> init(ConstraintConfig config) {
++         return impl.init(config);
++     }
++     
++     /**
++      * 销毁执行器
++      * @return 销毁结果
++      */
++     public Result<Void> fini() {
++         return impl.fini();
++     }
++     
++     /**
++      * 添加模块
++      * @param rootModuleId 根模块ID
++      * @param modules 模块数组
++      * @return 添加结果
++      */
++     public Result<Void> addModule(Long rootModuleId, Module... modules) {
++         return impl.addModule(rootModuleId, modules);
++     }
++     
++     /**
++      * 移除模块
++      * @param moduleId 模块ID
++      * @return 移除结果
++      */
++     public Result<Void> removeModule(Long moduleId) {
++         return impl.removeModule(moduleId);
++     }
++     
++     /**
++      * 推理参数
++      * @param req 推理请求
++      * @return 推理结果
++      */
++     public Result<List<ModuleInst>> inferParas(InferParasReq req) {
++         return impl.inferParas(req);
++     }
++     
++     /**
++      * 注册扩展处理器
++      * @param eProcess 扩展处理器
++      * @return 注册结果
++      */
++     public Result<Void> registerExtensible(ExtensibleProcess eProcess) {
++         return impl.registerExtensible(eProcess);
++     }
++     
++     /**
++      * 注销扩展处理器
++      * @param eProcess 扩展处理器
++      * @return 注销结果
++      */
++     public Result<Void> unregisterExtensible(ExtensibleProcess eProcess) {
++         return impl.unregisterExtensible(eProcess);
++     }
+  } 
+```
+
+</details>
+
+---
+
+现在更新ModuleConstraintExecutorImpl，使其实现新的接口：
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/executor/ModuleConstraintExecutorImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -19,5 +19,5 @@
+  
+  @Slf4j
+- public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
++ public class ModuleConstraintExecutorImpl {
+  	private final Map<Long, Module> moduleMap = new HashMap<>();
+  	private final Map<Long, ModuleAlgClassLoader> moduleAlgClassLoaderMap = new HashMap<>();
+```
+
+</details>
+
+---
+
+现在更新所有使用内部类的地方，改为使用独立的类：
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/executor/ModuleConstraintExecutorImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: undefined, lines removed: 1
+
+```diff
+@@ -25,5 +25,4 @@
+  	private ConstraintConfig config;
+  	
+- 	@Override
+  	public Result<Void> init(ConstraintConfig config) {
+  		this.config = config;
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/executor/ModuleConstraintExecutorImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: undefined, lines removed: 1
+
+```diff
+@@ -31,5 +31,4 @@
+  	}
+  	
+- 	@Override
+  	public Result<Void> fini() {
+  		// 销毁所有扩展处理器
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/executor/ModuleConstraintExecutorImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: undefined, lines removed: 1
+
+```diff
+@@ -47,5 +47,4 @@
+  	}
+  	
+- 	@Override
+  	public Result<Void> addModule(Long rootModuleId, Module... modules) {
+  		if (modules == null) {
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/executor/ModuleConstraintExecutorImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: undefined, lines removed: 1
+
+```diff
+@@ -63,5 +63,4 @@
+  	}
+  	
+- 	@Override
+  	public Result<Void> removeModule(Long moduleId) {
+  		moduleAlgClassLoaderMap.remove(moduleId);
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/executor/ModuleConstraintExecutorImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: undefined, lines removed: 1
+
+```diff
+@@ -70,5 +70,4 @@
+  	}
+  	
+- 	@Override
+  	public Result<List<ModuleInst>> inferParas(InferParasReq req) {
+  		if (req == null) return Result.failed("req is null");
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/executor/ModuleConstraintExecutorImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: undefined, lines removed: 1
+
+```diff
+@@ -212,5 +212,4 @@
+  	}
+  	
+- 	@Override
+  	public Result<Void> registerExtensible(ExtensibleProcess eProcess) {
+  		if (eProcess == null) {
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/executor/ModuleConstraintExecutorImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: undefined, lines removed: 1
+
+```diff
+@@ -241,5 +241,4 @@
+  	}
+  	
+- 	@Override
+  	public Result<Void> unregisterExtensible(ExtensibleProcess eProcess) {
+  		if (eProcess == null) {
+```
+
+</details>
+
+---
+
+现在更新ModuleSecnarioTestBase使用单例访问：
+
+
+---
+
+## Todo List
+
+- [x] 将ModuleConstraintExecutor内部类拆分到独立文件
+- [x] 将ModuleConstraintExecutor改为单例模式
+- [-] 更新ModuleSecnarioTestBase使用单例访问
+- [ ] 更新测试用例添加fini调用
+
+---
+
+Read file: undefined
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 3
+
+```diff
+@@ -2,8 +2,7 @@
+  
+  import com.jmix.configengine.ModuleConstraintExecutor;
+- import com.jmix.configengine.ModuleConstraintExecutor.ParaInst;
+- import com.jmix.configengine.ModuleConstraintExecutor.PartInst;
++ import com.jmix.configengine.ParaInst;
++ import com.jmix.configengine.PartInst;
+  import com.jmix.configengine.artifact.ConstraintAlgImpl;
+- import com.jmix.configengine.executor.ModuleConstraintExecutorImpl;
+  import com.jmix.configengine.model.Module;
+  import com.jmix.configengine.model.Para;
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 3, lines removed: 4
+
+```diff
+@@ -27,8 +27,7 @@
+      protected String tempResourcePath = "";
+      protected Module module;
+-     protected ModuleConstraintExecutor.ConstraintConfig cfg;
+-     protected ModuleConstraintExecutorImpl exec;
+-     protected List<ModuleConstraintExecutor.ModuleInst> solutions;
+-     protected ModuleConstraintExecutor.Result<List<ModuleConstraintExecutor.ModuleInst>> result;
++     protected com.jmix.configengine.ConstraintConfig cfg;
++     protected List<com.jmix.configengine.ModuleInst> solutions;
++     protected com.jmix.configengine.Result<List<com.jmix.configengine.ModuleInst>> result;
+      
+      /**
+```
+
+</details>
+
+---
+
+现在更新所有使用exec的地方：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -62,5 +62,5 @@
+          tempResourcePath = CommHelper.createTempPath(constraintAlgClazz);
+          exec = new ModuleConstraintExecutorImpl();
+-         cfg = new ModuleConstraintExecutor.ConstraintConfig();
++         cfg = new com.jmix.configengine.ConstraintConfig();
+          cfg.isAttachedDebug = true; // 测试环境直接使用当前classpath加载
+          cfg.rootFilePath = tempResourcePath;
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -61,5 +61,5 @@
+          // 生成临时资源路径
+          tempResourcePath = CommHelper.createTempPath(constraintAlgClazz);
+-         exec = new ModuleConstraintExecutorImpl();
++         // 使用单例访问
+          cfg = new com.jmix.configengine.ConstraintConfig();
+          cfg.isAttachedDebug = true; // 测试环境直接使用当前classpath加载
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -67,5 +67,5 @@
+          cfg.logFilePath = tempResourcePath;
+          cfg.isLogModelProto = true;
+-         exec.init(cfg);
++         ModuleConstraintExecutor.INST.init(cfg);
+          
+          module = buildModule(this.constraintAlgClazz);
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -70,5 +70,5 @@
+          
+          module = buildModule(this.constraintAlgClazz);
+-         exec.addModule(module.getId(), module);
++         ModuleConstraintExecutor.INST.addModule(module.getId(), module);
+      }
+      
+```
+
+</details>
+
+---
+
+现在查找并替换所有exec的调用：
+
+
+---
+
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -95,5 +95,5 @@
+          }
+          
+-         ModuleConstraintExecutor.Result<List<ModuleConstraintExecutor.ModuleInst>> result = exec.inferParas(req);
++         com.jmix.configengine.Result<List<com.jmix.configengine.ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(req);
+          log.info("推理结果: {}", result);
+          this.result = result;
+```
+
+**Chunk 2**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -115,5 +115,5 @@
+          req.preParaInsts = buildParaInstsFromPairs(paraCodeValuePairs);
+  
+-         ModuleConstraintExecutor.Result<List<ModuleConstraintExecutor.ModuleInst>> result = exec.inferParas(req);
++         com.jmix.configengine.Result<List<com.jmix.configengine.ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(req);
+          log.info("推理结果: {}", result);
+          this.result = result;
+```
+
+</details>
+
+---
+
+现在查找并替换所有ModuleConstraintExecutor.Result的引用：
+
+
+---
+
+
+
+---
+
+现在查找并替换所有ModuleConstraintExecutor.ModuleInst的引用：
+
+
+---
+
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -80,5 +80,5 @@
+       * @return 推理结果
+       */
+-     protected List<ModuleConstraintExecutor.ModuleInst> inferParas(String partCode, Integer qty, String... paraCodeValuePairs) {
++     protected List<com.jmix.configengine.ModuleInst> inferParas(String partCode, Integer qty, String... paraCodeValuePairs) {
+          ModuleConstraintExecutor.InferParasReq req = new ModuleConstraintExecutor.InferParasReq();
+          req.moduleId = module.getId();
+```
+
+**Chunk 2**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -107,5 +107,5 @@
+       * @return 推理结果
+       */
+-     protected List<ModuleConstraintExecutor.ModuleInst> inferParasByPara(String... paraCodeValuePairs) {
++     protected List<com.jmix.configengine.ModuleInst> inferParasByPara(String... paraCodeValuePairs) {
+          ModuleConstraintExecutor.InferParasReq req = new ModuleConstraintExecutor.InferParasReq();
+          req.moduleId = module.getId();
+```
+
+**Chunk 3**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -128,5 +128,5 @@
+       * @return 推理结果
+       */
+-     protected List<ModuleConstraintExecutor.ModuleInst> inferParasByPara(String paraCode, String value) {
++     protected List<com.jmix.configengine.ModuleInst> inferParasByPara(String paraCode, String value) {
+          return inferParasByPara(new String[]{paraCode, value});
+      }
+```
+
+**Chunk 4**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -139,5 +139,5 @@
+              throw new IndexOutOfBoundsException("解决方案索引超出范围: " + index);
+          }
+-         ModuleConstraintExecutor.ModuleInst solution = solutions.get(index);
++         com.jmix.configengine.ModuleInst solution = solutions.get(index);
+          return new ProgammableInstAssert(solution, module);
+      }
+```
+
+**Chunk 5**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -264,5 +264,5 @@
+          int matchCount = 0;
+          
+-         for (ModuleConstraintExecutor.ModuleInst solution : solutions) {
++         for (com.jmix.configengine.ModuleInst solution : solutions) {
+              boolean isMatch = true;
+              
+```
+
+**Chunk 6**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -296,5 +296,5 @@
+       * 根据代码查找ParaInst
+       */
+-     private ParaInst findParaInstByCode(ModuleConstraintExecutor.ModuleInst solution, String code) {
++     private ParaInst findParaInstByCode(com.jmix.configengine.ModuleInst solution, String code) {
+          if (solution.paras == null) return null;
+          return solution.paras.stream()
+```
+
+**Chunk 7**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -307,5 +307,5 @@
+       * 根据代码查找PartInst
+       */
+-     private PartInst findPartInstByCode(ModuleConstraintExecutor.ModuleInst solution, String code) {
++     private PartInst findPartInstByCode(com.jmix.configengine.ModuleInst solution, String code) {
+          if (solution.parts == null) return null;
+          return solution.parts.stream()
+```
+
+</details>
+
+---
+
+现在查找并替换所有ModuleConstraintExecutor.ParaInst和ModuleConstraintExecutor.PartInst的引用：
+
+
+---
+
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -86,5 +86,5 @@
+          
+          // 设置主部件实例
+-         req.mainPartInst = new ModuleConstraintExecutor.PartInst();
++         req.mainPartInst = new com.jmix.configengine.PartInst();
+          req.mainPartInst.code = partCode;
+          req.mainPartInst.quantity = qty;
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 3, lines removed: 3
+
+```diff
+@@ -320,16 +320,16 @@
+       * @return ParaInst列表
+       */
+-     private List<ModuleConstraintExecutor.ParaInst> buildParaInstsFromPairs(String... paraCodeValuePairs) {
++     private List<com.jmix.configengine.ParaInst> buildParaInstsFromPairs(String... paraCodeValuePairs) {
+          if (paraCodeValuePairs.length % 2 != 0) {
+              throw new IllegalArgumentException("参数必须是偶数个，格式：paraCode1, value1, paraCode2, value2, ...");
+          }
+          
+-         List<ModuleConstraintExecutor.ParaInst> paraInsts = new ArrayList<>();
++         List<com.jmix.configengine.ParaInst> paraInsts = new ArrayList<>();
+          
+          for (int i = 0; i < paraCodeValuePairs.length; i += 2) {
+              String paraCode = paraCodeValuePairs[i];
+              String value = paraCodeValuePairs[i + 1];
+              
+-             ModuleConstraintExecutor.ParaInst paraInst = new ModuleConstraintExecutor.ParaInst();
++             com.jmix.configengine.ParaInst paraInst = new com.jmix.configengine.ParaInst();
+              paraInst.code = paraCode;
+              
+```
+
+</details>
+
+---
+
+现在查找并替换所有ModuleConstraintExecutor.InferParasReq的引用：
+
+
+---
+
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -81,5 +81,5 @@
+       */
+      protected List<com.jmix.configengine.ModuleInst> inferParas(String partCode, Integer qty, String... paraCodeValuePairs) {
+-         ModuleConstraintExecutor.InferParasReq req = new ModuleConstraintExecutor.InferParasReq();
++         com.jmix.configengine.InferParasReq req = new com.jmix.configengine.InferParasReq();
+          req.moduleId = module.getId();
+          req.enumerateAllSolution = true;
+```
+
+**Chunk 2**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -108,5 +108,5 @@
+       */
+      protected List<com.jmix.configengine.ModuleInst> inferParasByPara(String... paraCodeValuePairs) {
+-         ModuleConstraintExecutor.InferParasReq req = new ModuleConstraintExecutor.InferParasReq();
++         com.jmix.configengine.InferParasReq req = new com.jmix.configengine.InferParasReq();
+          req.moduleId = module.getId();
+          req.enumerateAllSolution = true;
+```
+
+</details>
+
+---
+
+现在添加fini调用到测试基类：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -15,4 +15,5 @@
+  import java.util.*;
+  
++ import org.junit.After;
+  import org.junit.Before;
+  
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 8, lines removed: undefined
+
+```diff
+@@ -46,4 +46,12 @@
+          init();
+      }
++     
++     /**
++      * 每个用例执行后调用
++      */
++     @After
++     public void tearDown() {
++         ModuleConstraintExecutor.INST.fini();
++     }
+      
+      /**
+```
+
+</details>
+
+---
+
+现在更新DCMyTShirtTest使用单例访问：
+
+
+---
+
+## Todo List
+
+- [x] 将ModuleConstraintExecutor内部类拆分到独立文件
+- [x] 将ModuleConstraintExecutor改为单例模式
+- [x] 更新ModuleSecnarioTestBase使用单例访问
+- [-] 更新测试用例添加fini调用
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/extensibleDemo/DCMyTShirtTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: undefined, lines removed: 1
+
+```diff
+@@ -2,5 +2,4 @@
+  
+  import com.jmix.configengine.ModuleConstraintExecutor;
+- import com.jmix.configengine.executor.ModuleConstraintExecutorImpl;
+  import lombok.extern.slf4j.Slf4j;
+  import org.junit.Before;
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/extensibleDemo/DCMyTShirtTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: undefined, lines removed: 1
+
+```diff
+@@ -16,5 +16,4 @@
+      
+      private DCModuleConstraintExecutor dcExecutor;
+-     private ModuleConstraintExecutor executor;
+      private DCDeliveryTypePostProcess postProcess;
+      
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/extensibleDemo/DCMyTShirtTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 8
+
+```diff
+@@ -22,27 +22,21 @@
+          // 创建DC执行器
+          dcExecutor = new DCModuleConstraintExecutorImpl();
+-         
+-         // 创建标准执行器（用于兼容性测试）
+-         executor = new ModuleConstraintExecutorImpl();
+          
+          // 初始化配置
+-         ModuleConstraintExecutor.ConstraintConfig config = new ModuleConstraintExecutor.ConstraintConfig();
++         com.jmix.configengine.ConstraintConfig config = new com.jmix.configengine.ConstraintConfig();
+          config.isAttachedDebug = true;
+          config.rootFilePath = "target/generated-sources";
+          config.logFilePath = "target/logs";
+          config.isLogModelProto = false;
+          
+-         // 初始化两个执行器
++         // 初始化DC执行器
+          dcExecutor.init(config);
+-         executor.init(config);
+          
+          // 注册后处理器
+          postProcess = new DCDeliveryTypePostProcess();
+          dcExecutor.registerExtensible(postProcess);
+-         executor.registerExtensible(postProcess);
+          
+          // 添加模块
+          dcExecutor.addDCModule(1L, getDCModule());
+-         executor.addModule(1L, getModule());
+      }
+      
+```
+
+</details>
+
+---
+
+
+
+---
+
+现在添加fini调用到DCMyTShirtTest：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/extensibleDemo/DCMyTShirtTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -3,4 +3,5 @@
+  import com.jmix.configengine.ModuleConstraintExecutor;
+  import lombok.extern.slf4j.Slf4j;
++ import org.junit.After;
+  import org.junit.Before;
+  import org.junit.Test;
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/extensibleDemo/DCMyTShirtTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 9, lines removed: undefined
+
+```diff
+@@ -41,4 +41,13 @@
+          dcExecutor.addDCModule(1L, getDCModule());
+      }
++     
++     @After
++     public void tearDown() {
++         // 清理资源
++         if (dcExecutor != null) {
++             dcExecutor.fini();
++         }
++         ModuleConstraintExecutor.INST.fini();
++     }
+      
+      @Test
+```
+
+</details>
+
+---
+
+现在更新DCModuleConstraintExecutorImpl使用单例访问：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/extensibleDemo/DCModuleConstraintExecutorImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: undefined, lines removed: 1
+
+```diff
+@@ -2,5 +2,4 @@
+  
+  import com.jmix.configengine.ModuleConstraintExecutor;
+- import com.jmix.configengine.executor.ModuleConstraintExecutorImpl;
+  import com.jmix.configengine.model.Module;
+  import lombok.extern.slf4j.Slf4j;
+```
+
+</details>
+
+---
+
+The string to replace was not found in the file.
+
+---
+
+Read file: undefined
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/extensibleDemo/DCModuleConstraintExecutorImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 2
+
+```diff
+@@ -15,11 +15,10 @@
+  public class DCModuleConstraintExecutorImpl implements DCModuleConstraintExecutor {
+      
+-     private final ModuleConstraintExecutorImpl wrappedExecutor;
++     // 使用单例访问，不需要包装实例
+      private final DCModuleAdapter moduleAdapter;
+      private final DCParaInstAdapter paraInstAdapter;
+      private final DCPartInstAdapter partInstAdapter;
+      
+      public DCModuleConstraintExecutorImpl() {
+-         this.wrappedExecutor = new ModuleConstraintExecutorImpl();
+          this.moduleAdapter = new DCModuleAdapter();
+          this.paraInstAdapter = new DCParaInstAdapter();
+```
+
+</details>
+
+---
+
+现在更新所有wrappedExecutor的调用：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/extensibleDemo/DCModuleConstraintExecutorImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -29,5 +29,5 @@
+      public DCResult<Void> init(ModuleConstraintExecutor.ConstraintConfig config) {
+          log.info("Initializing DC Module Constraint Executor");
+-         ModuleConstraintExecutor.Result<Void> result = wrappedExecutor.init(config);
++         ModuleConstraintExecutor.Result<Void> result = ModuleConstraintExecutor.INST.init(config);
+          DCResult<Void> dcResult = new DCResult<>(result);
+          dcResult.setDcResultCode("DC_INIT_SUCCESS");
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/extensibleDemo/DCModuleConstraintExecutorImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -39,5 +39,5 @@
+      public DCResult<Void> fini() {
+          log.info("Finalizing DC Module Constraint Executor");
+-         ModuleConstraintExecutor.Result<Void> result = wrappedExecutor.fini();
++         ModuleConstraintExecutor.Result<Void> result = ModuleConstraintExecutor.INST.fini();
+          DCResult<Void> dcResult = new DCResult<>(result);
+          dcResult.setDcResultCode("DC_FINI_SUCCESS");
+```
+
+**Chunk 2**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -59,5 +59,5 @@
+          
+          log.info("Adding {} DC modules", dcModules.length);
+-         ModuleConstraintExecutor.Result<Void> result = wrappedExecutor.addModule(rootModuleId, modules);
++         ModuleConstraintExecutor.Result<Void> result = ModuleConstraintExecutor.INST.addModule(rootModuleId, modules);
+          DCResult<Void> dcResult = new DCResult<>(result);
+          dcResult.setDcResultCode("DC_ADD_MODULE_SUCCESS");
+```
+
+**Chunk 3**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -70,5 +70,5 @@
+      public DCResult<Void> removeModule(Long moduleId) {
+          log.info("Removing module: {}", moduleId);
+-         ModuleConstraintExecutor.Result<Void> result = wrappedExecutor.removeModule(moduleId);
++         ModuleConstraintExecutor.Result<Void> result = ModuleConstraintExecutor.INST.removeModule(moduleId);
+          DCResult<Void> dcResult = new DCResult<>(result);
+          dcResult.setDcResultCode("DC_REMOVE_MODULE_SUCCESS");
+```
+
+**Chunk 4**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -88,5 +88,5 @@
+          // 执行推理
+          ModuleConstraintExecutor.Result<List<ModuleConstraintExecutor.ModuleInst>> result = 
+-                 wrappedExecutor.inferParas(standardReq);
++                 ModuleConstraintExecutor.INST.inferParas(standardReq);
+          
+          if (result.code != ModuleConstraintExecutor.Result.SUCCESS) {
+```
+
+**Chunk 5**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -113,5 +113,5 @@
+      public DCResult<Void> registerExtensible(com.jmix.configengine.ExtensibleProcess eProcess) {
+          log.info("Registering extensible process: {}", eProcess.getProcessName());
+-         ModuleConstraintExecutor.Result<Void> result = wrappedExecutor.registerExtensible(eProcess);
++         ModuleConstraintExecutor.Result<Void> result = ModuleConstraintExecutor.INST.registerExtensible(eProcess);
+          DCResult<Void> dcResult = new DCResult<>(result);
+          dcResult.setDcResultCode("DC_REGISTER_EXTENSIBLE_SUCCESS");
+```
+
+**Chunk 6**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -124,5 +124,5 @@
+      public DCResult<Void> unregisterExtensible(com.jmix.configengine.ExtensibleProcess eProcess) {
+          log.info("Unregistering extensible process: {}", eProcess.getProcessName());
+-         ModuleConstraintExecutor.Result<Void> result = wrappedExecutor.unregisterExtensible(eProcess);
++         ModuleConstraintExecutor.Result<Void> result = ModuleConstraintExecutor.INST.unregisterExtensible(eProcess);
+          DCResult<Void> dcResult = new DCResult<>(result);
+          dcResult.setDcResultCode("DC_UNREGISTER_EXTENSIBLE_SUCCESS");
+```
+
+</details>
+
+---
+
+现在更新所有ModuleConstraintExecutor.ConstraintConfig的引用：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/extensibleDemo/DCModuleConstraintExecutorImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -27,5 +27,5 @@
+      
+      @Override
+-     public DCResult<Void> init(ModuleConstraintExecutor.ConstraintConfig config) {
++     public DCResult<Void> init(com.jmix.configengine.ConstraintConfig config) {
+          log.info("Initializing DC Module Constraint Executor");
+          ModuleConstraintExecutor.Result<Void> result = ModuleConstraintExecutor.INST.init(config);
+```
+
+</details>
+
+---
+
+现在更新DCModuleConstraintExecutor接口：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/extensibleDemo/DCModuleConstraintExecutor.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -2,4 +2,5 @@
+  
+  import com.jmix.configengine.ModuleConstraintExecutor;
++ import com.jmix.configengine.ConstraintConfig;
+  
+  import java.util.List;
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/extensibleDemo/DCModuleConstraintExecutor.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -17,5 +17,5 @@
+       * @return 初始化结果
+       */
+-     DCResult<Void> init(ModuleConstraintExecutor.ConstraintConfig config);
++     DCResult<Void> init(ConstraintConfig config);
+      
+      /**
+```
+
+</details>
+
+---
+
+现在检查并修复编译错误：
+
+
+---
+
+
+
+---
+
+需要添加import：
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/ModuleConstraintExecutor.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -2,4 +2,5 @@
+  
+  import com.jmix.configengine.model.Module;
++ import com.jmix.configengine.executor.ModuleConstraintExecutorImpl;
+  
+  import java.util.List;
+```
+
+</details>
+
+---
+
+现在检查其他文件的编译错误：
+
+
+---
+
+
+
+---
+
+需要更新所有内部类的引用：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/extensibleDemo/DCModuleConstraintExecutorImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 5, lines removed: undefined
+
+```diff
+@@ -2,4 +2,9 @@
+  
+  import com.jmix.configengine.ModuleConstraintExecutor;
++ import com.jmix.configengine.Result;
++ import com.jmix.configengine.ModuleInst;
++ import com.jmix.configengine.ParaInst;
++ import com.jmix.configengine.PartInst;
++ import com.jmix.configengine.InferParasReq;
+  import com.jmix.configengine.model.Module;
+  import lombok.extern.slf4j.Slf4j;
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/extensibleDemo/DCModuleConstraintExecutorImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -34,5 +34,5 @@
+      public DCResult<Void> init(com.jmix.configengine.ConstraintConfig config) {
+          log.info("Initializing DC Module Constraint Executor");
+-         ModuleConstraintExecutor.Result<Void> result = ModuleConstraintExecutor.INST.init(config);
++         Result<Void> result = ModuleConstraintExecutor.INST.init(config);
+          DCResult<Void> dcResult = new DCResult<>(result);
+          dcResult.setDcResultCode("DC_INIT_SUCCESS");
+```
+
+**Chunk 2**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -44,5 +44,5 @@
+      public DCResult<Void> fini() {
+          log.info("Finalizing DC Module Constraint Executor");
+-         ModuleConstraintExecutor.Result<Void> result = ModuleConstraintExecutor.INST.fini();
++         Result<Void> result = ModuleConstraintExecutor.INST.fini();
+          DCResult<Void> dcResult = new DCResult<>(result);
+          dcResult.setDcResultCode("DC_FINI_SUCCESS");
+```
+
+**Chunk 3**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -64,5 +64,5 @@
+          
+          log.info("Adding {} DC modules", dcModules.length);
+-         ModuleConstraintExecutor.Result<Void> result = ModuleConstraintExecutor.INST.addModule(rootModuleId, modules);
++         Result<Void> result = ModuleConstraintExecutor.INST.addModule(rootModuleId, modules);
+          DCResult<Void> dcResult = new DCResult<>(result);
+          dcResult.setDcResultCode("DC_ADD_MODULE_SUCCESS");
+```
+
+**Chunk 4**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -75,5 +75,5 @@
+      public DCResult<Void> removeModule(Long moduleId) {
+          log.info("Removing module: {}", moduleId);
+-         ModuleConstraintExecutor.Result<Void> result = ModuleConstraintExecutor.INST.removeModule(moduleId);
++         Result<Void> result = ModuleConstraintExecutor.INST.removeModule(moduleId);
+          DCResult<Void> dcResult = new DCResult<>(result);
+          dcResult.setDcResultCode("DC_REMOVE_MODULE_SUCCESS");
+```
+
+**Chunk 5**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -92,8 +92,8 @@
+          
+          // 执行推理
+-         ModuleConstraintExecutor.Result<List<ModuleConstraintExecutor.ModuleInst>> result = 
++         Result<List<ModuleConstraintExecutor.ModuleInst>> result = 
+                  ModuleConstraintExecutor.INST.inferParas(standardReq);
+          
+-         if (result.code != ModuleConstraintExecutor.Result.SUCCESS) {
++         if (result.code != Result.SUCCESS) {
+              return DCResult.failed("Inference failed: " + result.message, "DC_INFER_FAILED");
+          }
+```
+
+**Chunk 6**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -118,5 +118,5 @@
+      public DCResult<Void> registerExtensible(com.jmix.configengine.ExtensibleProcess eProcess) {
+          log.info("Registering extensible process: {}", eProcess.getProcessName());
+-         ModuleConstraintExecutor.Result<Void> result = ModuleConstraintExecutor.INST.registerExtensible(eProcess);
++         Result<Void> result = ModuleConstraintExecutor.INST.registerExtensible(eProcess);
+          DCResult<Void> dcResult = new DCResult<>(result);
+          dcResult.setDcResultCode("DC_REGISTER_EXTENSIBLE_SUCCESS");
+```
+
+**Chunk 7**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -129,5 +129,5 @@
+      public DCResult<Void> unregisterExtensible(com.jmix.configengine.ExtensibleProcess eProcess) {
+          log.info("Unregistering extensible process: {}", eProcess.getProcessName());
+-         ModuleConstraintExecutor.Result<Void> result = ModuleConstraintExecutor.INST.unregisterExtensible(eProcess);
++         Result<Void> result = ModuleConstraintExecutor.INST.unregisterExtensible(eProcess);
+          DCResult<Void> dcResult = new DCResult<>(result);
+          dcResult.setDcResultCode("DC_UNREGISTER_EXTENSIBLE_SUCCESS");
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/extensibleDemo/DCModuleConstraintExecutorImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -92,5 +92,5 @@
+          
+          // 执行推理
+-         Result<List<ModuleConstraintExecutor.ModuleInst>> result = 
++         Result<List<ModuleInst>> result = 
+                  ModuleConstraintExecutor.INST.inferParas(standardReq);
+          
+```
+
+**Chunk 2**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -102,5 +102,5 @@
+          List<DCModuleInst> dcSolutions = new ArrayList<>();
+          if (result.data != null) {
+-             for (ModuleConstraintExecutor.ModuleInst solution : result.data) {
++             for (ModuleInst solution : result.data) {
+                  DCModuleInst dcSolution = convertToDCModuleInst(solution);
+                  dcSolutions.add(dcSolution);
+```
+
+**Chunk 3**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -230,5 +230,5 @@
+       * 将标准ModuleInst转换为DCModuleInst
+       */
+-     private DCModuleInst convertToDCModuleInst(ModuleConstraintExecutor.ModuleInst solution) {
++     private DCModuleInst convertToDCModuleInst(ModuleInst solution) {
+          if (solution == null) {
+              return null;
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/extensibleDemo/DCModuleConstraintExecutorImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -213,10 +213,10 @@
+       * 将DCParaInst转换为标准ParaInst
+       */
+-     private ModuleConstraintExecutor.ParaInst convertToStandardParaInst(DCParaInst dcParaInst) {
++     private ParaInst convertToStandardParaInst(DCParaInst dcParaInst) {
+          if (dcParaInst == null) {
+              return null;
+          }
+          
+-         ModuleConstraintExecutor.ParaInst paraInst = new ModuleConstraintExecutor.ParaInst();
++         ParaInst paraInst = new ParaInst();
+          paraInst.setCode(dcParaInst.getCode());
+          paraInst.setValue(dcParaInst.getValue());
+```
+
+**Chunk 2**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -244,10 +244,10 @@
+          if (solution.getParas() != null) {
+              List<DCParaInst> dcParas = new ArrayList<>();
+-             for (ModuleConstraintExecutor.ParaInst paraInst : solution.getParas()) {
++             for (ParaInst paraInst : solution.getParas()) {
+                  DCParaInst dcParaInst = paraInstAdapter.adapt(paraInst);
+                  dcParas.add(dcParaInst);
+              }
+              // 注意：这里需要将DCParaInst转换回标准ParaInst
+-             List<ModuleConstraintExecutor.ParaInst> standardParas = new ArrayList<>();
++             List<ParaInst> standardParas = new ArrayList<>();
+              for (DCParaInst dcParaInst : dcParas) {
+                  standardParas.add(convertToStandardParaInst(dcParaInst));
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/extensibleDemo/DCModuleConstraintExecutorImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -196,10 +196,10 @@
+       * 将DCPartInst转换为标准PartInst
+       */
+-     private ModuleConstraintExecutor.PartInst convertToStandardPartInst(DCPartInst dcPartInst) {
++     private PartInst convertToStandardPartInst(DCPartInst dcPartInst) {
+          if (dcPartInst == null) {
+              return null;
+          }
+          
+-         ModuleConstraintExecutor.PartInst partInst = new ModuleConstraintExecutor.PartInst();
++         PartInst partInst = new PartInst();
+          partInst.setCode(dcPartInst.getCode());
+          partInst.setQuantity(dcPartInst.getQuantity());
+```
+
+**Chunk 2**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -259,10 +259,10 @@
+          if (solution.getParts() != null) {
+              List<DCPartInst> dcParts = new ArrayList<>();
+-             for (ModuleConstraintExecutor.PartInst partInst : solution.getParts()) {
++             for (PartInst partInst : solution.getParts()) {
+                  DCPartInst dcPartInst = partInstAdapter.adapt(partInst);
+                  dcParts.add(dcPartInst);
+              }
+              // 注意：这里需要将DCPartInst转换回标准PartInst
+-             List<ModuleConstraintExecutor.PartInst> standardParts = new ArrayList<>();
++             List<PartInst> standardParts = new ArrayList<>();
+              for (DCPartInst dcPartInst : dcParts) {
+                  standardParts.add(convertToStandardPartInst(dcPartInst));
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/extensibleDemo/DCModuleConstraintExecutorImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -89,5 +89,5 @@
+          
+          // 将DC请求转换为标准请求
+-         ModuleConstraintExecutor.InferParasReq standardReq = convertToStandardReq(req);
++         InferParasReq standardReq = convertToStandardReq(req);
+          
+          // 执行推理
+```
+
+**Chunk 2**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -163,6 +163,6 @@
+       * 将DC请求转换为标准请求
+       */
+-     private ModuleConstraintExecutor.InferParasReq convertToStandardReq(DCInferParasReq dcReq) {
+-         ModuleConstraintExecutor.InferParasReq standardReq = new ModuleConstraintExecutor.InferParasReq();
++     private InferParasReq convertToStandardReq(DCInferParasReq dcReq) {
++         InferParasReq standardReq = new InferParasReq();
+          standardReq.moduleId = dcReq.moduleId;
+          standardReq.moduleCode = dcReq.moduleCode;
+```
+
+</details>
+
+---
+
+现在运行测试验证重构是否成功：
+
+
+---
+
+```bash
+mvn test -Dtest=DCMyTShirtTest
+```
+
+```
+ntExecutorImpl.java:[192,29] 找不到符号
+  符号:   类 ModuleInst
+  位置: 类 com.jmix.configengine.executor.ModuleConstraintExecutorImpl.ModuleInstSolutionCallBack        
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/InferParasPostProcess.j
+ava:[28,136] 找不到符号
+  符号:   类 ModuleInst
+  位置: 类 com.jmix.configengine.ModuleConstraintExecutor
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/InferParasPostProcess.j
+ava:[28,29] 找不到符号
+  符号:   类 Result
+  位置: 类 com.jmix.configengine.ModuleConstraintExecutor
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/InferParasPostProcess.j
+ava:[28,66] 找不到符号
+  符号:   类 ModuleInst
+  位置: 类 com.jmix.configengine.ModuleConstraintExecutor
+[INFO] 22 errors
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  3.609 s
+[INFO] Finished at: 2025-09-08T06:42:12+08:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.8.1:compile (default-comp
+ile) on project configengine: Compilation failure: Compilation failure: 
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/executor/ModuleConstrai
+ntExecutorImpl.java:[25,17] 找不到符号
+[ERROR]   符号:   类 ConstraintConfig
+[ERROR]   位置: 类 com.jmix.configengine.executor.ModuleConstraintExecutorImpl
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/executor/ModuleConstrai
+ntExecutorImpl.java:[27,34] 找不到符号
+[ERROR]   符号:   类 ConstraintConfig
+[ERROR]   位置: 类 com.jmix.configengine.executor.ModuleConstraintExecutorImpl
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/executor/ModuleConstrai
+ntExecutorImpl.java:[27,16] 找不到符号
+[ERROR]   符号:   类 Result
+[ERROR]   位置: 类 com.jmix.configengine.executor.ModuleConstraintExecutorImpl
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/executor/ModuleConstrai
+ntExecutorImpl.java:[33,16] 找不到符号
+[ERROR]   符号:   类 Result
+[ERROR]   位置: 类 com.jmix.configengine.executor.ModuleConstraintExecutorImpl
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/executor/ModuleConstrai
+ntExecutorImpl.java:[49,16] 找不到符号
+[ERROR]   符号:   类 Result
+[ERROR]   位置: 类 com.jmix.configengine.executor.ModuleConstraintExecutorImpl
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/executor/ModuleConstrai
+ntExecutorImpl.java:[65,16] 找不到符号
+[ERROR]   符号:   类 Result
+[ERROR]   位置: 类 com.jmix.configengine.executor.ModuleConstraintExecutorImpl
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/executor/ModuleConstrai
+ntExecutorImpl.java:[72,52] 找不到符号
+[ERROR]   符号:   类 InferParasReq
+[ERROR]   位置: 类 com.jmix.configengine.executor.ModuleConstraintExecutorImpl
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/executor/ModuleConstrai
+ntExecutorImpl.java:[72,16] 找不到符号
+[ERROR]   符号:   类 Result
+[ERROR]   位置: 类 com.jmix.configengine.executor.ModuleConstraintExecutorImpl
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/executor/ModuleConstrai
+ntExecutorImpl.java:[72,28] 找不到符号
+[ERROR]   符号:   类 ModuleInst
+[ERROR]   位置: 类 com.jmix.configengine.executor.ModuleConstraintExecutorImpl
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/executor/ModuleConstrai
+ntExecutorImpl.java:[202,24] 找不到符号
+[ERROR]   符号:   类 ModuleInst
+[ERROR]   位置: 类 com.jmix.configengine.executor.ModuleConstraintExecutorImpl
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/executor/ModuleConstrai
+ntExecutorImpl.java:[214,16] 找不到符号
+[ERROR]   符号:   类 Result
+[ERROR]   位置: 类 com.jmix.configengine.executor.ModuleConstraintExecutorImpl
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/executor/ModuleConstrai
+ntExecutorImpl.java:[243,16] 找不到符号
+[ERROR]   符号:   类 Result
+[ERROR]   位置: 类 com.jmix.configengine.executor.ModuleConstraintExecutorImpl
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/executor/ModuleConstrai
+ntExecutorImpl.java:[270,73] 找不到符号
+[ERROR]   符号:   类 ModuleInst
+[ERROR]   符号:   类 ModuleInst
+[ERROR]   位置: 类 com.jmix.configengine.executor.ModuleConstraintExecutorImpl
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/executor/ModuleConstrai
+ntExecutorImpl.java:[304,37] 找不到符号
+[ERROR]   符号:   类 ModuleInst
+[ERROR]   位置: 类 com.jmix.configengine.executor.ModuleConstraintExecutorImpl
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/ExtensibleProcess.java:
+[47,36] 找不到符号
+[ERROR]   符号:   类 Result
+[ERROR]   位置: 类 com.jmix.configengine.ModuleConstraintExecutor
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/ExtensibleProcess.java:
+[56,36] 找不到符号
+[ERROR]   符号:   类 Result
+[ERROR]   位置: 类 com.jmix.configengine.ModuleConstraintExecutor
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/executor/ModuleConstrai
+ntExecutorImpl.java:[145,36] 找不到符号
+[ERROR]   符号:   类 ModuleInst
+[ERROR]   位置: 类 com.jmix.configengine.executor.ModuleConstraintExecutorImpl.ModuleInstSolutionCallBack
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/executor/ModuleConstrai
+ntExecutorImpl.java:[192,29] 找不到符号
+[ERROR]   符号:   类 ModuleInst
+[ERROR]   位置: 类 com.jmix.configengine.executor.ModuleConstraintExecutorImpl.ModuleInstSolutionCallBack
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/InferParasPostProcess.j
+ava:[28,136] 找不到符号
+[ERROR]   符号:   类 ModuleInst
+[ERROR]   位置: 类 com.jmix.configengine.ModuleConstraintExecutor
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/InferParasPostProcess.j
+ava:[28,29] 找不到符号
+[ERROR]   符号:   类 Result
+[ERROR]   位置: 类 com.jmix.configengine.ModuleConstraintExecutor
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/InferParasPostProcess.j
+ava:[28,66] 找不到符号
+[ERROR]   符号:   类 ModuleInst
+[ERROR]   位置: 类 com.jmix.configengine.ModuleConstraintExecutor
+[ERROR] -> [Help 1]
+[ERROR]
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR]
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+
+D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+需要修复ModuleConstraintExecutorImpl中的import问题：
+
+
+---
+
+The string to replace was not found in the file.
+
+---
+
+Read file: undefined
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/executor/ModuleConstraintExecutorImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 6, lines removed: undefined
+
+```diff
+@@ -4,4 +4,10 @@
+  import com.jmix.configengine.ExtensibleProcess;
+  import com.jmix.configengine.InferParasPostProcess;
++ import com.jmix.configengine.Result;
++ import com.jmix.configengine.ConstraintConfig;
++ import com.jmix.configengine.ModuleInst;
++ import com.jmix.configengine.ParaInst;
++ import com.jmix.configengine.PartInst;
++ import com.jmix.configengine.InferParasReq;
+  import com.jmix.configengine.artifact.ConstraintAlgImpl;
+  import com.jmix.configengine.artifact.ParaVar;
+```
+
+</details>
+
+---
+
+现在修复ExtensibleProcess和InferParasPostProcess中的引用：
+
+
+---
+
+The string to replace was not found in the file.
+
+---
+
+Read file: undefined
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/ExtensibleProcess.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -1,4 +1,5 @@
+  package com.jmix.configengine;
+  
++ import com.jmix.configengine.Result;
+  import lombok.extern.slf4j.Slf4j;
+  
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/ExtensibleProcess.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -46,7 +46,7 @@
+       * @return 初始化结果
+       */
+-     public ModuleConstraintExecutor.Result<Void> init() {
++     public Result<Void> init() {
+          log.info("Initializing extensible process: {}", processName);
+-         return ModuleConstraintExecutor.Result.success(null);
++         return Result.success(null);
+      }
+      
+```
+
+**Chunk 2**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -55,7 +55,7 @@
+       * @return 销毁结果
+       */
+-     public ModuleConstraintExecutor.Result<Void> destroy() {
++     public Result<Void> destroy() {
+          log.info("Destroying extensible process: {}", processName);
+-         return ModuleConstraintExecutor.Result.success(null);
++         return Result.success(null);
+      }
+      
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/InferParasPostProcess.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: undefined
+
+```diff
+@@ -1,4 +1,6 @@
+  package com.jmix.configengine;
+  
++ import com.jmix.configengine.Result;
++ import com.jmix.configengine.ModuleInst;
+  import com.jmix.configengine.model.Module;
+  
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/InferParasPostProcess.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -28,5 +28,5 @@
+       * @return 处理结果
+       */
+-     ModuleConstraintExecutor.Result<List<ModuleConstraintExecutor.ModuleInst>> postProcess(Module module, List<ModuleConstraintExecutor.ModuleInst> solutions);
++     Result<List<ModuleConstraintExecutor.ModuleInst>> postProcess(Module module, List<ModuleConstraintExecutor.ModuleInst> solutions);
+  }
+  
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/configengine/InferParasPostProcess.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -28,5 +28,5 @@
+       * @return 处理结果
+       */
+-     Result<List<ModuleConstraintExecutor.ModuleInst>> postProcess(Module module, List<ModuleConstraintExecutor.ModuleInst> solutions);
++     Result<List<ModuleInst>> postProcess(Module module, List<ModuleInst> solutions);
+  }
+  
+```
+
+</details>
+
+---
+
+现在再次运行测试：
+
+
+---
+
+```bash
+mvn test -Dtest=DCMyTShirtTest
+```
+
+---
+
+_**User (2025-09-06 12:31Z)**_
+
+请运行TestSuite
+
+---
+
+_**Assistant**_
+
+
+
+---
+

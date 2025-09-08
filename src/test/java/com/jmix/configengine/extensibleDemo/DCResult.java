@@ -1,6 +1,7 @@
 package com.jmix.configengine.extensibleDemo;
 
-import com.jmix.configengine.ModuleConstraintExecutor;
+import com.jmix.configengine.inf.Result;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -11,7 +12,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class DCResult<T> extends ModuleConstraintExecutor.Result<T> {
+public class DCResult<T> extends Result<T> {
     
     /**
      * DC公司特有的结果编码
@@ -40,7 +41,7 @@ public class DCResult<T> extends ModuleConstraintExecutor.Result<T> {
      * 从标准Result创建DCResult
      * @param result 标准结果
      */
-    public DCResult(ModuleConstraintExecutor.Result<T> result) {
+    public DCResult(Result<T> result) {
         super();
         if (result != null) {
             this.code = result.code;

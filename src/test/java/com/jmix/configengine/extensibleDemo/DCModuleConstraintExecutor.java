@@ -1,6 +1,7 @@
 package com.jmix.configengine.extensibleDemo;
 
 import com.jmix.configengine.ModuleConstraintExecutor;
+import com.jmix.configengine.inf.ConstraintConfig;
 
 import java.util.List;
 
@@ -15,7 +16,7 @@ public interface DCModuleConstraintExecutor {
      * @param config 约束配置
      * @return 初始化结果
      */
-    DCResult<Void> init(ModuleConstraintExecutor.ConstraintConfig config);
+    DCResult<Void> init(ConstraintConfig config);
     
     /**
      * 销毁执行器
@@ -50,14 +51,14 @@ public interface DCModuleConstraintExecutor {
      * @param eProcess 扩展处理器
      * @return 注册结果
      */
-    DCResult<Void> registerExtensible(com.jmix.configengine.ExtensibleProcess eProcess);
+    DCResult<Void> registerExtensible(com.jmix.configengine.inf.ExtensibleProcess eProcess);
     
     /**
      * 注销扩展处理器
      * @param eProcess 扩展处理器
      * @return 注销结果
      */
-    DCResult<Void> unregisterExtensible(com.jmix.configengine.ExtensibleProcess eProcess);
+    DCResult<Void> unregisterExtensible(com.jmix.configengine.inf.ExtensibleProcess eProcess);
     
     /**
      * DC推理请求类

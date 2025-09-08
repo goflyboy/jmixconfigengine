@@ -1,4 +1,4 @@
-package com.jmix.configengine;
+package com.jmix.configengine.inf;
 
 import com.jmix.configengine.model.Module;
 
@@ -25,5 +25,5 @@ public interface InferParasPostProcess {
      * @param solutions 推理结果列表
      * @return 处理结果
      */
-    ModuleConstraintExecutor.Result<List<ModuleConstraintExecutor.ModuleInst>> postProcess(Module module, List<ModuleConstraintExecutor.ModuleInst> solutions);
+    Result<List<ModuleInst>> postProcess(Module module, List<ModuleInst> solutions);
 }

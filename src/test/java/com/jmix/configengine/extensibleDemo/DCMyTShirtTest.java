@@ -1,8 +1,12 @@
 package com.jmix.configengine.extensibleDemo;
 
+import com.jmix.configengine.inf.Result;
 import com.jmix.configengine.ModuleConstraintExecutor;
-import com.jmix.configengine.executor.ModuleConstraintExecutorImpl;
+import com.jmix.configengine.inf.ModuleInst;
+import com.jmix.configengine.inf.ParaInst;
+import com.jmix.configengine.inf.PartInst;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,7 +20,6 @@ import static org.junit.Assert.*;
 public class DCMyTShirtTest {
     
     private DCModuleConstraintExecutor dcExecutor;
-    private ModuleConstraintExecutor executor;
     private DCDeliveryTypePostProcess postProcess;
     
     @Before
@@ -24,28 +27,31 @@ public class DCMyTShirtTest {
         // 创建DC执行器
         dcExecutor = new DCModuleConstraintExecutorImpl();
         
-        // 创建标准执行器（用于兼容性测试）
-        executor = new ModuleConstraintExecutorImpl();
-        
         // 初始化配置
-        ModuleConstraintExecutor.ConstraintConfig config = new ModuleConstraintExecutor.ConstraintConfig();
+        com.jmix.configengine.inf.ConstraintConfig config = new com.jmix.configengine.inf.ConstraintConfig();
         config.isAttachedDebug = true;
         config.rootFilePath = "target/generated-sources";
         config.logFilePath = "target/logs";
         config.isLogModelProto = false;
         
-        // 初始化两个执行器
+        // 初始化DC执行器
         dcExecutor.init(config);
-        executor.init(config);
         
         // 注册后处理器
         postProcess = new DCDeliveryTypePostProcess();
         dcExecutor.registerExtensible(postProcess);
-        executor.registerExtensible(postProcess);
         
         // 添加模块
         dcExecutor.addDCModule(1L, getDCModule());
-        executor.addModule(1L, getModule());
+    }
+    
+    @After
+    public void tearDown() {
+        // 清理资源
+        if (dcExecutor != null) {
+            dcExecutor.fini();
+        }
+        ModuleConstraintExecutor.INST.fini();
     }
     
     @Test
@@ -55,7 +61,7 @@ public class DCMyTShirtTest {
         // 由于模块没有算法制品，我们跳过实际的推理测试
         // 这里主要测试扩展性功能的注册和管理
         assertNotNull("DC Executor should not be null", dcExecutor);
-        assertNotNull("Standard Executor should not be null", executor);
+        // assertNotNull("Standard Executor should not be null", executor);
         assertNotNull("Post process should not be null", postProcess);
         
         // 验证后处理器已注册
@@ -75,7 +81,7 @@ public class DCMyTShirtTest {
         // 测试DC模块添加
         DCModule testModule = getDCModule();
         DCResult<Void> addResult = dcExecutor.addDCModule(2L, testModule);
-        assertEquals("DC module addition should be successful", ModuleConstraintExecutor.Result.SUCCESS, addResult.code);
+        assertEquals("DC module addition should be successful", Result.SUCCESS, addResult.code);
         assertNotNull("DC result code should not be null", addResult.getDcResultCode());
         assertEquals("DC result code should be correct", "DC_ADD_MODULE_SUCCESS", addResult.getDcResultCode());
         
@@ -102,24 +108,24 @@ public class DCMyTShirtTest {
         com.jmix.configengine.model.Module module = getModule();
         
         // 创建模拟的解决方案
-        java.util.List<ModuleConstraintExecutor.ModuleInst> solutions = new java.util.ArrayList<>();
-        ModuleConstraintExecutor.ModuleInst solution = new ModuleConstraintExecutor.ModuleInst();
+        java.util.List<ModuleInst> solutions = new java.util.ArrayList<>();
+        ModuleInst solution = new ModuleInst();
         solution.setId(123L);
         solution.setCode("TShirt11");
         solution.setInstanceId(0);
         solution.setQuantity(1);
         
         // 添加参数实例
-        java.util.List<ModuleConstraintExecutor.ParaInst> paras = new java.util.ArrayList<>();
-        ModuleConstraintExecutor.ParaInst paraInst = new ModuleConstraintExecutor.ParaInst();
+        java.util.List<ParaInst> paras = new java.util.ArrayList<>();
+        ParaInst paraInst = new ParaInst();
         paraInst.setCode("Color");
         paraInst.setValue("Red");
         paras.add(paraInst);
         solution.setParas(paras);
         
         // 添加部件实例
-        java.util.List<ModuleConstraintExecutor.PartInst> parts = new java.util.ArrayList<>();
-        ModuleConstraintExecutor.PartInst partInst = new ModuleConstraintExecutor.PartInst();
+        java.util.List<PartInst> parts = new java.util.ArrayList<>();
+        PartInst partInst = new PartInst();
         partInst.setCode("TShirt11");
         partInst.setQuantity(3);
         parts.add(partInst);
@@ -128,12 +134,12 @@ public class DCMyTShirtTest {
         solutions.add(solution);
         
         // 测试后处理器
-        ModuleConstraintExecutor.Result<java.util.List<ModuleConstraintExecutor.ModuleInst>> result = 
+        Result<java.util.List<ModuleInst>> result = 
                 postProcess.postProcess(module, solutions);
         
         // 验证结果
         assertNotNull("Result should not be null", result);
-        assertEquals("Should be successful", ModuleConstraintExecutor.Result.SUCCESS, result.code);
+        assertEquals("Should be successful", Result.SUCCESS, result.code);
         assertNotNull("Processed solutions should not be null", result.data);
         assertTrue("Should have processed solutions", !result.data.isEmpty());
         
@@ -161,7 +167,7 @@ public class DCMyTShirtTest {
         
         // 测试参数实例适配器
         DCParaInstAdapter paraInstAdapter = new DCParaInstAdapter();
-        ModuleConstraintExecutor.ParaInst paraInst = new ModuleConstraintExecutor.ParaInst();
+        ParaInst paraInst = new ParaInst();
         paraInst.setCode("Color");
         paraInst.setValue("Red");
         paraInst.setHidden(false);
@@ -183,14 +189,14 @@ public class DCMyTShirtTest {
         
         // 测试注册
         DCDeliveryTypePostProcess newPostProcess = new DCDeliveryTypePostProcess();
-        ModuleConstraintExecutor.Result<Void> registerResult = executor.registerExtensible(newPostProcess);
+        Result<Void> registerResult = ModuleConstraintExecutor.INST.registerExtensible(newPostProcess);
         
-        assertEquals("Registration should be successful", ModuleConstraintExecutor.Result.SUCCESS, registerResult.code);
+        assertEquals("Registration should be successful", Result.SUCCESS, registerResult.code);
         
         // 测试注销
-        ModuleConstraintExecutor.Result<Void> unregisterResult = executor.unregisterExtensible(newPostProcess);
+        Result<Void> unregisterResult = ModuleConstraintExecutor.INST.unregisterExtensible(newPostProcess);
         
-        assertEquals("Unregistration should be successful", ModuleConstraintExecutor.Result.SUCCESS, unregisterResult.code);
+        assertEquals("Unregistration should be successful", Result.SUCCESS, unregisterResult.code);
     }
     
     @Test
@@ -199,15 +205,15 @@ public class DCMyTShirtTest {
         
         // 测试空解决方案的后处理
         com.jmix.configengine.model.Module module = getModule();
-        java.util.List<ModuleConstraintExecutor.ModuleInst> emptySolutions = new java.util.ArrayList<>();
+        java.util.List<ModuleInst> emptySolutions = new java.util.ArrayList<>();
         
         // 测试后处理器处理空解决方案
-        ModuleConstraintExecutor.Result<java.util.List<ModuleConstraintExecutor.ModuleInst>> result = 
+        Result<java.util.List<ModuleInst>> result = 
                 postProcess.postProcess(module, emptySolutions);
         
         // 验证结果
         assertNotNull("Result should not be null", result);
-        assertEquals("Should be successful even with empty solutions", ModuleConstraintExecutor.Result.SUCCESS, result.code);
+        assertEquals("Should be successful even with empty solutions", Result.SUCCESS, result.code);
         assertNotNull("Processed solutions should not be null", result.data);
         assertTrue("Should have empty processed solutions", result.data.isEmpty());
         
@@ -217,8 +223,8 @@ public class DCMyTShirtTest {
     /**
      * 创建部件实例
      */
-    private ModuleConstraintExecutor.PartInst createPartInst(String code, Integer quantity) {
-        ModuleConstraintExecutor.PartInst partInst = new ModuleConstraintExecutor.PartInst();
+    private PartInst createPartInst(String code, Integer quantity) {
+        PartInst partInst = new PartInst();
         partInst.setCode(code);
         partInst.setQuantity(quantity);
         partInst.setHidden(false);
