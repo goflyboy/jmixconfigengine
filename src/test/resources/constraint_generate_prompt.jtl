@@ -322,7 +322,7 @@ public class HelloSampleTest extends ModuleSecnarioTestBase {
         // 验证第一个解
         solutions(0).assertPara("Color").valueEqual("Red")
                 .assertPara("Size").valueEqual("Small");
-        printSolutions();
+        printSolutions(module, solutions);
     }
 
     @Test
@@ -335,13 +335,13 @@ public class HelloSampleTest extends ModuleSecnarioTestBase {
                 .assertSolutionSizeEqual(1);
         
         solutions(0).assertPart("TShirt11").quantityEqual(1);
-        printSolutions();
+        printSolutions(module, solutions);
     }
 
     @Test
     public void testElseCondition() {
         inferParas("TShirt11", 3);
-        printSolutions();
+        printSolutions(module, solutions);
         // 反推有8个解  8=3*3 - 1
         resultAssert()
                 .assertSuccess()
@@ -356,7 +356,7 @@ public class HelloSampleTest extends ModuleSecnarioTestBase {
         assertSolutionNum("Color:White,Size:Big", 1);
         assertSolutionNum("Color:Red,Size:Big", 1);
         assertSolutionNum("Color:Black,Size:Small", 1);
-        printSolutions();
+        printSolutions(module, solutions);
     }
 
     @Test
@@ -366,7 +366,7 @@ public class HelloSampleTest extends ModuleSecnarioTestBase {
         inferParas("TShirt11", 10);
         // 使用resultAssert验证执行结果
         resultAssert().assertNoSolution();
-        printSolutions();
+        printSolutions(module, solutions);
     }
 }
 ```

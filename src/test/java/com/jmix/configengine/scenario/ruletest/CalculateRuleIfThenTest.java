@@ -81,14 +81,14 @@ public class CalculateRuleIfThenTest extends ModuleSecnarioTestBase {
         // 验证第一个解
         solutions(0).assertPara("P1").valueEqual("op11")
         .assertPara("P2").valueEqual("op21");
-        printSolutions();
+        printSolutions(module, solutions);
     }
 
     
     @Test
     public void test_rule2_else_op11_op21() {
         inferParas("PT1", 3);
-        printSolutions();
+        printSolutions(module, solutions);
         //反推有8个接口  8=3*3 - 1
         resultAssert()
             .assertSuccess()
@@ -97,14 +97,14 @@ public class CalculateRuleIfThenTest extends ModuleSecnarioTestBase {
         assertSolutionNum("P1:op11,P2:op21",0);
         //else的解可能解如下：
         assertSolutionNum("P1:op12,P2:op22",1);
-        printSolutions();
+        printSolutions(module, solutions);
     }
     
     
     @Test
     public void test_rule2_no_if_else() {
         inferParas("PT1", 4);
-        printSolutions();
+        printSolutions(module, solutions);
         //反推有8个接口  8=3*3 - 1
         resultAssert()
             .assertSuccess()
@@ -113,7 +113,7 @@ public class CalculateRuleIfThenTest extends ModuleSecnarioTestBase {
         assertSolutionNum("P1:op11,P2:op21",0);
         //else的解也不在其中
         assertSolutionNum("P1:op12,P2:op22",0);
-        printSolutions();
+        printSolutions(module, solutions);
     }
     
 

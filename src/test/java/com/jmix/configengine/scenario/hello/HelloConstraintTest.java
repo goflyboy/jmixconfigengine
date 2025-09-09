@@ -27,7 +27,7 @@ public class HelloConstraintTest extends ModuleSecnarioTestBase {
         // 验证第一个解
         solutions(0).assertPara("Color").valueEqual("Red")
         .assertPara("Size").valueEqual("Small"); 
-        printShortSolutions();
+        printSolutions();
     }
 
     
@@ -43,7 +43,7 @@ public class HelloConstraintTest extends ModuleSecnarioTestBase {
             // }
         // 测试颜色参数推理
         inferParas("TShirt11", 3);
-        printSolutions();
+        printSolutions(module, solutions);
         //反推有8个接口  8=3*3 - 1
         resultAssert()
             .assertSuccess()
@@ -58,7 +58,7 @@ public class HelloConstraintTest extends ModuleSecnarioTestBase {
         assertSolutionNum("Color:White,Size:Big",1);
         assertSolutionNum("Color:Red,Size:Big",1);
         assertSolutionNum("Color:Black,Size:Small",1);
-        printShortSolutions();
+        printSolutions();
     }
     
  

@@ -134,7 +134,7 @@ public class CompatiableRuleCodependentTest extends ModuleSecnarioTestBase {
         // 验证B不在CB中的解不存在
         assertSolutionNum("B:b4", 0);
         assertSolutionNum("B:b5", 0);
-        printShortSolutions();
+        printSolutions();
     }
 
     @Test

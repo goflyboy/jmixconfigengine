@@ -10,7 +10,7 @@ _**User (2025-09-08 14:51Z)**_
 
 _**Assistant**_
 
-我来帮你将 `printShortSolutions` 方法中的 `System.out.println` 替换为日志输出。首先让我查看一下这个文件的完整内容，了解当前的日志配置。
+我来帮你将 `printSolutions` 方法中的 `System.out.println` 替换为日志输出。首先让我查看一下这个文件的完整内容，了解当前的日志配置。
 
 
 ---
@@ -19,7 +19,7 @@ Read file: undefined
 
 ---
 
-现在我可以看到这个类已经使用了 `@Slf4j` 注解，并且有 `log` 对象可用。我需要将 `printShortSolutions` 方法中的所有 `System.out.println` 替换为相应的日志输出。根据项目规则，日志内容必须使用英文。
+现在我可以看到这个类已经使用了 `@Slf4j` 注解，并且有 `log` 对象可用。我需要将 `printSolutions` 方法中的所有 `System.out.println` 替换为相应的日志输出。根据项目规则，日志内容必须使用英文。
 
 
 ---
@@ -33,7 +33,7 @@ Lines added: 5, lines removed: 5
 
 ```diff
 @@ -378,19 +378,19 @@
-      protected void printShortSolutions(Module module, List<ModuleInst> solutions) {
+      protected void printSolutions(Module module, List<ModuleInst> solutions) {
           if (solutions == null || solutions.isEmpty()) {
 -             System.out.println("No solutions found");
 +             log.info("No solutions found");
@@ -87,7 +87,7 @@ Lines added: 3, lines removed: 3
 
 ---
 
-完成！我已经成功将 `printShortSolutions` 方法中的所有 `System.out.println` 替换为日志输出。主要修改包括：
+完成！我已经成功将 `printSolutions` 方法中的所有 `System.out.println` 替换为日志输出。主要修改包括：
 
 ## 修改内容
 
@@ -474,7 +474,7 @@ _**User (2025-09-08 14:51Z)**_
 
 _**Assistant**_
 
-我来修改 `printShortSolutions` 方法，将所有打印内容先放到 `StringBuffer` 中，最后只调用一次 `log.info`。
+我来修改 `printSolutions` 方法，将所有打印内容先放到 `StringBuffer` 中，最后只调用一次 `log.info`。
 
 
 ---
@@ -543,7 +543,7 @@ Lines added: 5, lines removed: 3
 
 ---
 
-完成！我已经成功修改了 `printShortSolutions` 方法，现在它：
+完成！我已经成功修改了 `printSolutions` 方法，现在它：
 
 ## 主要改进
 
@@ -1044,6 +1044,509 @@ Solution 2: P0(V:3,H:0),P1(V:10,H:0),PT0(Q:3,H:0)
 其中 `P0`、`P1`、`PT0` 等就是 `shortCode`，而不是原来的 `Color`、`Size`、`TShirt11`。
 
 这样修改后，`toShortString()` 方法就会优先使用 `shortCode` 字段，让调试输出更加简洁易读。
+
+---
+
+_**User (2025-09-08 14:51Z)**_
+
+测试用例所有调用printSolutions，改调printSolutions
+
+---
+
+_**Assistant**_
+
+我来帮你将测试用例中所有的 `printSolutions` 调用改为 `printSolutions`。首先让我搜索所有包含 `printSolutions` 的文件：
+
+
+---
+
+
+
+---
+
+现在让我查看每个文件中的 `printSolutions` 调用，并逐一替换：
+
+
+---
+
+
+
+---
+
+现在我来逐一修改这些文件。首先从 `HelloConstraintTest.java` 开始：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/hello/HelloConstraintTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -44,5 +44,5 @@
+          // 测试颜色参数推理
+          inferParas("TShirt11", 3);
+-         printSolutions();
++         printSolutions(module, solutions);
+          //反推有8个接口  8=3*3 - 1
+          resultAssert()
+```
+
+</details>
+
+---
+
+现在修改 `CalculateRuleIfThenTest.java`：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/CalculateRuleIfThenTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -82,5 +82,5 @@
+          solutions(0).assertPara("P1").valueEqual("op11")
+          .assertPara("P2").valueEqual("op21");
+-         printSolutions();
++         printSolutions(module, solutions);
+      }
+  
+```
+
+**Chunk 2**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -89,5 +89,5 @@
+      public void test_rule2_else_op11_op21() {
+          inferParas("PT1", 3);
+-         printSolutions();
++         printSolutions(module, solutions);
+          //反推有8个接口  8=3*3 - 1
+          resultAssert()
+```
+
+**Chunk 3**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -98,5 +98,5 @@
+          //else的解可能解如下：
+          assertSolutionNum("P1:op12,P2:op22",1);
+-         printSolutions();
++         printSolutions(module, solutions);
+      }
+      
+```
+
+**Chunk 4**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -105,5 +105,5 @@
+      public void test_rule2_no_if_else() {
+          inferParas("PT1", 4);
+-         printSolutions();
++         printSolutions(module, solutions);
+          //反推有8个接口  8=3*3 - 1
+          resultAssert()
+```
+
+**Chunk 5**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -114,5 +114,5 @@
+          //else的解也不在其中
+          assertSolutionNum("P1:op12,P2:op22",0);
+-         printSolutions();
++         printSolutions(module, solutions);
+      }
+      
+```
+
+</details>
+
+---
+
+修改 `CalculateRuleSimpleTest.java`：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/CalculateRuleSimpleTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -73,5 +73,5 @@
+          // 验证第一个解
+          solutions(0).assertPara("P1").valueEqual("op11");
+-         printSolutions();
++         printSolutions(module, solutions);
+      }
+  
+```
+
+**Chunk 2**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -80,5 +80,5 @@
+      public void test_else_op11() {
+          inferParas("PT1", 3);
+-         printSolutions();
++         printSolutions(module, solutions);
+          //反推有8个接口  8=3*3 - 1
+          resultAssert()
+```
+
+**Chunk 3**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -87,5 +87,5 @@
+          //if的解肯定不在其中
+          assertSolutionNum("P1:op11",0);
+-         printSolutions();
++         printSolutions(module, solutions);
+      }
+      
+```
+
+**Chunk 4**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -94,5 +94,5 @@
+      public void test_no_if_else() {
+          inferParas("PT1", 4);
+-         printSolutions();
++         printSolutions(module, solutions);
+          //反推有8个接口  8=3*3 - 1
+          resultAssert()
+```
+
+**Chunk 5**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -101,5 +101,5 @@
+          //if的解肯定不在其中
+          assertSolutionNum("P1:op11",0);
+-         printSolutions();
++         printSolutions(module, solutions);
+      }
+      
+```
+
+</details>
+
+---
+
+修改 `ParaIsHiddenTest.java`：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/ParaIsHiddenTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -83,5 +83,5 @@
+          // Test when P0=0, P1 should be hidden and P1.var=0
+          inferParas("Part1", 1, "P0", "0");
+-         printSolutions();
++         printSolutions(module, solutions);
+          resultAssert()
+                  .assertSuccess()
+```
+
+**Chunk 2**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -100,5 +100,5 @@
+          // Test when P0=0, P1 should be hidden and P1.var=0
+          inferParas("Part1", 1, "P0", "1");
+-         printSolutions();
++         printSolutions(module, solutions);
+          resultAssert()
+                  .assertSuccess()
+```
+
+**Chunk 3**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -116,5 +116,5 @@
+          // Test when P0=0, P1 should be hidden and P1.var=0
+          inferParas("Part1", 1, "P0", "2");
+-         printSolutions();
++         printSolutions(module, solutions);
+          resultAssert()
+                  .assertSuccess()
+```
+
+**Chunk 4**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -133,5 +133,5 @@
+          // Test when P0=0, P1 should be hidden and P1.var=0
+          inferParasByPara("P0", "1", "P2", "2");
+-         printSolutions();
++         printSolutions(module, solutions);
+          resultAssert()
+                  .assertSuccess()
+```
+
+**Chunk 5**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -148,5 +148,5 @@
+          // Test when P0=0, P1 should be hidden and P1.var=0
+          inferParasByPara("P0", "2", "P1", "2");
+-         printSolutions();
++         printSolutions(module, solutions);
+          resultAssert()
+                  .assertSuccess()
+```
+
+**Chunk 6**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -164,5 +164,5 @@
+          // Test when P0=0, P1 should be hidden and P1.var=0
+          inferParasByPara("P0", "2", "P1", "3");//超出P1值域
+-         printSolutions();
++         printSolutions(module, solutions);
+          resultAssert().assertNoSolution();
+      
+```
+
+</details>
+
+---
+
+现在让我检查是否还有其他测试文件需要修改。让我搜索更多的测试文件：
+
+
+---
+
+
+
+---
+
+让我检查 `constraint_generate_prompt.jtl` 文件，看看是否需要修改：
+
+
+---
+
+Read file: undefined
+
+---
+
+这是一个模板文件，我也需要修改它：
+
+
+---
+
+<details><summary>Edit file: src/test/resources/constraint_generate_prompt.jtl</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -323,5 +323,5 @@
+          solutions(0).assertPara("Color").valueEqual("Red")
+                  .assertPara("Size").valueEqual("Small");
+-         printSolutions();
++         printSolutions(module, solutions);
+      }
+  
+```
+
+**Chunk 2**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -336,11 +336,11 @@
+          
+          solutions(0).assertPart("TShirt11").quantityEqual(1);
+-         printSolutions();
++         printSolutions(module, solutions);
+      }
+  
+      @Test
+      public void testElseCondition() {
+          inferParas("TShirt11", 3);
+-         printSolutions();
++         printSolutions(module, solutions);
+          // 反推有8个解  8=3*3 - 1
+          resultAssert()
+```
+
+**Chunk 3**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -357,5 +357,5 @@
+          assertSolutionNum("Color:Red,Size:Big", 1);
+          assertSolutionNum("Color:Black,Size:Small", 1);
+-         printSolutions();
++         printSolutions(module, solutions);
+      }
+  
+```
+
+**Chunk 4**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -367,5 +367,5 @@
+          // 使用resultAssert验证执行结果
+          resultAssert().assertNoSolution();
+-         printSolutions();
++         printSolutions(module, solutions);
+      }
+  }
+```
+
+</details>
+
+---
+
+现在让我检查是否还有其他测试文件需要修改。让我搜索所有测试目录中的文件：
+
+
+---
+
+
+
+---
+
+让我检查是否还有其他测试文件包含 `printSolutions` 调用：
+
+
+---
+
+
+
+---
+
+让我检查其他可能的测试文件，比如 `ruletest` 目录下的其他文件：
+
+
+---
+
+<details>
+            <summary>Listed directory undefined • **0** results</summary>
+        
+No results found
+</details>
+
+---
+
+让我检查其他测试文件是否也包含 `printSolutions` 调用：
+
+
+---
+
+
+
+---
+
+让我检查其他目录的测试文件：
+
+
+---
+
+
+
+---
+
+很好！看起来我已经修改了所有需要修改的测试文件。现在让我更新任务状态：
+
+
+---
+
+## Todo List
+
+- [x] 为 ParaInst 类添加 shortCode 字段并修改 toShortString 方法
+- [x] 为 PartInst 类添加 shortCode 字段并修改 toShortString 方法
+- [x] 为 ModuleInst 类添加 shortCode 字段并修改 toShortString 方法
+- [x] 修复实例创建时设置shortCode字段的问题
+- [x] 将所有测试用例中的printSolutions调用替换为printSolutions
+
+---
+
+现在让我检查是否有编译错误：
+
+
+---
+
+
+
+---
+
+完美！我已经成功完成了所有测试用例中 `printSolutions` 调用到 `printSolutions` 的替换。
+
+## 修改总结
+
+我已经将以下文件中的所有 `printSolutions()` 调用替换为 `printSolutions(module, solutions)`：
+
+### 1. 测试文件
+- ✅ `src/test/java/com/jmix/configengine/scenario/hello/HelloConstraintTest.java`
+- ✅ `src/test/java/com/jmix/configengine/scenario/ruletest/CalculateRuleIfThenTest.java`
+- ✅ `src/test/java/com/jmix/configengine/scenario/ruletest/CalculateRuleSimpleTest.java`
+- ✅ `src/test/java/com/jmix/configengine/scenario/ruletest/ParaIsHiddenTest.java`
+
+### 2. 模板文件
+- ✅ `src/test/resources/constraint_generate_prompt.jtl`
+
+## 修改详情
+
+所有的 `printSolutions();` 调用都被替换为 `printSolutions(module, solutions);`，这样：
+
+1. **保持一致性**：所有测试用例现在都使用相同的短格式输出方法
+2. **显示 shortCode**：现在会优先显示 `shortCode` 而不是原始的 `code`
+3. **更简洁的输出**：调试输出会更加简洁易读
+
+## 预期效果
+
+现在当你运行任何测试时，都会看到类似这样的输出：
+
+```
+Abbreviation explanation:
+1. Attrs(V:value, H:isHidden, Q:qty)
+2. shortCodes(ProgObjs(P0:Color,P1:Size,PT0:TShirt11,))
+3. Other Variable shortName:
+
+Solution 1: P0(V:2,H:0),P1(V:10,H:0),PT0(Q:3,H:0)
+Solution 2: P0(V:3,H:0),P1(V:10,H:0),PT0(Q:3,H:0)
+```
+
+其中 `P0`、`P1`、`PT0` 等就是 `shortCode`，让调试输出更加简洁明了。
 
 ---
 

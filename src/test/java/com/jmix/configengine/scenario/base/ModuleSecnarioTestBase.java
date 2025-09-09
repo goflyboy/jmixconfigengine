@@ -155,7 +155,7 @@ public abstract class ModuleSecnarioTestBase {
     /**
      * 打印所有解决方案
      */
-    protected void printSolutions() {
+    protected void printSolutionsDetail() {
         if (solutions == null || solutions.isEmpty()) {
             log.info("没有找到解决方案");
             return;
@@ -374,8 +374,8 @@ public abstract class ModuleSecnarioTestBase {
      * @param module 模块
      * @param solutions 解列表
      */
-    protected void printShortSolutions() {
-        printShortSolutions(module, solutions);
+    protected void printSolutions() {
+        printSolutions(module, solutions);
     }
 
     /**
@@ -383,7 +383,7 @@ public abstract class ModuleSecnarioTestBase {
      * @param module 模块
      * @param solutions 解列表
      */
-    protected void printShortSolutions(Module module, List<ModuleInst> solutions) {
+    protected void printSolutions(Module module, List<ModuleInst> solutions) {
         if (solutions == null || solutions.isEmpty()) {
             log.info("No solutions found");
             return;
