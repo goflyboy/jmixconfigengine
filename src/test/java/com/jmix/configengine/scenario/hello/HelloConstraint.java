@@ -55,7 +55,7 @@ public class HelloConstraint extends ConstraintAlgImpl {
             // }
 
         // 创建条件变量：颜色是红色且尺寸是小号
-        BoolVar redAndSmall = model.newBoolVar("rule2_redAndSmall");
+        BoolVar redAndSmall = newBoolVar("rule2_redAndSmall");
         
         // 实现条件逻辑：redAndSmall = (Color == Red) AND (Size == Small)
         model.addBoolAnd(new Literal[]{

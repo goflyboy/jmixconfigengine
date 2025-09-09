@@ -189,6 +189,9 @@ public class ModuleConstraintExecutorImpl {
 					ParaVar pv = (ParaVar) v;
 					ParaInst pi = new ParaInst();
 					pi.code = pv.getCode();
+					// 从模块中获取对应的Para模型，设置shortCode
+					pi.setShortCode(pv.getBase().getShortCode());
+				
 					// value: read IntVar domain value
 					int value = (int) value((IntVar) pv.value);
 					pi.value = String.valueOf(value);
@@ -207,6 +210,8 @@ public class ModuleConstraintExecutorImpl {
 					PartVar partVar = (PartVar) v;
 					PartInst inst = new PartInst();
 					inst.code = partVar.getCode();
+					// 从模块中获取对应的Part模型，设置shortCode
+					inst.setShortCode(partVar.getBase().getShortCode());
 					inst.quantity = (int) value((IntVar) partVar.qty);
 					moduleInst.addPartInst(inst);
 				}
@@ -241,6 +246,8 @@ public class ModuleConstraintExecutorImpl {
 		ModuleInst moduleInst = new ModuleInst();
 		moduleInst.id = module.getId();
 		moduleInst.code = module.getCode();
+		// 设置ModuleInst的shortCode
+		moduleInst.setShortCode(module.getShortCode());
 		moduleInst.instanceConfigId ="0"; // "INST_" + UUID.randomUUID().toString().replace("-", "").substring(0, 16);
 		moduleInst.instanceId = instanceId;
 		moduleInst.quantity = 1;

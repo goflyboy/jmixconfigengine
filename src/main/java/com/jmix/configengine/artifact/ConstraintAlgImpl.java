@@ -588,7 +588,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 			OtherVar otherVar = new OtherVar();
 			otherVar.code = name;
 			otherVar.var = tv;
-			otherVar.shortCode = "Other" + (++otherVarIndex);
+			otherVar.shortCode = "o" + (++otherVarIndex);
 			otherVarMap.put(name, otherVar);
 		}
 	}

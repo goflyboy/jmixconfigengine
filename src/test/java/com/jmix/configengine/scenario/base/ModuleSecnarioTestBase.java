@@ -369,7 +369,15 @@ public abstract class ModuleSecnarioTestBase {
             this.value = value;
         }
     }
-    
+    /**
+     * 打印短格式解信息
+     * @param module 模块
+     * @param solutions 解列表
+     */
+    protected void printShortSolutions() {
+        printShortSolutions(module, solutions);
+    }
+
     /**
      * 打印短格式解信息
      * @param module 模块
@@ -381,17 +389,19 @@ public abstract class ModuleSecnarioTestBase {
             return;
         }
         
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n******************************************\n");
         // 打印缩语解释
-        log.info("Abbreviation explanation:");
+        sb.append("Abbreviation explanation:\n");
         
         // 1. Attrs(V:value, H:isHidden, Q:qty)
-        log.info("1. Attrs(V:value, H:isHidden, Q:qty)");
+        sb.append("1. Attrs(V:value, H:isHidden, Q:qty)\n");
         
         // 2. shortCodes(P1:Size, P2:Color,PT1:part1)
-        log.info("2. shortCodes({})", module.getProgObjShortCodeMemo());
+        sb.append("2. shortCodes(").append(module.getProgObjShortCodeMemo()).append(")\n");
         
         // 3. Other Variable shortName
-        log.info("3. Other Variable shortName:");
+        sb.append("3. Other Variable shortName:\n");
         if (!solutions.isEmpty()) {
             ModuleInst firstSolution = solutions.get(0);
             Object otherVarsMemo = firstSolution.extAttrs.get(ModuleInst.OTHER_VARIABLES_MEMO_KEY);
@@ -400,17 +410,19 @@ public abstract class ModuleSecnarioTestBase {
                 Map<String, OtherVar> otherVarMap = (Map<String, OtherVar>) otherVarsMemo;
                 for (Map.Entry<String, OtherVar> entry : otherVarMap.entrySet()) {
                     OtherVar otherVar = entry.getValue();
-                    log.info(" {}:{}", otherVar.shortCode, otherVar.code);
+                    sb.append(" ").append(otherVar.shortCode).append(":").append(otherVar.code).append("\n");
                 }
             }
         }
         
-        log.info("");
+        sb.append("\n");
         
         // 打印解
         for (int i = 0; i < solutions.size(); i++) {
-            log.info("Solution {}: {}", (i + 1), solutions.get(i).toShortString());
+            sb.append("S_").append(i + 1).append(": ").append(solutions.get(i).toShortString()).append("\n");
         }
+        sb.append("\n******************************************\n");
+        log.info(sb.toString());
     }
     
     // getResourcePath和createDirectory方法已移动到CommHelper类中
