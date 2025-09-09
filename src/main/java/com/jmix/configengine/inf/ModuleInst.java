@@ -1,5 +1,6 @@
 package com.jmix.configengine.inf;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import java.util.HashMap;
@@ -23,6 +24,12 @@ public class ModuleInst {
     public List<ParaInst> paras; // paras
     public List<PartInst> parts; // parts
     public Map<String,Object> extAttrs=new HashMap<>();
+    
+    /**
+     * 短编码,仅用于调试
+     */
+    @JsonIgnore
+    private String shortCode;
     
     public void addParaInst(ParaInst paraInst){
         paras.add(paraInst);
@@ -71,6 +78,11 @@ public class ModuleInst {
                 }
                 sb.append(")");
             }
+        }
+        
+        // 如果有shortCode，则使用shortCode作为前缀
+        if (shortCode != null) {
+            return shortCode + "(" + sb.toString() + ")";
         }
         
         return sb.toString();

@@ -1,5 +1,6 @@
 package com.jmix.configengine.inf;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import java.util.List;
@@ -15,6 +16,12 @@ public class ParaInst {
     public List<String> options; // 空表示没有赋值
     public boolean isHidden = false;
     public Map<String,Object> extAttrs;
+    
+    /**
+     * 短编码,仅用于调试
+     */
+    @JsonIgnore
+    private String shortCode;
 
     /**
      * 生成短字符串表示
@@ -22,7 +29,7 @@ public class ParaInst {
      */
     public String toShortString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(code).append("(");
+        sb.append(shortCode != null ? shortCode : code).append("(");
         
         // 添加值信息
         if (value != null) {
@@ -30,7 +37,7 @@ public class ParaInst {
         }
         
         // 添加隐藏状态
-        if (sb.length() > code.length() + 1) sb.append(",");
+        if (sb.length() > (shortCode != null ? shortCode : code).length() + 1) sb.append(",");
         sb.append("H:").append(isHidden ? 1 : 0);
         
         sb.append(")");
