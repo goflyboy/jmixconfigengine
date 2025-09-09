@@ -377,21 +377,21 @@ public abstract class ModuleSecnarioTestBase {
      */
     protected void printShortSolutions(Module module, List<ModuleInst> solutions) {
         if (solutions == null || solutions.isEmpty()) {
-            System.out.println("No solutions found");
+            log.info("No solutions found");
             return;
         }
         
         // 打印缩语解释
-        System.out.println("缩语解释:");
+        log.info("Abbreviation explanation:");
         
         // 1. Attrs(V:value, H:isHidden, Q:qty)
-        System.out.println("1、Attrs(V:value, H:isHidden, Q:qty)");
+        log.info("1. Attrs(V:value, H:isHidden, Q:qty)");
         
         // 2. shortCodes(P1:Size, P2:Color,PT1:part1)
-        System.out.println("2、shortCodes(" + module.getProgObjShortCodeMemo() + ")");
+        log.info("2. shortCodes({})", module.getProgObjShortCodeMemo());
         
         // 3. Other Variable shortName
-        System.out.println("3、Other Variable shortName:");
+        log.info("3. Other Variable shortName:");
         if (!solutions.isEmpty()) {
             ModuleInst firstSolution = solutions.get(0);
             Object otherVarsMemo = firstSolution.extAttrs.get(ModuleInst.OTHER_VARIABLES_MEMO_KEY);
@@ -400,16 +400,16 @@ public abstract class ModuleSecnarioTestBase {
                 Map<String, OtherVar> otherVarMap = (Map<String, OtherVar>) otherVarsMemo;
                 for (Map.Entry<String, OtherVar> entry : otherVarMap.entrySet()) {
                     OtherVar otherVar = entry.getValue();
-                    System.out.println(" " + otherVar.shortCode + ":" + otherVar.code);
+                    log.info(" {}:{}", otherVar.shortCode, otherVar.code);
                 }
             }
         }
         
-        System.out.println();
+        log.info("");
         
         // 打印解
         for (int i = 0; i < solutions.size(); i++) {
-            System.out.println("解" + (i + 1) + "： " + solutions.get(i).toShortString());
+            log.info("Solution {}: {}", (i + 1), solutions.get(i).toShortString());
         }
     }
     
