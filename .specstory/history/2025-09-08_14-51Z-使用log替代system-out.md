@@ -10,7 +10,7 @@ _**User (2025-09-08 14:51Z)**_
 
 _**Assistant**_
 
-我来帮你将 `printSolutions` 方法中的 `System.out.println` 替换为日志输出。首先让我查看一下这个文件的完整内容，了解当前的日志配置。
+我来帮你将 `printShortSolutions` 方法中的 `System.out.println` 替换为日志输出。首先让我查看一下这个文件的完整内容，了解当前的日志配置。
 
 
 ---
@@ -19,7 +19,7 @@ Read file: undefined
 
 ---
 
-现在我可以看到这个类已经使用了 `@Slf4j` 注解，并且有 `log` 对象可用。我需要将 `printSolutions` 方法中的所有 `System.out.println` 替换为相应的日志输出。根据项目规则，日志内容必须使用英文。
+现在我可以看到这个类已经使用了 `@Slf4j` 注解，并且有 `log` 对象可用。我需要将 `printShortSolutions` 方法中的所有 `System.out.println` 替换为相应的日志输出。根据项目规则，日志内容必须使用英文。
 
 
 ---
@@ -33,7 +33,7 @@ Lines added: 5, lines removed: 5
 
 ```diff
 @@ -378,19 +378,19 @@
-      protected void printSolutions(Module module, List<ModuleInst> solutions) {
+      protected void printShortSolutions(Module module, List<ModuleInst> solutions) {
           if (solutions == null || solutions.isEmpty()) {
 -             System.out.println("No solutions found");
 +             log.info("No solutions found");
@@ -87,7 +87,7 @@ Lines added: 3, lines removed: 3
 
 ---
 
-完成！我已经成功将 `printSolutions` 方法中的所有 `System.out.println` 替换为日志输出。主要修改包括：
+完成！我已经成功将 `printShortSolutions` 方法中的所有 `System.out.println` 替换为日志输出。主要修改包括：
 
 ## 修改内容
 
@@ -474,7 +474,7 @@ _**User (2025-09-08 14:51Z)**_
 
 _**Assistant**_
 
-我来修改 `printSolutions` 方法，将所有打印内容先放到 `StringBuffer` 中，最后只调用一次 `log.info`。
+我来修改 `printShortSolutions` 方法，将所有打印内容先放到 `StringBuffer` 中，最后只调用一次 `log.info`。
 
 
 ---
@@ -543,7 +543,7 @@ Lines added: 5, lines removed: 3
 
 ---
 
-完成！我已经成功修改了 `printSolutions` 方法，现在它：
+完成！我已经成功修改了 `printShortSolutions` 方法，现在它：
 
 ## 主要改进
 
@@ -1049,13 +1049,13 @@ Solution 2: P0(V:3,H:0),P1(V:10,H:0),PT0(Q:3,H:0)
 
 _**User (2025-09-08 14:51Z)**_
 
-测试用例所有调用printSolutions，改调printSolutions
+测试用例所有调用printSolutions，改调printShortSolutions
 
 ---
 
 _**Assistant**_
 
-我来帮你将测试用例中所有的 `printSolutions` 调用改为 `printSolutions`。首先让我搜索所有包含 `printSolutions` 的文件：
+我来帮你将测试用例中所有的 `printSolutions` 调用改为 `printShortSolutions`。首先让我搜索所有包含 `printSolutions` 的文件：
 
 
 ---
@@ -1090,7 +1090,7 @@ Lines added: 1, lines removed: 1
           // 测试颜色参数推理
           inferParas("TShirt11", 3);
 -         printSolutions();
-+         printSolutions(module, solutions);
++         printShortSolutions(module, solutions);
           //反推有8个接口  8=3*3 - 1
           resultAssert()
 ```
@@ -1116,7 +1116,7 @@ Lines added: 1, lines removed: 1
           solutions(0).assertPara("P1").valueEqual("op11")
           .assertPara("P2").valueEqual("op21");
 -         printSolutions();
-+         printSolutions(module, solutions);
++         printShortSolutions(module, solutions);
       }
   
 ```
@@ -1129,7 +1129,7 @@ Lines added: 1, lines removed: 1
       public void test_rule2_else_op11_op21() {
           inferParas("PT1", 3);
 -         printSolutions();
-+         printSolutions(module, solutions);
++         printShortSolutions(module, solutions);
           //反推有8个接口  8=3*3 - 1
           resultAssert()
 ```
@@ -1142,7 +1142,7 @@ Lines added: 1, lines removed: 1
           //else的解可能解如下：
           assertSolutionNum("P1:op12,P2:op22",1);
 -         printSolutions();
-+         printSolutions(module, solutions);
++         printShortSolutions(module, solutions);
       }
       
 ```
@@ -1155,7 +1155,7 @@ Lines added: 1, lines removed: 1
       public void test_rule2_no_if_else() {
           inferParas("PT1", 4);
 -         printSolutions();
-+         printSolutions(module, solutions);
++         printShortSolutions(module, solutions);
           //反推有8个接口  8=3*3 - 1
           resultAssert()
 ```
@@ -1168,7 +1168,7 @@ Lines added: 1, lines removed: 1
           //else的解也不在其中
           assertSolutionNum("P1:op12,P2:op22",0);
 -         printSolutions();
-+         printSolutions(module, solutions);
++         printShortSolutions(module, solutions);
       }
       
 ```
@@ -1194,7 +1194,7 @@ Lines added: 1, lines removed: 1
           // 验证第一个解
           solutions(0).assertPara("P1").valueEqual("op11");
 -         printSolutions();
-+         printSolutions(module, solutions);
++         printShortSolutions(module, solutions);
       }
   
 ```
@@ -1207,7 +1207,7 @@ Lines added: 1, lines removed: 1
       public void test_else_op11() {
           inferParas("PT1", 3);
 -         printSolutions();
-+         printSolutions(module, solutions);
++         printShortSolutions(module, solutions);
           //反推有8个接口  8=3*3 - 1
           resultAssert()
 ```
@@ -1220,7 +1220,7 @@ Lines added: 1, lines removed: 1
           //if的解肯定不在其中
           assertSolutionNum("P1:op11",0);
 -         printSolutions();
-+         printSolutions(module, solutions);
++         printShortSolutions(module, solutions);
       }
       
 ```
@@ -1233,7 +1233,7 @@ Lines added: 1, lines removed: 1
       public void test_no_if_else() {
           inferParas("PT1", 4);
 -         printSolutions();
-+         printSolutions(module, solutions);
++         printShortSolutions(module, solutions);
           //反推有8个接口  8=3*3 - 1
           resultAssert()
 ```
@@ -1246,7 +1246,7 @@ Lines added: 1, lines removed: 1
           //if的解肯定不在其中
           assertSolutionNum("P1:op11",0);
 -         printSolutions();
-+         printSolutions(module, solutions);
++         printShortSolutions(module, solutions);
       }
       
 ```
@@ -1272,7 +1272,7 @@ Lines added: 1, lines removed: 1
           // Test when P0=0, P1 should be hidden and P1.var=0
           inferParas("Part1", 1, "P0", "0");
 -         printSolutions();
-+         printSolutions(module, solutions);
++         printShortSolutions(module, solutions);
           resultAssert()
                   .assertSuccess()
 ```
@@ -1285,7 +1285,7 @@ Lines added: 1, lines removed: 1
           // Test when P0=0, P1 should be hidden and P1.var=0
           inferParas("Part1", 1, "P0", "1");
 -         printSolutions();
-+         printSolutions(module, solutions);
++         printShortSolutions(module, solutions);
           resultAssert()
                   .assertSuccess()
 ```
@@ -1298,7 +1298,7 @@ Lines added: 1, lines removed: 1
           // Test when P0=0, P1 should be hidden and P1.var=0
           inferParas("Part1", 1, "P0", "2");
 -         printSolutions();
-+         printSolutions(module, solutions);
++         printShortSolutions(module, solutions);
           resultAssert()
                   .assertSuccess()
 ```
@@ -1311,7 +1311,7 @@ Lines added: 1, lines removed: 1
           // Test when P0=0, P1 should be hidden and P1.var=0
           inferParasByPara("P0", "1", "P2", "2");
 -         printSolutions();
-+         printSolutions(module, solutions);
++         printShortSolutions(module, solutions);
           resultAssert()
                   .assertSuccess()
 ```
@@ -1324,7 +1324,7 @@ Lines added: 1, lines removed: 1
           // Test when P0=0, P1 should be hidden and P1.var=0
           inferParasByPara("P0", "2", "P1", "2");
 -         printSolutions();
-+         printSolutions(module, solutions);
++         printShortSolutions(module, solutions);
           resultAssert()
                   .assertSuccess()
 ```
@@ -1337,7 +1337,7 @@ Lines added: 1, lines removed: 1
           // Test when P0=0, P1 should be hidden and P1.var=0
           inferParasByPara("P0", "2", "P1", "3");//超出P1值域
 -         printSolutions();
-+         printSolutions(module, solutions);
++         printShortSolutions(module, solutions);
           resultAssert().assertNoSolution();
       
 ```
@@ -1381,7 +1381,7 @@ Lines added: 1, lines removed: 1
           solutions(0).assertPara("Color").valueEqual("Red")
                   .assertPara("Size").valueEqual("Small");
 -         printSolutions();
-+         printSolutions(module, solutions);
++         printShortSolutions(module, solutions);
       }
   
 ```
@@ -1394,14 +1394,14 @@ Lines added: 2, lines removed: 2
           
           solutions(0).assertPart("TShirt11").quantityEqual(1);
 -         printSolutions();
-+         printSolutions(module, solutions);
++         printShortSolutions(module, solutions);
       }
   
       @Test
       public void testElseCondition() {
           inferParas("TShirt11", 3);
 -         printSolutions();
-+         printSolutions(module, solutions);
++         printShortSolutions(module, solutions);
           // 反推有8个解  8=3*3 - 1
           resultAssert()
 ```
@@ -1414,7 +1414,7 @@ Lines added: 1, lines removed: 1
           assertSolutionNum("Color:Red,Size:Big", 1);
           assertSolutionNum("Color:Black,Size:Small", 1);
 -         printSolutions();
-+         printSolutions(module, solutions);
++         printShortSolutions(module, solutions);
       }
   
 ```
@@ -1427,7 +1427,7 @@ Lines added: 1, lines removed: 1
           // 使用resultAssert验证执行结果
           resultAssert().assertNoSolution();
 -         printSolutions();
-+         printSolutions(module, solutions);
++         printShortSolutions(module, solutions);
       }
   }
 ```
@@ -1496,7 +1496,7 @@ No results found
 - [x] 为 PartInst 类添加 shortCode 字段并修改 toShortString 方法
 - [x] 为 ModuleInst 类添加 shortCode 字段并修改 toShortString 方法
 - [x] 修复实例创建时设置shortCode字段的问题
-- [x] 将所有测试用例中的printSolutions调用替换为printSolutions
+- [x] 将所有测试用例中的printSolutions调用替换为printShortSolutions
 
 ---
 
@@ -1509,11 +1509,11 @@ No results found
 
 ---
 
-完美！我已经成功完成了所有测试用例中 `printSolutions` 调用到 `printSolutions` 的替换。
+完美！我已经成功完成了所有测试用例中 `printSolutions` 调用到 `printShortSolutions` 的替换。
 
 ## 修改总结
 
-我已经将以下文件中的所有 `printSolutions()` 调用替换为 `printSolutions(module, solutions)`：
+我已经将以下文件中的所有 `printSolutions()` 调用替换为 `printShortSolutions(module, solutions)`：
 
 ### 1. 测试文件
 - ✅ `src/test/java/com/jmix/configengine/scenario/hello/HelloConstraintTest.java`
@@ -1526,7 +1526,7 @@ No results found
 
 ## 修改详情
 
-所有的 `printSolutions();` 调用都被替换为 `printSolutions(module, solutions);`，这样：
+所有的 `printSolutions();` 调用都被替换为 `printShortSolutions(module, solutions);`，这样：
 
 1. **保持一致性**：所有测试用例现在都使用相同的短格式输出方法
 2. **显示 shortCode**：现在会优先显示 `shortCode` 而不是原始的 `code`
@@ -1547,6 +1547,104 @@ Solution 2: P0(V:3,H:0),P1(V:10,H:0),PT0(Q:3,H:0)
 ```
 
 其中 `P0`、`P1`、`PT0` 等就是 `shortCode`，让调试输出更加简洁明了。
+
+---
+
+_**User (2025-09-08 14:51Z)**_
+
+
+
+请做下列重构
+
+1、新建一个AlgCPModel类，实现对CpModel的封装，实现变量注册等封装
+//实现对CpModel接口封装，类似测试代码调用model的代码都不需要修改（如：model.addBoolAnd)
+class AlgCPModel {
+private CpModel model; 
+
+//封装CPModel的所有new等方法，例如：
+	protected IntVar newIntVar(long left, long right, String name) {
+		IntVar tv = this.model.newIntVar(left, right, name);
+		registerVariables(tv, name);
+		return tv;
+	}
+//封装CPModel类似addImplication等方法
+}
+
+2、对ConstraintAlgImpl做下列重构
+2.1 	protected CpModel model; 改为:	protected AlgCPModel model; 
+2.2 ConstraintAlgImpl给ModuleConstraintExecutorImpl接口暂时不改，例如：
+public void initModel(CpModel model, Module module){
+
+2.2 下列代码迁移到 AlgCPModel
+	// other variables map
+	public Map<String, OtherVar> otherVarMap = new HashMap<>();
+	// other variable index counter
+	private int otherVarIndex = 0;
+
+/**
+	 * 封装CpModel的newIntVar方法
+	 */
+	protected IntVar newIntVar(long left, long right, String name) {
+		IntVar tv = this.model.newIntVar(left, right, name);
+		registerVariables(tv, name);
+		return tv;
+	}
+
+	/**
+	 * 封装CpModel的newIntVarFromDomain方法 - 单个值
+	 */
+	protected IntVar newIntVarFromDomain(long value, String name) {
+		IntVar tv = this.model.newIntVarFromDomain(Domain.fromValues(new long[]{value}), name);
+		registerVariables(tv, name);
+		return tv;
+	}
+
+	/**
+	 * 封装CpModel的newIntVarFromDomain方法 - 多个值
+	 */
+	protected IntVar newIntVarFromDomain(long[] values, String name) {
+		IntVar tv = this.model.newIntVarFromDomain(Domain.fromValues(values), name);
+		registerVariables(tv, name);
+		return tv;
+	}
+
+	/**
+	 * 封装CpModel的newIntVarFromDomain方法 - 区间
+	 */
+	protected IntVar newIntVarFromDomain(long[][] intervals, String name) {
+		IntVar tv = this.model.newIntVarFromDomain(Domain.fromIntervals(intervals), name);
+		registerVariables(tv, name);
+		return tv;
+	}
+
+	/**
+	 * 封装CpModel的newIntVarFromDomain方法 - 完整域
+	 */
+	protected IntVar newIntVarFromDomain(String name) {
+		IntVar tv = this.model.newIntVarFromDomain(Domain.fromValues(new long[]{Long.MIN_VALUE, Long.MAX_VALUE}), name);
+		registerVariables(tv, name);
+		return tv;
+	}
+
+
+---
+
+_**Assistant**_
+
+我来帮你进行这个重构。首先创建 `AlgCPModel` 类，然后重构 `ConstraintAlgImpl` 类。
+
+
+---
+
+## Todo List
+
+- [-] 创建AlgCPModel类，封装CpModel的变量注册等功能
+- [ ] 重构ConstraintAlgImpl类，将CpModel替换为AlgCPModel
+- [ ] 将变量注册相关代码迁移到AlgCPModel
+
+---
+
+
 
 ---
 

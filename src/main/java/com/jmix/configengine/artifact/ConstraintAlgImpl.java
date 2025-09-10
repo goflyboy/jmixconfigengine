@@ -23,17 +23,13 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		Loader.loadNativeLibraries();
 	}
 	// CP模型
-	protected CpModel model; 
+	protected AlgCPModel model; 
 	// module context
 	protected Module module;
 	// var map
 	protected Map<String, Var<?>> varMap = new LinkedHashMap<>();
 	// codes whose visibility are controlled by explicit constraints; skip default binding
 	protected Set<String> codesOfHiddenConstraint = new HashSet<>();
-	// other variables map
-	public Map<String, OtherVar> otherVarMap = new HashMap<>();
-	// other variable index counter
-	private int otherVarIndex = 0;
 
 	/**
 	 * 添加和隐藏相关的约束的Var
@@ -46,7 +42,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 	}
 
 	public void initModel(CpModel model, Module module){
-		this.model = model;
+		this.model = new AlgCPModel(model);
 		this.module = module;
 		initModelAfter(model);
 		initVariables();
@@ -232,54 +228,42 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 	 * 封装CpModel的newIntVar方法
 	 */
 	protected IntVar newIntVar(long left, long right, String name) {
-		IntVar tv = this.model.newIntVar(left, right, name);
-		registerVariables(tv, name);
-		return tv;
+		return this.model.newIntVar(left, right, name);
 	}
 
 	/**
 	 * 封装CpModel的newIntVarFromDomain方法 - 单个值
 	 */
 	protected IntVar newIntVarFromDomain(long value, String name) {
-		IntVar tv = this.model.newIntVarFromDomain(Domain.fromValues(new long[]{value}), name);
-		registerVariables(tv, name);
-		return tv;
+		return this.model.newIntVarFromDomain(value, name);
 	}
 
 	/**
 	 * 封装CpModel的newIntVarFromDomain方法 - 多个值
 	 */
 	protected IntVar newIntVarFromDomain(long[] values, String name) {
-		IntVar tv = this.model.newIntVarFromDomain(Domain.fromValues(values), name);
-		registerVariables(tv, name);
-		return tv;
+		return this.model.newIntVarFromDomain(values, name);
 	}
 
 	/**
 	 * 封装CpModel的newIntVarFromDomain方法 - 区间
 	 */
 	protected IntVar newIntVarFromDomain(long[][] intervals, String name) {
-		IntVar tv = this.model.newIntVarFromDomain(Domain.fromIntervals(intervals), name);
-		registerVariables(tv, name);
-		return tv;
+		return this.model.newIntVarFromDomain(intervals, name);
 	}
 
 	/**
 	 * 封装CpModel的newIntVarFromDomain方法 - 完整域
 	 */
 	protected IntVar newIntVarFromDomain(String name) {
-		IntVar tv = this.model.newIntVarFromDomain(Domain.fromValues(new long[]{Long.MIN_VALUE, Long.MAX_VALUE}), name);
-		registerVariables(tv, name);
-		return tv;
+		return this.model.newIntVarFromDomain(name);
 	}
 
 	/**
 	 * 封装CpModel的newBoolVar方法
 	 */
 	protected BoolVar newBoolVar(String name) {
-		BoolVar tv = this.model.newBoolVar(name);
-		registerVariables(tv, name);
-		return tv;
+		return this.model.newBoolVar(name);
 	}
 
 	public Map<String, Var<?>> getVarMap() {
@@ -294,6 +278,13 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		if (code != null && var != null) {
 			varMap.put(code, var);
 		}
+	}
+
+	/**
+	 * 获取其他变量映射
+	 */
+	public Map<String, OtherVar> getOtherVarMap() {
+		return model.otherVarMap;
 	}
 
 	protected ParaVar createParaVar(String code) {
@@ -572,26 +563,6 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		// 这个约束不需要显式添加，因为默认允许
 	}
 	
-	/**
-	 * 注册其他变量
-	 * @param tv 变量对象
-	 * @param name 变量名称
-	 */
-	private void registerVariables(IntVar tv, String name) {
-		// 判断是否已经存在，如果已经存在，则抛异常
-		if (otherVarMap.containsKey(name)) {
-			throw new RuntimeException("Variable already exists: " + name);
-		}
-		
-		// name不是以ParaVar.VAR_PATTEN_PREFIX 且 PartVar.VAR_PATTEN_PREFIX开头，则添加到otherVarMap
-		if (!name.startsWith(ParaVar.VAR_PATTEN_PREFIX) && !name.startsWith(PartVar.VAR_PATTEN_PREFIX)) {
-			OtherVar otherVar = new OtherVar();
-			otherVar.code = name;
-			otherVar.var = tv;
-			otherVar.shortCode = "o" + (++otherVarIndex);
-			otherVarMap.put(name, otherVar);
-		}
-	}
 
 	/**
 	 * 字符串格式化工具方法

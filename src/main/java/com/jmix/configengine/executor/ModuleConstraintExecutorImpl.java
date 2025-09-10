@@ -125,7 +125,7 @@ public class ModuleConstraintExecutorImpl {
 			}
 			// 可按需设置更多参数
 			// if (config != null) { solver.getParameters().setLogSearchProgress(true); }
-			ModuleInstSolutionCallBack cb = new ModuleInstSolutionCallBack(module, alg.getVars(), alg.otherVarMap);
+			ModuleInstSolutionCallBack cb = new ModuleInstSolutionCallBack(module, alg.getVars(), alg.getOtherVarMap());
 			CpSolverStatus status = solver.solve(model, cb);
 			
 			// 如果模型无效，调用ValidateCpModel获取详细错误信息

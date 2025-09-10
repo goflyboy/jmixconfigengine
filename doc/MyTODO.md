@@ -74,3 +74,10 @@ ModelExtension
 
 
 LogicExtension
+
+
+2025-9-10
+1、testDoSelectWithExtAttrFilter 扩展属性仅支持String类型，后续支持其它类型
+2、后续给addConstrainti增加注册，支持的调试等？
+
+
