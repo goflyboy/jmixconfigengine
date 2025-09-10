@@ -46,6 +46,7 @@ public class PartVar {
 ### 1. 基类依赖
 - 仅使用Ortool-java的9.12.4544版本的API，不要使用老版本的API
 - 如果生成不出来，就输出生成不出来，不要瞎输出
+- 每个Rule生成一个方法类，并使用@CodeRuleAnno注解
 - 约束代码依赖的基类已经定义了CPModel信息和变量信息
 - 不需要生成基类，仅需要生成约束代码及initConstraint的部分
 - initConstraint不需要创建变量，例如:model.newIntVar等
@@ -144,10 +145,10 @@ solutions(0)
 
 #### 2.4 解数量验证方法
 ```java
-// conditionExpr="ParaVar.code:ParaVar.var,PartVar.code:PartVar.var"
+// conditionExpr="ParaVar.code:ParaVar.value,PartVar.code:PartVar.value"
 void assertSolutionNum(String conditionExpr, int expectSolutionNum)
 
-// 示例：检查执行推理结果中满足(P1.var=op11 且 P2.var=op21)的个数是否等于0
+// 示例：检查执行推理结果中满足(P1.value=op11 且 P2.value=op21)的个数是否等于0
 assertSolutionNum("P1:op11,P2:op21", 0);
 ```
 
@@ -221,14 +222,18 @@ private PartVar TShirt11Var;
 
 #### 输入3：用户逻辑伪代码
 ```java
-// "Red-10", "Black-20", "White-30"
-// "Small-10", "Medium-20", "Big-30"
-if(ColorVar.var == Red && SizeVar.var == Small) {
-    TShirt11Var.var = 1;
+
+//Rule1:
+if(ColorVar.value == Red && SizeVar.value == Small) {
+    TShirt11Var.qty = 1;
 }
 else {
-    TShirt11Var.var = 3;
+    TShirt11Var.qty = 3;
 }
+
+//Rule2: 
+   ColorVar.isHidden and SizeVar.isHidden 是兼容的
+   
 ```
 
 #### 输出：完整的测试代码
@@ -268,11 +273,9 @@ public class HelloSampleTest extends ModuleSecnarioTestBase {
         @PartAnno()
         private PartVar TShirt11Var;
 
-        @Override
-        protected void initConstraint() {
+        @CodeRuleAnno()
+        protected void Rule1() {
             // 规则内容：如果颜色选择红色且尺寸选择小号，则TShirt11数量为1；否则为3
-            // "Red-10", "Black-20", "White-30"
-            // "Small-10", "Medium-20", "Big-30"
             // if(ColorVar.value == Red && SizeVar.value == Small) {
             //     TShirt11Var.qty = 1;
             // }
@@ -297,10 +300,16 @@ public class HelloSampleTest extends ModuleSecnarioTestBase {
 
             // 根据条件设置TShirt11的数量
             // 如果redAndSmall为true，则TShirt11数量为1
-            model.addEquality((IntVar)this.TShirt11Var.var, 1).onlyEnforceIf(redAndSmall);
+            model.addEquality((IntVar)this.TShirt11Var.value, 1).onlyEnforceIf(redAndSmall);
 
             // 如果redAndSmall为false，则TShirt11数量为3
-            model.addEquality((IntVar)this.TShirt11Var.var, 3).onlyEnforceIf(redAndSmall.not());
+            model.addEquality((IntVar)this.TShirt11Var.value, 3).onlyEnforceIf(redAndSmall.not());
+        }
+        @CodeRuleAnno()
+        protected void Rule2() {
+            // 规则内容：ColorVar.isHidden and SizeVar.isHidden 是兼容的 
+            addVarAboutHiddenConstraints(ColorVar, SizeVar);
+            model.addEquality(ColorVar.isHidden,SizeVar.isHidden));
         }
     }
     //---------------规则定义end----------------------------------------

@@ -1,57 +1,54 @@
 package com.jmix.configengine.scenario.ruletest;
 import com.google.ortools.sat.*;
 import com.jmix.configengine.artifact.*;
-import com.jmix.configengine.model.ParaType;
+import com.jmix.configengine.model.*;
 import com.jmix.configengine.scenario.base.*;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.*;
+
 @Slf4j
 public class MyTShirtTest extends ModuleSecnarioTestBase {
     
+    //---------------?????start----------------------------------------
     @ModuleAnno(id = 123L)
     static public class MyTShirtConstraint extends ConstraintAlgImpl {
         @ParaAnno( 
-            options = {"Red", "Black", "White"},
-            type = ParaType.ENUM,
-            defaultValue = "0"
+			options = {"op11", "op12", "op13"} 
         )
-        private ParaVar ColorVar;
-
+        private ParaVar P1Var;
+    
         @ParaAnno( 
-            options = {"Small", "Medium", "Big"}
+            options = {"op21", "op22", "op23"}
         )
-        private ParaVar SizeVar;
-
-        @PartAnno()
-        private PartVar TShirt11Var;
+        private ParaVar P2Var;
+        @PartAnno
+        private PartVar PT1Var;
         
         @Override
         protected void initConstraint() {
-            // "Red-10", "Black-20", "White-30"
-            // "Small-10", "Medium-20", "Big-30"
-            // if(ColorVar.value == Red && SizeVar.value == Small) {
-            //     TShirt11Var.qty = 1;
+            // if(P1Var.value == op11 && P2Var.value == op21) {
+            //     PT1Var.qty = 1;
             // }
             // else {
-            //     TShirt11Var.qty = 3;
+            //     PT1Var.qty = 3;
             // }
             
-            BoolVar redAndSmall = model.newBoolVar("redAndSmall");
-            
+            BoolVar condition = model.newBoolVar("condition");
             model.addBoolAnd(new Literal[]{
-                ColorVar.getParaOptionByCode("Red").getIsSelectedVar(),
-                SizeVar.getParaOptionByCode("Small").getIsSelectedVar()
-            }).onlyEnforceIf(redAndSmall);
+                P1Var.getParaOptionByCode("op11").getIsSelectedVar(),
+                P2Var.getParaOptionByCode("op21").getIsSelectedVar()
+            }).onlyEnforceIf(condition);
             
             model.addBoolOr(new Literal[]{
-                ColorVar.getParaOptionByCode("Red").getIsSelectedVar().not(),
-                SizeVar.getParaOptionByCode("Small").getIsSelectedVar().not()
-            }).onlyEnforceIf(redAndSmall.not());
+                P1Var.getParaOptionByCode("op11").getIsSelectedVar().not(),
+                P2Var.getParaOptionByCode("op21").getIsSelectedVar().not()
+            }).onlyEnforceIf(condition.not());
             
-            model.addEquality((IntVar)TShirt11Var.qty, 1).onlyEnforceIf(redAndSmall);
-            model.addEquality((IntVar)TShirt11Var.qty, 3).onlyEnforceIf(redAndSmall.not());
+            model.addEquality((IntVar)PT1Var.qty, 1).onlyEnforceIf(condition);
+            model.addEquality((IntVar)PT1Var.qty, 3).onlyEnforceIf(condition.not());
         }
     }
+    //---------------?????end----------------------------------------
 
     public MyTShirtTest() {
         super(MyTShirtConstraint.class);
@@ -59,34 +56,39 @@ public class MyTShirtTest extends ModuleSecnarioTestBase {
 
     @Test
     public void testIfCondition() {
-        inferParas("TShirt11", 1);
+        inferParas("PT1", 1);
         resultAssert()
             .assertSuccess()
             .assertSolutionSizeEqual(1);
+        
         solutions(0)
-            .assertPara("Color").valueEqual("Red")
-            .assertPara("Size").valueEqual("Small");
+            .assertPara("P1").valueEqual("op11")
+            .assertPara("P2").valueEqual("op21");
     }
 
     @Test
     public void testElseCondition() {
-        inferParas("TShirt11", 3);
+        inferParas("PT1", 3);
         resultAssert()
             .assertSuccess()
             .assertSolutionSizeEqual(8);
-        assertSolutionNum("Color:Red,Size:Small", 0);
-        assertSolutionNum("Color:Black,Size:Big", 1);
-        assertSolutionNum("Color:White,Size:Medium", 1);
-        assertSolutionNum("Color:Red,Size:Medium", 1);
-        assertSolutionNum("Color:Black,Size:Medium", 1);
-        assertSolutionNum("Color:White,Size:Big", 1);
-        assertSolutionNum("Color:Red,Size:Big", 1);
-        assertSolutionNum("Color:Black,Size:Small", 1);
+        
+        assertSolutionNum("P1:op11,P2:op21", 0);
+    }
+
+    @Test
+    public void testMultipleParaInference() {
+        inferParasByPara("P1", "op11", "P2", "op21");
+        resultAssert()
+            .assertSuccess()
+            .assertSolutionSizeEqual(1);
+        
+        solutions(0).assertPart("PT1").quantityEqual(1);
     }
 
     @Test
     public void testNoSolution() {
-        inferParas("TShirt11", 10);
+        inferParas("PT1", 5);
         resultAssert().assertNoSolution();
     }
 }

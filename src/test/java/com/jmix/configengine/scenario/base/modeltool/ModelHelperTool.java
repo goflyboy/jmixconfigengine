@@ -8,8 +8,8 @@ import com.jmix.configengine.scenario.autoruletest.InjectCompatiableRuleTest.Inj
  */
 public class ModelHelperTool {
     public static void main(String[] args) {
-        // generatorModelFile();
-        injectConstraintCode();
+        generatorModelFile();
+        // injectConstraintCode();
 
     }
     public static void injectConstraintCode() {
@@ -33,9 +33,6 @@ public class ModelHelperTool {
             
             // 创建ModelHelper实例
             ModelHelper modelHelper = new ModelHelper();
-            
-            // 测试用例：MyTShirt约束模型
-            System.out.println("测试用例：MyTShirt约束模型");
             
             // 方式1：从Markdown文件读取（推荐）
             String packageName = readFromMarkdown("packageName");
@@ -107,7 +104,7 @@ public class ModelHelperTool {
             }
             
             // 构建Markdown文件路径
-            String markdownPath = currentDir + "ModelHelperTestBlockInput.md";
+            String markdownPath = currentDir + "ModelHelperToolBlockInput.md";
             
             // 读取Markdown文件内容
             String content = new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(markdownPath)));
