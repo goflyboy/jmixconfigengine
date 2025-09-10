@@ -80,6 +80,16 @@ public class ParaInstAssert extends ProgammableInstAssert {
         return this;
     }
     
+    public ParaInstAssert isHiddenEqual(boolean expectHidden) {
+        return hiddenEqual(expectHidden);
+    }
+    
+    public ParaInstAssert isHiddenEqual(String expectHidden) {
+        //expectHidden="0" or "1"
+        boolean expectHiddenValue = expectHidden.equals("0") ? false : true;
+        return hiddenEqual(expectHiddenValue);
+    }
+    
     public ParaInstAssert valueIn(String... expectValues) {
         boolean found = false;
         for (String expectValue : expectValues) {

@@ -46,21 +46,25 @@ public class PartVar {
 ### 1. 基类依赖
 - 仅使用Ortool-java的9.12.4544版本的API，不要使用老版本的API
 - 如果生成不出来，就输出生成不出来，不要瞎输出
-- 每个Rule生成一个方法类，并使用@CodeRuleAnno注解
-- 约束代码依赖的基类已经定义了CPModel信息和变量信息
-- 不需要生成基类，仅需要生成约束代码及initConstraint的部分
-- initConstraint不需要创建变量，例如:model.newIntVar等
-- 如果约束代码里使用了isHiddenVar,则该变量需要调用addVarAboutHiddenConstraints(在“约束关联的变量设置地方”)
------例如： 有约束 P1.isHiddenVar = P2.isHiddenVar,则需要增加： addVarAboutHiddenConstraints(P1,P2);
+- 约束代码依赖的基类已经定义了CPModel信息和变量信息和调用Rule方法的代码, 不需要生成initConstraint方法的代码
+- 不需要生成基类，仅需要生成每个rule对应的约束代码
+- 每个Rule生成一个方法，并使用@CodeRuleAnno注解，注解中需要生成normalNaturalCode
+--在基类会统一创建公用的变量，例如:ColorVar, 每个rule方法不需要创建变量，例如:model.newInt*等
+--Rule方法里关键步骤都要生成注释，方便理解
+--如果约束代码里使用了isHidden,则该变量需要调用addVarAboutHiddenConstraints(在“约束关联的变量设置地方”)
+-----例如： 有约束 P1.isHidden = P2.isHidden,则需要增加： addVarAboutHiddenConstraints(P1,P2);
 ```java
 class ConstraintAlgImpl {
     protected CpModel model; 
     protected Module module;
-    
+    protected void initConstraint() {
+        //调用rule方法的代码
+    }
+
     protected void initVariables() {
         // 变量初始化代码
         // 约束关联的变量设置地方
-
+        
     } 
     
     void createParaVar() {
@@ -76,6 +80,7 @@ class ConstraintAlgImpl {
 ### 2. 技术规范
 - 使用Ortool-java的9.12.4544版本
 - 不要使用老版本的API
+--代码注释尽量使用英文
 - 保证编译能通过
 ### 3.常见使用生成约束代码的案例：
 3.1.a  逻辑代码： Part1.quantity = P1.value + P2.value
@@ -91,6 +96,8 @@ class ConstraintAlgImpl {
 - 用户制定的用例一定要实现
 - 基于Junit4实现
 - 用例代码继承ModuleSecnarioTestBase（测试框架）
+- 每个用例需要给出相应注释，解释这个注释是测试那个Rule的,
+--代码注释尽量使用英文
 
 ### 2. 测试方法实现
 每个测试用例基于下列的流比较方法实现：
@@ -178,12 +185,7 @@ public class ${modelName}Test extends ModuleSecnarioTestBase {
     static public class ${modelName}Constraint extends ConstraintAlgImpl {
         ${userVariableModel}
         
-        @Override
-        protected void initConstraint() {
-            // 伪代码的注释
-            // ${userLogicByPseudocode}
-            ${生成的约束代码}
-        }
+        ${生成的约束代码}//每个Rule一个Rule方法
     }
     //---------------模型的定义end----------------------------------------
 
@@ -273,16 +275,8 @@ public class HelloSampleTest extends ModuleSecnarioTestBase {
         @PartAnno()
         private PartVar TShirt11Var;
 
-        @CodeRuleAnno()
+        @CodeRuleAnno(normalNaturalCode = "if(ColorVar.value == Red && SizeVar.value == Small) {\n TShirt11Var.qty = 1;\n  } else {\n TShirt11Var.qty = 3; }")
         protected void Rule1() {
-            // 规则内容：如果颜色选择红色且尺寸选择小号，则TShirt11数量为1；否则为3
-            // if(ColorVar.value == Red && SizeVar.value == Small) {
-            //     TShirt11Var.qty = 1;
-            // }
-            // else {
-            //     TShirt11Var.qty = 3;
-            // }
-
             // 创建条件变量：颜色是红色且尺寸是小号
             BoolVar redAndSmall = model.newBoolVar("rule2_redAndSmall");
 
@@ -305,9 +299,8 @@ public class HelloSampleTest extends ModuleSecnarioTestBase {
             // 如果redAndSmall为false，则TShirt11数量为3
             model.addEquality((IntVar)this.TShirt11Var.value, 3).onlyEnforceIf(redAndSmall.not());
         }
-        @CodeRuleAnno()
+        @CodeRuleAnno(normalNaturalCode = "P1.isHidden和P2.isHidden是兼容的")
         protected void Rule2() {
-            // 规则内容：ColorVar.isHidden and SizeVar.isHidden 是兼容的 
             addVarAboutHiddenConstraints(ColorVar, SizeVar);
             model.addEquality(ColorVar.isHidden,SizeVar.isHidden));
         }
