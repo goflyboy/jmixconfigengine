@@ -34,7 +34,17 @@ public class CommHelper {
         if (currentDir.startsWith("/")) {
             currentDir = currentDir.substring(1);
         }
-        currentDir = currentDir.substring(0, currentDir.indexOf("\\target"));
+        
+        // 查找target目录的位置，如果找不到则使用当前目录
+        int targetIndex = currentDir.indexOf("\\target");
+        if (targetIndex == -1) {
+            targetIndex = currentDir.indexOf("/target");
+        }
+        
+        if (targetIndex != -1) {
+            currentDir = currentDir.substring(0, targetIndex);
+        }
+        
         String packagePath = clazz.getPackage().getName().replace('.', '/');
         return currentDir + "src/test/java/" + packagePath;
     }
