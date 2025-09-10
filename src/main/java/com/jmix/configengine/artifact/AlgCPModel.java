@@ -116,19 +116,7 @@ public class AlgCPModel {
      * @param name 变量名称
      */
     private void registerVariables(BoolVar tv, String name) {
-        // 判断是否已经存在，如果已经存在，则抛异常
-        if (otherVarMap.containsKey(name)) {
-            throw new RuntimeException("Variable already exists: " + name);
-        }
-        
-        // name不是以ParaVar.VAR_PATTEN_PREFIX 且 PartVar.VAR_PATTEN_PREFIX开头，则添加到otherVarMap
-        if (!name.startsWith(ParaVar.VAR_PATTEN_PREFIX) && !name.startsWith(PartVar.VAR_PATTEN_PREFIX)) {
-            OtherVar otherVar = new OtherVar();
-            otherVar.code = name;
-            // 注意：这里需要为OtherVar添加boolVar字段支持
-            otherVar.shortCode = "o" + (++otherVarIndex);
-            otherVarMap.put(name, otherVar);
-        }
+        registerVariables((IntVar) tv, name);
     }
 
     // 以下方法直接委托给底层的CpModel，保持接口兼容性

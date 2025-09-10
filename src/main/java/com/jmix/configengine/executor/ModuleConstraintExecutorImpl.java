@@ -111,13 +111,6 @@ public class ModuleConstraintExecutorImpl {
 			if(config.isLogModelProto){
 				//将module的CpModelProto信息输出到文件config.logFilePath/module.proto.txt
 				model.exportToFile(config.logFilePath + "/" + module.getCode() + ".proto.txt");
-				model.model().getVariablesList().forEach(variable -> {
-					log.info("variable: {}", variable.toString());
-					variable.getName();
-				});
-				java.util.List<com.google.ortools.sat.IntegerVariableProto> variables = model.model().getVariablesList();
-
-					
 			}
 			CpSolver solver = new CpSolver();
 			if (req.enumerateAllSolution) {

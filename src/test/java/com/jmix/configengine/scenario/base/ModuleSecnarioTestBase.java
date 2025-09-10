@@ -394,14 +394,15 @@ public abstract class ModuleSecnarioTestBase {
         // 打印缩语解释
         sb.append("Abbreviation explanation:\n");
         
-        // 1. Attrs(V:value, H:isHidden, Q:qty)
-        sb.append("1. Attrs(V:value, H:isHidden, Q:qty)\n");
+  
         
-        // 2. shortCodes(P1:Size, P2:Color,PT1:part1)
-        sb.append("2. shortCodes(").append(module.getProgObjShortCodeMemo()).append(")\n");
-        
+        // 1. shortCodes(P1:Size, P2:Color,PT1:part1)
+        sb.append("1.").append(module.getProgObjShortCodeMemo()).append("\n");
+        // 2. Attrs(V:value, H:isHidden, Q:qty)
+        sb.append("2. Attrs(V:value, H:isHidden, Q:qty)\n");
         // 3. Other Variable shortName
         sb.append("3. Other Variable shortName:\n");
+        sb.append("Solutions:\n");
         if (!solutions.isEmpty()) {
             ModuleInst firstSolution = solutions.get(0);
             Object otherVarsMemo = firstSolution.extAttrs.get(ModuleInst.OTHER_VARIABLES_MEMO_KEY);

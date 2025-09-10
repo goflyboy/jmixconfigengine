@@ -30,8 +30,13 @@ public class CommHelper {
      * @return 资源路径
      */
     public static String getResourcePath(Class<?> clazz) {
+        String currentDir = clazz.getResource(".").getPath();
+        if (currentDir.startsWith("/")) {
+            currentDir = currentDir.substring(1);
+        }
+        currentDir = currentDir.substring(0, currentDir.indexOf("\\target"));
         String packagePath = clazz.getPackage().getName().replace('.', '/');
-        return "src/test/java/" + packagePath;
+        return currentDir + "src/test/java/" + packagePath;
     }
     
     /**
