@@ -2,8 +2,9 @@ package com.jmix.configengine.model;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import com.jmix.configengine.schema.RuleSchema;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.jmix.configengine.model.schema.RuleSchema;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 
 /**

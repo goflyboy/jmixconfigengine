@@ -7,10 +7,10 @@ import com.jmix.configengine.model.ParaOption;
 import com.jmix.configengine.model.Module;
 import com.jmix.configengine.model.ModuleAlgArtifact;
 import com.jmix.configengine.model.Rule;
-import com.jmix.configengine.schema.CompatiableRuleSchema;
-import com.jmix.configengine.schema.CodeRuleSchema;
-import com.jmix.configengine.schema.ExprSchema;
-import com.jmix.configengine.schema.RefProgObjSchema;
+import com.jmix.configengine.model.schema.CodeRuleSchema;
+import com.jmix.configengine.model.schema.CompatiableRuleSchema;
+import com.jmix.configengine.model.schema.ExprSchema;
+import com.jmix.configengine.model.schema.RefProgObjSchema;
 import com.jmix.configengine.util.ModuleUtils;
 import lombok.extern.slf4j.Slf4j;
 

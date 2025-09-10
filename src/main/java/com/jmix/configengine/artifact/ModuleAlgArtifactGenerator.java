@@ -1,7 +1,6 @@
 package com.jmix.configengine.artifact;
 import com.jmix.configengine.model.*;
-import com.jmix.configengine.schema.*;
-import com.jmix.configengine.schema.CompatiableRuleSchema;
+import com.jmix.configengine.model.schema.*;
 import com.jmix.configengine.util.FilterExpressionExecutor;
 import com.jmix.configengine.constant.RuleTypeConstants;
 import freemarker.template.Configuration;

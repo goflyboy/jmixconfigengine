@@ -7,9 +7,10 @@ import com.jmix.configengine.artifact.PartVar;
 import com.jmix.configengine.scenario.base.modeltool.ModelHelper;
 import com.jmix.configengine.model.Module;
 import com.jmix.configengine.model.Rule;
+import com.jmix.configengine.model.schema.CompatiableRuleSchema;
 import com.jmix.configengine.artifact.ModuleAlgArtifactGenerator;
 import com.jmix.configengine.artifact.ModuleVarInfo;
-import com.jmix.configengine.schema.CompatiableRuleSchema;
+
 import java.util.List;
 import static org.junit.Assert.*;
 

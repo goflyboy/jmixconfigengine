@@ -1,6 +1,9 @@
 package com.jmix.configengine.schema;
 
 import org.junit.Test;
+
+import com.jmix.configengine.model.schema.CompatiableRuleSchema;
+
 import static org.junit.Assert.*;
 
 /**

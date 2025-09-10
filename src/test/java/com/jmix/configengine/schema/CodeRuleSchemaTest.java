@@ -1,6 +1,11 @@
 package com.jmix.configengine.schema;
 
 import org.junit.Test;
+
+import com.jmix.configengine.model.schema.CodeRuleSchema;
+import com.jmix.configengine.model.schema.RefProgObjSchema;
+import com.jmix.configengine.model.schema.RuleSchema;
+
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;

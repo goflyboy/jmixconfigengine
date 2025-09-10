@@ -1,4 +1,4 @@
-package com.jmix.configengine.schema;
+package com.jmix.configengine.model.schema;
 
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;

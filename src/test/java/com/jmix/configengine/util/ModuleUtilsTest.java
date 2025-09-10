@@ -1,7 +1,8 @@
 package com.jmix.configengine.util;
 
 import com.jmix.configengine.model.*;
-import com.jmix.configengine.schema.*;
+import com.jmix.configengine.model.schema.*;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.After;
