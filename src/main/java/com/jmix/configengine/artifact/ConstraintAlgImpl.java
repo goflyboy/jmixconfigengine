@@ -47,6 +47,10 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		this.model = new AlgCPModel(model);
 		this.module = module;
 		initModelAfter(model);
+		
+		// 构建ruleMethods映射
+		buildRuleMethods();
+		
 		initVariables();
 		initConstraint();
 		// Default visibility: for vars not explicitly controlled, set isHiddenVar == 0
@@ -124,25 +128,72 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 	}
 	
 	/**
-	 * 根据exeRules初始化rule
-	 * @param exeRules 要执行的规则列表
+	 * 根据module.getRules构建ruleMethods映射
 	 */
-	private void initRules(List<String> exeRules) {
-		if (exeRules == null || exeRules.isEmpty()) {
+	private void buildRuleMethods() {
+		if (module == null || module.getRules() == null) {
 			return;
 		}
 		
 		// 获取当前类的所有方法
 		Method[] methods = this.getClass().getDeclaredMethods();
+		Map<String, Method> allMethods = new HashMap<>();
+		
+		// 构建方法名到Method对象的映射
 		for (Method method : methods) {
-			String methodName = method.getName();
-			if (exeRules.contains(methodName)) {
-				ruleMethods.put(methodName, method);
-				log.debug("Loaded rule method: {}", methodName);
+			allMethods.put(method.getName(), method);
+		}
+		
+		// 根据module.getRules来构建ruleMethods
+		for (Rule rule : module.getRules()) {
+			String ruleCode = rule.getCode();
+			Method method = allMethods.get(ruleCode);
+			if (method != null) {
+				ruleMethods.put(ruleCode, method);
+				log.debug("Built rule method mapping: {} -> {}", ruleCode, method.getName());
+			} else {
+				log.warn("Rule method not found for rule code: {}", ruleCode);
 			}
 		}
 		
-		log.info("Initialized {} rules for incremental loading", ruleMethods.size());
+		log.info("Built {} rule methods from module rules", ruleMethods.size());
+	}
+	
+	/**
+	 * 根据exeRules执行规则
+	 * @param exeRules 要执行的规则列表
+	 */
+	private void initRules(List<String> exeRules) {
+		// 判断ruleMethods是否已经构建，如果没有构建则先构建
+		if (ruleMethods.isEmpty()) {
+			buildRuleMethods();
+		}
+		
+		if (exeRules == null || exeRules.isEmpty()) {
+			log.info("No specific rules to execute, all {} rule methods are available", ruleMethods.size());
+			return;
+		}
+		
+		// 按exeRules列表来执行规则
+		int executedCount = 0;
+		for (String ruleCode : exeRules) {
+			Method method = ruleMethods.get(ruleCode);
+			if (method != null) {
+				try {
+					// 执行规则方法
+					method.setAccessible(true);
+					method.invoke(this);
+					executedCount++;
+					log.debug("Executed rule method: {}", ruleCode);
+				} catch (Exception e) {
+					log.error("Failed to execute rule method: {}", ruleCode, e);
+				}
+			} else {
+				throw new RuntimeException("Rule method not found for execution: " + ruleCode);
+			}
+		}
+		
+		log.info("Executed {} rules out of {} requested rules", executedCount, exeRules.size());
 	}
 	
 	/**
