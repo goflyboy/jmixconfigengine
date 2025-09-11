@@ -94,7 +94,42 @@ public class ModuleConstraintExecutorImpl {
 			ConstraintAlgImpl alg = loader.newConstraintAlg(module.getCode());
 			CpModel model = new CpModel();
 			module.init();
-			alg.initModel(model, module);
+			
+			// 根据loadType决定是否使用差量加载模型
+			if (config != null && config.loadType == 0) {
+				// 差量加载模型
+				List<String> inputProgObjs = new ArrayList<>();
+				
+				// 根据req.mainPartInst、preParaInsts、prePartInsts构建inputProgObjs（三个结合相加)
+				if (req.mainPartInst != null) {
+					inputProgObjs.add(req.mainPartInst.code);
+				}
+				if (req.preParaInsts != null) {
+					for (ParaInst paraInst : req.preParaInsts) {
+						inputProgObjs.add(paraInst.code);
+					}
+				}
+				if (req.prePartInsts != null) {
+					for (PartInst partInst : req.prePartInsts) {
+						inputProgObjs.add(partInst.code);
+					}
+				}
+				
+				// 查询子图
+				com.jmix.configengine.util.Pair<List<String>, List<com.jmix.configengine.model.schema.RefProgObjSchema>> relativePair = 
+					module.querySubGraph(inputProgObjs.toArray(new String[0]));
+				
+				// 打印relativePair.first,relativePair.second, 本次推理涉及到exeRules和exeProgObjs
+				log.info("Incremental loading - involved rules: {}", relativePair.getLeft());
+				log.info("Incremental loading - involved progObjs: {}", 
+					relativePair.getRight().stream().map(com.jmix.configengine.model.schema.RefProgObjSchema::getProgObjCode).collect(java.util.stream.Collectors.toList()));
+				
+				// 调用新的initModel方法
+				alg.initModel(model, module, relativePair.getLeft(), relativePair.getRight());
+			} else {
+				// 全量加载模型
+				alg.initModel(model, module);
+			}
 			if (req.mainPartInst != null) {
 				alg.addPartEquality(req.mainPartInst.code, req.mainPartInst.quantity);
 			}

@@ -17,7 +17,11 @@ public class CodeRuleSchema extends RuleSchema {
     private String rawCode;
     
     /**
-     * 引用编程对象
+     * 引用编程对象,没有去重的
      */
-    private List<RefProgObjSchema> refProgObjs;
+    private List<RefProgObjSchema> rightRefProgObjs;
+    /**
+     * 引用编程对象,没有去重的
+     */
+    private List<RefProgObjSchema> leftRefProgObjs;
 } 

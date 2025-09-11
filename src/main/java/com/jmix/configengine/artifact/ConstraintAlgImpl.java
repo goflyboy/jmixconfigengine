@@ -30,6 +30,8 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 	protected Map<String, Var<?>> varMap = new LinkedHashMap<>();
 	// codes whose visibility are controlled by explicit constraints; skip default binding
 	protected Set<String> codesOfHiddenConstraint = new HashSet<>();
+	// 所有rule的方法
+	protected Map<String, Method> ruleMethods = new HashMap<>();
 
 	/**
 	 * 添加和隐藏相关的约束的Var
@@ -67,6 +69,236 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 			}
 		}
 	}
+	
+	/**
+	 * 初始化模型（差量加载版本）
+	 * @param model CP模型
+	 * @param module 模块
+	 * @param exeRules 本次要加载的rules
+	 * @param exeProgObjs 本次要初始化的变量
+	 */
+	public void initModel(CpModel model, Module module, List<String> exeRules, List<com.jmix.configengine.model.schema.RefProgObjSchema> exeProgObjs) {
+		this.model = new AlgCPModel(model);
+		this.module = module;
+		initModelAfter(model);
+		
+		// 初始化AlgCPModel
+		initAlgCPModel();
+		
+		// 根据exeRules初始化rule
+		initRules(exeRules);
+		
+		// 根据exeProgObjs初始化Variables
+		initVariables(exeProgObjs);
+		
+		// 调用子类的约束初始化逻辑
+		initConstraint();
+		
+		// Default visibility: for vars not explicitly controlled, set isHiddenVar == 0
+		for (Map.Entry<String, Var<?>> entry : varMap.entrySet()) {
+			String code = entry.getKey();
+			if (codesOfHiddenConstraint.contains(code)) {
+				continue;
+			}
+			Var<?> v = entry.getValue();
+			if (v instanceof ParaVar) {
+				ParaVar pv = (ParaVar) v;
+				if (pv.isHidden != null) {
+					model.addEquality(pv.isHidden, 0);
+				}
+			} else if (v instanceof PartVar) {
+				PartVar pt = (PartVar) v;
+				if (pt.isHidden != null) {
+					model.addEquality(pt.isHidden, 0);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * 初始化AlgCPModel
+	 */
+	private void initAlgCPModel() {
+		// 初始化AlgCPModel的相关逻辑
+		log.debug("Initializing AlgCPModel for incremental loading");
+	}
+	
+	/**
+	 * 根据exeRules初始化rule
+	 * @param exeRules 要执行的规则列表
+	 */
+	private void initRules(List<String> exeRules) {
+		if (exeRules == null || exeRules.isEmpty()) {
+			return;
+		}
+		
+		// 获取当前类的所有方法
+		Method[] methods = this.getClass().getDeclaredMethods();
+		for (Method method : methods) {
+			String methodName = method.getName();
+			if (exeRules.contains(methodName)) {
+				ruleMethods.put(methodName, method);
+				log.debug("Loaded rule method: {}", methodName);
+			}
+		}
+		
+		log.info("Initialized {} rules for incremental loading", ruleMethods.size());
+	}
+	
+	/**
+	 * 根据exeProgObjs初始化Variables
+	 * @param exeProgObjs 要初始化的编程对象列表
+	 */
+	private void initVariables(List<com.jmix.configengine.model.schema.RefProgObjSchema> exeProgObjs) {
+		if (exeProgObjs == null || exeProgObjs.isEmpty()) {
+			// 如果没有指定编程对象，则初始化所有变量
+			initVariables();
+			return;
+		}
+		
+		// 只初始化指定的编程对象
+		Set<String> targetCodes = exeProgObjs.stream()
+			.map(com.jmix.configengine.model.schema.RefProgObjSchema::getProgObjCode)
+			.collect(java.util.stream.Collectors.toSet());
+		
+		// 通过反射自动创建和赋值变量
+		try {
+			Field[] fields = this.getClass().getDeclaredFields();
+			
+			for (Field field : fields) {
+				field.setAccessible(true);
+				
+				// 检查字段是否在目标列表中
+				if (isFieldInTargetList(field, targetCodes)) {
+					createVariableForField(field);
+				}
+			}
+			
+			// 调用子类的自定义变量初始化逻辑
+			onInitCustomVariables();
+			
+		} catch (Exception e) {
+			log.error("Failed to initialize variables for incremental loading", e);
+			throw new RuntimeException("Failed to initialize variables", e);
+		}
+		
+		log.info("Initialized {} variables for incremental loading", varMap.size());
+	}
+	
+	/**
+	 * 检查字段是否在目标列表中
+	 * @param field 字段
+	 * @param targetCodes 目标编码集合
+	 * @return 是否在目标列表中
+	 */
+	private boolean isFieldInTargetList(Field field, Set<String> targetCodes) {
+		// 检查字段名是否在目标编码中
+		String fieldName = field.getName();
+		return targetCodes.contains(fieldName);
+	}
+	
+	/**
+	 * 为字段创建变量
+	 * @param field 字段
+	 */
+	private void createVariableForField(Field field) {
+		try {
+			// 检查字段类型并创建对应的变量
+			if (ParaVar.class.isAssignableFrom(field.getType())) {
+				ParaVar paraVar = createParaVar(field);
+				if (paraVar != null) {
+					field.set(this, paraVar);
+					varMap.put(paraVar.getCode(), paraVar);
+				}
+			} else if (PartVar.class.isAssignableFrom(field.getType())) {
+				PartVar partVar = createPartVar(field);
+				if (partVar != null) {
+					field.set(this, partVar);
+					varMap.put(partVar.getCode(), partVar);
+				}
+			}
+		} catch (Exception e) {
+			log.error("Failed to create variable for field: {}", field.getName(), e);
+		}
+	}
+	
+	/**
+	 * 创建ParaVar变量
+	 * @param field 字段
+	 * @return ParaVar实例
+	 */
+	private ParaVar createParaVar(Field field) {
+		try {
+			// 从模块中获取对应的Para模型
+			com.jmix.configengine.model.Para para = module.getPara(field.getName());
+			if (para == null) {
+				log.warn("Para not found in module: {}", field.getName());
+				return null;
+			}
+			
+			ParaVar paraVar = new ParaVar();
+			paraVar.setBase(para);
+			
+			// 设置默认值
+			if (para.getDefaultValue() != null) {
+				paraVar.value = model.newIntVarFromDomain(
+					Domain.fromValues(new long[]{Long.parseLong(para.getDefaultValue())}),
+					field.getName() + "_value"
+				);
+			} else {
+				paraVar.value = model.newIntVar(0, 1000, field.getName() + "_value");
+			}
+			
+			// 设置隐藏属性
+			paraVar.isHidden = model.newBoolVar(field.getName() + "_isHidden");
+			
+			// 设置选项选择变量
+			if (para.getOptions() != null) {
+				for (com.jmix.configengine.model.ParaOption option : para.getOptions()) {
+					com.jmix.configengine.artifact.ParaOptionVar optionVar = new com.jmix.configengine.artifact.ParaOptionVar();
+					optionVar.setBase(option);
+					optionVar.isSelectedVar = model.newBoolVar(field.getName() + "_" + option.getCode() + "_selected");
+					paraVar.optionSelectVars.put(option.getCodeId(), optionVar);
+				}
+			}
+			
+			return paraVar;
+		} catch (Exception e) {
+			log.error("Failed to create ParaVar for field: {}", field.getName(), e);
+			return null;
+		}
+	}
+	
+	/**
+	 * 创建PartVar变量
+	 * @param field 字段
+	 * @return PartVar实例
+	 */
+	private PartVar createPartVar(Field field) {
+		try {
+			// 从模块中获取对应的Part模型
+			com.jmix.configengine.model.Part part = module.getPart(field.getName());
+			if (part == null) {
+				log.warn("Part not found in module: {}", field.getName());
+				return null;
+			}
+			
+			PartVar partVar = new PartVar();
+			partVar.setBase(part);
+			
+			// 设置数量变量
+			partVar.qty = model.newIntVar(0, part.getMaxQuantity(), field.getName() + "_qty");
+			
+			// 设置隐藏属性
+			partVar.isHidden = model.newBoolVar(field.getName() + "_isHidden");
+			
+			return partVar;
+		} catch (Exception e) {
+			log.error("Failed to create PartVar for field: {}", field.getName(), e);
+			return null;
+		}
+	}
+	
 	protected void initModelAfter(CpModel model){
 		
 	}

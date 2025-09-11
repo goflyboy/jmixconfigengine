@@ -34,16 +34,17 @@ public class CodeRuleSchemaTest {
         refObj.setProgObjField("value");
         refProgObjs.add(refObj);
         
-        codeRule.setRefProgObjs(refProgObjs);
+        codeRule.setLeftRefProgObjs(refProgObjs);
+        codeRule.setRightRefProgObjs(new ArrayList<>());
         
         // 验证属性设置
         assertEquals("CodeRule", codeRule.getType());
         assertEquals("1.0", codeRule.getVersion());
         assertEquals("if (param1 > 10) { return false; }", codeRule.getRawCode());
-        assertEquals(1, codeRule.getRefProgObjs().size());
-        assertEquals("Parameter", codeRule.getRefProgObjs().get(0).getProgObjType());
-        assertEquals("param1", codeRule.getRefProgObjs().get(0).getProgObjCode());
-        assertEquals("value", codeRule.getRefProgObjs().get(0).getProgObjField());
+        assertEquals(1, codeRule.getLeftRefProgObjs().size());
+        assertEquals("Parameter", codeRule.getLeftRefProgObjs().get(0).getProgObjType());
+        assertEquals("param1", codeRule.getLeftRefProgObjs().get(0).getProgObjCode());
+        assertEquals("value", codeRule.getLeftRefProgObjs().get(0).getProgObjField());
     }
 
     @Test
@@ -70,7 +71,8 @@ public class CodeRuleSchemaTest {
         refObj.setProgObjCode("param1");
         refObj.setProgObjField("value");
         refProgObjs.add(refObj);
-        codeRule.setRefProgObjs(refProgObjs);
+        codeRule.setLeftRefProgObjs(refProgObjs);
+        codeRule.setRightRefProgObjs(new ArrayList<>());
         
         // 序列化为JSON
         String json = mapper.writeValueAsString(codeRule);
@@ -83,6 +85,6 @@ public class CodeRuleSchemaTest {
         assertEquals("CodeRule", deserialized.getType());
         assertEquals("1.0", deserialized.getVersion());
         assertEquals("if (param1 > 10) { return false; }", deserialized.getRawCode());
-        assertEquals(1, deserialized.getRefProgObjs().size());
+        assertEquals(1, deserialized.getLeftRefProgObjs().size());
     }
 } 

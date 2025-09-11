@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.Arrays;
 
 /**
  * 通过注解生成Module的工具类
@@ -332,7 +333,11 @@ public class ModuleGenneratorByAnno {
         schema.setType("CodeRule");
         schema.setVersion("1.0");
         schema.setRawCode(anno.code());
-        schema.setRefProgObjs(new ArrayList<>()); // 代码规则暂时不解析引用对象
+        
+        // 解析左右两侧的引用编程对象
+        List<List<RefProgObjSchema>> leftRightRefProgObjs = parseLeftRightRefProgObjSchemas(anno.normalNaturalCode(), module);
+        schema.setLeftRefProgObjs(leftRightRefProgObjs.get(0));
+        schema.setRightRefProgObjs(leftRightRefProgObjs.get(1));
         
         rule.setRawCode(schema);
         return rule;
@@ -386,5 +391,77 @@ public class ModuleGenneratorByAnno {
         }
         
         return progObjects;
+    }
+    
+    /**
+     * 解析左右两侧的引用编程对象Schema列表
+     * @param normalNaturalCode 规范化自然语言代码
+     * @param currentModule 当前模块
+     * @return 包含两个列表的列表，第一个是左侧引用对象，第二个是右侧引用对象
+     */
+    private static List<List<RefProgObjSchema>> parseLeftRightRefProgObjSchemas(String normalNaturalCode, Module currentModule) {
+        List<RefProgObjSchema> leftRefProgObjs = new ArrayList<>();
+        List<RefProgObjSchema> rightRefProgObjs = new ArrayList<>();
+        
+        if (normalNaturalCode == null || normalNaturalCode.trim().isEmpty()) {
+            return Arrays.asList(leftRefProgObjs, rightRefProgObjs);
+        }
+        
+        log.debug("Parsing rule: {}", normalNaturalCode);
+        
+        // 范式1：规则语句，如果有if A then B [else C]，那么A里面的就是leftRefProgObjs,B和C就是rightRefProgObjs，根据then切割
+        if (normalNaturalCode.contains(" if ") && normalNaturalCode.contains(" then ")) {
+            log.debug("Matched pattern 1: if-then");
+            // 例如：normalNaturalCode= "if P0.value > 1 then P11.value > P0.value+1", 则：leftRefProgObjs=P0,rightRefProgObjs=(P11,P0)
+            String[] parts = normalNaturalCode.split(" then ");
+            if (parts.length >= 2) {
+                String leftPart = parts[0].replaceFirst(".*if\\s+", ""); // 去掉"if "前缀
+                String rightPart = parts[1];
+                
+                log.debug("Left part: {}, Right part: {}", leftPart, rightPart);
+                
+                // 解析左侧部分
+                leftRefProgObjs = generateRefProgObjSchemas(leftPart, currentModule);
+                
+                // 解析右侧部分（包括else部分）
+                rightRefProgObjs = generateRefProgObjSchemas(rightPart, currentModule);
+                
+                log.debug("Left refProgObjs: {}, Right refProgObjs: {}", leftRefProgObjs.size(), rightRefProgObjs.size());
+            }
+        }
+        // 范式1的变体：if A then B else C
+        else if (normalNaturalCode.contains(" if ") && normalNaturalCode.contains(" then ") && normalNaturalCode.contains(" else ")) {
+            // 例如：normalNaturalCode= "if P0.value != 2 then P21.value in (op211,op212) else P21.value in (op213,op214)"
+            String[] parts = normalNaturalCode.split(" then ");
+            if (parts.length >= 2) {
+                String leftPart = parts[0].replaceFirst(".*if\\s+", ""); // 去掉"if "前缀
+                String rightPart = parts[1];
+                
+                // 解析左侧部分
+                leftRefProgObjs = generateRefProgObjSchemas(leftPart, currentModule);
+                
+                // 解析右侧部分（包括else部分）
+                rightRefProgObjs = generateRefProgObjSchemas(rightPart, currentModule);
+            }
+        }
+        // 范式2：赋值语句 A=B，通过=识别，是返过来，右边决定左边
+        else if (normalNaturalCode.contains(" = ")) {
+            // 例如：normalNaturalCode= "PT1.qty=P11.value ", 则：leftRefProgObjs=P11,rightRefProgObjs=PT1
+            String[] parts = normalNaturalCode.split(" = ");
+            if (parts.length == 2) {
+                String leftPart = parts[0].trim();
+                String rightPart = parts[1].trim();
+                
+                // 对于赋值语句，右边决定左边，所以右边是leftRefProgObjs，左边是rightRefProgObjs
+                leftRefProgObjs = generateRefProgObjSchemas(rightPart, currentModule);
+                rightRefProgObjs = generateRefProgObjSchemas(leftPart, currentModule);
+            }
+        }
+        // 其他情况，暂时不支持
+        else {
+            log.warn("Unsupported rule pattern: {}", normalNaturalCode);
+        }
+        
+        return Arrays.asList(leftRefProgObjs, rightRefProgObjs);
     }
 } 

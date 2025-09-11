@@ -3,10 +3,13 @@ package com.jmix.configengine.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import com.jmix.configengine.model.schema.RefProgObjSchema;
+import com.jmix.configengine.util.Pair;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 /**
  * 模块定义
@@ -64,6 +67,12 @@ public class Module extends ProgrammableObject<Integer> {
 	private Map<String, Object> errorMap = new HashMap<>();
 	
 	/**
+	 * 模块引用关系图
+	 */
+	@JsonIgnore
+	private ModuleRefRelationGraph refRelationGraph;
+	
+	/**
 	 * 初始化方法，建立映射关系提升效率
 	 */
 	public void init() {
@@ -79,6 +88,7 @@ public class Module extends ProgrammableObject<Integer> {
 			}
 		}
 		initShortCode();
+		initRefRelationGraph();
 	}
 	private void initShortCode() {
 		int index = 0;
@@ -176,5 +186,64 @@ public class Module extends ProgrammableObject<Integer> {
 	@JsonIgnore
 	public boolean hasPart(String code) {
 		return code != null && partMap.containsKey(code);
+	}
+	
+	/**
+	 * 初始化引用关系图
+	 */
+	private void initRefRelationGraph() {
+		refRelationGraph = new ModuleRefRelationGraph();
+		
+		if (rules == null || rules.isEmpty()) {
+			return;
+		}
+		
+		// 遍历module.getRules的每个rule
+		for (Rule rule : rules) {
+			List<RefProgObjSchema> fromLeftProgObjs = trimDuplicateRefProgObjs(rule.getFromLeftProgObjs());
+			List<RefProgObjSchema> toRightProgObjs = trimDuplicateRefProgObjs(rule.getToRightProgObjs());
+			
+			// 如果toRightProgObjs.size != 1，则抛异常
+			if (toRightProgObjs.size() != 1) {
+				throw new RuntimeException("Rule " + rule.getCode() + " must have exactly one right progObj, but found " + toRightProgObjs.size());
+			}
+			
+			// 调用refRelationGraph.add(rule.getCode(),fromLeftProgObjs,toRightProgObjs.get(0))
+			refRelationGraph.add(rule.getCode(), fromLeftProgObjs, toRightProgObjs.get(0));
+		}
+	}
+	
+	/**
+	 * 对RefProgObjs进行去重（progObjCode）作为主键
+	 * @param refProgObjs 引用编程对象列表
+	 * @return 去重后的引用编程对象列表
+	 */
+	@JsonIgnore
+	private List<RefProgObjSchema> trimDuplicateRefProgObjs(List<RefProgObjSchema> refProgObjs) {
+		if (refProgObjs == null || refProgObjs.isEmpty()) {
+			return new ArrayList<>();
+		}
+		
+		Map<String, RefProgObjSchema> uniqueMap = new LinkedHashMap<>();
+		for (RefProgObjSchema refProgObj : refProgObjs) {
+			if (refProgObj != null && refProgObj.getProgObjCode() != null) {
+				uniqueMap.put(refProgObj.getProgObjCode(), refProgObj);
+			}
+		}
+		
+		return new ArrayList<>(uniqueMap.values());
+	}
+	
+	/**
+	 * 查询子图
+	 * @param progObjCodes 编程对象编码数组
+	 * @return Pair<依赖的ruleCode列表, 依赖RefProgObjSchema列表>
+	 */
+	@JsonIgnore
+	public Pair<List<String>, List<RefProgObjSchema>> querySubGraph(String... progObjCodes) {
+		if (refRelationGraph == null) {
+			initRefRelationGraph();
+		}
+		return refRelationGraph.querySubGraph(progObjCodes);
 	}
 } 
