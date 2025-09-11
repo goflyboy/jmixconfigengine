@@ -1,12 +1,13 @@
-# ModelHelperTest 使用指导
+# ModelHelperTool 使用指导
 
 ## 概述
 
-`ModelHelperTest` 是一个强大的约束模型测试工具，它能够：
+`ModelHelperTool` 是一个基于AI大模型的约束建模辅助工具，它能够：
 - 从Markdown配置文件读取约束模型定义
-- 自动调用LLM生成测试代码
+- 自动调用LLM（DeepSeek/Qwen）生成约束算法代码和测试用例
 - 自动编译并运行生成的测试用例
-- 支持完整的约束模型开发流程
+- 支持约束代码的自动注入
+- 提供完整的约束模型开发流程
 
 ## 快速开始
 
@@ -17,9 +18,44 @@
 - Maven 或 Gradle 构建工具
 - 配置了有效的LLM API密钥（DeepSeek或Qwen）
 
-### 2. 配置文件设置
+### 2. LLM API配置
 
-在 `ModelHelperTest.java` 同级目录下创建 `ModelHelperTestBlockInput.md` 文件：
+#### 2.1 配置文件方式
+在 `src/test/resources/llmmodel.properties` 中配置：
+
+```properties
+# DeepSeek配置
+deepseek.api.key=your_deepseek_api_key_here
+deepseek.api.base.url=https://api.deepseek.com
+deepseek.model.name=deepseek-chat
+
+# Qwen配置
+qwen.api.key=your_qwen_api_key_here
+qwen.api.base.url=https://dashscope.aliyuncs.com/compatible-mode/v1
+qwen.model.name=qwen-plus
+
+# 默认模型
+default.model=deepseek
+```
+
+#### 2.2 环境变量方式
+也可以通过环境变量配置：
+
+```bash
+# DeepSeek配置
+export DEEPSEEK_API_KEY=your_deepseek_api_key_here
+export DEEPSEEK_API_BASE_URL=https://api.deepseek.com
+export DEEPSEEK_MODEL_NAME=deepseek-chat
+
+# Qwen配置
+export QWEN_API_KEY=your_qwen_api_key_here
+export QWEN_API_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
+export QWEN_MODEL_NAME=qwen-plus
+```
+
+### 3. 配置文件设置
+
+在 `ModelHelperTool.java` 同级目录下创建 `ModelHelperToolBlockInput.md` 文件：
 
 ```markdown
 ##packageName
@@ -50,23 +86,26 @@ private PartVar TShirt11Var;
 
 ##userLogicByPseudocode
 ```java
-// "Red-10", "Black-20", "White-30"
-// "Small-10", "Medium-20", "Big-30"
-if(ColorVar.var == Red && SizeVar.var == Small) {
-    TShirt11Var.var = 1;
+if(ColorVar.value == Red && SizeVar.value == Small) {
+    TShirt11Var.qty = 1;
 }
 else {
-    TShirt11Var.var = 3;
+    TShirt11Var.qty = 3;
 }
 ```
+
+##userTestCaseSpec
+```java
+// 用户自定义测试用例特殊规格（可选）
+// 如果为空，系统将自动生成测试用例
 ```
 
-### 3. 运行测试
+### 4. 运行测试
 
 ```bash
 cd src/test/java/com/jmix/configengine/scenario/base/modeltool
-javac -cp ".:../../../resources" ModelHelperTest.java
-java -cp ".:../../../resources" ModelHelperTest
+javac -cp ".:../../../resources" ModelHelperTool.java
+java -cp ".:../../../resources" ModelHelperTool
 ```
 
 ## 详细配置说明
@@ -171,11 +210,11 @@ private PartVar LimitedProductVar;
 #### 基本语法
 
 ```java
-if(parameter1.var == option1 && parameter2.var == option2) {
-    part1.var = value1;
+if(parameter1.value == option1 && parameter2.value == option2) {
+    part1.qty = value1;
 }
 else {
-    part1.var = value2;
+    part1.qty = value2;
 }
 ```
 
@@ -190,14 +229,31 @@ else {
 
 ```java
 // 如果颜色是红色且尺寸是小号，则产品数量为1
-if(ColorVar.var == Red && SizeVar.var == Small) {
-    ProductVar.var = 1;
+if(ColorVar.value == Red && SizeVar.value == Small) {
+    ProductVar.qty = 1;
 }
 // 否则产品数量为3
 else {
-    ProductVar.var = 3;
+    ProductVar.qty = 3;
 }
 ```
+
+### userTestCaseSpec 配置
+
+**用途**: 指定用户自定义的测试用例特殊规格
+**格式**: 自然语言描述或伪代码
+**示例**:
+```java
+// 测试用例特殊规格示例
+// 1. 测试边界条件：当数量为0时的行为
+// 2. 测试异常情况：当参数组合不合法时的处理
+// 3. 测试性能：大量参数组合的求解时间
+```
+
+**注意事项**:
+- 如果为空，系统将根据约束逻辑自动生成测试用例
+- 支持自然语言描述，系统会理解并生成相应的测试代码
+- 可以指定特定的测试场景和验证点
 
 ## 高级用法
 
@@ -205,17 +261,17 @@ else {
 
 ```java
 // 多条件组合
-if(ColorVar.var == Red && SizeVar.var == Small) {
-    ProductVar.var = 1;
+if(ColorVar.value == Red && SizeVar.value == Small) {
+    ProductVar.qty = 1;
 }
-else if(ColorVar.var == Blue && SizeVar.var == Medium) {
-    ProductVar.var = 2;
+else if(ColorVar.value == Blue && SizeVar.value == Medium) {
+    ProductVar.qty = 2;
 }
-else if(ColorVar.var == Green && SizeVar.var == Large) {
-    ProductVar.var = 3;
+else if(ColorVar.value == Green && SizeVar.value == Large) {
+    ProductVar.qty = 3;
 }
 else {
-    ProductVar.var = 5;
+    ProductVar.qty = 5;
 }
 ```
 
@@ -223,13 +279,13 @@ else {
 
 ```java
 // 同时约束多个部件
-if(ColorVar.var == Red) {
-    ShirtVar.var = 1;
-    PantsVar.var = 0;
+if(ColorVar.value == Red) {
+    ShirtVar.qty = 1;
+    PantsVar.qty = 0;
 }
 else {
-    ShirtVar.var = 0;
-    PantsVar.var = 1;
+    ShirtVar.qty = 0;
+    PantsVar.qty = 1;
 }
 ```
 
@@ -237,27 +293,21 @@ else {
 
 ```java
 // 数值范围约束
-if(QuantityVar.var >= 10 && QuantityVar.var <= 100) {
-    DiscountVar.var = 0.1;
+if(QuantityVar.value >= 10 && QuantityVar.value <= 100) {
+    DiscountVar.qty = 0.1;
 }
 else {
-    DiscountVar.var = 0.0;
+    DiscountVar.qty = 0.0;
 }
 ```
 
-### 4. 数量限制约束
+### 4. 兼容性规则
 
 ```java
-// 使用maxQuantity限制部件数量
-@PartAnno(maxQuantity = 10)
-private PartVar LimitedPartVar;
-
-// 约束逻辑：如果数量超过限制，则设置为最大值
-if(SomeCondition) {
-    LimitedPartVar.var = Math.min(calculatedValue, 10);
-}
-else {
-    LimitedPartVar.var = 0;
+// 兼容性规则示例
+// 如果两个参数是兼容的，则它们的隐藏状态应该一致
+if(CompatibilityRule(ColorVar, SizeVar)) {
+    ColorVar.isHidden == SizeVar.isHidden;
 }
 ```
 
@@ -272,17 +322,19 @@ else {
 
 ### 2. 配置阶段
 
-1. **创建配置文件**: 编写 `ModelHelperTestBlockInput.md`
+1. **创建配置文件**: 编写 `ModelHelperToolBlockInput.md`
 2. **定义变量模型**: 使用注解定义参数和部件
 3. **编写约束逻辑**: 用伪代码描述业务规则
 4. **设置包名和模型名**: 确定代码组织方式
+5. **配置LLM API**: 设置API密钥和模型参数
 
 ### 3. 生成阶段
 
-1. **运行测试**: 执行 `ModelHelperTest`
-2. **LLM生成**: 自动调用大模型生成测试代码
+1. **运行测试**: 执行 `ModelHelperTool.main()`
+2. **LLM生成**: 自动调用大模型生成约束算法代码和测试用例
 3. **代码编译**: 自动编译生成的Java代码
-4. **测试运行**: 自动执行生成的测试用例
+4. **约束注入**: 自动检测并注入兼容性规则代码
+5. **测试运行**: 自动执行生成的测试用例
 
 ### 4. 验证阶段
 
@@ -290,6 +342,62 @@ else {
 2. **运行测试**: 验证约束逻辑的正确性
 3. **调试优化**: 根据测试结果调整约束逻辑
 4. **文档更新**: 更新配置文件和说明文档
+
+## 核心组件说明
+
+### ModelHelperTool
+
+**职责**: 配置解析和流程控制
+- 解析Markdown配置文件
+- 协调整个代码生成和测试流程
+- 提供默认配置和错误处理机制
+
+**主要方法**:
+- `generatorModelFile()`: 生成并运行模型文件
+- `injectConstraintCode()`: 注入约束代码
+- `readFromMarkdown()`: 从Markdown文件读取配置
+
+### ModelHelper
+
+**职责**: 代码生成和文件管理
+- 协调LLM调用和代码生成过程
+- 管理生成文件的创建、编译和运行
+- 处理约束代码的自动注入
+
+**主要方法**:
+- `generatorModelFile()`: 生成模型文件
+- `generatorRunModelFile()`: 生成并运行模型文件
+- `autoInjectConstraintCode()`: 自动注入约束代码
+- `compileJavaFile()`: 编译Java文件
+- `runTestFile()`: 运行测试文件
+
+### LLMInvoker
+
+**职责**: 大模型调用和响应处理
+- 封装多种LLM模型的调用接口
+- 处理提示词构建和响应解析
+- 提供统一的代码生成接口
+
+**支持的模型**:
+- DeepSeek: 支持深度思考模式，适合复杂约束逻辑
+- Qwen: 支持快速响应，适合简单约束场景
+
+**主要方法**:
+- `generatorModelCode()`: 生成模型代码
+- `cleanGeneratedCode()`: 清理生成的代码
+- `ensureProperEncoding()`: 确保编码正确
+
+### PromptTemplateLoader
+
+**职责**: 提示词模板管理
+- 加载和渲染JTL格式的模板文件
+- 支持变量替换和模板渲染
+- 提供便捷的模板调用方法
+
+**主要方法**:
+- `loadTemplate()`: 加载模板文件
+- `renderTemplate()`: 渲染模板
+- `renderJavaCodeTemplate()`: 渲染Java代码生成模板
 
 ## 最佳实践
 
@@ -313,12 +421,19 @@ else {
 - **回归测试**: 修改约束后重新运行所有测试
 - **性能测试**: 测试约束求解的性能表现
 
-### 4. 文档维护
+### 4. 配置管理
 
 - **及时更新**: 修改约束后及时更新配置文件
 - **版本控制**: 使用Git管理配置文件的变更历史
 - **注释说明**: 在配置文件中添加必要的注释说明
 - **示例丰富**: 提供多种使用场景的示例
+
+### 5. LLM使用
+
+- **模型选择**: 根据约束复杂度选择合适的LLM模型
+- **提示词优化**: 在constraint_generate_prompt.jtl中优化提示词模板
+- **参数调优**: 根据生成质量调整temperature等参数
+- **错误处理**: 处理LLM调用失败和生成错误的情况
 
 ## 故障排除
 
@@ -329,7 +444,7 @@ else {
 **症状**: 控制台显示"读取Markdown文件失败"
 **原因**: 文件路径错误或文件不存在
 **解决方案**: 
-- 检查 `ModelHelperTestBlockInput.md` 文件是否在正确位置
+- 检查 `ModelHelperToolBlockInput.md` 文件是否在正确位置
 - 确认文件名拼写正确
 - 检查文件权限
 
@@ -341,6 +456,7 @@ else {
 - 检查API密钥配置
 - 确认网络连接正常
 - 查看API服务状态
+- 检查配置文件格式
 
 #### 3. 代码编译失败
 
@@ -350,6 +466,7 @@ else {
 - 检查生成的Java代码
 - 确认约束逻辑的正确性
 - 查看编译错误详情
+- 检查依赖包是否正确
 
 #### 4. 测试运行失败
 
@@ -359,13 +476,23 @@ else {
 - 分析测试失败的原因
 - 检查约束逻辑的正确性
 - 调整约束规则
+- 查看详细的错误日志
+
+#### 5. 约束注入失败
+
+**症状**: 显示"自动注入约束代码失败"
+**原因**: 约束类结构不符合注入要求
+**解决方案**:
+- 检查约束类的注解配置
+- 确认规则类型是否正确
+- 查看注入过程的详细日志
 
 ### 调试技巧
 
 #### 1. 启用详细日志
 
 ```java
-// 在ModelHelperTest中添加更多日志输出
+// 在ModelHelperTool中添加更多日志输出
 System.out.println("正在读取配置: " + section);
 System.out.println("读取到的内容: " + content);
 ```
@@ -389,35 +516,43 @@ String userVariableModel = getDefaultVariableModel();
 String userLogicByPseudocode = getDefaultLogicPseudocode();
 ```
 
+#### 4. 检查LLM配置
+
+```java
+// 检查LLM配置信息
+LLMInvoker invoker = new LLMInvoker();
+System.out.println(invoker.getConfigInfo());
+```
+
 ## 扩展功能
 
 ### 1. 自定义约束类型
 
-您可以扩展 `ModelHelperTest` 支持更多类型的约束：
+您可以扩展 `ModelHelperTool` 支持更多类型的约束：
 
 ```java
 // 支持数值范围约束
-if(MinValue <= parameter.var && parameter.var <= MaxValue) {
+if(MinValue <= parameter.value && parameter.value <= MaxValue) {
     // 约束逻辑
 }
 
 // 支持集合约束
-if(parameter.var in {"option1", "option2", "option3"}) {
+if(parameter.value in {"option1", "option2", "option3"}) {
     // 约束逻辑
 }
 ```
 
 ### 2. 集成CI/CD
 
-将 `ModelHelperTest` 集成到持续集成流程中：
+将 `ModelHelperTool` 集成到持续集成流程中：
 
 ```yaml
 # GitHub Actions 示例
 - name: Run Constraint Tests
   run: |
     cd src/test/java/com/jmix/configengine/scenario/base/modeltool
-    javac -cp ".:../../../resources" ModelHelperTest.java
-    java -cp ".:../../../resources" ModelHelperTest
+    javac -cp ".:../../../resources" ModelHelperTool.java
+    java -cp ".:../../../resources" ModelHelperTool
 ```
 
 ### 3. 批量测试
@@ -434,19 +569,37 @@ for (File configFile : configFiles) {
 }
 ```
 
+### 4. 自定义提示词模板
+
+修改 `constraint_generate_prompt.jtl` 文件来自定义代码生成规则：
+
+```jtl
+# 自定义提示词模板
+## 基本信息
+- **包名**: ${packageName}
+- **模型名称**: ${modelName}
+- **变量模型描述**: ${userVariableModel}
+- **逻辑伪代码**: ${userLogicByPseudocode}
+- **用户测试用例特殊规格**: ${userTestCaseSpec}
+
+## 自定义要求
+// 添加您的自定义要求
+```
+
 ## 总结
 
-`ModelHelperTest` 提供了一个完整的约束模型开发和测试解决方案：
+`ModelHelperTool` 提供了一个完整的基于AI的约束建模开发和测试解决方案：
 
 1. **配置驱动**: 通过Markdown文件管理约束模型配置
-2. **自动化生成**: 使用LLM自动生成测试代码
-3. **智能运行**: 自动编译和运行生成的测试用例
-4. **灵活扩展**: 支持自定义约束类型和测试策略
+2. **AI生成**: 使用LLM自动生成约束算法代码和测试用例
+3. **自动化运行**: 自动编译和运行生成的测试用例
+4. **智能注入**: 自动检测并注入兼容性规则代码
+5. **灵活扩展**: 支持自定义约束类型和测试策略
 
 通过遵循本指导文档，您可以：
-- 快速上手约束模型开发
+- 快速上手基于AI的约束建模开发
 - 提高开发效率和代码质量
 - 建立标准化的约束模型开发流程
 - 支持团队协作和知识共享
 
-如有问题或建议，请参考故障排除部分或联系开发团队。 
+如有问题或建议，请参考故障排除部分或联系开发团队。
