@@ -1,6 +1,7 @@
 package com.jmix.configengine.perf;
 import com.google.ortools.sat.*;
 import com.jmix.configengine.artifact.*;
+import com.jmix.configengine.inf.ConstraintConfig;
 import com.jmix.configengine.model.*;
 import com.jmix.configengine.scenario.base.*;
 import lombok.extern.slf4j.Slf4j;
@@ -378,44 +379,31 @@ static public class Perf20ParasConstraint extends ConstraintAlgImpl {
 public Perf20ParasTest() {
     super(Perf20ParasConstraint.class);
 }
-
 @Test
-public void testPerformancePT001() {
-    long totalTime = 0;
-    int iterations = 10;
-    
-    for (int i = 0; i < iterations; i++) {
-        long startTime = System.nanoTime();
-        inferParas("PT001", 2);
-        long endTime = System.nanoTime();
-        totalTime += TimeUnit.NANOSECONDS.toMillis(endTime - startTime);
-        
-        // Reset for next iteration
-        inferParas("PT001", 1);
-    }
-    
-    long averageTime = totalTime / iterations;
-    log.info("Average time for inferParas(PT001, 2): {} ms", averageTime);
-    Assert.assertTrue("Performance test failed: average time " + averageTime + " ms exceeds 300 ms", averageTime <= 300);
+public void testPerformancePT003_onlyOneSolution() {
+    executeTest("testPerformancePT003_onlyOneSolution", false);
+}
+@Test
+public void testPerformancePT003_allSolutions() {
+    executeTest("testPerformancePT003_allSolutions", true);
 }
 
-@Test
-public void testPerformancePT003() {
+public void executeTest(String testCaseName, boolean tmpEnumerateAllSolution) {
     long totalTime = 0;
     int iterations = 10;
-    
+    this.enumerateAllSolution= tmpEnumerateAllSolution;
+    long startTime = System.nanoTime();
     for (int i = 0; i < iterations; i++) {
-        long startTime = System.nanoTime();
-        inferParas("PT003", 4);
-        long endTime = System.nanoTime();
-        totalTime += TimeUnit.NANOSECONDS.toMillis(endTime - startTime);
-        
-        // Reset for next iteration
         inferParas("PT003", 2);
     }
-    
+    long endTime = System.nanoTime();
+    totalTime += TimeUnit.NANOSECONDS.toMillis(endTime - startTime);
     long averageTime = totalTime / iterations;
-    log.info("Average time for inferParas(PT003, 4): {} ms", averageTime);
-    Assert.assertTrue("Performance test failed: average time " + averageTime + " ms exceeds 300 ms", averageTime <= 300);
+    log.info("{} Average time for inferParas(PT003, 4): {} ms",testCaseName, averageTime);
+    Assert.assertTrue(testCaseName+ " Performance test failed: average time " + averageTime + " ms exceeds 300 ms", averageTime <= 300);
+}
+
+protected void beforeInitConfig(ConstraintConfig cfg) {
+    cfg.loadType = 1;//全量加载
 }
 }

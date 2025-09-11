@@ -199,6 +199,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 				method.invoke(this); 
 				log.debug("Executed rule method: {}", method.getName());
 			} catch (Exception e) {
+				log.info(ruleCode, e);
 				throw new RuntimeException("Failed to execute rule method: " + method.getName(), e);
 			}
 		} else {

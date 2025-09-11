@@ -46,6 +46,9 @@ public class CommHelper {
         }
         
         String packagePath = clazz.getPackage().getName().replace('.', '/');
+        if(!currentDir.endsWith("/")){
+            currentDir = currentDir + "/";
+        }
         return currentDir + "src/test/java/" + packagePath;
     }
     

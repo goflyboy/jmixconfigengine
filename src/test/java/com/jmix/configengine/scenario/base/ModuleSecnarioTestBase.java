@@ -32,7 +32,7 @@ public abstract class ModuleSecnarioTestBase {
     protected com.jmix.configengine.inf.ConstraintConfig cfg;
     protected List<com.jmix.configengine.inf.ModuleInst> solutions;
     protected com.jmix.configengine.inf.Result<List<com.jmix.configengine.inf.ModuleInst>> result;
-    
+    protected boolean enumerateAllSolution = true;
     /**
      * 构造函数
      */
@@ -97,7 +97,7 @@ public abstract class ModuleSecnarioTestBase {
     protected List<com.jmix.configengine.inf.ModuleInst> inferParas(String partCode, Integer qty, String... paraCodeValuePairs) {
         com.jmix.configengine.inf.InferParasReq req = new com.jmix.configengine.inf.InferParasReq();
         req.moduleId = module.getId();
-        req.enumerateAllSolution = true;
+        req.enumerateAllSolution = enumerateAllSolution;
         
         // 设置主部件实例
         req.mainPartInst = new com.jmix.configengine.inf.PartInst();
