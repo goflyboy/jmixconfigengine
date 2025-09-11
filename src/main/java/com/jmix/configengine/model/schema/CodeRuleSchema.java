@@ -2,6 +2,7 @@ package com.jmix.configengine.model.schema;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,4 +25,14 @@ public class CodeRuleSchema extends RuleSchema {
      * 引用编程对象,没有去重的
      */
     private List<RefProgObjSchema> leftRefProgObjs;
+    
+    @Override
+    public List<RefProgObjSchema> getFromLeftProgObjs() {
+        return leftRefProgObjs != null ? leftRefProgObjs : new ArrayList<>();
+    }
+    
+    @Override
+    public List<RefProgObjSchema> getToRightProgObjs() {
+        return rightRefProgObjs != null ? rightRefProgObjs : new ArrayList<>();
+    }
 } 

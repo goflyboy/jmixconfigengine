@@ -1,9 +1,7 @@
 package com.jmix.configengine.artifact;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -12,7 +10,6 @@ import com.jmix.configengine.model.Extensible;
 import com.jmix.configengine.model.ModuleBuilder;
 import com.jmix.configengine.model.ParaOption;
 import com.jmix.configengine.model.Part;
-import com.jmix.configengine.model.PartType;
 import com.jmix.configengine.util.FilterExpressionExecutor;
 
 /**

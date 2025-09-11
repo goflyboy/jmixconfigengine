@@ -47,11 +47,13 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		this.model = new AlgCPModel(model);
 		this.module = module;
 		initModelAfter(model);
-		
-		// 构建ruleMethods映射
-		buildRuleMethods();
+
 		
 		initVariables();
+				
+		// 构建ruleMethods映射
+		initRules();
+		
 		initConstraint();
 		// 设置默认可见性约束
 		setDefaultVisibilityConstraints();
@@ -140,13 +142,26 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 				ruleMethods.put(ruleCode, method);
 				log.debug("Built rule method mapping: {} -> {}", ruleCode, method.getName());
 			} else {
-				log.warn("Rule method not found for rule code: {}", ruleCode);
+				throw new RuntimeException("Rule method not found for rule code: " + ruleCode);
 			}
 		}
 		
 		log.info("Built {} rule methods from module rules", ruleMethods.size());
 	}
-	
+		
+	/**
+	 * 根据exeRules执行规则
+	 * @param exeRules 要执行的规则列表
+	 */
+	private void initRules() {
+		if (ruleMethods.isEmpty()) {
+			buildRuleMethods();
+		}
+		for (Method method : ruleMethods.values()) {
+			executeRuleMethod(method.getName(), method);
+		}
+		log.info("Executed all rule methods");
+	}
 	/**
 	 * 根据exeRules执行规则
 	 * @param exeRules 要执行的规则列表
@@ -162,26 +177,33 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 			return;
 		}
 		
-		// 按exeRules列表来执行规则
-		int executedCount = 0;
+		// 按exeRules列表来执行规则 
 		for (String ruleCode : exeRules) {
 			Method method = ruleMethods.get(ruleCode);
-			if (method != null) {
-				try {
-					// 执行规则方法
-					method.setAccessible(true);
-					method.invoke(this);
-					executedCount++;
-					log.debug("Executed rule method: {}", ruleCode);
-				} catch (Exception e) {
-					log.error("Failed to execute rule method: {}", ruleCode, e);
-				}
-			} else {
-				throw new RuntimeException("Rule method not found for execution: " + ruleCode);
-			}
+			executeRuleMethod(ruleCode, method);
 		}
 		
-		log.info("Executed {} rules out of {} requested rules", executedCount, exeRules.size());
+		log.info("Executed  {} requested rules", exeRules.size());
+	}
+	
+	/**
+	 * 执行单个规则方法
+	 * @param ruleCode 规则代码
+	 * @param method 规则方法
+	 */
+	private void executeRuleMethod(String ruleCode, Method method) {
+		if (method != null) {
+			try {
+				// 执行规则方法
+				method.setAccessible(true);
+				method.invoke(this); 
+				log.debug("Executed rule method: {}", method.getName());
+			} catch (Exception e) {
+				throw new RuntimeException("Failed to execute rule method: " + method.getName(), e);
+			}
+		} else {
+			throw new RuntimeException("Rule method not found for execution: " + ruleCode);
+		}
 	}
 	
 	/**
@@ -198,6 +220,9 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 				createParaVar(exeProgObj.getProgObjCode());
 			} else if (field.equals("Part")) {
 				createPartVar(exeProgObj.getProgObjCode());
+			}
+			else{
+				throw new RuntimeException("Unsupported progObjType: " + field);
 			}
 		}
 		log.info("Initialized {} variables for incremental loading", varMap.size());

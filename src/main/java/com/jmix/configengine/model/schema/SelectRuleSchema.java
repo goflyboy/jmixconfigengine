@@ -2,6 +2,7 @@ package com.jmix.configengine.model.schema;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -38,5 +39,19 @@ public class SelectRuleSchema extends RuleSchema {
          * 左引用编程对象
          */
         private List<RefProgObjSchema> leftRefProgObjs;
+    }
+    
+    @Override
+    public List<RefProgObjSchema> getFromLeftProgObjs() {
+        if (leftExpr != null && leftExpr.getRefProgObjs() != null) {
+            return leftExpr.getRefProgObjs();
+        }
+        return new ArrayList<>();
+    }
+    
+    @Override
+    public List<RefProgObjSchema> getToRightProgObjs() {
+        // SelectRule只有左侧表达式，没有右侧表达式
+        return new ArrayList<>();
     }
 } 

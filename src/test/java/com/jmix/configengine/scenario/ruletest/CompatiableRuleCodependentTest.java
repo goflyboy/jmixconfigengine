@@ -4,6 +4,7 @@ import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.Literal;
 import com.jmix.configengine.artifact.ConstraintAlgImpl;
 import com.jmix.configengine.artifact.ParaVar;
+import com.jmix.configengine.inf.ConstraintConfig;
 import com.jmix.configengine.scenario.base.ModuleAnno;
 import com.jmix.configengine.scenario.base.ModuleSecnarioTestBase;
 import com.jmix.configengine.scenario.base.ParaAnno;
@@ -116,7 +117,10 @@ public class CompatiableRuleCodependentTest extends ModuleSecnarioTestBase {
     public CompatiableRuleCodependentTest() {
         super(CompatiableRuleCodependentConstraint.class);
     }
-
+    
+    protected void beforeInitConfig(ConstraintConfig cfg) {
+        cfg.loadType = 1;
+    }
     @Test
     public void testInCARequiresInCB() {
         // 测试正向规则1.1: 如果A在CA中(a1)，则B必须在CB中(b1、b2或b3)

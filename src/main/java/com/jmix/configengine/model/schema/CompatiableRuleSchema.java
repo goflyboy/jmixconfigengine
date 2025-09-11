@@ -2,6 +2,8 @@ package com.jmix.configengine.model.schema;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 兼容规则Schema
@@ -51,4 +53,20 @@ public class CompatiableRuleSchema extends RuleSchema {
      * 右表达式
      */
     private ExprSchema rightExpr;
+    
+    @Override
+    public List<RefProgObjSchema> getFromLeftProgObjs() {
+        if (leftExpr != null && leftExpr.getRefProgObjs() != null) {
+            return leftExpr.getRefProgObjs();
+        }
+        return new ArrayList<>();
+    }
+    
+    @Override
+    public List<RefProgObjSchema> getToRightProgObjs() {
+        if (rightExpr != null && rightExpr.getRefProgObjs() != null) {
+            return rightExpr.getRefProgObjs();
+        }
+        return new ArrayList<>();
+    }
 } 

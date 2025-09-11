@@ -5,9 +5,6 @@ import lombok.EqualsAndHashCode;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.jmix.configengine.model.schema.RuleSchema;
-import com.jmix.configengine.model.schema.CodeRuleSchema;
-import com.jmix.configengine.model.schema.CompatiableRuleSchema;
-import com.jmix.configengine.model.schema.SelectRuleSchema;
 import com.jmix.configengine.model.schema.RefProgObjSchema;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -74,23 +71,7 @@ public class Rule extends Extensible {
         if (rawCode == null) {
             return new ArrayList<>();
         }
-        
-        if (rawCode instanceof CodeRuleSchema) {
-            CodeRuleSchema codeRuleSchema = (CodeRuleSchema) rawCode;
-            return codeRuleSchema.getLeftRefProgObjs() != null ? codeRuleSchema.getLeftRefProgObjs() : new ArrayList<>();
-        } else if (rawCode instanceof CompatiableRuleSchema) {
-            CompatiableRuleSchema compatiableRuleSchema = (CompatiableRuleSchema) rawCode;
-            if (compatiableRuleSchema.getLeftExpr() != null && compatiableRuleSchema.getLeftExpr().getRefProgObjs() != null) {
-                return compatiableRuleSchema.getLeftExpr().getRefProgObjs();
-            }
-        } else if (rawCode instanceof SelectRuleSchema) {
-            SelectRuleSchema selectRuleSchema = (SelectRuleSchema) rawCode;
-            if (selectRuleSchema.getLeftExpr() != null && selectRuleSchema.getLeftExpr().getRefProgObjs() != null) {
-                return selectRuleSchema.getLeftExpr().getRefProgObjs();
-            }
-        }
-        
-        return new ArrayList<>();
+        return rawCode.getFromLeftProgObjs();
     }
     
     /**
@@ -102,18 +83,7 @@ public class Rule extends Extensible {
         if (rawCode == null) {
             return new ArrayList<>();
         }
-        
-        if (rawCode instanceof CodeRuleSchema) {
-            CodeRuleSchema codeRuleSchema = (CodeRuleSchema) rawCode;
-            return codeRuleSchema.getRightRefProgObjs() != null ? codeRuleSchema.getRightRefProgObjs() : new ArrayList<>();
-        } else if (rawCode instanceof CompatiableRuleSchema) {
-            CompatiableRuleSchema compatiableRuleSchema = (CompatiableRuleSchema) rawCode;
-            if (compatiableRuleSchema.getRightExpr() != null && compatiableRuleSchema.getRightExpr().getRefProgObjs() != null) {
-                return compatiableRuleSchema.getRightExpr().getRefProgObjs();
-            }
-        }
-        
-        return new ArrayList<>();
+        return rawCode.getToRightProgObjs();
     }
     
 } 

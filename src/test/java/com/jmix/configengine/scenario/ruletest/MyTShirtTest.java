@@ -1,7 +1,7 @@
 package com.jmix.configengine.scenario.ruletest;
 import com.google.ortools.sat.*;
 import com.jmix.configengine.artifact.*;
-import com.jmix.configengine.model.*;
+import com.jmix.configengine.inf.*;
 import com.jmix.configengine.scenario.base.*;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.*;
@@ -24,8 +24,9 @@ public class MyTShirtTest extends ModuleSecnarioTestBase {
         @PartAnno
         private PartVar PT1Var;
         
-        @Override
-        protected void initConstraint() {
+
+        @CodeRuleAnno(normalNaturalCode = "if(P1Var.value == op11 && P2Var.value == op21) then { PT1Var.qty = 1; } else { PT1Var.qty = 3; }")
+        protected void rule1() {
             // if(P1Var.value == op11 && P2Var.value == op21) {
             //     PT1Var.qty = 1;
             // }
@@ -51,7 +52,10 @@ public class MyTShirtTest extends ModuleSecnarioTestBase {
     //---------------?????end----------------------------------------
 
     public MyTShirtTest() {
-        super(MyTShirtConstraint.class);
+        super(MyTShirtConstraint.class); 
+    }
+    protected void beforeInitConfig(ConstraintConfig cfg) {
+        cfg.loadType = 1;
     }
 
     @Test

@@ -4,6 +4,7 @@ import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.Literal;
 import com.jmix.configengine.artifact.ConstraintAlgImpl;
 import com.jmix.configengine.artifact.ParaVar;
+import com.jmix.configengine.inf.ConstraintConfig;
 import com.jmix.configengine.scenario.base.ModuleAnno;
 import com.jmix.configengine.scenario.base.ModuleSecnarioTestBase;
 import com.jmix.configengine.scenario.base.ParaAnno;
@@ -85,7 +86,10 @@ public class CompatiableRuleRequireTest extends ModuleSecnarioTestBase {
     public CompatiableRuleRequireTest() {
         super(CompatiableRuleRequireConstraint.class);
     }
-
+    
+    protected void beforeInitConfig(ConstraintConfig cfg) {
+        cfg.loadType = 1;
+    }
     @Test
     public void testA1RequiresB1B2B3() {
         // 测试正向规则1.1: 如果A选择a1，则B必须是b1、b2或b3

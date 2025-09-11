@@ -34,6 +34,8 @@ public class ModuleRefRelationGraph {
      * 所有节点的集合
      */
     private Set<String> allNodes = new HashSet<>();
+
+    private Map<String, RefProgObjSchema> allRefProgObjMap = new LinkedHashMap<>();
     
     /**
      * 按Rule维度添加关系（多个左侧节点）
@@ -66,7 +68,8 @@ public class ModuleRefRelationGraph {
                     edgeRuleCode, fromLeft, toRight);
             return;
         }
-        
+        allRefProgObjMap.put(fromLeft.getProgObjCode(), fromLeft);
+        allRefProgObjMap.put(toRight.getProgObjCode(), toRight);
         String fromCode = fromLeft.getProgObjCode();
         String toCode = toRight.getProgObjCode();
         
@@ -105,10 +108,8 @@ public class ModuleRefRelationGraph {
         Set<RefProgObjSchema> tmpRefProgObjCodes = new HashSet<>();
         
         // 添加输入的编程对象
-        for (String progObjCode : progObjCodes) {
-            RefProgObjSchema refProgObj = new RefProgObjSchema();
-            refProgObj.setProgObjCode(progObjCode);
-            tmpRefProgObjCodes.add(refProgObj);
+        for (String progObjCode : progObjCodes) { 
+            tmpRefProgObjCodes.add(allRefProgObjMap.get(progObjCode));
         }
         
         // 遍历progObjCodes，对每个progObjCode查找其依赖关系
@@ -148,10 +149,8 @@ public class ModuleRefRelationGraph {
                 String dependentCode = edge.getKey();
                 String ruleCode = edge.getValue();
                 
-                // 添加依赖的编程对象
-                RefProgObjSchema refProgObj = new RefProgObjSchema();
-                refProgObj.setProgObjCode(dependentCode);
-                refProgObjs.add(refProgObj);
+                // 添加依赖的编程对象 
+                refProgObjs.add(allRefProgObjMap.get(dependentCode));
                 
                 // 添加规则编码
                 ruleCodes.add(ruleCode);

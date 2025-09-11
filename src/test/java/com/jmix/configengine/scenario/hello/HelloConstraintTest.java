@@ -1,5 +1,6 @@
 package com.jmix.configengine.scenario.hello;
 
+import com.jmix.configengine.inf.ConstraintConfig;
 import com.jmix.configengine.scenario.base.ModuleSecnarioTestBase;
 import org.junit.Test;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,9 @@ public class HelloConstraintTest extends ModuleSecnarioTestBase {
         super(HelloConstraint.class);
     }
     
+    protected void beforeInitConfig(ConstraintConfig cfg) {
+        cfg.loadType = 1;
+    }
     @Test
     public void testOnlyOneSolution() {
         // 测试颜色参数推理

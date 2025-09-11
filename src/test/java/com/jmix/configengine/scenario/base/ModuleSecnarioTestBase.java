@@ -4,6 +4,7 @@ import com.jmix.configengine.ModuleConstraintExecutor;
 import com.jmix.configengine.artifact.ConstraintAlgImpl;
 import com.jmix.configengine.artifact.OtherVar;
 import com.jmix.configengine.executor.ModuleConstraintExecutorImpl;
+import com.jmix.configengine.inf.ConstraintConfig;
 import com.jmix.configengine.inf.ModuleInst;
 import com.jmix.configengine.inf.ParaInst;
 import com.jmix.configengine.inf.PartInst;
@@ -76,12 +77,16 @@ public abstract class ModuleSecnarioTestBase {
         cfg.rootFilePath = tempResourcePath;
         cfg.logFilePath = tempResourcePath;
         cfg.isLogModelProto = true;
+        beforeInitConfig(cfg);
         ModuleConstraintExecutor.INST.init(cfg);
         
         module = buildModule(this.constraintAlgClazz);
         ModuleConstraintExecutor.INST.addModule(module.getId(), module);
     }
-    
+    protected void beforeInitConfig(ConstraintConfig cfg) {
+
+    }
+
     /**
      * 执行参数推理
      * @param partCode 部件代码

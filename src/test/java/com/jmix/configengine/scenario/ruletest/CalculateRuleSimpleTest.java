@@ -2,6 +2,7 @@ package com.jmix.configengine.scenario.ruletest;
 
 import com.google.ortools.sat.*;
 import com.jmix.configengine.artifact.*;
+import com.jmix.configengine.inf.ConstraintConfig;
 import com.jmix.configengine.scenario.base.*;
 import org.junit.Test;
 import lombok.extern.slf4j.Slf4j;
@@ -65,6 +66,9 @@ public class CalculateRuleSimpleTest extends ModuleSecnarioTestBase {
         super(CalculateRuleConstraint.class);
     }
     
+    protected void beforeInitConfig(ConstraintConfig cfg) {
+        cfg.loadType = 1;
+    }
     @Test
     public void test_if_op11() {
         // 测试颜色参数推理

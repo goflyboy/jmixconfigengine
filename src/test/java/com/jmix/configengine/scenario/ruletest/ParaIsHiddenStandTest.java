@@ -1,6 +1,7 @@
 package com.jmix.configengine.scenario.ruletest;
 import com.google.ortools.sat.*;
 import com.jmix.configengine.artifact.*;
+import com.jmix.configengine.inf.ConstraintConfig;
 import com.jmix.configengine.model.*;
 import com.jmix.configengine.scenario.base.*;
 import lombok.extern.slf4j.Slf4j;
@@ -95,6 +96,9 @@ public class ParaIsHiddenStandTest extends ModuleSecnarioTestBase {
         super(ParaIsHiddenStandConstraint.class);
     }
 
+    protected void beforeInitConfig(ConstraintConfig cfg) {
+        cfg.loadType = 1;
+    }
     @Test
     public void testRule1IncompatibleHidden() {
         // Test Rule1: P1.isHidden and P2.isHidden cannot both be 1

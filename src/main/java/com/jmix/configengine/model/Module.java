@@ -75,6 +75,7 @@ public class Module extends ProgrammableObject<Integer> {
 	/**
 	 * 初始化方法，建立映射关系提升效率
 	 */
+	@JsonIgnore
 	public void init() {
 		if (paras != null) {
 			for (Para para : paras) {

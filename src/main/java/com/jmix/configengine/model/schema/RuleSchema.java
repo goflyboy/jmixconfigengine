@@ -2,7 +2,9 @@ package com.jmix.configengine.model.schema;
 
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
+import java.util.List;
 
 /**
  * 规则Schema基类
@@ -36,4 +38,18 @@ public abstract class RuleSchema {
      * Schema版本
      */
     private String version;
+    
+    /**
+     * 获取规则左侧引用的编程对象列表
+     * @return 左侧引用的编程对象列表
+     */
+    @JsonIgnore
+    public abstract List<RefProgObjSchema> getFromLeftProgObjs();
+    
+    /**
+     * 获取规则右侧引用的编程对象列表
+     * @return 右侧引用的编程对象列表
+     */
+    @JsonIgnore
+    public abstract List<RefProgObjSchema> getToRightProgObjs();
 }

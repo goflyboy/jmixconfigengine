@@ -1,6 +1,7 @@
 package com.jmix.configengine.scenario.ruletest;
 import com.google.ortools.sat.*;
 import com.jmix.configengine.artifact.*;
+import com.jmix.configengine.inf.ConstraintConfig;
 import com.jmix.configengine.model.*;
 import com.jmix.configengine.scenario.base.*;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +44,10 @@ public class ParaIntegerTest extends ModuleSecnarioTestBase {
     public ParaIntegerTest() {
         super(ParaIntegerConstraint.class);
     }
-
+	
+    protected void beforeInitConfig(ConstraintConfig cfg) {
+        cfg.loadType = 1;
+    }
     @Test
     public void testMultipleSolutions() {
         inferParas("Part1", 3);

@@ -1,6 +1,7 @@
 package com.jmix.configengine.scenario.ruletest;
 import com.google.ortools.sat.*;
 import com.jmix.configengine.artifact.*;
+import com.jmix.configengine.inf.ConstraintConfig;
 import com.jmix.configengine.model.*;
 import com.jmix.configengine.scenario.base.*;
 import lombok.extern.slf4j.Slf4j;
@@ -77,7 +78,9 @@ public class ParaIsHiddenTest extends ModuleSecnarioTestBase {
     public ParaIsHiddenTest() {
         super(ParaIsHiddenConstraint.class);
     }
-
+    protected void beforeInitConfig(ConstraintConfig cfg) {
+        cfg.loadType = 1;
+    }
     @Test
     public void testP0Value0P1Hidden() {
         // Test when P0=0, P1 should be hidden and P1.var=0

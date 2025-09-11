@@ -4,6 +4,7 @@ import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.Literal;
 import com.jmix.configengine.artifact.ConstraintAlgImpl;
 import com.jmix.configengine.artifact.ParaVar;
+import com.jmix.configengine.inf.ConstraintConfig;
 import com.jmix.configengine.scenario.base.ModuleAnno;
 import com.jmix.configengine.scenario.base.ModuleSecnarioTestBase;
 import com.jmix.configengine.scenario.base.ParaAnno;
@@ -47,7 +48,10 @@ public class CompatiableRuleIncompatibleTest extends ModuleSecnarioTestBase {
             // 使用泛化的Incompatible约束方法
             addCompatibleConstraintInCompatible("rule1", AVar, Arrays.asList("a1","a3"), BVar, Arrays.asList("b1","b2","b3"));
         }
-
+    
+        protected void beforeInitConfig(ConstraintConfig cfg) {
+            cfg.loadType = 1;
+        }
         protected void addCompatibleConstraintIncompatible_note() {   
             // 创建条件变量：A在CA中
             BoolVar inCA = model.newBoolVar("inCA");
