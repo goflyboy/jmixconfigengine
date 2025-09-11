@@ -9,4 +9,5 @@ public class ConstraintConfig {
     public String logFilePath;
     public boolean isLogModelProto = false; // 是否输出ModelProto信息，方便定位
     public boolean isLogVariables = true; // 是否记录所有的变量
+    public int loadType = 0; // 加载模式，全量加载模式-1，差量加载模式-0
 }

@@ -5,6 +5,8 @@ import lombok.EqualsAndHashCode;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.jmix.configengine.model.schema.RuleSchema;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 
 /**
@@ -57,4 +59,6 @@ public class Rule extends Extensible {
      * 例如：CDSL.V5.Struct.CompatiableRule
      */
     private String ruleSchemaTypeFullName;
+    
+    
 } 
