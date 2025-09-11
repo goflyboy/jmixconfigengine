@@ -9,43 +9,34 @@ import java.util.*;
 /**
  * 模块引用关系图
  * 用于管理模块中规则之间的依赖关系
+ * 
+ * 设计说明：
+ * - 每个编程对象(progObjCode)是一个节点(Node)
+ * - 每个规则(edgeRuleCode)是边上的信息
+ * - 支持一个规则对应多个左侧节点的情况
  */
 @Slf4j
 public class ModuleRefRelationGraph {
     
     /**
-     * 依赖关系图：从左侧编程对象到右侧编程对象的映射
-     * Key: 左侧编程对象编码，Value: 右侧编程对象编码列表
+     * 图的边信息：从左侧节点到右侧节点的映射
+     * Key: 左侧节点编码，Value: 右侧节点编码到规则编码的映射
      */
-    private Map<String, Set<String>> fromToMap = new HashMap<>();
+    private Map<String, Map<String, String>> fromToEdges = new HashMap<>();
     
     /**
-     * 规则编码到依赖关系的映射
-     * Key: 规则编码，Value: 依赖关系信息
+     * 反向图的边信息：从右侧节点到左侧节点的映射
+     * Key: 右侧节点编码，Value: 左侧节点编码到规则编码的映射
      */
-    private Map<String, RelationInfo> ruleRelationMap = new HashMap<>();
+    private Map<String, Map<String, String>> toFromEdges = new HashMap<>();
     
     /**
-     * 依赖关系信息
+     * 所有节点的集合
      */
-    private static class RelationInfo {
-        private String ruleCode;
-        private List<RefProgObjSchema> fromLefts;
-        private RefProgObjSchema toRight;
-        
-        public RelationInfo(String ruleCode, List<RefProgObjSchema> fromLefts, RefProgObjSchema toRight) {
-            this.ruleCode = ruleCode;
-            this.fromLefts = fromLefts;
-            this.toRight = toRight;
-        }
-        
-        public String getRuleCode() { return ruleCode; }
-        public List<RefProgObjSchema> getFromLefts() { return fromLefts; }
-        public RefProgObjSchema getToRight() { return toRight; }
-    }
+    private Set<String> allNodes = new HashSet<>();
     
     /**
-     * 按Rule维度添加关系
+     * 按Rule维度添加关系（多个左侧节点）
      * @param edgeRuleCode 规则编码
      * @param fromLefts 左侧编程对象列表
      * @param toRight 右侧编程对象
@@ -57,17 +48,14 @@ public class ModuleRefRelationGraph {
             return;
         }
         
-        // 遍历fromLefts，调用单个添加方法
+        // 遍历fromLefts，对每个fromLeft调用单个添加方法
         for (RefProgObjSchema fromLeft : fromLefts) {
             add(edgeRuleCode, fromLeft, toRight);
         }
-        
-        // 保存完整的依赖关系信息
-        ruleRelationMap.put(edgeRuleCode, new RelationInfo(edgeRuleCode, fromLefts, toRight));
     }
     
     /**
-     * 按Rule维度添加关系
+     * 按Rule维度添加关系（单个左侧节点）
      * @param edgeRuleCode 规则编码
      * @param fromLeft 左侧编程对象
      * @param toRight 右侧编程对象
@@ -82,10 +70,17 @@ public class ModuleRefRelationGraph {
         String fromCode = fromLeft.getProgObjCode();
         String toCode = toRight.getProgObjCode();
         
-        // 构建图
-        fromToMap.computeIfAbsent(fromCode, k -> new HashSet<>()).add(toCode);
+        // 添加节点
+        allNodes.add(fromCode);
+        allNodes.add(toCode);
         
-        log.debug("Added relation: {} -> {} (rule: {})", fromCode, toCode, edgeRuleCode);
+        // 构建正向边：fromLeft -> toRight
+        fromToEdges.computeIfAbsent(fromCode, k -> new HashMap<>()).put(toCode, edgeRuleCode);
+        
+        // 构建反向边：toRight -> fromLeft
+        toFromEdges.computeIfAbsent(toCode, k -> new HashMap<>()).put(fromCode, edgeRuleCode);
+        
+        log.debug("Added edge: {} -> {} (rule: {})", fromCode, toCode, edgeRuleCode);
     }
     
     /**
@@ -109,17 +104,16 @@ public class ModuleRefRelationGraph {
         Set<String> tmpEdgeRuleCode = new HashSet<>();
         Set<RefProgObjSchema> tmpRefProgObjCodes = new HashSet<>();
         
-        // 遍历progObjCodes，对每个progObjCode
-        for (String progObjCode : progObjCodes) {
-            // 根据图progObjCode查找依赖的节点，到有progObjCodes的终止，将节点和边的信息添加到tmpEdgeRuleCode，tmpRefProgObjCodes
-            findDependencies(progObjCode, new HashSet<>(), tmpEdgeRuleCode, tmpRefProgObjCodes, Arrays.asList(progObjCodes));
-        }
-        
         // 添加输入的编程对象
         for (String progObjCode : progObjCodes) {
             RefProgObjSchema refProgObj = new RefProgObjSchema();
             refProgObj.setProgObjCode(progObjCode);
             tmpRefProgObjCodes.add(refProgObj);
+        }
+        
+        // 遍历progObjCodes，对每个progObjCode查找其依赖关系
+        for (String progObjCode : progObjCodes) {
+            findDependencies(progObjCode, new HashSet<>(), tmpEdgeRuleCode, tmpRefProgObjCodes, Arrays.asList(progObjCodes));
         }
         
         List<String> ruleCodes = new ArrayList<>(tmpEdgeRuleCode);
@@ -147,28 +141,23 @@ public class ModuleRefRelationGraph {
         }
         visited.add(currentCode);
         
-        // 查找当前编码作为左侧的所有依赖关系
-        Set<String> dependentCodes = fromToMap.get(currentCode);
-        if (dependentCodes != null) {
-            for (String dependentCode : dependentCodes) {
+        // 查找当前编码作为右侧节点的所有依赖关系（向上查找）
+        Map<String, String> dependentEdges = toFromEdges.get(currentCode);
+        if (dependentEdges != null) {
+            for (Map.Entry<String, String> edge : dependentEdges.entrySet()) {
+                String dependentCode = edge.getKey();
+                String ruleCode = edge.getValue();
+                
                 // 添加依赖的编程对象
                 RefProgObjSchema refProgObj = new RefProgObjSchema();
                 refProgObj.setProgObjCode(dependentCode);
                 refProgObjs.add(refProgObj);
                 
-                // 查找相关的规则
-                for (Map.Entry<String, RelationInfo> entry : ruleRelationMap.entrySet()) {
-                    RelationInfo relationInfo = entry.getValue();
-                    if (relationInfo.getFromLefts().stream().anyMatch(left -> left.getProgObjCode().equals(currentCode)) &&
-                        relationInfo.getToRight().getProgObjCode().equals(dependentCode)) {
-                        ruleCodes.add(entry.getKey());
-                    }
-                }
+                // 添加规则编码
+                ruleCodes.add(ruleCode);
                 
-                // 如果依赖的编码不在目标列表中，继续递归查找
-                if (!targetCodes.contains(dependentCode)) {
-                    findDependencies(dependentCode, visited, ruleCodes, refProgObjs, targetCodes);
-                }
+                // 继续递归查找依赖
+                findDependencies(dependentCode, visited, ruleCodes, refProgObjs, targetCodes);
             }
         }
     }
@@ -178,8 +167,43 @@ public class ModuleRefRelationGraph {
      * @return 图的统计信息字符串
      */
     public String getGraphInfo() {
-        int totalRelations = fromToMap.values().stream().mapToInt(Set::size).sum();
-        return String.format("ModuleRefRelationGraph: %d nodes, %d relations, %d rules", 
-                fromToMap.size(), totalRelations, ruleRelationMap.size());
+        int totalEdges = fromToEdges.values().stream().mapToInt(Map::size).sum();
+        return String.format("ModuleRefRelationGraph: %d nodes, %d edges", 
+                allNodes.size(), totalEdges);
+    }
+    
+    /**
+     * 获取所有节点
+     * @return 所有节点编码的集合
+     */
+    public Set<String> getAllNodes() {
+        return new HashSet<>(allNodes);
+    }
+    
+    /**
+     * 检查图中是否存在指定节点
+     * @param nodeCode 节点编码
+     * @return 是否存在
+     */
+    public boolean containsNode(String nodeCode) {
+        return allNodes.contains(nodeCode);
+    }
+    
+    /**
+     * 获取指定节点的出边（从该节点出发的边）
+     * @param nodeCode 节点编码
+     * @return 出边映射（目标节点 -> 规则编码）
+     */
+    public Map<String, String> getOutEdges(String nodeCode) {
+        return fromToEdges.getOrDefault(nodeCode, new HashMap<>());
+    }
+    
+    /**
+     * 获取指定节点的入边（指向该节点的边）
+     * @param nodeCode 节点编码
+     * @return 入边映射（源节点 -> 规则编码）
+     */
+    public Map<String, String> getInEdges(String nodeCode) {
+        return toFromEdges.getOrDefault(nodeCode, new HashMap<>());
     }
 }

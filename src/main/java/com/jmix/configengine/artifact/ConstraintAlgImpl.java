@@ -53,25 +53,8 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		
 		initVariables();
 		initConstraint();
-		// Default visibility: for vars not explicitly controlled, set isHiddenVar == 0
-		for (Map.Entry<String, Var<?>> entry : varMap.entrySet()) {
-			String code = entry.getKey();
-			if (codesOfHiddenConstraint.contains(code)) {
-				continue;
-			}
-			Var<?> v = entry.getValue();
-			if (v instanceof ParaVar) {
-				ParaVar pv = (ParaVar) v;
-				if (pv.isHidden != null) {
-					model.addEquality(pv.isHidden, 0);
-				}
-			} else if (v instanceof PartVar) {
-				PartVar pt = (PartVar) v;
-				if (pt.isHidden != null) {
-					model.addEquality(pt.isHidden, 0);
-				}
-			}
-		}
+		// 设置默认可见性约束
+		setDefaultVisibilityConstraints();
 	}
 	
 	/**
@@ -89,16 +72,29 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		// 初始化AlgCPModel
 		initAlgCPModel();
 		
-		// 根据exeRules初始化rule
-		initRules(exeRules);
-		
 		// 根据exeProgObjs初始化Variables
 		initVariables(exeProgObjs);
 		
-		// 调用子类的约束初始化逻辑
-		initConstraint();
+		// 根据exeRules初始化rule
+		initRules(exeRules);
 		
-		// Default visibility: for vars not explicitly controlled, set isHiddenVar == 0
+		// 设置默认可见性约束
+		setDefaultVisibilityConstraints();
+	}
+	
+	/**
+	 * 初始化AlgCPModel
+	 */
+	private void initAlgCPModel() {
+		// 初始化AlgCPModel的相关逻辑
+		log.debug("Initializing AlgCPModel for incremental loading");
+	}
+	
+	/**
+	 * 设置默认可见性约束
+	 * 对于没有显式控制可见性的变量，设置 isHiddenVar == 0（即默认可见）
+	 */
+	private void setDefaultVisibilityConstraints() {
 		for (Map.Entry<String, Var<?>> entry : varMap.entrySet()) {
 			String code = entry.getKey();
 			if (codesOfHiddenConstraint.contains(code)) {
@@ -117,14 +113,6 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 				}
 			}
 		}
-	}
-	
-	/**
-	 * 初始化AlgCPModel
-	 */
-	private void initAlgCPModel() {
-		// 初始化AlgCPModel的相关逻辑
-		log.debug("Initializing AlgCPModel for incremental loading");
 	}
 	
 	/**
@@ -202,37 +190,16 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 	 */
 	private void initVariables(List<com.jmix.configengine.model.schema.RefProgObjSchema> exeProgObjs) {
 		if (exeProgObjs == null || exeProgObjs.isEmpty()) {
-			// 如果没有指定编程对象，则初始化所有变量
-			initVariables();
-			return;
+			throw new RuntimeException("exeProgObjs is null or empty");
 		}
-		
-		// 只初始化指定的编程对象
-		Set<String> targetCodes = exeProgObjs.stream()
-			.map(com.jmix.configengine.model.schema.RefProgObjSchema::getProgObjCode)
-			.collect(java.util.stream.Collectors.toSet());
-		
-		// 通过反射自动创建和赋值变量
-		try {
-			Field[] fields = this.getClass().getDeclaredFields();
-			
-			for (Field field : fields) {
-				field.setAccessible(true);
-				
-				// 检查字段是否在目标列表中
-				if (isFieldInTargetList(field, targetCodes)) {
-					createVariableForField(field);
-				}
+		for (com.jmix.configengine.model.schema.RefProgObjSchema exeProgObj : exeProgObjs) { 
+			String field = exeProgObj.getProgObjType();
+			if (field.equals("Para")) {
+				createParaVar(exeProgObj.getProgObjCode());
+			} else if (field.equals("Part")) {
+				createPartVar(exeProgObj.getProgObjCode());
 			}
-			
-			// 调用子类的自定义变量初始化逻辑
-			onInitCustomVariables();
-			
-		} catch (Exception e) {
-			log.error("Failed to initialize variables for incremental loading", e);
-			throw new RuntimeException("Failed to initialize variables", e);
 		}
-		
 		log.info("Initialized {} variables for incremental loading", varMap.size());
 	}
 	
@@ -246,78 +213,6 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 		// 检查字段名是否在目标编码中
 		String fieldName = field.getName();
 		return targetCodes.contains(fieldName);
-	}
-	
-	/**
-	 * 为字段创建变量
-	 * @param field 字段
-	 */
-	private void createVariableForField(Field field) {
-		try {
-			// 检查字段类型并创建对应的变量
-			if (ParaVar.class.isAssignableFrom(field.getType())) {
-				ParaVar paraVar = createParaVar(field);
-				if (paraVar != null) {
-					field.set(this, paraVar);
-					varMap.put(paraVar.getCode(), paraVar);
-				}
-			} else if (PartVar.class.isAssignableFrom(field.getType())) {
-				PartVar partVar = createPartVar(field);
-				if (partVar != null) {
-					field.set(this, partVar);
-					varMap.put(partVar.getCode(), partVar);
-				}
-			}
-		} catch (Exception e) {
-			log.error("Failed to create variable for field: {}", field.getName(), e);
-		}
-	}
-	
-	/**
-	 * 创建ParaVar变量
-	 * @param field 字段
-	 * @return ParaVar实例
-	 */
-	private ParaVar createParaVar(Field field) {
-		try {
-			// 从模块中获取对应的Para模型
-			com.jmix.configengine.model.Para para = module.getPara(field.getName());
-			if (para == null) {
-				log.warn("Para not found in module: {}", field.getName());
-				return null;
-			}
-			
-			ParaVar paraVar = new ParaVar();
-			paraVar.setBase(para);
-			
-			// 设置默认值
-			if (para.getDefaultValue() != null) {
-				paraVar.value = model.newIntVarFromDomain(
-					Domain.fromValues(new long[]{Long.parseLong(para.getDefaultValue())}),
-					field.getName() + "_value"
-				);
-			} else {
-				paraVar.value = model.newIntVar(0, 1000, field.getName() + "_value");
-			}
-			
-			// 设置隐藏属性
-			paraVar.isHidden = model.newBoolVar(field.getName() + "_isHidden");
-			
-			// 设置选项选择变量
-			if (para.getOptions() != null) {
-				for (com.jmix.configengine.model.ParaOption option : para.getOptions()) {
-					com.jmix.configengine.artifact.ParaOptionVar optionVar = new com.jmix.configengine.artifact.ParaOptionVar();
-					optionVar.setBase(option);
-					optionVar.isSelectedVar = model.newBoolVar(field.getName() + "_" + option.getCode() + "_selected");
-					paraVar.optionSelectVars.put(option.getCodeId(), optionVar);
-				}
-			}
-			
-			return paraVar;
-		} catch (Exception e) {
-			log.error("Failed to create ParaVar for field: {}", field.getName(), e);
-			return null;
-		}
 	}
 	
 	/**
@@ -445,62 +340,10 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 	}
 
 	/**
-	 * 自动添加约束方法
-	 * 遍历module.rules，根据rule.code找到对应的方法并调用
-	 */
-	protected void autoAddConstraints(Module module) {
-		if (module == null || module.getRules() == null || module.getRules().isEmpty()) {
-			log.debug("No rules found in module, skipping auto constraint registration");
-			return;
-		}
-		
-		try {
-			// 获取当前类的所有方法
-			Method[] methods = this.getClass().getDeclaredMethods();
-			Map<String, Method> methodMap = new HashMap<>();
-			
-			// 构建方法名到方法的映射，方便查找
-			for (Method method : methods) {
-				methodMap.put(method.getName(), method);
-			}
-			
-			// 遍历所有规则
-			for (Rule rule : module.getRules()) {
-				if (rule == null || rule.getCode() == null || rule.getCode().trim().isEmpty()) {
-					continue;
-				}
-				
-				String ruleCode = rule.getCode();
-				// 构造方法名：addConstraint_ + ruleCode
-				String methodName = "" + ruleCode;
-				
-				// 查找对应的方法
-				Method ruleMethod = methodMap.get(methodName);
-				if (ruleMethod != null) {
-					try {
-						// 设置方法可访问（处理protected方法）
-						ruleMethod.setAccessible(true);
-						// 调用方法
-						ruleMethod.invoke(this);
-						log.info("Successfully registered constraint for rule: {}", ruleCode);
-					} catch (Exception e) {
-						log.error("Failed to invoke rule method: {} for rule: {}", methodName, ruleCode, e);
-					}
-				} else {
-					log.warn("Rule method not found: {} for rule: {}", methodName, ruleCode);
-				}
-			}
-		} catch (Exception e) {
-			log.error("Failed to auto register constraints", e);
-		}
-	}
-
-	/**
 	 * 初始约束
 	 */
 	protected void initConstraint(){
 		// 自动添加约束
-		autoAddConstraints(module);
 	}
 
 	public static IntVar newIntVarFromDomain(CpModel model, long[] values, String name) {

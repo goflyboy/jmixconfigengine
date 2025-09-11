@@ -3070,3 +3070,15 @@ public void initModel(CpModel model, Module module, List<String> exeRules, List<
 
 ---
 
+_**User (2025-09-10 14:20Z)**_
+
+抽取为子方法，消除重复代码
+
+---
+
+_**Assistant**_
+
+
+
+---
+

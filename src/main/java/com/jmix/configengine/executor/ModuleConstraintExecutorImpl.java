@@ -120,12 +120,12 @@ public class ModuleConstraintExecutorImpl {
 					module.querySubGraph(inputProgObjs.toArray(new String[0]));
 				
 				// 打印relativePair.first,relativePair.second, 本次推理涉及到exeRules和exeProgObjs
-				log.info("Incremental loading - involved rules: {}", relativePair.getLeft());
+				log.info("Incremental loading - involved rules: {}", relativePair.getFirst());
 				log.info("Incremental loading - involved progObjs: {}", 
-					relativePair.getRight().stream().map(com.jmix.configengine.model.schema.RefProgObjSchema::getProgObjCode).collect(java.util.stream.Collectors.toList()));
+					relativePair.getSecond().stream().map(com.jmix.configengine.model.schema.RefProgObjSchema::getProgObjCode).collect(java.util.stream.Collectors.toList()));
 				
 				// 调用新的initModel方法
-				alg.initModel(model, module, relativePair.getLeft(), relativePair.getRight());
+				alg.initModel(model, module, relativePair.getFirst(), relativePair.getSecond());
 			} else {
 				// 全量加载模型
 				alg.initModel(model, module);
