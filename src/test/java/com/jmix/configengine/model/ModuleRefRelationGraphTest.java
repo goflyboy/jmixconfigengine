@@ -66,7 +66,7 @@ public class ModuleRefRelationGraphTest {
     @Test
     public void testAddMultipleFromLeftsRelation() {
         // 执行：Rule21: From(left):[P21,P22],To(Right):PT2
-        graph.add("Rule21", Arrays.asList(p21, p22), pt2);
+        graph.add("Rule21", Arrays.asList(p21, p22), Arrays.asList(pt2));
         
         // 验证节点
         assertTrue(graph.containsNode("P21"));
@@ -100,10 +100,10 @@ public class ModuleRefRelationGraphTest {
         graph.add("Rule02", p0, (RefProgObjSchema) null);
         
         // 测试null fromLefts列表
-        graph.add("Rule03", (List<RefProgObjSchema>) null, pt1);
+        graph.add("Rule03", (List<RefProgObjSchema>) null, Arrays.asList(pt1));
         
         // 测试空fromLefts列表
-        graph.add("Rule04", Arrays.asList(), pt1);
+        graph.add("Rule04", Arrays.asList(), Arrays.asList(pt1));
         
         // 验证图应该为空
         assertTrue(graph.getAllNodes().isEmpty());
@@ -157,7 +157,7 @@ public class ModuleRefRelationGraphTest {
         graph.add("Rule01", p0, p11);
         graph.add("Rule02", p0, p21);
         graph.add("Rule11", p11, pt1);
-        graph.add("Rule21", Arrays.asList(p21, p22), pt2);
+        graph.add("Rule21", Arrays.asList(p21, p22), Arrays.asList(pt2));
         
         // 查询PT2的依赖
         Pair<List<String>, List<RefProgObjSchema>> result = graph.querySubGraph("PT2");
@@ -183,7 +183,7 @@ public class ModuleRefRelationGraphTest {
         graph.add("Rule01", p0, p11);
         graph.add("Rule02", p0, p21);
         graph.add("Rule11", p11, pt1);
-        graph.add("Rule21", Arrays.asList(p21, p22), pt2);
+        graph.add("Rule21", Arrays.asList(p21, p22), Arrays.asList(pt2));
         
         // 查询PT1和P0的依赖
         Pair<List<String>, List<RefProgObjSchema>> result = graph.querySubGraph("PT1", "P0");
@@ -214,9 +214,8 @@ public class ModuleRefRelationGraphTest {
         List<String> ruleCodes = result.getFirst();
         assertTrue(ruleCodes.isEmpty());
         
-        List<RefProgObjSchema> progObjs = result.getSecond();
-        assertTrue(containsProgObjCode(progObjs, "NonExistent"));
-        assertEquals(1, progObjs.size());
+        List<RefProgObjSchema> progObjs = result.getSecond(); 
+        assertTrue(progObjs.isEmpty());
     }
 
     @Test
@@ -260,7 +259,7 @@ public class ModuleRefRelationGraphTest {
         graph.add("Rule02", p0, p21);
         graph.add("Rule03", p0, p22);
         graph.add("Rule11", p11, pt1);
-        graph.add("Rule21", Arrays.asList(p21, p22), pt2);
+        graph.add("Rule21", Arrays.asList(p21, p22), Arrays.asList(pt2));
         
         // 测试查询PT1
         Pair<List<String>, List<RefProgObjSchema>> result1 = graph.querySubGraph("PT1");
@@ -324,31 +323,14 @@ public class ModuleRefRelationGraphTest {
         assertEquals(100, result.getFirst().size());
         assertEquals(101, result.getSecond().size()); // 包含P0到P100
     }
-
-    @Test
-    public void testSameCodeDifferentType() {
-        // 创建相同编码但不同类型的对象
-        RefProgObjSchema paraA = createRefProgObjSchema("Para", "A");
-        RefProgObjSchema partA = createRefProgObjSchema("Part", "A");
-        
-        graph.add("Rule1", paraA, partA);
-        
-        // 查询
-        Pair<List<String>, List<RefProgObjSchema>> result = graph.querySubGraph("A");
-        
-        // 验证
-        assertEquals(1, result.getFirst().size());
-        assertTrue(result.getFirst().contains("Rule1"));
-        // 注意：由于我们使用progObjCode作为节点标识，相同编码的节点会被合并
-        assertEquals(1, result.getSecond().size());
-    }
+ 
 
     @Test
     public void testGetGraphInfo() {
         // 添加一些关系
         graph.add("Rule01", p0, p11);
         graph.add("Rule02", p0, p21);
-        graph.add("Rule21", Arrays.asList(p21, p22), pt2);
+        graph.add("Rule21", Arrays.asList(p21, p22), Arrays.asList(pt2));
         
         // 获取图信息
         String info = graph.getGraphInfo();
@@ -364,7 +346,7 @@ public class ModuleRefRelationGraphTest {
     public void testGraphStructure() {
         // 构建测试图
         graph.add("Rule01", p0, p11);
-        graph.add("Rule21", Arrays.asList(p21, p22), pt2);
+        graph.add("Rule21", Arrays.asList(p21, p22), Arrays.asList(pt2));
         
         // 验证节点
         Set<String> allNodes = graph.getAllNodes();

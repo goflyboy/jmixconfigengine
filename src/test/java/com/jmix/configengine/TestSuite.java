@@ -6,6 +6,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 import com.jmix.configengine.artifact.FilterExpressionExecutorTest;
 import com.jmix.configengine.artifact.ModuleAlgArtifactGeneratorTest;
+import com.jmix.configengine.model.ModuleRefRelationGraphTest;
 import com.jmix.configengine.scenario.hello.HelloConstraintTest;
 import com.jmix.configengine.util.ModuleUtilsTest;
 
@@ -30,13 +31,18 @@ import com.jmix.configengine.util.ModuleUtilsTest;
     HelloConstraintTest.class,
     
     // 场景测试
-    // com.jmix.configengine.scenario.tshirt.ModuleAlgArtifactGeneratorBaseTest.class, TODO
+    // com.jmix.configengine.scenario.tshirt.ModuleAlgArtifactGeneratorBaseTest.class,TODO
     com.jmix.configengine.scenario.ruletest.ParaIntegerTest.class,
     com.jmix.configengine.scenario.ruletest.MyTShirtTest.class,
     com.jmix.configengine.scenario.ruletest.CalculateRuleIfThenTest.class,
     com.jmix.configengine.scenario.ruletest.CalculateRuleSimpleTest.class,
     com.jmix.configengine.scenario.ruletest.CompatiableRuleRequireTest.class,
-    com.jmix.configengine.scenario.ruletest.ParaIsHiddenTest.class
+    com.jmix.configengine.scenario.ruletest.ParaIsHiddenTest.class,
+    // com.jmix.configengine.scenario.ruletest.ParaIsHiddenStandTest.class,
+    com.jmix.configengine.scenario.autoruletest.InjectCompatiableRuleTest.class,
+    com.jmix.configengine.scenario.ruletest.CompatiableRuleIncompatibleTest.class,
+    com.jmix.configengine.scenario.ruletest.CompatiableRuleCodependentTest.class,
+    ModuleRefRelationGraphTest.class
 
 })
 public class TestSuite {

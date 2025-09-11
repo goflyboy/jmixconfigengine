@@ -1,6 +1,7 @@
 package com.jmix.configengine.scenario.autoruletest;
 import com.google.ortools.sat.*;
 import com.jmix.configengine.artifact.*;
+import com.jmix.configengine.inf.ConstraintConfig;
 import com.jmix.configengine.scenario.base.*;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.*;
@@ -61,7 +62,9 @@ public class InjectCompatiableRuleTest extends ModuleSecnarioTestBase {
     public InjectCompatiableRuleTest() {
         super(InjectCompatiableRuleConstraint.class);
     }
-
+    protected void beforeInitConfig(ConstraintConfig cfg) {
+        cfg.loadType = 1;
+    }
     @Test
     public void testRule2Requires() {
         inferParasByPara("Color", "Red");

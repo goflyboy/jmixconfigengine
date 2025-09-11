@@ -38,21 +38,23 @@ public class ModuleRefRelationGraph {
     private Map<String, RefProgObjSchema> allRefProgObjMap = new LinkedHashMap<>();
     
     /**
-     * 按Rule维度添加关系（多个左侧节点）
+     * 按Rule维度添加关系（多个左侧节点和多个右侧节点）
      * @param edgeRuleCode 规则编码
      * @param fromLefts 左侧编程对象列表
-     * @param toRight 右侧编程对象
+     * @param toRights 右侧编程对象列表
      */
-    public void add(String edgeRuleCode, List<RefProgObjSchema> fromLefts, RefProgObjSchema toRight) {
-        if (fromLefts == null || fromLefts.isEmpty() || toRight == null) {
-            log.warn("Invalid relation data: ruleCode={}, fromLefts={}, toRight={}", 
-                    edgeRuleCode, fromLefts, toRight);
+    public void add(String edgeRuleCode, List<RefProgObjSchema> fromLefts, List<RefProgObjSchema> toRights) {
+        if (fromLefts == null || fromLefts.isEmpty() || toRights == null || toRights.isEmpty()) {
+            log.warn("Invalid relation data: ruleCode={}, fromLefts={}, toRights={}", 
+                    edgeRuleCode, fromLefts, toRights);
             return;
         }
         
-        // 遍历fromLefts，对每个fromLeft调用单个添加方法
+        // 双循环调用单个添加方法
         for (RefProgObjSchema fromLeft : fromLefts) {
-            add(edgeRuleCode, fromLeft, toRight);
+            for (RefProgObjSchema toRight : toRights) {
+                add(edgeRuleCode, fromLeft, toRight);
+            }
         }
     }
     
@@ -105,11 +107,15 @@ public class ModuleRefRelationGraph {
      */
     public Pair<List<String>, List<RefProgObjSchema>> querySubGraph(String... progObjCodes) {
         Set<String> tmpEdgeRuleCode = new HashSet<>();
-        Set<RefProgObjSchema> tmpRefProgObjCodes = new HashSet<>();
+        Map<String,RefProgObjSchema> tmpRefProgObjCodes = new HashMap<>();
         
         // 添加输入的编程对象
-        for (String progObjCode : progObjCodes) { 
-            tmpRefProgObjCodes.add(allRefProgObjMap.get(progObjCode));
+        for (String progObjCode : progObjCodes) {
+            //如果是null，则跳过
+            if (allRefProgObjMap.get(progObjCode) == null) {
+                continue;
+            }
+            tmpRefProgObjCodes.put(progObjCode, allRefProgObjMap.get(progObjCode));
         }
         
         // 遍历progObjCodes，对每个progObjCode查找其依赖关系
@@ -118,7 +124,7 @@ public class ModuleRefRelationGraph {
         }
         
         List<String> ruleCodes = new ArrayList<>(tmpEdgeRuleCode);
-        List<RefProgObjSchema> refProgObjs = new ArrayList<>(tmpRefProgObjCodes);
+        List<RefProgObjSchema> refProgObjs = new ArrayList<>(tmpRefProgObjCodes.values());
         
         log.info("Query subgraph for {}: found {} rules and {} progObjs", 
                 Arrays.toString(progObjCodes), ruleCodes.size(), refProgObjs.size());
@@ -135,7 +141,7 @@ public class ModuleRefRelationGraph {
      * @param targetCodes 目标编码列表
      */
     private void findDependencies(String currentCode, Set<String> visited, 
-                                 Set<String> ruleCodes, Set<RefProgObjSchema> refProgObjs, 
+                                 Set<String> ruleCodes, Map<String,RefProgObjSchema> refProgObjs, 
                                  List<String> targetCodes) {
         if (visited.contains(currentCode)) {
             return; // 防止循环依赖
@@ -149,8 +155,8 @@ public class ModuleRefRelationGraph {
                 String dependentCode = edge.getKey();
                 String ruleCode = edge.getValue();
                 
-                // 添加依赖的编程对象 
-                refProgObjs.add(allRefProgObjMap.get(dependentCode));
+                // 添加依赖的编程对象
+                refProgObjs.put(dependentCode, allRefProgObjMap.get(dependentCode));
                 
                 // 添加规则编码
                 ruleCodes.add(ruleCode);

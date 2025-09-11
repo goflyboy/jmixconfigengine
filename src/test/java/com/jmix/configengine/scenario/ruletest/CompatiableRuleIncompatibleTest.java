@@ -120,7 +120,9 @@ public class CompatiableRuleIncompatibleTest extends ModuleSecnarioTestBase {
     public CompatiableRuleIncompatibleTest() {
         super(CompatiableRuleIncompatibleConstraint.class);
     }
-
+    protected void beforeInitConfig(ConstraintConfig cfg) {
+        cfg.loadType = 1;
+    }
     @Test
     public void testInCARequiresNotInCB() {
         // 测试正向规则1.1: 如果A在CA中(a1)，则B必须不在CB中(b4或b5)
