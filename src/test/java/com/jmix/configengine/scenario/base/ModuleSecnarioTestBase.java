@@ -29,9 +29,9 @@ public abstract class ModuleSecnarioTestBase {
     protected Class<? extends ConstraintAlgImpl> constraintAlgClazz;
     protected String tempResourcePath = "";
     protected Module module;
-    protected com.jmix.configengine.inf.ConstraintConfig cfg;
-    protected List<com.jmix.configengine.inf.ModuleInst> solutions;
-    protected com.jmix.configengine.inf.Result<List<com.jmix.configengine.inf.ModuleInst>> result;
+    protected ConstraintConfig cfg;
+    protected List<ModuleInst> solutions;
+    protected Result<List<ModuleInst>> result;
     protected boolean enumerateAllSolution = true;
     /**
      * 构造函数

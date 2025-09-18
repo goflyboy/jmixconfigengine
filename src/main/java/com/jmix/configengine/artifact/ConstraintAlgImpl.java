@@ -250,7 +250,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 	private PartVar createPartVar(Field field) {
 		try {
 			// 从模块中获取对应的Part模型
-			com.jmix.configengine.model.Part part = module.getPart(field.getName());
+			Part part = module.getPart(field.getName());
 			if (part == null) {
 				log.warn("Part not found in module: {}", field.getName());
 				return null;

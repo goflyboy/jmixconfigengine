@@ -15,6 +15,7 @@ import com.jmix.configengine.inf.PartInst;
 import com.jmix.configengine.inf.Result;
 import com.jmix.configengine.model.Module;
 import com.jmix.configengine.model.schema.RefProgObjSchema;
+import com.jmix.configengine.util.Pair;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -117,7 +118,7 @@ public class ModuleConstraintExecutorImpl {
 				}
 				
 				// 查询子图
-				com.jmix.configengine.util.Pair<List<String>, List<RefProgObjSchema>> relativePair = 
+				Pair<List<String>, List<RefProgObjSchema>> relativePair = 
 					module.querySubGraph(inputProgObjs.toArray(new String[0]));
 				
 				// 打印relativePair.first,relativePair.second, 本次推理涉及到exeRules和exeProgObjs
