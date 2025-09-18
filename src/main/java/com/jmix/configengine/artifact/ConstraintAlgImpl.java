@@ -8,6 +8,7 @@ import com.jmix.configengine.model.Para;
 import com.jmix.configengine.model.ParaOption; 
 import com.jmix.configengine.model.Part;
 import com.jmix.configengine.model.Rule;
+import com.jmix.configengine.model.schema.RefProgObjSchema;
 
 import lombok.extern.slf4j.Slf4j;
 import java.lang.reflect.Field;
@@ -66,7 +67,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 	 * @param exeRules 本次要加载的rules
 	 * @param exeProgObjs 本次要初始化的变量
 	 */
-	public void initModel(CpModel model, Module module, List<String> exeRules, List<com.jmix.configengine.model.schema.RefProgObjSchema> exeProgObjs) {
+	public void initModel(CpModel model, Module module, List<String> exeRules, List<RefProgObjSchema> exeProgObjs) {
 		this.model = new AlgCPModel(model);
 		this.module = module;
 		initModelAfter(model);
@@ -211,11 +212,11 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg{
 	 * 根据exeProgObjs初始化Variables
 	 * @param exeProgObjs 要初始化的编程对象列表
 	 */
-	private void initVariables(List<com.jmix.configengine.model.schema.RefProgObjSchema> exeProgObjs) {
+	private void initVariables(List<RefProgObjSchema> exeProgObjs) {
 		if (exeProgObjs == null || exeProgObjs.isEmpty()) {
 			throw new RuntimeException("exeProgObjs is null or empty");
 		}
-		for (com.jmix.configengine.model.schema.RefProgObjSchema exeProgObj : exeProgObjs) { 
+		for (RefProgObjSchema exeProgObj : exeProgObjs) { 
 			String field = exeProgObj.getProgObjType();
 			if (field.equals("Para")) {
 				createParaVar(exeProgObj.getProgObjCode());

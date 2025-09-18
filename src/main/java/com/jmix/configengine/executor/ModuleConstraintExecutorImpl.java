@@ -14,6 +14,7 @@ import com.jmix.configengine.inf.ParaInst;
 import com.jmix.configengine.inf.PartInst;
 import com.jmix.configengine.inf.Result;
 import com.jmix.configengine.model.Module;
+import com.jmix.configengine.model.schema.RefProgObjSchema;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -116,13 +117,13 @@ public class ModuleConstraintExecutorImpl {
 				}
 				
 				// 查询子图
-				com.jmix.configengine.util.Pair<List<String>, List<com.jmix.configengine.model.schema.RefProgObjSchema>> relativePair = 
+				com.jmix.configengine.util.Pair<List<String>, List<RefProgObjSchema>> relativePair = 
 					module.querySubGraph(inputProgObjs.toArray(new String[0]));
 				
 				// 打印relativePair.first,relativePair.second, 本次推理涉及到exeRules和exeProgObjs
 				log.info("Incremental loading - involved rules: {}", relativePair.getFirst());
 				log.info("Incremental loading - involved progObjs: {}", 
-					relativePair.getSecond().stream().map(com.jmix.configengine.model.schema.RefProgObjSchema::getProgObjCode).collect(java.util.stream.Collectors.toList()));
+					relativePair.getSecond().stream().map(RefProgObjSchema::getProgObjCode).collect(java.util.stream.Collectors.toList()));
 				
 				// 调用新的initModel方法
 				alg.initModel(model, module, relativePair.getFirst(), relativePair.getSecond());
