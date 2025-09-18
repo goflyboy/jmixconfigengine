@@ -18,10 +18,10 @@ import org.junit.Test;
  * 兼容性规则测试类
  */
 @Slf4j
-public class CompatiableRuleRequireTest extends ModuleSecnarioTestBase {
+public class CompatibleRuleRequireTest extends ModuleSecnarioTestBase {
     //---------------规则定义start----------------------------------------
     @ModuleAnno(id = 123L)
-    static public class CompatiableRuleRequireConstraint extends ConstraintAlgImpl {
+    static public class CompatibleRuleRequireConstraint extends ConstraintAlgImpl {
         @ParaAnno(
             options = {"a1", "a2", "a3", "a4"}
         )
@@ -83,8 +83,8 @@ public class CompatiableRuleRequireTest extends ModuleSecnarioTestBase {
     }
    //---------------规则定义end----------------------------------------
 
-    public CompatiableRuleRequireTest() {
-        super(CompatiableRuleRequireConstraint.class);
+    public CompatibleRuleRequireTest() {
+        super(CompatibleRuleRequireConstraint.class);
     }
     
     protected void beforeInitConfig(ConstraintConfig cfg) {

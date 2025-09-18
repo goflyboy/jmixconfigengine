@@ -6,10 +6,10 @@ import com.jmix.configengine.scenario.base.*;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.*;
 @Slf4j
-public class InjectCompatiableRuleTest extends ModuleSecnarioTestBase {
+public class InjectCompatibleRuleTest extends ModuleSecnarioTestBase {
     
     @ModuleAnno(id = 123L)
-    static public class InjectCompatiableRuleConstraint extends ConstraintAlgImpl {
+    static public class InjectCompatibleRuleConstraint extends ConstraintAlgImpl {
         @ParaAnno( 
             options = {"Red", "Black", "White"}
         )
@@ -28,7 +28,7 @@ public class InjectCompatiableRuleTest extends ModuleSecnarioTestBase {
             System.out.println("****************rule1****************");
         }
 
-        @CompatiableRuleAnno(leftExprCode = "ColorVar.value == Red",operator = "Requires"
+        @CompatibleRuleAnno(leftExprCode = "ColorVar.value == Red",operator = "Requires"
         ,rightExprCode = "SizeVar.value == Small")
         protected void rule2() {    
 
@@ -38,7 +38,7 @@ public class InjectCompatiableRuleTest extends ModuleSecnarioTestBase {
 
 
         }
-        @CompatiableRuleAnno(leftExprCode = "ColorVar.value == Black",operator = "CoDependent"
+        @CompatibleRuleAnno(leftExprCode = "ColorVar.value == Black",operator = "CoDependent"
         ,rightExprCode = "SizeVar.value == Medium")
         protected void rule3() {    
 
@@ -48,7 +48,7 @@ public class InjectCompatiableRuleTest extends ModuleSecnarioTestBase {
 
         }
 
-        @CompatiableRuleAnno(leftExprCode = "ColorVar.value == White",operator = "InCompatible"
+        @CompatibleRuleAnno(leftExprCode = "ColorVar.value == White",operator = "InCompatible"
         ,rightExprCode = "SizeVar.value == Big")
         protected void rule4() {    
 
@@ -59,8 +59,8 @@ public class InjectCompatiableRuleTest extends ModuleSecnarioTestBase {
         }
     }
 
-    public InjectCompatiableRuleTest() {
-        super(InjectCompatiableRuleConstraint.class);
+    public InjectCompatibleRuleTest() {
+        super(InjectCompatibleRuleConstraint.class);
     }
     protected void beforeInitConfig(ConstraintConfig cfg) {
         cfg.loadType = 1;

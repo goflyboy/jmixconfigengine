@@ -321,11 +321,11 @@ public class ModelHelper {
             // 生成Module
             Module module = ModuleGenneratorByAnno.build((Class<? extends com.jmix.configengine.artifact.ConstraintAlg>) injectedClazz, tempPath);
             
-            // 检查是否需要注入：如果module.getRules()都不是CompatiableRule，则为false，否则为true
+            // 检查是否需要注入：如果module.getRules()都不是CompatibleRule，则为false，否则为true
             boolean isNeedInject = false;
             if (module.getRules() != null) {
                 for (com.jmix.configengine.model.Rule rule : module.getRules()) {
-                    if ("CDSL.V5.Struct.CompatiableRule".equals(rule.getRuleSchemaTypeFullName())) {
+                    if ("CDSL.V5.Struct.CompatibleRule".equals(rule.getRuleSchemaTypeFullName())) {
                         isNeedInject = true;
                         break;
                     }

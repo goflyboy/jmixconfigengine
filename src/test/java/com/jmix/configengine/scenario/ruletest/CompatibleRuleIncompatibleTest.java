@@ -18,10 +18,10 @@ import org.junit.Test;
  * 不兼容性规则测试类
  */
 @Slf4j
-public class CompatiableRuleIncompatibleTest extends ModuleSecnarioTestBase {
+public class CompatibleRuleIncompatibleTest extends ModuleSecnarioTestBase {
     //---------------规则定义start----------------------------------------
     @ModuleAnno(id = 123L)
-    static public class CompatiableRuleIncompatibleConstraint extends ConstraintAlgImpl {
+    static public class CompatibleRuleIncompatibleConstraint extends ConstraintAlgImpl {
         @ParaAnno(
             options = {"a1", "a2", "a3", "a4","a5"}
         )
@@ -117,8 +117,8 @@ public class CompatiableRuleIncompatibleTest extends ModuleSecnarioTestBase {
     }
    //---------------规则定义end----------------------------------------
 
-    public CompatiableRuleIncompatibleTest() {
-        super(CompatiableRuleIncompatibleConstraint.class);
+    public CompatibleRuleIncompatibleTest() {
+        super(CompatibleRuleIncompatibleConstraint.class);
     }
     protected void beforeInitConfig(ConstraintConfig cfg) {
         cfg.loadType = 1;

@@ -36,12 +36,12 @@ import com.jmix.configengine.util.ModuleUtilsTest;
     com.jmix.configengine.scenario.ruletest.MyTShirtTest.class,
     com.jmix.configengine.scenario.ruletest.CalculateRuleIfThenTest.class,
     com.jmix.configengine.scenario.ruletest.CalculateRuleSimpleTest.class,
-    com.jmix.configengine.scenario.ruletest.CompatiableRuleRequireTest.class,
+    com.jmix.configengine.scenario.ruletest.CompatibleRuleRequireTest.class,
     com.jmix.configengine.scenario.ruletest.ParaIsHiddenTest.class,
     // com.jmix.configengine.scenario.ruletest.ParaIsHiddenStandTest.class,
-    com.jmix.configengine.scenario.autoruletest.InjectCompatiableRuleTest.class,
-    com.jmix.configengine.scenario.ruletest.CompatiableRuleIncompatibleTest.class,
-    com.jmix.configengine.scenario.ruletest.CompatiableRuleCodependentTest.class,
+    com.jmix.configengine.scenario.autoruletest.InjectCompatibleRuleTest.class,
+    com.jmix.configengine.scenario.ruletest.CompatibleRuleIncompatibleTest.class,
+    com.jmix.configengine.scenario.ruletest.CompatibleRuleCodependentTest.class,
     ModuleRefRelationGraphTest.class
 
 })
