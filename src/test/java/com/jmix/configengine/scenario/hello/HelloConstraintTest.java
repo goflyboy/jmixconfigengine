@@ -1,7 +1,7 @@
 package com.jmix.configengine.scenario.hello;
 
 import com.jmix.configengine.inf.ConstraintConfig;
-import com.jmix.configengine.scenario.base.ModuleSecnarioTestBase;
+import com.jmix.configengine.scenario.base.ModuleScenarioTestBase;
 import org.junit.Test;
 import lombok.extern.slf4j.Slf4j;
 
@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
  * Hello约束算法测试类
  */
 @Slf4j
-public class HelloConstraintTest extends ModuleSecnarioTestBase {
+public class HelloConstraintTest extends ModuleScenarioTestBase {
     
     public HelloConstraintTest() {
         super(HelloConstraint.class);

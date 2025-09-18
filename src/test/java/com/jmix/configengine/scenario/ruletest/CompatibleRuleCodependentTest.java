@@ -6,7 +6,7 @@ import com.jmix.configengine.artifact.ConstraintAlgImpl;
 import com.jmix.configengine.artifact.ParaVar;
 import com.jmix.configengine.inf.ConstraintConfig;
 import com.jmix.configengine.scenario.base.ModuleAnno;
-import com.jmix.configengine.scenario.base.ModuleSecnarioTestBase;
+import com.jmix.configengine.scenario.base.ModuleScenarioTestBase;
 import com.jmix.configengine.scenario.base.ParaAnno;
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,7 +18,7 @@ import org.junit.Test;
  * 兼容性规则测试类
  */
 @Slf4j
-public class CompatibleRuleCodependentTest extends ModuleSecnarioTestBase {
+public class CompatibleRuleCodependentTest extends ModuleScenarioTestBase {
     //---------------规则定义start----------------------------------------
     @ModuleAnno(id = 123L)
     static public class CompatibleRuleCodependentConstraint extends ConstraintAlgImpl {

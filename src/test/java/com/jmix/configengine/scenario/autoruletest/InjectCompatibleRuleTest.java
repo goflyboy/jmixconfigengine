@@ -6,7 +6,7 @@ import com.jmix.configengine.scenario.base.*;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.*;
 @Slf4j
-public class InjectCompatibleRuleTest extends ModuleSecnarioTestBase {
+public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
     
     @ModuleAnno(id = 123L)
     static public class InjectCompatibleRuleConstraint extends ConstraintAlgImpl {

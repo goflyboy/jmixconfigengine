@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
  * Hello约束算法测试类
  */
 @Slf4j
-public class CalculateRuleSimpleTest extends ModuleSecnarioTestBase {
+public class CalculateRuleSimpleTest extends ModuleScenarioTestBase {
 
     //---------------规则定义start----------------------------------------
     @ModuleAnno(id = 123L)

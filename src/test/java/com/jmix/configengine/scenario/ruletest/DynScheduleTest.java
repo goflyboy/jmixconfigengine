@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.*;
 
 @Slf4j
-public class DynScheduleTest extends ModuleSecnarioTestBase {
+public class DynScheduleTest extends ModuleScenarioTestBase {
     
     //---------------?????start----------------------------------------
     @ModuleAnno(id = 123L)
