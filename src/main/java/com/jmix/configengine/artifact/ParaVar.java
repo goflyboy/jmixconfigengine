@@ -61,7 +61,7 @@ public class ParaVar extends Var<Para> {
 				.map(this::getParaOptionByCode)
 				.collect(Collectors.toList());
 	}
-	public List<ParaOptionVar> getParaOptionByExcusiveCodes(List<String> exclusiveCodes) {
+	public List<ParaOptionVar> getParaOptionByExclusiveCodes(List<String> exclusiveCodes) {
 		return optionSelectVars.values().stream()
 				.filter(option -> !exclusiveCodes.contains(option.getCode()))
 				.collect(Collectors.toList());
