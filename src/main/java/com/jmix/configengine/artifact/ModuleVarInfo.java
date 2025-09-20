@@ -5,6 +5,8 @@ import lombok.EqualsAndHashCode;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.jmix.configengine.model.Module;
+
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class ModuleVarInfo extends VarInfo<Module> {

@@ -5,6 +5,7 @@ import com.jmix.configengine.artifact.ConstraintAlgImpl;
 import com.jmix.configengine.artifact.OtherVar;
 import com.jmix.configengine.executor.ModuleConstraintExecutorImpl;
 import com.jmix.configengine.inf.ConstraintConfig;
+import com.jmix.configengine.inf.InferParasReq;
 import com.jmix.configengine.inf.ModuleInst;
 import com.jmix.configengine.inf.ParaInst;
 import com.jmix.configengine.inf.PartInst;

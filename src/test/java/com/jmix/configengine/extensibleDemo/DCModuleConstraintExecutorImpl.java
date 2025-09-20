@@ -1,5 +1,6 @@
 package com.jmix.configengine.extensibleDemo;
 
+import com.jmix.configengine.ModuleConstraintExecutor;
 import com.jmix.configengine.inf.ConstraintConfig;
 import com.jmix.configengine.inf.ExtensibleProcess;
 import com.jmix.configengine.inf.InferParasReq;

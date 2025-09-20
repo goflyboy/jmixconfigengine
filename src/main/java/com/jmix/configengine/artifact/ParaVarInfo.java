@@ -5,6 +5,8 @@ import lombok.EqualsAndHashCode;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.jmix.configengine.model.Para;
+
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class ParaVarInfo extends VarInfo<Para> {

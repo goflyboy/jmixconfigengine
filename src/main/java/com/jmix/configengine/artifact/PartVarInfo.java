@@ -1,5 +1,7 @@
 package com.jmix.configengine.artifact;
 
+import com.jmix.configengine.model.Part;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
