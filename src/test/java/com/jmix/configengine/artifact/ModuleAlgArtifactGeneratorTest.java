@@ -32,7 +32,7 @@ public class ModuleAlgArtifactGeneratorTest {
     
     @Test
     public void testForModuleFactoryMethod() {
-        com.jmix.configengine.model.Module module = createTestModule();
+        Module module = createTestModule();
         ModuleAlgArtifactGenerator generator = ModuleAlgArtifactGenerator.forModule(module);
         
         // 验证生成器是否正确初始化
@@ -46,7 +46,7 @@ public class ModuleAlgArtifactGeneratorTest {
     // @Test
     public void testBuildRule() throws Exception {
         // 创建测试模块和ModuleInfo
-        com.jmix.configengine.model.Module module = createTestModule();
+        Module module = createTestModule();
         module.init();
         // 测试兼容规则
         Rule compatiableRule = createCompatiableRule();
@@ -108,7 +108,7 @@ public class ModuleAlgArtifactGeneratorTest {
     
     @Test
     public void testDoSelectProObjs() {
-        com.jmix.configengine.model.Module module = createTestModule();
+        Module module = createTestModule();
         ModuleAlgArtifactGenerator generator = ModuleAlgArtifactGenerator.forModule(module);
         
         // 创建测试用的ExprSchema
@@ -161,7 +161,7 @@ public class ModuleAlgArtifactGeneratorTest {
     
     // @Test
     public void testModuleMethods() {
-        com.jmix.configengine.model.Module module = createTestModuleWithHierarchy();
+        Module module = createTestModuleWithHierarchy();
         
         // 初始化映射表
         module.init();
@@ -379,8 +379,8 @@ public class ModuleAlgArtifactGeneratorTest {
     /**
      * 创建测试模块
      */
-    private com.jmix.configengine.model.Module createTestModule() {
-        com.jmix.configengine.model.Module module = new com.jmix.configengine.model.Module();
+    private Module createTestModule() {
+        Module module = new Module();
         module.setCode("TestModule");
         module.setPackageName("com.jmix.configengine.artifact");
         
@@ -433,8 +433,8 @@ public class ModuleAlgArtifactGeneratorTest {
     /**
      * 创建带有层次结构的测试Module
      */
-    private com.jmix.configengine.model.Module createTestModuleWithHierarchy() {
-        com.jmix.configengine.model.Module module = new com.jmix.configengine.model.Module();
+    private Module createTestModuleWithHierarchy() {
+        Module module = new Module();
         module.setCode("TestModule");
         module.setPackageName("com.jmix.configengine.artifact");
         
