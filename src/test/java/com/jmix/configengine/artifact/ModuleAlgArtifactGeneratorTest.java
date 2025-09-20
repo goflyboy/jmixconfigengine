@@ -2,12 +2,12 @@ package com.jmix.configengine.artifact;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jmix.configengine.model.*;
-import com.jmix.configengine.model.Rule;
 import com.jmix.configengine.model.schema.CalculateRuleSchema;
 import com.jmix.configengine.model.schema.CompatiableRuleSchema;
 import com.jmix.configengine.model.schema.ExprSchema;
 import com.jmix.configengine.model.schema.RefProgObjSchema;
 import com.jmix.configengine.model.schema.SelectRuleSchema;
+import com.jmix.configengine.artifact.ModuleAlgArtifactGenerator.Pair;
 import com.jmix.configengine.constant.RuleTypeConstants;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,8 +37,8 @@ public class ModuleAlgArtifactGeneratorTest {
         
         // 验证生成器是否正确初始化
         Assert.assertNotNull("Generator should not be null", generator);
-        Assert.assertNotNull("ModuleInfo should not be null", generator.getModuleInfo());
-        Assert.assertEquals("Module code should match", module.getCode(), generator.getModuleInfo().getCode());
+        Assert.assertNotNull("ModuleInfo should not be null", generator.getModuleVarInfo());
+        Assert.assertEquals("Module code should match", module.getCode(), generator.getModuleVarInfo().getCode());
         
         System.out.println("forModule factory method test passed successfully");
     }
@@ -125,15 +125,9 @@ public class ModuleAlgArtifactGeneratorTest {
         exprSchema.setRefProgObjs(refProgObjs);
         
         // 测试doSelectProObjs方法（通过反射调用私有方法）
-        try {
-            java.lang.reflect.Method method = ModuleAlgArtifactGenerator.class.getDeclaredMethod("doSelectProObjs", 
-                ModuleVarInfo.class, ExprSchema.class);
-            method.setAccessible(true);
-            
-            @SuppressWarnings("unchecked")
-            ModuleAlgArtifactGenerator.Pair<Object, List<? extends Extensible>> result = 
-                (ModuleAlgArtifactGenerator.Pair<Object, List<? extends Extensible>>) method.invoke(generator, generator.getModuleInfo(), exprSchema);
-            
+        try {              
+            Pair<VarInfo<? extends Extensible>, List<String>> result = generator.doSelectProObjs(generator.getModuleVarInfo(), exprSchema);
+             
             // 由于当前实现中getPara和getPart可能返回null，所以result可能为null
             // 这是预期的行为，我们主要验证方法调用不会抛出异常
             if (result != null) {
