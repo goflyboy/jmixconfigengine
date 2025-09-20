@@ -5,6 +5,7 @@ import com.jmix.configengine.inf.ConstraintConfig;
 import com.jmix.configengine.inf.InferParasReq;
 import com.jmix.configengine.inf.ModuleInst;
 import com.jmix.configengine.inf.Result;
+import com.jmix.configengine.model.Module;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -27,7 +28,7 @@ public class ModuleConstraintExecutorTest {
 		// 构造最小Module，代码为TShirt，对应生成类名 TShirtConstraint
         String jsonFilePath = "src/test/java/com/jmix/configengine/scenario/tshirt/tshirtdata.json"; 
         // 使用ModuleUtils.fromJsonFile方法读取JSON文件
-        com.jmix.configengine.model.Module m = null;
+        Module m = null;
 		try {
 			m = ModuleUtils.fromJsonFile(jsonFilePath);
 		} catch (IOException e) {

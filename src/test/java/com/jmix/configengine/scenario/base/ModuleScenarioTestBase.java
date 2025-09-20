@@ -73,7 +73,7 @@ public abstract class ModuleScenarioTestBase {
         // 生成临时资源路径
         tempResourcePath = CommHelper.createTempPath(constraintAlgClazz);
         // 使用单例访问
-        cfg = new com.jmix.configengine.inf.ConstraintConfig();
+        cfg = new ConstraintConfig();
         cfg.isAttachedDebug = true; // 测试环境直接使用当前classpath加载
         cfg.rootFilePath = tempResourcePath;
         cfg.logFilePath = tempResourcePath;
@@ -95,13 +95,13 @@ public abstract class ModuleScenarioTestBase {
      * @param paraCodeValuePairs 参数代码和值的交替数组，格式：paraCode1, value1, paraCode2, value2, ...
      * @return 推理结果
      */
-    protected List<com.jmix.configengine.inf.ModuleInst> inferParas(String partCode, Integer qty, String... paraCodeValuePairs) {
-        com.jmix.configengine.inf.InferParasReq req = new com.jmix.configengine.inf.InferParasReq();
+    protected List<ModuleInst> inferParas(String partCode, Integer qty, String... paraCodeValuePairs) {
+        InferParasReq req = new InferParasReq();
         req.moduleId = module.getId();
         req.enumerateAllSolution = enumerateAllSolution;
         
         // 设置主部件实例
-        req.mainPartInst = new com.jmix.configengine.inf.PartInst();
+        req.mainPartInst = new PartInst();
         req.mainPartInst.code = partCode;
         req.mainPartInst.quantity = qty;
         
@@ -110,7 +110,7 @@ public abstract class ModuleScenarioTestBase {
             req.preParaInsts = buildParaInstsFromPairs(paraCodeValuePairs);
         }
         
-        com.jmix.configengine.inf.Result<List<com.jmix.configengine.inf.ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(req);
+        Result<List<ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(req);
         log.info("推理结果: {}", result);
         this.result = result;
         this.solutions = result.data;
@@ -122,15 +122,15 @@ public abstract class ModuleScenarioTestBase {
      * @param paraCodeValuePairs 参数代码和值的交替数组，格式：paraCode1, value1, paraCode2, value2, ...
      * @return 推理结果
      */
-    protected List<com.jmix.configengine.inf.ModuleInst> inferParasByPara(String... paraCodeValuePairs) {
-        com.jmix.configengine.inf.InferParasReq req = new com.jmix.configengine.inf.InferParasReq();
+    protected List<ModuleInst> inferParasByPara(String... paraCodeValuePairs) {
+        InferParasReq req = new InferParasReq();
         req.moduleId = module.getId();
         req.enumerateAllSolution = true;
         
         // 复用公共方法处理参数
         req.preParaInsts = buildParaInstsFromPairs(paraCodeValuePairs);
 
-        com.jmix.configengine.inf.Result<List<com.jmix.configengine.inf.ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(req);
+        Result<List<ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(req);
         log.info("推理结果: {}", result);
         this.result = result;
         this.solutions = result.data;
@@ -143,7 +143,7 @@ public abstract class ModuleScenarioTestBase {
      * @param value 参数值
      * @return 推理结果
      */
-    protected List<com.jmix.configengine.inf.ModuleInst> inferParasByPara(String paraCode, String value) {
+    protected List<ModuleInst> inferParasByPara(String paraCode, String value) {
         return inferParasByPara(new String[]{paraCode, value});
     }
     
@@ -154,7 +154,7 @@ public abstract class ModuleScenarioTestBase {
         if (solutions == null || index >= solutions.size()) {
             throw new IndexOutOfBoundsException("解决方案索引超出范围: " + index);
         }
-        com.jmix.configengine.inf.ModuleInst solution = solutions.get(index);
+        ModuleInst solution = solutions.get(index);
         return new ProgammableInstAssert(solution, module);
     }
     
@@ -279,7 +279,7 @@ public abstract class ModuleScenarioTestBase {
     private int countMatchingSolutions(List<ConditionElement> conditionElements) {
         int matchCount = 0;
         
-        for (com.jmix.configengine.inf.ModuleInst solution : solutions) {
+        for (ModuleInst solution : solutions) {
             boolean isMatch = true;
             
             for (ConditionElement element : conditionElements) {
@@ -311,7 +311,7 @@ public abstract class ModuleScenarioTestBase {
     /**
      * 根据代码查找ParaInst
      */
-    private ParaInst findParaInstByCode(com.jmix.configengine.inf.ModuleInst solution, String code) {
+    private ParaInst findParaInstByCode(ModuleInst solution, String code) {
         if (solution.paras == null) return null;
         return solution.paras.stream()
             .filter(p -> code.equals(p.code))
@@ -322,7 +322,7 @@ public abstract class ModuleScenarioTestBase {
     /**
      * 根据代码查找PartInst
      */
-    private PartInst findPartInstByCode(com.jmix.configengine.inf.ModuleInst solution, String code) {
+    private PartInst findPartInstByCode(ModuleInst solution, String code) {
         if (solution.parts == null) return null;
         return solution.parts.stream()
             .filter(p -> code.equals(p.code))
@@ -335,18 +335,18 @@ public abstract class ModuleScenarioTestBase {
      * @param paraCodeValuePairs 参数代码和值的交替数组
      * @return ParaInst列表
      */
-    private List<com.jmix.configengine.inf.ParaInst> buildParaInstsFromPairs(String... paraCodeValuePairs) {
+    private List<ParaInst> buildParaInstsFromPairs(String... paraCodeValuePairs) {
         if (paraCodeValuePairs.length % 2 != 0) {
             throw new IllegalArgumentException("参数必须是偶数个，格式：paraCode1, value1, paraCode2, value2, ...");
         }
         
-        List<com.jmix.configengine.inf.ParaInst> paraInsts = new ArrayList<>();
+        List<ParaInst> paraInsts = new ArrayList<>();
         
         for (int i = 0; i < paraCodeValuePairs.length; i += 2) {
             String paraCode = paraCodeValuePairs[i];
             String value = paraCodeValuePairs[i + 1];
             
-            com.jmix.configengine.inf.ParaInst paraInst = new com.jmix.configengine.inf.ParaInst();
+            ParaInst paraInst = new ParaInst();
             paraInst.code = paraCode;
             
             //根据module.paras中的para.options，找到value对应的option

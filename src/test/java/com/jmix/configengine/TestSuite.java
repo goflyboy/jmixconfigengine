@@ -7,8 +7,10 @@ import org.junit.runners.Suite.SuiteClasses;
 import com.jmix.configengine.artifact.FilterExpressionExecutorTest;
 import com.jmix.configengine.artifact.ModuleAlgArtifactGeneratorTest;
 import com.jmix.configengine.model.ModuleRefRelationGraphTest;
+import com.jmix.configengine.scenario.autoruletest.InjectCompatibleRuleTest;
 import com.jmix.configengine.scenario.hello.HelloConstraintTest;
 import com.jmix.configengine.util.ModuleUtilsTest;
+import com.jmix.configengine.scenario.ruletest.*;
 
 /**
  * JMix Config Engine 测试套件
@@ -31,17 +33,17 @@ import com.jmix.configengine.util.ModuleUtilsTest;
     HelloConstraintTest.class,
     
     // 场景测试
-    // com.jmix.configengine.scenario.tshirt.ModuleAlgArtifactGeneratorBaseTest.class,TODO
-    com.jmix.configengine.scenario.ruletest.ParaIntegerTest.class,
-    com.jmix.configengine.scenario.ruletest.MyTShirtTest.class,
-    com.jmix.configengine.scenario.ruletest.CalculateRuleIfThenTest.class,
-    com.jmix.configengine.scenario.ruletest.CalculateRuleSimpleTest.class,
-    com.jmix.configengine.scenario.ruletest.CompatibleRuleRequireTest.class,
-    com.jmix.configengine.scenario.ruletest.ParaIsHiddenTest.class,
-    // com.jmix.configengine.scenario.ruletest.ParaIsHiddenStandTest.class,
-    com.jmix.configengine.scenario.autoruletest.InjectCompatibleRuleTest.class,
-    com.jmix.configengine.scenario.ruletest.CompatibleRuleIncompatibleTest.class,
-    com.jmix.configengine.scenario.ruletest.CompatibleRuleCodependentTest.class,
+    // ModuleAlgArtifactGeneratorBaseTest.class,TODO
+    ParaIntegerTest.class,
+    MyTShirtTest.class,
+    CalculateRuleIfThenTest.class,
+    CalculateRuleSimpleTest.class,
+    CompatibleRuleRequireTest.class,
+    ParaIsHiddenTest.class,
+    // ParaIsHiddenStandTest.class,
+    InjectCompatibleRuleTest.class,
+    CompatibleRuleIncompatibleTest.class,
+    CompatibleRuleCodependentTest.class,
     ModuleRefRelationGraphTest.class
 
 })

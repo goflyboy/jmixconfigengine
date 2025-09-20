@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class ParaVarInfo extends VarInfo<com.jmix.configengine.model.Para> {
+public class ParaVarInfo extends VarInfo<Para> {
 	private String code;
 	private List<ParaOptionVarInfo> options;
 	
@@ -19,7 +19,7 @@ public class ParaVarInfo extends VarInfo<com.jmix.configengine.model.Para> {
 		return options.stream().map(ParaOptionVarInfo::getCodeId).map(String::valueOf).collect(Collectors.joining(","));
 	}
 	
-	public ParaVarInfo(com.jmix.configengine.model.Para para) {
+	public ParaVarInfo(Para para) {
 		super(para);
 	}
 } 

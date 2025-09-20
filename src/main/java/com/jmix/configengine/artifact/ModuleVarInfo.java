@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class ModuleVarInfo extends VarInfo<com.jmix.configengine.model.Module> {
+public class ModuleVarInfo extends VarInfo<Module> {
 	private String code;
 	private String packageName;
 	private List<ParaVarInfo> paras;
@@ -17,7 +17,7 @@ public class ModuleVarInfo extends VarInfo<com.jmix.configengine.model.Module> {
 	private Map<String, PartVarInfo> partMap = new HashMap<>();
 	
 	public ModuleVarInfo() { super(); }
-	public ModuleVarInfo(com.jmix.configengine.model.Module module) { super(module); }
+	public ModuleVarInfo(Module module) { super(module); }
 	
 	public void setParas(List<ParaVarInfo> paras) { this.paras = paras; updateParaMap(); }
 	public void setParts(List<PartVarInfo> parts) { this.parts = parts; updatePartMap(); }

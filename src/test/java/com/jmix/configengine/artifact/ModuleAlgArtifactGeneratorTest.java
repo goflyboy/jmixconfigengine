@@ -502,7 +502,7 @@ public class ModuleAlgArtifactGeneratorTest {
     /**
      * 使用反射调用私有方法buildRule
      */
-    private RuleInfo invokeBuildRule(com.jmix.configengine.model.Module module, Rule rule) throws Exception {
+    private RuleInfo invokeBuildRule(Module module, Rule rule) throws Exception {
 
             ModuleAlgArtifactGenerator generator = new ModuleAlgArtifactGenerator();
             ModuleVarInfo moduleInfo = generator.buildModuleInfoBase(module);

@@ -41,7 +41,7 @@ public class ModuleAlgArtifactGenerator {
     /**
      * 构建约束规则
      */
-    public void buildConstraintRule(com.jmix.configengine.model.Module module, String outputPath) throws Exception {
+    public void buildConstraintRule(Module module, String outputPath) throws Exception {
         log.info("Starting constraint rule generation for module: {}", module.getCode());
         
         // 根据Module生成moduleInfo
@@ -56,7 +56,7 @@ public class ModuleAlgArtifactGenerator {
     /**
      * 构建模块信息
      */
-    public ModuleVarInfo buildModuleInfo(com.jmix.configengine.model.Module module) {
+    public ModuleVarInfo buildModuleInfo(Module module) {
         ModuleVarInfo moduleInfo =buildModuleInfoBase(module);
         
         // 调用buildRules生成RuleInfos
@@ -71,7 +71,7 @@ public class ModuleAlgArtifactGenerator {
     /**
      * 构建模块信息
      */
-    public ModuleVarInfo buildModuleInfoBase(com.jmix.configengine.model.Module module) {
+    public ModuleVarInfo buildModuleInfoBase(Module module) {
         ModuleVarInfo moduleInfo = new ModuleVarInfo(module);
         moduleInfo.setCode(module.getCode());
         moduleInfo.setVarName(module.getCode() + "Var");
@@ -350,7 +350,7 @@ public class ModuleAlgArtifactGenerator {
      * 静态工厂方法：为指定的Module创建新的生成器实例
      * 每个Module都需要新建一个实例来处理
      */
-    public static ModuleAlgArtifactGenerator forModule(com.jmix.configengine.model.Module module) {
+    public static ModuleAlgArtifactGenerator forModule(Module module) {
         ModuleAlgArtifactGenerator generator = new ModuleAlgArtifactGenerator();
         try {
             // 只初始化内部结构，不生成代码文件

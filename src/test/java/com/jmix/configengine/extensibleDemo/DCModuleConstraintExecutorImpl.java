@@ -1,6 +1,7 @@
 package com.jmix.configengine.extensibleDemo;
 
-import com.jmix.configengine.ModuleConstraintExecutor;
+import com.jmix.configengine.inf.ConstraintConfig;
+import com.jmix.configengine.inf.ExtensibleProcess;
 import com.jmix.configengine.inf.InferParasReq;
 import com.jmix.configengine.inf.ModuleInst;
 import com.jmix.configengine.inf.ParaInst;
@@ -31,7 +32,7 @@ class DCModuleConstraintExecutorImpl {
         this.partInstAdapter = new DCPartInstAdapter();
     }
     
-    public DCResult<Void> init(com.jmix.configengine.inf.ConstraintConfig config) {
+    public DCResult<Void> init(ConstraintConfig config) {
         log.info("Initializing DC Module Constraint Executor");
         Result<Void> result = ModuleConstraintExecutor.INST.init(config);
         DCResult<Void> dcResult = new DCResult<>(result);
@@ -110,7 +111,7 @@ class DCModuleConstraintExecutorImpl {
         return dcResult;
     }
     
-    public DCResult<Void> registerExtensible(com.jmix.configengine.inf.ExtensibleProcess eProcess) {
+    public DCResult<Void> registerExtensible(ExtensibleProcess eProcess) {
         log.info("Registering extensible process: {}", eProcess.getProcessName());
         Result<Void> result = ModuleConstraintExecutor.INST.registerExtensible(eProcess);
         DCResult<Void> dcResult = new DCResult<>(result);
@@ -120,7 +121,7 @@ class DCModuleConstraintExecutorImpl {
         return dcResult;
     }
     
-    public DCResult<Void> unregisterExtensible(com.jmix.configengine.inf.ExtensibleProcess eProcess) {
+    public DCResult<Void> unregisterExtensible(ExtensibleProcess eProcess) {
         log.info("Unregistering extensible process: {}", eProcess.getProcessName());
         Result<Void> result = ModuleConstraintExecutor.INST.unregisterExtensible(eProcess);
         DCResult<Void> dcResult = new DCResult<>(result);
