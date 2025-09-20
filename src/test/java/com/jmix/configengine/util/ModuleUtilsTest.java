@@ -18,7 +18,7 @@ import java.nio.file.Paths;
  */
 public class ModuleUtilsTest {
     
-    private com.jmix.configengine.model.Module testModule;
+    private Module testModule;
     private String testJsonFile = "test_module.json";
     private boolean deleteGeneratedFile;
     
@@ -54,7 +54,7 @@ public class ModuleUtilsTest {
         ModuleUtils.toJsonFile(testModule, testJsonFile);
         
         // 从JSON文件读取Module对象
-        com.jmix.configengine.model.Module loadedModule = ModuleUtils.fromJsonFile(testJsonFile);
+        Module loadedModule = ModuleUtils.fromJsonFile(testJsonFile);
         
         // 验证加载的对象
         assertNotNull("加载的Module对象不应该为null", loadedModule);
@@ -94,7 +94,7 @@ public class ModuleUtilsTest {
         assertTrue("JSON字符串应该包含模块代码", jsonString.contains(testModule.getCode()));
         
         // 测试fromJsonString
-        com.jmix.configengine.model.Module loadedModule = ModuleUtils.fromJsonString(jsonString);
+        Module loadedModule = ModuleUtils.fromJsonString(jsonString);
         assertNotNull("从JSON字符串加载的Module对象不应该为null", loadedModule);
         assertEquals("模块代码应该匹配", testModule.getCode(), loadedModule.getCode());
         
@@ -126,13 +126,13 @@ public class ModuleUtilsTest {
         System.out.println("=== 测试完整往返流程 ===");
         
         // 1. 创建Module对象
-        com.jmix.configengine.model.Module originalModule = createTestModule();
+        Module originalModule = createTestModule();
         
         // 2. 序列化为JSON文件
         ModuleUtils.toJsonFile(originalModule, testJsonFile);
         
         // 3. 从JSON文件反序列化
-        com.jmix.configengine.model.Module loadedModule = ModuleUtils.fromJsonFile(testJsonFile);
+        Module loadedModule = ModuleUtils.fromJsonFile(testJsonFile);
         
         // 4. 再次序列化为JSON文件
         String secondJsonFile = "test_module_roundtrip.json";
@@ -156,8 +156,8 @@ public class ModuleUtilsTest {
     /**
      * 创建测试用的Module对象
      */
-    private com.jmix.configengine.model.Module createTestModule() {
-        com.jmix.configengine.model.Module module = new com.jmix.configengine.model.Module();
+    private Module createTestModule() {
+        Module module = new Module();
         module.setCode("TestModule");
         module.setId(999L);
         module.setVersion("1.0.0");

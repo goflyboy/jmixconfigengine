@@ -8,6 +8,9 @@ import com.jmix.configengine.scenario.base.ModuleGenneratorByAnno;
 import com.jmix.configengine.scenario.base.StructCodeInjector;
 import com.jmix.configengine.artifact.ModuleAlgArtifactGenerator;
 import com.jmix.configengine.model.Module;
+import com.jmix.configengine.model.Rule;
+import com.jmix.configengine.artifact.ConstraintAlg;
+import com.jmix.configengine.artifact.ModuleVarInfo;
 
 /**
  * 模型文件生成器
@@ -319,12 +322,12 @@ public class ModelHelper {
             String tempPath = CommHelper.createTempPath(injectedClazz);
             
             // 生成Module
-            Module module = ModuleGenneratorByAnno.build((Class<? extends com.jmix.configengine.artifact.ConstraintAlg>) injectedClazz, tempPath);
+            Module module = ModuleGenneratorByAnno.build((Class<? extends ConstraintAlg>) injectedClazz, tempPath);
             
             // 检查是否需要注入：如果module.getRules()都不是CompatibleRule，则为false，否则为true
             boolean isNeedInject = false;
             if (module.getRules() != null) {
-                for (com.jmix.configengine.model.Rule rule : module.getRules()) {
+                for (Rule rule : module.getRules()) {
                     if ("CDSL.V5.Struct.CompatibleRule".equals(rule.getRuleSchemaTypeFullName())) {
                         isNeedInject = true;
                         break;
@@ -335,7 +338,7 @@ public class ModelHelper {
             if (isNeedInject) {
                 // 生成ModuleInfo
                 ModuleAlgArtifactGenerator generator = new ModuleAlgArtifactGenerator();
-                com.jmix.configengine.artifact.ModuleVarInfo moduleInfo = generator.buildModuleInfo(module);
+                ModuleVarInfo moduleInfo = generator.buildModuleInfo(module);
                 
                 // 注入规则
                 StructCodeInjector injector = new StructCodeInjector();
