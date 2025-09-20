@@ -5,6 +5,10 @@ import com.jmix.configengine.ModuleConstraintExecutor;
 import com.jmix.configengine.inf.ModuleInst;
 import com.jmix.configengine.inf.ParaInst;
 import com.jmix.configengine.inf.PartInst;
+import com.jmix.configengine.inf.ConstraintConfig;
+import com.jmix.configengine.model.Module;
+import java.util.List;
+import java.util.ArrayList;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.After;
 import org.junit.Before;
@@ -26,7 +30,7 @@ public class DCMyTShirtTest {
         // 使用单例DC执行器
         
         // 初始化配置
-        com.jmix.configengine.inf.ConstraintConfig config = new com.jmix.configengine.inf.ConstraintConfig();
+        ConstraintConfig config = new ConstraintConfig();
         config.isAttachedDebug = true;
         config.rootFilePath = "target/generated-sources";
         config.logFilePath = "target/logs";
@@ -91,7 +95,7 @@ public class DCMyTShirtTest {
         dcReq.enumerateAllSolution = true;
         
         // 由于没有算法制品，这里主要测试接口调用
-        DCResult<java.util.List<DCModuleInst>> result = DCModuleConstraintExecutor.INST.inferDCParas(dcReq);
+        DCResult<List<DCModuleInst>> result = DCModuleConstraintExecutor.INST.inferDCParas(dcReq);
         assertNotNull("DC inference result should not be null", result);
         assertNotNull("DC result code should not be null", result.getDcResultCode());
         assertTrue("DC result should have process timestamp", result.getProcessTimestamp() > 0);
@@ -107,10 +111,10 @@ public class DCMyTShirtTest {
         log.info("Testing delivery type calculation");
         
         // 测试后处理器的业务逻辑
-        com.jmix.configengine.model.Module module = getModule();
+        Module module = getModule();
         
         // 创建模拟的解决方案
-        java.util.List<ModuleInst> solutions = new java.util.ArrayList<>();
+        List<ModuleInst> solutions = new ArrayList<>();
         ModuleInst solution = new ModuleInst();
         solution.setId(123L);
         solution.setCode("TShirt11");
@@ -118,7 +122,7 @@ public class DCMyTShirtTest {
         solution.setQuantity(1);
         
         // 添加参数实例
-        java.util.List<ParaInst> paras = new java.util.ArrayList<>();
+        List<ParaInst> paras = new ArrayList<>();
         ParaInst paraInst = new ParaInst();
         paraInst.setCode("Color");
         paraInst.setValue("Red");
@@ -126,7 +130,7 @@ public class DCMyTShirtTest {
         solution.setParas(paras);
         
         // 添加部件实例
-        java.util.List<PartInst> parts = new java.util.ArrayList<>();
+        List<PartInst> parts = new ArrayList<>();
         PartInst partInst = new PartInst();
         partInst.setCode("TShirt11");
         partInst.setQuantity(3);
@@ -136,7 +140,7 @@ public class DCMyTShirtTest {
         solutions.add(solution);
         
         // 测试后处理器
-        Result<java.util.List<ModuleInst>> result = 
+        Result<List<ModuleInst>> result = 
                 postProcess.postProcess(module, solutions);
         
         // 验证结果
@@ -215,11 +219,11 @@ public class DCMyTShirtTest {
         log.info("Testing no solution scenario");
         
         // 测试空解决方案的后处理
-        com.jmix.configengine.model.Module module = getModule();
-        java.util.List<ModuleInst> emptySolutions = new java.util.ArrayList<>();
+        Module module = getModule();
+        List<ModuleInst> emptySolutions = new ArrayList<>();
         
         // 测试后处理器处理空解决方案
-        Result<java.util.List<ModuleInst>> result = 
+        Result<List<ModuleInst>> result = 
                 postProcess.postProcess(module, emptySolutions);
         
         // 验证结果
@@ -264,10 +268,10 @@ public class DCMyTShirtTest {
     /**
      * 获取测试模块
      */
-    private com.jmix.configengine.model.Module getModule() {
+    private Module getModule() {
         // 这里应该返回实际的测试模块
         // 为了简化，我们创建一个基本的模块
-        com.jmix.configengine.model.Module module = new com.jmix.configengine.model.Module();
+        Module module = new Module();
         module.setId(123L);
         module.setCode("TShirt11");
         module.setVersion("1.0.0");
