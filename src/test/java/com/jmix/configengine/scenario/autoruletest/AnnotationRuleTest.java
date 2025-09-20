@@ -6,7 +6,11 @@ import com.jmix.configengine.scenario.base.*;
 import com.jmix.configengine.artifact.ParaVar;
 import com.jmix.configengine.artifact.PartVar;
 import com.jmix.configengine.model.Module;
+import com.jmix.configengine.model.ParaType;
 import com.jmix.configengine.model.Rule;
+import com.jmix.configengine.scenario.base.CommHelper;
+import com.jmix.configengine.scenario.base.ModuleGenneratorByAnno;
+import java.lang.reflect.Method;
 import static org.junit.Assert.*;
 
 /**
@@ -26,7 +30,7 @@ public class AnnotationRuleTest extends ConstraintAlgImpl {
     @ParaAnno(
         code = "Color",
         description = "颜色参数",
-        type = com.jmix.configengine.model.ParaType.ENUM,
+        type = ParaType.ENUM,
         options = {"Red", "Blue", "Green"}
     )
     private ParaVar colorVar;
@@ -34,7 +38,7 @@ public class AnnotationRuleTest extends ConstraintAlgImpl {
     @ParaAnno(
         code = "Size",
         description = "尺寸参数",
-        type = com.jmix.configengine.model.ParaType.ENUM,
+        type = ParaType.ENUM,
         options = {"Small", "Medium", "Large"}
     )
     private ParaVar sizeVar;
@@ -81,10 +85,10 @@ public class AnnotationRuleTest extends ConstraintAlgImpl {
     @org.junit.Test
     public void testRuleGeneration() {
         // 创建临时路径
-        String tempPath = com.jmix.configengine.scenario.base.CommHelper.createTempPath(AnnotationRuleTest.class);
+        String tempPath = CommHelper.createTempPath(AnnotationRuleTest.class);
         
         // 生成Module
-        Module module = com.jmix.configengine.scenario.base.ModuleGenneratorByAnno.build(AnnotationRuleTest.class, tempPath);
+        Module module = ModuleGenneratorByAnno.build(AnnotationRuleTest.class, tempPath);
         
         // 验证Module中包含了生成的规则
         assertNotNull("Module should not be null", module);
@@ -121,7 +125,7 @@ public class AnnotationRuleTest extends ConstraintAlgImpl {
     public void testAnnotationParsing() {
         // 测试CompatiableRuleAnno注解解析
         try {
-            java.lang.reflect.Method rule1Method = AnnotationRuleTest.class.getMethod("rule1");
+            Method rule1Method = AnnotationRuleTest.class.getMethod("rule1");
             CompatiableRuleAnno compatiableRuleAnno = rule1Method.getAnnotation(CompatiableRuleAnno.class);
             
             assertNotNull("CompatiableRuleAnno should not be null", compatiableRuleAnno);
@@ -136,7 +140,7 @@ public class AnnotationRuleTest extends ConstraintAlgImpl {
         
         // 测试CodeRuleAnno注解解析
         try {
-            java.lang.reflect.Method rule2Method = AnnotationRuleTest.class.getMethod("rule2");
+            Method rule2Method = AnnotationRuleTest.class.getMethod("rule2");
             CodeRuleAnno codeRuleAnno = rule2Method.getAnnotation(CodeRuleAnno.class);
             
             assertNotNull("CodeRuleAnno should not be null", codeRuleAnno);
