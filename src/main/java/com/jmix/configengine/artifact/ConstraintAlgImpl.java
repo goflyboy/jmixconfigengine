@@ -49,7 +49,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     /**
      * 添加和隐藏相关的约束的Var
      * 
-     * @param hiddenVars
+     * @param hiddenVars 需要添加隐藏约束的变量数组
      */
     protected void addVarAboutHiddenConstraints(Var<?>... hiddenVars) {
         for (Var<?> v : hiddenVars) {
@@ -57,6 +57,12 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         }
     }
 
+    /**
+     * 初始化约束模型
+     * 
+     * @param model  CP模型实例
+     * @param module 模块实例
+     */
     public void initModel(CpModel model, Module module) {
         this.model = new AlgCPModel(model);
         this.module = module;
@@ -442,14 +448,30 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         return this.model.newBoolVar(name);
     }
 
+    /**
+     * 获取变量映射
+     * 
+     * @return 变量映射Map
+     */
     public Map<String, Var<?>> getVarMap() {
         return varMap;
     }
 
+    /**
+     * 获取所有变量列表
+     * 
+     * @return 变量列表
+     */
     public List<Var<?>> getVars() {
         return new ArrayList<>(varMap.values());
     }
 
+    /**
+     * 注册变量
+     * 
+     * @param code 变量代码
+     * @param var  变量实例
+     */
     public void registerVar(String code, Var<?> var) {
         if (code != null && var != null) {
             varMap.put(code, var);
@@ -579,20 +601,28 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      */
     public void addPartEquality(String partCode, int partQuantity) {
         // 1. 根据partCode找到对应的partVar
-        PartVar partVar = (PartVar) varMap.get(partCode);
-        if (partVar == null) {
+        Var<?> var = varMap.get(partCode);
+        if (!(var instanceof PartVar)) {
             throw new RuntimeException("PartVar not found for code: " + partCode);
         }
+        PartVar partVar = (PartVar) var;
 
         // 2. 使用model.addEquality添加数量约束
         model.addEquality((IntVar) partVar.qty, partQuantity);
     }
 
+    /**
+     * 添加参数相等约束
+     * 
+     * @param paraCode  参数代码
+     * @param paraValue 参数值
+     */
     public void addParaEquality(String paraCode, String paraValue) {
-        ParaVar paraVar = (ParaVar) varMap.get(paraCode);
-        if (paraVar == null) {
+        Var<?> var = varMap.get(paraCode);
+        if (!(var instanceof ParaVar)) {
             throw new RuntimeException("ParaVar not found for code: " + paraCode);
         }
+        ParaVar paraVar = (ParaVar) var;
         model.addEquality((IntVar) paraVar.value, Integer.parseInt(paraValue));
     }
 
