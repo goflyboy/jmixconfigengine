@@ -80,7 +80,10 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @param exeRules    本次要加载的rules
      * @param exeProgObjs 本次要初始化的变量
      */
-    public void initModel(CpModel model, Module module, List<String> exeRules, List<RefProgObjSchema> exeProgObjs) {
+    public void initModel(CpModel model,
+            Module module,
+            List<String> exeRules,
+            List<RefProgObjSchema> exeProgObjs) {
         this.model = new AlgCPModel(model);
         this.module = module;
         initModelAfter(model);
@@ -457,7 +460,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * 获取其他变量映射
      */
     public Map<String, OtherVar> getOtherVarMap() {
-        return model.otherVarMap;
+        return model.getOtherVarMap();
     }
 
     protected ParaVar createParaVar(String code) {
