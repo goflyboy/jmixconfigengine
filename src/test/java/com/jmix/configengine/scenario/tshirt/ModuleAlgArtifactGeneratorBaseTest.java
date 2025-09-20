@@ -25,7 +25,7 @@ import java.nio.file.Paths;
 public class ModuleAlgArtifactGeneratorBaseTest {
     
     private ModuleAlgArtifactGenerator generator;
-    private com.jmix.configengine.model.Module tshirtModule;
+    private Module tshirtModule;
     private String outputPath;
     //是否删除生成的文件
     private boolean deleteGeneratedFile = true;
