@@ -257,53 +257,19 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     }
 
     /**
-     * 检查字段是否在目标列表中
+     * 模型初始化后的回调方法
+     * 子类可以重写此方法来实现模型初始化后的自定义逻辑
      * 
-     * @param field       字段
-     * @param targetCodes 目标编码集合
-     * @return 是否在目标列表中
+     * @param model CP模型实例
      */
-    private boolean isFieldInTargetList(Field field, Set<String> targetCodes) {
-        // 检查字段名是否在目标编码中
-        String fieldName = field.getName();
-        return targetCodes.contains(fieldName);
-    }
-
-    /**
-     * 创建PartVar变量
-     * 
-     * @param field 字段
-     * @return PartVar实例
-     */
-    private PartVar createPartVar(Field field) {
-        try {
-            // 从模块中获取对应的Part模型
-            Part part = module.getPart(field.getName());
-            if (part == null) {
-                log.warn("Part not found in module: {}", field.getName());
-                return null;
-            }
-
-            PartVar partVar = new PartVar();
-            partVar.setBase(part);
-
-            // 设置数量变量
-            partVar.qty = model.newIntVar(0, part.getMaxQuantity(), field.getName() + "_qty");
-
-            // 设置隐藏属性
-            partVar.isHidden = model.newBoolVar(field.getName() + "_isHidden");
-
-            return partVar;
-        } catch (Exception e) {
-            log.error("Failed to create PartVar for field: {}", field.getName(), e);
-            return null;
-        }
-    }
-
     protected void initModelAfter(CpModel model) {
 
     }
 
+    /**
+     * 初始化变量
+     * 默认实现：通过反射自动创建和赋值变量，然后调用子类的自定义变量初始化逻辑
+     */
     protected void initVariables() {
         // 默认实现：通过反射自动创建和赋值变量
         autoInitVariables();
@@ -396,18 +362,32 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     }
 
     /**
-     * 初始约束
+     * 初始化约束
+     * 子类可以重写此方法来实现自定义约束逻辑
      */
     protected void initConstraint() {
         // 自动添加约束
     }
 
+    /**
+     * 静态方法：从指定值数组创建整数变量
+     * 
+     * @param model  CP模型实例
+     * @param values 允许的值数组
+     * @param name   变量名称
+     * @return 创建的整数变量
+     */
     public static IntVar newIntVarFromDomain(CpModel model, long[] values, String name) {
         return model.newIntVarFromDomain(Domain.fromValues(values), name);
     }
 
     /**
      * 封装CpModel的newIntVar方法
+     * 
+     * @param left  最小值
+     * @param right 最大值
+     * @param name  变量名称
+     * @return 创建的整数变量
      */
     protected IntVar newIntVar(long left, long right, String name) {
         return this.model.newIntVar(left, right, name);
@@ -415,6 +395,10 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
     /**
      * 封装CpModel的newIntVarFromDomain方法 - 单个值
+     * 
+     * @param value 单个值
+     * @param name  变量名称
+     * @return 创建的整数变量
      */
     protected IntVar newIntVarFromDomain(long value, String name) {
         return this.model.newIntVarFromDomain(value, name);
@@ -422,6 +406,10 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
     /**
      * 封装CpModel的newIntVarFromDomain方法 - 多个值
+     * 
+     * @param values
+     * @param name
+     * @return 创建的整数变量
      */
     protected IntVar newIntVarFromDomain(long[] values, String name) {
         return this.model.newIntVarFromDomain(values, name);
@@ -429,6 +417,10 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
     /**
      * 封装CpModel的newIntVarFromDomain方法 - 区间
+     * 
+     * @param intervals 区间数组
+     * @param name      变量名称
+     * @return 创建的整数变量
      */
     protected IntVar newIntVarFromDomain(long[][] intervals, String name) {
         return this.model.newIntVarFromDomain(intervals, name);
@@ -436,6 +428,9 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
     /**
      * 封装CpModel的newIntVarFromDomain方法 - 完整域
+     * 
+     * @param name 变量名称
+     * @return 创建的整数变量
      */
     protected IntVar newIntVarFromDomain(String name) {
         return this.model.newIntVarFromDomain(name);
@@ -443,6 +438,9 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
     /**
      * 封装CpModel的newBoolVar方法
+     * 
+     * @param name 变量名称
+     * @return 创建的布尔变量
      */
     protected BoolVar newBoolVar(String name) {
         return this.model.newBoolVar(name);
@@ -480,11 +478,19 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
     /**
      * 获取其他变量映射
+     * 
+     * @return 其他变量映射Map
      */
     public Map<String, OtherVar> getOtherVarMap() {
         return model.getOtherVarMap();
     }
 
+    /**
+     * 创建参数变量
+     * 
+     * @param code 参数代码
+     * @return 创建的参数变量
+     */
     protected ParaVar createParaVar(String code) {
         Para para = module != null ? module.getPara(code) : null;
         if (para == null) {
@@ -521,6 +527,12 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         return paraVar;
     }
 
+    /**
+     * 创建部件变量
+     * 
+     * @param code 部件代码
+     * @return 创建的部件变量
+     */
     protected PartVar createPartVar(String code) {
         Part part = module != null ? module.getPart(code) : null;
         if (part == null) {
@@ -535,6 +547,13 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         return partVar;
     }
 
+    /**
+     * 创建参数选项变量
+     * 
+     * @param paraCode   参数代码
+     * @param optionCode 选项代码
+     * @return 创建的参数选项变量
+     */
     protected ParaOptionVar createParaOptionVar(String paraCode, String optionCode) {
         Para para = module != null ? module.getPara(paraCode) : null;
         if (para == null) {
@@ -553,6 +572,12 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * 兼容性规则：Requires关系约束
      * 规则内容：如果左侧参数选择指定选项，则右侧参数必须选择指定选项
      * 例如：(a1,a3) Requires (b1,b2,b3) 表示如果A选择a1或a3，则B必须选择b1、b2或b3
+     * 
+     * @param ruleCode                   规则代码
+     * @param leftParaVar                左侧参数变量
+     * @param leftParaFilterOptionCodes  左侧参数过滤选项代码列表
+     * @param rightParaVar               右侧参数变量
+     * @param rightParaFilterOptionCodes 右侧参数过滤选项代码列表
      */
     public void addCompatibleConstraintRequires(String ruleCode, ParaVar leftParaVar,
             List<String> leftParaFilterOptionCodes,
@@ -634,6 +659,12 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * - 如果A选择a2、a4或a5，则B必须选择b4或b5
      * - 如果B选择b1、b2或b3，则A必须选择a1或a3
      * - 如果B选择b4或b5，则A必须选择a2、a4或a5
+     * 
+     * @param ruleCode                   规则代码
+     * @param leftParaVar                左侧参数变量
+     * @param leftParaFilterOptionCodes  左侧参数过滤选项代码列表
+     * @param rightParaVar               右侧参数变量
+     * @param rightParaFilterOptionCodes 右侧参数过滤选项代码列表
      */
     public void addCompatibleConstraintCoDependent(String ruleCode, ParaVar leftParaVar,
             List<String> leftParaFilterOptionCodes,
@@ -713,6 +744,12 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * - 如果A选择a2、a4或a5，则B可以选择任意值
      * - 如果B选择b1、b2或b3，则A不能选择a1或a3（必须选择a2、a4或a5）
      * - 如果B选择b4或b5，则A可以选择任意值
+     * 
+     * @param ruleCode                   规则代码
+     * @param leftParaVar                左侧参数变量
+     * @param leftParaFilterOptionCodes  左侧参数过滤选项代码列表
+     * @param rightParaVar               右侧参数变量
+     * @param rightParaFilterOptionCodes 右侧参数过滤选项代码列表
      */
     public void addCompatibleConstraintInCompatible(String ruleCode, ParaVar leftParaVar,
             List<String> leftParaFilterOptionCodes,
