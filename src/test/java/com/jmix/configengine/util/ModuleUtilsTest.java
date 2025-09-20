@@ -224,7 +224,7 @@ public class ModuleUtilsTest {
         testRule.setRuleSchemaTypeFullName("CDSL.V5.Struct.TestRule");
         
         // 创建规则Schema
-        CompatibleRuleSchema ruleSchema = new CompatibleRuleSchema();
+        CompatiableRuleSchema ruleSchema = new CompatiableRuleSchema();
         ruleSchema.setOperator("Requires");
         
         // 创建表达式

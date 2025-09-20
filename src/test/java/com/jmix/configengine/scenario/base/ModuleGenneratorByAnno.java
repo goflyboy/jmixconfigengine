@@ -8,7 +8,7 @@ import com.jmix.configengine.model.Module;
 import com.jmix.configengine.model.ModuleAlgArtifact;
 import com.jmix.configengine.model.Rule;
 import com.jmix.configengine.model.schema.CodeRuleSchema;
-import com.jmix.configengine.model.schema.CompatibleRuleSchema;
+import com.jmix.configengine.model.schema.CompatiableRuleSchema;
 import com.jmix.configengine.model.schema.ExprSchema;
 import com.jmix.configengine.model.schema.RefProgObjSchema;
 import com.jmix.configengine.util.ModuleUtils;
@@ -246,8 +246,8 @@ public class ModuleGenneratorByAnno {
         
         // 遍历所有方法
         for (java.lang.reflect.Method method : moduleAlgClazz.getDeclaredMethods()) {
-            // 检查是否有CompatibleRuleAnno注解
-            CompatibleRuleAnno compatiableRuleAnno = method.getAnnotation(CompatibleRuleAnno.class);
+            // 检查是否有CompatiableRuleAnno注解
+            CompatiableRuleAnno compatiableRuleAnno = method.getAnnotation(CompatiableRuleAnno.class);
             if (compatiableRuleAnno != null) {
                 Rule rule = createCompatibleRule(method, compatiableRuleAnno, module);
                 if (rule != null) {
@@ -271,7 +271,7 @@ public class ModuleGenneratorByAnno {
     /**
      * 创建兼容性规则
      */
-    private static Rule createCompatibleRule(java.lang.reflect.Method method, CompatibleRuleAnno anno, Module module) {
+    private static Rule createCompatibleRule(java.lang.reflect.Method method, CompatiableRuleAnno anno, Module module) {
         Rule rule = new Rule();
         
         // 设置基本信息
@@ -285,7 +285,7 @@ public class ModuleGenneratorByAnno {
         rule.setRuleSchemaTypeFullName("CDSL.V5.Struct.CompatibleRule");
         
         // 创建CompatibleRuleSchema
-        CompatibleRuleSchema schema = new CompatibleRuleSchema();
+        CompatiableRuleSchema schema = new CompatiableRuleSchema();
         schema.setType("CompatibleRule");
         schema.setVersion("1.0");
         

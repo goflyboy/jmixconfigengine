@@ -7,7 +7,7 @@ import com.jmix.configengine.scenario.base.*;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.*;
 @Slf4j
-public class ParaIsHiddenTest extends ModuleSecnarioTestBase {
+public class ParaIsHiddenTest extends ModuleScenarioTestBase {
     
     //---------------ģ�͵Ķ���start----------------------------------------
     @ModuleAnno(id = 123L)

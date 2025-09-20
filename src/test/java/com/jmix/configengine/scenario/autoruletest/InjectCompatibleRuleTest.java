@@ -28,7 +28,7 @@ public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
             System.out.println("****************rule1****************");
         }
 
-        @CompatibleRuleAnno(leftExprCode = "ColorVar.value == Red",operator = "Requires"
+        @CompatiableRuleAnno(leftExprCode = "ColorVar.value == Red",operator = "Requires"
         ,rightExprCode = "SizeVar.value == Small")
         protected void rule2() {    
 
@@ -38,7 +38,7 @@ public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
 
 
         }
-        @CompatibleRuleAnno(leftExprCode = "ColorVar.value == Black",operator = "CoDependent"
+        @CompatiableRuleAnno(leftExprCode = "ColorVar.value == Black",operator = "CoDependent"
         ,rightExprCode = "SizeVar.value == Medium")
         protected void rule3() {    
 
@@ -48,7 +48,7 @@ public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
 
         }
 
-        @CompatibleRuleAnno(leftExprCode = "ColorVar.value == White",operator = "InCompatible"
+        @CompatiableRuleAnno(leftExprCode = "ColorVar.value == White",operator = "InCompatible"
         ,rightExprCode = "SizeVar.value == Big")
         protected void rule4() {    
 

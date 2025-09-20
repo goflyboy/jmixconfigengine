@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.*;
 
 @Slf4j
-public class Perf20ParasTest extends ModuleSecnarioTestBase {
+public class Perf20ParasTest extends ModuleScenarioTestBase {
  
 
   //---------------模型的定义start----------------------------------------

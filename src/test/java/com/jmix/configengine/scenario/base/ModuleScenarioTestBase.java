@@ -8,6 +8,7 @@ import com.jmix.configengine.inf.ConstraintConfig;
 import com.jmix.configengine.inf.ModuleInst;
 import com.jmix.configengine.inf.ParaInst;
 import com.jmix.configengine.inf.PartInst;
+import com.jmix.configengine.inf.Result;
 import com.jmix.configengine.model.Module;
 import com.jmix.configengine.model.Para; 
 import com.jmix.configengine.model.Part;
@@ -23,7 +24,7 @@ import org.junit.Before;
  * 模块场景测试基类
  */
 @Slf4j
-public abstract class ModuleSecnarioTestBase {
+public abstract class ModuleScenarioTestBase {
     
     // 核心属性
     protected Class<? extends ConstraintAlgImpl> constraintAlgClazz;
@@ -36,7 +37,7 @@ public abstract class ModuleSecnarioTestBase {
     /**
      * 构造函数
      */
-    public ModuleSecnarioTestBase(Class<? extends ConstraintAlgImpl> constraintAlgClazz) {
+    public ModuleScenarioTestBase(Class<? extends ConstraintAlgImpl> constraintAlgClazz) {
         this.constraintAlgClazz = constraintAlgClazz;
     }
     

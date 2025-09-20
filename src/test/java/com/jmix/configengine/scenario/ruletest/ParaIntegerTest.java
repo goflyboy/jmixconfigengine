@@ -7,7 +7,7 @@ import com.jmix.configengine.scenario.base.*;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.*;
 @Slf4j
-public class ParaIntegerTest extends ModuleSecnarioTestBase {
+public class ParaIntegerTest extends ModuleScenarioTestBase {
     
     //---------------ģ�͵Ķ���start----------------------------------------
     @ModuleAnno(id = 123L)
