@@ -1,5 +1,6 @@
 package com.jmix.configengine.artifact;
 
+import com.jmix.configengine.model.ParaOption;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -8,7 +9,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class ParaOptionVarInfo extends VarInfo<com.jmix.configengine.model.ParaOption> {
+public class ParaOptionVarInfo extends VarInfo<ParaOption> {
     /**
      * 选项编码ID
      */
@@ -26,7 +27,7 @@ public class ParaOptionVarInfo extends VarInfo<com.jmix.configengine.model.ParaO
     /**
      * 构造函数
      */
-    public ParaOptionVarInfo(com.jmix.configengine.model.ParaOption option) {
+    public ParaOptionVarInfo(ParaOption option) {
         super(option); // 调用VarInfo的构造函数，传入ParaOption（因为ParaOption继承自Extensible）
     }
 } 
