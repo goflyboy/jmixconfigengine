@@ -95,11 +95,11 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
             return Result.failed("req is null");
         }
         Module module = null;
-        if (req.moduleId != null) {
-            module = moduleMap.get(req.moduleId);
-        } else if (req.moduleCode != null) {
+        if (req.getModuleId() != null) {
+            module = moduleMap.get(req.getModuleId());
+        } else if (req.getModuleCode() != null) {
             for (Module m : moduleMap.values()) {
-                if (req.moduleCode.equals(m.getCode())) {
+                if (req.getModuleCode().equals(m.getCode())) {
                     module = m;
                     break;
                 }
@@ -124,17 +124,17 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
                 List<String> inputProgObjs = new ArrayList<>();
 
                 // 根据req.mainPartInst、preParaInsts、prePartInsts构建inputProgObjs（三个结合相加)
-                if (req.mainPartInst != null) {
-                    inputProgObjs.add(req.mainPartInst.code);
+                if (req.getMainPartInst() != null) {
+                    inputProgObjs.add(req.getMainPartInst().getCode());
                 }
-                if (req.preParaInsts != null) {
-                    for (ParaInst paraInst : req.preParaInsts) {
-                        inputProgObjs.add(paraInst.code);
+                if (req.getPreParaInsts() != null) {
+                    for (ParaInst paraInst : req.getPreParaInsts()) {
+                        inputProgObjs.add(paraInst.getCode());
                     }
                 }
-                if (req.prePartInsts != null) {
-                    for (PartInst partInst : req.prePartInsts) {
-                        inputProgObjs.add(partInst.code);
+                if (req.getPrePartInsts() != null) {
+                    for (PartInst partInst : req.getPrePartInsts()) {
+                        inputProgObjs.add(partInst.getCode());
                     }
                 }
 
@@ -154,17 +154,17 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
                 // 全量加载模型
                 alg.initModel(model, module);
             }
-            if (req.mainPartInst != null) {
-                alg.addPartEquality(req.mainPartInst.code, req.mainPartInst.quantity);
+            if (req.getMainPartInst() != null) {
+                alg.addPartEquality(req.getMainPartInst().getCode(), req.getMainPartInst().getQuantity());
             }
-            if (req.preParaInsts != null) {
-                for (ParaInst paraInst : req.preParaInsts) {
-                    alg.addParaEquality(paraInst.code, paraInst.value);
+            if (req.getPreParaInsts() != null) {
+                for (ParaInst paraInst : req.getPreParaInsts()) {
+                    alg.addParaEquality(paraInst.getCode(), paraInst.getValue());
                 }
             }
-            if (req.prePartInsts != null) {
-                for (PartInst partInst : req.prePartInsts) {
-                    alg.addPartEquality(partInst.code, partInst.quantity);
+            if (req.getPrePartInsts() != null) {
+                for (PartInst partInst : req.getPrePartInsts()) {
+                    alg.addPartEquality(partInst.getCode(), partInst.getQuantity());
                 }
             }
             if (config.isLogModelProto) {
@@ -172,7 +172,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
                 model.exportToFile(config.logFilePath + "/" + module.getCode() + ".proto.txt");
             }
             CpSolver solver = new CpSolver();
-            if (req.enumerateAllSolution) {
+            if (req.isEnumerateAllSolution()) {
                 solver.getParameters().setEnumerateAllSolutions(true);
             }
             // 可按需设置更多参数
@@ -242,13 +242,13 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
                 if (v instanceof ParaVar) {
                     ParaVar pv = (ParaVar) v;
                     ParaInst pi = new ParaInst();
-                    pi.code = pv.getCode();
+                    pi.setCode(pv.getCode());
                     // 从模块中获取对应的Para模型，设置shortCode
                     pi.setShortCode(pv.getBase().getShortCode());
 
                     // value: read IntVar domain value
                     int value = (int) value((IntVar) pv.value);
-                    pi.value = String.valueOf(value);
+                    pi.setValue(String.valueOf(value));
                     // options: selected option codes
                     List<String> options = new ArrayList<>();
                     pv.optionSelectVars.forEach((codeId, optionVar) -> {
@@ -257,16 +257,16 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
                             options.add(optionVar.getCode());
                         }
                     });
-                    pi.options = options;
-                    pi.isHidden = (int) value((IntVar) pv.isHidden) == 1;
+                    pi.setOptions(options);
+                    pi.setHidden((int) value((IntVar) pv.isHidden) == 1);
                     moduleInst.addParaInst(pi);
                 } else if (v instanceof PartVar) {
                     PartVar partVar = (PartVar) v;
                     PartInst inst = new PartInst();
-                    inst.code = partVar.getCode();
+                    inst.setCode(partVar.getCode());
                     // 从模块中获取对应的Part模型，设置shortCode
                     inst.setShortCode(partVar.getBase().getShortCode());
-                    inst.quantity = (int) value((IntVar) partVar.qty);
+                    inst.setQuantity((int) value((IntVar) partVar.qty));
                     moduleInst.addPartInst(inst);
                 }
             }
@@ -279,8 +279,8 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
                     long varValue = value(otherVar.var);
                     otherVarKeyMap.put(otherVar.shortCode, varValue);
                 }
-                moduleInst.extAttrs.put(OTHER_VARIABLES_VALUE_KEY, otherVarKeyMap);
-                moduleInst.extAttrs.put(OTHER_VARIABLES_MEMO_KEY, otherVarMap);
+                moduleInst.getExtAttrs().put(OTHER_VARIABLES_VALUE_KEY, otherVarKeyMap);
+                moduleInst.getExtAttrs().put(OTHER_VARIABLES_MEMO_KEY, otherVarMap);
             }
 
             allSolutions.add(moduleInst);
@@ -300,15 +300,16 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
      */
     private static ModuleInst createModuleInst(Module module, int instanceId) {
         ModuleInst moduleInst = new ModuleInst();
-        moduleInst.id = module.getId();
-        moduleInst.code = module.getCode();
+        moduleInst.setId(module.getId());
+        moduleInst.setCode(module.getCode());
         // 设置ModuleInst的shortCode
         moduleInst.setShortCode(module.getShortCode());
-        moduleInst.instanceConfigId = "0"; // "INST_" + UUID.randomUUID().toString().replace("-", "").substring(0, 16);
-        moduleInst.instanceId = instanceId;
-        moduleInst.quantity = 1;
-        moduleInst.paras = new ArrayList<>();
-        moduleInst.parts = new ArrayList<>();
+        moduleInst.setInstanceConfigId("0"); // "INST_" + UUID.randomUUID().toString().replace("-", "").substring(0,
+                                             // 16);
+        moduleInst.setInstanceId(instanceId);
+        moduleInst.setQuantity(1);
+        moduleInst.setParas(new ArrayList<>());
+        moduleInst.setParts(new ArrayList<>());
         return moduleInst;
     }
 
@@ -410,7 +411,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
             mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
             return mapper.writeValueAsString(inst);
         } catch (Exception e) {
-            return "{\"error\": \"序列化失败: " + e.getMessage() + "\"}";
+            return "{\"error\": \"Serialization failed: " + e.getMessage() + "\"}";
         }
     }
 }

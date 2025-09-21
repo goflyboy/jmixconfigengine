@@ -1,13 +1,18 @@
 package com.jmix.configengine.inf;
 
+import java.util.List;
+
+import lombok.Data;
+
 /**
  * 推理参数请求类
  */
+@Data
 public class InferParasReq {
-    public Long moduleId;
-    public String moduleCode;
-    public PartInst mainPartInst;
-    public java.util.List<ParaInst> preParaInsts;
-    public java.util.List<PartInst> prePartInsts;
-    public boolean enumerateAllSolution;
+    private Long moduleId;
+    private String moduleCode;
+    private PartInst mainPartInst;
+    private List<ParaInst> preParaInsts;
+    private List<PartInst> prePartInsts;
+    private boolean enumerateAllSolution;
 }

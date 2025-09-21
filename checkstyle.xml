@@ -95,7 +95,7 @@
         <!-- 自定义检查：中文日志检查 -->
         <module name="Regexp">
             <property name="id" value="chineseLogCheck"/>
-            <property name="format" value="log\.(info|warn|error|debug|trace)\s*\(\s*[""'][^""']*[\u4e00-\u9fff][^""']*[""']"/>
+            <property name="format" value="log\.(info|warn|error|debug|trace)\s*\(\s*[&quot;&apos;][^&quot;&apos;]*[\u4e00-\u9fff][^&quot;&apos;]*[&quot;&apos;]"/>
             <property name="message" value="Log messages must be in English, not Chinese. Please use English for all log content."/>
             <property name="severity" value="error"/>
         </module>
@@ -103,7 +103,7 @@
         <!-- 检查日志语句格式 -->
         <module name="Regexp">
             <property name="id" value="logFormatCheck"/>
-            <property name="format" value="log\.(info|warn|error|debug|trace)\s*\(\s*[""'][^""']*[""']\s*\+"/>
+            <property name="format" value="log\.(info|warn|error|debug|trace)\s*\(\s*[&quot;&apos;][^&quot;&apos;]*[&quot;&apos;]\s*\+"/>
             <property name="message" value="Avoid string concatenation in log statements. Use placeholders {} instead."/>
             <property name="severity" value="warning"/>
         </module>
@@ -111,7 +111,7 @@
         <!-- 检查日志级别使用 -->
         <module name="Regexp">
             <property name="id" value="logLevelCheck"/>
-            <property name="format" value="log\.(debug|trace)\s*\(\s*[""'][^""']*[""']"/>
+            <property name="format" value="log\.(debug|trace)\s*\(\s*[&quot;&apos;][^&quot;&apos;]*[&quot;&apos;]"/>
             <property name="message" value="Consider if DEBUG/TRACE level is appropriate for production code."/>
             <property name="severity" value="info"/>
         </module>

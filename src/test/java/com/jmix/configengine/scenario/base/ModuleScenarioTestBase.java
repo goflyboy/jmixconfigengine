@@ -108,17 +108,18 @@ public abstract class ModuleScenarioTestBase {
      */
     protected List<ModuleInst> inferParas(String partCode, Integer qty, String... paraCodeValuePairs) {
         InferParasReq req = new InferParasReq();
-        req.moduleId = module.getId();
-        req.enumerateAllSolution = enumerateAllSolution;
+        req.setModuleId(module.getId());
+        req.setEnumerateAllSolution(enumerateAllSolution);
 
         // 设置主部件实例
-        req.mainPartInst = new PartInst();
-        req.mainPartInst.code = partCode;
-        req.mainPartInst.quantity = qty;
+        PartInst mainPartInst = new PartInst();
+        mainPartInst.setCode(partCode);
+        mainPartInst.setQuantity(qty);
+        req.setMainPartInst(mainPartInst);
 
         // 处理预定义参数（复用公共方法）
         if (paraCodeValuePairs.length > 0) {
-            req.preParaInsts = buildParaInstsFromPairs(paraCodeValuePairs);
+            req.setPreParaInsts(buildParaInstsFromPairs(paraCodeValuePairs));
         }
 
         Result<List<ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(req);
@@ -137,11 +138,11 @@ public abstract class ModuleScenarioTestBase {
      */
     protected List<ModuleInst> inferParasByPara(String... paraCodeValuePairs) {
         InferParasReq req = new InferParasReq();
-        req.moduleId = module.getId();
-        req.enumerateAllSolution = true;
+        req.setModuleId(module.getId());
+        req.setEnumerateAllSolution(true);
 
         // 复用公共方法处理参数
-        req.preParaInsts = buildParaInstsFromPairs(paraCodeValuePairs);
+        req.setPreParaInsts(buildParaInstsFromPairs(paraCodeValuePairs));
 
         Result<List<ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(req);
         log.info("推理结果: {}", result);
@@ -300,14 +301,14 @@ public abstract class ModuleScenarioTestBase {
                 if ("para".equals(element.type)) {
                     // 对paraInst，比较value和paraInst.value
                     ParaInst paraInst = findParaInstByCode(solution, element.code);
-                    if (paraInst == null || !element.value.equals(paraInst.value)) {
+                    if (paraInst == null || !element.value.equals(paraInst.getValue())) {
                         isMatch = false;
                         break;
                     }
                 } else if ("part".equals(element.type)) {
                     // 对partInst，比较value和partInst.quantity
                     PartInst partInst = findPartInstByCode(solution, element.code);
-                    if (partInst == null || !element.value.equals(String.valueOf(partInst.quantity))) {
+                    if (partInst == null || !element.value.equals(String.valueOf(partInst.getQuantity()))) {
                         isMatch = false;
                         break;
                     }
@@ -326,11 +327,11 @@ public abstract class ModuleScenarioTestBase {
      * 根据代码查找ParaInst
      */
     private ParaInst findParaInstByCode(ModuleInst solution, String code) {
-        if (solution.paras == null) {
+        if (solution.getParas() == null) {
             return null;
         }
-        return solution.paras.stream()
-                .filter(p -> code.equals(p.code))
+        return solution.getParas().stream()
+                .filter(p -> code.equals(p.getCode()))
                 .findFirst()
                 .orElse(null);
     }
@@ -339,11 +340,11 @@ public abstract class ModuleScenarioTestBase {
      * 根据代码查找PartInst
      */
     private PartInst findPartInstByCode(ModuleInst solution, String code) {
-        if (solution.parts == null) {
+        if (solution.getParts() == null) {
             return null;
         }
-        return solution.parts.stream()
-                .filter(p -> code.equals(p.code))
+        return solution.getParts().stream()
+                .filter(p -> code.equals(p.getCode()))
                 .findFirst()
                 .orElse(null);
     }
@@ -366,14 +367,14 @@ public abstract class ModuleScenarioTestBase {
             String value = paraCodeValuePairs[i + 1];
 
             ParaInst paraInst = new ParaInst();
-            paraInst.code = paraCode;
+            paraInst.setCode(paraCode);
 
             // 根据module.paras中的para.options，找到value对应的option
             Para para = module.getPara(paraCode);
             if (para == null) {
                 throw new AlgLoaderException(String.format("Parameter %s does not exist", paraCode));
             }
-            paraInst.value = ParaTypeHandler.getCodeIdValue(para, value);
+            paraInst.setValue(ParaTypeHandler.getCodeIdValue(para, value));
             paraInsts.add(paraInst);
         }
 
@@ -431,7 +432,7 @@ public abstract class ModuleScenarioTestBase {
         sb.append("Solutions:\n");
         if (!solutions.isEmpty()) {
             ModuleInst firstSolution = solutions.get(0);
-            Object otherVarsMemo = firstSolution.extAttrs.get(ModuleInst.OTHER_VARIABLES_MEMO_KEY);
+            Object otherVarsMemo = firstSolution.getExtAttrs().get(ModuleInst.OTHER_VARIABLES_MEMO_KEY);
             if (otherVarsMemo instanceof Map) {
                 @SuppressWarnings("unchecked")
                 Map<String, OtherVar> otherVarMap = (Map<String, OtherVar>) otherVarsMemo;

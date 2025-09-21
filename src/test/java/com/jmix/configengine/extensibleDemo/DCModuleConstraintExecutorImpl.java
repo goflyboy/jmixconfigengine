@@ -1,5 +1,8 @@
 package com.jmix.configengine.extensibleDemo;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.jmix.configengine.ModuleConstraintExecutor;
 import com.jmix.configengine.inf.ConstraintConfig;
 import com.jmix.configengine.inf.ExtensibleProcess;
@@ -9,10 +12,8 @@ import com.jmix.configengine.inf.ParaInst;
 import com.jmix.configengine.inf.PartInst;
 import com.jmix.configengine.inf.Result;
 import com.jmix.configengine.model.Module;
-import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * DC公司的模块约束执行器实现
@@ -21,18 +22,16 @@ import java.util.List;
  */
 @Slf4j
 class DCModuleConstraintExecutorImpl {
-    
+
     // 使用单例访问，不需要包装实例
-    private final DCModuleAdapter moduleAdapter;
     private final DCParaInstAdapter paraInstAdapter;
     private final DCPartInstAdapter partInstAdapter;
-    
+
     public DCModuleConstraintExecutorImpl() {
-        this.moduleAdapter = new DCModuleAdapter();
         this.paraInstAdapter = new DCParaInstAdapter();
         this.partInstAdapter = new DCPartInstAdapter();
     }
-    
+
     public DCResult<Void> init(ConstraintConfig config) {
         log.info("Initializing DC Module Constraint Executor");
         Result<Void> result = ModuleConstraintExecutor.INST.init(config);
@@ -41,7 +40,7 @@ class DCModuleConstraintExecutorImpl {
         dcResult.setExtAttr("executorType", "DCModuleConstraintExecutor");
         return dcResult;
     }
-    
+
     public DCResult<Void> fini() {
         log.info("Finalizing DC Module Constraint Executor");
         Result<Void> result = ModuleConstraintExecutor.INST.fini();
@@ -50,18 +49,18 @@ class DCModuleConstraintExecutorImpl {
         dcResult.setExtAttr("executorType", "DCModuleConstraintExecutor");
         return dcResult;
     }
-    
+
     public DCResult<Void> addDCModule(Long rootModuleId, DCModule... dcModules) {
         if (dcModules == null) {
             return DCResult.failed("DC modules is null", "DC_ADD_MODULE_FAILED");
         }
-        
+
         // 将DCModule转换为Module
         Module[] modules = new Module[dcModules.length];
         for (int i = 0; i < dcModules.length; i++) {
             modules[i] = convertFromDCModule(dcModules[i]);
         }
-        
+
         log.info("Adding {} DC modules", dcModules.length);
         Result<Void> result = ModuleConstraintExecutor.INST.addModule(rootModuleId, modules);
         DCResult<Void> dcResult = new DCResult<>(result);
@@ -70,7 +69,7 @@ class DCModuleConstraintExecutorImpl {
         dcResult.setExtAttr("rootModuleId", String.valueOf(rootModuleId));
         return dcResult;
     }
-    
+
     public DCResult<Void> removeModule(Long moduleId) {
         log.info("Removing module: {}", moduleId);
         Result<Void> result = ModuleConstraintExecutor.INST.removeModule(moduleId);
@@ -79,23 +78,22 @@ class DCModuleConstraintExecutorImpl {
         dcResult.setExtAttr("moduleId", String.valueOf(moduleId));
         return dcResult;
     }
-    
+
     public DCResult<List<DCModuleInst>> inferDCParas(DCModuleConstraintExecutor.DCInferParasReq req) {
         if (req == null) {
             return DCResult.failed("DC request is null", "DC_INFER_FAILED");
         }
-        
+
         // 将DC请求转换为标准请求
         InferParasReq standardReq = convertToStandardReq(req);
-        
+
         // 执行推理
-        Result<List<ModuleInst>> result = 
-                ModuleConstraintExecutor.INST.inferParas(standardReq);
-        
+        Result<List<ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(standardReq);
+
         if (result.code != Result.SUCCESS) {
             return DCResult.failed("Inference failed: " + result.message, "DC_INFER_FAILED");
         }
-        
+
         // 将结果转换为DC格式
         List<DCModuleInst> dcSolutions = new ArrayList<>();
         if (result.data != null) {
@@ -104,14 +102,14 @@ class DCModuleConstraintExecutorImpl {
                 dcSolutions.add(dcSolution);
             }
         }
-        
+
         log.info("Inferred {} DC solutions", dcSolutions.size());
         DCResult<List<DCModuleInst>> dcResult = DCResult.success(dcSolutions, "DC_INFER_SUCCESS");
         dcResult.setExtAttr("solutionCount", String.valueOf(dcSolutions.size()));
         dcResult.setExtAttr("moduleCode", req.moduleCode);
         return dcResult;
     }
-    
+
     public DCResult<Void> registerExtensible(ExtensibleProcess eProcess) {
         log.info("Registering extensible process: {}", eProcess.getProcessName());
         Result<Void> result = ModuleConstraintExecutor.INST.registerExtensible(eProcess);
@@ -121,7 +119,7 @@ class DCModuleConstraintExecutorImpl {
         dcResult.setExtAttr("processPriority", String.valueOf(eProcess.getPriority()));
         return dcResult;
     }
-    
+
     public DCResult<Void> unregisterExtensible(ExtensibleProcess eProcess) {
         log.info("Unregistering extensible process: {}", eProcess.getProcessName());
         Result<Void> result = ModuleConstraintExecutor.INST.unregisterExtensible(eProcess);
@@ -130,7 +128,7 @@ class DCModuleConstraintExecutorImpl {
         dcResult.setExtAttr("processName", eProcess.getProcessName());
         return dcResult;
     }
-    
+
     /**
      * 将DCModule转换为Module
      */
@@ -138,7 +136,7 @@ class DCModuleConstraintExecutorImpl {
         if (dcModule == null) {
             return null;
         }
-        
+
         Module module = new Module();
         module.setId(dcModule.getId());
         module.setCode(dcModule.getDccode() != null ? dcModule.getDccode() : dcModule.getCode());
@@ -150,44 +148,46 @@ class DCModuleConstraintExecutorImpl {
         module.setRules(dcModule.getRules());
         module.setAlg(dcModule.getAlg());
         module.init();
-        
+
         log.debug("Converted DCModule to Module: {} -> {}", dcModule.getDccode(), module.getCode());
         return module;
     }
-    
+
     /**
      * 将DC请求转换为标准请求
      */
     private InferParasReq convertToStandardReq(DCModuleConstraintExecutor.DCInferParasReq dcReq) {
         InferParasReq standardReq = new InferParasReq();
-        standardReq.moduleId = dcReq.moduleId;
-        standardReq.moduleCode = dcReq.moduleCode;
-        standardReq.enumerateAllSolution = dcReq.enumerateAllSolution;
-        
+        standardReq.setModuleId(dcReq.moduleId);
+        standardReq.setModuleCode(dcReq.moduleCode);
+        standardReq.setEnumerateAllSolution(dcReq.enumerateAllSolution);
+
         // 转换主部件实例
         if (dcReq.mainPartInst != null) {
-            standardReq.mainPartInst = convertToStandardPartInst(dcReq.mainPartInst);
+            standardReq.setMainPartInst(convertToStandardPartInst(dcReq.mainPartInst));
         }
-        
+
         // 转换预参数实例
         if (dcReq.preParaInsts != null) {
-            standardReq.preParaInsts = new ArrayList<>();
+            List<ParaInst> preParaInsts = new ArrayList<>();
             for (DCParaInst dcParaInst : dcReq.preParaInsts) {
-                standardReq.preParaInsts.add(convertToStandardParaInst(dcParaInst));
+                preParaInsts.add(convertToStandardParaInst(dcParaInst));
             }
+            standardReq.setPreParaInsts(preParaInsts);
         }
-        
+
         // 转换预部件实例
         if (dcReq.prePartInsts != null) {
-            standardReq.prePartInsts = new ArrayList<>();
+            List<PartInst> prePartInsts = new ArrayList<>();
             for (DCPartInst dcPartInst : dcReq.prePartInsts) {
-                standardReq.prePartInsts.add(convertToStandardPartInst(dcPartInst));
+                prePartInsts.add(convertToStandardPartInst(dcPartInst));
             }
+            standardReq.setPrePartInsts(prePartInsts);
         }
-        
+
         return standardReq;
     }
-    
+
     /**
      * 将DCPartInst转换为标准PartInst
      */
@@ -195,16 +195,16 @@ class DCModuleConstraintExecutorImpl {
         if (dcPartInst == null) {
             return null;
         }
-        
+
         PartInst partInst = new PartInst();
         partInst.setCode(dcPartInst.getCode());
         partInst.setQuantity(dcPartInst.getQuantity());
         partInst.setSelectAttrValue(dcPartInst.getSelectAttrValue());
         partInst.setHidden(dcPartInst.isHidden());
-        
+
         return partInst;
     }
-    
+
     /**
      * 将DCParaInst转换为标准ParaInst
      */
@@ -212,16 +212,16 @@ class DCModuleConstraintExecutorImpl {
         if (dcParaInst == null) {
             return null;
         }
-        
+
         ParaInst paraInst = new ParaInst();
         paraInst.setCode(dcParaInst.getCode());
         paraInst.setValue(dcParaInst.getValue());
         paraInst.setOptions(dcParaInst.getOptions());
         paraInst.setHidden(dcParaInst.isHidden());
-        
+
         return paraInst;
     }
-    
+
     /**
      * 将标准ModuleInst转换为DCModuleInst
      */
@@ -229,13 +229,13 @@ class DCModuleConstraintExecutorImpl {
         if (solution == null) {
             return null;
         }
-        
+
         DCModuleInst dcSolution = new DCModuleInst(solution);
-        
+
         // 设置DC特有字段
         dcSolution.setDccode(solution.getCode());
         dcSolution.setSeason("Spring"); // 默认季节
-        
+
         // 转换参数实例
         if (solution.getParas() != null) {
             List<DCParaInst> dcParas = new ArrayList<>();
@@ -250,7 +250,7 @@ class DCModuleConstraintExecutorImpl {
             }
             dcSolution.setParas(standardParas);
         }
-        
+
         // 转换部件实例
         if (solution.getParts() != null) {
             List<DCPartInst> dcParts = new ArrayList<>();
@@ -265,7 +265,7 @@ class DCModuleConstraintExecutorImpl {
             }
             dcSolution.setParts(standardParts);
         }
-        
+
         log.debug("Converted ModuleInst to DCModuleInst: {} -> {}", solution.getCode(), dcSolution.getDccode());
         return dcSolution;
     }

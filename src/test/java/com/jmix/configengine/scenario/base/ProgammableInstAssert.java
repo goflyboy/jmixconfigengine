@@ -44,21 +44,21 @@ public class ProgammableInstAssert {
     }
 
     private ParaInst findParaByCode(String code) {
-        if (actualModuleInst.paras == null) {
+        if (actualModuleInst.getParas() == null) {
             return null;
         }
-        return actualModuleInst.paras.stream()
-                .filter(p -> code.equals(p.code))
+        return actualModuleInst.getParas().stream()
+                .filter(p -> code.equals(p.getCode()))
                 .findFirst()
                 .orElse(null);
     }
 
     private PartInst findPartByCode(String code) {
-        if (actualModuleInst.parts == null) {
+        if (actualModuleInst.getParts() == null) {
             return null;
         }
-        return actualModuleInst.parts.stream()
-                .filter(p -> code.equals(p.code))
+        return actualModuleInst.getParts().stream()
+                .filter(p -> code.equals(p.getCode()))
                 .findFirst()
                 .orElse(null);
     }

@@ -11,11 +11,11 @@ import lombok.Data;
  */
 @Data
 public class PartInst {
-    public String code;
-    public Integer quantity;
-    public Map<String, String> selectAttrValue;
-    public boolean isHidden = false;
-    public Map<String, Object> extAttrs;
+    private String code;
+    private Integer quantity;
+    private Map<String, String> selectAttrValue;
+    private boolean isHidden = false;
+    private Map<String, Object> extAttrs;
 
     /**
      * 短编码,仅用于调试

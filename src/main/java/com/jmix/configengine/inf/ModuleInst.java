@@ -17,14 +17,14 @@ public class ModuleInst {
     public static final String OTHER_VARIABLES_VALUE_KEY = "OTHER_VARIABLES_VALUE";
     // v1:a1OrA3, v2:b1OrB2OrB3
     public static final String OTHER_VARIABLES_MEMO_KEY = "OTHER_VARIABLES_MEMO";
-    public Long id; // module id
-    public String code; // module code
-    public String instanceConfigId; // instance config id
-    public int instanceId; // instance id 默认为0，多个实例，从0开始，如：0，1,2，....
-    public Integer quantity; // quantity
-    public List<ParaInst> paras; // paras
-    public List<PartInst> parts; // parts
-    public Map<String, Object> extAttrs = new HashMap<>();
+    private Long id; // module id
+    private String code; // module code
+    private String instanceConfigId; // instance config id
+    private int instanceId; // instance id 默认为0，多个实例，从0开始，如：0，1,2，....
+    private Integer quantity; // quantity
+    private List<ParaInst> paras; // paras
+    private List<PartInst> parts; // parts
+    private Map<String, Object> extAttrs = new HashMap<>();
 
     /**
      * 短编码,仅用于调试

@@ -48,8 +48,8 @@ public class ModuleConstraintExecutorTest {
         assertEquals(0, exec.addModule(123123L, m).code);
 
         InferParasReq req = new InferParasReq();
-        req.moduleId = 123123L;
-        req.enumerateAllSolution = true;
+        req.setModuleId(123123L);
+        req.setEnumerateAllSolution(true);
         Result<List<ModuleInst>> r = exec.inferParas(req);
         int i = 0;
         r.data.forEach(inst -> {
@@ -66,7 +66,7 @@ public class ModuleConstraintExecutorTest {
         assertTrue(r.data.size() >= 1);
         // 解的结构应包含para和part
         ModuleInst first = r.data.get(0);
-        assertNotNull(first.paras);
-        assertNotNull(first.parts);
+        assertNotNull(first.getParas());
+        assertNotNull(first.getParts());
     }
 }
