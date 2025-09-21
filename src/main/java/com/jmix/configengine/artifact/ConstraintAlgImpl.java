@@ -17,6 +17,7 @@ import com.google.ortools.sat.CpModel;
 import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.Literal;
 import com.google.ortools.util.Domain;
+import com.jmix.configengine.inf.AlgLoaderException;
 import com.jmix.configengine.model.Module;
 import com.jmix.configengine.model.Para;
 import com.jmix.configengine.model.ParaOption;
@@ -34,16 +35,25 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     static {
         Loader.loadNativeLibraries();
     }
-    // CP模型
+    /**
+     * CP约束求解模型实例
+     */
     protected AlgCPModel model;
-    // module context
+    /**
+     * module的基础信息
+     */
     protected Module module;
-    // var map
+    /**
+     * 变量映射表，存储所有创建的变量实例
+     */
     protected Map<String, Var<?>> varMap = new LinkedHashMap<>();
-    // codes whose visibility are controlled by explicit constraints; skip default
-    // binding
+    /**
+     * 受显式约束控制可见性的编码集合，跳过默认绑定
+     */
     protected Set<String> codesOfHiddenConstraint = new HashSet<>();
-    // 所有rule的方法
+    /**
+     * 所有规则方法的映射表，存储规则代码到对应方法的映射
+     */
     protected Map<String, Method> ruleMethods = new HashMap<>();
 
     /**
@@ -165,7 +175,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
                 ruleMethods.put(ruleCode, method);
                 log.debug("Built rule method mapping: {} -> {}", ruleCode, method.getName());
             } else {
-                throw new RuntimeException("Rule method not found for rule code: " + ruleCode);
+                throw new AlgLoaderException("Rule method not found for rule code: " + ruleCode);
             }
         }
 
@@ -227,10 +237,10 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
                 log.debug("Executed rule method: {}", method.getName());
             } catch (Exception e) {
                 log.info(ruleCode, e);
-                throw new RuntimeException("Failed to execute rule method: " + method.getName(), e);
+                throw new AlgLoaderException("Failed to execute rule method: " + method.getName(), e);
             }
         } else {
-            throw new RuntimeException("Rule method not found for execution: " + ruleCode);
+            throw new AlgLoaderException("Rule method not found for execution: " + ruleCode);
         }
     }
 
@@ -241,7 +251,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      */
     private void initVariables(List<RefProgObjSchema> exeProgObjs) {
         if (exeProgObjs == null || exeProgObjs.isEmpty()) {
-            throw new RuntimeException("exeProgObjs is null or empty");
+            throw new AlgLoaderException("exeProgObjs is null or empty");
         }
         for (RefProgObjSchema exeProgObj : exeProgObjs) {
             String field = exeProgObj.getProgObjType();
@@ -250,7 +260,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             } else if (field.equals("Part")) {
                 createPartVar(exeProgObj.getProgObjCode());
             } else {
-                throw new RuntimeException("Unsupported progObjType: " + field);
+                throw new AlgLoaderException("Unsupported progObjType: " + field);
             }
         }
         log.info("Initialized {} variables for incremental loading", varMap.size());
@@ -305,7 +315,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             }
 
         } catch (Exception e) {
-            throw new RuntimeException("自动初始化变量失败", e);
+            throw new AlgLoaderException("Failed to initialize variables automatically", e);
         }
     }
 
@@ -494,7 +504,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     protected ParaVar createParaVar(String code) {
         Para para = module != null ? module.getPara(code) : null;
         if (para == null) {
-            throw new RuntimeException("Para not found for code: " + code);
+            throw new AlgLoaderException("Para not found for code: " + code);
         }
         ParaVar paraVar = new ParaVar();
         paraVar.setBase(para);
@@ -505,7 +515,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
                 break;
             case ENUM:
                 if (para.getOptions() == null) {
-                    throw new RuntimeException("Para options not found for code: " + code);
+                    throw new AlgLoaderException("Para options not found for code: " + code);
                 }
                 paraVar.value = newIntVarFromDomain(para.getOptionIds(), f(ParaVar.VALUE_PATTEN, code));
 
@@ -520,7 +530,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
                 });
                 break;
             default:
-                throw new RuntimeException("Para type not supported: " + para.getType());
+                throw new AlgLoaderException("Para type not supported: " + para.getType());
         }
         paraVar.isHidden = newBoolVar(f(ParaVar.HIDDEN_PATTEN, code));
         registerVar(code, paraVar);
@@ -536,7 +546,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     protected PartVar createPartVar(String code) {
         Part part = module != null ? module.getPart(code) : null;
         if (part == null) {
-            throw new RuntimeException("Part not found for code: " + code);
+            throw new AlgLoaderException("Part not found for code: " + code);
         }
         PartVar partVar = new PartVar();
         partVar.setBase(part);
@@ -557,11 +567,11 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     protected ParaOptionVar createParaOptionVar(String paraCode, String optionCode) {
         Para para = module != null ? module.getPara(paraCode) : null;
         if (para == null) {
-            throw new RuntimeException("Para not found for code: " + paraCode);
+            throw new AlgLoaderException("Para not found for code: " + paraCode);
         }
         ParaOption option = para.getOption(optionCode);
         if (option == null) {
-            throw new RuntimeException("ParaOption not found for code: " + optionCode);
+            throw new AlgLoaderException("ParaOption not found for code: " + optionCode);
         }
         ParaOptionVar optionVar = new ParaOptionVar(option);
         optionVar.isSelectedVar = newBoolVar(f(ParaVar.OPTIONS_PATTEN, paraCode, option.getCode()));
@@ -628,7 +638,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         // 1. 根据partCode找到对应的partVar
         Var<?> var = varMap.get(partCode);
         if (!(var instanceof PartVar)) {
-            throw new RuntimeException("PartVar not found for code: " + partCode);
+            throw new AlgLoaderException("PartVar not found for code: " + partCode);
         }
         PartVar partVar = (PartVar) var;
 
@@ -645,7 +655,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     public void addParaEquality(String paraCode, String paraValue) {
         Var<?> var = varMap.get(paraCode);
         if (!(var instanceof ParaVar)) {
-            throw new RuntimeException("ParaVar not found for code: " + paraCode);
+            throw new AlgLoaderException("ParaVar not found for code: " + paraCode);
         }
         ParaVar paraVar = (ParaVar) var;
         model.addEquality((IntVar) paraVar.value, Integer.parseInt(paraValue));
