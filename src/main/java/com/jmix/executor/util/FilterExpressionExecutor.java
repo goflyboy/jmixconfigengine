@@ -20,12 +20,19 @@ import java.util.regex.Pattern;
  * Filter Expression Executor
  */
 @Slf4j
-public class FilterExpressionExecutor {
+public final class FilterExpressionExecutor {
 
     private static final Pattern FILTER_PATTERN = Pattern.compile("(\\w+)\\s*([=!<>]+)\\s*\"?([^\"]*)\"?");
 
     // Class field cache to improve performance
     private static final Map<Class<?>, Map<String, java.lang.reflect.Field>> FIELD_CACHE = new ConcurrentHashMap<>();
+
+    /**
+     * 私有构造器，防止工具类被实例化
+     */
+    private FilterExpressionExecutor() {
+        throw new UnsupportedOperationException("Utility class cannot be instantiated");
+    }
 
     /**
      * Filter condition representation

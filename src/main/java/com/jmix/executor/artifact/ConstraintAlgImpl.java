@@ -1,5 +1,22 @@
 package com.jmix.executor.artifact;
 
+import com.jmix.executor.inf.AlgLoaderException;
+import com.jmix.executor.model.Module;
+import com.jmix.executor.model.Para;
+import com.jmix.executor.model.ParaOption;
+import com.jmix.executor.model.Part;
+import com.jmix.executor.model.Rule;
+import com.jmix.executor.model.schema.RefProgObjSchema;
+
+import com.google.ortools.Loader;
+import com.google.ortools.sat.BoolVar;
+import com.google.ortools.sat.CpModel;
+import com.google.ortools.sat.IntVar;
+import com.google.ortools.sat.Literal;
+import com.google.ortools.util.Domain;
+
+import lombok.extern.slf4j.Slf4j;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -11,22 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.ortools.Loader;
-import com.google.ortools.sat.BoolVar;
-import com.google.ortools.sat.CpModel;
-import com.google.ortools.sat.IntVar;
-import com.google.ortools.sat.Literal;
-import com.google.ortools.util.Domain;
-import com.jmix.executor.inf.AlgLoaderException;
-import com.jmix.executor.model.Module;
-import com.jmix.executor.model.Para;
-import com.jmix.executor.model.ParaOption;
-import com.jmix.executor.model.Part;
-import com.jmix.executor.model.Rule;
-import com.jmix.executor.model.schema.RefProgObjSchema;
-
-import lombok.extern.slf4j.Slf4j;
-
 /**
  * 约束算法实现基类
  */
@@ -35,22 +36,27 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     static {
         Loader.loadNativeLibraries();
     }
+
     /**
      * CP约束求解模型实例
      */
     protected AlgCPModel model;
+
     /**
      * module的基础信息
      */
     protected Module module;
+
     /**
      * 变量映射表，存储所有创建的变量实例
      */
     protected Map<String, Var<?>> varMap = new LinkedHashMap<>();
+
     /**
      * 受显式约束控制可见性的编码集合，跳过默认绑定
      */
     protected Set<String> codesOfHiddenConstraint = new HashSet<>();
+
     /**
      * 所有规则方法的映射表，存储规则代码到对应方法的映射
      */

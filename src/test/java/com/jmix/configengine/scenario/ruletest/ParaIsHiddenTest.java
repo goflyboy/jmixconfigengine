@@ -86,7 +86,7 @@ public class ParaIsHiddenTest extends ModuleScenarioTestBase {
     public void testP0Value0P1Hidden() {
         // Test when P0=0, P1 should be hidden and P1.var=0
         inferParas("Part1", 1, "P0", "0");
-        printSolutions(module, solutions);
+        printSolutions();
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(1);
@@ -103,7 +103,7 @@ public class ParaIsHiddenTest extends ModuleScenarioTestBase {
     public void testP0Value1P1Hidden() {
         // Test when P0=0, P1 should be hidden and P1.var=0
         inferParas("Part1", 1, "P0", "1");
-        printSolutions(module, solutions);
+        printSolutions();
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(1);
@@ -120,7 +120,7 @@ public class ParaIsHiddenTest extends ModuleScenarioTestBase {
     public void testP0Value2P2Hidden() {
         // Test when P0=0, P1 should be hidden and P1.var=0
         inferParas("Part1", 1, "P0", "2");
-        printSolutions(module, solutions);
+        printSolutions();
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(1);
@@ -136,7 +136,7 @@ public class ParaIsHiddenTest extends ModuleScenarioTestBase {
     public void testP2ToPart1() {
         // Test when P0=0, P1 should be hidden and P1.var=0
         inferParasByPara("P0", "1", "P2", "2");
-        printSolutions(module, solutions);
+        printSolutions();
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(1);
@@ -152,7 +152,7 @@ public class ParaIsHiddenTest extends ModuleScenarioTestBase {
     public void testP1ToPart1() {
         // Test when P0=0, P1 should be hidden and P1.var=0
         inferParasByPara("P0", "2", "P1", "2");
-        printSolutions(module, solutions);
+        printSolutions();
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(1);
@@ -168,7 +168,7 @@ public class ParaIsHiddenTest extends ModuleScenarioTestBase {
     public void testP1ToPart1InvalidInput() {
         // Test when P0=0, P1 should be hidden and P1.var=0
         inferParasByPara("P0", "2", "P1", "3");// 超出P1值域
-        printSolutions(module, solutions);
+        printSolutions();
         resultAssert().assertNoSolution();
 
     }

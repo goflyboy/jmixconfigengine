@@ -27,7 +27,13 @@ import java.util.Map;
  * 通过注解生成Module的工具类
  */
 @Slf4j
-public class ModuleGenneratorByAnno {
+public final class ModuleGenneratorByAnno {
+    /**
+     * 私有构造器，防止工具类被实例化
+     */
+    private ModuleGenneratorByAnno() {
+        throw new UnsupportedOperationException("Utility class cannot be instantiated");
+    }
 
     public static Module build(Class<? extends ConstraintAlg> moduleAlgClazz, String resourcePath) {
         Module module = new Module();
@@ -105,7 +111,7 @@ public class ModuleGenneratorByAnno {
 
         module.setParas(paras);
         module.setParts(parts);
-        module.init();// 保证后续能使用getPara等函数
+        module.init(); // 保证后续能使用getPara等函数
         // 4. 生成规则
         List<Rule> rules = createRulesFromMethods(moduleAlgClazz, module);
         module.setRules(rules);
@@ -445,9 +451,7 @@ public class ModuleGenneratorByAnno {
                 log.debug("Left refProgObjs: {}, Right refProgObjs: {}", leftRefProgObjs.size(),
                         rightRefProgObjs.size());
             }
-        }
-        // 范式2：赋值语句 A=B，通过=识别，是返过来，右边决定左边
-        else if (normalNaturalCode.contains(" = ")) {
+        } else if (normalNaturalCode.contains(" = ")) { // 范式2：赋值语句 A=B，通过=识别，是返过来，右边决定左边
             // 例如：normalNaturalCode= "PT1.qty=P11.value ",
             // 则：leftRefProgObjs=P11,rightRefProgObjs=PT1
             String[] parts = normalNaturalCode.split(" = ");
@@ -459,9 +463,7 @@ public class ModuleGenneratorByAnno {
                 leftRefProgObjs = generateRefProgObjSchemas(rightPart, currentModule);
                 rightRefProgObjs = generateRefProgObjSchemas(leftPart, currentModule);
             }
-        }
-
-        else {
+        } else { // 范式3：其他语句，直接返回空列表
             log.error("Unsupported rule pattern: {}", normalNaturalCode);
             throw new AlgLoaderException("Unsupported rule pattern: " + normalNaturalCode);
         }

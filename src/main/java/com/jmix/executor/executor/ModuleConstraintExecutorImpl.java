@@ -321,8 +321,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
         moduleInst.setCode(module.getCode());
         // 设置ModuleInst的shortCode
         moduleInst.setShortCode(module.getShortCode());
-        moduleInst.setInstanceConfigId("0"); // "INST_" + UUID.randomUUID().toString().replace("-", "").substring(0,
-                                             // 16);
+        moduleInst.setInstanceConfigId("0");
         moduleInst.setInstanceId(instanceId);
         moduleInst.setQuantity(1);
         moduleInst.setParas(new ArrayList<>());

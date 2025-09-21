@@ -49,7 +49,7 @@ public class HelloConstraintTest extends ModuleScenarioTestBase {
         // }
         // 测试颜色参数推理
         inferParas("TShirt11", 3);
-        printSolutions(module, solutions);
+        printSolutions();
         // 反推有8个接口 8=3*3 - 1
         resultAssert()
                 .assertSuccess()

@@ -705,11 +705,811 @@ Lines added: 2, lines removed: 2
 
 ---
 
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ResultAssert.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -171,7 +171,7 @@
+       */
+      public ResultAssert assertMessageNotContains(String unexpectedContent) {
+-         if (actualResult.message != null && actualResult.message.contains(unexpectedContent)) {
++         if (actualResult.getMessage() != null && actualResult.getMessage().contains(unexpectedContent)) {
+              throw new AssertionError(String.format(
+-                     "结果消息不应包含: %s，实际: %s", unexpectedContent, actualResult.message));
++                     "结果消息不应包含: %s，实际: %s", unexpectedContent, actualResult.getMessage()));
+          }
+          return this;
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ResultAssert.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -182,8 +182,8 @@
+       */
+      public ResultAssert assertSuccess() {
+-         if (actualResult.code != Result.SUCCESS) {
++         if (actualResult.getCode() != Result.SUCCESS) {
+              throw new AssertionError(String.format(
+                      "期望执行成功，实际结果代码: %d，消息: %s",
+-                     actualResult.code, actualResult.message));
++                     actualResult.getCode(), actualResult.getMessage()));
+          }
+          return this;
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ResultAssert.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -194,8 +194,8 @@
+       */
+      public ResultAssert assertFailure() {
+-         if (actualResult.code == Result.SUCCESS) {
++         if (actualResult.getCode() == Result.SUCCESS) {
+              throw new AssertionError(String.format(
+                      "期望执行失败，实际结果代码: %d，消息: %s",
+-                     actualResult.code, actualResult.message));
++                     actualResult.getCode(), actualResult.getMessage()));
+          }
+          return this;
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ResultAssert.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 4, lines removed: 4
+
+```diff
+@@ -206,10 +206,10 @@
+       */
+      public ResultAssert assertNoSolution() {
+-         if (actualResult.code != Result.SUCCESS ||
+-                 (actualResult.data instanceof Collection && ((Collection<?>) actualResult.data).size() > 0)) {
++         if (actualResult.getCode() != Result.SUCCESS ||
++                 (actualResult.getData() instanceof Collection && ((Collection<?>) actualResult.getData()).size() > 0)) {
+              throw new AssertionError(String.format(
+                      "期望无解，实际结果代码: %d，解数量: %s",
+-                     actualResult.code,
+-                     actualResult.data instanceof Collection ? String.valueOf(((Collection<?>) actualResult.data).size())
++                     actualResult.getCode(),
++                     actualResult.getData() instanceof Collection ? String.valueOf(((Collection<?>) actualResult.getData()).size())
+                              : "N/A"));
+          }
+```
+
+</details>
+
+---
+
+The string to replace was not found in the file.
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ResultAssert.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -231,5 +231,5 @@
+       */
+      public ResultAssert assertDataNull() {
+-         if (actualResult.data != null) {
++         if (actualResult.getData() != null) {
+              throw new AssertionError("结果数据应为空");
+          }
+```
+
+</details>
+
+---
+
+现在更新TODO状态并检查其他需要修改的类：
+
+
+---
+
+## Todo List
+
+- [x] 将Result类的字段从public改为private
+- [x] 修改Result类中的静态方法，使用getter/setter
+- [x] 修改DCResult类中对Result字段的直接访问
+- [x] 修改ResultAssert类中对Result字段的直接访问
+- [-] 修改其他类中对Result字段的直接访问
+
+---
+
+现在检查其他需要修改的类。让我查看之前搜索到的文件：
+
+
+---
+
+Read file: undefined
+
+---
+
+让我搜索这个文件中直接访问Result字段的地方：
 
 
 ---
 
 
+
+---
+
+Read file: undefined
+
+---
+
+现在修改这个文件：
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/executor/ModuleConstraintExecutorImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 3, lines removed: 3
+
+```diff
+@@ -399,10 +399,10 @@
+                      Result<List<ModuleInst>> processResult = postProcess.postProcess(module, result);
+  
+-                     if (processResult.code == Result.SUCCESS && processResult.data != null) {
+-                         result = processResult.data;
++                     if (processResult.getCode() == Result.SUCCESS && processResult.getData() != null) {
++                         result = processResult.getData();
+                          log.debug("Applied post process: {} successfully", process.getProcessName());
+                      } else {
+                          log.warn("Post process failed: {}, message: {}",
+-                                 process.getProcessName(), processResult.message);
++                                 process.getProcessName(), processResult.getMessage());
+                      }
+                  } catch (Exception e) {
+```
+
+</details>
+
+---
+
+现在检查其他文件：
+
+
+---
+
+
+
+---
+
+这个不是Result字段的访问，是注释。让我检查其他文件：
+
+
+---
+
+
+
+---
+
+让我查看这个文件的具体内容：
+
+
+---
+
+Read file: undefined
+
+---
+
+这个也不是Result字段的访问。让我检查其他文件：
+
+
+---
+
+
+
+---
+
+
+
+---
+
+这些都不是Result字段的访问。让我检查测试文件：
+
+
+---
+
+
+
+---
+
+这些都不是Result字段的访问。让我检查是否还有其他地方需要修改：
+
+
+---
+
+
+
+---
+
+让我检查这些文件：
+
+
+---
+
+
+
+---
+
+Read file: undefined
+
+---
+
+现在修改这个文件：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/extensibleDemo/DCMyTShirtTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 4, lines removed: 4
+
+```diff
+@@ -150,9 +150,9 @@
+          // 验证结果
+          assertNotNull("Result should not be null", result);
+-         assertEquals("Should be successful", Result.SUCCESS, result.code);
+-         assertNotNull("Processed solutions should not be null", result.data);
+-         assertTrue("Should have processed solutions", !result.data.isEmpty());
++         assertEquals("Should be successful", Result.SUCCESS, result.getCode());
++         assertNotNull("Processed solutions should not be null", result.getData());
++         assertTrue("Should have processed solutions", !result.getData().isEmpty());
+  
+-         log.info("Found {} processed solutions with delivery type calculation", result.data.size());
++         log.info("Found {} processed solutions with delivery type calculation", result.getData().size());
+  
+          // 验证后处理器是否被调用
+```
+
+</details>
+
+---
+
+Read file: undefined
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/extensibleDemo/DCMyTShirtTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 3, lines removed: 3
+
+```diff
+@@ -232,7 +232,7 @@
+          // 验证结果
+          assertNotNull("Result should not be null", result);
+-         assertEquals("Should be successful even with empty solutions", Result.SUCCESS, result.code);
+-         assertNotNull("Processed solutions should not be null", result.data);
+-         assertTrue("Should have empty processed solutions", result.data.isEmpty());
++         assertEquals("Should be successful even with empty solutions", Result.SUCCESS, result.getCode());
++         assertNotNull("Processed solutions should not be null", result.getData());
++         assertTrue("Should have empty processed solutions", result.getData().isEmpty());
+  
+          log.info("No solution test passed - empty solutions handled correctly");
+```
+
+</details>
+
+---
+
+现在检查其他文件：
+
+
+---
+
+
+
+---
+
+Read file: undefined
+
+---
+
+Read file: undefined
+
+---
+
+现在修改这个文件：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -126,5 +126,5 @@
+          log.info("推理结果: {}", result);
+          this.result = result;
+-         this.solutions = result.data;
++         this.solutions = result.getData();
+          return solutions;
+      }
+```
+
+**Chunk 2**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -148,5 +148,5 @@
+          log.info("推理结果: {}", result);
+          this.result = result;
+-         this.solutions = result.data;
++         this.solutions = result.getData();
+          return solutions;
+      }
+```
+
+</details>
+
+---
+
+现在检查最后一个文件：
+
+
+---
+
+
+
+---
+
+Read file: undefined
+
+---
+
+现在修改这个文件：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/extensibleDemo/DCModuleConstraintExecutorImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 4, lines removed: 4
+
+```diff
+@@ -93,12 +93,12 @@
+          Result<List<ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(standardReq);
+  
+-         if (result.code != Result.SUCCESS) {
+-             return DCResult.failed("Inference failed: " + result.message, "DC_INFER_FAILED");
++         if (result.getCode() != Result.SUCCESS) {
++             return DCResult.failed("Inference failed: " + result.getMessage(), "DC_INFER_FAILED");
+          }
+  
+          // 将结果转换为DC格式
+          List<DCModuleInst> dcSolutions = new ArrayList<>();
+-         if (result.data != null) {
+-             for (ModuleInst solution : result.data) {
++         if (result.getData() != null) {
++             for (ModuleInst solution : result.getData()) {
+                  DCModuleInst dcSolution = convertToDCModuleInst(solution);
+                  dcSolutions.add(dcSolution);
+```
+
+</details>
+
+---
+
+现在检查是否还有其他地方需要修改：
+
+
+---
+
+
+
+---
+
+很好！现在检查是否有任何linter错误：
+
+
+---
+
+
+
+---
+
+我需要修复这些错误。首先修复DCResult类中的类型冲突：
+
+
+---
+
+Read file: undefined
+
+---
+
+问题是DCResult类中的`extAttrs`字段类型与父类Result中的`extAttrs`字段类型不兼容。我需要重命名这个字段：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/extensibleDemo/DCResult.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -25,7 +25,7 @@
+  
+      /**
+-      * 扩展属性
++      * DC扩展属性
+       */
+-     private java.util.Map<String, String> extAttrs = new java.util.HashMap<>();
++     private java.util.Map<String, String> dcExtAttrs = new java.util.HashMap<>();
+  
+      /**
+```
+
+</details>
+
+---
+
+现在更新使用这个字段的方法：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/extensibleDemo/DCResult.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 3, lines removed: 3
+
+```diff
+@@ -134,8 +134,8 @@
+       */
+      public void setExtAttr(String key, String value) {
+-         if (extAttrs == null) {
+-             extAttrs = new java.util.HashMap<>();
++         if (dcExtAttrs == null) {
++             dcExtAttrs = new java.util.HashMap<>();
+          }
+-         extAttrs.put(key, value);
++         dcExtAttrs.put(key, value);
+      }
+  
+```
+
+**Chunk 2**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -147,5 +147,5 @@
+       */
+      public String getExtAttr(String key) {
+-         return extAttrs != null ? extAttrs.get(key) : null;
++         return dcExtAttrs != null ? dcExtAttrs.get(key) : null;
+      }
+  
+```
+
+</details>
+
+---
+
+现在修复其他文件中的错误。先修复DCMyTShirtTest.java中的错误：
+
+
+---
+
+
+
+---
+
+让我检查具体的错误行：
+
+
+---
+
+Read file: undefined
+
+---
+
+Read file: undefined
+
+---
+
+Read file: undefined
+
+---
+
+现在修复这些错误：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/extensibleDemo/DCMyTShirtTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -90,5 +90,5 @@
+          DCModule testModule = getDCModule();
+          DCResult<Void> addResult = DCModuleConstraintExecutor.INST.addDCModule(2L, testModule);
+-         assertEquals("DC module addition should be successful", Result.SUCCESS, addResult.code);
++         assertEquals("DC module addition should be successful", Result.SUCCESS, addResult.getCode());
+          assertNotNull("DC result code should not be null", addResult.getDcResultCode());
+          assertEquals("DC result code should be correct", "DC_ADD_MODULE_SUCCESS", addResult.getDcResultCode());
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/extensibleDemo/DCMyTShirtTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -208,5 +208,5 @@
+          Result<Void> registerResult = ModuleConstraintExecutor.INST.registerExtensible(newPostProcess);
+  
+-         assertEquals("Registration should be successful", Result.SUCCESS, registerResult.code);
++         assertEquals("Registration should be successful", Result.SUCCESS, registerResult.getCode());
+  
+          // 测试注销
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/extensibleDemo/DCMyTShirtTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -213,5 +213,5 @@
+          Result<Void> unregisterResult = ModuleConstraintExecutor.INST.unregisterExtensible(newPostProcess);
+  
+-         assertEquals("Unregistration should be successful", Result.SUCCESS, unregisterResult.code);
++         assertEquals("Unregistration should be successful", Result.SUCCESS, unregisterResult.getCode());
+  
+          // 测试完成后清理
+```
+
+</details>
+
+---
+
+现在修复ModuleConstraintExecutorImpl.java中的错误：
+
+
+---
+
+Read file: undefined
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/executor/ModuleConstraintExecutorImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -344,6 +344,6 @@
+          try {
+              Result<Void> initResult = eProcess.init();
+-             if (initResult.code != Result.SUCCESS) {
+-                 return Result.failed("Failed to initialize extensible process: " + initResult.message);
++             if (initResult.getCode() != Result.SUCCESS) {
++                 return Result.failed("Failed to initialize extensible process: " + initResult.getMessage());
+              }
+  
+```
+
+</details>
+
+---
+
+现在更新TODO状态：
+
+
+---
+
+## Todo List
+
+- [x] 将Result类的字段从public改为private
+- [x] 修改Result类中的静态方法，使用getter/setter
+- [x] 修改DCResult类中对Result字段的直接访问
+- [x] 修改ResultAssert类中对Result字段的直接访问
+- [x] 修改其他类中对Result字段的直接访问
+
+---
+
+现在检查是否还有其他linter错误：
+
+
+---
+
+
+
+---
+
+很好！现在只剩下一些警告，没有错误了。主要的修改已经完成。让我修复ResultAssert.java中的两个警告：
+
+
+---
+
+Read file: undefined
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ResultAssert.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 4, lines removed: 3
+
+```diff
+@@ -206,10 +206,11 @@
+       */
+      public ResultAssert assertNoSolution() {
+-         if (actualResult.getCode() != Result.SUCCESS ||
+-                 (actualResult.getData() instanceof Collection && ((Collection<?>) actualResult.getData()).size() > 0)) {
++         if (actualResult.getCode() != Result.SUCCESS
++                 || (actualResult.getData() instanceof Collection && ((Collection<?>) actualResult.getData()).size() > 0)) {
+              throw new AssertionError(String.format(
+                      "期望无解，实际结果代码: %d，解数量: %s",
+                      actualResult.getCode(),
+-                     actualResult.getData() instanceof Collection ? String.valueOf(((Collection<?>) actualResult.getData()).size())
++                     actualResult.getData() instanceof Collection 
++                             ? String.valueOf(((Collection<?>) actualResult.getData()).size())
+                              : "N/A"));
+          }
+```
+
+</details>
+
+---
+
+现在检查最终的linter状态：
+
+
+---
+
+
+
+---
+
+让我修复这个行长度问题：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ResultAssert.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 1
+
+```diff
+@@ -207,5 +207,6 @@
+      public ResultAssert assertNoSolution() {
+          if (actualResult.getCode() != Result.SUCCESS
+-                 || (actualResult.getData() instanceof Collection && ((Collection<?>) actualResult.getData()).size() > 0)) {
++                 || (actualResult.getData() instanceof Collection 
++                         && ((Collection<?>) actualResult.getData()).size() > 0)) {
+              throw new AssertionError(String.format(
+                      "期望无解，实际结果代码: %d，解数量: %s",
+```
+
+</details>
+
+---
+
+现在检查最终的linter状态：
+
+
+---
+
+
+
+---
+
+完美！现在让我总结一下完成的工作：
+
+## 修改总结
+
+我已经成功将`Result`类的字段从`public`改为`private`，并修改了所有相关的类以使用getter/setter方法。
+
+### 主要修改内容：
+
+1. **Result类** (`src/main/java/com/jmix/executor/inf/Result.java`)：
+   - 将字段`code`、`data`、`message`、`extAttrs`从`public`改为`private`
+   - 修改静态方法`success()`、`failed()`、`noSolution()`使用setter方法
+
+2. **DCResult类** (`src/test/java/com/jmix/configengine/extensibleDemo/DCResult.java`)：
+   - 修改构造函数中对Result字段的直接访问，改为使用getter/setter
+   - 修改静态方法中对Result字段的直接访问
+   - 修改`isSuccess()`、`isFailed()`、`isNoSolution()`方法使用getter
+   - 重命名`extAttrs`字段为`dcExtAttrs`以避免与父类字段类型冲突
+
+3. **ResultAssert类** (`src/test/java/com/jmix/configengine/scenario/base/ResultAssert.java`)：
+   - 修改所有方法中对Result字段的直接访问，改为使用getter方法
+   - 修复代码格式问题（行长度、换行等）
+
+4. **ModuleConstraintExecutorImpl类** (`src/main/java/com/jmix/executor/executor/ModuleConstraintExecutorImpl.java`)：
+   - 修改后处理逻辑中对Result字段的直接访问
+
+5. **测试类**：
+   - **DCMyTShirtTest.java**：修改测试中对Result字段的直接访问
+   - **ModuleScenarioTestBase.java**：修改解决方案赋值使用getter方法
+   - **DCModuleConstraintExecutorImpl.java**：修改推理结果处理使用getter方法
+
+### 验证结果：
+- 所有修改的文件都没有linter错误
+- 代码现在符合Java封装原则，使用private字段和public getter/setter方法
+- 保持了原有的功能不变，只是改变了字段访问方式
+
+这个修改提高了代码的封装性和可维护性，符合面向对象编程的最佳实践。
 
 ---
 

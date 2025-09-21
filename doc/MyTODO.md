@@ -114,3 +114,6 @@ tool
   
   
   類 'CompatiableRuleSchema' 看起來像是為擴展設計的（可以是子類），但方法 'getFromLeftProgObjs' 沒有javadoc，解釋瞭如何安全地執行。如果類不是為擴展而設計的，請考慮創建類 'CompatiableRuleSchema' final或使方法 'getFromLeftProgObjs' static/final/abstract/empty，或為方法添加允許的
+  
+  给他们一个单独的工程来用例的测试等？***
+  

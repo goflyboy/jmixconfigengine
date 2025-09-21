@@ -84,33 +84,33 @@ public class CalculateRuleSimpleTest extends ModuleScenarioTestBase {
 
         // 验证第一个解
         solutions(0).assertPara("P1").valueEqual("op11");
-        printSolutions(module, solutions);
+        printSolutions();
     }
 
     @Test
     public void test_else_op11() {
         inferParas("PT1", 3);
-        printSolutions(module, solutions);
+        printSolutions();
         // 反推有8个接口 8=3*3 - 1
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(2);
         // if的解肯定不在其中
         assertSolutionNum("P1:op11", 0);
-        printSolutions(module, solutions);
+        printSolutions();
     }
 
     @Test
     public void test_no_if_else() {
         inferParas("PT1", 4);
-        printSolutions(module, solutions);
+        printSolutions();
         // 反推有8个接口 8=3*3 - 1
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(0);
         // if的解肯定不在其中
         assertSolutionNum("P1:op11", 0);
-        printSolutions(module, solutions);
+        printSolutions();
     }
 
 }

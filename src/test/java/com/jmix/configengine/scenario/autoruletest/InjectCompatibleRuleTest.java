@@ -28,12 +28,12 @@ public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
         // protected void initConstraint() {//不能有这个代码
         // }
         @CodeRuleAnno(code = "rule1")
-        protected void rule1() {
+        private void rule1() {
             System.out.println("****************rule1****************");
         }
 
         @CompatiableRuleAnno(leftExprCode = "ColorVar.value == Red", operator = "Requires", rightExprCode = "SizeVar.value == Small")
-        protected void rule2() {
+        private void rule2() {
 
             // 自动生成，请勿编辑--start
             addCompatibleConstraintRequires("rule2", this.ColorVar, listOf("Red"), this.SizeVar, listOf("Small"));
@@ -42,7 +42,7 @@ public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
         }
 
         @CompatiableRuleAnno(leftExprCode = "ColorVar.value == Black", operator = "CoDependent", rightExprCode = "SizeVar.value == Medium")
-        protected void rule3() {
+        private void rule3() {
 
             // 自动生成，请勿编辑--start
             addCompatibleConstraintCoDependent("rule3", this.ColorVar, listOf("Black"), this.SizeVar, listOf("Medium"));
@@ -51,7 +51,7 @@ public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
         }
 
         @CompatiableRuleAnno(leftExprCode = "ColorVar.value == White", operator = "InCompatible", rightExprCode = "SizeVar.value == Big")
-        protected void rule4() {
+        private void rule4() {
 
             // 自动生成，请勿编辑--start
             addCompatibleConstraintInCompatible("rule4", this.ColorVar, listOf("White"), this.SizeVar, listOf("Big"));
@@ -64,6 +64,7 @@ public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
         super(InjectCompatibleRuleConstraint.class);
     }
 
+    @Override
     protected void beforeInitConfig(ConstraintConfig cfg) {
         cfg.setLoadType(1);
     }

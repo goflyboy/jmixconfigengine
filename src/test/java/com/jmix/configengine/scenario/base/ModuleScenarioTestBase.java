@@ -16,6 +16,7 @@ import com.jmix.executor.model.Para;
 import com.jmix.executor.model.Part;
 import com.jmix.executor.util.ParaTypeHandler;
 
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import org.junit.After;
@@ -30,16 +31,43 @@ import java.util.Map;
  * 模块场景测试基类
  */
 @Slf4j
+@Data
 public abstract class ModuleScenarioTestBase {
 
-    // 核心属性
-    protected Class<? extends ConstraintAlgImpl> constraintAlgClazz;
-    protected String tempResourcePath = "";
-    protected Module module;
-    protected ConstraintConfig cfg;
-    protected List<ModuleInst> solutions;
-    protected Result<List<ModuleInst>> result;
-    protected boolean enumerateAllSolution = true;
+    /**
+     * 约束算法类
+     */
+    private Class<? extends ConstraintAlgImpl> constraintAlgClazz;
+
+    /**
+     * 临时资源路径
+     */
+    private String tempResourcePath = "";
+
+    /**
+     * 模块
+     */
+    private Module module;
+
+    /**
+     * 配置
+     */
+    private ConstraintConfig cfg;
+
+    /**
+     * 解决方案列表
+     */
+    private List<ModuleInst> solutions;
+
+    /**
+     * 推理结果
+     */
+    private Result<List<ModuleInst>> result;
+
+    /**
+     * 是否枚举所有解决方案
+     */
+    private boolean enumerateAllSolution = true;
 
     /**
      * 构造函数
@@ -79,18 +107,20 @@ public abstract class ModuleScenarioTestBase {
      */
     protected void init() {
         // 生成临时资源路径
-        tempResourcePath = CommHelper.createTempPath(constraintAlgClazz);
+        setTempResourcePath(CommHelper.createTempPath(getConstraintAlgClazz()));
         // 使用单例访问
-        cfg = new ConstraintConfig();
-        cfg.setAttachedDebug(true); // 测试环境直接使用当前classpath加载
-        cfg.setRootFilePath(tempResourcePath);
-        cfg.setLogFilePath(tempResourcePath);
-        cfg.setLogModelProto(true);
-        beforeInitConfig(cfg);
-        ModuleConstraintExecutor.INST.init(cfg);
+        ConstraintConfig config = new ConstraintConfig();
+        config.setAttachedDebug(true); // 测试环境直接使用当前classpath加载
+        config.setRootFilePath(getTempResourcePath());
+        config.setLogFilePath(getTempResourcePath());
+        config.setLogModelProto(true);
+        beforeInitConfig(config);
+        ModuleConstraintExecutor.INST.init(config);
+        setCfg(config);
 
-        module = buildModule(this.constraintAlgClazz);
-        ModuleConstraintExecutor.INST.addModule(module.getId(), module);
+        Module moduleInstance = buildModule(getConstraintAlgClazz());
+        ModuleConstraintExecutor.INST.addModule(moduleInstance.getId(), moduleInstance);
+        setModule(moduleInstance);
     }
 
     protected void beforeInitConfig(ConstraintConfig cfg) {
@@ -108,8 +138,8 @@ public abstract class ModuleScenarioTestBase {
      */
     protected List<ModuleInst> inferParas(String partCode, Integer qty, String... paraCodeValuePairs) {
         InferParasReq req = new InferParasReq();
-        req.setModuleId(module.getId());
-        req.setEnumerateAllSolution(enumerateAllSolution);
+        req.setModuleId(getModule().getId());
+        req.setEnumerateAllSolution(isEnumerateAllSolution());
 
         // 设置主部件实例
         PartInst mainPartInst = new PartInst();
@@ -124,9 +154,9 @@ public abstract class ModuleScenarioTestBase {
 
         Result<List<ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(req);
         log.info("推理结果: {}", result);
-        this.result = result;
-        this.solutions = result.getData();
-        return solutions;
+        setResult(result);
+        setSolutions(result.getData());
+        return getSolutions();
     }
 
     /**
@@ -138,7 +168,7 @@ public abstract class ModuleScenarioTestBase {
      */
     protected List<ModuleInst> inferParasByPara(String... paraCodeValuePairs) {
         InferParasReq req = new InferParasReq();
-        req.setModuleId(module.getId());
+        req.setModuleId(getModule().getId());
         req.setEnumerateAllSolution(true);
 
         // 复用公共方法处理参数
@@ -146,9 +176,9 @@ public abstract class ModuleScenarioTestBase {
 
         Result<List<ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(req);
         log.info("推理结果: {}", result);
-        this.result = result;
-        this.solutions = result.getData();
-        return solutions;
+        setResult(result);
+        setSolutions(result.getData());
+        return getSolutions();
     }
 
     /**
@@ -166,26 +196,26 @@ public abstract class ModuleScenarioTestBase {
      * 获取指定索引的解决方案
      */
     protected ProgammableInstAssert solutions(int index) {
-        if (solutions == null || index >= solutions.size()) {
+        if (getSolutions() == null || index >= getSolutions().size()) {
             throw new IndexOutOfBoundsException("解决方案索引超出范围: " + index);
         }
-        ModuleInst solution = solutions.get(index);
-        return new ProgammableInstAssert(solution, module);
+        ModuleInst solution = getSolutions().get(index);
+        return new ProgammableInstAssert(solution, getModule());
     }
 
     /**
      * 打印所有解决方案
      */
     protected void printSolutionsDetail() {
-        if (solutions == null || solutions.isEmpty()) {
+        if (getSolutions() == null || getSolutions().isEmpty()) {
             log.info("没有找到解决方案");
             return;
         }
 
-        log.info("找到 {} 个解决方案:\n", solutions.size());
+        log.info("找到 {} 个解决方案:\n", getSolutions().size());
         StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < solutions.size(); i++) {
-            sb.append(String.format("\n解决方案%d: %s", i, ModuleConstraintExecutorImpl.toJson(solutions.get(i))));
+        for (int i = 0; i < getSolutions().size(); i++) {
+            sb.append(String.format("\n解决方案%d: %s", i, ModuleConstraintExecutorImpl.toJson(getSolutions().get(i))));
         }
         log.info(sb.toString());
     }
@@ -194,10 +224,10 @@ public abstract class ModuleScenarioTestBase {
      * 获取结果断言对象，用于验证执行结果
      */
     protected ResultAssert resultAssert() {
-        if (result == null) {
+        if (getResult() == null) {
             throw new IllegalStateException("尚未执行推理，无法获取结果断言");
         }
-        return new ResultAssert(result);
+        return new ResultAssert(getResult());
     }
 
     /**
@@ -208,10 +238,10 @@ public abstract class ModuleScenarioTestBase {
      */
     protected void assertSolutionNum(String conditionExpr, int expectSolutionNum) {
         // 如果expectSolutionNum为0，则不进行验证
-        if (expectSolutionNum == 0 && (solutions == null || solutions.isEmpty())) {
+        if (expectSolutionNum == 0 && (getSolutions() == null || getSolutions().isEmpty())) {
             return;
         }
-        if (solutions == null || solutions.isEmpty()) {
+        if (getSolutions() == null || getSolutions().isEmpty()) {
             throw new AssertionError("没有解决方案可供验证");
         }
         // 解析条件表达式
@@ -264,7 +294,7 @@ public abstract class ModuleScenarioTestBase {
             String value = entry.getValue();
 
             // 在module.paras中查找
-            Para para = module.getPara(key);
+            Para para = getModule().getPara(key);
             if (para != null) {
                 // 找到Para，进一步根据value在option中查找
                 String codeIdValue = ParaTypeHandler.getCodeIdValue(para, value);
@@ -273,7 +303,7 @@ public abstract class ModuleScenarioTestBase {
             }
 
             // 在module.parts中查找
-            Part part = module.getPart(key);
+            Part part = getModule().getPart(key);
             if (part != null) {
                 // 找到Part
                 elements.add(new ConditionElement("part", key, value));
@@ -294,7 +324,7 @@ public abstract class ModuleScenarioTestBase {
     private int countMatchingSolutions(List<ConditionElement> conditionElements) {
         int matchCount = 0;
 
-        for (ModuleInst solution : solutions) {
+        for (ModuleInst solution : getSolutions()) {
             boolean isMatch = true;
 
             for (ConditionElement element : conditionElements) {
@@ -370,7 +400,7 @@ public abstract class ModuleScenarioTestBase {
             paraInst.setCode(paraCode);
 
             // 根据module.paras中的para.options，找到value对应的option
-            Para para = module.getPara(paraCode);
+            Para para = getModule().getPara(paraCode);
             if (para == null) {
                 throw new AlgLoaderException(String.format("Parameter %s does not exist", paraCode));
             }
@@ -385,9 +415,12 @@ public abstract class ModuleScenarioTestBase {
      * 条件元素内部类
      */
     private static class ConditionElement {
-        final String type; // "para" 或 "part"
-        final String code; // 代码
-        final String value; // 值
+
+        private final String type; // "para" 或 "part"
+
+        private final String code; // 代码
+
+        private final String value; // 值
 
         ConditionElement(String type, String code, String value) {
             this.type = type;
@@ -403,7 +436,7 @@ public abstract class ModuleScenarioTestBase {
      * @param solutions 解列表
      */
     protected void printSolutions() {
-        printSolutions(module, solutions);
+        printSolutions(getModule(), getSolutions());
     }
 
     /**

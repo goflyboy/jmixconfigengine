@@ -46,11 +46,11 @@ public class PartVar {
 ### 1. 基类依赖
 - 仅使用Ortool-java的9.12.4544版本的API，不要使用老版本的API
 - 如果生成不出来，就输出生成不出来，不要瞎输出
-- 约束代码依赖的基类已经定义了CPModel信息和变量信息和调用Rule方法的代码, 不需要生成initConstraint方法的代码
+- 约束代码依赖的基类已经定义了CPModel信息和变量信息和调用rule方法的代码, 不需要生成initConstraint方法的代码
 - 不需要生成基类，仅需要生成每个rule对应的约束代码
-- 每个Rule生成一个方法，并使用@CodeRuleAnno注解，注解中需要生成normalNaturalCode
+- 每个rule生成一个方法，并使用@CodeRuleAnno注解，注解中需要生成normalNaturalCode
 --在基类会统一创建公用的变量，例如:ColorVar, 每个rule方法不需要创建变量，例如:model.newInt*等
---Rule方法里关键步骤都要生成注释，方便理解
+--rule方法里关键步骤都要生成注释，方便理解
 --如果约束代码里使用了isHidden,则该变量需要调用addVarAboutHiddenConstraints(在“约束关联的变量设置地方”)
 -----例如： 有约束 P1.isHidden = P2.isHidden,则需要增加： addVarAboutHiddenConstraints(P1,P2);
 ```java
@@ -96,7 +96,7 @@ class ConstraintAlgImpl {
 - 用户制定的用例一定要实现
 - 基于Junit4实现
 - 用例代码继承ModuleSecnarioTestBase（测试框架）
-- 每个用例需要给出相应注释，解释这个注释是测试那个Rule的,
+- 每个用例需要给出相应注释，解释这个注释是测试那个rule的,
 --代码注释尽量使用英文
 
 ### 2. 测试方法实现
@@ -185,7 +185,7 @@ public class ${modelName}Test extends ModuleSecnarioTestBase {
     static public class ${modelName}Constraint extends ConstraintAlgImpl {
         ${userVariableModel}
         
-        ${生成的约束代码}//每个Rule一个Rule方法
+        ${生成的约束代码}//每个rule一个rule方法
     }
     //---------------模型的定义end----------------------------------------
 
@@ -225,7 +225,7 @@ private PartVar TShirt11Var;
 #### 输入3：用户逻辑伪代码
 ```java
 
-//Rule1:
+//rule1:
 if(ColorVar.value == Red && SizeVar.value == Small) {
     TShirt11Var.qty = 1;
 }
@@ -233,7 +233,7 @@ else {
     TShirt11Var.qty = 3;
 }
 
-//Rule2: 
+//rule2: 
    ColorVar.isHidden and SizeVar.isHidden 是兼容的
    
 ```
@@ -276,7 +276,7 @@ public class HelloSampleTest extends ModuleSecnarioTestBase {
         private PartVar TShirt11Var;
 
         @CodeRuleAnno(normalNaturalCode = "if(ColorVar.value == Red && SizeVar.value == Small) {\n TShirt11Var.qty = 1;\n  } else {\n TShirt11Var.qty = 3; }")
-        protected void Rule1() {
+        private void rule1() {
             // 创建条件变量：颜色是红色且尺寸是小号
             BoolVar redAndSmall = model.newBoolVar("rule2_redAndSmall");
 
@@ -300,7 +300,7 @@ public class HelloSampleTest extends ModuleSecnarioTestBase {
             model.addEquality((IntVar)this.TShirt11Var.value, 3).onlyEnforceIf(redAndSmall.not());
         }
         @CodeRuleAnno(normalNaturalCode = "P1.isHidden和P2.isHidden是兼容的")
-        protected void Rule2() {
+        private void rule2() {
             addVarAboutHiddenConstraints(ColorVar, SizeVar);
             model.addEquality(ColorVar.isHidden,SizeVar.isHidden));
         }
@@ -324,7 +324,7 @@ public class HelloSampleTest extends ModuleSecnarioTestBase {
         // 验证第一个解
         solutions(0).assertPara("Color").valueEqual("Red")
                 .assertPara("Size").valueEqual("Small");
-        printSolutions(module, solutions);
+        printSolutions();
     }
 
     @Test
@@ -337,13 +337,13 @@ public class HelloSampleTest extends ModuleSecnarioTestBase {
                 .assertSolutionSizeEqual(1);
         
         solutions(0).assertPart("TShirt11").quantityEqual(1);
-        printSolutions(module, solutions);
+        printSolutions();
     }
 
     @Test
     public void testElseCondition() {
         inferParas("TShirt11", 3);
-        printSolutions(module, solutions);
+        printSolutions();
         // 反推有8个解  8=3*3 - 1
         resultAssert()
                 .assertSuccess()
@@ -358,7 +358,7 @@ public class HelloSampleTest extends ModuleSecnarioTestBase {
         assertSolutionNum("Color:White,Size:Big", 1);
         assertSolutionNum("Color:Red,Size:Big", 1);
         assertSolutionNum("Color:Black,Size:Small", 1);
-        printSolutions(module, solutions);
+        printSolutions();
     }
 
     @Test
@@ -368,7 +368,7 @@ public class HelloSampleTest extends ModuleSecnarioTestBase {
         inferParas("TShirt11", 10);
         // 使用resultAssert验证执行结果
         resultAssert().assertNoSolution();
-        printSolutions(module, solutions);
+        printSolutions();
     }
 }
 ```
