@@ -1,4 +1,4 @@
-package com.jmix.configengine.scenario.base;
+package com.jmix.tool.model;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -15,19 +15,19 @@ public @interface CompatiableRuleAnno {
      * 左表达式代码
      */
     String leftExprCode() default "";
-    
+
     /**
      * 操作符
      */
     String operator() default "";
-    
+
     /**
      * 右表达式代码
      */
     String rightExprCode() default "";
-    
+
     /**
      * 自然语言描述
      */
     String normalNaturalCode() default "";
-} 
+}

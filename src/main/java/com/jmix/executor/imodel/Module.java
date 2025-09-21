@@ -1,6 +1,7 @@
 package com.jmix.executor.imodel;
 
 import com.jmix.executor.imodel.rule.RefProgObjSchema;
+import com.jmix.executor.impl.ModuleRefRelationGraph;
 import com.jmix.executor.impl.util.Pair;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;

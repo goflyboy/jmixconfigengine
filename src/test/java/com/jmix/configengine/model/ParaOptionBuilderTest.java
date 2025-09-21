@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.jmix.executor.imodel.ModuleBuilder;
 import com.jmix.executor.imodel.ParaOption;
+import com.jmix.executor.impl.ModuleBuilder;
 
 import org.junit.Assert;
 import org.junit.Test;

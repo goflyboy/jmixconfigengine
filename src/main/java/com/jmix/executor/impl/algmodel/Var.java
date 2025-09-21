@@ -1,4 +1,4 @@
-package com.jmix.executor.impl.artifact;
+package com.jmix.executor.impl.algmodel;
 
 import com.jmix.executor.imodel.Programmable;
 

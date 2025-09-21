@@ -1,14 +1,14 @@
 package com.jmix.configengine.perf;
 
-import com.jmix.configengine.scenario.base.CodeRuleAnno;
-import com.jmix.configengine.scenario.base.ModuleAnno;
 import com.jmix.configengine.scenario.base.ModuleScenarioTestBase;
-import com.jmix.configengine.scenario.base.ParaAnno;
-import com.jmix.configengine.scenario.base.PartAnno;
 import com.jmix.executor.imodel.ConstraintConfig;
-import com.jmix.executor.impl.artifact.ConstraintAlgImpl;
-import com.jmix.executor.impl.artifact.ParaVar;
-import com.jmix.executor.impl.artifact.PartVar;
+import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
+import com.jmix.executor.impl.algmodel.ParaVar;
+import com.jmix.executor.impl.algmodel.PartVar;
+import com.jmix.tool.model.CodeRuleAnno;
+import com.jmix.tool.model.ModuleAnno;
+import com.jmix.tool.model.ParaAnno;
+import com.jmix.tool.model.PartAnno;
 
 import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.IntVar;

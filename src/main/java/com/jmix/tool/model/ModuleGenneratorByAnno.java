@@ -1,4 +1,4 @@
-package com.jmix.configengine.scenario.base;
+package com.jmix.tool.model;
 
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.ModuleAlgArtifact;
@@ -10,7 +10,7 @@ import com.jmix.executor.imodel.rule.CodeRuleSchema;
 import com.jmix.executor.imodel.rule.CompatiableRuleSchema;
 import com.jmix.executor.imodel.rule.ExprSchema;
 import com.jmix.executor.imodel.rule.RefProgObjSchema;
-import com.jmix.executor.impl.artifact.ConstraintAlg;
+import com.jmix.executor.impl.algmodel.ConstraintAlg;
 import com.jmix.executor.omodel.AlgLoaderException;
 import com.jmix.tool.ModuleUtils;
 

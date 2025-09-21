@@ -1,9 +1,9 @@
 package com.jmix.configengine.artifact;
 
 import com.jmix.executor.imodel.Extensible;
-import com.jmix.executor.imodel.ModuleBuilder;
 import com.jmix.executor.imodel.ParaOption;
 import com.jmix.executor.imodel.Part;
+import com.jmix.executor.impl.ModuleBuilder;
 import com.jmix.executor.impl.util.FilterExpressionExecutor;
 
 import org.junit.Assert;

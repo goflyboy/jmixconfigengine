@@ -1,4 +1,4 @@
-package com.jmix.configengine.scenario.base;
+package com.jmix.tool.model;
 
 import com.jmix.executor.omodel.AlgLoaderException;
 import com.jmix.tool.artifact.RuleInfo;

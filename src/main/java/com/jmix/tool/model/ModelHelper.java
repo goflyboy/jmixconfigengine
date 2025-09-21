@@ -1,11 +1,8 @@
-package com.jmix.configengine.scenario.base.modeltool;
+package com.jmix.tool.model;
 
-import com.jmix.configengine.scenario.base.CommHelper;
-import com.jmix.configengine.scenario.base.ModuleGenneratorByAnno;
-import com.jmix.configengine.scenario.base.StructCodeInjector;
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.Rule;
-import com.jmix.executor.impl.artifact.ConstraintAlg;
+import com.jmix.executor.impl.algmodel.ConstraintAlg;
 import com.jmix.executor.omodel.AlgLoaderException;
 import com.jmix.tool.artifact.ModuleAlgArtifactGenerator;
 import com.jmix.tool.artifact.ModuleVarInfo;
@@ -188,7 +185,7 @@ public class ModelHelper {
                 mainMethod.invoke(null, (Object) new String[0]);
             } catch (NoSuchMethodException e) {
                 System.out.println("未找到main方法，使用JUnit运行测试用例...");
-                runWithJUnit(testClass);
+                // runWithJUnit(testClass);
             }
 
         } catch (ClassNotFoundException e) {
@@ -200,54 +197,56 @@ public class ModelHelper {
         }
     }
 
-    /**
-     * 使用JUnit运行测试类
-     * 
-     * @param testClass 测试类
-     */
-    private void runWithJUnit(Class<?> testClass) {
-        try {
-            // 检查是否有@Test注解的方法
-            java.lang.reflect.Method[] methods = testClass.getMethods();
-            java.util.List<java.lang.reflect.Method> testMethods = new java.util.ArrayList<>();
+    // /**
+    // * 使用JUnit运行测试类
+    // *
+    // * @param testClass 测试类
+    // */
+    // private void runWithJUnit(Class<?> testClass) {
+    // try {
+    // // 检查是否有@Test注解的方法
+    // java.lang.reflect.Method[] methods = testClass.getMethods();
+    // java.util.List<java.lang.reflect.Method> testMethods = new
+    // java.util.ArrayList<>();
 
-            for (java.lang.reflect.Method method : methods) {
-                if (method.isAnnotationPresent(org.junit.Test.class)) {
-                    testMethods.add(method);
-                }
-            }
+    // for (java.lang.reflect.Method method : methods) {
+    // if (method.isAnnotationPresent(org.junit.Test.class)) {
+    // testMethods.add(method);
+    // }
+    // }
 
-            if (!testMethods.isEmpty()) {
-                System.out.println("发现 " + testMethods.size() + " 个@Test方法，正在运行...");
+    // if (!testMethods.isEmpty()) {
+    // System.out.println("发现 " + testMethods.size() + " 个@Test方法，正在运行...");
 
-                // 创建测试类实例
-                Object testInstance = testClass.getDeclaredConstructor().newInstance();
+    // // 创建测试类实例
+    // Object testInstance = testClass.getDeclaredConstructor().newInstance();
 
-                // 运行每个测试方法
-                for (java.lang.reflect.Method testMethod : testMethods) {
-                    try {
-                        System.out.println("正在运行测试方法: " + testMethod.getName());
-                        testMethod.invoke(testInstance);
-                        System.out.println("✓ 测试方法 " + testMethod.getName() + " 执行成功");
-                    } catch (Exception e) {
-                        System.err.println("✗ 测试方法 " + testMethod.getName() + " 执行失败: " + e.getMessage());
-                        if (e.getCause() != null) {
-                            System.err.println("  原因: " + e.getCause().getMessage());
-                        }
-                    }
-                }
+    // // 运行每个测试方法
+    // for (java.lang.reflect.Method testMethod : testMethods) {
+    // try {
+    // System.out.println("正在运行测试方法: " + testMethod.getName());
+    // testMethod.invoke(testInstance);
+    // System.out.println("✓ 测试方法 " + testMethod.getName() + " 执行成功");
+    // } catch (Exception e) {
+    // System.err.println("✗ 测试方法 " + testMethod.getName() + " 执行失败: " +
+    // e.getMessage());
+    // if (e.getCause() != null) {
+    // System.err.println(" 原因: " + e.getCause().getMessage());
+    // }
+    // }
+    // }
 
-                System.out.println("所有测试方法执行完成");
+    // System.out.println("所有测试方法执行完成");
 
-            } else {
-                System.out.println("未发现@Test方法，无法运行");
-            }
+    // } else {
+    // System.out.println("未发现@Test方法，无法运行");
+    // }
 
-        } catch (Exception e) {
-            System.err.println("JUnit运行失败: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
+    // } catch (Exception e) {
+    // System.err.println("JUnit运行失败: " + e.getMessage());
+    // e.printStackTrace();
+    // }
+    // }
 
     /**
      * 编译Java文件

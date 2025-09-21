@@ -5,21 +5,21 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.lang.reflect.Method;
-
-import com.jmix.configengine.scenario.base.CodeRuleAnno;
-import com.jmix.configengine.scenario.base.CommHelper;
-import com.jmix.configengine.scenario.base.CompatiableRuleAnno;
-import com.jmix.configengine.scenario.base.ModuleAnno;
-import com.jmix.configengine.scenario.base.ModuleGenneratorByAnno;
-import com.jmix.configengine.scenario.base.ParaAnno;
-import com.jmix.configengine.scenario.base.PartAnno;
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.ParaType;
 import com.jmix.executor.imodel.Rule;
-import com.jmix.executor.impl.artifact.ConstraintAlgImpl;
-import com.jmix.executor.impl.artifact.ParaVar;
-import com.jmix.executor.impl.artifact.PartVar;
+import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
+import com.jmix.executor.impl.algmodel.ParaVar;
+import com.jmix.executor.impl.algmodel.PartVar;
+import com.jmix.tool.model.CodeRuleAnno;
+import com.jmix.tool.model.CommHelper;
+import com.jmix.tool.model.CompatiableRuleAnno;
+import com.jmix.tool.model.ModuleAnno;
+import com.jmix.tool.model.ModuleGenneratorByAnno;
+import com.jmix.tool.model.ParaAnno;
+import com.jmix.tool.model.PartAnno;
+
+import java.lang.reflect.Method;
 
 /**
  * 注解规则测试类

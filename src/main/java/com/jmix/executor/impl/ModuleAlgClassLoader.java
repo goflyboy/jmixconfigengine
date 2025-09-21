@@ -1,7 +1,7 @@
 package com.jmix.executor.impl;
 
 import com.jmix.executor.imodel.ModuleAlgArtifact;
-import com.jmix.executor.impl.artifact.ConstraintAlgImpl;
+import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
 import com.jmix.executor.omodel.AlgLoaderException;
 
 import java.util.HashMap;

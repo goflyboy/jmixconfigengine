@@ -2,6 +2,7 @@ package com.jmix.configengine.scenario.base.modeltool;
 
 import com.jmix.configengine.scenario.autoruletest.InjectCompatibleRuleTest.InjectCompatibleRuleConstraint;
 import com.jmix.executor.omodel.AlgLoaderException;
+import com.jmix.tool.model.ModelHelper;
 
 /**
  * ModelHelper测试类

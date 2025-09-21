@@ -1,4 +1,4 @@
-package com.jmix.executor.imodel;
+package com.jmix.executor.impl;
 
 import com.jmix.executor.imodel.rule.RefProgObjSchema;
 import com.jmix.executor.impl.util.Pair;

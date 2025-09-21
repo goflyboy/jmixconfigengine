@@ -5,14 +5,14 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import com.jmix.configengine.scenario.base.CommHelper;
-import com.jmix.configengine.scenario.base.ModuleGenneratorByAnno;
-import com.jmix.configengine.scenario.base.StructCodeInjector;
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.Rule;
 import com.jmix.executor.imodel.rule.CompatiableRuleSchema;
 import com.jmix.tool.artifact.ModuleAlgArtifactGenerator;
 import com.jmix.tool.artifact.ModuleVarInfo;
+import com.jmix.tool.model.CommHelper;
+import com.jmix.tool.model.ModuleGenneratorByAnno;
+import com.jmix.tool.model.StructCodeInjector;
 
 /**
  * 注解规则集成测试类
