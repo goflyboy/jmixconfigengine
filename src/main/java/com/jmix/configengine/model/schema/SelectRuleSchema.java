@@ -1,9 +1,10 @@
 package com.jmix.configengine.model.schema;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import java.util.ArrayList;
 import java.util.List;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * 选择规则Schema
@@ -15,12 +16,12 @@ public class SelectRuleSchema extends RuleSchema {
      * 筛选类型：single/multiple
      */
     private String type;
-    
+
     /**
      * 左表达式
      */
     private ExprSchema leftExpr;
-    
+
     /**
      * 赋值映射Schema
      */
@@ -29,18 +30,26 @@ public class SelectRuleSchema extends RuleSchema {
          * 左表达式
          */
         private ExprSchema leftExpr;
-        
+
         /**
          * 左属性编码
          */
         private String leftAttrCode;
-        
+
         /**
          * 左引用编程对象
          */
         private List<RefProgObjSchema> leftRefProgObjs;
+
+        public String toString() {
+            return "AssignMapSchema{" +
+                    "leftExpr=" + leftExpr +
+                    ", leftAttrCode='" + leftAttrCode + '\'' +
+                    ", leftRefProgObjs=" + leftRefProgObjs +
+                    '}';
+        }
     }
-    
+
     @Override
     public List<RefProgObjSchema> getFromLeftProgObjs() {
         if (leftExpr != null && leftExpr.getRefProgObjs() != null) {
@@ -48,10 +57,17 @@ public class SelectRuleSchema extends RuleSchema {
         }
         return new ArrayList<>();
     }
-    
+
     @Override
     public List<RefProgObjSchema> getToRightProgObjs() {
         // SelectRule只有左侧表达式，没有右侧表达式
         return new ArrayList<>();
     }
-} 
+
+    public String toString() {
+        return "SelectRuleSchema{" +
+                "type='" + type + '\'' +
+                ", leftExpr=" + leftExpr +
+                '}';
+    }
+}

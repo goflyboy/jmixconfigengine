@@ -1,5 +1,11 @@
 package com.jmix.configengine.scenario.base.modeltool;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.Properties;
+
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.data.message.UserMessage;
@@ -7,129 +13,138 @@ import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.output.Response;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.time.Duration;
-import java.util.Arrays;
-import java.util.Properties;
-
 /**
  * LLM调用框架
  * 支持DeepSeek和Qwen两种模型
  * 兼容langchain4j 1.3.0
  */
 public class LLMInvoker {
-    
+
     private final Properties config;
     private final ChatLanguageModel llmModel;
     private final String defaultModel;
-    
+
     public LLMInvoker() {
         this.config = loadConfig();
         this.defaultModel = config.getProperty("default.model", "deepseek");
-        if(this.defaultModel.equals("deepseek")){
+        if (this.defaultModel.equals("deepseek")) {
             this.llmModel = createDeepSeekModel();
-        }else{
+        } else {
             this.llmModel = createQwenModel();
         }
     }
-    
 
     /**
      * 生成模型代码（使用默认模型和默认包名）
-     * @param modelScenarioName 模型场景名称
-     * @param userVariableModel 用户变量模型描述
+     * 
+     * @param modelScenarioName     模型场景名称
+     * @param userVariableModel     用户变量模型描述
      * @param userLogicByPseudocode 用户逻辑伪代码
      * @return 生成的Java代码
      */
     public String generatorModelCode(String modelScenarioName, String userVariableModel, String userLogicByPseudocode) {
-        return generatorModelCodeWithPackage("com.jmix.configengine.scenario.ruletest", modelScenarioName, userVariableModel, userLogicByPseudocode, "");
+        return generatorModelCodeWithPackage("com.jmix.configengine.scenario.ruletest", modelScenarioName,
+                userVariableModel, userLogicByPseudocode, "");
     }
-    
+
     /**
      * 生成模型代码（使用默认模型，指定包名）
-     * @param packageName 包名
-     * @param modelScenarioName 模型场景名称
-     * @param userVariableModel 用户变量模型描述
+     * 
+     * @param packageName           包名
+     * @param modelScenarioName     模型场景名称
+     * @param userVariableModel     用户变量模型描述
      * @param userLogicByPseudocode 用户逻辑伪代码
      * @return 生成的Java代码
      */
-    public String generatorModelCode(String packageName, String modelScenarioName, String userVariableModel, String userLogicByPseudocode) {
-        return generatorModelCodeWithPackage(packageName, modelScenarioName, userVariableModel, userLogicByPseudocode, "");
+    public String generatorModelCode(String packageName, String modelScenarioName, String userVariableModel,
+            String userLogicByPseudocode) {
+        return generatorModelCodeWithPackage(packageName, modelScenarioName, userVariableModel, userLogicByPseudocode,
+                "");
     }
-    
+
     /**
      * 生成模型代码（包含用户测试用例特殊规格）
-     * @param packageName 包名
-     * @param modelScenarioName 模型场景名称
-     * @param userVariableModel 用户变量模型描述
+     * 
+     * @param packageName           包名
+     * @param modelScenarioName     模型场景名称
+     * @param userVariableModel     用户变量模型描述
      * @param userLogicByPseudocode 用户逻辑伪代码
-     * @param userTestCaseSpec 用户测试用例特殊规格
+     * @param userTestCaseSpec      用户测试用例特殊规格
      * @return 生成的Java代码
      */
-    public String generatorModelCode(String packageName, String modelScenarioName, String userVariableModel, String userLogicByPseudocode, String userTestCaseSpec) {
-        return generatorModelCodeWithPackage(packageName, modelScenarioName, userVariableModel, userLogicByPseudocode, userTestCaseSpec);
+    public String generatorModelCode(String packageName, String modelScenarioName, String userVariableModel,
+            String userLogicByPseudocode, String userTestCaseSpec) {
+        return generatorModelCodeWithPackage(packageName, modelScenarioName, userVariableModel, userLogicByPseudocode,
+                userTestCaseSpec);
     }
-    
+
     /**
      * 使用指定包名生成代码
-     * @param packageName 包名
-     * @param modelScenarioName 模型场景名称
-     * @param userVariableModel 用户变量模型描述
+     * 
+     * @param packageName           包名
+     * @param modelScenarioName     模型场景名称
+     * @param userVariableModel     用户变量模型描述
      * @param userLogicByPseudocode 用户逻辑伪代码
      * @return 生成的Java代码
      */
-    public String generatorModelCodeWithPackage(String packageName, String modelScenarioName, String userVariableModel, String userLogicByPseudocode) {
-        return generatorModelCodeWithPackage(packageName, modelScenarioName, userVariableModel, userLogicByPseudocode, "");
+    public String generatorModelCodeWithPackage(String packageName, String modelScenarioName, String userVariableModel,
+            String userLogicByPseudocode) {
+        return generatorModelCodeWithPackage(packageName, modelScenarioName, userVariableModel, userLogicByPseudocode,
+                "");
     }
-    
+
     /**
      * 使用指定包名生成代码（包含用户测试用例特殊规格）
-     * @param packageName 包名
-     * @param modelScenarioName 模型场景名称
-     * @param userVariableModel 用户变量模型描述
+     * 
+     * @param packageName           包名
+     * @param modelScenarioName     模型场景名称
+     * @param userVariableModel     用户变量模型描述
      * @param userLogicByPseudocode 用户逻辑伪代码
-     * @param userTestCaseSpec 用户测试用例特殊规格
+     * @param userTestCaseSpec      用户测试用例特殊规格
      * @return 生成的Java代码
      */
-    public String generatorModelCodeWithPackage(String packageName, String modelScenarioName, String userVariableModel, String userLogicByPseudocode, String userTestCaseSpec) {
+    public String generatorModelCodeWithPackage(String packageName, String modelScenarioName, String userVariableModel,
+            String userLogicByPseudocode, String userTestCaseSpec) {
         try {
-            String prompt = buildPromptWithPackage(packageName, modelScenarioName, userVariableModel, userLogicByPseudocode, userTestCaseSpec);
-            
+            String prompt = buildPromptWithPackage(packageName, modelScenarioName, userVariableModel,
+                    userLogicByPseudocode, userTestCaseSpec);
+
             Response<AiMessage> response = llmModel.generate(
-                Arrays.asList(
-                    new SystemMessage("你是一个专业的Java开发工程师，擅长根据用户需求生成高质量的Java代码。"),
-                    new UserMessage(prompt)
-                )
-            );
+                    Arrays.asList(
+                            new SystemMessage("你是一个专业的Java开发工程师，擅长根据用户需求生成高质量的Java代码。"),
+                            new UserMessage(prompt)));
             // 清理生成的代码，移除Markdown格式标记
             String rawCode = response.content().text();
             // 确保编码正确，处理可能的编码问题
             String cleanedCode = cleanGeneratedCode(rawCode);
             return ensureProperEncoding(cleanedCode);
-            
+
         } catch (Exception e) {
             throw new RuntimeException("LLM调用失败: " + e.getMessage(), e);
         }
     }
-    
-    
+
     /**
      * 构建带包名的prompt模板
      */
-    private String buildPromptWithPackage(String packageName, String modelName, String userVariableModel, String userLogicByPseudocode) {
-        return PromptTemplateLoader.renderJavaCodeTemplate(packageName, modelName, userVariableModel, userLogicByPseudocode);
+    private String buildPromptWithPackage(String packageName, String modelName, String userVariableModel,
+            String userLogicByPseudocode) {
+        return PromptTemplateLoader.renderJavaCodeTemplate(packageName, modelName, userVariableModel,
+                userLogicByPseudocode);
     }
-    
+
     /**
      * 构建带包名的prompt模板（包含用户测试用例特殊规格）
      */
-    private String buildPromptWithPackage(String packageName, String modelName, String userVariableModel, String userLogicByPseudocode, String userTestCaseSpec) {
-        return PromptTemplateLoader.renderJavaCodeTemplate(packageName, modelName, userVariableModel, userLogicByPseudocode, userTestCaseSpec);
+    private String buildPromptWithPackage(String packageName, String modelName, String userVariableModel,
+            String userLogicByPseudocode, String userTestCaseSpec) {
+        return PromptTemplateLoader.renderJavaCodeTemplate(packageName, modelName, userVariableModel,
+                userLogicByPseudocode, userTestCaseSpec);
     }
-    
+
     /**
      * 清理生成的代码，移除Markdown格式标记
+     * 
      * @param rawCode 原始生成的代码
      * @return 清理后的纯Java代码
      */
@@ -137,24 +152,25 @@ public class LLMInvoker {
         if (rawCode == null || rawCode.trim().isEmpty()) {
             return rawCode;
         }
-        
+
         String cleanedCode = rawCode;
-        
+
         // 移除Markdown代码块标记
         cleanedCode = cleanedCode.replaceAll("```java\\s*", "");
         cleanedCode = cleanedCode.replaceAll("```\\s*", "");
-        
+
         // 移除可能的语言标识
         cleanedCode = cleanedCode.replaceAll("```\\w+\\s*", "");
-        
+
         // 移除开头和结尾的空白字符
         cleanedCode = cleanedCode.trim();
-        
+
         return cleanedCode;
     }
-    
+
     /**
      * 确保编码正确，处理可能的编码问题
+     * 
      * @param code 需要处理的代码
      * @return 编码正确的代码
      */
@@ -162,24 +178,24 @@ public class LLMInvoker {
         if (code == null) {
             return code;
         }
-        
+
         try {
             // 尝试检测并修复编码问题
             byte[] bytes = code.getBytes("ISO-8859-1");
             String utf8Code = new String(bytes, "UTF-8");
-            
+
             // 如果修复后的代码包含乱码字符，则返回原始代码
             if (utf8Code.contains("�")) {
                 return code;
             }
-            
+
             return utf8Code;
         } catch (Exception e) {
             // 如果编码处理失败，返回原始代码
             return code;
         }
     }
-    
+
     /**
      * 创建DeepSeek模型
      */
@@ -189,31 +205,31 @@ public class LLMInvoker {
         if (apiKey == null || apiKey.trim().isEmpty()) {
             apiKey = config.getProperty("deepseek.api.key");
         }
-        
+
         String baseUrl = System.getenv("DEEPSEEK_API_BASE_URL");
         if (baseUrl == null || baseUrl.trim().isEmpty()) {
             baseUrl = config.getProperty("deepseek.api.base.url");
         }
-        
+
         String modelName = System.getenv("DEEPSEEK_MODEL_NAME");
         if (modelName == null || modelName.trim().isEmpty()) {
             modelName = config.getProperty("deepseek.model.name");
         }
-        
+
         if (apiKey == null || apiKey.trim().isEmpty() || "your_deepseek_api_key_here".equals(apiKey)) {
             throw new IllegalStateException("请配置有效的DeepSeek API密钥，可通过环境变量DEEPSEEK_API_KEY或配置文件设置");
         }
-        
+
         return OpenAiChatModel.builder()
-            .apiKey(apiKey)
-            .baseUrl(baseUrl)
-            .modelName(modelName)
-            .maxTokens(4000)
-            .temperature(0.1)
-            .timeout(Duration.ofMinutes(5))
-            .build();
+                .apiKey(apiKey)
+                .baseUrl(baseUrl)
+                .modelName(modelName)
+                .maxTokens(4000)
+                .temperature(0.1)
+                .timeout(Duration.ofMinutes(5))
+                .build();
     }
-    
+
     /**
      * 创建Qwen模型
      */
@@ -223,31 +239,31 @@ public class LLMInvoker {
         if (apiKey == null || apiKey.trim().isEmpty()) {
             apiKey = config.getProperty("qwen.api.key");
         }
-        
+
         String baseUrl = System.getenv("QWEN_API_BASE_URL");
         if (baseUrl == null || baseUrl.trim().isEmpty()) {
             baseUrl = config.getProperty("qwen.api.base.url");
         }
-        
+
         String modelName = System.getenv("QWEN_MODEL_NAME");
         if (modelName == null || modelName.trim().isEmpty()) {
             modelName = config.getProperty("qwen.model.name");
         }
-        
+
         if (apiKey == null || apiKey.trim().isEmpty() || "your_qwen_api_key_here".equals(apiKey)) {
             throw new IllegalStateException("请配置有效的Qwen API密钥，可通过环境变量QWEN_API_KEY或配置文件设置");
         }
-        
+
         return OpenAiChatModel.builder()
-            .apiKey(apiKey)
-            .baseUrl(baseUrl)
-            .modelName(modelName)
-            .maxTokens(4000)
-            .temperature(0.1)
-            .timeout(Duration.ofMinutes(5))
-            .build();
+                .apiKey(apiKey)
+                .baseUrl(baseUrl)
+                .modelName(modelName)
+                .maxTokens(4000)
+                .temperature(0.1)
+                .timeout(Duration.ofMinutes(5))
+                .build();
     }
-    
+
     /**
      * 加载配置文件
      */
@@ -264,7 +280,7 @@ public class LLMInvoker {
         }
         return props;
     }
-    
+
     /**
      * 获取当前配置信息
      */
@@ -273,21 +289,20 @@ public class LLMInvoker {
         if (deepseekKey == null || deepseekKey.trim().isEmpty()) {
             deepseekKey = config.getProperty("deepseek.api.key", "未配置");
         }
-        
+
         String qwenKey = System.getenv("QWEN_API_KEY");
         if (qwenKey == null || qwenKey.trim().isEmpty()) {
             qwenKey = config.getProperty("qwen.api.key", "未配置");
         }
-        
+
         return String.format("当前配置:\n" +
-            "- 默认模型: %s\n" +
-            "- DeepSeek API: %s (来源: %s)\n" +
-            "- Qwen API: %s (来源: %s)", 
-            defaultModel,
-            deepseekKey.substring(0, Math.min(10, deepseekKey.length())) + "...",
-            System.getenv("DEEPSEEK_API_KEY") != null ? "环境变量" : "配置文件",
-            qwenKey.substring(0, Math.min(10, qwenKey.length())) + "...",
-            System.getenv("QWEN_API_KEY") != null ? "环境变量" : "配置文件"
-        );
+                "- 默认模型: %s\n" +
+                "- DeepSeek API: %s (来源: %s)\n" +
+                "- Qwen API: %s (来源: %s)",
+                defaultModel,
+                deepseekKey.substring(0, Math.min(10, deepseekKey.length())) + "...",
+                System.getenv("DEEPSEEK_API_KEY") != null ? "环境变量" : "配置文件",
+                qwenKey.substring(0, Math.min(10, qwenKey.length())) + "...",
+                System.getenv("QWEN_API_KEY") != null ? "环境变量" : "配置文件");
     }
 }

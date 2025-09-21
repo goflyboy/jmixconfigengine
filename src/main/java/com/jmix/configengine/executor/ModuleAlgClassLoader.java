@@ -1,10 +1,10 @@
 package com.jmix.configengine.executor;
 
-import com.jmix.configengine.artifact.ConstraintAlgImpl;
-import com.jmix.configengine.model.ModuleAlgArtifact;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import com.jmix.configengine.artifact.ConstraintAlgImpl;
+import com.jmix.configengine.model.ModuleAlgArtifact;
 
 /**
  * Module algorithm class loader (extracted from executor impl)
@@ -27,14 +27,13 @@ public class ModuleAlgClassLoader extends ClassLoader {
             // 构建完整的类名，支持内部类场景
             StringBuilder classNameBuilder = new StringBuilder();
             // 添加包名和类名
-            classNameBuilder.append(algArtifact.getPackageName())
-                    .append(".");
+            classNameBuilder.append(algArtifact.getPackageName()).append(".");
             // 如果有父类名称，先添加父类
-            if (algArtifact.getParentClassName() != null && !algArtifact.getParentClassName().isEmpty()) {
+            if (algArtifact.getParentClassName() != null
+                    && !algArtifact.getParentClassName().isEmpty()) {
                 classNameBuilder.append(algArtifact.getParentClassName()).append("$");
             }
-            classNameBuilder.append(moduleCode)
-                    .append("Constraint");
+            classNameBuilder.append(moduleCode).append("Constraint");
             this.constraintRuleClassName = classNameBuilder.toString();
         }
     }
@@ -57,5 +56,22 @@ public class ModuleAlgClassLoader extends ClassLoader {
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("Class not found: " + name, e);
         }
+    }
+
+    public String toString() {
+        return "ModuleAlgClassLoader{"
+                + "isAttachedDebug="
+                + isAttachedDebug
+                + ", rootFilePath='"
+                + rootFilePath
+                + '\''
+                + ", constraintRuleClassName='"
+                + constraintRuleClassName
+                + '\''
+                + ", classMap="
+                + classMap
+                + ", algArtifact="
+                + algArtifact
+                + '}';
     }
 }

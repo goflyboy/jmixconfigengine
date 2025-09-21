@@ -257,6 +257,14 @@ public class FilterExpressionExecutorTest {
         public int getSortNo() {
             return sortNo;
         }
+
+        public String toString() {
+            return "TestObject{" +
+                    "code='" + code + '\'' +
+                    ", description='" + getDescription() + '\'' +
+                    ", sortNo=" + getSortNo() +
+                    '}';
+        }
     }
 
     // ========== 辅助方法 ==========
