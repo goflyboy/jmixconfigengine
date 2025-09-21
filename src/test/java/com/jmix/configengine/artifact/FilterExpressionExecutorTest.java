@@ -3,11 +3,11 @@ package com.jmix.configengine.artifact;
 import java.util.Arrays;
 import java.util.List;
 
-import com.jmix.configengine.model.Extensible;
-import com.jmix.configengine.model.ModuleBuilder;
-import com.jmix.configengine.model.ParaOption;
-import com.jmix.configengine.model.Part;
-import com.jmix.configengine.util.FilterExpressionExecutor;
+import com.jmix.executor.model.Extensible;
+import com.jmix.executor.model.ModuleBuilder;
+import com.jmix.executor.model.ParaOption;
+import com.jmix.executor.model.Part;
+import com.jmix.executor.util.FilterExpressionExecutor;
 
 import org.junit.Assert;
 import org.junit.Test;

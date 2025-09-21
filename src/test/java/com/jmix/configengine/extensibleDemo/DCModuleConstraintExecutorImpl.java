@@ -3,15 +3,15 @@ package com.jmix.configengine.extensibleDemo;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.jmix.configengine.ModuleConstraintExecutor;
-import com.jmix.configengine.inf.ConstraintConfig;
-import com.jmix.configengine.inf.ExtensibleProcess;
-import com.jmix.configengine.inf.InferParasReq;
-import com.jmix.configengine.inf.ModuleInst;
-import com.jmix.configengine.inf.ParaInst;
-import com.jmix.configengine.inf.PartInst;
-import com.jmix.configengine.inf.Result;
-import com.jmix.configengine.model.Module;
+import com.jmix.executor.ModuleConstraintExecutor;
+import com.jmix.executor.inf.ConstraintConfig;
+import com.jmix.executor.inf.ExtensibleProcess;
+import com.jmix.executor.inf.InferParasReq;
+import com.jmix.executor.inf.ModuleInst;
+import com.jmix.executor.inf.ParaInst;
+import com.jmix.executor.inf.PartInst;
+import com.jmix.executor.inf.Result;
+import com.jmix.executor.model.Module;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,10 +21,12 @@ import lombok.extern.slf4j.Slf4j;
  * 内部实现类，外部不应直接访问
  */
 @Slf4j
+
 class DCModuleConstraintExecutorImpl {
 
     // 使用单例访问，不需要包装实例
     private final DCParaInstAdapter paraInstAdapter;
+
     private final DCPartInstAdapter partInstAdapter;
 
     public DCModuleConstraintExecutorImpl() {

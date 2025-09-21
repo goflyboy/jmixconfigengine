@@ -1,6 +1,7 @@
 package com.jmix.configengine.extensibleDemo;
 
-import com.jmix.configengine.model.Para;
+import com.jmix.executor.model.Para;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -11,26 +12,27 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class DCPara extends Para {
-    
+
     /**
      * DC公司特有的参数编码
      */
     private String dcCode;
-    
+
     /**
      * 交付类型 - 扩展字段
      */
     private String deliveryType;
-    
+
     /**
      * 默认构造函数
      */
     public DCPara() {
         super();
     }
-    
+
     /**
      * 从原始Para创建DCPara
+     * 
      * @param para 原始参数
      */
     public DCPara(Para para) {

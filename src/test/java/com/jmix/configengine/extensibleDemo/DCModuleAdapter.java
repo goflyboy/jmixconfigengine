@@ -1,7 +1,8 @@
 package com.jmix.configengine.extensibleDemo;
 
-import com.jmix.configengine.model.Module;
-import com.jmix.configengine.model.ModuleType;
+import com.jmix.executor.model.Module;
+import com.jmix.executor.model.ModuleType;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -10,22 +11,23 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class DCModuleAdapter extends AdapterInfo {
-    
+
     @Override
     protected void initMappings() {
         // 字段映射关系
-        fieldMappings.put("code", "dccode");  // Module.code -> DCModule.dccode
+        fieldMappings.put("code", "dccode"); // Module.code -> DCModule.dccode
         // Module.type -> DCModule.type (相同，但DC没有这个字段，使用默认值)
-        
+
         // 扩展属性定义
-        extAttrs.put("season", "String");     // 季节属性
-        
+        extAttrs.put("season", "String"); // 季节属性
+
         // 默认值映射
-        defaultValues.put("type", ModuleType.GENERAL);  // DC没有type字段，使用默认值
+        defaultValues.put("type", ModuleType.GENERAL); // DC没有type字段，使用默认值
     }
-    
+
     /**
      * 将Module适配为DCModule
+     * 
      * @param module 原始模块
      * @return DC模块
      */
@@ -33,22 +35,23 @@ public class DCModuleAdapter extends AdapterInfo {
         if (module == null) {
             return null;
         }
-        
+
         DCModule dcModule = new DCModule(module);
-        
+
         // 应用字段映射
-        dcModule.setDccode(module.getCode());  // code -> dccode
-        
+        dcModule.setDccode(module.getCode()); // code -> dccode
+
         // 设置扩展属性
-        dcModule.setSeason("Spring");  // 默认季节
-        
+        dcModule.setSeason("Spring"); // 默认季节
+
         log.debug("Adapted Module to DCModule: {} -> {}", module.getCode(), dcModule.getDccode());
         return dcModule;
     }
-    
+
     /**
      * 从扩展属性字符串解析属性
      * 格式: "attrName=season,attrType=String"
+     * 
      * @param extAttrStr 扩展属性字符串
      * @return 解析后的属性名
      */
@@ -56,7 +59,7 @@ public class DCModuleAdapter extends AdapterInfo {
         if (extAttrStr == null || extAttrStr.trim().isEmpty()) {
             return null;
         }
-        
+
         try {
             String[] parts = extAttrStr.split(",");
             for (String part : parts) {
@@ -70,7 +73,7 @@ public class DCModuleAdapter extends AdapterInfo {
         } catch (Exception e) {
             log.warn("Failed to parse ext attr: {}", extAttrStr, e);
         }
-        
+
         return null;
     }
 }

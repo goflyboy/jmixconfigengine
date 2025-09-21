@@ -2,10 +2,10 @@ package com.jmix.configengine.scenario.base;
 
 import java.util.Objects;
 
-import com.jmix.configengine.inf.ModuleInst;
-import com.jmix.configengine.inf.PartInst;
-import com.jmix.configengine.model.Module;
-import com.jmix.configengine.model.Part;
+import com.jmix.executor.inf.ModuleInst;
+import com.jmix.executor.inf.PartInst;
+import com.jmix.executor.model.Module;
+import com.jmix.executor.model.Part;
 
 /**
  * 部件实例断言类

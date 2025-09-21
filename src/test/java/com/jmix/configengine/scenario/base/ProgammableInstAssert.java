@@ -1,11 +1,11 @@
 package com.jmix.configengine.scenario.base;
 
-import com.jmix.configengine.inf.ModuleInst;
-import com.jmix.configengine.inf.ParaInst;
-import com.jmix.configengine.inf.PartInst;
-import com.jmix.configengine.model.Module;
-import com.jmix.configengine.model.Para;
-import com.jmix.configengine.model.Part;
+import com.jmix.executor.inf.ModuleInst;
+import com.jmix.executor.inf.ParaInst;
+import com.jmix.executor.inf.PartInst;
+import com.jmix.executor.model.Module;
+import com.jmix.executor.model.Para;
+import com.jmix.executor.model.Part;
 
 /**
  * 可编程实例断言基类

@@ -1,7 +1,7 @@
 package com.jmix.configengine.scenario.base.modeltool;
 
-import com.jmix.configengine.inf.AlgLoaderException;
 import com.jmix.configengine.scenario.autoruletest.InjectCompatibleRuleTest.InjectCompatibleRuleConstraint;
+import com.jmix.executor.inf.AlgLoaderException;
 
 /**
  * ModelHelper测试类

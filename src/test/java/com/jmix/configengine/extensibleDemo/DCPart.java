@@ -1,6 +1,7 @@
 package com.jmix.configengine.extensibleDemo;
 
-import com.jmix.configengine.model.Part;
+import com.jmix.executor.model.Part;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -11,26 +12,27 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class DCPart extends Part {
-    
+
     /**
      * DC公司特有的部件编号
      */
     private String partNumber;
-    
+
     /**
      * 交付类型 - 扩展字段
      */
     private String deliveryType;
-    
+
     /**
      * 默认构造函数
      */
     public DCPart() {
         super();
     }
-    
+
     /**
      * 从原始Part创建DCPart
+     * 
      * @param part 原始部件
      */
     public DCPart(Part part) {

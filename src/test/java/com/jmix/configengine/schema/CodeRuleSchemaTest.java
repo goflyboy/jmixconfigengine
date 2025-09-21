@@ -2,14 +2,14 @@ package com.jmix.configengine.schema;
 
 import org.junit.Test;
 
-import com.jmix.configengine.model.schema.CodeRuleSchema;
-import com.jmix.configengine.model.schema.RefProgObjSchema;
-import com.jmix.configengine.model.schema.RuleSchema;
-
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.jmix.executor.model.schema.CodeRuleSchema;
+import com.jmix.executor.model.schema.RefProgObjSchema;
+import com.jmix.executor.model.schema.RuleSchema;
 
 /**
  * CodeRuleSchema测试类
@@ -20,12 +20,12 @@ public class CodeRuleSchemaTest {
     public void testCodeRuleSchemaCreation() {
         // 创建CodeRuleSchema实例
         CodeRuleSchema codeRule = new CodeRuleSchema();
-        
+
         // 设置基本属性
         codeRule.setType("CodeRule");
         codeRule.setVersion("1.0");
         codeRule.setRawCode("if (param1 > 10) { return false; }");
-        
+
         // 创建引用编程对象
         List<RefProgObjSchema> refProgObjs = new ArrayList<>();
         RefProgObjSchema refObj = new RefProgObjSchema();
@@ -33,10 +33,10 @@ public class CodeRuleSchemaTest {
         refObj.setProgObjCode("param1");
         refObj.setProgObjField("value");
         refProgObjs.add(refObj);
-        
+
         codeRule.setLeftRefProgObjs(refProgObjs);
         codeRule.setRightRefProgObjs(new ArrayList<>());
-        
+
         // 验证属性设置
         assertEquals("CodeRule", codeRule.getType());
         assertEquals("1.0", codeRule.getVersion());
@@ -58,13 +58,13 @@ public class CodeRuleSchemaTest {
     public void testCodeRuleSchemaJsonSerialization() throws Exception {
         // 测试JSON序列化和反序列化
         com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
-        
+
         // 创建CodeRuleSchema实例
         CodeRuleSchema codeRule = new CodeRuleSchema();
         codeRule.setType("CodeRule");
         codeRule.setVersion("1.0");
         codeRule.setRawCode("if (param1 > 10) { return false; }");
-        
+
         List<RefProgObjSchema> refProgObjs = new ArrayList<>();
         RefProgObjSchema refObj = new RefProgObjSchema();
         refObj.setProgObjType("Parameter");
@@ -73,13 +73,13 @@ public class CodeRuleSchemaTest {
         refProgObjs.add(refObj);
         codeRule.setLeftRefProgObjs(refProgObjs);
         codeRule.setRightRefProgObjs(new ArrayList<>());
-        
+
         // 序列化为JSON
         String json = mapper.writeValueAsString(codeRule);
         assertNotNull(json);
         assertTrue(json.contains("CodeRule"));
         assertTrue(json.contains("if (param1 > 10) { return false; }"));
-        
+
         // 反序列化回对象
         CodeRuleSchema deserialized = mapper.readValue(json, CodeRuleSchema.class);
         assertEquals("CodeRule", deserialized.getType());
@@ -87,4 +87,4 @@ public class CodeRuleSchemaTest {
         assertEquals("if (param1 > 10) { return false; }", deserialized.getRawCode());
         assertEquals(1, deserialized.getLeftRefProgObjs().size());
     }
-} 
+}

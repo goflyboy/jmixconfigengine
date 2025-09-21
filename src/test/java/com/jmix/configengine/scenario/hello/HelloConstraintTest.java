@@ -1,70 +1,70 @@
 package com.jmix.configengine.scenario.hello;
 
-import com.jmix.configengine.inf.ConstraintConfig;
 import com.jmix.configengine.scenario.base.ModuleScenarioTestBase;
-import org.junit.Test;
+import com.jmix.executor.inf.ConstraintConfig;
+
 import lombok.extern.slf4j.Slf4j;
+
+import org.junit.Test;
 
 /**
  * Hello约束算法测试类
  */
 @Slf4j
 public class HelloConstraintTest extends ModuleScenarioTestBase {
-    
+
     public HelloConstraintTest() {
         super(HelloConstraint.class);
     }
-    
+
     protected void beforeInitConfig(ConstraintConfig cfg) {
-        cfg.loadType = 1;
+        cfg.setLoadType(1);
     }
+
     @Test
     public void testOnlyOneSolution() {
         // 测试颜色参数推理
         inferParas("TShirt11", 1);
-        
+
         // 使用resultAssert验证执行结果
         resultAssert()
-            .assertSuccess()
-            .assertSolutionSizeEqual(1);
-        
+                .assertSuccess()
+                .assertSolutionSizeEqual(1);
+
         // 验证第一个解
         solutions(0).assertPara("Color").valueEqual("Red")
-        .assertPara("Size").valueEqual("Small"); 
+                .assertPara("Size").valueEqual("Small");
         printSolutions();
     }
 
-    
     @Test
     public void testMultiSolution() {
         // "Red-10", "Black-20", "White-30"
         // "Small-10", "Medium-20", "Big-30"
-                    // if(ColorVar.value ==Red && SizeVar.value == Small  ) {
-            //     TShirt11Var.qty = 1;
-            // }
-            // else {
-            //     TShirt11Var.qty = 3
-            // }
+        // if(ColorVar.value ==Red && SizeVar.value == Small ) {
+        // TShirt11Var.qty = 1;
+        // }
+        // else {
+        // TShirt11Var.qty = 3
+        // }
         // 测试颜色参数推理
         inferParas("TShirt11", 3);
         printSolutions(module, solutions);
-        //反推有8个接口  8=3*3 - 1
+        // 反推有8个接口 8=3*3 - 1
         resultAssert()
-            .assertSuccess()
-            .assertSolutionSizeEqual(8);
-        //if的解肯定不在其中
-        assertSolutionNum("Color:Red,Size:Small",0);
-        //else的解可能解如下：
-        assertSolutionNum("Color:Black,Size:Big",1);
-        assertSolutionNum("Color:White,Size:Medium",1);
-        assertSolutionNum("Color:Red,Size:Medium",1);
-        assertSolutionNum("Color:Black,Size:Medium",1);
-        assertSolutionNum("Color:White,Size:Big",1);
-        assertSolutionNum("Color:Red,Size:Big",1);
-        assertSolutionNum("Color:Black,Size:Small",1);
+                .assertSuccess()
+                .assertSolutionSizeEqual(8);
+        // if的解肯定不在其中
+        assertSolutionNum("Color:Red,Size:Small", 0);
+        // else的解可能解如下：
+        assertSolutionNum("Color:Black,Size:Big", 1);
+        assertSolutionNum("Color:White,Size:Medium", 1);
+        assertSolutionNum("Color:Red,Size:Medium", 1);
+        assertSolutionNum("Color:Black,Size:Medium", 1);
+        assertSolutionNum("Color:White,Size:Big", 1);
+        assertSolutionNum("Color:Red,Size:Big", 1);
+        assertSolutionNum("Color:Black,Size:Small", 1);
         printSolutions();
     }
-    
- 
 
 }

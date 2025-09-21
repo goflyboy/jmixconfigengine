@@ -1,10 +1,9 @@
 package com.jmix.configengine.extensibleDemo;
 
-import com.jmix.configengine.inf.Result;
+import com.jmix.executor.inf.Result;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
 
 /**
  * DC公司的结果包装类
@@ -13,22 +12,22 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class DCResult<T> extends Result<T> {
-    
+
     /**
      * DC公司特有的结果编码
      */
     private String dcResultCode;
-    
+
     /**
      * 处理时间戳
      */
     private Long processTimestamp;
-    
+
     /**
      * 扩展属性
      */
     private java.util.Map<String, String> extAttrs = new java.util.HashMap<>();
-    
+
     /**
      * 默认构造函数
      */
@@ -36,9 +35,10 @@ public class DCResult<T> extends Result<T> {
         super();
         this.processTimestamp = System.currentTimeMillis();
     }
-    
+
     /**
      * 从标准Result创建DCResult
+     * 
      * @param result 标准结果
      */
     public DCResult(Result<T> result) {
@@ -50,10 +50,11 @@ public class DCResult<T> extends Result<T> {
             this.processTimestamp = System.currentTimeMillis();
         }
     }
-    
+
     /**
      * 创建成功的DC结果
-     * @param data 数据
+     * 
+     * @param data         数据
      * @param dcResultCode DC结果编码
      * @return DC结果
      */
@@ -65,19 +66,21 @@ public class DCResult<T> extends Result<T> {
         result.processTimestamp = System.currentTimeMillis();
         return result;
     }
-    
+
     /**
      * 创建成功的DC结果
+     * 
      * @param data 数据
      * @return DC结果
      */
     public static <T> DCResult<T> success(T data) {
         return success(data, "DC_SUCCESS");
     }
-    
+
     /**
      * 创建失败的DC结果
-     * @param message 错误消息
+     * 
+     * @param message      错误消息
      * @param dcResultCode DC结果编码
      * @return DC结果
      */
@@ -89,18 +92,20 @@ public class DCResult<T> extends Result<T> {
         result.processTimestamp = System.currentTimeMillis();
         return result;
     }
-    
+
     /**
      * 创建失败的DC结果
+     * 
      * @param message 错误消息
      * @return DC结果
      */
     public static <T> DCResult<T> failed(String message) {
         return failed(message, "DC_FAILED");
     }
-    
+
     /**
      * 创建无解的DC结果
+     * 
      * @param dcResultCode DC结果编码
      * @return DC结果
      */
@@ -111,18 +116,20 @@ public class DCResult<T> extends Result<T> {
         result.processTimestamp = System.currentTimeMillis();
         return result;
     }
-    
+
     /**
      * 创建无解的DC结果
+     * 
      * @return DC结果
      */
     public static <T> DCResult<T> noSolution() {
         return noSolution("DC_NO_SOLUTION");
     }
-    
+
     /**
      * 设置扩展属性
-     * @param key 属性键
+     * 
+     * @param key   属性键
      * @param value 属性值
      */
     public void setExtAttr(String key, String value) {
@@ -131,42 +138,47 @@ public class DCResult<T> extends Result<T> {
         }
         extAttrs.put(key, value);
     }
-    
+
     /**
      * 获取扩展属性
+     * 
      * @param key 属性键
      * @return 属性值
      */
     public String getExtAttr(String key) {
         return extAttrs != null ? extAttrs.get(key) : null;
     }
-    
+
     /**
      * 检查是否成功
+     * 
      * @return 是否成功
      */
     public boolean isSuccess() {
         return code == SUCCESS;
     }
-    
+
     /**
      * 检查是否失败
+     * 
      * @return 是否失败
      */
     public boolean isFailed() {
         return code == FAILED;
     }
-    
+
     /**
      * 检查是否无解
+     * 
      * @return 是否无解
      */
     public boolean isNoSolution() {
         return code == NO_SOLUTION;
     }
-    
+
     /**
      * 获取处理耗时（毫秒）
+     * 
      * @return 处理耗时
      */
     public Long getProcessDuration() {

@@ -6,7 +6,7 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.Properties;
 
-import com.jmix.configengine.inf.AlgLoaderException;
+import com.jmix.executor.inf.AlgLoaderException;
 
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.SystemMessage;

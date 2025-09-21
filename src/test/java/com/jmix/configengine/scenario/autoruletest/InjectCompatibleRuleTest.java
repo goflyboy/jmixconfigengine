@@ -1,10 +1,17 @@
 package com.jmix.configengine.scenario.autoruletest;
 
-import com.jmix.configengine.artifact.*;
-import com.jmix.configengine.inf.ConstraintConfig;
-import com.jmix.configengine.scenario.base.*;
+import com.jmix.configengine.scenario.base.CodeRuleAnno;
+import com.jmix.configengine.scenario.base.CompatiableRuleAnno;
+import com.jmix.configengine.scenario.base.ModuleAnno;
+import com.jmix.configengine.scenario.base.ModuleScenarioTestBase;
+import com.jmix.configengine.scenario.base.ParaAnno;
+import com.jmix.executor.artifact.ConstraintAlgImpl;
+import com.jmix.executor.artifact.ParaVar;
+import com.jmix.executor.inf.ConstraintConfig;
+
 import lombok.extern.slf4j.Slf4j;
-import org.junit.*;
+
+import org.junit.Test;
 
 @Slf4j
 public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
@@ -58,7 +65,7 @@ public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
     }
 
     protected void beforeInitConfig(ConstraintConfig cfg) {
-        cfg.loadType = 1;
+        cfg.setLoadType(1);
     }
 
     @Test

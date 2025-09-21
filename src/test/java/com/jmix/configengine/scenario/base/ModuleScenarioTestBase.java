@@ -5,21 +5,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.jmix.configengine.ModuleConstraintExecutor;
-import com.jmix.configengine.artifact.ConstraintAlgImpl;
-import com.jmix.configengine.artifact.OtherVar;
-import com.jmix.configengine.executor.ModuleConstraintExecutorImpl;
-import com.jmix.configengine.inf.AlgLoaderException;
-import com.jmix.configengine.inf.ConstraintConfig;
-import com.jmix.configengine.inf.InferParasReq;
-import com.jmix.configengine.inf.ModuleInst;
-import com.jmix.configengine.inf.ParaInst;
-import com.jmix.configengine.inf.PartInst;
-import com.jmix.configengine.inf.Result;
-import com.jmix.configengine.model.Module;
-import com.jmix.configengine.model.Para;
-import com.jmix.configengine.model.Part;
-import com.jmix.configengine.util.ParaTypeHandler;
+import com.jmix.executor.ModuleConstraintExecutor;
+import com.jmix.executor.artifact.ConstraintAlgImpl;
+import com.jmix.executor.artifact.OtherVar;
+import com.jmix.executor.executor.ModuleConstraintExecutorImpl;
+import com.jmix.executor.inf.AlgLoaderException;
+import com.jmix.executor.inf.ConstraintConfig;
+import com.jmix.executor.inf.InferParasReq;
+import com.jmix.executor.inf.ModuleInst;
+import com.jmix.executor.inf.ParaInst;
+import com.jmix.executor.inf.PartInst;
+import com.jmix.executor.inf.Result;
+import com.jmix.executor.model.Module;
+import com.jmix.executor.model.Para;
+import com.jmix.executor.model.Part;
+import com.jmix.executor.util.ParaTypeHandler;
 
 import org.junit.After;
 import org.junit.Before;
@@ -82,10 +82,10 @@ public abstract class ModuleScenarioTestBase {
         tempResourcePath = CommHelper.createTempPath(constraintAlgClazz);
         // 使用单例访问
         cfg = new ConstraintConfig();
-        cfg.isAttachedDebug = true; // 测试环境直接使用当前classpath加载
-        cfg.rootFilePath = tempResourcePath;
-        cfg.logFilePath = tempResourcePath;
-        cfg.isLogModelProto = true;
+        cfg.setAttachedDebug(true); // 测试环境直接使用当前classpath加载
+        cfg.setRootFilePath(tempResourcePath);
+        cfg.setLogFilePath(tempResourcePath);
+        cfg.setLogModelProto(true);
         beforeInitConfig(cfg);
         ModuleConstraintExecutor.INST.init(cfg);
 

@@ -7,12 +7,6 @@ import static org.junit.Assert.fail;
 
 import java.lang.reflect.Method;
 
-import com.jmix.configengine.artifact.ConstraintAlgImpl;
-import com.jmix.configengine.artifact.ParaVar;
-import com.jmix.configengine.artifact.PartVar;
-import com.jmix.configengine.model.Module;
-import com.jmix.configengine.model.ParaType;
-import com.jmix.configengine.model.Rule;
 import com.jmix.configengine.scenario.base.CodeRuleAnno;
 import com.jmix.configengine.scenario.base.CommHelper;
 import com.jmix.configengine.scenario.base.CompatiableRuleAnno;
@@ -20,6 +14,12 @@ import com.jmix.configengine.scenario.base.ModuleAnno;
 import com.jmix.configengine.scenario.base.ModuleGenneratorByAnno;
 import com.jmix.configengine.scenario.base.ParaAnno;
 import com.jmix.configengine.scenario.base.PartAnno;
+import com.jmix.executor.artifact.ConstraintAlgImpl;
+import com.jmix.executor.artifact.ParaVar;
+import com.jmix.executor.artifact.PartVar;
+import com.jmix.executor.model.Module;
+import com.jmix.executor.model.ParaType;
+import com.jmix.executor.model.Rule;
 
 /**
  * 注解规则测试类

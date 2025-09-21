@@ -7,19 +7,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.jmix.configengine.artifact.ConstraintAlg;
-import com.jmix.configengine.inf.AlgLoaderException;
-import com.jmix.configengine.model.Module;
-import com.jmix.configengine.model.ModuleAlgArtifact;
-import com.jmix.configengine.model.Para;
-import com.jmix.configengine.model.ParaOption;
-import com.jmix.configengine.model.Part;
-import com.jmix.configengine.model.Rule;
-import com.jmix.configengine.model.schema.CodeRuleSchema;
-import com.jmix.configengine.model.schema.CompatiableRuleSchema;
-import com.jmix.configengine.model.schema.ExprSchema;
-import com.jmix.configengine.model.schema.RefProgObjSchema;
-import com.jmix.configengine.util.ModuleUtils;
+import com.jmix.executor.artifact.ConstraintAlg;
+import com.jmix.executor.inf.AlgLoaderException;
+import com.jmix.executor.model.Module;
+import com.jmix.executor.model.ModuleAlgArtifact;
+import com.jmix.executor.model.Para;
+import com.jmix.executor.model.ParaOption;
+import com.jmix.executor.model.Part;
+import com.jmix.executor.model.Rule;
+import com.jmix.executor.model.schema.CodeRuleSchema;
+import com.jmix.executor.model.schema.CompatiableRuleSchema;
+import com.jmix.executor.model.schema.ExprSchema;
+import com.jmix.executor.model.schema.RefProgObjSchema;
+import com.jmix.executor.util.ModuleUtils;
 
 import lombok.extern.slf4j.Slf4j;
 

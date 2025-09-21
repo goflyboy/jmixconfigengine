@@ -5,8 +5,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.jmix.configengine.model.Para;
-import com.jmix.configengine.model.ParaType;
+import com.jmix.executor.model.Para;
+import com.jmix.executor.model.ParaType;
 
 /**
  * 参数注解，用于标记参数变量

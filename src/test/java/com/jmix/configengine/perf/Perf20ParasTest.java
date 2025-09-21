@@ -1,24 +1,25 @@
 package com.jmix.configengine.perf;
 
-import java.util.concurrent.TimeUnit;
-
-import com.google.ortools.sat.BoolVar;
-import com.google.ortools.sat.IntVar;
-import com.google.ortools.sat.Literal;
-import com.jmix.configengine.artifact.ConstraintAlgImpl;
-import com.jmix.configengine.artifact.ParaVar;
-import com.jmix.configengine.artifact.PartVar;
-import com.jmix.configengine.inf.ConstraintConfig;
 import com.jmix.configengine.scenario.base.CodeRuleAnno;
 import com.jmix.configengine.scenario.base.ModuleAnno;
 import com.jmix.configengine.scenario.base.ModuleScenarioTestBase;
 import com.jmix.configengine.scenario.base.ParaAnno;
 import com.jmix.configengine.scenario.base.PartAnno;
+import com.jmix.executor.artifact.ConstraintAlgImpl;
+import com.jmix.executor.artifact.ParaVar;
+import com.jmix.executor.artifact.PartVar;
+import com.jmix.executor.inf.ConstraintConfig;
+
+import com.google.ortools.sat.BoolVar;
+import com.google.ortools.sat.IntVar;
+import com.google.ortools.sat.Literal;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class Perf20ParasTest extends ModuleScenarioTestBase {
@@ -486,6 +487,6 @@ public class Perf20ParasTest extends ModuleScenarioTestBase {
     }
 
     protected void beforeInitConfig(ConstraintConfig cfg) {
-        cfg.loadType = 1;// 全量加载
+        cfg.setLoadType(1);// 全量加载
     }
 }

@@ -1,6 +1,7 @@
 package com.jmix.configengine.extensibleDemo;
 
-import com.jmix.configengine.model.Module;
+import com.jmix.executor.model.Module;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -11,26 +12,27 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class DCModule extends Module {
-    
+
     /**
      * DC公司特有的模块编码
      */
     private String dccode;
-    
+
     /**
      * 季节属性 - 扩展字段
      */
     private String season;
-    
+
     /**
      * 默认构造函数
      */
     public DCModule() {
         super();
     }
-    
+
     /**
      * 从原始Module创建DCModule
+     * 
      * @param module 原始模块
      */
     public DCModule(Module module) {

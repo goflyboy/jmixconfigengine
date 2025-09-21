@@ -9,9 +9,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import com.jmix.configengine.artifact.ModuleAlgArtifactGenerator;
-import com.jmix.configengine.model.Module;
-import com.jmix.configengine.util.ModuleUtils;
+import com.jmix.executor.artifact.ModuleAlgArtifactGenerator;
+import com.jmix.executor.model.Module;
+import com.jmix.executor.util.ModuleUtils;
 
 import org.junit.After;
 import org.junit.Before;

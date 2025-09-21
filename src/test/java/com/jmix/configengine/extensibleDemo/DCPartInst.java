@@ -1,6 +1,6 @@
 package com.jmix.configengine.extensibleDemo;
 
-import com.jmix.configengine.inf.PartInst;
+import com.jmix.executor.inf.PartInst;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,26 +12,27 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class DCPartInst extends PartInst {
-    
+
     /**
      * DC公司特有的部件编号
      */
     private String partNumber;
-    
+
     /**
      * 交付类型 - 扩展字段
      */
     private String deliveryType;
-    
+
     /**
      * 默认构造函数
      */
     public DCPartInst() {
         super();
     }
-    
+
     /**
      * 从原始PartInst创建DCPartInst
+     * 
      * @param partInst 原始部件实例
      */
     public DCPartInst(PartInst partInst) {

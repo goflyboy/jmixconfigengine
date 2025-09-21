@@ -9,8 +9,8 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.jmix.configengine.artifact.RuleInfo;
-import com.jmix.configengine.inf.AlgLoaderException;
+import com.jmix.executor.artifact.RuleInfo;
+import com.jmix.executor.inf.AlgLoaderException;
 
 /**
  * 结构化代码（类似CompatiableRuleAnno、SelectRule等)的注入器 生成方法体片段并写回源文件。

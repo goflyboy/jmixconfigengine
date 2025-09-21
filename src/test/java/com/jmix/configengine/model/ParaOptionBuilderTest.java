@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jmix.executor.model.ModuleBuilder;
+import com.jmix.executor.model.ParaOption;
+
 import org.junit.Assert;
 import org.junit.Test;
 

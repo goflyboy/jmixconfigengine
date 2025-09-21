@@ -1,53 +1,54 @@
 package com.jmix.configengine.scenario.ruletest;
-import com.google.ortools.sat.*;
-import com.jmix.configengine.artifact.*;
-import com.jmix.configengine.inf.ConstraintConfig;
-import com.jmix.configengine.model.*;
-import com.jmix.configengine.scenario.base.*;
+
+import com.jmix.configengine.scenario.base.ModuleAnno;
+import com.jmix.configengine.scenario.base.ModuleScenarioTestBase;
+import com.jmix.configengine.scenario.base.ParaAnno;
+import com.jmix.configengine.scenario.base.PartAnno;
+import com.jmix.executor.artifact.ConstraintAlgImpl;
+import com.jmix.executor.artifact.ParaVar;
+import com.jmix.executor.artifact.PartVar;
+import com.jmix.executor.inf.ConstraintConfig;
+import com.jmix.executor.model.ParaType;
+
+import com.google.ortools.sat.IntVar;
+import com.google.ortools.sat.LinearExpr;
+
 import lombok.extern.slf4j.Slf4j;
-import org.junit.*;
+
+import org.junit.Test;
+
 @Slf4j
 public class ParaIntegerTest extends ModuleScenarioTestBase {
-    
-    //---------------ģ�͵Ķ���start----------------------------------------
+
+    // ---------------ģ�͵Ķ���start----------------------------------------
     @ModuleAnno(id = 123L)
     static public class ParaIntegerConstraint extends ConstraintAlgImpl {
-        @ParaAnno(  
-            type = ParaType.INTEGER,
-            defaultValue = "0",
-            minValue = "0",
-            maxValue = "50"
-        )
+        @ParaAnno(type = ParaType.INTEGER, defaultValue = "0", minValue = "0", maxValue = "50")
         private ParaVar P1;
-        @ParaAnno(  
-            type = ParaType.INTEGER,
-            defaultValue = "0",
-            minValue = "0",
-            maxValue = "50"
-        )
-        private ParaVar P2;
-		
 
-        @PartAnno(
-			maxQuantity=3
-		)
+        @ParaAnno(type = ParaType.INTEGER, defaultValue = "0", minValue = "0", maxValue = "50")
+        private ParaVar P2;
+
+        @PartAnno(maxQuantity = 3)
         private PartVar Part1;
-        
+
         @Override
         protected void initConstraint() {
             // Part1.quantity = P1.value + P2.value
-            model.addEquality((IntVar)Part1.qty, LinearExpr.sum(new IntVar[]{(IntVar)P1.value, (IntVar)P2.value}));
+            model.addEquality((IntVar) Part1.qty,
+                    LinearExpr.sum(new IntVar[] { (IntVar) P1.value, (IntVar) P2.value }));
         }
     }
-    //---------------ģ�͵Ķ���end----------------------------------------
+    // ---------------ģ�͵Ķ���end----------------------------------------
 
     public ParaIntegerTest() {
         super(ParaIntegerConstraint.class);
     }
-	
+
     protected void beforeInitConfig(ConstraintConfig cfg) {
-        cfg.loadType = 1;
+        cfg.setLoadType(1);
     }
+
     @Test
     public void testMultipleSolutions() {
         inferParas("Part1", 3);
@@ -68,7 +69,7 @@ public class ParaIntegerTest extends ModuleScenarioTestBase {
 
     @Test
     public void testParaDrivenInference() {
-        inferParasByPara("P1", "2","P2", "1"); 
+        inferParasByPara("P1", "2", "P2", "1");
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(1);
@@ -89,7 +90,8 @@ public class ParaIntegerTest extends ModuleScenarioTestBase {
 
     @Test
     public void testMultipleParaInference() {
-        // 使用可变参数版本：inferParasByPara(String paraCode1, String value1, String paraCode2, String value2, ...)
+        // 使用可变参数版本：inferParasByPara(String paraCode1, String value1, String paraCode2,
+        // String value2, ...)
         inferParasByPara("P1", "2", "P2", "1");
         resultAssert()
                 .assertSuccess()

@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.jmix.configengine.inf.AlgLoaderException;
+import com.jmix.executor.inf.AlgLoaderException;
 
 /**
  * Prompt模板加载器

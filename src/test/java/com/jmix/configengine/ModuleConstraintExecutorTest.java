@@ -4,18 +4,18 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.IOException;
-import java.util.List;
-
-import com.jmix.configengine.executor.ModuleConstraintExecutorImpl;
-import com.jmix.configengine.inf.ConstraintConfig;
-import com.jmix.configengine.inf.InferParasReq;
-import com.jmix.configengine.inf.ModuleInst;
-import com.jmix.configengine.inf.Result;
-import com.jmix.configengine.model.Module;
-import com.jmix.configengine.util.ModuleUtils;
+import com.jmix.executor.executor.ModuleConstraintExecutorImpl;
+import com.jmix.executor.inf.ConstraintConfig;
+import com.jmix.executor.inf.InferParasReq;
+import com.jmix.executor.inf.ModuleInst;
+import com.jmix.executor.inf.Result;
+import com.jmix.executor.model.Module;
+import com.jmix.executor.util.ModuleUtils;
 
 import org.junit.Test;
+
+import java.io.IOException;
+import java.util.List;
 
 public class ModuleConstraintExecutorTest {
     @Test
@@ -26,8 +26,8 @@ public class ModuleConstraintExecutorTest {
     public void testInitAddModuleAndInfer() {
         ModuleConstraintExecutorImpl exec = new ModuleConstraintExecutorImpl();
         ConstraintConfig cfg = new ConstraintConfig();
-        cfg.isAttachedDebug = true; // 测试环境直接使用当前classpath加载
-        cfg.rootFilePath = "";
+        cfg.setAttachedDebug(true); // 测试环境直接使用当前classpath加载
+        cfg.setRootFilePath("");
         assertEquals(0, exec.init(cfg).code);
 
         // 构造最小Module，代码为TShirt，对应生成类名 TShirtConstraint
