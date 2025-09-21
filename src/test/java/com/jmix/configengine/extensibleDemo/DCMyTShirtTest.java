@@ -89,7 +89,7 @@ public class DCMyTShirtTest {
         // 测试DC模块添加
         DCModule testModule = getDCModule();
         DCResult<Void> addResult = DCModuleConstraintExecutor.INST.addDCModule(2L, testModule);
-        assertEquals("DC module addition should be successful", Result.SUCCESS, addResult.code);
+        assertEquals("DC module addition should be successful", Result.SUCCESS, addResult.getCode());
         assertNotNull("DC result code should not be null", addResult.getDcResultCode());
         assertEquals("DC result code should be correct", "DC_ADD_MODULE_SUCCESS", addResult.getDcResultCode());
 
@@ -149,11 +149,11 @@ public class DCMyTShirtTest {
 
         // 验证结果
         assertNotNull("Result should not be null", result);
-        assertEquals("Should be successful", Result.SUCCESS, result.code);
-        assertNotNull("Processed solutions should not be null", result.data);
-        assertTrue("Should have processed solutions", !result.data.isEmpty());
+        assertEquals("Should be successful", Result.SUCCESS, result.getCode());
+        assertNotNull("Processed solutions should not be null", result.getData());
+        assertTrue("Should have processed solutions", !result.getData().isEmpty());
 
-        log.info("Found {} processed solutions with delivery type calculation", result.data.size());
+        log.info("Found {} processed solutions with delivery type calculation", result.getData().size());
 
         // 验证后处理器是否被调用
         assertTrue("Post process should be enabled", postProcess.isEnabled());
@@ -207,12 +207,12 @@ public class DCMyTShirtTest {
         DCDeliveryTypePostProcess newPostProcess = new DCDeliveryTypePostProcess();
         Result<Void> registerResult = ModuleConstraintExecutor.INST.registerExtensible(newPostProcess);
 
-        assertEquals("Registration should be successful", Result.SUCCESS, registerResult.code);
+        assertEquals("Registration should be successful", Result.SUCCESS, registerResult.getCode());
 
         // 测试注销
         Result<Void> unregisterResult = ModuleConstraintExecutor.INST.unregisterExtensible(newPostProcess);
 
-        assertEquals("Unregistration should be successful", Result.SUCCESS, unregisterResult.code);
+        assertEquals("Unregistration should be successful", Result.SUCCESS, unregisterResult.getCode());
 
         // 测试完成后清理
         ModuleConstraintExecutor.INST.fini();
@@ -231,9 +231,9 @@ public class DCMyTShirtTest {
 
         // 验证结果
         assertNotNull("Result should not be null", result);
-        assertEquals("Should be successful even with empty solutions", Result.SUCCESS, result.code);
-        assertNotNull("Processed solutions should not be null", result.data);
-        assertTrue("Should have empty processed solutions", result.data.isEmpty());
+        assertEquals("Should be successful even with empty solutions", Result.SUCCESS, result.getCode());
+        assertNotNull("Processed solutions should not be null", result.getData());
+        assertTrue("Should have empty processed solutions", result.getData().isEmpty());
 
         log.info("No solution test passed - empty solutions handled correctly");
 

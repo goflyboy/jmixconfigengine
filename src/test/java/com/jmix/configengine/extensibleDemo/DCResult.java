@@ -24,9 +24,9 @@ public class DCResult<T> extends Result<T> {
     private Long processTimestamp;
 
     /**
-     * 扩展属性
+     * DC扩展属性
      */
-    private java.util.Map<String, String> extAttrs = new java.util.HashMap<>();
+    private java.util.Map<String, String> dcExtAttrs = new java.util.HashMap<>();
 
     /**
      * 默认构造函数
@@ -44,9 +44,9 @@ public class DCResult<T> extends Result<T> {
     public DCResult(Result<T> result) {
         super();
         if (result != null) {
-            this.code = result.code;
-            this.data = result.data;
-            this.message = result.message;
+            this.setCode(result.getCode());
+            this.setData(result.getData());
+            this.setMessage(result.getMessage());
             this.processTimestamp = System.currentTimeMillis();
         }
     }
@@ -60,8 +60,8 @@ public class DCResult<T> extends Result<T> {
      */
     public static <T> DCResult<T> success(T data, String dcResultCode) {
         DCResult<T> result = new DCResult<>();
-        result.code = SUCCESS;
-        result.data = data;
+        result.setCode(SUCCESS);
+        result.setData(data);
         result.dcResultCode = dcResultCode;
         result.processTimestamp = System.currentTimeMillis();
         return result;
@@ -86,8 +86,8 @@ public class DCResult<T> extends Result<T> {
      */
     public static <T> DCResult<T> failed(String message, String dcResultCode) {
         DCResult<T> result = new DCResult<>();
-        result.code = FAILED;
-        result.message = message;
+        result.setCode(FAILED);
+        result.setMessage(message);
         result.dcResultCode = dcResultCode;
         result.processTimestamp = System.currentTimeMillis();
         return result;
@@ -111,7 +111,7 @@ public class DCResult<T> extends Result<T> {
      */
     public static <T> DCResult<T> noSolution(String dcResultCode) {
         DCResult<T> result = new DCResult<>();
-        result.code = NO_SOLUTION;
+        result.setCode(NO_SOLUTION);
         result.dcResultCode = dcResultCode;
         result.processTimestamp = System.currentTimeMillis();
         return result;
@@ -133,10 +133,10 @@ public class DCResult<T> extends Result<T> {
      * @param value 属性值
      */
     public void setExtAttr(String key, String value) {
-        if (extAttrs == null) {
-            extAttrs = new java.util.HashMap<>();
+        if (dcExtAttrs == null) {
+            dcExtAttrs = new java.util.HashMap<>();
         }
-        extAttrs.put(key, value);
+        dcExtAttrs.put(key, value);
     }
 
     /**
@@ -146,7 +146,7 @@ public class DCResult<T> extends Result<T> {
      * @return 属性值
      */
     public String getExtAttr(String key) {
-        return extAttrs != null ? extAttrs.get(key) : null;
+        return dcExtAttrs != null ? dcExtAttrs.get(key) : null;
     }
 
     /**
@@ -155,7 +155,7 @@ public class DCResult<T> extends Result<T> {
      * @return 是否成功
      */
     public boolean isSuccess() {
-        return code == SUCCESS;
+        return getCode() == SUCCESS;
     }
 
     /**
@@ -164,7 +164,7 @@ public class DCResult<T> extends Result<T> {
      * @return 是否失败
      */
     public boolean isFailed() {
-        return code == FAILED;
+        return getCode() == FAILED;
     }
 
     /**
@@ -173,7 +173,7 @@ public class DCResult<T> extends Result<T> {
      * @return 是否无解
      */
     public boolean isNoSolution() {
-        return code == NO_SOLUTION;
+        return getCode() == NO_SOLUTION;
     }
 
     /**

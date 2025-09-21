@@ -1,5 +1,14 @@
 package com.jmix.executor.util;
 
+import com.jmix.executor.model.Extensible;
+import com.jmix.executor.model.Part;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.util.ReflectionUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -7,19 +16,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.jmix.executor.model.Extensible;
-import com.jmix.executor.model.Part;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.util.ReflectionUtils;
-
 /**
  * Filter Expression Executor
  */
+@Slf4j
 public class FilterExpressionExecutor {
-
-    private static final Logger log = LoggerFactory.getLogger(FilterExpressionExecutor.class);
 
     private static final Pattern FILTER_PATTERN = Pattern.compile("(\\w+)\\s*([=!<>]+)\\s*\"?([^\"]*)\"?");
 
@@ -29,28 +30,15 @@ public class FilterExpressionExecutor {
     /**
      * Filter condition representation
      */
+    @Data
+    @AllArgsConstructor
     private static class FilterCondition {
+
         private final String fieldName;
+
         private final String operator;
+
         private final String value;
-
-        public FilterCondition(String fieldName, String operator, String value) {
-            this.fieldName = fieldName;
-            this.operator = operator;
-            this.value = value;
-        }
-
-        public String getFieldName() {
-            return fieldName;
-        }
-
-        public String getOperator() {
-            return operator;
-        }
-
-        public String getValue() {
-            return value;
-        }
     }
 
     /**

@@ -217,15 +217,22 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
     }
 
     static class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
+
         private final Module module;
+
         private final List<Var<?>> vars;
+
         private final List<ModuleInst> allSolutions = new ArrayList<>();
+
         // 第几个解
         private int solutionIndex = 0;
+
         // 其他变量映射
         private Map<String, OtherVar> otherVarMap;
+
         // 常量定义
         private static final String OTHER_VARIABLES_VALUE_KEY = "OTHER_VARIABLES_VALUE";
+
         private static final String OTHER_VARIABLES_MEMO_KEY = "OTHER_VARIABLES_MEMO";
 
         public ModuleInstSolutionCallBack(Module module, List<Var<?>> vars) {
@@ -336,8 +343,8 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
 
         try {
             Result<Void> initResult = eProcess.init();
-            if (initResult.code != Result.SUCCESS) {
-                return Result.failed("Failed to initialize extensible process: " + initResult.message);
+            if (initResult.getCode() != Result.SUCCESS) {
+                return Result.failed("Failed to initialize extensible process: " + initResult.getMessage());
             }
 
             extensibleProcesses.add(eProcess);
@@ -391,12 +398,12 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
                     InferParasPostProcess postProcess = (InferParasPostProcess) process;
                     Result<List<ModuleInst>> processResult = postProcess.postProcess(module, result);
 
-                    if (processResult.code == Result.SUCCESS && processResult.data != null) {
-                        result = processResult.data;
+                    if (processResult.getCode() == Result.SUCCESS && processResult.getData() != null) {
+                        result = processResult.getData();
                         log.debug("Applied post process: {} successfully", process.getProcessName());
                     } else {
                         log.warn("Post process failed: {}, message: {}",
-                                process.getProcessName(), processResult.message);
+                                process.getProcessName(), processResult.getMessage());
                     }
                 } catch (Exception e) {
                     log.error("Exception in post process: {}", process.getProcessName(), e);

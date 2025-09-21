@@ -1,20 +1,25 @@
 package com.jmix.executor.executor;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.jmix.executor.artifact.ConstraintAlgImpl;
 import com.jmix.executor.inf.AlgLoaderException;
 import com.jmix.executor.model.ModuleAlgArtifact;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Module algorithm class loader (extracted from executor impl)
  */
 public class ModuleAlgClassLoader extends ClassLoader {
+
     private final boolean isAttachedDebug;
+
     private final String rootFilePath;
+
     private String constraintRuleClassName;
+
     private final Map<String, Class<?>> classMap = new HashMap<>();
+
     private ModuleAlgArtifact algArtifact;
 
     public ModuleAlgClassLoader(boolean isAttachedDebug, String rootFilePath) {
@@ -22,6 +27,12 @@ public class ModuleAlgClassLoader extends ClassLoader {
         this.rootFilePath = rootFilePath;
     }
 
+    /**
+     * 初始化模块算法类加载器
+     * 
+     * @param moduleCode
+     * @param algArtifact
+     */
     public void init(String moduleCode, ModuleAlgArtifact algArtifact) {
         this.algArtifact = algArtifact;
         if (algArtifact != null) {
@@ -39,6 +50,13 @@ public class ModuleAlgClassLoader extends ClassLoader {
         }
     }
 
+    /**
+     * 创建模块算法类
+     * 
+     * @param moduleCode
+     * @return
+     * @throws Exception
+     */
     public ConstraintAlgImpl newConstraintAlg(String moduleCode) throws Exception {
         String className = this.constraintRuleClassName;
         Class<?> clazz = classMap.get(className);
@@ -49,6 +67,12 @@ public class ModuleAlgClassLoader extends ClassLoader {
         return (ConstraintAlgImpl) clazz.getDeclaredConstructor().newInstance();
     }
 
+    /**
+     * 加载类
+     * 
+     * @param name
+     * @return
+     */
     @Override
     public Class<?> loadClass(String name) {
         try {
@@ -59,6 +83,10 @@ public class ModuleAlgClassLoader extends ClassLoader {
         }
     }
 
+    /**
+     * 
+     * @return 模块算法类加载器信息
+     */
     public String toString() {
         return "ModuleAlgClassLoader{"
                 + "isAttachedDebug="

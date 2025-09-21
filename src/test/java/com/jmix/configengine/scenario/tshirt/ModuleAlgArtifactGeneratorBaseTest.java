@@ -4,18 +4,18 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 import com.jmix.executor.artifact.ModuleAlgArtifactGenerator;
 import com.jmix.executor.model.Module;
-import com.jmix.executor.util.ModuleUtils;
+import com.jmix.tool.ModuleUtils;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * ModuleAlgArtifactGenerator.buildConstraintRule 方法测试类

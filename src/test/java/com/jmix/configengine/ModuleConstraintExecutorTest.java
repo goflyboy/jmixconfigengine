@@ -10,7 +10,7 @@ import com.jmix.executor.inf.InferParasReq;
 import com.jmix.executor.inf.ModuleInst;
 import com.jmix.executor.inf.Result;
 import com.jmix.executor.model.Module;
-import com.jmix.executor.util.ModuleUtils;
+import com.jmix.tool.ModuleUtils;
 
 import org.junit.Test;
 

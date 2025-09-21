@@ -1,12 +1,5 @@
 package com.jmix.configengine.scenario.base;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.jmix.executor.artifact.ConstraintAlg;
 import com.jmix.executor.inf.AlgLoaderException;
 import com.jmix.executor.model.Module;
@@ -19,9 +12,16 @@ import com.jmix.executor.model.schema.CodeRuleSchema;
 import com.jmix.executor.model.schema.CompatiableRuleSchema;
 import com.jmix.executor.model.schema.ExprSchema;
 import com.jmix.executor.model.schema.RefProgObjSchema;
-import com.jmix.executor.util.ModuleUtils;
+import com.jmix.tool.ModuleUtils;
 
 import lombok.extern.slf4j.Slf4j;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 通过注解生成Module的工具类

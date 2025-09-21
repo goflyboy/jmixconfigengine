@@ -1,37 +1,50 @@
 package com.jmix.executor.inf;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.util.Map;
 
 /**
  * 结果类
  * 用于封装操作结果
  */
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Result<T> {
     public static final int SUCCESS = 0;
+
     public static final int FAILED = 1;
+
     public static final int NO_SOLUTION = 2;
-    public int code = SUCCESS;
-    public T data;
-    public String message;
-    public Map<String, Object> extAttrs;
+
+    private int code = SUCCESS;
+
+    private T data;
+
+    private String message;
+
+    private Map<String, Object> extAttrs;
 
     public static <X> Result<X> success(X data) {
         Result<X> r = new Result<>();
-        r.code = SUCCESS;
-        r.data = data;
+        r.setCode(SUCCESS);
+        r.setData(data);
         return r;
     }
 
     public static <X> Result<X> failed(String msg) {
         Result<X> r = new Result<>();
-        r.code = FAILED;
-        r.message = msg;
+        r.setCode(FAILED);
+        r.setMessage(msg);
         return r;
     }
 
     public static <X> Result<X> noSolution() {
         Result<X> r = new Result<>();
-        r.code = NO_SOLUTION;
+        r.setCode(NO_SOLUTION);
         return r;
     }
 }

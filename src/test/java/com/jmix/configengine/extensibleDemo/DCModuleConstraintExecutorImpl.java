@@ -1,8 +1,5 @@
 package com.jmix.configengine.extensibleDemo;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.jmix.executor.ModuleConstraintExecutor;
 import com.jmix.executor.inf.ConstraintConfig;
 import com.jmix.executor.inf.ExtensibleProcess;
@@ -14,6 +11,9 @@ import com.jmix.executor.inf.Result;
 import com.jmix.executor.model.Module;
 
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * DC公司的模块约束执行器实现
@@ -92,14 +92,14 @@ class DCModuleConstraintExecutorImpl {
         // 执行推理
         Result<List<ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(standardReq);
 
-        if (result.code != Result.SUCCESS) {
-            return DCResult.failed("Inference failed: " + result.message, "DC_INFER_FAILED");
+        if (result.getCode() != Result.SUCCESS) {
+            return DCResult.failed("Inference failed: " + result.getMessage(), "DC_INFER_FAILED");
         }
 
         // 将结果转换为DC格式
         List<DCModuleInst> dcSolutions = new ArrayList<>();
-        if (result.data != null) {
-            for (ModuleInst solution : result.data) {
+        if (result.getData() != null) {
+            for (ModuleInst solution : result.getData()) {
                 DCModuleInst dcSolution = convertToDCModuleInst(solution);
                 dcSolutions.add(dcSolution);
             }

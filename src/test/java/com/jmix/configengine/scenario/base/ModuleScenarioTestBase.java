@@ -1,10 +1,5 @@
 package com.jmix.configengine.scenario.base;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.jmix.executor.ModuleConstraintExecutor;
 import com.jmix.executor.artifact.ConstraintAlgImpl;
 import com.jmix.executor.artifact.OtherVar;
@@ -21,10 +16,15 @@ import com.jmix.executor.model.Para;
 import com.jmix.executor.model.Part;
 import com.jmix.executor.util.ParaTypeHandler;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.After;
 import org.junit.Before;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 模块场景测试基类
@@ -125,7 +125,7 @@ public abstract class ModuleScenarioTestBase {
         Result<List<ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(req);
         log.info("推理结果: {}", result);
         this.result = result;
-        this.solutions = result.data;
+        this.solutions = result.getData();
         return solutions;
     }
 
@@ -147,7 +147,7 @@ public abstract class ModuleScenarioTestBase {
         Result<List<ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(req);
         log.info("推理结果: {}", result);
         this.result = result;
-        this.solutions = result.data;
+        this.solutions = result.getData();
         return solutions;
     }
 

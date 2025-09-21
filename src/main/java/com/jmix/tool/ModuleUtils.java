@@ -1,4 +1,12 @@
-package com.jmix.executor.util;
+package com.jmix.tool;
+
+import com.jmix.executor.model.Module;
+
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
@@ -6,30 +14,30 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.jmix.executor.model.Module;
-
-import lombok.extern.slf4j.Slf4j;
-
 /**
  * Module工具类
  * 提供Module对象的JSON序列化和反序列化功能
  */
 @Slf4j
-public class ModuleUtils {
+final public class ModuleUtils {
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    /**
+     * 私有构造器，防止工具类被实例化
+     */
+    private ModuleUtils() {
+        throw new UnsupportedOperationException("Utility class cannot be instantiated");
+    }
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     static {
         // 配置ObjectMapper
-        objectMapper.enable(SerializationFeature.INDENT_OUTPUT); // 美化输出
-        objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS); // 允许空Bean序列化
+        OBJECT_MAPPER.enable(SerializationFeature.INDENT_OUTPUT); // 美化输出
+        OBJECT_MAPPER.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS); // 允许空Bean序列化
 
         // 配置类型信息：使用PROPERTY形式携带@type
-        objectMapper.activateDefaultTyping(
-                objectMapper.getPolymorphicTypeValidator(),
+        OBJECT_MAPPER.activateDefaultTyping(
+                OBJECT_MAPPER.getPolymorphicTypeValidator(),
                 ObjectMapper.DefaultTyping.NON_FINAL,
                 JsonTypeInfo.As.PROPERTY);
     }
@@ -52,7 +60,7 @@ public class ModuleUtils {
         }
 
         // 序列化为JSON文件
-        objectMapper.writeValue(new File(jsonFileName), module);
+        OBJECT_MAPPER.writeValue(new File(jsonFileName), module);
 
         log.info("Successfully serialized Module to JSON file: {}", jsonFileName);
     }
@@ -74,7 +82,7 @@ public class ModuleUtils {
         }
 
         // 反序列化
-        Module module = objectMapper.readValue(file, Module.class);
+        Module module = OBJECT_MAPPER.readValue(file, Module.class);
 
         // 初始化模块
         module.init();
@@ -92,7 +100,7 @@ public class ModuleUtils {
      */
     public static String toJsonString(Module module) throws IOException {
         log.debug("Serializing Module to JSON string");
-        return objectMapper.writeValueAsString(module);
+        return OBJECT_MAPPER.writeValueAsString(module);
     }
 
     /**
@@ -104,7 +112,7 @@ public class ModuleUtils {
      */
     public static Module fromJsonString(String jsonString) throws IOException {
         log.debug("Deserializing Module from JSON string");
-        Module module = objectMapper.readValue(jsonString, Module.class);
+        Module module = OBJECT_MAPPER.readValue(jsonString, Module.class);
         module.init();
         return module;
     }

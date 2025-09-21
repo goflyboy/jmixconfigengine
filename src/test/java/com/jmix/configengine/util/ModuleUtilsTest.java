@@ -5,11 +5,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-
 import com.jmix.executor.model.Module;
 import com.jmix.executor.model.ModuleType;
 import com.jmix.executor.model.Para;
@@ -21,11 +16,16 @@ import com.jmix.executor.model.Rule;
 import com.jmix.executor.model.schema.CompatiableRuleSchema;
 import com.jmix.executor.model.schema.ExprSchema;
 import com.jmix.executor.model.schema.RefProgObjSchema;
-import com.jmix.executor.util.ModuleUtils;
+import com.jmix.tool.ModuleUtils;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * ModuleUtils工具类测试
