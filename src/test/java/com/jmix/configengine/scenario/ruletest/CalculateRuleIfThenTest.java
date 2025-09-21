@@ -28,13 +28,13 @@ public class CalculateRuleIfThenTest extends ModuleScenarioTestBase {
     static public class CalculateRuleConstraint extends ConstraintAlgImpl {
 
         @ParaAnno(defaultValue = "op11", options = { "op11", "op12", "op13" })
-        private ParaVar P1Var;
+        private ParaVar p1Var;
 
         @ParaAnno(defaultValue = "op21", options = { "op21", "op22", "op23" })
-        private ParaVar P2Var;
+        private ParaVar p2Var;
 
         @PartAnno
-        private PartVar PT1Var;
+        private PartVar pt1Var;
 
         @Override
         protected void initConstraint() {
@@ -43,34 +43,34 @@ public class CalculateRuleIfThenTest extends ModuleScenarioTestBase {
 
         public void addConstraint_rule2() {
 
-            // if(P1Var.value ==op11 && P2Var.value == op21 ) {
-            // PT1Var.qty = 1;
+            // if(p1Var.value ==op11 && p2Var.value == op21 ) {
+            // pt1Var.qty = 1;
             // }
             // else {
-            // PT1Var.qty = 3
+            // pt1Var.qty = 3
             // }
 
             // 创建条件变量：颜色是红色且尺寸是小号
             BoolVar rule2_op11Andop21 = model.newBoolVar("rule2_op11Andop21");
 
-            // 实现条件逻辑：redAndSmall = (P1== op11) AND (P2 == op21)
+            // 实现条件逻辑：redAndSmall = (p1== op11) AND (p2 == op21)
             model.addBoolAnd(new Literal[] {
-                    this.P1Var.getParaOptionByCode("op11").getIsSelectedVar(),
-                    this.P2Var.getParaOptionByCode("op21").getIsSelectedVar()
+                    this.p1Var.getParaOptionByCode("op11").getIsSelectedVar(),
+                    this.p2Var.getParaOptionByCode("op21").getIsSelectedVar()
             }).onlyEnforceIf(rule2_op11Andop21);
 
             // 如果不是红色且小号的组合，则op11Andop2为false
             model.addBoolOr(new Literal[] {
-                    this.P1Var.getParaOptionByCode("op11").getIsSelectedVar().not(),
-                    this.P2Var.getParaOptionByCode("op21").getIsSelectedVar().not()
+                    this.p1Var.getParaOptionByCode("op11").getIsSelectedVar().not(),
+                    this.p2Var.getParaOptionByCode("op21").getIsSelectedVar().not()
             }).onlyEnforceIf(rule2_op11Andop21.not());
 
-            // 根据条件设置PT1Var的数量
-            // 如果op11Andop2为true，则PT1Var数量为1
-            model.addEquality((IntVar) this.PT1Var.qty, 1).onlyEnforceIf(rule2_op11Andop21);
+            // 根据条件设置pt1Var的数量
+            // 如果op11Andop2为true，则pt1Var数量为1
+            model.addEquality((IntVar) this.pt1Var.qty, 1).onlyEnforceIf(rule2_op11Andop21);
 
-            // 如果op11Andop2为false，则PT1Var数量为3
-            model.addEquality((IntVar) this.PT1Var.qty, 3).onlyEnforceIf(rule2_op11Andop21.not());
+            // 如果op11Andop2为false，则pt1Var数量为3
+            model.addEquality((IntVar) this.pt1Var.qty, 3).onlyEnforceIf(rule2_op11Andop21.not());
         }
     }
     // ---------------规则定义end----------------------------------------
@@ -86,41 +86,41 @@ public class CalculateRuleIfThenTest extends ModuleScenarioTestBase {
     @Test
     public void test_rule2_if_op11_op21() {
         // 测试颜色参数推理
-        inferParas("PT1", 1);
+        inferParas("pt1", 1);
 
         // 验证第一个解
-        solutions(0).assertPara("P1").valueEqual("op11")
-                .assertPara("P2").valueEqual("op21");
+        solutions(0).assertPara("p1").valueEqual("op11")
+                .assertPara("p2").valueEqual("op21");
         printSolutions();
     }
 
     @Test
     public void test_rule2_else_op11_op21() {
-        inferParas("PT1", 3);
+        inferParas("pt1", 3);
         printSolutions();
         // 反推有8个接口 8=3*3 - 1
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(8);
         // if的解肯定不在其中
-        assertSolutionNum("P1:op11,P2:op21", 0);
+        assertSolutionNum("p1:op11,p2:op21", 0);
         // else的解可能解如下：
-        assertSolutionNum("P1:op12,P2:op22", 1);
+        assertSolutionNum("p1:op12,p2:op22", 1);
         printSolutions();
     }
 
     @Test
     public void test_rule2_no_if_else() {
-        inferParas("PT1", 4);
+        inferParas("pt1", 4);
         printSolutions();
         // 反推有8个接口 8=3*3 - 1
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(0);
         // if的解肯定不在其中
-        assertSolutionNum("P1:op11,P2:op21", 0);
+        assertSolutionNum("p1:op11,p2:op21", 0);
         // else的解也不在其中
-        assertSolutionNum("P1:op12,P2:op22", 0);
+        assertSolutionNum("p1:op12,p2:op22", 0);
         printSolutions();
     }
 

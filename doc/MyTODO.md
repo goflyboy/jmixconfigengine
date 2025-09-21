@@ -122,3 +122,14 @@ tool
   
 	TODO：怎么加屏蔽逻辑？ --**
 	
+请对测试类中的 ParaVar、PartVar的变量及rule方法进行修改，满足checkstyle的要求
+每个测试类都要检查一下，改完后要测试一下是否通过，确保所有的测试类都要检查到。
+详细要求：
+PT*->pt*，例如： private PartVar PT005; --> private PartVar pt005;
+P*->pt(，例如： private ParaVar P018; --> private ParaVar p018;
+ protected void Rule01() ->  private void rule01()
+checkstyle的要求：
+	
+- **Line 35:** 名称 'P001' 必须匹配表达式： '^[a-z][a-zA-Z0-9]*$' 。
+- **Code:** MemberNameCheck
+- **Source:** Checkstyle

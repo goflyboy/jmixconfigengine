@@ -24,19 +24,19 @@ public class ParaIntegerTest extends ModuleScenarioTestBase {
     @ModuleAnno(id = 123L)
     static public class ParaIntegerConstraint extends ConstraintAlgImpl {
         @ParaAnno(type = ParaType.INTEGER, defaultValue = "0", minValue = "0", maxValue = "50")
-        private ParaVar P1;
+        private ParaVar p1;
 
         @ParaAnno(type = ParaType.INTEGER, defaultValue = "0", minValue = "0", maxValue = "50")
-        private ParaVar P2;
+        private ParaVar p2;
 
         @PartAnno(maxQuantity = 3)
-        private PartVar Part1;
+        private PartVar part1;
 
         @Override
         protected void initConstraint() {
-            // Part1.quantity = P1.value + P2.value
-            model.addEquality((IntVar) Part1.qty,
-                    LinearExpr.sum(new IntVar[] { (IntVar) P1.value, (IntVar) P2.value }));
+            // part1.quantity = p1.value + p2.value
+            model.addEquality((IntVar) part1.qty,
+                    LinearExpr.sum(new IntVar[] { (IntVar) p1.value, (IntVar) p2.value }));
         }
     }
     // ---------------ģ�͵Ķ���end----------------------------------------
@@ -51,52 +51,52 @@ public class ParaIntegerTest extends ModuleScenarioTestBase {
 
     @Test
     public void testMultipleSolutions() {
-        inferParas("Part1", 3);
+        inferParas("part1", 3);
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(4);
-        assertSolutionNum("P1:0,P2:3", 1);
-        assertSolutionNum("P1:1,P2:2", 1);
-        assertSolutionNum("P1:2,P2:1", 1);
-        assertSolutionNum("P1:3,P2:0", 1);
+        assertSolutionNum("p1:0,p2:3", 1);
+        assertSolutionNum("p1:1,p2:2", 1);
+        assertSolutionNum("p1:2,p2:1", 1);
+        assertSolutionNum("p1:3,p2:0", 1);
     }
 
     @Test
     public void testNoSolution() {
-        inferParas("Part1", 4);
+        inferParas("part1", 4);
         resultAssert().assertNoSolution();
     }
 
     @Test
     public void testParaDrivenInference() {
-        inferParasByPara("P1", "2", "P2", "1");
+        inferParasByPara("p1", "2", "p2", "1");
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(1);
         solutions(0)
-                .assertPart("Part1").quantityEqual(3);
+                .assertPart("part1").quantityEqual(3);
     }
 
     @Test
     public void testZeroQuantity() {
-        inferParas("Part1", 0);
+        inferParas("part1", 0);
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(1);
         solutions(0)
-                .assertPara("P1").valueEqual("0")
-                .assertPara("P2").valueEqual("0");
+                .assertPara("p1").valueEqual("0")
+                .assertPara("p2").valueEqual("0");
     }
 
     @Test
     public void testMultipleParaInference() {
         // 使用可变参数版本：inferParasByPara(String paraCode1, String value1, String paraCode2,
         // String value2, ...)
-        inferParasByPara("P1", "2", "P2", "1");
+        inferParasByPara("p1", "2", "p2", "1");
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(1);
         solutions(0)
-                .assertPart("Part1").quantityEqual(3);
+                .assertPart("part1").quantityEqual(3);
     }
 }
