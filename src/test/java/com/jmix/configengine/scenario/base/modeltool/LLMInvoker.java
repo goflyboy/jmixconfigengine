@@ -1,12 +1,12 @@
 package com.jmix.configengine.scenario.base.modeltool;
 
+import com.jmix.executor.inf.AlgLoaderException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Properties;
-
-import com.jmix.executor.inf.AlgLoaderException;
 
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.SystemMessage;
@@ -23,7 +23,9 @@ import dev.langchain4j.model.output.Response;
 public class LLMInvoker {
 
     private final Properties config;
+
     private final ChatLanguageModel llmModel;
+
     private final String defaultModel;
 
     public LLMInvoker() {
@@ -313,10 +315,10 @@ public class LLMInvoker {
             qwenKey = config.getProperty("qwen.api.key", "未配置");
         }
 
-        return String.format("当前配置:\n" +
-                "- 默认模型: %s\n" +
-                "- DeepSeek API: %s (来源: %s)\n" +
-                "- Qwen API: %s (来源: %s)",
+        return String.format("当前配置:\n"
+                + "- 默认模型: %s\n"
+                + "- DeepSeek API: %s (来源: %s)\n"
+                + "- Qwen API: %s (来源: %s)",
                 defaultModel,
                 deepseekKey.substring(0, Math.min(10, deepseekKey.length())) + "...",
                 System.getenv("DEEPSEEK_API_KEY") != null ? "环境变量" : "配置文件",

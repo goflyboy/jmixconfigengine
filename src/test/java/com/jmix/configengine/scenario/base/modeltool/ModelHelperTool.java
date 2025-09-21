@@ -7,7 +7,12 @@ import com.jmix.executor.inf.AlgLoaderException;
  * ModelHelper测试类
  * 测试生成并运行模型文件的功能
  */
-public class ModelHelperTool {
+public final class ModelHelperTool {
+
+    private ModelHelperTool() {
+        // 工具类私有构造器
+    }
+
     public static void main(String[] args) {
         generatorModelFile();
         // injectConstraintCode();
@@ -17,7 +22,7 @@ public class ModelHelperTool {
     public static void injectConstraintCode() {
         try {
             ModelHelper modelHelper = new ModelHelper();
-            modelHelper.autoInjectConstraintCode(InjectCompatibleRuleConstraint.class);//
+            modelHelper.autoInjectConstraintCode(InjectCompatibleRuleConstraint.class); //
             System.out.println("正在注入约束代码...");
         } catch (Exception e) {
             System.out.println("注入约束代码失败: " + e.getMessage());
@@ -199,17 +204,17 @@ public class ModelHelperTool {
      * @return 默认变量模型
      */
     private static String getDefaultVariableModel() {
-        return "@ParaAnno( \n" +
-                "\t\t\toptions = {\"op11\", \"op12\", \"op13\"} \n" +
-                "        )\n" +
-                "        private ParaVar P1Var;\n" +
-                "    \n" +
-                "        @ParaAnno( \n" +
-                "            options = {\"op21\", \"op22\", \"op23\"}\n" +
-                "        )\n" +
-                "        private ParaVar P2Var;\n" +
-                "        @PartAnno\n" +
-                "        private PartVar PT1Var;";
+        return "@ParaAnno( \n"
+                + "\t\t\toptions = {\"op11\", \"op12\", \"op13\"} \n"
+                + "        )\n"
+                + "        private ParaVar P1Var;\n"
+                + "    \n"
+                + "        @ParaAnno( \n"
+                + "            options = {\"op21\", \"op22\", \"op23\"}\n"
+                + "        )\n"
+                + "        private ParaVar P2Var;\n"
+                + "        @PartAnno\n"
+                + "        private PartVar PT1Var;";
     }
 
     /**
@@ -218,12 +223,12 @@ public class ModelHelperTool {
      * @return 默认逻辑伪代码
      */
     private static String getDefaultLogicPseudocode() {
-        return "if(P1Var.value == op11 && P2Var.value == op21) {\n" +
-                "                PT1Var.qty = 1;\n" +
-                "            }\n" +
-                "            else {\n" +
-                "                PT1Var.qty = 3;\n" +
-                "            }";
+        return "if(P1Var.value == op11 && P2Var.value == op21) {\n"
+                + "                PT1Var.qty = 1;\n"
+                + "            }\n"
+                + "            else {\n"
+                + "                PT1Var.qty = 3;\n"
+                + "            }";
     }
 
     /**

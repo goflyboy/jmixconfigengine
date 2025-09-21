@@ -1,13 +1,5 @@
 package com.jmix.executor.artifact;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import com.jmix.executor.constant.RuleTypeConstants;
 import com.jmix.executor.inf.AlgLoaderException;
 import com.jmix.executor.model.Extensible;
@@ -23,9 +15,18 @@ import com.jmix.executor.model.schema.RefProgObjSchema;
 import com.jmix.executor.model.schema.RuleSchema;
 import com.jmix.executor.util.FilterExpressionExecutor;
 
+import lombok.extern.slf4j.Slf4j;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import freemarker.template.Configuration;
 import freemarker.template.Template;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * 模块算法制品生成器
@@ -293,7 +294,7 @@ public class ModuleAlgArtifactGenerator {
                 // 例如：SizeVar.value == Small --> SizeVar.code == Small(本质是对option的code进行搜索)
                 parsedRawCode = replaceToOptionCode(exprSchema.getRawCode(), "value", "code");
             }
-        } else if ("Part".equals(progObjType)) {// 根据exprSchema.refProgObjs.progObjType = Part
+        } else if ("Part".equals(progObjType)) { // 根据exprSchema.refProgObjs.progObjType = Part
             PartVarInfo part = moduleVarInfo.getPart(progObjCode);
             if (part != null) {
                 targetObj = part;
@@ -382,7 +383,9 @@ public class ModuleAlgArtifactGenerator {
      * 简单的Pair类
      */
     public static class Pair<F, S> {
+
         private final F first;
+
         private final S second;
 
         public Pair(F first, S second) {
@@ -390,10 +393,20 @@ public class ModuleAlgArtifactGenerator {
             this.second = second;
         }
 
+        /**
+         * 获取第一个元素
+         * 
+         * @return 第一个元素
+         */
         public F getFirst() {
             return first;
         }
 
+        /**
+         * 获取第二个元素
+         * 
+         * @return 第二个元素
+         */
         public S getSecond() {
             return second;
         }

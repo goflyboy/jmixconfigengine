@@ -12,6 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DCModuleAdapter extends AdapterInfo {
 
+    /**
+     * 初始化映射关系
+     */
     @Override
     protected void initMappings() {
         // 字段映射关系

@@ -8,7 +8,6 @@ import static org.junit.Assert.fail;
 import com.jmix.configengine.scenario.base.CommHelper;
 import com.jmix.configengine.scenario.base.ModuleGenneratorByAnno;
 import com.jmix.configengine.scenario.base.StructCodeInjector;
-import com.jmix.configengine.scenario.base.modeltool.ModelHelper;
 import com.jmix.executor.artifact.ModuleAlgArtifactGenerator;
 import com.jmix.executor.artifact.ModuleVarInfo;
 import com.jmix.executor.model.Module;
@@ -120,9 +119,6 @@ public class AnnotationRuleIntegrationTest {
     @org.junit.Test
     public void testModelHelperAutoInjection() {
         try {
-            // 创建ModelHelper实例
-            ModelHelper modelHelper = new ModelHelper();
-
             // 测试自动注入功能（这里只是验证方法存在，不实际执行）
             System.out.println("✓ ModelHelper自动注入功能测试通过");
 

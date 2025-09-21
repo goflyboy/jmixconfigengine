@@ -1,9 +1,5 @@
 package com.jmix.configengine.scenario.base.modeltool;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 import com.jmix.configengine.scenario.base.CommHelper;
 import com.jmix.configengine.scenario.base.ModuleGenneratorByAnno;
 import com.jmix.configengine.scenario.base.StructCodeInjector;
@@ -13,6 +9,10 @@ import com.jmix.executor.artifact.ModuleVarInfo;
 import com.jmix.executor.inf.AlgLoaderException;
 import com.jmix.executor.model.Module;
 import com.jmix.executor.model.Rule;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * 模型文件生成器
@@ -260,9 +260,9 @@ public class ModelHelper {
 
             // 获取项目根目录
             String projectRoot = System.getProperty("user.dir");
-            String classpath = projectRoot + "/target/classes;" +
-                    projectRoot + "/target/test-classes;" +
-                    projectRoot + "/lib/*";
+            String classpath = projectRoot + "/target/classes;"
+                    + projectRoot + "/target/test-classes;"
+                    + projectRoot + "/lib/*";
 
             // 构建编译命令
             ProcessBuilder pb = new ProcessBuilder(
@@ -342,7 +342,9 @@ public class ModelHelper {
             String tempPath = CommHelper.createTempPath(injectedClazz);
 
             // 生成Module
-            Module module = ModuleGenneratorByAnno.build((Class<? extends ConstraintAlg>) injectedClazz, tempPath);
+            @SuppressWarnings("unchecked")
+            Class<? extends ConstraintAlg> constraintAlgClass = (Class<? extends ConstraintAlg>) injectedClazz;
+            Module module = ModuleGenneratorByAnno.build(constraintAlgClass, tempPath);
 
             // 检查是否需要注入：如果module.getRules()都不是CompatibleRule，则为false，否则为true
             boolean isNeedInject = false;

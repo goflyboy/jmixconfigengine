@@ -1,9 +1,5 @@
 package com.jmix.configengine.artifact;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jmix.executor.artifact.ModuleAlgArtifactGenerator;
 import com.jmix.executor.artifact.ModuleAlgArtifactGenerator.Pair;
 import com.jmix.executor.artifact.ModuleVarInfo;
@@ -26,18 +22,16 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * ModuleAlgArtifactGenerator单元测试
  */
 public class ModuleAlgArtifactGeneratorTest {
 
-    private ModuleAlgArtifactGenerator generator;
-    private ObjectMapper objectMapper;
-
     @Before
     public void setUp() {
-        generator = new ModuleAlgArtifactGenerator();
-        objectMapper = new ObjectMapper();
     }
 
     @Test
@@ -55,6 +49,11 @@ public class ModuleAlgArtifactGeneratorTest {
     }
 
     // @Test
+    /**
+     * 测试buildRule方法
+     * 
+     * @throws Exception
+     */
     public void testBuildRule() throws Exception {
         // 创建测试模块和ModuleInfo
         Module module = createTestModule();
@@ -163,9 +162,9 @@ public class ModuleAlgArtifactGeneratorTest {
                 Assert.assertNotNull("Target object should not be null", result.getFirst());
                 Assert.assertNotNull("Filtered objects should not be null", result.getSecond());
 
-                System.out.println("doSelectProObjs test passed - targetObj: " +
-                        (result.getFirst() != null ? result.getFirst().getClass().getSimpleName() : "null") +
-                        ", filterObjects size: " + result.getSecond().size());
+                System.out.println("doSelectProObjs test passed - targetObj: "
+                        + (result.getFirst() != null ? result.getFirst().getClass().getSimpleName() : "null")
+                        + ", filterObjects size: " + result.getSecond().size());
             } else {
                 System.out
                         .println("doSelectProObjs test passed - result is null (expected for current implementation)");
@@ -183,6 +182,9 @@ public class ModuleAlgArtifactGeneratorTest {
     }
 
     // @Test
+    /**
+     * 测试Module方法
+     */
     public void testModuleMethods() {
         Module module = createTestModuleWithHierarchy();
 

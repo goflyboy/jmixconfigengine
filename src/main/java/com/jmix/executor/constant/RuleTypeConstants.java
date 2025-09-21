@@ -82,8 +82,8 @@ public final class RuleTypeConstants {
      * @return 是否为兼容性规则
      */
     public static boolean isCompatiableRule(String ruleSchemaTypeFullName) {
-        return ruleSchemaTypeFullName != null &&
-                ruleSchemaTypeFullName.contains(COMPATIABLE_RULE);
+        return ruleSchemaTypeFullName != null
+                && ruleSchemaTypeFullName.contains(COMPATIABLE_RULE);
     }
 
     /**
@@ -93,8 +93,8 @@ public final class RuleTypeConstants {
      * @return 是否为计算规则
      */
     public static boolean isCalculateRule(String ruleSchemaTypeFullName) {
-        return ruleSchemaTypeFullName != null &&
-                ruleSchemaTypeFullName.contains(CALCULATE_RULE);
+        return ruleSchemaTypeFullName != null
+                && ruleSchemaTypeFullName.contains(CALCULATE_RULE);
     }
 
     /**
@@ -104,8 +104,8 @@ public final class RuleTypeConstants {
      * @return 是否为选择规则
      */
     public static boolean isSelectRule(String ruleSchemaTypeFullName) {
-        return ruleSchemaTypeFullName != null &&
-                ruleSchemaTypeFullName.contains(SELECT_RULE);
+        return ruleSchemaTypeFullName != null
+                && ruleSchemaTypeFullName.contains(SELECT_RULE);
     }
 
     /**
