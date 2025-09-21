@@ -2,9 +2,12 @@ package com.jmix.executor.impl.artifact;
 
 import com.google.ortools.sat.IntVar;
 
+import lombok.Data;
+
 /**
  * 其他变量类，用于记录非ParaVar和PartVar的变量
  */
+@Data
 public class OtherVar {
     /**
      * 变量命名模式前缀
@@ -14,17 +17,17 @@ public class OtherVar {
     /**
      * 定义的code
      */
-    public String code;
+    private String code;
 
     /**
      * 变量对象
      */
-    public IntVar var;
+    private IntVar var;
 
     /**
      * 方便定位用的短代码
      */
-    public String shortCode;
+    private String shortCode;
 
     /**
      * 构造函数
@@ -40,13 +43,13 @@ public class OtherVar {
      * @param shortCode 短代码
      */
     public OtherVar(String code, IntVar var, String shortCode) {
-        this.code = code;
-        this.var = var;
-        this.shortCode = shortCode;
+        setCode(code);
+        setVar(var);
+        setShortCode(shortCode);
     }
 
     @Override
     public String toString() {
-        return String.format("OtherVar{code='%s', shortCode='%s'}", code, shortCode);
+        return String.format("OtherVar{code='%s', shortCode='%s'}", getCode(), getShortCode());
     }
 }

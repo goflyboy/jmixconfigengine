@@ -1,4 +1,4 @@
-package com.jmix.executor.impl.artifact;
+package com.jmix.tool.artifact;
 
 import com.jmix.executor.imodel.Extensible;
 

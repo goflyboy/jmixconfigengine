@@ -738,3 +738,1905 @@ PS D:\01.code\mygithub\jmixconfigengine>
 
 ---
 
+_**User (2025-09-21 12:25Z)**_
+
+同上
+
+---
+
+_**Assistant**_
+
+我看到您当前打开的是 `OtherVar.java` 文件，并且选中了其中的一些字段。我注意到这些字段都是 `public` 的，根据 Checkstyle 规范，这些字段应该改为 `private` 并配置访问方法。
+
+让我先查看完整的 `OtherVar.java` 文件，然后进行相应的修改：
+
+
+---
+
+Read file: undefined
+
+---
+
+现在我需要检查这个类是否使用了 Lombok 注解，以及是否有其他地方引用了这些字段：
+
+
+---
+
+
+
+---
+
+让我检查这些文件中如何使用 `OtherVar` 的字段：
+
+
+---
+
+
+
+---
+
+现在让我专门搜索 `OtherVar` 字段的使用情况：
+
+
+---
+
+
+
+---
+
+现在我了解了 `OtherVar` 字段的使用情况。我需要：
+
+1. 将 `OtherVar` 类的字段改为 `private`
+2. 添加 Lombok 的 `@Data` 注解来自动生成 getter/setter 方法
+3. 修改所有使用这些字段的地方
+
+让我开始修改：
+
+
+---
+
+## Todo List
+
+- [-] 修改 OtherVar 类的字段访问权限并添加 Lombok 注解
+- [ ] 更新所有使用 OtherVar 字段的地方使用 getter/setter 方法
+- [ ] 验证修改后的代码能够正常编译
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/artifact/OtherVar.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: undefined
+
+```diff
+@@ -2,8 +2,10 @@
+  
+  import com.google.ortools.sat.IntVar;
++ import lombok.Data;
+  
+  /**
+   * 其他变量类，用于记录非ParaVar和PartVar的变量
+   */
++ @Data
+  public class OtherVar {
+      /**
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/artifact/OtherVar.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 3, lines removed: 3
+
+```diff
+@@ -17,15 +17,15 @@
+       * 定义的code
+       */
+-     public String code;
++     private String code;
+  
+      /**
+       * 变量对象
+       */
+-     public IntVar var;
++     private IntVar var;
+  
+      /**
+       * 方便定位用的短代码
+       */
+-     public String shortCode;
++     private String shortCode;
+  
+      /**
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/artifact/OtherVar.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 3, lines removed: 3
+
+```diff
+@@ -43,7 +43,7 @@
+       */
+      public OtherVar(String code, IntVar var, String shortCode) {
+-         this.code = code;
+-         this.var = var;
+-         this.shortCode = shortCode;
++         setCode(code);
++         setVar(var);
++         setShortCode(shortCode);
+      }
+  
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/artifact/OtherVar.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -51,5 +51,5 @@
+      @Override
+      public String toString() {
+-         return String.format("OtherVar{code='%s', shortCode='%s'}", code, shortCode);
++         return String.format("OtherVar{code='%s', shortCode='%s'}", getCode(), getShortCode());
+      }
+  }
+```
+
+</details>
+
+---
+
+## Todo List
+
+- [x] 修改 OtherVar 类的字段访问权限并添加 Lombok 注解
+- [-] 更新所有使用 OtherVar 字段的地方使用 getter/setter 方法
+- [ ] 验证修改后的代码能够正常编译
+
+---
+
+现在我需要更新所有使用 `OtherVar` 字段的地方。让我逐个修改：
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -294,6 +294,6 @@
+                  for (Map.Entry<String, OtherVar> entry : otherVarMap.entrySet()) {
+                      OtherVar otherVar = entry.getValue();
+-                     long varValue = value(otherVar.var);
+-                     otherVarKeyMap.put(otherVar.shortCode, varValue);
++                     long varValue = value(otherVar.getVar());
++                     otherVarKeyMap.put(otherVar.getShortCode(), varValue);
+                  }
+                  moduleInst.getExtAttrs().put(OTHER_VARIABLES_VALUE_KEY, otherVarKeyMap);
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -472,5 +472,5 @@
+                  for (Map.Entry<String, OtherVar> entry : otherVarMap.entrySet()) {
+                      OtherVar otherVar = entry.getValue();
+-                     sb.append(" ").append(otherVar.shortCode).append(":").append(otherVar.code).append("\n");
++                     sb.append(" ").append(otherVar.getShortCode()).append(":").append(otherVar.getCode()).append("\n");
+                  }
+              }
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/artifact/AlgCPModel.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 3, lines removed: 3
+
+```diff
+@@ -154,7 +154,7 @@
+          if (!name.startsWith(ParaVar.VAR_PATTEN_PREFIX) && !name.startsWith(PartVar.VAR_PATTEN_PREFIX)) {
+              OtherVar otherVar = new OtherVar();
+-             otherVar.code = name;
+-             otherVar.var = tv;
+-             otherVar.shortCode = "o" + (++otherVarIndex);
++             otherVar.setCode(name);
++             otherVar.setVar(tv);
++             otherVar.setShortCode("o" + (++otherVarIndex));
+              otherVarMap.put(name, otherVar);
+          }
+```
+
+</details>
+
+---
+
+## Todo List
+
+- [x] 修改 OtherVar 类的字段访问权限并添加 Lombok 注解
+- [x] 更新所有使用 OtherVar 字段的地方使用 getter/setter 方法
+- [-] 验证修改后的代码能够正常编译
+
+---
+
+现在让我验证修改后的代码是否能够正常编译：
+
+
+---
+
+```bash
+mvn compile
+```
+
+---
+
+让我检查一下是否有任何 lint 错误：
+
+
+---
+
+
+
+---
+
+## Todo List
+
+- [x] 修改 OtherVar 类的字段访问权限并添加 Lombok 注解
+- [x] 更新所有使用 OtherVar 字段的地方使用 getter/setter 方法
+- [x] 验证修改后的代码能够正常编译
+
+---
+
+## 修改完成总结
+
+我已经成功解决了 `OtherVar.java` 文件中的 Checkstyle 错误，具体修改如下：
+
+### 修改的文件：
+
+1. **`OtherVar.java`**：
+   - 添加了 `@Data` 注解，自动生成 getter/setter 方法
+   - 将 `public String code` 改为 `private String code`
+   - 将 `public IntVar var` 改为 `private IntVar var`
+   - 将 `public String shortCode` 改为 `private String shortCode`
+   - 更新构造函数使用 setter 方法
+   - 更新 `toString()` 方法使用 getter 方法
+
+2. **`ModuleConstraintExecutorImpl.java`**：
+   - 将 `otherVar.var` 改为 `otherVar.getVar()`
+   - 将 `otherVar.shortCode` 改为 `otherVar.getShortCode()`
+
+3. **`ModuleScenarioTestBase.java`**：
+   - 将 `otherVar.shortCode` 改为 `otherVar.getShortCode()`
+   - 将 `otherVar.code` 改为 `otherVar.getCode()`
+
+4. **`AlgCPModel.java`**：
+   - 将 `otherVar.code = name` 改为 `otherVar.setCode(name)`
+   - 将 `otherVar.var = tv` 改为 `otherVar.setVar(tv)`
+   - 将 `otherVar.shortCode = "o" + (++otherVarIndex)` 改为 `otherVar.setShortCode("o" + (++otherVarIndex))`
+
+### 修改原理：
+
+通过添加 `@Data` 注解，Lombok 会自动生成所有字段的 getter 和 setter 方法，这样我们就可以安全地将字段设为 `private` 并使用这些访问方法，符合 Checkstyle 的编码规范要求。
+
+所有修改都已完成，代码没有 lint 错误，符合项目的编码规范。
+
+---
+
+_**User (2025-09-21 12:25Z)**_
+
+@ParaVar.java @PartVar.java  同上
+
+---
+
+_**Assistant**_
+
+我看到您希望我对 `ParaVar.java` 和 `PartVar.java` 文件进行同样的修改，即将公共字段改为私有字段并使用 Lombok 的 `@Data` 注解自动生成 getter/setter 方法。
+
+让我先检查这两个文件的当前状态，然后进行相应的修改：
+
+
+---
+
+## Todo List
+
+- [-] 修改 ParaVar 类的字段访问权限并添加 Lombok 注解
+- [ ] 修改 PartVar 类的字段访问权限并添加 Lombok 注解
+- [ ] 更新所有使用 ParaVar 字段的地方使用 getter/setter 方法
+- [ ] 更新所有使用 PartVar 字段的地方使用 getter/setter 方法
+- [ ] 验证所有修改后的代码能够正常编译
+
+---
+
+首先修改 `ParaVar.java` 文件：
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/artifact/ParaVar.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 3, lines removed: 3
+
+```diff
+@@ -40,16 +40,16 @@
+       * 参数值状态
+       */
+-     public IntVar value;
++     private IntVar value;
+  
+      /**
+       * 兼容旧模型的隐藏布尔变量
+       * 0-显示，1-隐藏
+       */
+-     public BoolVar isHidden;
++     private BoolVar isHidden;
+  
+      /**
+       * 参数可选值的选中状态(CodeId -> ParaOptionVar)
+       */
+-     public Map<Integer, ParaOptionVar> optionSelectVars = new HashMap<>();
++     private Map<Integer, ParaOptionVar> optionSelectVars = new HashMap<>();
+  
+      public ParaOptionVar getParaOptionByCodeId(Integer codeId) {
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/artifact/ParaVar.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -54,5 +54,5 @@
+  
+      public ParaOptionVar getParaOptionByCodeId(Integer codeId) {
+-         return optionSelectVars.get(codeId);
++         return getOptionSelectVars().get(codeId);
+      }
+  
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/artifact/ParaVar.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -58,5 +58,5 @@
+  
+      public ParaOptionVar getParaOptionByCode(String code) {
+-         for (ParaOptionVar option : optionSelectVars.values()) {
++         for (ParaOptionVar option : getOptionSelectVars().values()) {
+              if (code != null && code.equals(option.getCode())) {
+                  return option;
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/artifact/ParaVar.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -73,5 +73,5 @@
+  
+      public List<ParaOptionVar> getParaOptionByExclusiveCodes(List<String> exclusiveCodes) {
+-         return optionSelectVars.values().stream()
++         return getOptionSelectVars().values().stream()
+                  .filter(option -> !exclusiveCodes.contains(option.getCode()))
+                  .collect(Collectors.toList());
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/artifact/ParaVar.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 6, lines removed: 6
+
+```diff
+@@ -82,15 +82,15 @@
+          StringBuilder sb = new StringBuilder();
+          sb.append("Para{code=").append(getCode());
+-         if (value != null) {
+-             sb.append(",value=").append(solutionCallback.value((IntVar) this.value));
++         if (getValue() != null) {
++             sb.append(",value=").append(solutionCallback.value((IntVar) getValue()));
+  
+          }
+-         if (isHidden != null) {
+-             sb.append(", isHidden=").append(solutionCallback.value(this.isHidden));
++         if (getIsHidden() != null) {
++             sb.append(", isHidden=").append(solutionCallback.value(getIsHidden()));
+          }
+-         if (!optionSelectVars.isEmpty()) {
++         if (!getOptionSelectVars().isEmpty()) {
+              // 打印每个option的getVarString
+              sb.append(", options=");
+-             for (ParaOptionVar option : optionSelectVars.values()) {
++             for (ParaOptionVar option : getOptionSelectVars().values()) {
+                  sb.append(option.getVarString(solutionCallback)).append(",");
+              }
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/artifact/ParaVar.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -104,5 +104,5 @@
+          // P1(V:1,H:0)
+          return String.format("%s(%s:%s,%s:%s)", getCode(), VALUE_SHORT_NAME,
+-                 solutionCallback.value((IntVar) this.value), HIDDEN_SHORT_NAME, solutionCallback.value(this.isHidden));
++                 solutionCallback.value((IntVar) getValue()), HIDDEN_SHORT_NAME, solutionCallback.value(getIsHidden()));
+      }
+  }
+```
+
+</details>
+
+---
+
+## Todo List
+
+- [x] 修改 ParaVar 类的字段访问权限并添加 Lombok 注解
+- [-] 修改 PartVar 类的字段访问权限并添加 Lombok 注解
+- [ ] 更新所有使用 ParaVar 字段的地方使用 getter/setter 方法
+- [ ] 更新所有使用 PartVar 字段的地方使用 getter/setter 方法
+- [ ] 验证所有修改后的代码能够正常编译
+
+---
+
+现在修改 `PartVar.java` 文件：
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/artifact/PartVar.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 3, lines removed: 3
+
+```diff
+@@ -35,15 +35,15 @@
+       * 部件的数量值
+       */
+-     public IntVar qty;
++     private IntVar qty;
+  
+      /**
+       * 显示隐藏属性
+       */
+-     public BoolVar isHidden;
++     private BoolVar isHidden;
+  
+      /**
+       * 子部件选中状态(Part.code -> BoolVar)
+       */
+-     public Map<String, BoolVar> subPartSelectedVars = new HashMap<>();
++     private Map<String, BoolVar> subPartSelectedVars = new HashMap<>();
+  
+      @Override
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/artifact/PartVar.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 6, lines removed: 6
+
+```diff
+@@ -51,12 +51,12 @@
+          StringBuilder sb = new StringBuilder();
+          sb.append("PartVar{code=").append(getCode());
+-         if (qty != null) {
+-             sb.append(", qty=").append(solutionCallback.value(this.qty));
++         if (getQty() != null) {
++             sb.append(", qty=").append(solutionCallback.value(getQty()));
+          }
+-         if (isHidden != null) {
+-             sb.append(", hidden=").append(solutionCallback.value(this.isHidden));
++         if (getIsHidden() != null) {
++             sb.append(", hidden=").append(solutionCallback.value(getIsHidden()));
+          }
+-         if (!subPartSelectedVars.isEmpty()) {
+-             sb.append(", subParts=").append(subPartSelectedVars.size());
++         if (!getSubPartSelectedVars().isEmpty()) {
++             sb.append(", subParts=").append(getSubPartSelectedVars().size());
+          }
+          sb.append("}");
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/artifact/PartVar.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -68,5 +68,5 @@
+          // P1(Q:1,H:0)
+          return String.format("%s(%s:%s,%s:%s)", getCode(), QTY_SHORT_NAME,
+-                 solutionCallback.value((IntVar) this.qty), HIDDEN_SHORT_NAME, solutionCallback.value(this.isHidden));
++                 solutionCallback.value((IntVar) getQty()), HIDDEN_SHORT_NAME, solutionCallback.value(getIsHidden()));
+      }
+  }
+```
+
+</details>
+
+---
+
+## Todo List
+
+- [x] 修改 ParaVar 类的字段访问权限并添加 Lombok 注解
+- [x] 修改 PartVar 类的字段访问权限并添加 Lombok 注解
+- [-] 更新所有使用 ParaVar 字段的地方使用 getter/setter 方法
+- [ ] 更新所有使用 PartVar 字段的地方使用 getter/setter 方法
+- [ ] 验证所有修改后的代码能够正常编译
+
+---
+
+现在需要搜索并更新所有使用 `ParaVar` 和 `PartVar` 字段的地方。让我先搜索这些使用情况：
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+现在我需要更新这些使用字段的地方。让我先从最重要的文件开始：
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -265,5 +265,5 @@
+  
+                      // value: read IntVar domain value
+-                     int value = (int) value((IntVar) pv.value);
++                     int value = (int) value((IntVar) pv.getValue());
+                      pi.setValue(String.valueOf(value));
+                      // options: selected option codes
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -269,5 +269,5 @@
+                      // options: selected option codes
+                      List<String> options = new ArrayList<>();
+-                     pv.optionSelectVars.forEach((codeId, optionVar) -> {
++                     pv.getOptionSelectVars().forEach((codeId, optionVar) -> {
+                          long sel = value(optionVar.getIsSelectedVar());
+                          if (sel == 1L) {
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -276,5 +276,5 @@
+                      });
+                      pi.setOptions(options);
+-                     pi.setHidden((int) value((IntVar) pv.isHidden) == 1);
++                     pi.setHidden((int) value((IntVar) pv.getIsHidden()) == 1);
+                      moduleInst.addParaInst(pi);
+                  } else if (v instanceof PartVar) {
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -284,5 +284,5 @@
+                      // 从模块中获取对应的Part模型，设置shortCode
+                      inst.setShortCode(partVar.getBase().getShortCode());
+-                     inst.setQuantity((int) value((IntVar) partVar.qty));
++                     inst.setQuantity((int) value((IntVar) partVar.getQty()));
+                      moduleInst.addPartInst(inst);
+                  }
+```
+
+</details>
+
+---
+
+现在更新 `ConstraintAlgImpl.java` 文件：
+
+
+---
+
+The string to replace was not found in the file.
+
+---
+
+让我重新读取文件并正确更新：
+
+
+---
+
+Read file: undefined
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/artifact/ConstraintAlgImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 4, lines removed: 4
+
+```diff
+@@ -145,11 +145,11 @@
+              if (v instanceof ParaVar) {
+                  ParaVar pv = (ParaVar) v;
+-                 if (pv.isHidden != null) {
+-                     model.addEquality(pv.isHidden, 0);
++                 if (pv.getIsHidden() != null) {
++                     model.addEquality(pv.getIsHidden(), 0);
+                  }
+              } else if (v instanceof PartVar) {
+                  PartVar pt = (PartVar) v;
+-                 if (pt.isHidden != null) {
+-                     model.addEquality(pt.isHidden, 0);
++                 if (pt.getIsHidden() != null) {
++                     model.addEquality(pt.getIsHidden(), 0);
+                  }
+              }
+```
+
+</details>
+
+---
+
+现在继续更新其他字段的使用：
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/artifact/ConstraintAlgImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -517,6 +517,6 @@
+          switch (para.getType()) {
+              case INTEGER:
+-                 paraVar.value = newIntVar(Integer.parseInt(para.getMinValue()), Integer.parseInt(para.getMaxValue()),
+-                         f(ParaVar.VALUE_PATTEN, code));
++                 paraVar.setValue(newIntVar(Integer.parseInt(para.getMinValue()), Integer.parseInt(para.getMaxValue()),
++                         f(ParaVar.VALUE_PATTEN, code)));
+                  break;
+              case ENUM:
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/artifact/ConstraintAlgImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -524,5 +524,5 @@
+                      throw new AlgLoaderException("Para options not found for code: " + code);
+                  }
+-                 paraVar.value = newIntVarFromDomain(para.getOptionIds(), f(ParaVar.VALUE_PATTEN, code));
++                 paraVar.setValue(newIntVarFromDomain(para.getOptionIds(), f(ParaVar.VALUE_PATTEN, code)));
+  
+                  for (ParaOption option : para.getOptions()) {
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/artifact/ConstraintAlgImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -528,5 +528,5 @@
+                  for (ParaOption option : para.getOptions()) {
+                      ParaOptionVar optionVar = createParaOptionVar(para.getCode(), option.getCode());
+-                     paraVar.optionSelectVars.put(option.getCodeId(), optionVar);
++                     paraVar.getOptionSelectVars().put(option.getCodeId(), optionVar);
+                  }
+                  paraVar.optionSelectVars.forEach((optionId, optionVar) -> {
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/artifact/ConstraintAlgImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 3, lines removed: 3
+
+```diff
+@@ -530,7 +530,7 @@
+                      paraVar.getOptionSelectVars().put(option.getCodeId(), optionVar);
+                  }
+-                 paraVar.optionSelectVars.forEach((optionId, optionVar) -> {
+-                     model.addEquality((IntVar) paraVar.value, optionId).onlyEnforceIf(optionVar.getIsSelectedVar());
+-                     model.addDifferent((IntVar) paraVar.value, optionId)
++                 paraVar.getOptionSelectVars().forEach((optionId, optionVar) -> {
++                     model.addEquality((IntVar) paraVar.getValue(), optionId).onlyEnforceIf(optionVar.getIsSelectedVar());
++                     model.addDifferent((IntVar) paraVar.getValue(), optionId)
+                              .onlyEnforceIf(optionVar.getIsSelectedVar().not());
+                  });
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/artifact/ConstraintAlgImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -539,5 +539,5 @@
+                  throw new AlgLoaderException("Para type not supported: " + para.getType());
+          }
+-         paraVar.isHidden = newBoolVar(f(ParaVar.HIDDEN_PATTEN, code));
++         paraVar.setIsHidden(newBoolVar(f(ParaVar.HIDDEN_PATTEN, code)));
+          registerVar(code, paraVar);
+          return paraVar;
+```
+
+</details>
+
+---
+
+现在更新 PartVar 相关的字段：
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/artifact/ConstraintAlgImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -557,6 +557,6 @@
+          PartVar partVar = new PartVar();
+          partVar.setBase(part);
+-         // partVar.qty = model.newIntVar(0, 1, code);
+-         partVar.qty = newIntVar(0, part.getMaxQuantity(), f(PartVar.QTY_PATTEN, code));
++         // partVar.setQty(model.newIntVar(0, 1, code));
++         partVar.setQty(newIntVar(0, part.getMaxQuantity(), f(PartVar.QTY_PATTEN, code)));
+          partVar.isHidden = newBoolVar(f(PartVar.HIDDEN_PATTEN, code));
+          registerVar(code, partVar);
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/artifact/ConstraintAlgImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -559,5 +559,5 @@
+          // partVar.setQty(model.newIntVar(0, 1, code));
+          partVar.setQty(newIntVar(0, part.getMaxQuantity(), f(PartVar.QTY_PATTEN, code)));
+-         partVar.isHidden = newBoolVar(f(PartVar.HIDDEN_PATTEN, code));
++         partVar.setIsHidden(newBoolVar(f(PartVar.HIDDEN_PATTEN, code)));
+          registerVar(code, partVar);
+          return partVar;
+```
+
+</details>
+
+---
+
+现在需要更新其他使用这些字段的地方。让我继续搜索并更新：
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/artifact/ConstraintAlgImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -650,5 +650,5 @@
+  
+          // 2. 使用model.addEquality添加数量约束
+-         model.addEquality((IntVar) partVar.qty, partQuantity);
++         model.addEquality((IntVar) partVar.getQty(), partQuantity);
+      }
+  
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/artifact/ConstraintAlgImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -665,5 +665,5 @@
+          }
+          ParaVar paraVar = (ParaVar) var;
+-         model.addEquality((IntVar) paraVar.value, Integer.parseInt(paraValue));
++         model.addEquality((IntVar) paraVar.getValue(), Integer.parseInt(paraValue));
+      }
+  
+```
+
+</details>
+
+---
+
+现在需要更新所有使用 `optionSelectVars` 的地方。让我继续搜索并更新：
+
+
+---
+
+The string to replace was not found in the file.
+
+---
+
+让我搜索具体的位置：
+
+
+---
+
+
+
+---
+
+我需要使用 MultiEdit 来批量更新这些地方：
+
+
+---
+
+
+
+---
+
+让我使用 replace_all 来批量替换：
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/artifact/ConstraintAlgImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 3, lines removed: 3
+
+```diff
+@@ -600,15 +600,15 @@
+              ParaVar rightParaVar, List<String> rightParaFilterOptionCodes) {
+          // left:确保只有一个参数选项被选中
+-         model.addExactlyOne(leftParaVar.optionSelectVars.values().stream()
++         model.addExactlyOne(leftParaVar.getOptionSelectVars().values().stream()
+                  .map(option -> option.getIsSelectedVar())
+                  .toArray(BoolVar[]::new));
+          // right:确保只有一个参数选项被选中
+-         model.addExactlyOne(rightParaVar.optionSelectVars.values().stream()
++         model.addExactlyOne(rightParaVar.getOptionSelectVars().values().stream()
+                  .map(option -> option.getIsSelectedVar())
+                  .toArray(BoolVar[]::new));
+  
+          // 定义左侧条件：左侧集合中至少一个被选中
+          BoolVar leftCond = newBoolVar(f("%s_leftCond", ruleCode));
+-         Literal[] leftSelected = leftParaVar.optionSelectVars.values().stream()
++         Literal[] leftSelected = leftParaVar.getOptionSelectVars().values().stream()
+                  .filter(option -> leftParaFilterOptionCodes.contains(option.getCode()))
+                  .map(option -> (Literal) option.getIsSelectedVar())
+```
+
+**Chunk 2**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -621,5 +621,5 @@
+          // 定义右侧条件：右侧集合中至少一个被选中
+          BoolVar rightCond = newBoolVar(f("%s_rightCond", ruleCode));
+-         Literal[] rightSelected = rightParaVar.optionSelectVars.values().stream()
++         Literal[] rightSelected = rightParaVar.getOptionSelectVars().values().stream()
+                  .filter(option -> rightParaFilterOptionCodes.contains(option.getCode()))
+                  .map(option -> (Literal) option.getIsSelectedVar())
+```
+
+**Chunk 3**
+Lines added: 3, lines removed: 3
+
+```diff
+@@ -687,15 +687,15 @@
+              ParaVar rightParaVar, List<String> rightParaFilterOptionCodes) {
+          // left:确保只有一个参数选项被选中
+-         model.addExactlyOne(leftParaVar.optionSelectVars.values().stream()
++         model.addExactlyOne(leftParaVar.getOptionSelectVars().values().stream()
+                  .map(option -> option.getIsSelectedVar())
+                  .toArray(BoolVar[]::new));
+          // right:确保只有一个参数选项被选中
+-         model.addExactlyOne(rightParaVar.optionSelectVars.values().stream()
++         model.addExactlyOne(rightParaVar.getOptionSelectVars().values().stream()
+                  .map(option -> option.getIsSelectedVar())
+                  .toArray(BoolVar[]::new));
+  
+          // 定义左侧条件：左侧集合中至少一个被选中
+          BoolVar leftCond = newBoolVar(f("%s_leftCond", ruleCode));
+-         Literal[] leftSelected = leftParaVar.optionSelectVars.values().stream()
++         Literal[] leftSelected = leftParaVar.getOptionSelectVars().values().stream()
+                  .filter(option -> leftParaFilterOptionCodes.contains(option.getCode()))
+                  .map(option -> (Literal) option.getIsSelectedVar())
+```
+
+**Chunk 4**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -708,5 +708,5 @@
+          // 定义右侧条件：右侧集合中至少一个被选中
+          BoolVar rightCond = newBoolVar(f("%s_rightCond", ruleCode));
+-         Literal[] rightSelected = rightParaVar.optionSelectVars.values().stream()
++         Literal[] rightSelected = rightParaVar.getOptionSelectVars().values().stream()
+                  .filter(option -> rightParaFilterOptionCodes.contains(option.getCode()))
+                  .map(option -> (Literal) option.getIsSelectedVar())
+```
+
+**Chunk 5**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -719,5 +719,5 @@
+          // 定义左侧非条件：左侧集合外至少一个被选中
+          BoolVar leftNotCond = newBoolVar(f("%s_leftNotCond", ruleCode));
+-         Literal[] leftNotSelected = leftParaVar.optionSelectVars.values().stream()
++         Literal[] leftNotSelected = leftParaVar.getOptionSelectVars().values().stream()
+                  .filter(option -> !leftParaFilterOptionCodes.contains(option.getCode()))
+                  .map(option -> (Literal) option.getIsSelectedVar())
+```
+
+**Chunk 6**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -730,5 +730,5 @@
+          // 定义右侧非条件：右侧集合外至少一个被选中
+          BoolVar rightNotCond = newBoolVar(f("%s_rightNotCond", ruleCode));
+-         Literal[] rightNotSelected = rightParaVar.optionSelectVars.values().stream()
++         Literal[] rightNotSelected = rightParaVar.getOptionSelectVars().values().stream()
+                  .filter(option -> !rightParaFilterOptionCodes.contains(option.getCode()))
+                  .map(option -> (Literal) option.getIsSelectedVar())
+```
+
+**Chunk 7**
+Lines added: 3, lines removed: 3
+
+```diff
+@@ -772,15 +772,15 @@
+              ParaVar rightParaVar, List<String> rightParaFilterOptionCodes) {
+          // left:确保只有一个参数选项被选中
+-         model.addExactlyOne(leftParaVar.optionSelectVars.values().stream()
++         model.addExactlyOne(leftParaVar.getOptionSelectVars().values().stream()
+                  .map(option -> option.getIsSelectedVar())
+                  .toArray(BoolVar[]::new));
+          // right:确保只有一个参数选项被选中
+-         model.addExactlyOne(rightParaVar.optionSelectVars.values().stream()
++         model.addExactlyOne(rightParaVar.getOptionSelectVars().values().stream()
+                  .map(option -> option.getIsSelectedVar())
+                  .toArray(BoolVar[]::new));
+  
+          // 定义左侧条件：左侧集合中至少一个被选中
+          BoolVar leftCond = newBoolVar(f("%s_leftCond", ruleCode));
+-         Literal[] leftSelected = leftParaVar.optionSelectVars.values().stream()
++         Literal[] leftSelected = leftParaVar.getOptionSelectVars().values().stream()
+                  .filter(option -> leftParaFilterOptionCodes.contains(option.getCode()))
+                  .map(option -> (Literal) option.getIsSelectedVar())
+```
+
+**Chunk 8**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -793,5 +793,5 @@
+          // 定义右侧条件：右侧集合中至少一个被选中
+          BoolVar rightCond = newBoolVar(f("%s_rightCond", ruleCode));
+-         Literal[] rightSelected = rightParaVar.optionSelectVars.values().stream()
++         Literal[] rightSelected = rightParaVar.getOptionSelectVars().values().stream()
+                  .filter(option -> rightParaFilterOptionCodes.contains(option.getCode()))
+                  .map(option -> (Literal) option.getIsSelectedVar())
+```
+
+**Chunk 9**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -804,5 +804,5 @@
+          // 定义左侧非条件：左侧集合外至少一个被选中
+          BoolVar leftNotCond = newBoolVar(f("%s_leftNotCond", ruleCode));
+-         Literal[] leftNotSelected = leftParaVar.optionSelectVars.values().stream()
++         Literal[] leftNotSelected = leftParaVar.getOptionSelectVars().values().stream()
+                  .filter(option -> !leftParaFilterOptionCodes.contains(option.getCode()))
+                  .map(option -> (Literal) option.getIsSelectedVar())
+```
+
+**Chunk 10**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -815,5 +815,5 @@
+          // 定义右侧非条件：右侧集合外至少一个被选中
+          BoolVar rightNotCond = newBoolVar(f("%s_rightNotCond", ruleCode));
+-         Literal[] rightNotSelected = rightParaVar.optionSelectVars.values().stream()
++         Literal[] rightNotSelected = rightParaVar.getOptionSelectVars().values().stream()
+                  .filter(option -> !rightParaFilterOptionCodes.contains(option.getCode()))
+                  .map(option -> (Literal) option.getIsSelectedVar())
+```
+
+</details>
+
+---
+
+## Todo List
+
+- [x] 修改 ParaVar 类的字段访问权限并添加 Lombok 注解
+- [x] 修改 PartVar 类的字段访问权限并添加 Lombok 注解
+- [x] 更新所有使用 ParaVar 字段的地方使用 getter/setter 方法
+- [-] 更新所有使用 PartVar 字段的地方使用 getter/setter 方法
+- [ ] 验证所有修改后的代码能够正常编译
+
+---
+
+现在需要更新测试文件中的字段使用。让我搜索并更新测试文件：
+
+
+---
+
+
+
+---
+
+让我更新测试文件中的字段使用：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/perf/Perf20ParasTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 3, lines removed: 3
+
+```diff
+@@ -167,7 +167,7 @@
+          protected void Rule01() {
+              BoolVar condition = model.newBoolVar("rule01_condition");
+-             model.addEquality(P001.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P002.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P001.value, 2).onlyEnforceIf(condition.not());
++             model.addEquality(P001.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P002.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P001.getValue(), 2).onlyEnforceIf(condition.not());
+          }
+  
+```
+
+</details>
+
+---
+
+让我使用 replace_all 来批量替换测试文件中的字段使用：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/perf/Perf20ParasTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -164,5 +164,5 @@
+          private PartVar PT005;
+  
+-         @CodeRuleAnno(normalNaturalCode = "if P001.value == op00102 then P002.value != op00202")
++         @CodeRuleAnno(normalNaturalCode = "if P001.getValue() == op00102 then P002.getValue() != op00202")
+          protected void Rule01() {
+              BoolVar condition = model.newBoolVar("rule01_condition");
+```
+
+**Chunk 2**
+Lines added: 78, lines removed: 78
+
+```diff
+@@ -172,158 +172,158 @@
+          }
+  
+-         @CodeRuleAnno(normalNaturalCode = "if P002.value == op00202 then P003.value != op00302")
++         @CodeRuleAnno(normalNaturalCode = "if P002.getValue() == op00202 then P003.getValue() != op00302")
+          protected void Rule02() {
+              BoolVar condition = model.newBoolVar("rule02_condition");
+-             model.addEquality(P002.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P003.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P002.value, 2).onlyEnforceIf(condition.not());
++             model.addEquality(P002.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P003.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P002.getValue(), 2).onlyEnforceIf(condition.not());
+          }
+  
+-         @CodeRuleAnno(normalNaturalCode = "if P003.value == op00302 then P004.value != op00402")
++         @CodeRuleAnno(normalNaturalCode = "if P003.getValue() == op00302 then P004.getValue() != op00402")
+          protected void Rule03() {
+              BoolVar condition = model.newBoolVar("rule03_condition");
+-             model.addEquality(P003.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P004.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P003.value, 2).onlyEnforceIf(condition.not());
++             model.addEquality(P003.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P004.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P003.getValue(), 2).onlyEnforceIf(condition.not());
+          }
+  
+-         @CodeRuleAnno(normalNaturalCode = "if P004.value == op00402 then P005.value != op00502")
++         @CodeRuleAnno(normalNaturalCode = "if P004.getValue() == op00402 then P005.getValue() != op00502")
+          protected void Rule04() {
+              BoolVar condition = model.newBoolVar("rule04_condition");
+-             model.addEquality(P004.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P005.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P004.value, 2).onlyEnforceIf(condition.not());
++             model.addEquality(P004.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P005.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P004.getValue(), 2).onlyEnforceIf(condition.not());
+          }
+  
+-         @CodeRuleAnno(normalNaturalCode = "if P005.value == op00502 then P006.value != op00602")
++         @CodeRuleAnno(normalNaturalCode = "if P005.getValue() == op00502 then P006.getValue() != op00602")
+          protected void Rule05() {
+              BoolVar condition = model.newBoolVar("rule05_condition");
+-             model.addEquality(P005.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P006.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P005.value, 2).onlyEnforceIf(condition.not());
++             model.addEquality(P005.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P006.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P005.getValue(), 2).onlyEnforceIf(condition.not());
+          }
+  
+-         @CodeRuleAnno(normalNaturalCode = "if P006.value == op00602 then P007.value != op00702")
++         @CodeRuleAnno(normalNaturalCode = "if P006.getValue() == op00602 then P007.getValue() != op00702")
+          protected void Rule06() {
+              BoolVar condition = model.newBoolVar("rule06_condition");
+-             model.addEquality(P006.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P007.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P006.value, 2).onlyEnforceIf(condition.not());
++             model.addEquality(P006.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P007.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P006.getValue(), 2).onlyEnforceIf(condition.not());
+          }
+  
+-         @CodeRuleAnno(normalNaturalCode = "if P007.value == op00702 then P008.value != op00802")
++         @CodeRuleAnno(normalNaturalCode = "if P007.getValue() == op00702 then P008.getValue() != op00802")
+          protected void Rule07() {
+              BoolVar condition = model.newBoolVar("rule07_condition");
+-             model.addEquality(P007.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P008.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P007.value, 2).onlyEnforceIf(condition.not());
++             model.addEquality(P007.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P008.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P007.getValue(), 2).onlyEnforceIf(condition.not());
+          }
+  
+-         @CodeRuleAnno(normalNaturalCode = "if P008.value == op00802 then P009.value != op00902")
++         @CodeRuleAnno(normalNaturalCode = "if P008.getValue() == op00802 then P009.getValue() != op00902")
+          protected void Rule08() {
+              BoolVar condition = model.newBoolVar("rule08_condition");
+-             model.addEquality(P008.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P009.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P008.value, 2).onlyEnforceIf(condition.not());
++             model.addEquality(P008.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P009.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P008.getValue(), 2).onlyEnforceIf(condition.not());
+          }
+  
+-         @CodeRuleAnno(normalNaturalCode = "if P009.value == op00902 then P010.value != op01002")
++         @CodeRuleAnno(normalNaturalCode = "if P009.getValue() == op00902 then P010.getValue() != op01002")
+          protected void Rule09() {
+              BoolVar condition = model.newBoolVar("rule09_condition");
+-             model.addEquality(P009.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P010.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P009.value, 2).onlyEnforceIf(condition.not());
++             model.addEquality(P009.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P010.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P009.getValue(), 2).onlyEnforceIf(condition.not());
+          }
+  
+-         @CodeRuleAnno(normalNaturalCode = "if P010.value == op01002 then P011.value != op01102")
++         @CodeRuleAnno(normalNaturalCode = "if P010.getValue() == op01002 then P011.getValue() != op01102")
+          protected void Rule10() {
+              BoolVar condition = model.newBoolVar("rule10_condition");
+-             model.addEquality(P010.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P011.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P010.value, 2).onlyEnforceIf(condition.not());
++             model.addEquality(P010.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P011.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P010.getValue(), 2).onlyEnforceIf(condition.not());
+          }
+  
+-         @CodeRuleAnno(normalNaturalCode = "if P011.value == op01102 then P012.value != op01202")
++         @CodeRuleAnno(normalNaturalCode = "if P011.getValue() == op01102 then P012.getValue() != op01202")
+          protected void Rule11() {
+              BoolVar condition = model.newBoolVar("rule11_condition");
+-             model.addEquality(P011.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P012.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P011.value, 2).onlyEnforceIf(condition.not());
++             model.addEquality(P011.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P012.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P011.getValue(), 2).onlyEnforceIf(condition.not());
+          }
+  
+-         @CodeRuleAnno(normalNaturalCode = "if P012.value == op01202 then P013.value != op01302")
++         @CodeRuleAnno(normalNaturalCode = "if P012.getValue() == op01202 then P013.getValue() != op01302")
+          protected void Rule12() {
+              BoolVar condition = model.newBoolVar("rule12_condition");
+-             model.addEquality(P012.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P013.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P012.value, 2).onlyEnforceIf(condition.not());
++             model.addEquality(P012.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P013.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P012.getValue(), 2).onlyEnforceIf(condition.not());
+          }
+  
+-         @CodeRuleAnno(normalNaturalCode = "if P013.value == op01302 then P014.value != op01402")
++         @CodeRuleAnno(normalNaturalCode = "if P013.getValue() == op01302 then P014.getValue() != op01402")
+          protected void Rule13() {
+              BoolVar condition = model.newBoolVar("rule13_condition");
+-             model.addEquality(P013.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P014.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P013.value, 2).onlyEnforceIf(condition.not());
++             model.addEquality(P013.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P014.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P013.getValue(), 2).onlyEnforceIf(condition.not());
+          }
+  
+-         @CodeRuleAnno(normalNaturalCode = "if P014.value == op01402 then P015.value != op01502")
++         @CodeRuleAnno(normalNaturalCode = "if P014.getValue() == op01402 then P015.getValue() != op01502")
+          protected void Rule14() {
+              BoolVar condition = model.newBoolVar("rule14_condition");
+-             model.addEquality(P014.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P015.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P014.value, 2).onlyEnforceIf(condition.not());
++             model.addEquality(P014.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P015.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P014.getValue(), 2).onlyEnforceIf(condition.not());
+          }
+  
+-         @CodeRuleAnno(normalNaturalCode = "if P015.value == op01502 then P016.value != op01602")
++         @CodeRuleAnno(normalNaturalCode = "if P015.getValue() == op01502 then P016.getValue() != op01602")
+          protected void Rule15() {
+              BoolVar condition = model.newBoolVar("rule15_condition");
+-             model.addEquality(P015.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P016.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P015.value, 2).onlyEnforceIf(condition.not());
++             model.addEquality(P015.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P016.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P015.getValue(), 2).onlyEnforceIf(condition.not());
+          }
+  
+-         @CodeRuleAnno(normalNaturalCode = "if P016.value == op01602 then P017.value != op01702")
++         @CodeRuleAnno(normalNaturalCode = "if P016.getValue() == op01602 then P017.getValue() != op01702")
+          protected void Rule16() {
+              BoolVar condition = model.newBoolVar("rule16_condition");
+-             model.addEquality(P016.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P017.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P016.value, 2).onlyEnforceIf(condition.not());
++             model.addEquality(P016.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P017.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P016.getValue(), 2).onlyEnforceIf(condition.not());
+          }
+  
+-         @CodeRuleAnno(normalNaturalCode = "if P017.value == op01702 then P018.value != op01802")
++         @CodeRuleAnno(normalNaturalCode = "if P017.getValue() == op01702 then P018.getValue() != op01802")
+          protected void Rule17() {
+              BoolVar condition = model.newBoolVar("rule17_condition");
+-             model.addEquality(P017.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P018.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P017.value, 2).onlyEnforceIf(condition.not());
++             model.addEquality(P017.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P018.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P017.getValue(), 2).onlyEnforceIf(condition.not());
+          }
+  
+-         @CodeRuleAnno(normalNaturalCode = "if P018.value == op01802 then P019.value != op01902")
++         @CodeRuleAnno(normalNaturalCode = "if P018.getValue() == op01802 then P019.getValue() != op01902")
+          protected void Rule18() {
+              BoolVar condition = model.newBoolVar("rule18_condition");
+-             model.addEquality(P018.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P019.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P018.value, 2).onlyEnforceIf(condition.not());
++             model.addEquality(P018.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P019.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P018.getValue(), 2).onlyEnforceIf(condition.not());
+          }
+  
+-         @CodeRuleAnno(normalNaturalCode = "if P019.value == op01902 then P020.value != op02002")
++         @CodeRuleAnno(normalNaturalCode = "if P019.getValue() == op01902 then P020.getValue() != op02002")
+          protected void Rule19() {
+              BoolVar condition = model.newBoolVar("rule19_condition");
+-             model.addEquality(P019.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P020.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P019.value, 2).onlyEnforceIf(condition.not());
++             model.addEquality(P019.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P020.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P019.getValue(), 2).onlyEnforceIf(condition.not());
+          }
+  
+-         @CodeRuleAnno(normalNaturalCode = "if P020.value == op02002 then P001.value != op00102")
++         @CodeRuleAnno(normalNaturalCode = "if P020.getValue() == op02002 then P001.getValue() != op00102")
+          protected void Rule20() {
+              BoolVar condition = model.newBoolVar("rule20_condition");
+-             model.addEquality(P020.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P001.value, 2).onlyEnforceIf(condition);
+-             model.addDifferent(P020.value, 2).onlyEnforceIf(condition.not());
++             model.addEquality(P020.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P001.getValue(), 2).onlyEnforceIf(condition);
++             model.addDifferent(P020.getValue(), 2).onlyEnforceIf(condition.not());
+          }
+  
+-         @CodeRuleAnno(normalNaturalCode = "if(P011.value==op01101 && P012.value==op01201) then PT001.qty=1 " +
+-                 "else if(P011.value==op01102 && P012.value==op01202) then PT001.qty=2 else PT001.qty=3")
++         @CodeRuleAnno(normalNaturalCode = "if(P011.getValue()==op01101 && P012.getValue()==op01201) then PT001.qty=1 " +
++                 "else if(P011.getValue()==op01102 && P012.getValue()==op01202) then PT001.qty=2 else PT001.qty=3")
+          protected void Rule21() {
+              BoolVar condition1 = model.newBoolVar("rule21_condition1");
+```
+
+**Chunk 3**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -355,6 +355,6 @@
+          }
+  
+-         @CodeRuleAnno(normalNaturalCode = "if(P013.value==op01301 && P014.value==op01401) then PT002.qty=1 " +
+-                 "else if(P013.value==op01302 && P014.value==op01402) then PT002.qty=2 else PT002.qty=3")
++         @CodeRuleAnno(normalNaturalCode = "if(P013.getValue()==op01301 && P014.getValue()==op01401) then PT002.qty=1 " +
++                 "else if(P013.getValue()==op01302 && P014.getValue()==op01402) then PT002.qty=2 else PT002.qty=3")
+          protected void Rule22() {
+              BoolVar condition1 = model.newBoolVar("rule22_condition1");
+```
+
+**Chunk 4**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -386,6 +386,6 @@
+          }
+  
+-         @CodeRuleAnno(normalNaturalCode = "if(P015.value==op01501 && P016.value==op01601) then PT003.qty=1 " +
+-                 "else if(P015.value==op01502 && P016.value==op01602) then PT003.qty=2 else PT003.qty=3")
++         @CodeRuleAnno(normalNaturalCode = "if(P015.getValue()==op01501 && P016.getValue()==op01601) then PT003.qty=1 " +
++                 "else if(P015.getValue()==op01502 && P016.getValue()==op01602) then PT003.qty=2 else PT003.qty=3")
+          protected void Rule23() {
+              BoolVar condition1 = model.newBoolVar("rule23_condition1");
+```
+
+**Chunk 5**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -417,6 +417,6 @@
+          }
+  
+-         @CodeRuleAnno(normalNaturalCode = "if(P017.value==op01701 && P018.value==op01801) then PT004.qty=1 " +
+-                 "else if(P017.value==op01702 && P018.value==op01802) then PT004.qty=2 else PT004.qty=3")
++         @CodeRuleAnno(normalNaturalCode = "if(P017.getValue()==op01701 && P018.getValue()==op01801) then PT004.qty=1 " +
++                 "else if(P017.getValue()==op01702 && P018.getValue()==op01802) then PT004.qty=2 else PT004.qty=3")
+          protected void Rule24() {
+              BoolVar condition1 = model.newBoolVar("rule24_condition1");
+```
+
+**Chunk 6**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -448,6 +448,6 @@
+          }
+  
+-         @CodeRuleAnno(normalNaturalCode = "if(P019.value==op01901 && P020.value==op02001) then PT005.qty=1 " +
+-                 "else if(P019.value==op01902 && P020.value==op02002) then PT005.qty=2 else PT005.qty=3")
++         @CodeRuleAnno(normalNaturalCode = "if(P019.getValue()==op01901 && P020.getValue()==op02001) then PT005.qty=1 " +
++                 "else if(P019.getValue()==op01902 && P020.getValue()==op02002) then PT005.qty=2 else PT005.qty=3")
+          protected void Rule25() {
+              BoolVar condition1 = model.newBoolVar("rule25_condition1");
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/perf/Perf20ParasTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -324,6 +324,6 @@
+          }
+  
+-         @CodeRuleAnno(normalNaturalCode = "if(P011.getValue()==op01101 && P012.getValue()==op01201) then PT001.qty=1 " +
+-                 "else if(P011.getValue()==op01102 && P012.getValue()==op01202) then PT001.qty=2 else PT001.qty=3")
++         @CodeRuleAnno(normalNaturalCode = "if(P011.getValue()==op01101 && P012.getValue()==op01201) then PT001.getQty()=1 " +
++                 "else if(P011.getValue()==op01102 && P012.getValue()==op01202) then PT001.getQty()=2 else PT001.getQty()=3")
+          protected void Rule21() {
+              BoolVar condition1 = model.newBoolVar("rule21_condition1");
+```
+
+**Chunk 2**
+Lines added: 5, lines removed: 5
+
+```diff
+@@ -349,12 +349,12 @@
+              }).onlyEnforceIf(condition2.not());
+  
+-             model.addEquality((IntVar) PT001.qty, 1).onlyEnforceIf(condition1);
+-             model.addEquality((IntVar) PT001.qty, 2).onlyEnforceIf(condition2);
+-             // model.addEquality((IntVar)PT001.qty, 3).onlyEnforceIf(condition1.not(),
++             model.addEquality((IntVar) PT001.getQty(), 1).onlyEnforceIf(condition1);
++             model.addEquality((IntVar) PT001.getQty(), 2).onlyEnforceIf(condition2);
++             // model.addEquality((IntVar)PT001.getQty(), 3).onlyEnforceIf(condition1.not(),
+              // condition2.not());
+          }
+  
+-         @CodeRuleAnno(normalNaturalCode = "if(P013.getValue()==op01301 && P014.getValue()==op01401) then PT002.qty=1 " +
+-                 "else if(P013.getValue()==op01302 && P014.getValue()==op01402) then PT002.qty=2 else PT002.qty=3")
++         @CodeRuleAnno(normalNaturalCode = "if(P013.getValue()==op01301 && P014.getValue()==op01401) then PT002.getQty()=1 " +
++                 "else if(P013.getValue()==op01302 && P014.getValue()==op01402) then PT002.getQty()=2 else PT002.getQty()=3")
+          protected void Rule22() {
+              BoolVar condition1 = model.newBoolVar("rule22_condition1");
+```
+
+**Chunk 3**
+Lines added: 5, lines removed: 5
+
+```diff
+@@ -380,12 +380,12 @@
+              }).onlyEnforceIf(condition2.not());
+  
+-             model.addEquality((IntVar) PT002.qty, 1).onlyEnforceIf(condition1);
+-             model.addEquality((IntVar) PT002.qty, 2).onlyEnforceIf(condition2);
+-             // model.addEquality((IntVar)PT002.qty, 3).onlyEnforceIf(condition1.not(),
++             model.addEquality((IntVar) PT002.getQty(), 1).onlyEnforceIf(condition1);
++             model.addEquality((IntVar) PT002.getQty(), 2).onlyEnforceIf(condition2);
++             // model.addEquality((IntVar)PT002.getQty(), 3).onlyEnforceIf(condition1.not(),
+              // condition2.not());
+          }
+  
+-         @CodeRuleAnno(normalNaturalCode = "if(P015.getValue()==op01501 && P016.getValue()==op01601) then PT003.qty=1 " +
+-                 "else if(P015.getValue()==op01502 && P016.getValue()==op01602) then PT003.qty=2 else PT003.qty=3")
++         @CodeRuleAnno(normalNaturalCode = "if(P015.getValue()==op01501 && P016.getValue()==op01601) then PT003.getQty()=1 " +
++                 "else if(P015.getValue()==op01502 && P016.getValue()==op01602) then PT003.getQty()=2 else PT003.getQty()=3")
+          protected void Rule23() {
+              BoolVar condition1 = model.newBoolVar("rule23_condition1");
+```
+
+**Chunk 4**
+Lines added: 5, lines removed: 5
+
+```diff
+@@ -411,12 +411,12 @@
+              }).onlyEnforceIf(condition2.not());
+  
+-             model.addEquality((IntVar) PT003.qty, 1).onlyEnforceIf(condition1);
+-             model.addEquality((IntVar) PT003.qty, 2).onlyEnforceIf(condition2);
+-             // model.addEquality((IntVar)PT003.qty, 3).onlyEnforceIf(condition1.not(),
++             model.addEquality((IntVar) PT003.getQty(), 1).onlyEnforceIf(condition1);
++             model.addEquality((IntVar) PT003.getQty(), 2).onlyEnforceIf(condition2);
++             // model.addEquality((IntVar)PT003.getQty(), 3).onlyEnforceIf(condition1.not(),
+              // condition2.not());
+          }
+  
+-         @CodeRuleAnno(normalNaturalCode = "if(P017.getValue()==op01701 && P018.getValue()==op01801) then PT004.qty=1 " +
+-                 "else if(P017.getValue()==op01702 && P018.getValue()==op01802) then PT004.qty=2 else PT004.qty=3")
++         @CodeRuleAnno(normalNaturalCode = "if(P017.getValue()==op01701 && P018.getValue()==op01801) then PT004.getQty()=1 " +
++                 "else if(P017.getValue()==op01702 && P018.getValue()==op01802) then PT004.getQty()=2 else PT004.getQty()=3")
+          protected void Rule24() {
+              BoolVar condition1 = model.newBoolVar("rule24_condition1");
+```
+
+**Chunk 5**
+Lines added: 5, lines removed: 5
+
+```diff
+@@ -442,12 +442,12 @@
+              }).onlyEnforceIf(condition2.not());
+  
+-             model.addEquality((IntVar) PT004.qty, 1).onlyEnforceIf(condition1);
+-             model.addEquality((IntVar) PT004.qty, 2).onlyEnforceIf(condition2);
+-             // model.addEquality((IntVar)PT004.qty, 3).onlyEnforceIf(condition1.not(),
++             model.addEquality((IntVar) PT004.getQty(), 1).onlyEnforceIf(condition1);
++             model.addEquality((IntVar) PT004.getQty(), 2).onlyEnforceIf(condition2);
++             // model.addEquality((IntVar)PT004.getQty(), 3).onlyEnforceIf(condition1.not(),
+              // condition2.not());
+          }
+  
+-         @CodeRuleAnno(normalNaturalCode = "if(P019.getValue()==op01901 && P020.getValue()==op02001) then PT005.qty=1 " +
+-                 "else if(P019.getValue()==op01902 && P020.getValue()==op02002) then PT005.qty=2 else PT005.qty=3")
++         @CodeRuleAnno(normalNaturalCode = "if(P019.getValue()==op01901 && P020.getValue()==op02001) then PT005.getQty()=1 " +
++                 "else if(P019.getValue()==op01902 && P020.getValue()==op02002) then PT005.getQty()=2 else PT005.getQty()=3")
+          protected void Rule25() {
+              BoolVar condition1 = model.newBoolVar("rule25_condition1");
+```
+
+**Chunk 6**
+Lines added: 3, lines removed: 3
+
+```diff
+@@ -473,7 +473,7 @@
+              }).onlyEnforceIf(condition2.not());
+  
+-             model.addEquality((IntVar) PT005.qty, 1).onlyEnforceIf(condition1);
+-             model.addEquality((IntVar) PT005.qty, 2).onlyEnforceIf(condition2);
+-             // model.addEquality((IntVar)PT005.qty, 3).onlyEnforceIf(condition1.not(),
++             model.addEquality((IntVar) PT005.getQty(), 1).onlyEnforceIf(condition1);
++             model.addEquality((IntVar) PT005.getQty(), 2).onlyEnforceIf(condition2);
++             // model.addEquality((IntVar)PT005.getQty(), 3).onlyEnforceIf(condition1.not(),
+              // condition2.not());
+          }
+```
+
+</details>
+
+---
+
+现在更新其他测试文件：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/ParaIsHiddenTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -41,5 +41,5 @@
+          protected void initConstraint() {
+              // Logic1: P1.isHidden and P2.isHidden are incompatible
+-             model.addBoolOr(new Literal[] { P1.isHidden.not(), P2.isHidden.not() });
++             model.addBoolOr(new Literal[] { P1.getIsHidden().not(), P2.getIsHidden().not() });
+              addVarAboutHiddenConstraints(P1, P2);
+  
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/ParaIsHiddenTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 4, lines removed: 4
+
+```diff
+@@ -59,12 +59,12 @@
+              model.addBoolOr(new Literal[] { p0Eq0.not(), p0Eq1.not() });
+  
+-             model.addEquality(P1.isHidden, 1).onlyEnforceIf(p0In01);
+-             model.addEquality(P2.isHidden, 1).onlyEnforceIf(p0In01.not());
++             model.addEquality(P1.getIsHidden(), 1).onlyEnforceIf(p0In01);
++             model.addEquality(P2.getIsHidden(), 1).onlyEnforceIf(p0In01.not());
+  
+              // Logic3: if P1.isHidden=1 then P1.value=0
+-             model.addEquality((IntVar) P1.value, 0).onlyEnforceIf(P1.isHidden);
++             model.addEquality((IntVar) P1.getValue(), 0).onlyEnforceIf(P1.getIsHidden());
+  
+              // Logic4: if P2.isHidden=1 then P2.value=0
+-             model.addEquality((IntVar) P2.value, 0).onlyEnforceIf(P2.isHidden);
++             model.addEquality((IntVar) P2.getValue(), 0).onlyEnforceIf(P2.getIsHidden());
+  
+              // Logic5: Part1.quantity = P1.value + P2.value
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/ParaIsHiddenTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -69,6 +69,6 @@
+  
+              // Logic5: Part1.quantity = P1.value + P2.value
+-             model.addEquality((IntVar) Part1.qty,
+-                     LinearExpr.sum(new IntVar[] { (IntVar) P1.value, (IntVar) P2.value }));
++             model.addEquality((IntVar) Part1.getQty(),
++                     LinearExpr.sum(new IntVar[] { (IntVar) P1.getValue(), (IntVar) P2.getValue() }));
+          }
+      }
+```
+
+</details>
+
+---
+
+现在让我批量更新其他测试文件：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/CalculateRuleIfThenTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -68,5 +68,5 @@
+              // 根据条件设置PT1Var的数量
+              // 如果op11Andop2为true，则PT1Var数量为1
+-             model.addEquality((IntVar) this.PT1Var.qty, 1).onlyEnforceIf(rule2_op11Andop21);
++             model.addEquality((IntVar) this.PT1Var.getQty(), 1).onlyEnforceIf(rule2_op11Andop21);
+  
+              // 如果op11Andop2为false，则PT1Var数量为3
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/CalculateRuleIfThenTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -71,5 +71,5 @@
+  
+              // 如果op11Andop2为false，则PT1Var数量为3
+-             model.addEquality((IntVar) this.PT1Var.qty, 3).onlyEnforceIf(rule2_op11Andop21.not());
++             model.addEquality((IntVar) this.PT1Var.getQty(), 3).onlyEnforceIf(rule2_op11Andop21.not());
+          }
+      }
+```
+
+</details>
+
+---
+
+让我继续更新其他测试文件：
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/DynScheduleTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -101,5 +101,5 @@
+          @CodeRuleAnno(normalNaturalCode = "pt1.qty = p11.value")
+          private void rule11() {
+-             model.addEquality((IntVar) pt1.qty, (IntVar) p11.value);
++             model.addEquality((IntVar) pt1.getQty(), (IntVar) p11.getValue());
+          }
+  
+```
+
+</details>
+
+---
+
+_**User (2025-09-21 12:25Z)**_
+
+测试用例不用改
+
+---
+
+_**Assistant**_
+
+好的，我理解了。测试用例不需要修改，只需要修改核心的变量类。让我撤销刚才对测试文件的修改，并专注于完成核心变量类的重构。
+
+
+---
+
+## Todo List
+
+- [x] 修改 ParaVar 类的字段访问权限并添加 Lombok 注解
+- [x] 修改 PartVar 类的字段访问权限并添加 Lombok 注解
+- [x] 更新所有使用 ParaVar 字段的地方使用 getter/setter 方法
+- [-] 更新所有使用 PartVar 字段的地方使用 getter/setter 方法
+- [ ] 验证所有修改后的代码能够正常编译
+- [-] 重构变量类，将公共字段改为getter方法
+- [x] 更新ConstraintAlgImpl中的字段访问方式
+- [-] 撤销测试文件的修改
+
+---
+
+让我撤销对测试文件的修改：
+
+
+---
+
+```bash
+git checkout -- src/test/java/com/jmix/configengine/scenario/ruletest/
+```
+
+---
+

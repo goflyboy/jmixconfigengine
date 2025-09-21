@@ -293,8 +293,8 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
                 Map<String, Long> otherVarKeyMap = new HashMap<>();
                 for (Map.Entry<String, OtherVar> entry : otherVarMap.entrySet()) {
                     OtherVar otherVar = entry.getValue();
-                    long varValue = value(otherVar.var);
-                    otherVarKeyMap.put(otherVar.shortCode, varValue);
+                    long varValue = value(otherVar.getVar());
+                    otherVarKeyMap.put(otherVar.getShortCode(), varValue);
                 }
                 moduleInst.getExtAttrs().put(OTHER_VARIABLES_VALUE_KEY, otherVarKeyMap);
                 moduleInst.getExtAttrs().put(OTHER_VARIABLES_MEMO_KEY, otherVarMap);

@@ -1,19 +1,19 @@
 package com.jmix.executor.impl.artifact;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import com.jmix.executor.imodel.Para;
+import com.jmix.executor.omodel.AlgLoaderException;
 
 import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.CpSolverSolutionCallback;
 import com.google.ortools.sat.IntVar;
 
-import com.jmix.executor.imodel.Para;
-import com.jmix.executor.omodel.AlgLoaderException;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 参数变量
@@ -25,11 +25,17 @@ public class ParaVar extends Var<Para> {
      * 参数变量命名模式常量
      */
     public static final String VAR_PATTEN_PREFIX = "##Para.";
+
     public static final String VALUE_PATTEN = VAR_PATTEN_PREFIX + "value.%s"; // ##Para.value.{code}
+
     public static final String HIDDEN_PATTEN = VAR_PATTEN_PREFIX + "isHidden.%s"; // ##Para.isHidden.{code}
+
     public static final String OPTIONS_PATTEN = VAR_PATTEN_PREFIX + "options.%s.%s"; // ##Para.options.{code}.{optionCode}
+
     public static final String VALUE_SHORT_NAME = "V";
+
     public static final String HIDDEN_SHORT_NAME = "H";
+
     /**
      * 参数值状态
      */

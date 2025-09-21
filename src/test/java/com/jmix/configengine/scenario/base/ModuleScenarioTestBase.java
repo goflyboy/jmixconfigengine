@@ -471,7 +471,7 @@ public abstract class ModuleScenarioTestBase {
                 Map<String, OtherVar> otherVarMap = (Map<String, OtherVar>) otherVarsMemo;
                 for (Map.Entry<String, OtherVar> entry : otherVarMap.entrySet()) {
                     OtherVar otherVar = entry.getValue();
-                    sb.append(" ").append(otherVar.shortCode).append(":").append(otherVar.code).append("\n");
+                    sb.append(" ").append(otherVar.getShortCode()).append(":").append(otherVar.getCode()).append("\n");
                 }
             }
         }

@@ -1,8 +1,5 @@
 package com.jmix.executor.impl.artifact;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.jmix.executor.imodel.Part;
 
 import com.google.ortools.sat.BoolVar;
@@ -11,6 +8,9 @@ import com.google.ortools.sat.IntVar;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 部件变量
@@ -22,9 +22,13 @@ public class PartVar extends Var<Part> {
      * 部件变量命名模式常量
      */
     public static final String VAR_PATTEN_PREFIX = "##Part.";
+
     public static final String QTY_PATTEN = VAR_PATTEN_PREFIX + "qty.%s"; // ##Part.qty.{code}
+
     public static final String HIDDEN_PATTEN = VAR_PATTEN_PREFIX + "isHidden.%s"; // ##Part.isHidden.{code}
+
     public static final String QTY_SHORT_NAME = "Q";
+
     public static final String HIDDEN_SHORT_NAME = "H";
 
     /**

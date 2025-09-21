@@ -6,9 +6,9 @@ import com.jmix.configengine.scenario.base.StructCodeInjector;
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.Rule;
 import com.jmix.executor.impl.artifact.ConstraintAlg;
-import com.jmix.executor.impl.artifact.ModuleAlgArtifactGenerator;
-import com.jmix.executor.impl.artifact.ModuleVarInfo;
 import com.jmix.executor.omodel.AlgLoaderException;
+import com.jmix.tool.artifact.ModuleAlgArtifactGenerator;
+import com.jmix.tool.artifact.ModuleVarInfo;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

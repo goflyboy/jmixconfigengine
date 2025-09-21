@@ -11,8 +11,8 @@ import com.jmix.configengine.scenario.base.StructCodeInjector;
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.Rule;
 import com.jmix.executor.imodel.rule.CompatiableRuleSchema;
-import com.jmix.executor.impl.artifact.ModuleAlgArtifactGenerator;
-import com.jmix.executor.impl.artifact.ModuleVarInfo;
+import com.jmix.tool.artifact.ModuleAlgArtifactGenerator;
+import com.jmix.tool.artifact.ModuleVarInfo;
 
 /**
  * 注解规则集成测试类

@@ -1,8 +1,5 @@
 package com.jmix.executor.impl.artifact;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.jmix.executor.omodel.AlgLoaderException;
 
 import com.google.ortools.sat.BoolVar;
@@ -17,6 +14,9 @@ import com.google.ortools.util.Domain;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 对CpModel接口的封装，实现变量注册等封装
@@ -153,9 +153,9 @@ public class AlgCPModel {
         // PartVar.VAR_PATTEN_PREFIX开头，则添加到otherVarMap
         if (!name.startsWith(ParaVar.VAR_PATTEN_PREFIX) && !name.startsWith(PartVar.VAR_PATTEN_PREFIX)) {
             OtherVar otherVar = new OtherVar();
-            otherVar.code = name;
-            otherVar.var = tv;
-            otherVar.shortCode = "o" + (++otherVarIndex);
+            otherVar.setCode(name);
+            otherVar.setVar(tv);
+            otherVar.setShortCode("o" + (++otherVarIndex));
             otherVarMap.put(name, otherVar);
         }
     }

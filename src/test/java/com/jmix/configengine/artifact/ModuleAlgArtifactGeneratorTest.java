@@ -12,11 +12,11 @@ import com.jmix.executor.imodel.rule.ExprSchema;
 import com.jmix.executor.imodel.rule.RefProgObjSchema;
 import com.jmix.executor.imodel.rule.RuleTypeConstants;
 import com.jmix.executor.imodel.rule.SelectRuleSchema;
-import com.jmix.executor.impl.artifact.ModuleAlgArtifactGenerator;
-import com.jmix.executor.impl.artifact.ModuleAlgArtifactGenerator.Pair;
-import com.jmix.executor.impl.artifact.ModuleVarInfo;
-import com.jmix.executor.impl.artifact.RuleInfo;
-import com.jmix.executor.impl.artifact.VarInfo;
+import com.jmix.tool.artifact.ModuleAlgArtifactGenerator;
+import com.jmix.tool.artifact.ModuleAlgArtifactGenerator.Pair;
+import com.jmix.tool.artifact.ModuleVarInfo;
+import com.jmix.tool.artifact.RuleInfo;
+import com.jmix.tool.artifact.VarInfo;
 
 import org.junit.Assert;
 import org.junit.Before;
