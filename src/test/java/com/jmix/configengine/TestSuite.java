@@ -30,11 +30,11 @@ import org.junit.runners.Suite.SuiteClasses;
  */
 @RunWith(Suite.class)
 @SuiteClasses({
-
         // 核心功能测试
         FilterExpressionExecutorTest.class,
         ModuleAlgArtifactGeneratorTest.class,
         ModuleConstraintExecutorTest.class,
+
         // 工具类测试
         ModuleUtilsTest.class,
         HelloConstraintTest.class,
@@ -51,7 +51,6 @@ import org.junit.runners.Suite.SuiteClasses;
         CompatibleRuleIncompatibleTest.class,
         CompatibleRuleCodependentTest.class,
         ModuleRefRelationGraphTest.class
-
 })
 public class TestSuite {
 

@@ -53,7 +53,8 @@ public class AnnotationRuleIntegrationTest {
 
         // 验证Module生成
         assertNotNull("Module should not be null", module);
-        assertEquals("Module code should be AnnotationRuleTest", "AnnotationRuleTest", module.getCode());
+        assertEquals("Module code should be AnnotationRuleTest", "AnnotationRuleTest",
+                module.getCode());
 
         // 验证规则生成
         assertNotNull("Module rules should not be null", module.getRules());
