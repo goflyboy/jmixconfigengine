@@ -9,6 +9,7 @@ import com.jmix.configengine.ModuleConstraintExecutor;
 import com.jmix.configengine.artifact.ConstraintAlgImpl;
 import com.jmix.configengine.artifact.OtherVar;
 import com.jmix.configengine.executor.ModuleConstraintExecutorImpl;
+import com.jmix.configengine.inf.AlgLoaderException;
 import com.jmix.configengine.inf.ConstraintConfig;
 import com.jmix.configengine.inf.InferParasReq;
 import com.jmix.configengine.inf.ModuleInst;
@@ -279,8 +280,8 @@ public abstract class ModuleScenarioTestBase {
             }
 
             // 都找不到，报错
-            throw new RuntimeException(String.format(
-                    "在Module中未找到参数或部件: %s", key));
+            throw new AlgLoaderException(String.format(
+                    "Parameter or part not found in Module: %s", key));
         }
 
         return elements;
@@ -370,7 +371,7 @@ public abstract class ModuleScenarioTestBase {
             // 根据module.paras中的para.options，找到value对应的option
             Para para = module.getPara(paraCode);
             if (para == null) {
-                throw new RuntimeException(String.format("参数 %s 不存在", paraCode));
+                throw new AlgLoaderException(String.format("Parameter %s does not exist", paraCode));
             }
             paraInst.value = ParaTypeHandler.getCodeIdValue(para, value);
             paraInsts.add(paraInst);

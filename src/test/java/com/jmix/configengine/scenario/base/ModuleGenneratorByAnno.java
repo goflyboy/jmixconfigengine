@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.jmix.configengine.artifact.ConstraintAlg;
+import com.jmix.configengine.inf.AlgLoaderException;
 import com.jmix.configengine.model.Module;
 import com.jmix.configengine.model.ModuleAlgArtifact;
 import com.jmix.configengine.model.Para;
@@ -370,7 +371,7 @@ public class ModuleGenneratorByAnno {
             } else if (currentModule.getPart(progObject.getObjCode()) != null) {
                 refProgObjSchema.setProgObjType("Part");
             } else {
-                throw new RuntimeException("未找到对象: " + progObject.getObjCode());
+                throw new AlgLoaderException("Object not found: " + progObject.getObjCode());
             }
 
             refProgObjs.add(refProgObjSchema);
@@ -462,7 +463,7 @@ public class ModuleGenneratorByAnno {
 
         else {
             log.error("Unsupported rule pattern: {}", normalNaturalCode);
-            throw new RuntimeException("Unsupported rule pattern: " + normalNaturalCode);
+            throw new AlgLoaderException("Unsupported rule pattern: " + normalNaturalCode);
         }
 
         return Arrays.asList(leftRefProgObjs, rightRefProgObjs);

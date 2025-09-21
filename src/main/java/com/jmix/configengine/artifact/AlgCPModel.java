@@ -12,6 +12,7 @@ import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.LinearArgument;
 import com.google.ortools.sat.Literal;
 import com.google.ortools.util.Domain;
+import com.jmix.configengine.inf.AlgLoaderException;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -144,7 +145,7 @@ public class AlgCPModel {
     private void registerVariables(IntVar tv, String name) {
         // 判断是否已经存在，如果已经存在，则抛异常
         if (otherVarMap.containsKey(name)) {
-            throw new RuntimeException("Variable already exists: " + name);
+            throw new AlgLoaderException("Variable already exists: " + name);
         }
 
         // name不是以ParaVar.VAR_PATTEN_PREFIX 且

@@ -96,3 +96,9 @@ LogicExtension
 4、文档是否要转
 
 /check 错误信息？ 格式化的问题？
+
+
+1、两个接口要提取出来
+--Excutor
+
+--impl

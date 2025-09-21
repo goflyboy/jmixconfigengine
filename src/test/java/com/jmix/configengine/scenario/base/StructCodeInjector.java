@@ -10,6 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.jmix.configengine.artifact.RuleInfo;
+import com.jmix.configengine.inf.AlgLoaderException;
 
 /**
  * 结构化代码（类似CompatiableRuleAnno、SelectRule等)的注入器 生成方法体片段并写回源文件。
@@ -192,7 +193,7 @@ public class StructCodeInjector {
                 Files.write(Paths.get(sourceFile), updated.getBytes(StandardCharsets.UTF_8));
             }
         } catch (IOException e) {
-            throw new RuntimeException("读写源文件失败: " + sourceFile, e);
+            throw new AlgLoaderException("Failed to read/write source file: " + sourceFile, e);
         }
     }
 
@@ -217,7 +218,7 @@ public class StructCodeInjector {
         if (ruleInfo.getRuleSchemaTypeFullName().contains("CompatiableRule")) {
             return generatorInjectorCode4Compatible(ruleInfo);
         }
-        throw new RuntimeException("不支持的规则类型: " + ruleInfo.getRuleSchemaTypeFullName());
+        throw new AlgLoaderException("Unsupported rule type: " + ruleInfo.getRuleSchemaTypeFullName());
     }
 
     private String generatorInjectorCode4Compatible(RuleInfo ruleInfo) {

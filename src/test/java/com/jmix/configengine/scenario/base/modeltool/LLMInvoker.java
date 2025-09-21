@@ -6,6 +6,8 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.Properties;
 
+import com.jmix.configengine.inf.AlgLoaderException;
+
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.data.message.UserMessage;
@@ -136,7 +138,7 @@ public class LLMInvoker {
             return ensureProperEncoding(cleanedCode);
 
         } catch (Exception e) {
-            throw new RuntimeException("LLM调用失败: " + e.getMessage(), e);
+            throw new AlgLoaderException("LLM invocation failed: " + e.getMessage(), e);
         }
     }
 
@@ -289,10 +291,10 @@ public class LLMInvoker {
             if (input != null) {
                 props.load(input);
             } else {
-                throw new RuntimeException("无法找到配置文件 llmmodel.properties");
+                throw new AlgLoaderException("Configuration file llmmodel.properties not found");
             }
         } catch (IOException e) {
-            throw new RuntimeException("加载配置文件失败: " + e.getMessage(), e);
+            throw new AlgLoaderException("Failed to load configuration file: " + e.getMessage(), e);
         }
         return props;
     }

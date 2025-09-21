@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import com.jmix.configengine.artifact.ConstraintAlg;
 import com.jmix.configengine.artifact.ModuleAlgArtifactGenerator;
 import com.jmix.configengine.artifact.ModuleVarInfo;
+import com.jmix.configengine.inf.AlgLoaderException;
 import com.jmix.configengine.model.Module;
 import com.jmix.configengine.model.Rule;
 import com.jmix.configengine.scenario.base.CommHelper;
@@ -95,7 +96,7 @@ public class ModelHelper {
             }
 
         } catch (Exception e) {
-            throw new RuntimeException("生成模型文件失败: " + e.getMessage(), e);
+            throw new AlgLoaderException("Failed to generate model file: " + e.getMessage(), e);
         }
     }
 
@@ -160,7 +161,7 @@ public class ModelHelper {
             runTestFile(packageName, modelScenarioName);
 
         } catch (Exception e) {
-            throw new RuntimeException("生成并运行模型文件失败: " + e.getMessage(), e);
+            throw new AlgLoaderException("Failed to generate and run model file: " + e.getMessage(), e);
         }
     }
 
@@ -323,7 +324,7 @@ public class ModelHelper {
         try {
             injectedClazz = Class.forName(fullClassName);
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException("类未找到: " + fullClassName, e);
+            throw new AlgLoaderException("Class not found: " + fullClassName, e);
         }
         return autoInjectConstraintCode(injectedClazz);
     }

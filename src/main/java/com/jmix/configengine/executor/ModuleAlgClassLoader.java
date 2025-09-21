@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.jmix.configengine.artifact.ConstraintAlgImpl;
+import com.jmix.configengine.inf.AlgLoaderException;
 import com.jmix.configengine.model.ModuleAlgArtifact;
 
 /**
@@ -54,7 +55,7 @@ public class ModuleAlgClassLoader extends ClassLoader {
             // : support jar loading by algArtifact and rootFilePath when not attached debug
             return super.loadClass(name);
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException("Class not found: " + name, e);
+            throw new AlgLoaderException("Class not found: " + name, e);
         }
     }
 

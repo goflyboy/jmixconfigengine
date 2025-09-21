@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.jmix.configengine.constant.RuleTypeConstants;
+import com.jmix.configengine.inf.AlgLoaderException;
 import com.jmix.configengine.model.Extensible;
 import com.jmix.configengine.model.Module;
 import com.jmix.configengine.model.Para;
@@ -214,7 +215,8 @@ public class ModuleAlgArtifactGenerator {
                         ruleInfo.setLeftVarName(pair.getFirst().getVarName());
                     } else {
                         log.error("Failed to select programming objects for rule: {}", rule.getCode());
-                        throw new RuntimeException("Failed to select programming objects for rule: " + rule.getCode());
+                        throw new AlgLoaderException(
+                                "Failed to select programming objects for rule: " + rule.getCode());
                     }
                 }
 
@@ -231,7 +233,8 @@ public class ModuleAlgArtifactGenerator {
                         ruleInfo.setRightVarName(pair.getFirst().getVarName());
                     } else {
                         log.error("Failed to select programming objects for rule: {}", rule.getCode());
-                        throw new RuntimeException("Failed to select programming objects for rule: " + rule.getCode());
+                        throw new AlgLoaderException(
+                                "Failed to select programming objects for rule: " + rule.getCode());
                     }
                 }
             }
