@@ -42,11 +42,15 @@ public class SelectRuleSchema extends RuleSchema {
         private List<RefProgObjSchema> leftRefProgObjs;
 
         public String toString() {
-            return "AssignMapSchema{" +
-                    "leftExpr=" + leftExpr +
-                    ", leftAttrCode='" + leftAttrCode + '\'' +
-                    ", leftRefProgObjs=" + leftRefProgObjs +
-                    '}';
+            return "AssignMapSchema{"
+                    + "leftExpr="
+                    + leftExpr
+                    + ", leftAttrCode='"
+                    + leftAttrCode
+                    + '\''
+                    + ", leftRefProgObjs="
+                    + leftRefProgObjs
+                    + '}';
         }
     }
 
@@ -65,9 +69,12 @@ public class SelectRuleSchema extends RuleSchema {
     }
 
     public String toString() {
-        return "SelectRuleSchema{" +
-                "type='" + type + '\'' +
-                ", leftExpr=" + leftExpr +
-                '}';
+        return "SelectRuleSchema{"
+                + "type='"
+                + type
+                + '\''
+                + ", leftExpr="
+                + leftExpr
+                + '}';
     }
 }

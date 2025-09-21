@@ -43,8 +43,12 @@ public class LLMInvoker {
      * @return 生成的Java代码
      */
     public String generatorModelCode(String modelScenarioName, String userVariableModel, String userLogicByPseudocode) {
-        return generatorModelCodeWithPackage("com.jmix.configengine.scenario.ruletest", modelScenarioName,
-                userVariableModel, userLogicByPseudocode, "");
+        return generatorModelCodeWithPackage(
+                "com.jmix.configengine.scenario.ruletest",
+                modelScenarioName,
+                userVariableModel,
+                userLogicByPseudocode,
+                "");
     }
 
     /**
@@ -58,7 +62,11 @@ public class LLMInvoker {
      */
     public String generatorModelCode(String packageName, String modelScenarioName, String userVariableModel,
             String userLogicByPseudocode) {
-        return generatorModelCodeWithPackage(packageName, modelScenarioName, userVariableModel, userLogicByPseudocode,
+        return generatorModelCodeWithPackage(
+                packageName,
+                modelScenarioName,
+                userVariableModel,
+                userLogicByPseudocode,
                 "");
     }
 
@@ -74,7 +82,11 @@ public class LLMInvoker {
      */
     public String generatorModelCode(String packageName, String modelScenarioName, String userVariableModel,
             String userLogicByPseudocode, String userTestCaseSpec) {
-        return generatorModelCodeWithPackage(packageName, modelScenarioName, userVariableModel, userLogicByPseudocode,
+        return generatorModelCodeWithPackage(
+                packageName,
+                modelScenarioName,
+                userVariableModel,
+                userLogicByPseudocode,
                 userTestCaseSpec);
     }
 
@@ -89,7 +101,11 @@ public class LLMInvoker {
      */
     public String generatorModelCodeWithPackage(String packageName, String modelScenarioName, String userVariableModel,
             String userLogicByPseudocode) {
-        return generatorModelCodeWithPackage(packageName, modelScenarioName, userVariableModel, userLogicByPseudocode,
+        return generatorModelCodeWithPackage(
+                packageName,
+                modelScenarioName,
+                userVariableModel,
+                userLogicByPseudocode,
                 "");
     }
 
