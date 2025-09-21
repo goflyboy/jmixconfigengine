@@ -1,6 +1,6 @@
 package com.jmix.configengine.extensibleDemo;
 
-import com.jmix.executor.inf.ParaInst;
+import com.jmix.executor.omodel.ParaInst;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

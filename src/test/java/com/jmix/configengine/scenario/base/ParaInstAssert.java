@@ -5,12 +5,12 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-import com.jmix.executor.inf.ModuleInst;
-import com.jmix.executor.inf.ParaInst;
-import com.jmix.executor.model.Module;
-import com.jmix.executor.model.Para;
-import com.jmix.executor.model.ParaOption;
-import com.jmix.executor.util.ParaTypeHandler;
+import com.jmix.executor.imodel.Module;
+import com.jmix.executor.imodel.Para;
+import com.jmix.executor.imodel.ParaOption;
+import com.jmix.executor.impl.util.ParaTypeHandler;
+import com.jmix.executor.omodel.ModuleInst;
+import com.jmix.executor.omodel.ParaInst;
 
 /**
  * 参数实例断言类

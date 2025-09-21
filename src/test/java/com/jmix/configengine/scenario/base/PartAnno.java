@@ -1,12 +1,12 @@
 package com.jmix.configengine.scenario.base;
 
+import com.jmix.executor.imodel.Part;
+import com.jmix.executor.imodel.PartType;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import com.jmix.executor.model.Part;
-import com.jmix.executor.model.PartType;
 
 /**
  * 部件注解，用于标记部件变量

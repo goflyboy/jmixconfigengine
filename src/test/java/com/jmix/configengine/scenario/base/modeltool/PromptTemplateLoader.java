@@ -1,5 +1,7 @@
 package com.jmix.configengine.scenario.base.modeltool;
 
+import com.jmix.executor.omodel.AlgLoaderException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -7,8 +9,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.jmix.executor.inf.AlgLoaderException;
 
 /**
  * Prompt模板加载器

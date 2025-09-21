@@ -5,9 +5,9 @@ import com.jmix.configengine.scenario.base.CompatiableRuleAnno;
 import com.jmix.configengine.scenario.base.ModuleAnno;
 import com.jmix.configengine.scenario.base.ModuleScenarioTestBase;
 import com.jmix.configengine.scenario.base.ParaAnno;
-import com.jmix.executor.artifact.ConstraintAlgImpl;
-import com.jmix.executor.artifact.ParaVar;
-import com.jmix.executor.inf.ConstraintConfig;
+import com.jmix.executor.imodel.ConstraintConfig;
+import com.jmix.executor.impl.artifact.ConstraintAlgImpl;
+import com.jmix.executor.impl.artifact.ParaVar;
 
 import lombok.extern.slf4j.Slf4j;
 

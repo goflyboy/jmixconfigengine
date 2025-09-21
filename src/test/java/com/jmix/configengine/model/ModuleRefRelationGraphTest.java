@@ -5,9 +5,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import com.jmix.executor.model.ModuleRefRelationGraph;
-import com.jmix.executor.model.rule.RefProgObjSchema;
-import com.jmix.executor.util.Pair;
+import com.jmix.executor.imodel.ModuleRefRelationGraph;
+import com.jmix.executor.imodel.rule.RefProgObjSchema;
+import com.jmix.executor.impl.util.Pair;
 
 import org.junit.Before;
 import org.junit.Test;

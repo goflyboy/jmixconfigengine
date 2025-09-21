@@ -5,12 +5,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import com.jmix.executor.ModuleConstraintExecutor;
-import com.jmix.executor.inf.ConstraintConfig;
-import com.jmix.executor.inf.ModuleInst;
-import com.jmix.executor.inf.ParaInst;
-import com.jmix.executor.inf.PartInst;
-import com.jmix.executor.inf.Result;
-import com.jmix.executor.model.Module;
+import com.jmix.executor.imodel.ConstraintConfig;
+import com.jmix.executor.imodel.Module;
+import com.jmix.executor.omodel.ModuleInst;
+import com.jmix.executor.omodel.ParaInst;
+import com.jmix.executor.omodel.PartInst;
+import com.jmix.executor.omodel.Result;
 
 import lombok.extern.slf4j.Slf4j;
 

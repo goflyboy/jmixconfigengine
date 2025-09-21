@@ -1,9 +1,9 @@
 package com.jmix.configengine.extensibleDemo;
 
-import java.util.List;
+import com.jmix.executor.imodel.ConstraintConfig;
+import com.jmix.executor.omodel.ExtensibleProcess;
 
-import com.jmix.executor.inf.ConstraintConfig;
-import com.jmix.executor.inf.ExtensibleProcess;
+import java.util.List;
 
 /**
  * DC公司的模块约束执行器接口

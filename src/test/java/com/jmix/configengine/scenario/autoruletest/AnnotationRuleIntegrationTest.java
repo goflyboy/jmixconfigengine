@@ -8,11 +8,11 @@ import static org.junit.Assert.fail;
 import com.jmix.configengine.scenario.base.CommHelper;
 import com.jmix.configengine.scenario.base.ModuleGenneratorByAnno;
 import com.jmix.configengine.scenario.base.StructCodeInjector;
-import com.jmix.executor.artifact.ModuleAlgArtifactGenerator;
-import com.jmix.executor.artifact.ModuleVarInfo;
-import com.jmix.executor.model.Module;
-import com.jmix.executor.model.Rule;
-import com.jmix.executor.model.rule.CompatiableRuleSchema;
+import com.jmix.executor.imodel.Module;
+import com.jmix.executor.imodel.Rule;
+import com.jmix.executor.imodel.rule.CompatiableRuleSchema;
+import com.jmix.executor.impl.artifact.ModuleAlgArtifactGenerator;
+import com.jmix.executor.impl.artifact.ModuleVarInfo;
 
 /**
  * 注解规则集成测试类

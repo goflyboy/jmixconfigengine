@@ -1,20 +1,20 @@
 package com.jmix.configengine.scenario.base;
 
 import com.jmix.executor.ModuleConstraintExecutor;
-import com.jmix.executor.artifact.ConstraintAlgImpl;
-import com.jmix.executor.artifact.OtherVar;
+import com.jmix.executor.imodel.ConstraintConfig;
+import com.jmix.executor.imodel.Module;
+import com.jmix.executor.imodel.Para;
+import com.jmix.executor.imodel.Part;
 import com.jmix.executor.impl.ModuleConstraintExecutorImpl;
-import com.jmix.executor.inf.AlgLoaderException;
-import com.jmix.executor.inf.ConstraintConfig;
-import com.jmix.executor.inf.InferParasReq;
-import com.jmix.executor.inf.ModuleInst;
-import com.jmix.executor.inf.ParaInst;
-import com.jmix.executor.inf.PartInst;
-import com.jmix.executor.inf.Result;
-import com.jmix.executor.model.Module;
-import com.jmix.executor.model.Para;
-import com.jmix.executor.model.Part;
-import com.jmix.executor.util.ParaTypeHandler;
+import com.jmix.executor.impl.artifact.ConstraintAlgImpl;
+import com.jmix.executor.impl.artifact.OtherVar;
+import com.jmix.executor.impl.util.ParaTypeHandler;
+import com.jmix.executor.omodel.AlgLoaderException;
+import com.jmix.executor.omodel.InferParasReq;
+import com.jmix.executor.omodel.ModuleInst;
+import com.jmix.executor.omodel.ParaInst;
+import com.jmix.executor.omodel.PartInst;
+import com.jmix.executor.omodel.Result;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;

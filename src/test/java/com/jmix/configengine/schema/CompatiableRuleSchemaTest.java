@@ -5,7 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.jmix.executor.model.rule.CompatiableRuleSchema;
+import com.jmix.executor.imodel.rule.CompatiableRuleSchema;
 
 import org.junit.Test;
 

@@ -1,17 +1,17 @@
 package com.jmix.configengine.scenario.base;
 
-import com.jmix.executor.artifact.ConstraintAlg;
-import com.jmix.executor.inf.AlgLoaderException;
-import com.jmix.executor.model.Module;
-import com.jmix.executor.model.ModuleAlgArtifact;
-import com.jmix.executor.model.Para;
-import com.jmix.executor.model.ParaOption;
-import com.jmix.executor.model.Part;
-import com.jmix.executor.model.Rule;
-import com.jmix.executor.model.rule.CodeRuleSchema;
-import com.jmix.executor.model.rule.CompatiableRuleSchema;
-import com.jmix.executor.model.rule.ExprSchema;
-import com.jmix.executor.model.rule.RefProgObjSchema;
+import com.jmix.executor.imodel.Module;
+import com.jmix.executor.imodel.ModuleAlgArtifact;
+import com.jmix.executor.imodel.Para;
+import com.jmix.executor.imodel.ParaOption;
+import com.jmix.executor.imodel.Part;
+import com.jmix.executor.imodel.Rule;
+import com.jmix.executor.imodel.rule.CodeRuleSchema;
+import com.jmix.executor.imodel.rule.CompatiableRuleSchema;
+import com.jmix.executor.imodel.rule.ExprSchema;
+import com.jmix.executor.imodel.rule.RefProgObjSchema;
+import com.jmix.executor.impl.artifact.ConstraintAlg;
+import com.jmix.executor.omodel.AlgLoaderException;
 import com.jmix.tool.ModuleUtils;
 
 import lombok.extern.slf4j.Slf4j;

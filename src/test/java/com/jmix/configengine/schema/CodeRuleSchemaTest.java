@@ -4,9 +4,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.jmix.executor.model.rule.CodeRuleSchema;
-import com.jmix.executor.model.rule.RefProgObjSchema;
-import com.jmix.executor.model.rule.RuleSchema;
+import com.jmix.executor.imodel.rule.CodeRuleSchema;
+import com.jmix.executor.imodel.rule.RefProgObjSchema;
+import com.jmix.executor.imodel.rule.RuleSchema;
 
 import org.junit.Test;
 

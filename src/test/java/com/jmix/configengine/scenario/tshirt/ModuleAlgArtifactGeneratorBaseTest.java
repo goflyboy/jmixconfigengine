@@ -4,8 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.jmix.executor.artifact.ModuleAlgArtifactGenerator;
-import com.jmix.executor.model.Module;
+import com.jmix.executor.imodel.Module;
+import com.jmix.executor.impl.artifact.ModuleAlgArtifactGenerator;
 import com.jmix.tool.ModuleUtils;
 
 import org.junit.After;

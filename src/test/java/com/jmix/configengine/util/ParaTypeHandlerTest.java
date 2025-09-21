@@ -4,10 +4,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import com.jmix.executor.model.Para;
-import com.jmix.executor.model.ParaOption;
-import com.jmix.executor.model.ParaType;
-import com.jmix.executor.util.ParaTypeHandler;
+import com.jmix.executor.imodel.Para;
+import com.jmix.executor.imodel.ParaOption;
+import com.jmix.executor.imodel.ParaType;
+import com.jmix.executor.impl.util.ParaTypeHandler;
 
 import org.junit.Test;
 

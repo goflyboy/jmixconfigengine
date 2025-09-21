@@ -14,12 +14,12 @@ import com.jmix.configengine.scenario.base.ModuleAnno;
 import com.jmix.configengine.scenario.base.ModuleGenneratorByAnno;
 import com.jmix.configengine.scenario.base.ParaAnno;
 import com.jmix.configengine.scenario.base.PartAnno;
-import com.jmix.executor.artifact.ConstraintAlgImpl;
-import com.jmix.executor.artifact.ParaVar;
-import com.jmix.executor.artifact.PartVar;
-import com.jmix.executor.model.Module;
-import com.jmix.executor.model.ParaType;
-import com.jmix.executor.model.Rule;
+import com.jmix.executor.imodel.Module;
+import com.jmix.executor.imodel.ParaType;
+import com.jmix.executor.imodel.Rule;
+import com.jmix.executor.impl.artifact.ConstraintAlgImpl;
+import com.jmix.executor.impl.artifact.ParaVar;
+import com.jmix.executor.impl.artifact.PartVar;
 
 /**
  * 注解规则测试类

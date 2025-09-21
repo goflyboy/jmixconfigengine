@@ -5,17 +5,17 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.jmix.executor.model.Module;
-import com.jmix.executor.model.ModuleType;
-import com.jmix.executor.model.Para;
-import com.jmix.executor.model.ParaOption;
-import com.jmix.executor.model.ParaType;
-import com.jmix.executor.model.Part;
-import com.jmix.executor.model.PartType;
-import com.jmix.executor.model.Rule;
-import com.jmix.executor.model.rule.CompatiableRuleSchema;
-import com.jmix.executor.model.rule.ExprSchema;
-import com.jmix.executor.model.rule.RefProgObjSchema;
+import com.jmix.executor.imodel.Module;
+import com.jmix.executor.imodel.ModuleType;
+import com.jmix.executor.imodel.Para;
+import com.jmix.executor.imodel.ParaOption;
+import com.jmix.executor.imodel.ParaType;
+import com.jmix.executor.imodel.Part;
+import com.jmix.executor.imodel.PartType;
+import com.jmix.executor.imodel.Rule;
+import com.jmix.executor.imodel.rule.CompatiableRuleSchema;
+import com.jmix.executor.imodel.rule.ExprSchema;
+import com.jmix.executor.imodel.rule.RefProgObjSchema;
 import com.jmix.tool.ModuleUtils;
 
 import org.junit.After;

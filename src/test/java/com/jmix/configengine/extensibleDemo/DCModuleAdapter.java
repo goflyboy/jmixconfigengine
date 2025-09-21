@@ -1,7 +1,7 @@
 package com.jmix.configengine.extensibleDemo;
 
-import com.jmix.executor.model.Module;
-import com.jmix.executor.model.ModuleType;
+import com.jmix.executor.imodel.Module;
+import com.jmix.executor.imodel.ModuleType;
 
 import lombok.extern.slf4j.Slf4j;
 

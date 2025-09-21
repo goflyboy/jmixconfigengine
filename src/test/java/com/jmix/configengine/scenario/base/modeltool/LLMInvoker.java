@@ -1,6 +1,6 @@
 package com.jmix.configengine.scenario.base.modeltool;
 
-import com.jmix.executor.inf.AlgLoaderException;
+import com.jmix.executor.omodel.AlgLoaderException;
 
 import java.io.IOException;
 import java.io.InputStream;

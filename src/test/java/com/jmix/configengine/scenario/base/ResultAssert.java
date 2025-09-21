@@ -1,6 +1,6 @@
 package com.jmix.configengine.scenario.base;
 
-import com.jmix.executor.inf.Result;
+import com.jmix.executor.omodel.Result;
 
 import lombok.extern.slf4j.Slf4j;
 

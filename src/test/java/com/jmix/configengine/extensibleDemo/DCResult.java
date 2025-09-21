@@ -1,6 +1,6 @@
 package com.jmix.configengine.extensibleDemo;
 
-import com.jmix.executor.inf.Result;
+import com.jmix.executor.omodel.Result;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

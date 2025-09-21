@@ -1,16 +1,16 @@
 package com.jmix.configengine.artifact;
 
-import java.util.Arrays;
-import java.util.List;
-
-import com.jmix.executor.model.Extensible;
-import com.jmix.executor.model.ModuleBuilder;
-import com.jmix.executor.model.ParaOption;
-import com.jmix.executor.model.Part;
-import com.jmix.executor.util.FilterExpressionExecutor;
+import com.jmix.executor.imodel.Extensible;
+import com.jmix.executor.imodel.ModuleBuilder;
+import com.jmix.executor.imodel.ParaOption;
+import com.jmix.executor.imodel.Part;
+import com.jmix.executor.impl.util.FilterExpressionExecutor;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * FilterExpressionExecutor测试类

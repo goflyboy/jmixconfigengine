@@ -1,12 +1,12 @@
 package com.jmix.executor;
 
+import com.jmix.executor.imodel.ConstraintConfig;
+import com.jmix.executor.imodel.Module;
 import com.jmix.executor.impl.ModuleConstraintExecutorImpl;
-import com.jmix.executor.inf.ConstraintConfig;
-import com.jmix.executor.inf.ExtensibleProcess;
-import com.jmix.executor.inf.InferParasReq;
-import com.jmix.executor.inf.ModuleInst;
-import com.jmix.executor.inf.Result;
-import com.jmix.executor.model.Module;
+import com.jmix.executor.omodel.ExtensibleProcess;
+import com.jmix.executor.omodel.InferParasReq;
+import com.jmix.executor.omodel.ModuleInst;
+import com.jmix.executor.omodel.Result;
 
 import java.util.List;
 
