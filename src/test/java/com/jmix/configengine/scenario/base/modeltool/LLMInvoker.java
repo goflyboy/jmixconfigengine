@@ -145,15 +145,6 @@ public class LLMInvoker {
     }
 
     /**
-     * 构建带包名的prompt模板
-     */
-    private String buildPromptWithPackage(String packageName, String modelName, String userVariableModel,
-            String userLogicByPseudocode) {
-        return PromptTemplateLoader.renderJavaCodeTemplate(packageName, modelName, userVariableModel,
-                userLogicByPseudocode);
-    }
-
-    /**
      * 构建带包名的prompt模板（包含用户测试用例特殊规格）
      */
     private String buildPromptWithPackage(String packageName, String modelName, String userVariableModel,

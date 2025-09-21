@@ -2,6 +2,7 @@ package com.jmix.executor.model.schema;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +11,7 @@ import java.util.List;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
+@SuppressWarnings("checkstyle:DesignForExtensionCheck")
 public class CompatiableRuleSchema extends RuleSchema {
 
     /**
