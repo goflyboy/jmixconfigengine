@@ -271,7 +271,6 @@ public class ModuleAlgArtifactGenerator {
         RefProgObjSchema refProgObj = exprSchema.getRefProgObjs().get(0); // 取第一个引用对象
         String progObjType = refProgObj.getProgObjType();
         String progObjCode = refProgObj.getProgObjCode();
-        String progObjField = refProgObj.getProgObjField();
 
         VarInfo<? extends Extensible> targetObj = null;
         List<? extends Extensible> objects = null;

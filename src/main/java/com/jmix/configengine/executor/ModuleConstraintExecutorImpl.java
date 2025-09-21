@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.google.ortools.sat.CpModel;
 import com.google.ortools.sat.CpSolver;
 import com.google.ortools.sat.CpSolverSolutionCallback;
@@ -406,7 +406,7 @@ public class ModuleConstraintExecutorImpl {
     public static String toJson(ModuleInst inst) {
         try {
             ObjectMapper mapper = new ObjectMapper();
-            mapper.configure(MapperFeature.USE_STD_BEAN_NAMING, true);
+            mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
             return mapper.writeValueAsString(inst);
         } catch (Exception e) {
             return "{\"error\": \"序列化失败: " + e.getMessage() + "\"}";

@@ -1,16 +1,23 @@
 package com.jmix.configengine;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
-
 import com.jmix.configengine.artifact.FilterExpressionExecutorTest;
 import com.jmix.configengine.artifact.ModuleAlgArtifactGeneratorTest;
 import com.jmix.configengine.model.ModuleRefRelationGraphTest;
 import com.jmix.configengine.scenario.autoruletest.InjectCompatibleRuleTest;
 import com.jmix.configengine.scenario.hello.HelloConstraintTest;
+import com.jmix.configengine.scenario.ruletest.CalculateRuleIfThenTest;
+import com.jmix.configengine.scenario.ruletest.CalculateRuleSimpleTest;
+import com.jmix.configengine.scenario.ruletest.CompatibleRuleCodependentTest;
+import com.jmix.configengine.scenario.ruletest.CompatibleRuleIncompatibleTest;
+import com.jmix.configengine.scenario.ruletest.CompatibleRuleRequireTest;
+import com.jmix.configengine.scenario.ruletest.MyTShirtTest;
+import com.jmix.configengine.scenario.ruletest.ParaIntegerTest;
+import com.jmix.configengine.scenario.ruletest.ParaIsHiddenTest;
 import com.jmix.configengine.util.ModuleUtilsTest;
-import com.jmix.configengine.scenario.ruletest.*;
+
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+import org.junit.runners.Suite.SuiteClasses;
 
 /**
  * JMix Config Engine 测试套件
@@ -23,53 +30,52 @@ import com.jmix.configengine.scenario.ruletest.*;
  */
 @RunWith(Suite.class)
 @SuiteClasses({
-    
-    // 核心功能测试
-    FilterExpressionExecutorTest.class,
-    ModuleAlgArtifactGeneratorTest.class,
-    ModuleConstraintExecutorTest.class,
-    // 工具类测试
-    ModuleUtilsTest.class,
-    HelloConstraintTest.class,
-    
-    // 场景测试
-    // ModuleAlgArtifactGeneratorBaseTest.class,TODO
-    ParaIntegerTest.class,
-    MyTShirtTest.class,
-    CalculateRuleIfThenTest.class,
-    CalculateRuleSimpleTest.class,
-    CompatibleRuleRequireTest.class,
-    ParaIsHiddenTest.class,
-    // ParaIsHiddenStandTest.class,
-    InjectCompatibleRuleTest.class,
-    CompatibleRuleIncompatibleTest.class,
-    CompatibleRuleCodependentTest.class,
-    ModuleRefRelationGraphTest.class
+
+        // 核心功能测试
+        FilterExpressionExecutorTest.class,
+        ModuleAlgArtifactGeneratorTest.class,
+        ModuleConstraintExecutorTest.class,
+        // 工具类测试
+        ModuleUtilsTest.class,
+        HelloConstraintTest.class,
+
+        // 场景测试
+        ParaIntegerTest.class,
+        MyTShirtTest.class,
+        CalculateRuleIfThenTest.class,
+        CalculateRuleSimpleTest.class,
+        CompatibleRuleRequireTest.class,
+        ParaIsHiddenTest.class,
+        // ParaIsHiddenStandTest.class,
+        InjectCompatibleRuleTest.class,
+        CompatibleRuleIncompatibleTest.class,
+        CompatibleRuleCodependentTest.class,
+        ModuleRefRelationGraphTest.class
 
 })
 public class TestSuite {
-    
+
     /**
      * 测试套件说明
      * 
      * 本测试套件包含以下测试类别：
      * 
      * 1. 核心功能测试 (Core Functionality Tests)
-     *    - FilterExpressionExecutorTest: 过滤表达式执行器测试
-     *    - ModuleAlgArtifactGeneratorTest: 模块算法制品生成器测试
+     * - FilterExpressionExecutorTest: 过滤表达式执行器测试
+     * - ModuleAlgArtifactGeneratorTest: 模块算法制品生成器测试
      * 
      * 2. 工具类测试 (Utility Tests)
-     *    - ModuleUtilsTest: Module工具类测试，包括JSON序列化/反序列化
+     * - ModuleUtilsTest: Module工具类测试，包括JSON序列化/反序列化
      * 
      * 3. 场景测试 (Scenario Tests)
-     *    - TShirtModuleAlgArtifactGeneratorTest: T恤衫模块场景测试
+     * - TShirtModuleAlgArtifactGeneratorTest: T恤衫模块场景测试
      * 
      * 运行方式：
      * - 在IDE中右键运行TestSuite类
      * - 使用Maven命令: mvn test -Dtest=TestSuite
      * - 使用JUnit运行器
      */
-    
+
     /**
      * 测试套件配置
      * 
@@ -84,4 +90,4 @@ public class TestSuite {
      * - 分支覆盖率: > 70%
      * - 方法覆盖率: > 90%
      */
-} 
+}

@@ -1,14 +1,14 @@
 package com.jmix.configengine.scenario.base;
- 
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files; 
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
- 
+
 import com.jmix.configengine.artifact.RuleInfo;
 
 /**
@@ -22,50 +22,24 @@ public class StructCodeInjector {
 
     private final PseudoToJavaConverter converter = new PseudoToJavaConverter();
 
-    // /**
-    //  * 将指定类中的带有 @AlgAnno 的方法，根据伪代码生成实现片段并注入到源文件。
-    //  * @param sourceFile 源码文件路径（.java）
-    //  * @param fullyQualifiedClassName 目标类全限定名（用于反射读取注解）
-    //  */
-    // public void inject(String sourceFile, String fullyQualifiedClassName) {
-    //     try {
-    //         Class<?> clazz = Class.forName(fullyQualifiedClassName);
-    //         // String content = Files.readString(Path.of(sourceFile), StandardCharsets.UTF_8);
-    //         String updated = "content";
-
-    //         // for (var method : clazz.getDeclaredMethods()) {
-    //         //     AlgAnno alg = method.getAnnotation(AlgAnno.class);
-    //         //     if (alg == null) continue;
-
-    //         //     String methodName = method.getName();
-    //         //     String raw = alg.rawcode();
-
-    //         //     updated = injectIntoMethod(updated, methodName, raw);
-    //         // }
-
-    //         if (!updated.equals(content)) {
-    //             Files.writeString(Path.of(sourceFile), updated, StandardCharsets.UTF_8);
-    //         }
-    //     } catch (ClassNotFoundException e) {
-    //         throw new RuntimeException("找不到类: " + fullyQualifiedClassName, e);
-    //     } catch (IOException e) {
-    //         throw new RuntimeException("读写源文件失败: " + sourceFile, e);
-    //     }
-    // }
-
     private String injectIntoMethod(String source, String methodName, String injectedCode) {
         // 粗略匹配方法声明行到对应的花括号范围
         // 支持常见修饰符与返回类型，方法名固定，用第一个左花括号定位方法体起始
-        Pattern sig = Pattern.compile("(^\\n|^)\\s*([\\t ]*)([a-zA-Z0-9_<>\\[\\] ,@]+)?\\b" + Pattern.quote(methodName) + "\\s*\\([^)]*\\)\\s*\\{", Pattern.MULTILINE);
+        Pattern sig = Pattern.compile("(^\\n|^)\\s*([\\t ]*)([a-zA-Z0-9_<>\\[\\] ,@]+)?\\b" + Pattern.quote(methodName)
+                + "\\s*\\([^)]*\\)\\s*\\{", Pattern.MULTILINE);
         Matcher m = sig.matcher(source);
-        if (!m.find()) return source; // 未找到方法，跳过
+        if (!m.find())
+            return source; // 未找到方法，跳过
 
         int braceOpen = source.indexOf('{', m.end() - 1);
-        if (braceOpen < 0) return source;
+        if (braceOpen < 0)
+            return source;
 
         int bodyStart = braceOpen + 1;
         int bodyEnd = findMatchingBrace(source, braceOpen);
-        if (bodyEnd < 0) return source;
+        if (bodyEnd < 0) {
+            return source;
+        }
 
         String body = source.substring(bodyStart, bodyEnd);
 
@@ -96,9 +70,11 @@ public class StructCodeInjector {
         String[] lines = body.split("\n", -1);
         for (String line : lines) {
             String trimmed = line.trim();
-            if (trimmed.isEmpty()) continue;
+            if (trimmed.isEmpty())
+                continue;
             int idx = 0;
-            while (idx < line.length() && (line.charAt(idx) == ' ' || line.charAt(idx) == '\t')) idx++;
+            while (idx < line.length() && (line.charAt(idx) == ' ' || line.charAt(idx) == '\t'))
+                idx++;
             return Optional.of(line.substring(0, idx));
         }
         return Optional.empty();
@@ -107,7 +83,8 @@ public class StructCodeInjector {
     private String defaultIndentFromMatcher(Matcher m) {
         String declIndent = m.group(2) == null ? "" : m.group(2);
         // 保持风格：若声明行以tab开头则+"\t"，否则+4空格
-        if (declIndent.contains("\t")) return declIndent + "\t";
+        if (declIndent.contains("\t"))
+            return declIndent + "\t";
         return declIndent + "    ";
     }
 
@@ -115,10 +92,12 @@ public class StructCodeInjector {
         int depth = 0;
         for (int i = openIndex; i < s.length(); i++) {
             char c = s.charAt(i);
-            if (c == '{') depth++;
+            if (c == '{')
+                depth++;
             else if (c == '}') {
                 depth--;
-                if (depth == 0) return i; // 返回匹配的闭合大括号索引
+                if (depth == 0)
+                    return i; // 返回匹配的闭合大括号索引
             }
         }
         return -1;
@@ -141,7 +120,8 @@ public class StructCodeInjector {
          * 生成的字段访问按 .var 形式，比较使用字符串常量包装。
          */
         public String convert(String injectedCode, String indent) {
-            if (injectedCode == null) return "";
+            if (injectedCode == null)
+                return "";
             String code = injectedCode.trim();
             // 移除末尾单个多余右括号
             if (code.endsWith(")")) {
@@ -156,28 +136,29 @@ public class StructCodeInjector {
                 StringBuilder sb = new StringBuilder();
                 sb.append(indent).append("//自动生成，请勿编辑--start\n");
                 sb.append(indent).append("if (\"").append(condVal).append("\".equals(String.valueOf(")
-                  .append(condVar).append(".var))) {\n");
+                        .append(condVar).append(".var))) {\n");
                 sb.append(indent).append("\t").append(targetVar).append(".var = \"")
-                  .append(targetVal).append("\";\n");
+                        .append(targetVal).append("\";\n");
                 sb.append(indent).append("}\n");
                 sb.append(indent).append("//自动生成，请勿编辑--end\n");
                 return sb.toString();
             }
             // 默认回退为注释块，避免破坏编译
             return indent + "\n\n" + indent + "//自动生成，请勿编辑--start\n"
-                //  + indent + "// 未识别的伪代码: " + escapeForComment(code) + "\n"
-                 + indent  + escapeForComment(code) + "\n"
-                 + indent  + "//自动生成，请勿编辑--end\n";
+            // + indent + "// 未识别的伪代码: " + escapeForComment(code) + "\n"
+                    + indent + escapeForComment(code) + "\n"
+                    + indent + "//自动生成，请勿编辑--end\n";
         }
 
         private String escapeForComment(String s) {
             return s.replace("*/", "* /");
         }
     }
-    
+
     /**
      * 注入规则到类中
-     * @param clazz 目标类
+     * 
+     * @param clazz     目标类
      * @param ruleInfos 规则信息列表
      */
     public void injectRule(Class<?> clazz, List<RuleInfo> ruleInfos) {
@@ -185,10 +166,11 @@ public class StructCodeInjector {
             injectRule(clazz, ruleInfo);
         }
     }
-    
+
     /**
      * 注入单个规则到类中
-     * @param clazz 目标类
+     * 
+     * @param clazz    目标类
      * @param ruleInfo 规则信息
      */
     public void injectRule(Class<?> clazz, RuleInfo ruleInfo) {
@@ -196,7 +178,7 @@ public class StructCodeInjector {
         if (!ruleInfo.getRuleSchemaTypeFullName().contains("CompatiableRule")) {
             return; // 暂时只处理CompatiableRule
         }
-        
+
         // 根据clazz得到source
         String sourceFile = getSourceFile(clazz);
         try {
@@ -204,7 +186,7 @@ public class StructCodeInjector {
             String methodName = ruleInfo.getCode();
             String injectedCodeTmp = generatorInjectorCode(ruleInfo);
             String updated = injectIntoMethod(content, methodName, injectedCodeTmp);
-            
+
             // 注入
             if (!updated.equals(content)) {
                 Files.write(Paths.get(sourceFile), updated.getBytes(StandardCharsets.UTF_8));
@@ -213,7 +195,7 @@ public class StructCodeInjector {
             throw new RuntimeException("读写源文件失败: " + sourceFile, e);
         }
     }
-    
+
     /**
      * 获取类的源文件路径
      */
@@ -225,9 +207,9 @@ public class StructCodeInjector {
             fileName = enclosingClass.getSimpleName();
         }
         String packagePath = CommHelper.getResourcePath(clazz);
-        return packagePath + "/" + fileName+ ".java";
+        return packagePath + "/" + fileName + ".java";
     }
-    
+
     /**
      * 生成注入代码
      */
@@ -235,13 +217,14 @@ public class StructCodeInjector {
         if (ruleInfo.getRuleSchemaTypeFullName().contains("CompatiableRule")) {
             return generatorInjectorCode4Compatible(ruleInfo);
         }
-        throw new RuntimeException("不支持的规则类型: " + ruleInfo.getRuleSchemaTypeFullName()); 
+        throw new RuntimeException("不支持的规则类型: " + ruleInfo.getRuleSchemaTypeFullName());
     }
-    
+
     private String generatorInjectorCode4Compatible(RuleInfo ruleInfo) {
         StringBuilder sb = new StringBuilder();
-        sb.append("addCompatibleConstraint").append(ruleInfo.getCompatiableOperator()).append("(\"").append(ruleInfo.getCode()).append("\", ");
-        
+        sb.append("addCompatibleConstraint").append(ruleInfo.getCompatiableOperator()).append("(\"")
+                .append(ruleInfo.getCode()).append("\", ");
+
         // 这里简化处理，实际应该根据ruleInfo的schema解析左右表达式
         sb.append("this.").append(ruleInfo.getLeftVarName()).append(", ");
         sb.append(toArgumentString(ruleInfo.getLeftFilterCodes()));
@@ -251,6 +234,7 @@ public class StructCodeInjector {
         System.out.println("sb: \n" + sb.toString());
         return sb.toString();
     }
+
     private String toArgumentString(List<String> filterCodes) {
         StringBuilder sb = new StringBuilder();
         sb.append("listOf(");
@@ -263,4 +247,4 @@ public class StructCodeInjector {
         sb.append(")");
         return sb.toString();
     }
-} 
+}

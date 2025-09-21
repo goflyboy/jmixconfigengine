@@ -22,7 +22,7 @@ public class ModuleConstraintExecutorTest {
     public void testInitAddModuleAndInfer2() {
     }
 
-    // @Test TODO
+    // @Test
     public void testInitAddModuleAndInfer() {
         ModuleConstraintExecutorImpl exec = new ModuleConstraintExecutorImpl();
         ConstraintConfig cfg = new ConstraintConfig();

@@ -1,5 +1,10 @@
 package com.jmix.configengine.scenario.base;
- 
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.jmix.configengine.ModuleConstraintExecutor;
 import com.jmix.configengine.artifact.ConstraintAlgImpl;
 import com.jmix.configengine.artifact.OtherVar;
@@ -11,22 +16,21 @@ import com.jmix.configengine.inf.ParaInst;
 import com.jmix.configengine.inf.PartInst;
 import com.jmix.configengine.inf.Result;
 import com.jmix.configengine.model.Module;
-import com.jmix.configengine.model.Para; 
+import com.jmix.configengine.model.Para;
 import com.jmix.configengine.model.Part;
 import com.jmix.configengine.util.ParaTypeHandler;
-import lombok.extern.slf4j.Slf4j;
- 
-import java.util.*;
 
 import org.junit.After;
 import org.junit.Before;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 模块场景测试基类
  */
 @Slf4j
 public abstract class ModuleScenarioTestBase {
-    
+
     // 核心属性
     protected Class<? extends ConstraintAlgImpl> constraintAlgClazz;
     protected String tempResourcePath = "";
@@ -35,13 +39,14 @@ public abstract class ModuleScenarioTestBase {
     protected List<ModuleInst> solutions;
     protected Result<List<ModuleInst>> result;
     protected boolean enumerateAllSolution = true;
+
     /**
      * 构造函数
      */
     public ModuleScenarioTestBase(Class<? extends ConstraintAlgImpl> constraintAlgClazz) {
         this.constraintAlgClazz = constraintAlgClazz;
     }
-    
+
     /**
      * 每个用例执行前调用
      */
@@ -49,7 +54,7 @@ public abstract class ModuleScenarioTestBase {
     public void setUp() {
         init();
     }
-    
+
     /**
      * 每个用例执行后调用
      */
@@ -57,7 +62,7 @@ public abstract class ModuleScenarioTestBase {
     public void tearDown() {
         ModuleConstraintExecutor.INST.fini();
     }
-    
+
     /**
      * 构建Module数据
      */
@@ -66,6 +71,7 @@ public abstract class ModuleScenarioTestBase {
         module = ModuleGenneratorByAnno.build(moduleAlgClazz, tempResourcePath);
         return module;
     }
+
     // createTempPath方法已移动到CommHelper类中
     /**
      * 初始化测试环境
@@ -81,53 +87,58 @@ public abstract class ModuleScenarioTestBase {
         cfg.isLogModelProto = true;
         beforeInitConfig(cfg);
         ModuleConstraintExecutor.INST.init(cfg);
-        
+
         module = buildModule(this.constraintAlgClazz);
         ModuleConstraintExecutor.INST.addModule(module.getId(), module);
     }
+
     protected void beforeInitConfig(ConstraintConfig cfg) {
 
     }
 
     /**
      * 执行参数推理
-     * @param partCode 部件代码
-     * @param qty 数量
-     * @param paraCodeValuePairs 参数代码和值的交替数组，格式：paraCode1, value1, paraCode2, value2, ...
+     * 
+     * @param partCode           部件代码
+     * @param qty                数量
+     * @param paraCodeValuePairs 参数代码和值的交替数组，格式：paraCode1, value1, paraCode2,
+     *                           value2, ...
      * @return 推理结果
      */
     protected List<ModuleInst> inferParas(String partCode, Integer qty, String... paraCodeValuePairs) {
         InferParasReq req = new InferParasReq();
         req.moduleId = module.getId();
         req.enumerateAllSolution = enumerateAllSolution;
-        
+
         // 设置主部件实例
         req.mainPartInst = new PartInst();
         req.mainPartInst.code = partCode;
         req.mainPartInst.quantity = qty;
-        
+
         // 处理预定义参数（复用公共方法）
         if (paraCodeValuePairs.length > 0) {
             req.preParaInsts = buildParaInstsFromPairs(paraCodeValuePairs);
         }
-        
+
         Result<List<ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(req);
         log.info("推理结果: {}", result);
         this.result = result;
         this.solutions = result.data;
         return solutions;
     }
-    
+
     /**
      * 根据多个参数值进行推理（可变参数版本）
-     * @param paraCodeValuePairs 参数代码和值的交替数组，格式：paraCode1, value1, paraCode2, value2, ...
+     * 
+     * @param paraCodeValuePairs 参数代码和值的交替数组，格式：paraCode1, value1, paraCode2,
+     *                           value2, ...
      * @return 推理结果
      */
     protected List<ModuleInst> inferParasByPara(String... paraCodeValuePairs) {
         InferParasReq req = new InferParasReq();
         req.moduleId = module.getId();
         req.enumerateAllSolution = true;
-        
+
         // 复用公共方法处理参数
         req.preParaInsts = buildParaInstsFromPairs(paraCodeValuePairs);
 
@@ -137,17 +148,18 @@ public abstract class ModuleScenarioTestBase {
         this.solutions = result.data;
         return solutions;
     }
-    
+
     /**
      * 根据单个参数值进行推理（向后兼容）
+     * 
      * @param paraCode 参数代码
-     * @param value 参数值
+     * @param value    参数值
      * @return 推理结果
      */
     protected List<ModuleInst> inferParasByPara(String paraCode, String value) {
-        return inferParasByPara(new String[]{paraCode, value});
+        return inferParasByPara(new String[] { paraCode, value });
     }
-    
+
     /**
      * 获取指定索引的解决方案
      */
@@ -158,7 +170,7 @@ public abstract class ModuleScenarioTestBase {
         ModuleInst solution = solutions.get(index);
         return new ProgammableInstAssert(solution, module);
     }
-    
+
     /**
      * 打印所有解决方案
      */
@@ -167,7 +179,7 @@ public abstract class ModuleScenarioTestBase {
             log.info("没有找到解决方案");
             return;
         }
-        
+
         log.info("找到 {} 个解决方案:\n", solutions.size());
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < solutions.size(); i++) {
@@ -175,7 +187,7 @@ public abstract class ModuleScenarioTestBase {
         }
         log.info(sb.toString());
     }
-    
+
     /**
      * 获取结果断言对象，用于验证执行结果
      */
@@ -185,15 +197,15 @@ public abstract class ModuleScenarioTestBase {
         }
         return new ResultAssert(result);
     }
-    
+
     /**
      * 校验满足条件conditionExpr解的个数是否等于expectSolutionNum
      * 
-     * @param conditionExpr 条件表达式，格式如："Color:Red,TShirt1:2"
+     * @param conditionExpr     条件表达式，格式如："Color:Red,TShirt1:2"
      * @param expectSolutionNum 期望的解决方案数量
      */
     protected void assertSolutionNum(String conditionExpr, int expectSolutionNum) {
-        //如果expectSolutionNum为0，则不进行验证
+        // 如果expectSolutionNum为0，则不进行验证
         if (expectSolutionNum == 0 && (solutions == null || solutions.isEmpty())) {
             return;
         }
@@ -202,23 +214,23 @@ public abstract class ModuleScenarioTestBase {
         }
         // 解析条件表达式
         Map<String, String> kvMap = parseConditionExpr(conditionExpr);
-        
+
         // 构建条件对象列表
         List<ConditionElement> conditionElements = buildConditionElements(kvMap);
-        
+
         // 计算实际匹配的解决方案数量
         int actualMatchSolutionNum = countMatchingSolutions(conditionElements);
-        
+
         // 比较实际数量和期望数量
         if (actualMatchSolutionNum != expectSolutionNum) {
             throw new AssertionError(String.format(
-                "解决方案数量不匹配，期望: %d，实际: %d，条件: %s", 
-                expectSolutionNum, actualMatchSolutionNum, conditionExpr));
+                    "解决方案数量不匹配，期望: %d，实际: %d，条件: %s",
+                    expectSolutionNum, actualMatchSolutionNum, conditionExpr));
         }
-        
+
         log.info("解决方案数量验证通过，条件: {}，数量: {}", conditionExpr, actualMatchSolutionNum);
     }
-    
+
     /**
      * 解析条件表达式
      * 格式："Color:Red,TShirt1:2" -> {"Color":"Red", "TShirt1":"2"}
@@ -226,7 +238,7 @@ public abstract class ModuleScenarioTestBase {
     private Map<String, String> parseConditionExpr(String conditionExpr) {
         Map<String, String> kvMap = new HashMap<>();
         String[] pairs = conditionExpr.split(",");
-        
+
         for (String pair : pairs) {
             String[] kv = pair.split(":");
             if (kv.length == 2) {
@@ -235,20 +247,20 @@ public abstract class ModuleScenarioTestBase {
                 throw new IllegalArgumentException("条件表达式格式错误: " + pair);
             }
         }
-        
+
         return kvMap;
     }
-    
+
     /**
      * 构建条件元素列表
      */
     private List<ConditionElement> buildConditionElements(Map<String, String> kvMap) {
         List<ConditionElement> elements = new ArrayList<>();
-        
+
         for (Map.Entry<String, String> entry : kvMap.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
-            
+
             // 在module.paras中查找
             Para para = module.getPara(key);
             if (para != null) {
@@ -257,7 +269,7 @@ public abstract class ModuleScenarioTestBase {
                 elements.add(new ConditionElement("para", key, codeIdValue));
                 continue;
             }
-            
+
             // 在module.parts中查找
             Part part = module.getPart(key);
             if (part != null) {
@@ -265,24 +277,24 @@ public abstract class ModuleScenarioTestBase {
                 elements.add(new ConditionElement("part", key, value));
                 continue;
             }
-            
+
             // 都找不到，报错
             throw new RuntimeException(String.format(
-                "在Module中未找到参数或部件: %s", key));
+                    "在Module中未找到参数或部件: %s", key));
         }
-        
+
         return elements;
     }
-    
+
     /**
      * 计算匹配条件的解决方案数量
      */
     private int countMatchingSolutions(List<ConditionElement> conditionElements) {
         int matchCount = 0;
-        
+
         for (ModuleInst solution : solutions) {
             boolean isMatch = true;
-            
+
             for (ConditionElement element : conditionElements) {
                 if ("para".equals(element.type)) {
                     // 对paraInst，比较value和paraInst.value
@@ -300,39 +312,44 @@ public abstract class ModuleScenarioTestBase {
                     }
                 }
             }
-            
+
             if (isMatch) {
                 matchCount++;
             }
         }
-        
+
         return matchCount;
     }
-    
+
     /**
      * 根据代码查找ParaInst
      */
     private ParaInst findParaInstByCode(ModuleInst solution, String code) {
-        if (solution.paras == null) return null;
+        if (solution.paras == null) {
+            return null;
+        }
         return solution.paras.stream()
-            .filter(p -> code.equals(p.code))
-            .findFirst()
-            .orElse(null);
+                .filter(p -> code.equals(p.code))
+                .findFirst()
+                .orElse(null);
     }
-    
+
     /**
      * 根据代码查找PartInst
      */
     private PartInst findPartInstByCode(ModuleInst solution, String code) {
-        if (solution.parts == null) return null;
+        if (solution.parts == null) {
+            return null;
+        }
         return solution.parts.stream()
-            .filter(p -> code.equals(p.code))
-            .findFirst()
-            .orElse(null);
+                .filter(p -> code.equals(p.code))
+                .findFirst()
+                .orElse(null);
     }
-    
+
     /**
      * 根据参数代码值对构建ParaInst列表（公共方法）
+     * 
      * @param paraCodeValuePairs 参数代码和值的交替数组
      * @return ParaInst列表
      */
@@ -340,17 +357,17 @@ public abstract class ModuleScenarioTestBase {
         if (paraCodeValuePairs.length % 2 != 0) {
             throw new IllegalArgumentException("参数必须是偶数个，格式：paraCode1, value1, paraCode2, value2, ...");
         }
-        
+
         List<ParaInst> paraInsts = new ArrayList<>();
-        
+
         for (int i = 0; i < paraCodeValuePairs.length; i += 2) {
             String paraCode = paraCodeValuePairs[i];
             String value = paraCodeValuePairs[i + 1];
-            
+
             ParaInst paraInst = new ParaInst();
             paraInst.code = paraCode;
-            
-            //根据module.paras中的para.options，找到value对应的option
+
+            // 根据module.paras中的para.options，找到value对应的option
             Para para = module.getPara(paraCode);
             if (para == null) {
                 throw new RuntimeException(String.format("参数 %s 不存在", paraCode));
@@ -358,27 +375,29 @@ public abstract class ModuleScenarioTestBase {
             paraInst.value = ParaTypeHandler.getCodeIdValue(para, value);
             paraInsts.add(paraInst);
         }
-        
+
         return paraInsts;
     }
-    
+
     /**
      * 条件元素内部类
      */
     private static class ConditionElement {
-        final String type;    // "para" 或 "part"
-        final String code;    // 代码
-        final String value;   // 值
-        
+        final String type; // "para" 或 "part"
+        final String code; // 代码
+        final String value; // 值
+
         ConditionElement(String type, String code, String value) {
             this.type = type;
             this.code = code;
             this.value = value;
         }
     }
+
     /**
      * 打印短格式解信息
-     * @param module 模块
+     * 
+     * @param module    模块
      * @param solutions 解列表
      */
     protected void printSolutions() {
@@ -387,7 +406,8 @@ public abstract class ModuleScenarioTestBase {
 
     /**
      * 打印短格式解信息
-     * @param module 模块
+     * 
+     * @param module    模块
      * @param solutions 解列表
      */
     protected void printSolutions(Module module, List<ModuleInst> solutions) {
@@ -395,14 +415,12 @@ public abstract class ModuleScenarioTestBase {
             log.info("No solutions found");
             return;
         }
-        
+
         StringBuilder sb = new StringBuilder();
         sb.append("\n******************************************\n");
         // 打印缩语解释
         sb.append("Abbreviation explanation:\n");
-        
-  
-        
+
         // 1. shortCodes(P1:Size, P2:Color,PT1:part1)
         sb.append("1.").append(module.getProgObjShortCodeMemo()).append("\n");
         // 2. Attrs(V:value, H:isHidden, Q:qty)
@@ -422,9 +440,9 @@ public abstract class ModuleScenarioTestBase {
                 }
             }
         }
-        
+
         sb.append("\n");
-        
+
         // 打印解
         for (int i = 0; i < solutions.size(); i++) {
             sb.append("S_").append(i + 1).append(": ").append(solutions.get(i).toShortString()).append("\n");
@@ -432,6 +450,6 @@ public abstract class ModuleScenarioTestBase {
         sb.append("\n******************************************\n");
         log.info(sb.toString());
     }
-    
+
     // getResourcePath和createDirectory方法已移动到CommHelper类中
-} 
+}
