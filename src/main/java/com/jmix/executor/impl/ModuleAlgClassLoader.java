@@ -1,4 +1,4 @@
-package com.jmix.executor.executor;
+package com.jmix.executor.impl;
 
 import com.jmix.executor.artifact.ConstraintAlgImpl;
 import com.jmix.executor.inf.AlgLoaderException;

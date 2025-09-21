@@ -1,5 +1,14 @@
 package com.jmix.configengine.model;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import com.jmix.executor.model.ModuleRefRelationGraph;
+import com.jmix.executor.model.rule.RefProgObjSchema;
+import com.jmix.executor.util.Pair;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -7,12 +16,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import com.jmix.executor.model.ModuleRefRelationGraph;
-import com.jmix.executor.model.schema.RefProgObjSchema;
-import com.jmix.executor.util.Pair;
-
-import static org.junit.Assert.*;
 
 /**
  * ModuleRefRelationGraph 测试类

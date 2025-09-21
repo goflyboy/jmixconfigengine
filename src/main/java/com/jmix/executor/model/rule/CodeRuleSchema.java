@@ -1,7 +1,8 @@
-package com.jmix.executor.model.schema;
+package com.jmix.executor.model.rule;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
 import java.util.ArrayList;
 import java.util.List;
 

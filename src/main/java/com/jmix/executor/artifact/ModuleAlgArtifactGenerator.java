@@ -1,6 +1,5 @@
 package com.jmix.executor.artifact;
 
-import com.jmix.executor.constant.RuleTypeConstants;
 import com.jmix.executor.inf.AlgLoaderException;
 import com.jmix.executor.model.Extensible;
 import com.jmix.executor.model.Module;
@@ -9,10 +8,11 @@ import com.jmix.executor.model.ParaOption;
 import com.jmix.executor.model.Part;
 import com.jmix.executor.model.ProgrammableObject;
 import com.jmix.executor.model.Rule;
-import com.jmix.executor.model.schema.CompatiableRuleSchema;
-import com.jmix.executor.model.schema.ExprSchema;
-import com.jmix.executor.model.schema.RefProgObjSchema;
-import com.jmix.executor.model.schema.RuleSchema;
+import com.jmix.executor.model.rule.CompatiableRuleSchema;
+import com.jmix.executor.model.rule.ExprSchema;
+import com.jmix.executor.model.rule.RefProgObjSchema;
+import com.jmix.executor.model.rule.RuleSchema;
+import com.jmix.executor.model.rule.RuleTypeConstants;
 import com.jmix.executor.util.FilterExpressionExecutor;
 
 import lombok.extern.slf4j.Slf4j;

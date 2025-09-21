@@ -1,4 +1,4 @@
-package com.jmix.executor.executor;
+package com.jmix.executor.impl;
 
 import com.jmix.executor.ModuleConstraintExecutor;
 import com.jmix.executor.artifact.ConstraintAlgImpl;
@@ -15,7 +15,7 @@ import com.jmix.executor.inf.ParaInst;
 import com.jmix.executor.inf.PartInst;
 import com.jmix.executor.inf.Result;
 import com.jmix.executor.model.Module;
-import com.jmix.executor.model.schema.RefProgObjSchema;
+import com.jmix.executor.model.rule.RefProgObjSchema;
 import com.jmix.executor.util.Pair;
 
 import com.fasterxml.jackson.databind.ObjectMapper;

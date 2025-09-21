@@ -1,11 +1,18 @@
 package com.jmix.executor.model;
 
+import com.jmix.executor.model.rule.RefProgObjSchema;
+import com.jmix.executor.util.Pair;
+
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
-
-import com.jmix.executor.model.schema.RefProgObjSchema;
-import com.jmix.executor.util.Pair;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 模块引用关系图

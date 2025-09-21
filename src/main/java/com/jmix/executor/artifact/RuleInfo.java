@@ -1,11 +1,11 @@
 package com.jmix.executor.artifact;
 
-import java.util.List;
-
-import com.jmix.executor.constant.RuleTypeConstants;
 import com.jmix.executor.model.Extensible;
+import com.jmix.executor.model.rule.RuleTypeConstants;
 
 import lombok.Data;
+
+import java.util.List;
 
 /**
  * 规则信息

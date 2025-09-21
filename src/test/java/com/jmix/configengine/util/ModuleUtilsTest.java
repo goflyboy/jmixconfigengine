@@ -13,9 +13,9 @@ import com.jmix.executor.model.ParaType;
 import com.jmix.executor.model.Part;
 import com.jmix.executor.model.PartType;
 import com.jmix.executor.model.Rule;
-import com.jmix.executor.model.schema.CompatiableRuleSchema;
-import com.jmix.executor.model.schema.ExprSchema;
-import com.jmix.executor.model.schema.RefProgObjSchema;
+import com.jmix.executor.model.rule.CompatiableRuleSchema;
+import com.jmix.executor.model.rule.ExprSchema;
+import com.jmix.executor.model.rule.RefProgObjSchema;
 import com.jmix.tool.ModuleUtils;
 
 import org.junit.After;

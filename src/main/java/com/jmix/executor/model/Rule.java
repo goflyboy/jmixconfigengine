@@ -1,15 +1,17 @@
 package com.jmix.executor.model;
 
+import com.jmix.executor.model.rule.RefProgObjSchema;
+import com.jmix.executor.model.rule.RuleSchema;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.jmix.executor.model.schema.RefProgObjSchema;
-import com.jmix.executor.model.schema.RuleSchema;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 规则定义

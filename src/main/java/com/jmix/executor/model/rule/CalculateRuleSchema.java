@@ -1,10 +1,10 @@
-package com.jmix.executor.model.schema;
-
-import java.util.ArrayList;
-import java.util.List;
+package com.jmix.executor.model.rule;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 计算规则Schema

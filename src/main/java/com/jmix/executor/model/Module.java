@@ -1,17 +1,18 @@
 package com.jmix.executor.model;
 
+import com.jmix.executor.model.rule.RefProgObjSchema;
+import com.jmix.executor.util.Pair;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.jmix.executor.model.schema.RefProgObjSchema;
-import com.jmix.executor.util.Pair;
-
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
  * 模块定义

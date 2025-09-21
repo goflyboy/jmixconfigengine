@@ -1,6 +1,6 @@
 package com.jmix.executor;
 
-import com.jmix.executor.executor.ModuleConstraintExecutorImpl;
+import com.jmix.executor.impl.ModuleConstraintExecutorImpl;
 import com.jmix.executor.inf.ConstraintConfig;
 import com.jmix.executor.inf.ExtensibleProcess;
 import com.jmix.executor.inf.InferParasReq;

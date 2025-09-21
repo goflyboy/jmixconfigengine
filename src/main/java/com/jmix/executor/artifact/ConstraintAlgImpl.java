@@ -6,7 +6,7 @@ import com.jmix.executor.model.Para;
 import com.jmix.executor.model.ParaOption;
 import com.jmix.executor.model.Part;
 import com.jmix.executor.model.Rule;
-import com.jmix.executor.model.schema.RefProgObjSchema;
+import com.jmix.executor.model.rule.RefProgObjSchema;
 
 import com.google.ortools.Loader;
 import com.google.ortools.sat.BoolVar;

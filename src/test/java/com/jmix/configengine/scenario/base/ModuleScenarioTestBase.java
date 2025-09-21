@@ -3,7 +3,7 @@ package com.jmix.configengine.scenario.base;
 import com.jmix.executor.ModuleConstraintExecutor;
 import com.jmix.executor.artifact.ConstraintAlgImpl;
 import com.jmix.executor.artifact.OtherVar;
-import com.jmix.executor.executor.ModuleConstraintExecutorImpl;
+import com.jmix.executor.impl.ModuleConstraintExecutorImpl;
 import com.jmix.executor.inf.AlgLoaderException;
 import com.jmix.executor.inf.ConstraintConfig;
 import com.jmix.executor.inf.InferParasReq;

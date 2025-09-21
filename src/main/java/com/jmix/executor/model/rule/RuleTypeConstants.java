@@ -1,4 +1,4 @@
-package com.jmix.executor.constant;
+package com.jmix.executor.model.rule;
 
 /**
  * 规则类型常量定义

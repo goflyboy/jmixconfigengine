@@ -1,15 +1,17 @@
 package com.jmix.configengine.schema;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-import static org.junit.Assert.*;
+import com.jmix.executor.model.rule.CodeRuleSchema;
+import com.jmix.executor.model.rule.RefProgObjSchema;
+import com.jmix.executor.model.rule.RuleSchema;
+
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import com.jmix.executor.model.schema.CodeRuleSchema;
-import com.jmix.executor.model.schema.RefProgObjSchema;
-import com.jmix.executor.model.schema.RuleSchema;
 
 /**
  * CodeRuleSchema测试类

@@ -1,10 +1,13 @@
 package com.jmix.configengine.schema;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import com.jmix.executor.model.rule.CompatiableRuleSchema;
+
 import org.junit.Test;
-
-import static org.junit.Assert.*;
-
-import com.jmix.executor.model.schema.CompatiableRuleSchema;
 
 /**
  * CompatiableRuleSchema测试类

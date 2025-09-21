@@ -1,9 +1,11 @@
-package com.jmix.executor.model.schema;
+package com.jmix.executor.model.rule;
+
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import lombok.Data;
+
 import java.util.List;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
 
 /**
  * 表达式Schema

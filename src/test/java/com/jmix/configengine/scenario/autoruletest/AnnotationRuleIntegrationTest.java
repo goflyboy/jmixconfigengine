@@ -12,7 +12,7 @@ import com.jmix.executor.artifact.ModuleAlgArtifactGenerator;
 import com.jmix.executor.artifact.ModuleVarInfo;
 import com.jmix.executor.model.Module;
 import com.jmix.executor.model.Rule;
-import com.jmix.executor.model.schema.CompatiableRuleSchema;
+import com.jmix.executor.model.rule.CompatiableRuleSchema;
 
 /**
  * 注解规则集成测试类

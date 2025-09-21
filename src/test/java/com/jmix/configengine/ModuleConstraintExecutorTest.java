@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.jmix.executor.executor.ModuleConstraintExecutorImpl;
+import com.jmix.executor.impl.ModuleConstraintExecutorImpl;
 import com.jmix.executor.inf.ConstraintConfig;
 import com.jmix.executor.inf.InferParasReq;
 import com.jmix.executor.inf.ModuleInst;

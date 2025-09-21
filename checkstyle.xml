@@ -18,7 +18,7 @@
     <!-- 行长度检查 - 匹配 CodeFormatterFromIdea.xml 的 RIGHT_MARGIN=120 -->
     <module name="LineLength">
         <property name="max" value="120"/>
-        <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
+        <property name="ignorePattern" value=" @*|^package.*|^import.*|a href|href|http://|https://|ftp://"/>
     </module>
 
     <!-- 树形检查器 -->
