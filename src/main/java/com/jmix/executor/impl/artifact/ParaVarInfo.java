@@ -4,6 +4,7 @@ import com.jmix.executor.imodel.Para;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -11,6 +12,7 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(callSuper = true)
 public class ParaVarInfo extends VarInfo<Para> {
     private String code;
+
     private List<ParaOptionVarInfo> options;
 
     public ParaVarInfo() {

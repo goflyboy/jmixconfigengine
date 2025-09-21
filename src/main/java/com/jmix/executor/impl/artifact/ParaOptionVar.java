@@ -1,12 +1,12 @@
 package com.jmix.executor.impl.artifact;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-
 import com.jmix.executor.imodel.ParaOption;
 
 import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.CpSolverSolutionCallback;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * 参数选项变量
@@ -18,7 +18,7 @@ public class ParaOptionVar extends Var<ParaOption> {
     /**
      * 参数选项的选中状态（布尔变量）
      */
-    public BoolVar isSelectedVar;
+    private BoolVar isSelectedVar;
 
     public ParaOptionVar() {
     }
@@ -29,7 +29,7 @@ public class ParaOptionVar extends Var<ParaOption> {
 
     public ParaOptionVar(ParaOption base, BoolVar isSelectedVar) {
         this.base = base;
-        this.isSelectedVar = isSelectedVar;
+        setIsSelectedVar(isSelectedVar);
     }
 
     public String getCode() {
@@ -44,8 +44,8 @@ public class ParaOptionVar extends Var<ParaOption> {
     public String getVarString(CpSolverSolutionCallback solutionCallback) {
         StringBuilder sb = new StringBuilder();
         sb.append("ParaOption{code=").append(getCode());
-        if (isSelectedVar != null) {
-            sb.append(", selected=").append(solutionCallback.value(this.isSelectedVar));
+        if (getIsSelectedVar() != null) {
+            sb.append(", selected=").append(solutionCallback.value(getIsSelectedVar()));
 
         }
         sb.append("}");

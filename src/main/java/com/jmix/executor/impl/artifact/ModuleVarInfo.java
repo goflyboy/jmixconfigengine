@@ -1,25 +1,31 @@
 package com.jmix.executor.impl.artifact;
 
+import com.jmix.executor.imodel.Module;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.jmix.executor.imodel.Module;
-
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class ModuleVarInfo extends VarInfo<Module> {
     private String code;
+
     private String packageName;
+
     private List<ParaVarInfo> paras;
+
     private List<PartVarInfo> parts;
+
     private List<RuleInfo> rules;
+
     private Map<String, ParaVarInfo> paraMap = new HashMap<>();
+
     private Map<String, PartVarInfo> partMap = new HashMap<>();
 
     public ModuleVarInfo() {

@@ -580,7 +580,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             throw new AlgLoaderException("ParaOption not found for code: " + optionCode);
         }
         ParaOptionVar optionVar = new ParaOptionVar(option);
-        optionVar.isSelectedVar = newBoolVar(f(ParaVar.OPTIONS_PATTEN, paraCode, option.getCode()));
+        optionVar.setIsSelectedVar(newBoolVar(f(ParaVar.OPTIONS_PATTEN, paraCode, option.getCode())));
         return optionVar;
     }
 
