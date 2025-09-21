@@ -207,13 +207,6 @@ public class Module extends ProgrammableObject<Integer> {
         for (Rule rule : rules) {
             List<RefProgObjSchema> fromLeftProgObjs = trimDuplicateRefProgObjs(rule.getFromLeftProgObjs());
             List<RefProgObjSchema> toRightProgObjs = trimDuplicateRefProgObjs(rule.getToRightProgObjs());
-
-            // 如果toRightProgObjs.size != 1，则抛异常
-            // if (toRightProgObjs.size() != 1) {
-            // throw new RuntimeException("Rule " + rule.getCode() + " must have exactly one
-            // right progObj, but found " + toRightProgObjs.size());
-            // }
-
             // 调用refRelationGraph.add(rule.getCode(),fromLeftProgObjs,toRightProgObjs.get(0))
             refRelationGraph.add(rule.getCode(), fromLeftProgObjs, toRightProgObjs);
         }

@@ -29,12 +29,14 @@ public class StructCodeInjector {
         Pattern sig = Pattern.compile("(^\\n|^)\\s*([\\t ]*)([a-zA-Z0-9_<>\\[\\] ,@]+)?\\b" + Pattern.quote(methodName)
                 + "\\s*\\([^)]*\\)\\s*\\{", Pattern.MULTILINE);
         Matcher m = sig.matcher(source);
-        if (!m.find())
+        if (!m.find()) {
             return source; // 未找到方法，跳过
+        }
 
         int braceOpen = source.indexOf('{', m.end() - 1);
-        if (braceOpen < 0)
+        if (braceOpen < 0) {
             return source;
+        }
 
         int bodyStart = braceOpen + 1;
         int bodyEnd = findMatchingBrace(source, braceOpen);
@@ -71,11 +73,13 @@ public class StructCodeInjector {
         String[] lines = body.split("\n", -1);
         for (String line : lines) {
             String trimmed = line.trim();
-            if (trimmed.isEmpty())
+            if (trimmed.isEmpty()) {
                 continue;
+            }
             int idx = 0;
-            while (idx < line.length() && (line.charAt(idx) == ' ' || line.charAt(idx) == '\t'))
+            while (idx < line.length() && (line.charAt(idx) == ' ' || line.charAt(idx) == '\t')) {
                 idx++;
+            }
             return Optional.of(line.substring(0, idx));
         }
         return Optional.empty();
@@ -84,8 +88,9 @@ public class StructCodeInjector {
     private String defaultIndentFromMatcher(Matcher m) {
         String declIndent = m.group(2) == null ? "" : m.group(2);
         // 保持风格：若声明行以tab开头则+"\t"，否则+4空格
-        if (declIndent.contains("\t"))
+        if (declIndent.contains("\t")) {
             return declIndent + "\t";
+        }
         return declIndent + "    ";
     }
 
@@ -93,12 +98,13 @@ public class StructCodeInjector {
         int depth = 0;
         for (int i = openIndex; i < s.length(); i++) {
             char c = s.charAt(i);
-            if (c == '{')
+            if (c == '{') {
                 depth++;
-            else if (c == '}') {
+            } else if (c == '}') {
                 depth--;
-                if (depth == 0)
+                if (depth == 0) {
                     return i; // 返回匹配的闭合大括号索引
+                }
             }
         }
         return -1;
@@ -121,8 +127,9 @@ public class StructCodeInjector {
          * 生成的字段访问按 .var 形式，比较使用字符串常量包装。
          */
         public String convert(String injectedCode, String indent) {
-            if (injectedCode == null)
+            if (injectedCode == null) {
                 return "";
+            }
             String code = injectedCode.trim();
             // 移除末尾单个多余右括号
             if (code.endsWith(")")) {

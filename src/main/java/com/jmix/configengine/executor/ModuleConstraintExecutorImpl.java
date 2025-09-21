@@ -15,6 +15,7 @@ import com.google.ortools.sat.CpSolver;
 import com.google.ortools.sat.CpSolverSolutionCallback;
 import com.google.ortools.sat.CpSolverStatus;
 import com.google.ortools.sat.IntVar;
+import com.jmix.configengine.ModuleConstraintExecutor;
 import com.jmix.configengine.artifact.ConstraintAlgImpl;
 import com.jmix.configengine.artifact.OtherVar;
 import com.jmix.configengine.artifact.ParaVar;
@@ -35,7 +36,7 @@ import com.jmix.configengine.util.Pair;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class ModuleConstraintExecutorImpl {
+public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
     private final Map<Long, Module> moduleMap = new HashMap<>();
     private final Map<Long, ModuleAlgClassLoader> moduleAlgClassLoaderMap = new HashMap<>();
     private final List<ExtensibleProcess> extensibleProcesses = new CopyOnWriteArrayList<>();
