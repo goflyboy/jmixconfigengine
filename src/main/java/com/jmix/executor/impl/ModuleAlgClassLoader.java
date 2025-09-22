@@ -67,7 +67,11 @@ public class ModuleAlgClassLoader extends ClassLoader {
             clazz = loadClass(className);
             classMap.put(className, clazz);
         }
-        return (ConstraintAlgImpl) clazz.getDeclaredConstructor().newInstance();
+        Object instance = clazz.getDeclaredConstructor().newInstance();
+        if (!(instance instanceof ConstraintAlgImpl)) {
+            throw new AlgLoaderException("Loaded class is not an instance of ConstraintAlgImpl: " + className);
+        }
+        return (ConstraintAlgImpl) instance;
     }
 
     /**

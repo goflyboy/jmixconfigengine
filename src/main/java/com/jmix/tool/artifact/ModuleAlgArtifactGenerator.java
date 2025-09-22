@@ -320,6 +320,7 @@ public class ModuleAlgArtifactGenerator {
 
         // 3.根据filterObjects的code，生成filterObjectCodes(每个Extensible对象强制转化为ProgrammableObject)
         List<String> filterObjectCodes = filterObjects.stream()
+                .filter(obj -> obj instanceof ProgrammableObject)
                 .map(obj -> ((ProgrammableObject) obj).getCode())
                 .collect(Collectors.toList());
 

@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -844,7 +845,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @return 格式化后的字符串
      */
     private String f(String fstr, String... values) {
-        return String.format(fstr, (Object[]) values);
+        return String.format(Locale.ROOT, fstr, (Object[]) values);
     }
 
     /**

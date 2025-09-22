@@ -308,7 +308,7 @@ public class LLMInvoker {
             qwenKey = config.getProperty("qwen.api.key", "未配置");
         }
 
-        return String.format("当前配置:\n"
+        return String.format(Locale.ROOT, "当前配置:\n"
                 + "- 默认模型: %s\n"
                 + "- DeepSeek API: %s (来源: %s)\n"
                 + "- Qwen API: %s (来源: %s)",

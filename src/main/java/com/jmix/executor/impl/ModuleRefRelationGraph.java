@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -190,7 +191,7 @@ public class ModuleRefRelationGraph {
      */
     public String getGraphInfo() {
         int totalEdges = fromToEdges.values().stream().mapToInt(Map::size).sum();
-        return String.format("ModuleRefRelationGraph: %d nodes, %d edges",
+        return String.format(Locale.ROOT, "ModuleRefRelationGraph: %d nodes, %d edges",
                 allNodes.size(), totalEdges);
     }
 
