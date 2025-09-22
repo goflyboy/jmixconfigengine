@@ -21,7 +21,7 @@ public interface ModuleConstraintExecutor {
     /**
      * 内部实现实例
      */
-    public final ModuleConstraintExecutorImpl INST = new ModuleConstraintExecutorImpl();
+    ModuleConstraintExecutorImpl INST = new ModuleConstraintExecutorImpl();
 
     /**
      * 初始化执行器
@@ -29,14 +29,14 @@ public interface ModuleConstraintExecutor {
      * @param config 约束配置
      * @return 初始化结果
      */
-    public Result<Void> init(final ConstraintConfig config);
+    Result<Void> init(final ConstraintConfig config);
 
     /**
      * 销毁执行器
      * 
      * @return 销毁结果
      */
-    public Result<Void> fini();
+    Result<Void> fini();
 
     /**
      * 添加模块
@@ -45,7 +45,7 @@ public interface ModuleConstraintExecutor {
      * @param modules      模块数组
      * @return 添加结果
      */
-    public Result<Void> addModule(Long rootModuleId, Module... modules);
+    Result<Void> addModule(Long rootModuleId, Module... modules);
 
     /**
      * 移除模块
@@ -53,7 +53,7 @@ public interface ModuleConstraintExecutor {
      * @param moduleId 模块ID
      * @return 移除结果
      */
-    public Result<Void> removeModule(Long moduleId);
+    Result<Void> removeModule(Long moduleId);
 
     /**
      * 推理参数
@@ -61,7 +61,7 @@ public interface ModuleConstraintExecutor {
      * @param req 推理请求
      * @return 推理结果
      */
-    public Result<List<ModuleInst>> inferParas(InferParasReq req);
+    Result<List<ModuleInst>> inferParas(InferParasReq req);
 
     /**
      * 注册扩展处理器
@@ -69,7 +69,7 @@ public interface ModuleConstraintExecutor {
      * @param eProcess 扩展处理器
      * @return 注册结果
      */
-    public Result<Void> registerExtensible(ExtensibleProcess eProcess);
+    Result<Void> registerExtensible(ExtensibleProcess eProcess);
 
     /**
      * 注销扩展处理器
@@ -77,5 +77,5 @@ public interface ModuleConstraintExecutor {
      * @param eProcess 扩展处理器
      * @return 注销结果
      */
-    public Result<Void> unregisterExtensible(ExtensibleProcess eProcess);
+    Result<Void> unregisterExtensible(ExtensibleProcess eProcess);
 }

@@ -13,6 +13,7 @@ import com.jmix.executor.imodel.rule.RefProgObjSchema;
 import com.jmix.executor.imodel.rule.RuleSchema;
 import com.jmix.executor.imodel.rule.RuleTypeConstants;
 import com.jmix.executor.impl.util.FilterExpressionExecutor;
+import com.jmix.executor.impl.util.Pair;
 import com.jmix.executor.omodel.AlgLoaderException;
 
 import lombok.extern.slf4j.Slf4j;
@@ -377,38 +378,5 @@ public class ModuleAlgArtifactGenerator {
             log.warn("Failed to initialize generator for module: {}", module.getCode(), e);
         }
         return generator;
-    }
-
-    /**
-     * 简单的Pair类
-     */
-    public static class Pair<F, S> {
-
-        private final F first;
-
-        private final S second;
-
-        public Pair(F first, S second) {
-            this.first = first;
-            this.second = second;
-        }
-
-        /**
-         * 获取第一个元素
-         * 
-         * @return 第一个元素
-         */
-        public F getFirst() {
-            return first;
-        }
-
-        /**
-         * 获取第二个元素
-         * 
-         * @return 第二个元素
-         */
-        public S getSecond() {
-            return second;
-        }
     }
 }
