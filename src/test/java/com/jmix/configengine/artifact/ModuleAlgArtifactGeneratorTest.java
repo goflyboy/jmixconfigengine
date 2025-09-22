@@ -192,20 +192,27 @@ public class ModuleAlgArtifactGeneratorTest {
         module.init();
 
         // 测试getPara方法
-        Para colorPara = module.getPara("Color");
-        Assert.assertNotNull("Color para should not be null", colorPara);
+        java.util.Optional<Para> colorParaOpt = module.getPara("Color");
+        Assert.assertTrue("Color para should be present", colorParaOpt.isPresent());
+        Para colorPara = colorParaOpt.get();
         Assert.assertEquals("Color", colorPara.getCode());
 
-        Para sizePara = module.getPara("Size");
+        java.util.Optional<Para> sizeParaOpt = module.getPara("Size");
+        Assert.assertTrue("Size para should be present", sizeParaOpt.isPresent());
+        Para sizePara = sizeParaOpt.get();
         Assert.assertNotNull("Size para should not be null", sizePara);
         Assert.assertEquals("Size", sizePara.getCode());
 
         // 测试getPart方法
-        Part bodyPart = module.getPart("Body");
+        java.util.Optional<Part> bodyPartOpt = module.getPart("Body");
+        Assert.assertTrue("Body part should be present", bodyPartOpt.isPresent());
+        Part bodyPart = bodyPartOpt.get();
         Assert.assertNotNull("Body part should not be null", bodyPart);
         Assert.assertEquals("Body", bodyPart.getCode());
 
-        Part sleevePart = module.getPart("Sleeve");
+        java.util.Optional<Part> sleevePartOpt = module.getPart("Sleeve");
+        Assert.assertTrue("Sleeve part should be present", sleevePartOpt.isPresent());
+        Part sleevePart = sleevePartOpt.get();
         Assert.assertNotNull("Sleeve part should not be null", sleevePart);
         Assert.assertEquals("Sleeve", sleevePart.getCode());
 

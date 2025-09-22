@@ -333,10 +333,11 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         String paraCode = extractCodeFromFieldName(fieldName);
 
         // 检查Module中是否存在对应的Para
-        Para para = module.getPara(paraCode);
-        if (para == null) {
+        java.util.Optional<Para> paraOpt = module.getPara(paraCode);
+        if (!paraOpt.isPresent()) {
             return; // 跳过不存在的参数
         }
+        // Para para = paraOpt.get(); // 暂时不需要使用para对象
 
         // 创建ParaVar
         ParaVar paraVar = createParaVar(paraCode);
@@ -353,10 +354,11 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         String partCode = extractCodeFromFieldName(fieldName);
 
         // 检查Module中是否存在对应的Part
-        Part part = module.getPart(partCode);
-        if (part == null) {
+        java.util.Optional<Part> partOpt = module.getPart(partCode);
+        if (!partOpt.isPresent()) {
             return; // 跳过不存在的部件
         }
+        // Part part = partOpt.get(); // 暂时不需要使用part对象
 
         // 创建PartVar
         PartVar partVar = createPartVar(partCode);
@@ -508,10 +510,11 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @return 创建的参数变量
      */
     protected ParaVar createParaVar(String code) {
-        Para para = module != null ? module.getPara(code) : null;
-        if (para == null) {
+        java.util.Optional<Para> paraOpt = module != null ? module.getPara(code) : java.util.Optional.empty();
+        if (!paraOpt.isPresent()) {
             throw new AlgLoaderException("Para not found for code: " + code);
         }
+        Para para = paraOpt.get();
         ParaVar paraVar = new ParaVar();
         paraVar.setBase(para);
         switch (para.getType()) {
@@ -550,10 +553,11 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @return 创建的部件变量
      */
     protected PartVar createPartVar(String code) {
-        Part part = module != null ? module.getPart(code) : null;
-        if (part == null) {
+        java.util.Optional<Part> partOpt = module != null ? module.getPart(code) : java.util.Optional.empty();
+        if (!partOpt.isPresent()) {
             throw new AlgLoaderException("Part not found for code: " + code);
         }
+        Part part = partOpt.get();
         PartVar partVar = new PartVar();
         partVar.setBase(part);
         // partVar.qty = model.newIntVar(0, 1, code);
@@ -571,14 +575,16 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @return 创建的参数选项变量
      */
     protected ParaOptionVar createParaOptionVar(String paraCode, String optionCode) {
-        Para para = module != null ? module.getPara(paraCode) : null;
-        if (para == null) {
+        java.util.Optional<Para> paraOpt = module != null ? module.getPara(paraCode) : java.util.Optional.empty();
+        if (!paraOpt.isPresent()) {
             throw new AlgLoaderException("Para not found for code: " + paraCode);
         }
-        ParaOption option = para.getOption(optionCode);
-        if (option == null) {
+        Para para = paraOpt.get();
+        java.util.Optional<ParaOption> optionOpt = para.getOption(optionCode);
+        if (!optionOpt.isPresent()) {
             throw new AlgLoaderException("ParaOption not found for code: " + optionCode);
         }
+        ParaOption option = optionOpt.get();
         ParaOptionVar optionVar = new ParaOptionVar(option);
         optionVar.setIsSelectedVar(newBoolVar(f(ParaVar.OPTIONS_PATTEN, paraCode, option.getCode())));
         return optionVar;

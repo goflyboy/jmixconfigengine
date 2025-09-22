@@ -296,8 +296,9 @@ public abstract class ModuleScenarioTestBase {
             String value = entry.getValue();
 
             // 在module.paras中查找
-            Para para = getModule().getPara(key);
-            if (para != null) {
+            java.util.Optional<Para> paraOpt = getModule().getPara(key);
+            if (paraOpt.isPresent()) {
+                Para para = paraOpt.get();
                 // 找到Para，进一步根据value在option中查找
                 String codeIdValue = ParaTypeHandler.getCodeIdValue(para, value);
                 elements.add(new ConditionElement("para", key, codeIdValue));
@@ -305,8 +306,9 @@ public abstract class ModuleScenarioTestBase {
             }
 
             // 在module.parts中查找
-            Part part = getModule().getPart(key);
-            if (part != null) {
+            java.util.Optional<Part> partOpt = getModule().getPart(key);
+            if (partOpt.isPresent()) {
+                Part part = partOpt.get();
                 // 找到Part
                 elements.add(new ConditionElement("part", key, value));
                 continue;
@@ -402,10 +404,11 @@ public abstract class ModuleScenarioTestBase {
             paraInst.setCode(paraCode);
 
             // 根据module.paras中的para.options，找到value对应的option
-            Para para = getModule().getPara(paraCode);
-            if (para == null) {
+            java.util.Optional<Para> paraOpt = getModule().getPara(paraCode);
+            if (!paraOpt.isPresent()) {
                 throw new AlgLoaderException(String.format("Parameter %s does not exist", paraCode));
             }
+            Para para = paraOpt.get();
             paraInst.setValue(ParaTypeHandler.getCodeIdValue(para, value));
             paraInsts.add(paraInst);
         }

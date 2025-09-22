@@ -19,7 +19,9 @@ import java.util.List;
 public class Para extends ProgrammableObject<String> {
     public static final String DEFAULT_MIN_VALUE = "-1000";
     public static final String DEFAULT_MAX_VALUE = "1000";
+
     public static final String SHORT_CODE_PREFIX = "P";
+
     /**
      * 参数类型
      */
@@ -44,19 +46,19 @@ public class Para extends ProgrammableObject<String> {
      * 根据选项编码获取参数选项
      * 
      * @param optionCode 选项编码
-     * @return 参数选项对象，如果不存在则返回null
+     * @return 参数选项对象，如果不存在则返回Optional.empty()
      */
     @JsonIgnore
-    public ParaOption getOption(String optionCode) {
+    public java.util.Optional<ParaOption> getOption(String optionCode) {
         if (options == null || optionCode == null) {
-            return null;
+            return java.util.Optional.empty();
         }
         for (ParaOption opt : options) {
             if (optionCode.equals(opt.getCode())) {
-                return opt;
+                return java.util.Optional.of(opt);
             }
         }
-        return null;
+        return java.util.Optional.empty();
     }
 
     /**

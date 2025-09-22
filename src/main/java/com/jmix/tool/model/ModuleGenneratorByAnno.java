@@ -108,14 +108,14 @@ public final class ModuleGenneratorByAnno {
 
         for (Field field : moduleAlgClazz.getDeclaredFields()) {
             if (field.getType().getSimpleName().equals("ParaVar")) {
-                Para para = createParaFromField(field);
-                if (para != null) {
-                    paras.add(para);
+                java.util.Optional<Para> paraOpt = createParaFromField(field);
+                if (paraOpt.isPresent()) {
+                    paras.add(paraOpt.get());
                 }
             } else if (field.getType().getSimpleName().equals("PartVar")) {
-                Part part = createPartFromField(field);
-                if (part != null) {
-                    parts.add(part);
+                java.util.Optional<Part> partOpt = createPartFromField(field);
+                if (partOpt.isPresent()) {
+                    parts.add(partOpt.get());
                 }
             }
         }
@@ -141,10 +141,10 @@ public final class ModuleGenneratorByAnno {
         return module;
     }
 
-    private static Para createParaFromField(Field field) {
+    private static java.util.Optional<Para> createParaFromField(Field field) {
         ParaAnno paraAnno = field.getAnnotation(ParaAnno.class);
         if (paraAnno == null) {
-            return null;
+            return java.util.Optional.empty();
         }
 
         Para para = new Para();
@@ -211,13 +211,13 @@ public final class ModuleGenneratorByAnno {
             para.setOptions(options);
         }
 
-        return para;
+        return java.util.Optional.of(para);
     }
 
-    private static Part createPartFromField(Field field) {
+    private static java.util.Optional<Part> createPartFromField(Field field) {
         PartAnno partAnno = field.getAnnotation(PartAnno.class);
         if (partAnno == null) {
-            return null;
+            return java.util.Optional.empty();
         }
 
         Part part = new Part();
@@ -261,7 +261,7 @@ public final class ModuleGenneratorByAnno {
             part.setExtAttrs(extAttrs);
         }
 
-        return part;
+        return java.util.Optional.of(part);
     }
 
     /**
@@ -383,9 +383,9 @@ public final class ModuleGenneratorByAnno {
             refProgObjSchema.setProgObjField(progObject.getObjField());
 
             // 判断是Part还是Para
-            if (currentModule.getPara(progObject.getObjCode()) != null) {
+            if (currentModule.getPara(progObject.getObjCode()).isPresent()) {
                 refProgObjSchema.setProgObjType("Para");
-            } else if (currentModule.getPart(progObject.getObjCode()) != null) {
+            } else if (currentModule.getPart(progObject.getObjCode()).isPresent()) {
                 refProgObjSchema.setProgObjType("Part");
             } else {
                 throw new AlgLoaderException("Object not found: " + progObject.getObjCode());

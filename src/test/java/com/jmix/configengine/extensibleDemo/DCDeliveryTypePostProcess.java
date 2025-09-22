@@ -96,11 +96,12 @@ public class DCDeliveryTypePostProcess extends ExtensibleProcess implements Infe
         }
 
         // 查找对应的Part定义
-        Part part = module.getPart(paraInst.getCode());
-        if (part == null) {
+        java.util.Optional<Part> partOpt = module.getPart(paraInst.getCode());
+        if (!partOpt.isPresent()) {
             log.warn("Part not found for code: {}", paraInst.getCode());
             return "Standard";
         }
+        Part part = partOpt.get();
 
         // 查找对应的PartInst
         PartInst partInst = findPartInstByCode(solution, paraInst.getCode());

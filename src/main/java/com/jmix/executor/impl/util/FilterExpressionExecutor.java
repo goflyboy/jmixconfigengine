@@ -64,11 +64,13 @@ public final class FilterExpressionExecutor {
         }
 
         // Parse filter expression once
-        FilterCondition condition = parseFilterExpression(filterExpr);
-        if (condition == null) {
+        java.util.Optional<FilterCondition> conditionOpt = parseFilterExpression(filterExpr);
+        if (!conditionOpt.isPresent()) {
             log.warn("Failed to parse filter expression: {}, returning original object list", filterExpr);
             return objects;
         }
+
+        FilterCondition condition = conditionOpt.get();
 
         log.debug("Filter expression parsed successfully - field: {}, operator: {}, value: {}",
                 condition.getFieldName(), condition.getOperator(), condition.getValue());
@@ -88,7 +90,7 @@ public final class FilterExpressionExecutor {
     /**
      * Parse filter expression once and return FilterCondition
      */
-    private static FilterCondition parseFilterExpression(String filterExpr) {
+    private static java.util.Optional<FilterCondition> parseFilterExpression(String filterExpr) {
         try {
             Matcher matcher = FILTER_PATTERN.matcher(filterExpr);
             if (matcher.find()) {
@@ -96,14 +98,14 @@ public final class FilterExpressionExecutor {
                 String operator = matcher.group(2);
                 String value = matcher.group(3);
 
-                return new FilterCondition(fieldName, operator, value);
+                return java.util.Optional.of(new FilterCondition(fieldName, operator, value));
             } else {
                 log.warn("Invalid filter expression format: {}", filterExpr);
-                return null;
+                return java.util.Optional.empty();
             }
         } catch (Exception e) {
             log.error("Exception occurred while parsing filter expression: {}", filterExpr, e);
-            return null;
+            return java.util.Optional.empty();
         }
     }
 
@@ -127,13 +129,14 @@ public final class FilterExpressionExecutor {
             String value) {
         try {
             // Try to get field value through reflection
-            Object fieldValue = getFieldValue(object, fieldName);
+            java.util.Optional<Object> fieldValueOpt = getFieldValue(object, fieldName);
 
-            if (fieldValue == null) {
+            if (!fieldValueOpt.isPresent()) {
                 log.debug("Field {} value is null, condition not matched", fieldName);
                 return false;
             }
 
+            Object fieldValue = fieldValueOpt.get();
             String fieldValueStr = fieldValue.toString();
             log.debug("Evaluating condition - field: {}, operator: {}, field value: {}, compare value: {}",
                     fieldName, operator, fieldValueStr, value);
@@ -176,7 +179,7 @@ public final class FilterExpressionExecutor {
     /**
      * Get field value with caching and Spring ReflectionUtils
      */
-    private static Object getFieldValue(Object object, String fieldName) throws Exception {
+    private static java.util.Optional<Object> getFieldValue(Object object, String fieldName) {
         try {
             // Try to get extended attributes first
             if (object instanceof Extensible) {
@@ -185,7 +188,7 @@ public final class FilterExpressionExecutor {
                 if (extValue != null) {
                     log.debug("Getting field value from extended attributes - field: {}, value: {}", fieldName,
                             extValue);
-                    return extValue;
+                    return java.util.Optional.of(extValue);
                 }
             }
 
@@ -196,7 +199,7 @@ public final class FilterExpressionExecutor {
                 Object value = field.get(object);
                 log.debug("Getting field value through reflection - field: {}, value: {}, class: {}",
                         fieldName, value, field.getDeclaringClass().getSimpleName());
-                return value;
+                return java.util.Optional.ofNullable(value);
             }
             // Try to get extended attributes first
             if (object instanceof Part) {
@@ -204,17 +207,17 @@ public final class FilterExpressionExecutor {
                 String value = part.getAttr(fieldName);
                 if (value != null) {
                     log.debug("Getting field value from part attributes - field: {}, value: {}", fieldName, value);
-                    return value;
+                    return java.util.Optional.of(value);
                 }
             }
             log.debug("Field {} not found in class {} or its parent classes", fieldName,
                     object.getClass().getSimpleName());
-            return null;
+            return java.util.Optional.empty();
         } catch (Exception e) {
             log.debug("Failed to get field value - field: {}, object type: {}", fieldName,
                     object.getClass().getSimpleName(), e);
-            // Return null if getting fails
-            return null;
+            // Return empty if getting fails
+            return java.util.Optional.empty();
         }
     }
 

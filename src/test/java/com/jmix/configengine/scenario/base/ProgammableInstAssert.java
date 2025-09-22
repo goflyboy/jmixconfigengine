@@ -24,10 +24,11 @@ public class ProgammableInstAssert {
         if (paraInst == null) {
             throw new AssertionError("未找到参数 in moduleInst: " + code);
         }
-        Para para = module.getPara(code);
-        if (para == null) {
+        java.util.Optional<Para> paraOpt = module.getPara(code);
+        if (!paraOpt.isPresent()) {
             throw new AssertionError("未找到参数 in module: " + code);
         }
+        Para para = paraOpt.get();
         return new ParaInstAssert(actualModuleInst, module, paraInst, para);
     }
 
@@ -36,10 +37,11 @@ public class ProgammableInstAssert {
         if (partInst == null) {
             throw new AssertionError("未找到部件: " + code);
         }
-        Part part = module.getPart(code);
-        if (part == null) {
+        java.util.Optional<Part> partOpt = module.getPart(code);
+        if (!partOpt.isPresent()) {
             throw new AssertionError("未找到部件 in module: " + code);
         }
+        Part part = partOpt.get();
         return new PartInstAssert(actualModuleInst, module, partInst, part);
     }
 

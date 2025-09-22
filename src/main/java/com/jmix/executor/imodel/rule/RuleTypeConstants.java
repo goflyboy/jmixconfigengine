@@ -114,21 +114,21 @@ public final class RuleTypeConstants {
      * 获取规则类型名称（从全名中提取）
      * 
      * @param ruleSchemaTypeFullName 规则Schema类型全名
-     * @return 规则类型名称
+     * @return 规则类型名称，如果无法识别则返回Optional.empty()
      */
-    public static String getRuleTypeName(String ruleSchemaTypeFullName) {
+    public static java.util.Optional<String> getRuleTypeName(String ruleSchemaTypeFullName) {
         if (ruleSchemaTypeFullName == null) {
-            return null;
+            return java.util.Optional.empty();
         }
 
         if (isCompatiableRule(ruleSchemaTypeFullName)) {
-            return COMPATIABLE_RULE;
+            return java.util.Optional.of(COMPATIABLE_RULE);
         } else if (isCalculateRule(ruleSchemaTypeFullName)) {
-            return CALCULATE_RULE;
+            return java.util.Optional.of(CALCULATE_RULE);
         } else if (isSelectRule(ruleSchemaTypeFullName)) {
-            return SELECT_RULE;
+            return java.util.Optional.of(SELECT_RULE);
         }
 
-        return null;
+        return java.util.Optional.empty();
     }
 }

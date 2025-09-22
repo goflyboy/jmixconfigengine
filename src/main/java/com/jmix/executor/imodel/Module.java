@@ -146,28 +146,30 @@ public class Module extends ProgrammableObject<Integer> {
      * 根据编码获取参数对象
      * 
      * @param code 参数编码
-     * @return 参数对象，如果不存在则返回null
+     * @return 参数对象，如果不存在则返回Optional.empty()
      */
     @JsonIgnore
-    public Para getPara(String code) {
+    public java.util.Optional<Para> getPara(String code) {
         if (code == null || paraMap.isEmpty()) {
-            return null;
+            return java.util.Optional.empty();
         }
-        return paraMap.get(code);
+        Para para = paraMap.get(code);
+        return para != null ? java.util.Optional.of(para) : java.util.Optional.empty();
     }
 
     /**
      * 根据编码获取部件对象
      * 
      * @param code 部件编码
-     * @return 部件对象，如果不存在则返回null
+     * @return 部件对象，如果不存在则返回Optional.empty()
      */
     @JsonIgnore
-    public Part getPart(String code) {
+    public java.util.Optional<Part> getPart(String code) {
         if (code == null || partMap.isEmpty()) {
-            return null;
+            return java.util.Optional.empty();
         }
-        return partMap.get(code);
+        Part part = partMap.get(code);
+        return part != null ? java.util.Optional.of(part) : java.util.Optional.empty();
     }
 
     /**
