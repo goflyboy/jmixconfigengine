@@ -1,12 +1,17 @@
 package com.jmix.executor.imodel;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Data;
+
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * 可扩展对象基类
+ * 提供扩展属性的基础功能
+ * 
+ * @since 2025-09-22
  */
 @Data
 public class Extensible {

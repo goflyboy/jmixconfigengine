@@ -11,6 +11,8 @@ import lombok.EqualsAndHashCode;
 /**
  * 参数选项变量
  * 用于表示参数选项的选中状态和相关信息
+ * 
+ * @since 2025-09-22
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

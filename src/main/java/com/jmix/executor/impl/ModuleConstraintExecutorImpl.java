@@ -36,6 +36,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+/**
+ * 模块约束执行器实现类
+ * 实现ModuleConstraintExecutor接口，提供约束求解的核心功能
+ * 
+ * @since 2025-09-22
+ */
 @Slf4j
 public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
 

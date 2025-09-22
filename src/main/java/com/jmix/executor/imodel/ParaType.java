@@ -2,6 +2,9 @@ package com.jmix.executor.imodel;
 
 /**
  * 参数类型枚举
+ * 定义参数支持的数据类型
+ * 
+ * @since 2025-09-22
  */
 public enum ParaType {
     ENUM(0, "EnumType"),

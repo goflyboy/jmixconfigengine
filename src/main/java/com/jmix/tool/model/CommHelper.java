@@ -7,6 +7,8 @@ import java.io.File;
 /**
  * 通用工具类
  * 提供测试场景中常用的工具方法
+ * 
+ * @since 2025-09-22
  */
 @Slf4j
 public class CommHelper {

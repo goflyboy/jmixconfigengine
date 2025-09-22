@@ -6,6 +6,9 @@ import lombok.Data;
 
 /**
  * 其他变量类，用于记录非ParaVar和PartVar的变量
+ * 用于存储约束求解过程中的辅助变量
+ * 
+ * @since 2025-09-22
  */
 @Data
 public class OtherVar {

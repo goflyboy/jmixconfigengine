@@ -7,6 +7,9 @@ import lombok.EqualsAndHashCode;
 
 /**
  * 参数选项信息
+ * 包含参数选项的变量信息，用于代码生成
+ * 
+ * @since 2025-09-22
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

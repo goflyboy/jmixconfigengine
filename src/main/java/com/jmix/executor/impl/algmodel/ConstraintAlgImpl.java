@@ -30,6 +30,9 @@ import java.util.Set;
 
 /**
  * 约束算法实现基类
+ * 实现ConstraintAlg接口，提供约束求解的具体实现
+ * 
+ * @since 2025-09-22
  */
 @Slf4j
 public abstract class ConstraintAlgImpl implements ConstraintAlg {

@@ -8,7 +8,9 @@ import java.util.Map;
 
 /**
  * 结果类
- * 用于封装操作结果
+ * 用于封装操作结果，包含状态码、数据和消息
+ * 
+ * @since 2025-09-22
  */
 @Data
 @AllArgsConstructor

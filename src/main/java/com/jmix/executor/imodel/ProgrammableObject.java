@@ -1,13 +1,18 @@
 package com.jmix.executor.imodel;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * 可编程对象基类（兼容命名：ProgramableObject → ProgrammableObject）
+ * 提供可编程对象的基础功能
+ * 
+ * @param <T> 值类型
+ * @since 2025-09-22
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

@@ -14,6 +14,8 @@ import java.nio.file.Paths;
 /**
  * 模型文件生成器
  * 用于根据用户输入生成测试代码文件
+ * 
+ * @since 2025-09-22
  */
 public class ModelHelper {
 

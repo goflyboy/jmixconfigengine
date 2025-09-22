@@ -7,6 +7,9 @@ import lombok.Data;
 
 /**
  * 编程对象引用Schema
+ * 定义规则中对编程对象的引用
+ * 
+ * @since 2025-09-22
  */
 @Data
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@type")

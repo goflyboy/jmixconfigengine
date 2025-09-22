@@ -10,6 +10,9 @@ import java.util.Map;
 
 /**
  * 模块实例类
+ * 表示模块的一个具体实例，包含参数实例和部件实例
+ * 
+ * @since 2025-09-22
  */
 @Data
 public class ModuleInst {

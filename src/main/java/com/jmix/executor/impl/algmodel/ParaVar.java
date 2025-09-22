@@ -17,6 +17,9 @@ import java.util.stream.Collectors;
 
 /**
  * 参数变量
+ * 表示约束求解中的参数变量，包含值、选项和隐藏状态
+ * 
+ * @since 2025-09-22
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

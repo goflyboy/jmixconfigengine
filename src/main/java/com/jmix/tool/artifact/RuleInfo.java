@@ -9,6 +9,9 @@ import java.util.List;
 
 /**
  * 规则信息
+ * 包含规则的变量信息，用于代码生成
+ * 
+ * @since 2025-09-22
  */
 @Data
 public class RuleInfo {

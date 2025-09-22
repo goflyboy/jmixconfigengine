@@ -4,8 +4,9 @@ import lombok.Data;
 
 /**
  * 约束配置类
+ * 包含约束求解器的配置信息
  * 
- * @since 2025-9-21
+ * @since 2025-09-22
  */
 @Data
 public class ConstraintConfig {

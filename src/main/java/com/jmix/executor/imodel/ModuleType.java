@@ -2,6 +2,9 @@ package com.jmix.executor.imodel;
 
 /**
  * 模块类型枚举
+ * 定义模块支持的类型
+ * 
+ * @since 2025-09-22
  */
 public enum ModuleType {
     GENERAL(1, "General"),

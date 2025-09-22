@@ -8,6 +8,9 @@ import java.util.List;
 
 /**
  * 兼容规则Schema
+ * 定义参数或部件之间的兼容性关系
+ * 
+ * @since 2025-09-22
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

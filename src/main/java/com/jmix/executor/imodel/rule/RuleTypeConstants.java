@@ -3,6 +3,8 @@ package com.jmix.executor.imodel.rule;
 /**
  * 规则类型常量定义
  * 用于统一管理规则类型，避免硬编码字符串
+ * 
+ * @since 2025-09-22
  */
 public final class RuleTypeConstants {
 

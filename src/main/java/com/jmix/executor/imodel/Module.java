@@ -17,6 +17,9 @@ import java.util.Map;
 
 /**
  * 模块定义
+ * 表示一个完整的约束模块，包含参数、部件和规则
+ * 
+ * @since 2025-09-22
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

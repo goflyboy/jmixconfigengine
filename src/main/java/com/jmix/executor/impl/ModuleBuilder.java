@@ -14,7 +14,7 @@ import java.util.Map;
  * 减少类的数量，提供统一的构建接口
  * 
  * @author JMix Config Engine
- * @since 1.0.0
+ * @since 2025-09-22
  */
 public class ModuleBuilder {
 

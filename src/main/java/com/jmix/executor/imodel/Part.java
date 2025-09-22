@@ -12,6 +12,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * 部件定义
+ * 表示模块中的部件，支持原子部件和复合部件
+ * 
+ * @since 2025-09-22
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

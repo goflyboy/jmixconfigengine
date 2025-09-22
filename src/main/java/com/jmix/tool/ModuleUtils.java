@@ -17,6 +17,8 @@ import java.nio.file.Paths;
 /**
  * Module工具类
  * 提供Module对象的JSON序列化和反序列化功能
+ * 
+ * @since 2025-09-22
  */
 @Slf4j
 final public class ModuleUtils {

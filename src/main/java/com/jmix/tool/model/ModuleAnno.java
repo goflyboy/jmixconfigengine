@@ -7,6 +7,8 @@ import java.lang.annotation.Target;
 
 /**
  * 模块注解，用于标记约束算法类
+ * 
+ * @since 2025-09-22
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

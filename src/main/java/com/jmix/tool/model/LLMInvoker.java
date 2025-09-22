@@ -17,8 +17,10 @@ import dev.langchain4j.model.output.Response;
 
 /**
  * LLM调用框架
- * 支持DeepSeek和Qwen两种模型
+ * 支持DeepSeek和Qwen两种模型，提供统一的LLM调用接口
  * 兼容langchain4j 1.3.0
+ * 
+ * @since 2025-09-22
  */
 public class LLMInvoker {
 

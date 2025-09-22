@@ -4,6 +4,9 @@ import lombok.Data;
 
 /**
  * 属性Schema
+ * 定义属性的结构和约束
+ * 
+ * @since 2025-09-22
  */
 @Data
 public class AttrSchema {

@@ -7,6 +7,8 @@ import java.lang.annotation.Target;
 
 /**
  * 兼容性规则注解，用于标记兼容性规则方法
+ * 
+ * @since 2025-09-22
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

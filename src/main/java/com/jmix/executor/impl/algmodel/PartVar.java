@@ -14,6 +14,9 @@ import java.util.Map;
 
 /**
  * 部件变量
+ * 表示约束求解中的部件变量，包含数量和隐藏状态
+ * 
+ * @since 2025-09-22
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

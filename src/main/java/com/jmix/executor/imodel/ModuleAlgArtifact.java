@@ -7,6 +7,9 @@ import lombok.Data;
 
 /**
  * 算法制品元数据
+ * 包含算法制品的元数据信息
+ * 
+ * @since 2025-09-22
  */
 @Data
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@type")

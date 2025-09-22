@@ -2,6 +2,8 @@ package com.jmix.tool.model;
 
 /**
  * 编程对象，用于解析代码中的对象引用
+ * 
+ * @since 2025-09-22
  */
 public class ProgObject {
     /**

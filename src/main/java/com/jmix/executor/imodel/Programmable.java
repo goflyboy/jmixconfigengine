@@ -1,5 +1,11 @@
 package com.jmix.executor.imodel;
 
+/**
+ * 可编程对象接口
+ * 定义可编程对象的基本行为
+ * 
+ * @since 2025-09-22
+ */
 public interface Programmable {
     String getCode();
 }

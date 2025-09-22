@@ -22,6 +22,8 @@ import java.util.Set;
  * - 每个编程对象(progObjCode)是一个节点(Node)
  * - 每个规则(edgeRuleCode)是边上的信息
  * - 支持一个规则对应多个左侧节点的情况
+ * 
+ * @since 2025-09-22
  */
 @Slf4j
 public class ModuleRefRelationGraph {

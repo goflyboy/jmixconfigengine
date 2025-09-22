@@ -10,6 +10,8 @@ import java.lang.annotation.Target;
 
 /**
  * 部件注解，用于标记部件变量
+ * 
+ * @since 2025-09-22
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)

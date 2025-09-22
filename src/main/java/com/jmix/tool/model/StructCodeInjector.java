@@ -13,8 +13,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 结构化代码（类似CompatiableRuleAnno、SelectRule等)的注入器 生成方法体片段并写回源文件。
- * 通过文本方式定位方法体，使用标记进行幂等替换。
+ * 结构化代码注入器
+ * 生成方法体片段并写回源文件，通过文本方式定位方法体，使用标记进行幂等替换
+ * 
+ * @since 2025-09-22
  */
 public class StructCodeInjector {
 

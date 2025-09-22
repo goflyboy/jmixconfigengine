@@ -5,6 +5,9 @@ import lombok.EqualsAndHashCode;
 
 /**
  * 参数选项
+ * 表示参数的一个可选值
+ * 
+ * @since 2025-09-22
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

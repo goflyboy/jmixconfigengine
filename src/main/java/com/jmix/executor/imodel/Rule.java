@@ -15,6 +15,9 @@ import java.util.List;
 
 /**
  * 规则定义
+ * 表示模块中的约束规则，支持多种规则类型
+ * 
+ * @since 2025-09-22
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

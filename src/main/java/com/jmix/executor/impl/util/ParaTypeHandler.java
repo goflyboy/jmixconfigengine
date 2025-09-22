@@ -10,6 +10,8 @@ import com.jmix.executor.omodel.AlgLoaderException;
 /**
  * Para类型处理工具类
  * 用于处理Para类型相关的逻辑，避免代码重复
+ * 
+ * @since 2025-09-22
  */
 public class ParaTypeHandler {
 

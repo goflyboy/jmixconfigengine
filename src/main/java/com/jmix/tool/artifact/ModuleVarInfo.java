@@ -11,6 +11,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * 模块变量信息类
+ * 包含模块的所有变量信息，用于代码生成
+ * 
+ * @since 2025-09-22
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class ModuleVarInfo extends VarInfo<Module> {

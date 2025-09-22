@@ -24,7 +24,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 通过注解生成Module的工具类
+ * 基于注解的模块生成器
+ * 通过反射读取注解信息，生成Module对象
+ * 
+ * @since 2025-09-22
  */
 @Slf4j
 public final class ModuleGenneratorByAnno {

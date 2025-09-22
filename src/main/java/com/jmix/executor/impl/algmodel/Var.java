@@ -5,7 +5,11 @@ import com.jmix.executor.imodel.Programmable;
 import com.google.ortools.sat.CpSolverSolutionCallback;
 
 /**
- * Generic variable wrapper that binds to a programmable model object
+ * 通用变量包装器，绑定到可编程模型对象
+ * 所有变量类型的基类
+ * 
+ * @param <T> 可编程对象类型
+ * @since 2025-09-22
  */
 public abstract class Var<T extends Programmable> implements Programmable {
     protected T base;

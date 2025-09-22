@@ -10,6 +10,9 @@ import lombok.EqualsAndHashCode;
 
 /**
  * 参数定义
+ * 表示模块中的参数，支持多种类型（枚举、整数、字符串等）
+ * 
+ * @since 2025-09-22
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

@@ -21,6 +21,8 @@ import java.util.Map;
 /**
  * 对CpModel接口的封装，实现变量注册等封装
  * 实现对CpModel接口封装，类似测试代码调用model的代码都不需要修改（如：model.addBoolAnd)
+ * 
+ * @since 2025-09-22
  */
 @Slf4j
 @Data

@@ -6,6 +6,10 @@ import lombok.Data;
 
 /**
  * 变量信息基类
+ * 所有变量信息类的基类，提供通用的变量信息结构
+ * 
+ * @param <T> 扩展对象类型
+ * @since 2025-09-22
  */
 @Data
 public class VarInfo<T extends Extensible> {

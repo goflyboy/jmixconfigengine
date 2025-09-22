@@ -8,7 +8,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Module algorithm class loader (extracted from executor impl)
+ * 模块算法类加载器
+ * 负责动态加载和实例化约束算法类
+ * 
+ * @since 2025-09-22
  */
 public class ModuleAlgClassLoader extends ClassLoader {
 

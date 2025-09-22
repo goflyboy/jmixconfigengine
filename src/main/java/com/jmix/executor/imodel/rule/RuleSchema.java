@@ -10,6 +10,9 @@ import java.util.List;
 
 /**
  * 规则Schema基类
+ * 定义规则的基本结构和行为
+ * 
+ * @since 2025-09-22
  */
 @Data
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@type")

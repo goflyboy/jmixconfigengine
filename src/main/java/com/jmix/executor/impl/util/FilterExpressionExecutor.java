@@ -17,7 +17,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Filter Expression Executor
+ * 过滤表达式执行器
+ * 用于执行过滤表达式，支持对象属性过滤
+ * 
+ * @since 2025-09-22
  */
 @Slf4j
 public final class FilterExpressionExecutor {

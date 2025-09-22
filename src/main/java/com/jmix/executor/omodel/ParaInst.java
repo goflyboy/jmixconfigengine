@@ -9,6 +9,9 @@ import java.util.Map;
 
 /**
  * 参数实例类
+ * 表示参数的一个具体实例，包含参数值和选项
+ * 
+ * @since 2025-09-22
  */
 @Data
 public class ParaInst {
