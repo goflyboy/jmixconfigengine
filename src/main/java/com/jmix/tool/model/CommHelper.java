@@ -63,9 +63,9 @@ public class CommHelper {
         File dir = new File(path);
         if (!dir.exists()) {
             if (dir.mkdirs()) {
-                log.info("创建目录: {}", path);
+                log.info("Created directory: {}", path);
             } else {
-                log.warn("创建目录失败: {}", path);
+                log.warn("Failed to create directory: {}", path);
             }
         }
     }

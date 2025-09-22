@@ -3,6 +3,8 @@ package com.jmix.tool.model;
 import com.jmix.executor.omodel.AlgLoaderException;
 import com.jmix.tool.artifact.RuleInfo;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -19,6 +21,7 @@ import java.util.regex.Pattern;
  * 
  * @since 2025-09-22
  */
+@Slf4j
 public class StructCodeInjector {
 
     private static final String GEN_START = "//自动生成，请勿编辑--start";
@@ -62,7 +65,7 @@ public class StructCodeInjector {
 
         // 生成片段
         String generated = converter.convert(injectedCode, indent);
-        System.out.println("generated: \n" + generated);
+        log.info("Generated code: \n{}", generated);
         // 若已有标记，替换标记之间内容
         int existingStart = body.indexOf(GEN_START);
         int existingEnd = body.indexOf(GEN_END);
@@ -251,7 +254,7 @@ public class StructCodeInjector {
         sb.append(", this.").append(ruleInfo.getRightVarName()).append(", ");
         sb.append(toArgumentString(ruleInfo.getRightFilterCodes()));
         sb.append(");");
-        System.out.println("sb: \n" + sb.toString());
+        log.info("Generated method body: \n{}", sb.toString());
         return sb.toString();
     }
 

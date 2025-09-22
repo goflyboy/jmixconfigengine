@@ -82,7 +82,7 @@ public final class ModuleGenneratorByAnno {
             if (enclosingClass != null) {
                 // 是内部类，设置父类名称
                 alg.setParentClassName(enclosingClass.getSimpleName());
-                log.info("检测到内部类: {}，父类: {}", moduleAlgClazz.getName(), enclosingClass.getName());
+                log.info("Detected inner class: {}, parent class: {}", moduleAlgClazz.getName(), enclosingClass.getName());
             } else {
                 // 不是内部类，保持默认空字符串
                 alg.setParentClassName("");
@@ -134,9 +134,9 @@ public final class ModuleGenneratorByAnno {
 
         try {
             ModuleUtils.toJsonFile(module, filePath);
-            log.info("Module已保存到: {}", filePath);
+            log.info("Module saved to: {}", filePath);
         } catch (Exception e) {
-            log.error("保存Module失败", e);
+            log.error("Failed to save Module", e);
         }
 
         return module;

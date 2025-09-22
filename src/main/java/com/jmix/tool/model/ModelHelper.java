@@ -7,6 +7,8 @@ import com.jmix.executor.omodel.AlgLoaderException;
 import com.jmix.tool.artifact.ModuleAlgArtifactGenerator;
 import com.jmix.tool.artifact.ModuleVarInfo;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,6 +20,7 @@ import java.nio.file.Paths;
  * 
  * @since 2025-09-22
  */
+@Slf4j
 public class ModelHelper {
 
     /**
@@ -84,7 +87,7 @@ public class ModelHelper {
                 writer.write(code);
             }
 
-            System.out.println("成功生成测试文件: " + fullPath.toAbsolutePath());
+            log.info("Successfully generated test file: {}", fullPath.toAbsolutePath());
 
             // 尝试编译生成的Java文件
             compileJavaFile(fullPath);
@@ -177,7 +180,7 @@ public class ModelHelper {
             String className = modelScenarioName + "Test";
             String fullClassName = packageName + "." + className;
 
-            System.out.println("正在运行测试类: " + fullClassName);
+            log.info("Running test class: {}", fullClassName);
 
             // 使用反射加载测试类
             Class<?> testClass = Class.forName(fullClassName);
@@ -185,18 +188,18 @@ public class ModelHelper {
             // 检查是否有main方法
             try {
                 java.lang.reflect.Method mainMethod = testClass.getMethod("main", String[].class);
-                System.out.println("找到main方法，正在执行...");
+                log.info("Found main method, executing...");
                 mainMethod.invoke(null, (Object) new String[0]);
             } catch (NoSuchMethodException e) {
-                System.out.println("未找到main方法，使用JUnit运行测试用例...");
+                log.info("No main method found, using JUnit to run test cases...");
                 // runWithJUnit(testClass);
             }
 
         } catch (ClassNotFoundException e) {
-            System.err.println("测试类未找到: " + e.getMessage());
-            System.err.println("请确保类已正确生成并编译");
+            log.error("Test class not found: {}", e.getMessage());
+            log.error("Please ensure the class has been generated and compiled correctly");
         } catch (Exception e) {
-            System.err.println("运行测试文件失败: " + e.getMessage());
+            log.error("Failed to run test file: {}", e.getMessage());
             e.printStackTrace();
         }
     }
@@ -220,7 +223,7 @@ public class ModelHelper {
     // }
 
     // if (!testMethods.isEmpty()) {
-    // System.out.println("发现 " + testMethods.size() + " 个@Test方法，正在运行...");
+    // log.info("Found {} @Test methods, running...", testMethods.size());
 
     // // 创建测试类实例
     // Object testInstance = testClass.getDeclaredConstructor().newInstance();
@@ -228,26 +231,25 @@ public class ModelHelper {
     // // 运行每个测试方法
     // for (java.lang.reflect.Method testMethod : testMethods) {
     // try {
-    // System.out.println("正在运行测试方法: " + testMethod.getName());
+    // log.info("Running test method: {}", testMethod.getName());
     // testMethod.invoke(testInstance);
-    // System.out.println("✓ 测试方法 " + testMethod.getName() + " 执行成功");
+    // log.info("✓ Test method {} executed successfully", testMethod.getName());
     // } catch (Exception e) {
-    // System.err.println("✗ 测试方法 " + testMethod.getName() + " 执行失败: " +
-    // e.getMessage());
+    // log.error("✗ Test method {} execution failed: {}", testMethod.getName(), e.getMessage());
     // if (e.getCause() != null) {
-    // System.err.println(" 原因: " + e.getCause().getMessage());
+    // log.error("  Reason: {}", e.getCause().getMessage());
     // }
     // }
     // }
 
-    // System.out.println("所有测试方法执行完成");
+    // log.info("All test methods execution completed");
 
     // } else {
-    // System.out.println("未发现@Test方法，无法运行");
+    // log.info("No @Test methods found, cannot run");
     // }
 
     // } catch (Exception e) {
-    // System.err.println("JUnit运行失败: " + e.getMessage());
+    // log.error("JUnit execution failed: {}", e.getMessage());
     // e.printStackTrace();
     // }
     // }
@@ -259,7 +261,7 @@ public class ModelHelper {
      */
     private void compileJavaFile(Path javaFilePath) {
         try {
-            System.out.println("正在编译Java文件: " + javaFilePath.getFileName());
+            log.info("Compiling Java file: {}", javaFilePath.getFileName());
 
             // 获取项目根目录
             String projectRoot = System.getProperty("user.dir");
@@ -285,7 +287,7 @@ public class ModelHelper {
                     new java.io.InputStreamReader(process.getInputStream()))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    System.out.println("编译输出: " + line);
+                    log.info("Compilation output: {}", line);
                 }
             }
 
@@ -294,7 +296,7 @@ public class ModelHelper {
                     new java.io.InputStreamReader(process.getErrorStream()))) {
                 String line;
                 while ((line = errorReader.readLine()) != null) {
-                    System.err.println("编译错误: " + line);
+                    log.error("Compilation error: {}", line);
                 }
             }
 
@@ -302,14 +304,14 @@ public class ModelHelper {
             int exitCode = process.waitFor();
 
             if (exitCode == 0) {
-                System.out.println("✓ Java文件编译成功");
+                log.info("✓ Java file compiled successfully");
             } else {
-                System.err.println("✗ Java文件编译失败，退出码: " + exitCode);
+                log.error("✗ Java file compilation failed, exit code: {}", exitCode);
             }
 
         } catch (Exception e) {
-            System.err.println("编译Java文件失败: " + e.getMessage());
-            System.err.println("请确保已安装Java编译器(javac)");
+            log.error("Failed to compile Java file: {}", e.getMessage());
+            log.error("Please ensure Java compiler (javac) is installed");
         }
     }
 
@@ -369,13 +371,13 @@ public class ModelHelper {
                 StructCodeInjector injector = new StructCodeInjector();
                 injector.injectRule(injectedClazz, moduleInfo.getRules());
 
-                System.out.println("✓ 自动注入约束代码完成");
+                log.info("✓ Automatic constraint code injection completed");
             }
 
             return isNeedInject;
 
         } catch (Exception e) {
-            System.err.println("自动注入约束代码失败: " + e.getMessage());
+            log.error("Failed to inject constraint code automatically: {}", e.getMessage());
             e.printStackTrace();
             return false;
         }
