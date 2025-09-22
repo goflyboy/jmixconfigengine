@@ -42,11 +42,21 @@ public class ModuleVarInfo extends VarInfo<Module> {
         super(module);
     }
 
+    /**
+     * 设置参数列表并更新参数映射
+     * 
+     * @param paras 参数列表
+     */
     public void setParas(List<ParaVarInfo> paras) {
         this.paras = paras;
         updateParaMap();
     }
 
+    /**
+     * 设置部件列表并更新部件映射
+     * 
+     * @param parts 部件列表
+     */
     public void setParts(List<PartVarInfo> parts) {
         this.parts = parts;
         updatePartMap();
@@ -70,10 +80,22 @@ public class ModuleVarInfo extends VarInfo<Module> {
         }
     }
 
+    /**
+     * 根据代码获取参数信息
+     * 
+     * @param code 参数代码
+     * @return 参数信息，如果不存在则返回null
+     */
     public ParaVarInfo getPara(String code) {
         return paraMap.get(code);
     }
 
+    /**
+     * 根据代码获取部件信息
+     * 
+     * @param code 部件代码
+     * @return 部件信息，如果不存在则返回null
+     */
     public PartVarInfo getPart(String code) {
         return partMap.get(code);
     }

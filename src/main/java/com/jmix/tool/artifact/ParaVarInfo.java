@@ -25,6 +25,11 @@ public class ParaVarInfo extends VarInfo<Para> {
         super();
     }
 
+    /**
+     * 获取选项ID字符串，用逗号分隔
+     * 
+     * @return 选项ID字符串
+     */
     public String getOptionIdsStr() {
         return options.stream().map(ParaOptionVarInfo::getCodeId).map(String::valueOf).collect(Collectors.joining(","));
     }

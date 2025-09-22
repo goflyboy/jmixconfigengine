@@ -17,6 +17,11 @@ public class CalculateRuleSchema extends RuleSchema {
      */
     private ExprSchema leftExpr;
 
+    /**
+     * 获取左侧编程对象列表
+     * 
+     * @return 左侧编程对象列表
+     */
     @Override
     public List<RefProgObjSchema> getFromLeftProgObjs() {
         if (leftExpr != null && leftExpr.getRefProgObjs() != null) {
@@ -25,6 +30,11 @@ public class CalculateRuleSchema extends RuleSchema {
         return new ArrayList<>();
     }
 
+    /**
+     * 获取右侧编程对象列表
+     * 
+     * @return 右侧编程对象列表
+     */
     @Override
     public List<RefProgObjSchema> getToRightProgObjs() {
         // CalculateRule只有左侧表达式，没有右侧表达式

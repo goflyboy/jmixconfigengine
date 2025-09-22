@@ -25,19 +25,40 @@ public class ParaOptionVar extends Var<ParaOption> {
     public ParaOptionVar() {
     }
 
+    /**
+     * 构造函数
+     * 
+     * @param base 参数选项基础对象
+     */
     public ParaOptionVar(ParaOption base) {
         this.base = base;
     }
 
+    /**
+     * 构造函数
+     * 
+     * @param base 参数选项基础对象
+     * @param isSelectedVar 选中状态变量
+     */
     public ParaOptionVar(ParaOption base, BoolVar isSelectedVar) {
         this.base = base;
         setIsSelectedVar(isSelectedVar);
     }
 
+    /**
+     * 获取参数选项代码
+     * 
+     * @return 参数选项代码
+     */
     public String getCode() {
         return base != null ? base.getCode() : null;
     }
 
+    /**
+     * 获取参数选项代码ID
+     * 
+     * @return 参数选项代码ID
+     */
     public int getCodeId() {
         return base != null ? base.getCodeId() : 0;
     }

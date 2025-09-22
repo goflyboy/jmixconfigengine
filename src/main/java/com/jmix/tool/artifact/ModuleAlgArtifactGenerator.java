@@ -58,6 +58,10 @@ public class ModuleAlgArtifactGenerator {
 
     /**
      * 构建约束规则
+     * 
+     * @param module 模块对象
+     * @param outputPath 输出文件路径
+     * @throws Exception 生成过程中的异常
      */
     public void buildConstraintRule(Module module, String outputPath) throws Exception {
         log.info("Starting constraint rule generation for module: {}", module.getCode());
@@ -73,6 +77,9 @@ public class ModuleAlgArtifactGenerator {
 
     /**
      * 构建模块信息
+     * 
+     * @param module 模块对象
+     * @return 构建的模块变量信息
      */
     public ModuleVarInfo buildModuleInfo(Module module) {
         ModuleVarInfo moduleVarInfo = buildModuleInfoBase(module);

@@ -33,8 +33,8 @@ public class ModuleAlgClassLoader extends ClassLoader {
     /**
      * 初始化模块算法类加载器
      * 
-     * @param moduleCode
-     * @param algArtifact
+     * @param moduleCode 模块代码
+     * @param algArtifact 算法制品
      */
     public void init(String moduleCode, ModuleAlgArtifact algArtifact) {
         this.algArtifact = algArtifact;
@@ -54,11 +54,11 @@ public class ModuleAlgClassLoader extends ClassLoader {
     }
 
     /**
-     * 创建模块算法类
+     * 创建模块算法类实例
      * 
-     * @param moduleCode
-     * @return
-     * @throws Exception
+     * @param moduleCode 模块代码
+     * @return 约束算法实现实例
+     * @throws Exception 创建过程中的异常
      */
     public ConstraintAlgImpl newConstraintAlg(String moduleCode) throws Exception {
         String className = this.constraintRuleClassName;
@@ -73,8 +73,8 @@ public class ModuleAlgClassLoader extends ClassLoader {
     /**
      * 加载类
      * 
-     * @param name
-     * @return
+     * @param name 类名
+     * @return 加载的类
      */
     @Override
     public Class<?> loadClass(String name) {

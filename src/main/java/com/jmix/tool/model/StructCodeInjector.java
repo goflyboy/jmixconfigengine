@@ -25,6 +25,14 @@ public class StructCodeInjector {
 
     private final PseudoToJavaConverter converter = new PseudoToJavaConverter();
 
+    /**
+     * 将代码注入到指定方法中
+     * 
+     * @param source 源代码
+     * @param methodName 方法名
+     * @param injectedCode 要注入的代码
+     * @return 注入后的源代码
+     */
     private String injectIntoMethod(String source, String methodName, String injectedCode) {
         // 粗略匹配方法声明行到对应的花括号范围
         // 支持常见修饰符与返回类型，方法名固定，用第一个左花括号定位方法体起始

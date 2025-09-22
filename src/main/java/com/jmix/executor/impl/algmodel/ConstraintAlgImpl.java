@@ -79,8 +79,8 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     /**
      * 初始化约束模型
      * 
-     * @param model  CP模型实例
-     * @param module 模块实例
+     * @param model CP模型实例
+     * @param module 模块对象
      */
     public void initModel(CpModel model, Module module) {
         this.model = new AlgCPModel(model);
@@ -277,18 +277,13 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
     /**
      * 模型初始化后的回调方法
-     * 子类可以重写此方法来实现模型初始化后的自定义逻辑
+     * 子类可以重写此方法来实现自定义的初始化逻辑
      * 
      * @param model CP模型实例
      */
     protected void initModelAfter(CpModel model) {
 
     }
-
-    /**
-     * 初始化变量
-     * 默认实现：通过反射自动创建和赋值变量，然后调用子类的自定义变量初始化逻辑
-     */
     protected void initVariables() {
         // 默认实现：通过反射自动创建和赋值变量
         autoInitVariables();

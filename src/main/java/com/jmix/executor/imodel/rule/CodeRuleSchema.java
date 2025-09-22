@@ -27,11 +27,21 @@ public class CodeRuleSchema extends RuleSchema {
      */
     private List<RefProgObjSchema> leftRefProgObjs;
 
+    /**
+     * 获取左侧编程对象列表
+     * 
+     * @return 左侧编程对象列表
+     */
     @Override
     public List<RefProgObjSchema> getFromLeftProgObjs() {
         return leftRefProgObjs != null ? leftRefProgObjs : new ArrayList<>();
     }
 
+    /**
+     * 获取右侧编程对象列表
+     * 
+     * @return 右侧编程对象列表
+     */
     @Override
     public List<RefProgObjSchema> getToRightProgObjs() {
         return rightRefProgObjs != null ? rightRefProgObjs : new ArrayList<>();

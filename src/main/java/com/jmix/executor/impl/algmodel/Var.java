@@ -21,10 +21,20 @@ public abstract class Var<T extends Programmable> implements Programmable {
         this.base = base;
     }
 
+    /**
+     * 获取基础对象
+     * 
+     * @return 基础对象
+     */
     public T getBase() {
         return base;
     }
 
+    /**
+     * 设置基础对象
+     * 
+     * @param base 基础对象
+     */
     public void setBase(T base) {
         this.base = base;
     }
@@ -34,10 +44,22 @@ public abstract class Var<T extends Programmable> implements Programmable {
         return base != null ? base.getCode() : null;
     }
 
+    /**
+     * 获取变量的字符串表示
+     * 
+     * @param solutionCallback 求解器回调
+     * @return 变量的字符串表示
+     */
     public String getVarString(CpSolverSolutionCallback solutionCallback) {
         return base != null ? base.getCode() : null;
     }
 
+    /**
+     * 获取变量的简短字符串表示
+     * 
+     * @param solutionCallback 求解器回调
+     * @return 变量的简短字符串表示
+     */
     public String getShortString(CpSolverSolutionCallback solutionCallback) {
         return "";
     }

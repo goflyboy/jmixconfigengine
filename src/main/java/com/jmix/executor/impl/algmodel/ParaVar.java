@@ -55,10 +55,23 @@ public class ParaVar extends Var<Para> {
      */
     public Map<Integer, ParaOptionVar> optionSelectVars = new HashMap<>();
 
+    /**
+     * 根据代码ID获取参数选项变量
+     * 
+     * @param codeId 选项的代码ID
+     * @return 对应的参数选项变量，如果不存在则返回null
+     */
     public ParaOptionVar getParaOptionByCodeId(Integer codeId) {
         return optionSelectVars.get(codeId);
     }
 
+    /**
+     * 根据代码获取参数选项变量
+     * 
+     * @param code 选项的代码
+     * @return 对应的参数选项变量
+     * @throws AlgLoaderException 如果找不到对应的选项
+     */
     public ParaOptionVar getParaOptionByCode(String code) {
         for (ParaOptionVar option : optionSelectVars.values()) {
             if (code != null && code.equals(option.getCode())) {
@@ -68,12 +81,24 @@ public class ParaVar extends Var<Para> {
         throw new AlgLoaderException("ParaOptionVar not found for code: " + code);
     }
 
+    /**
+     * 根据代码列表获取参数选项变量列表
+     * 
+     * @param codes 选项代码列表
+     * @return 对应的参数选项变量列表
+     */
     public List<ParaOptionVar> getParaOptionByCodes(List<String> codes) {
         return codes.stream()
                 .map(this::getParaOptionByCode)
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 获取排除指定代码外的所有参数选项变量
+     * 
+     * @param exclusiveCodes 要排除的选项代码列表
+     * @return 排除指定代码后的参数选项变量列表
+     */
     public List<ParaOptionVar> getParaOptionByExclusiveCodes(List<String> exclusiveCodes) {
         return optionSelectVars.values().stream()
                 .filter(option -> !exclusiveCodes.contains(option.getCode()))
