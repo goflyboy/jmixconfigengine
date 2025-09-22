@@ -33,7 +33,7 @@ public class ModuleAlgClassLoader extends ClassLoader {
     /**
      * 初始化模块算法类加载器
      * 
-     * @param moduleCode 模块代码
+     * @param moduleCode  模块代码
      * @param algArtifact 算法制品
      */
     public void init(String moduleCode, ModuleAlgArtifact algArtifact) {

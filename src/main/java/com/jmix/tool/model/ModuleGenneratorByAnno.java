@@ -42,7 +42,7 @@ public final class ModuleGenneratorByAnno {
      * 根据约束算法类和资源路径构建Module对象
      * 
      * @param moduleAlgClazz 约束算法类
-     * @param resourcePath 资源路径
+     * @param resourcePath   资源路径
      * @return 构建的Module对象
      */
     public static Module build(Class<? extends ConstraintAlg> moduleAlgClazz, String resourcePath) {

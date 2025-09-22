@@ -59,7 +59,7 @@ public class ModuleAlgArtifactGenerator {
     /**
      * 构建约束规则
      * 
-     * @param module 模块对象
+     * @param module     模块对象
      * @param outputPath 输出文件路径
      * @throws Exception 生成过程中的异常
      */

@@ -37,7 +37,7 @@ public class ParaOptionVar extends Var<ParaOption> {
     /**
      * 构造函数
      * 
-     * @param base 参数选项基础对象
+     * @param base          参数选项基础对象
      * @param isSelectedVar 选中状态变量
      */
     public ParaOptionVar(ParaOption base, BoolVar isSelectedVar) {

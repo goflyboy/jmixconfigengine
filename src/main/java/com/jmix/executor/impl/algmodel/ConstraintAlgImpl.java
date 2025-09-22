@@ -79,7 +79,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     /**
      * 初始化约束模型
      * 
-     * @param model CP模型实例
+     * @param model  CP模型实例
      * @param module 模块对象
      */
     public void initModel(CpModel model, Module module) {
@@ -284,6 +284,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     protected void initModelAfter(CpModel model) {
 
     }
+
     protected void initVariables() {
         // 默认实现：通过反射自动创建和赋值变量
         autoInitVariables();
