@@ -42,18 +42,18 @@ public class ParaVar extends Var<Para> {
     /**
      * 参数值状态
      */
-    private IntVar value;
+    public IntVar value;
 
     /**
      * 兼容旧模型的隐藏布尔变量
      * 0-显示，1-隐藏
      */
-    private BoolVar isHidden;
+    public BoolVar isHidden;
 
     /**
      * 参数可选值的选中状态(CodeId -> ParaOptionVar)
      */
-    private Map<Integer, ParaOptionVar> optionSelectVars = new HashMap<>();
+    public Map<Integer, ParaOptionVar> optionSelectVars = new HashMap<>();
 
     /**
      * 根据代码ID获取参数选项变量

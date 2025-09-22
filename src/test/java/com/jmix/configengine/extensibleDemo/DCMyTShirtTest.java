@@ -95,9 +95,9 @@ public class DCMyTShirtTest {
 
         // 测试DC推理请求
         DCModuleConstraintExecutor.DCInferParasReq dcReq = new DCModuleConstraintExecutor.DCInferParasReq();
-        dcReq.moduleCode = "TShirt11";
-        dcReq.mainPartInst = createDCPartInst("TShirt11", 1);
-        dcReq.enumerateAllSolution = true;
+        dcReq.setModuleCode("TShirt11");
+        dcReq.setMainPartInst(createDCPartInst("TShirt11", 1));
+        dcReq.setEnumerateAllSolution(true);
 
         // 由于没有算法制品，这里主要测试接口调用
         DCResult<List<DCModuleInst>> result = DCModuleConstraintExecutor.INST.inferDCParas(dcReq);

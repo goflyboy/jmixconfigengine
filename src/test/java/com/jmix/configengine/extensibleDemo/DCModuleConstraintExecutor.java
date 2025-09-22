@@ -3,6 +3,8 @@ package com.jmix.configengine.extensibleDemo;
 import com.jmix.executor.imodel.ConstraintConfig;
 import com.jmix.executor.omodel.ExtensibleProcess;
 
+import lombok.Data;
+
 import java.util.List;
 
 /**
@@ -10,23 +12,12 @@ import java.util.List;
  * 包装了原有的ModuleConstraintExecutor，提供DC特有的功能
  * 使用单例模式，外部只能访问接口，不能直接访问实现类
  */
-public class DCModuleConstraintExecutor {
+public interface DCModuleConstraintExecutor {
 
     /**
      * 单例实例
      */
-    public static final DCModuleConstraintExecutor INST = new DCModuleConstraintExecutor();
-
-    /**
-     * 内部实现实例
-     */
-    private final DCModuleConstraintExecutorImpl impl = new DCModuleConstraintExecutorImpl();
-
-    /**
-     * 私有构造函数，确保单例
-     */
-    private DCModuleConstraintExecutor() {
-    }
+    DCModuleConstraintExecutor INST = new DCModuleConstraintExecutorImpl();
 
     /**
      * 初始化执行器
@@ -34,18 +25,14 @@ public class DCModuleConstraintExecutor {
      * @param config 约束配置
      * @return 初始化结果
      */
-    public DCResult<Void> init(ConstraintConfig config) {
-        return impl.init(config);
-    }
+    DCResult<Void> init(ConstraintConfig config);
 
     /**
      * 销毁执行器
      * 
      * @return 销毁结果
      */
-    public DCResult<Void> fini() {
-        return impl.fini();
-    }
+    DCResult<Void> fini();
 
     /**
      * 添加DC模块
@@ -54,9 +41,7 @@ public class DCModuleConstraintExecutor {
      * @param dcModules    DC模块数组
      * @return 添加结果
      */
-    public DCResult<Void> addDCModule(Long rootModuleId, DCModule... dcModules) {
-        return impl.addDCModule(rootModuleId, dcModules);
-    }
+    DCResult<Void> addDCModule(Long rootModuleId, DCModule... dcModules);
 
     /**
      * 移除模块
@@ -64,9 +49,7 @@ public class DCModuleConstraintExecutor {
      * @param moduleId 模块ID
      * @return 移除结果
      */
-    public DCResult<Void> removeModule(Long moduleId) {
-        return impl.removeModule(moduleId);
-    }
+    DCResult<Void> removeModule(Long moduleId);
 
     /**
      * 推理DC参数
@@ -74,9 +57,7 @@ public class DCModuleConstraintExecutor {
      * @param req 推理请求
      * @return 推理结果
      */
-    public DCResult<List<DCModuleInst>> inferDCParas(DCInferParasReq req) {
-        return impl.inferDCParas(req);
-    }
+    DCResult<List<DCModuleInst>> inferDCParas(DCInferParasReq req);
 
     /**
      * 注册扩展处理器
@@ -84,9 +65,7 @@ public class DCModuleConstraintExecutor {
      * @param eProcess 扩展处理器
      * @return 注册结果
      */
-    public DCResult<Void> registerExtensible(ExtensibleProcess eProcess) {
-        return impl.registerExtensible(eProcess);
-    }
+    DCResult<Void> registerExtensible(ExtensibleProcess eProcess);
 
     /**
      * 注销扩展处理器
@@ -94,13 +73,12 @@ public class DCModuleConstraintExecutor {
      * @param eProcess 扩展处理器
      * @return 注销结果
      */
-    public DCResult<Void> unregisterExtensible(ExtensibleProcess eProcess) {
-        return impl.unregisterExtensible(eProcess);
-    }
+    DCResult<Void> unregisterExtensible(ExtensibleProcess eProcess);
 
     /**
      * DC推理请求类
      */
+    @Data
     public static class DCInferParasReq {
 
         private Long moduleId;

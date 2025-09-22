@@ -21,8 +21,7 @@ import java.util.List;
  * 内部实现类，外部不应直接访问
  */
 @Slf4j
-
-class DCModuleConstraintExecutorImpl {
+class DCModuleConstraintExecutorImpl implements DCModuleConstraintExecutor {
 
     // 使用单例访问，不需要包装实例
     private final DCParaInstAdapter paraInstAdapter;
@@ -108,7 +107,7 @@ class DCModuleConstraintExecutorImpl {
         log.info("Inferred {} DC solutions", dcSolutions.size());
         DCResult<List<DCModuleInst>> dcResult = DCResult.success(dcSolutions, "DC_INFER_SUCCESS");
         dcResult.setExtAttr("solutionCount", String.valueOf(dcSolutions.size()));
-        dcResult.setExtAttr("moduleCode", req.moduleCode);
+        dcResult.setExtAttr("moduleCode", req.getModuleCode());
         return dcResult;
     }
 
@@ -160,28 +159,28 @@ class DCModuleConstraintExecutorImpl {
      */
     private InferParasReq convertToStandardReq(DCModuleConstraintExecutor.DCInferParasReq dcReq) {
         InferParasReq standardReq = new InferParasReq();
-        standardReq.setModuleId(dcReq.moduleId);
-        standardReq.setModuleCode(dcReq.moduleCode);
-        standardReq.setEnumerateAllSolution(dcReq.enumerateAllSolution);
+        standardReq.setModuleId(dcReq.getModuleId());
+        standardReq.setModuleCode(dcReq.getModuleCode());
+        standardReq.setEnumerateAllSolution(dcReq.isEnumerateAllSolution());
 
         // 转换主部件实例
-        if (dcReq.mainPartInst != null) {
-            standardReq.setMainPartInst(convertToStandardPartInst(dcReq.mainPartInst));
+        if (dcReq.getMainPartInst() != null) {
+            standardReq.setMainPartInst(convertToStandardPartInst(dcReq.getMainPartInst()));
         }
 
         // 转换预参数实例
-        if (dcReq.preParaInsts != null) {
+        if (dcReq.getPreParaInsts() != null) {
             List<ParaInst> preParaInsts = new ArrayList<>();
-            for (DCParaInst dcParaInst : dcReq.preParaInsts) {
+            for (DCParaInst dcParaInst : dcReq.getPreParaInsts()) {
                 preParaInsts.add(convertToStandardParaInst(dcParaInst));
             }
             standardReq.setPreParaInsts(preParaInsts);
         }
 
         // 转换预部件实例
-        if (dcReq.prePartInsts != null) {
+        if (dcReq.getPrePartInsts() != null) {
             List<PartInst> prePartInsts = new ArrayList<>();
-            for (DCPartInst dcPartInst : dcReq.prePartInsts) {
+            for (DCPartInst dcPartInst : dcReq.getPrePartInsts()) {
                 prePartInsts.add(convertToStandardPartInst(dcPartInst));
             }
             standardReq.setPrePartInsts(prePartInsts);
