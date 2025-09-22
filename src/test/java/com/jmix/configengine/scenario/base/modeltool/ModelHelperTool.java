@@ -4,6 +4,8 @@ import com.jmix.configengine.scenario.autoruletest.InjectCompatibleRuleTest.Inje
 import com.jmix.executor.omodel.AlgLoaderException;
 import com.jmix.tool.model.ModelHelper;
 
+import java.io.File;
+
 /**
  * ModelHelper测试类
  * 测试生成并运行模型文件的功能

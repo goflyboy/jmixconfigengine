@@ -28,6 +28,7 @@ import com.google.ortools.sat.IntVar;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;

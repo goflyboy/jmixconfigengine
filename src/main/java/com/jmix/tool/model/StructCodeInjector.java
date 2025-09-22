@@ -3,6 +3,7 @@ package com.jmix.tool.model;
 import com.jmix.executor.omodel.AlgLoaderException;
 import com.jmix.tool.artifact.RuleInfo;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -162,8 +163,9 @@ public class StructCodeInjector {
                 return sb.toString();
             }
             // 默认回退为注释块，避免破坏编译
-            return indent + System.lineSeparator() + System.lineSeparator() + indent + "//自动生成，请勿编辑--start" + System.lineSeparator()
-            // + indent + "// 未识别的伪代码: " + escapeForComment(code) + System.lineSeparator()
+            return indent + System.lineSeparator() + System.lineSeparator() + indent + "//自动生成，请勿编辑--start"
+                    + System.lineSeparator()
+                    // + indent + "// 未识别的伪代码: " + escapeForComment(code) + System.lineSeparator()
                     + indent + escapeForComment(code) + System.lineSeparator()
                     + indent + "//自动生成，请勿编辑--end" + System.lineSeparator();
         }

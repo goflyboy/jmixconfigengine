@@ -7,6 +7,7 @@ import com.jmix.executor.omodel.AlgLoaderException;
 import com.jmix.tool.artifact.ModuleAlgArtifactGenerator;
 import com.jmix.tool.artifact.ModuleVarInfo;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -111,7 +112,8 @@ public class ModelHelper {
 
         // 构建测试源码路径
         String packagePath = packageName.replace('.', File.separatorChar);
-        return currentDir + File.separator + "src" + File.separator + "test" + File.separator + "java" + File.separator + packagePath;
+        return currentDir + File.separator + "src" + File.separator + "test" + File.separator + "java" + File.separator
+                + packagePath;
     }
 
     /**
