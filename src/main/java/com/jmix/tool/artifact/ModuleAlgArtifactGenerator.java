@@ -1,10 +1,5 @@
 package com.jmix.tool.artifact;
 
-import freemarker.template.Configuration;
-import freemarker.template.Template;
-
-import lombok.extern.slf4j.Slf4j;
-
 import com.jmix.executor.imodel.Extensible;
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.Para;
@@ -21,6 +16,8 @@ import com.jmix.executor.impl.util.FilterExpressionExecutor;
 import com.jmix.executor.impl.util.Pair;
 import com.jmix.executor.omodel.AlgLoaderException;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.StringWriter;
@@ -28,6 +25,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import freemarker.template.Configuration;
+import freemarker.template.Template;
 
 /**
  * 模块算法制品生成器

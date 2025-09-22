@@ -1,12 +1,5 @@
 package com.jmix.tool.model;
 
-import dev.langchain4j.data.message.AiMessage;
-import dev.langchain4j.data.message.SystemMessage;
-import dev.langchain4j.data.message.UserMessage;
-import dev.langchain4j.model.chat.ChatLanguageModel;
-import dev.langchain4j.model.openai.OpenAiChatModel;
-import dev.langchain4j.model.output.Response;
-
 import com.jmix.executor.omodel.AlgLoaderException;
 
 import java.io.IOException;
@@ -14,6 +7,13 @@ import java.io.InputStream;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Properties;
+
+import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.data.message.SystemMessage;
+import dev.langchain4j.data.message.UserMessage;
+import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.openai.OpenAiChatModel;
+import dev.langchain4j.model.output.Response;
 
 /**
  * LLM调用框架

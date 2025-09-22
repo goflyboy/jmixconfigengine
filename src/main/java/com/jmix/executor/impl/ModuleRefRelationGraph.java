@@ -1,9 +1,9 @@
 package com.jmix.executor.impl;
 
-import lombok.extern.slf4j.Slf4j;
-
 import com.jmix.executor.imodel.rule.RefProgObjSchema;
 import com.jmix.executor.impl.util.Pair;
+
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.Arrays;
