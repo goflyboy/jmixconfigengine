@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Properties;
 
 import dev.langchain4j.data.message.AiMessage;
