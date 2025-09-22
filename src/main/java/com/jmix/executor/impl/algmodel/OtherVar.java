@@ -33,13 +33,13 @@ public class OtherVar {
     private String shortCode;
 
     /**
-     * 构造函数
+     * 默认构造函数
      */
     public OtherVar() {
     }
 
     /**
-     * 构造函数
+     * 带参数的构造函数
      * 
      * @param code      变量代码
      * @param var       变量对象
@@ -51,6 +51,11 @@ public class OtherVar {
         setShortCode(shortCode);
     }
 
+    /**
+     * 返回对象的字符串表示
+     * 
+     * @return 对象的字符串表示
+     */
     @Override
     public String toString() {
         return String.format("OtherVar{code='%s', shortCode='%s'}", getCode(), getShortCode());

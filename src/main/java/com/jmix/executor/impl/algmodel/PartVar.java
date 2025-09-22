@@ -49,6 +49,12 @@ public class PartVar extends Var<Part> {
      */
     public Map<String, BoolVar> subPartSelectedVars = new HashMap<>();
 
+    /**
+     * 获取变量字符串表示
+     * 
+     * @param solutionCallback 求解回调
+     * @return 变量字符串表示
+     */
     @Override
     public String getVarString(CpSolverSolutionCallback solutionCallback) {
         StringBuilder sb = new StringBuilder();
@@ -66,6 +72,12 @@ public class PartVar extends Var<Part> {
         return sb.toString();
     }
 
+    /**
+     * 获取短字符串表示
+     * 
+     * @param solutionCallback 求解回调
+     * @return 短字符串表示
+     */
     @Override
     public String getShortString(CpSolverSolutionCallback solutionCallback) {
         // P1(Q:1,H:0)

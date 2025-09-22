@@ -50,6 +50,8 @@ public class Part extends ProgrammableObject<Integer> {
 
     /**
      * 获取默认数量
+     * 
+     * @return 默认数量
      */
     @JsonIgnore
     public Integer getDefaultQuantity() {
@@ -58,6 +60,9 @@ public class Part extends ProgrammableObject<Integer> {
 
     /**
      * 获取规格属性值
+     * 
+     * @param key 属性键
+     * @return 属性值
      */
     @JsonIgnore
     public String getAttr(String key) {
@@ -66,6 +71,9 @@ public class Part extends ProgrammableObject<Integer> {
 
     /**
      * 设置规格属性值
+     * 
+     * @param key   属性键
+     * @param value 属性值
      */
     @JsonIgnore
     public void setAttr(String key, String value) {

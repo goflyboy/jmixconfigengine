@@ -40,6 +40,12 @@ public class Para extends ProgrammableObject<String> {
      */
     private String maxValue = DEFAULT_MAX_VALUE;
 
+    /**
+     * 根据选项编码获取参数选项
+     * 
+     * @param optionCode 选项编码
+     * @return 参数选项对象，如果不存在则返回null
+     */
     @JsonIgnore
     public ParaOption getOption(String optionCode) {
         if (options == null || optionCode == null) {
@@ -53,6 +59,11 @@ public class Para extends ProgrammableObject<String> {
         return null;
     }
 
+    /**
+     * 获取所有选项的ID数组
+     * 
+     * @return 选项ID数组
+     */
     @JsonIgnore
     public long[] getOptionIds() {
         if (options == null || options.isEmpty()) {
@@ -65,6 +76,11 @@ public class Para extends ProgrammableObject<String> {
         return ids;
     }
 
+    /**
+     * 获取所有选项的编码数组
+     * 
+     * @return 选项编码数组
+     */
     @JsonIgnore
     public String[] getOptionCodes() {
         if (options == null || options.isEmpty()) {

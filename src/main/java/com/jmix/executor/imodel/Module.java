@@ -112,6 +112,11 @@ public class Module extends ProgrammableObject<Integer> {
         }
     }
 
+    /**
+     * 获取编程对象短代码备忘录
+     * 
+     * @return 编程对象短代码字符串
+     */
     @JsonIgnore
     public String getProgObjShortCodeMemo() {
         // 2、shortCodes(P1:Size, P2:Color,PT1:part1,PT2:part2)
@@ -127,6 +132,11 @@ public class Module extends ProgrammableObject<Integer> {
         return sb.toString();
     }
 
+    /**
+     * 获取属性短代码备忘录
+     * 
+     * @return 属性短代码字符串
+     */
     @JsonIgnore
     public String getAttrShortCodeMemo() {
         return "Attrs(V:value, H:isHidden, Q:qty)";
@@ -134,6 +144,9 @@ public class Module extends ProgrammableObject<Integer> {
 
     /**
      * 根据编码获取参数对象
+     * 
+     * @param code 参数编码
+     * @return 参数对象，如果不存在则返回null
      */
     @JsonIgnore
     public Para getPara(String code) {
@@ -145,6 +158,9 @@ public class Module extends ProgrammableObject<Integer> {
 
     /**
      * 根据编码获取部件对象
+     * 
+     * @param code 部件编码
+     * @return 部件对象，如果不存在则返回null
      */
     @JsonIgnore
     public Part getPart(String code) {
@@ -156,6 +172,9 @@ public class Module extends ProgrammableObject<Integer> {
 
     /**
      * 根据父部件编码获取子部件列表
+     * 
+     * @param fatherCode 父部件编码
+     * @return 子部件列表
      */
     @JsonIgnore
     public List<Part> getChildrenPart(String fatherCode) {
@@ -170,6 +189,8 @@ public class Module extends ProgrammableObject<Integer> {
 
     /**
      * 获取所有顶级部件（没有父部件的部件）
+     * 
+     * @return 顶级部件列表
      */
     @JsonIgnore
     public List<Part> getTopLevelParts() {
@@ -184,6 +205,9 @@ public class Module extends ProgrammableObject<Integer> {
 
     /**
      * 检查是否包含指定编码的参数
+     * 
+     * @param code 参数编码
+     * @return 如果包含则返回true，否则返回false
      */
     @JsonIgnore
     public boolean hasPara(String code) {
@@ -192,6 +216,9 @@ public class Module extends ProgrammableObject<Integer> {
 
     /**
      * 检查是否包含指定编码的部件
+     * 
+     * @param code 部件编码
+     * @return 如果包含则返回true，否则返回false
      */
     @JsonIgnore
     public boolean hasPart(String code) {
