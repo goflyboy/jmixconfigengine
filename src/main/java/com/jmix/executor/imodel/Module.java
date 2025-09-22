@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * 模块定义
@@ -149,12 +150,12 @@ public class Module extends ProgrammableObject<Integer> {
      * @return 参数对象，如果不存在则返回Optional.empty()
      */
     @JsonIgnore
-    public java.util.Optional<Para> getPara(String code) {
+    public Optional<Para> getPara(String code) {
         if (code == null || paraMap.isEmpty()) {
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
         Para para = paraMap.get(code);
-        return para != null ? java.util.Optional.of(para) : java.util.Optional.empty();
+        return para != null ? Optional.of(para) : Optional.empty();
     }
 
     /**
@@ -164,12 +165,12 @@ public class Module extends ProgrammableObject<Integer> {
      * @return 部件对象，如果不存在则返回Optional.empty()
      */
     @JsonIgnore
-    public java.util.Optional<Part> getPart(String code) {
+    public Optional<Part> getPart(String code) {
         if (code == null || partMap.isEmpty()) {
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
         Part part = partMap.get(code);
-        return part != null ? java.util.Optional.of(part) : java.util.Optional.empty();
+        return part != null ? Optional.of(part) : Optional.empty();
     }
 
     /**

@@ -24,6 +24,7 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import freemarker.template.Configuration;
@@ -215,7 +216,8 @@ public class ModuleAlgArtifactGenerator {
                 if (compatiableRule.getLeftExpr() != null) {
                     ruleInfo.setLeftTypeName("ParaVar");
                     // 调用doSelectProObjs方法
-                    java.util.Optional<Pair<VarInfo<? extends Extensible>, List<String>>> pairOpt = doSelectProObjs(moduleInfo,
+                    Optional<Pair<VarInfo<? extends Extensible>, List<String>>> pairOpt = doSelectProObjs(
+                            moduleInfo,
                             compatiableRule.getLeftExpr());
                     if (pairOpt.isPresent()) {
                         Pair<VarInfo<? extends Extensible>, List<String>> pair = pairOpt.get();
@@ -234,7 +236,8 @@ public class ModuleAlgArtifactGenerator {
                 if (compatiableRule.getRightExpr() != null) {
                     ruleInfo.setRightTypeName("ParaVar");
                     // 调用doSelectProObjs方法
-                    java.util.Optional<Pair<VarInfo<? extends Extensible>, List<String>>> pairOpt = doSelectProObjs(moduleInfo,
+                    Optional<Pair<VarInfo<? extends Extensible>, List<String>>> pairOpt = doSelectProObjs(
+                            moduleInfo,
                             compatiableRule.getRightExpr());
                     if (pairOpt.isPresent()) {
                         Pair<VarInfo<? extends Extensible>, List<String>> pair = pairOpt.get();
@@ -274,12 +277,13 @@ public class ModuleAlgArtifactGenerator {
      * 选择编程对象
      */
     @SuppressWarnings("rawtypes")
-    public java.util.Optional<Pair<VarInfo<? extends Extensible>, List<String>>> doSelectProObjs(ModuleVarInfo moduleVarInfo,
+    public Optional<Pair<VarInfo<? extends Extensible>, List<String>>> doSelectProObjs(
+            ModuleVarInfo moduleVarInfo,
             ExprSchema exprSchema) {
         // 1. 根据exprSchema的progObjType、progObjCode、progObjField根据待过滤objects
         if (exprSchema.getRefProgObjs() == null || exprSchema.getRefProgObjs().isEmpty()) {
             log.warn("No reference programming objects found in expression schema");
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
 
         RefProgObjSchema refProgObj = exprSchema.getRefProgObjs().get(0); // 取第一个引用对象
@@ -295,7 +299,7 @@ public class ModuleAlgArtifactGenerator {
             ParaVarInfo paraInfo = moduleVarInfo.getPara(progObjCode);
             if (paraInfo != null) {
                 targetObj = paraInfo;
-                java.util.Optional<Para> paraOpt = moduleVarInfo.getBase().getPara(progObjCode);
+                Optional<Para> paraOpt = moduleVarInfo.getBase().getPara(progObjCode);
                 if (paraOpt.isPresent()) {
                     objects = paraOpt.get().getOptions();
                 }
@@ -314,7 +318,7 @@ public class ModuleAlgArtifactGenerator {
 
         if (targetObj == null || objects == null) {
             log.warn("Failed to find target object or objects for type: {}, code: {}", progObjType, progObjCode);
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
 
         // 2. 调用FilterExpressionExecutor.doSelect进行过滤
@@ -328,7 +332,7 @@ public class ModuleAlgArtifactGenerator {
 
         // 4.返回结果
         Pair<VarInfo<? extends Extensible>, List<String>> result = new Pair<>(targetObj, filterObjectCodes);
-        return java.util.Optional.of(result);
+        return Optional.of(result);
     }
 
     /**

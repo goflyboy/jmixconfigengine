@@ -1,5 +1,7 @@
 package com.jmix.executor.imodel.rule;
 
+import java.util.Optional;
+
 /**
  * 规则类型常量定义
  * 用于统一管理规则类型，避免硬编码字符串
@@ -116,19 +118,19 @@ public final class RuleTypeConstants {
      * @param ruleSchemaTypeFullName 规则Schema类型全名
      * @return 规则类型名称，如果无法识别则返回Optional.empty()
      */
-    public static java.util.Optional<String> getRuleTypeName(String ruleSchemaTypeFullName) {
+    public static Optional<String> getRuleTypeName(String ruleSchemaTypeFullName) {
         if (ruleSchemaTypeFullName == null) {
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
 
         if (isCompatiableRule(ruleSchemaTypeFullName)) {
-            return java.util.Optional.of(COMPATIABLE_RULE);
+            return Optional.of(COMPATIABLE_RULE);
         } else if (isCalculateRule(ruleSchemaTypeFullName)) {
-            return java.util.Optional.of(CALCULATE_RULE);
+            return Optional.of(CALCULATE_RULE);
         } else if (isSelectRule(ruleSchemaTypeFullName)) {
-            return java.util.Optional.of(SELECT_RULE);
+            return Optional.of(SELECT_RULE);
         }
 
-        return java.util.Optional.empty();
+        return Optional.empty();
     }
 }

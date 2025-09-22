@@ -12,6 +12,7 @@ import org.springframework.util.ReflectionUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -64,7 +65,7 @@ public final class FilterExpressionExecutor {
         }
 
         // Parse filter expression once
-        java.util.Optional<FilterCondition> conditionOpt = parseFilterExpression(filterExpr);
+        Optional<FilterCondition> conditionOpt = parseFilterExpression(filterExpr);
         if (!conditionOpt.isPresent()) {
             log.warn("Failed to parse filter expression: {}, returning original object list", filterExpr);
             return objects;
@@ -90,7 +91,7 @@ public final class FilterExpressionExecutor {
     /**
      * Parse filter expression once and return FilterCondition
      */
-    private static java.util.Optional<FilterCondition> parseFilterExpression(String filterExpr) {
+    private static Optional<FilterCondition> parseFilterExpression(String filterExpr) {
         try {
             Matcher matcher = FILTER_PATTERN.matcher(filterExpr);
             if (matcher.find()) {
@@ -98,14 +99,14 @@ public final class FilterExpressionExecutor {
                 String operator = matcher.group(2);
                 String value = matcher.group(3);
 
-                return java.util.Optional.of(new FilterCondition(fieldName, operator, value));
+                return Optional.of(new FilterCondition(fieldName, operator, value));
             } else {
                 log.warn("Invalid filter expression format: {}", filterExpr);
-                return java.util.Optional.empty();
+                return Optional.empty();
             }
         } catch (Exception e) {
             log.error("Exception occurred while parsing filter expression: {}", filterExpr, e);
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
     }
 
@@ -129,7 +130,7 @@ public final class FilterExpressionExecutor {
             String value) {
         try {
             // Try to get field value through reflection
-            java.util.Optional<Object> fieldValueOpt = getFieldValue(object, fieldName);
+            Optional<Object> fieldValueOpt = getFieldValue(object, fieldName);
 
             if (!fieldValueOpt.isPresent()) {
                 log.debug("Field {} value is null, condition not matched", fieldName);
@@ -179,7 +180,7 @@ public final class FilterExpressionExecutor {
     /**
      * Get field value with caching and Spring ReflectionUtils
      */
-    private static java.util.Optional<Object> getFieldValue(Object object, String fieldName) {
+    private static Optional<Object> getFieldValue(Object object, String fieldName) {
         try {
             // Try to get extended attributes first
             if (object instanceof Extensible) {
@@ -188,7 +189,7 @@ public final class FilterExpressionExecutor {
                 if (extValue != null) {
                     log.debug("Getting field value from extended attributes - field: {}, value: {}", fieldName,
                             extValue);
-                    return java.util.Optional.of(extValue);
+                    return Optional.of(extValue);
                 }
             }
 
@@ -199,7 +200,7 @@ public final class FilterExpressionExecutor {
                 Object value = field.get(object);
                 log.debug("Getting field value through reflection - field: {}, value: {}, class: {}",
                         fieldName, value, field.getDeclaringClass().getSimpleName());
-                return java.util.Optional.ofNullable(value);
+                return Optional.ofNullable(value);
             }
             // Try to get extended attributes first
             if (object instanceof Part) {
@@ -207,17 +208,17 @@ public final class FilterExpressionExecutor {
                 String value = part.getAttr(fieldName);
                 if (value != null) {
                     log.debug("Getting field value from part attributes - field: {}, value: {}", fieldName, value);
-                    return java.util.Optional.of(value);
+                    return Optional.of(value);
                 }
             }
             log.debug("Field {} not found in class {} or its parent classes", fieldName,
                     object.getClass().getSimpleName());
-            return java.util.Optional.empty();
+            return Optional.empty();
         } catch (Exception e) {
             log.debug("Failed to get field value - field: {}, object type: {}", fieldName,
                     object.getClass().getSimpleName(), e);
             // Return empty if getting fails
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
     }
 

@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * 基于注解的模块生成器
@@ -108,12 +109,12 @@ public final class ModuleGenneratorByAnno {
 
         for (Field field : moduleAlgClazz.getDeclaredFields()) {
             if (field.getType().getSimpleName().equals("ParaVar")) {
-                java.util.Optional<Para> paraOpt = createParaFromField(field);
+                Optional<Para> paraOpt = createParaFromField(field);
                 if (paraOpt.isPresent()) {
                     paras.add(paraOpt.get());
                 }
             } else if (field.getType().getSimpleName().equals("PartVar")) {
-                java.util.Optional<Part> partOpt = createPartFromField(field);
+                Optional<Part> partOpt = createPartFromField(field);
                 if (partOpt.isPresent()) {
                     parts.add(partOpt.get());
                 }
@@ -141,10 +142,10 @@ public final class ModuleGenneratorByAnno {
         return module;
     }
 
-    private static java.util.Optional<Para> createParaFromField(Field field) {
+    private static Optional<Para> createParaFromField(Field field) {
         ParaAnno paraAnno = field.getAnnotation(ParaAnno.class);
         if (paraAnno == null) {
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
 
         Para para = new Para();
@@ -211,13 +212,13 @@ public final class ModuleGenneratorByAnno {
             para.setOptions(options);
         }
 
-        return java.util.Optional.of(para);
+        return Optional.of(para);
     }
 
-    private static java.util.Optional<Part> createPartFromField(Field field) {
+    private static Optional<Part> createPartFromField(Field field) {
         PartAnno partAnno = field.getAnnotation(PartAnno.class);
         if (partAnno == null) {
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
 
         Part part = new Part();
@@ -261,7 +262,7 @@ public final class ModuleGenneratorByAnno {
             part.setExtAttrs(extAttrs);
         }
 
-        return java.util.Optional.of(part);
+        return Optional.of(part);
     }
 
     /**

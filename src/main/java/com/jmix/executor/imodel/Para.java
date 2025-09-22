@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 参数定义
@@ -17,6 +18,7 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class Para extends ProgrammableObject<String> {
+
     public static final String DEFAULT_MIN_VALUE = "-1000";
     public static final String DEFAULT_MAX_VALUE = "1000";
 
@@ -49,16 +51,16 @@ public class Para extends ProgrammableObject<String> {
      * @return 参数选项对象，如果不存在则返回Optional.empty()
      */
     @JsonIgnore
-    public java.util.Optional<ParaOption> getOption(String optionCode) {
+    public Optional<ParaOption> getOption(String optionCode) {
         if (options == null || optionCode == null) {
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
         for (ParaOption opt : options) {
             if (optionCode.equals(opt.getCode())) {
-                return java.util.Optional.of(opt);
+                return Optional.of(opt);
             }
         }
-        return java.util.Optional.empty();
+        return Optional.empty();
     }
 
     /**
