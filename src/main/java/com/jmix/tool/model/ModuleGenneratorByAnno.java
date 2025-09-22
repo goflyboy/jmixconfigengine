@@ -1,5 +1,7 @@
 package com.jmix.tool.model;
 
+import lombok.extern.slf4j.Slf4j;
+
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.ModuleAlgArtifact;
 import com.jmix.executor.imodel.Para;
@@ -13,8 +15,6 @@ import com.jmix.executor.imodel.rule.RefProgObjSchema;
 import com.jmix.executor.impl.algmodel.ConstraintAlg;
 import com.jmix.executor.omodel.AlgLoaderException;
 import com.jmix.tool.ModuleUtils;
-
-import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;

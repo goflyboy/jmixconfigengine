@@ -1,13 +1,5 @@
 package com.jmix.executor.impl.algmodel;
 
-import com.jmix.executor.imodel.Module;
-import com.jmix.executor.imodel.Para;
-import com.jmix.executor.imodel.ParaOption;
-import com.jmix.executor.imodel.Part;
-import com.jmix.executor.imodel.Rule;
-import com.jmix.executor.imodel.rule.RefProgObjSchema;
-import com.jmix.executor.omodel.AlgLoaderException;
-
 import com.google.ortools.Loader;
 import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.CpModel;
@@ -16,6 +8,14 @@ import com.google.ortools.sat.Literal;
 import com.google.ortools.util.Domain;
 
 import lombok.extern.slf4j.Slf4j;
+
+import com.jmix.executor.imodel.Module;
+import com.jmix.executor.imodel.Para;
+import com.jmix.executor.imodel.ParaOption;
+import com.jmix.executor.imodel.Part;
+import com.jmix.executor.imodel.Rule;
+import com.jmix.executor.imodel.rule.RefProgObjSchema;
+import com.jmix.executor.omodel.AlgLoaderException;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;

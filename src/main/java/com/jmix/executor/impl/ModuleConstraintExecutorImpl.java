@@ -1,5 +1,15 @@
 package com.jmix.executor.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.google.ortools.sat.CpModel;
+import com.google.ortools.sat.CpSolver;
+import com.google.ortools.sat.CpSolverSolutionCallback;
+import com.google.ortools.sat.CpSolverStatus;
+import com.google.ortools.sat.IntVar;
+
+import lombok.extern.slf4j.Slf4j;
+
 import com.jmix.executor.ModuleConstraintExecutor;
 import com.jmix.executor.imodel.ConstraintConfig;
 import com.jmix.executor.imodel.Module;
@@ -17,16 +27,6 @@ import com.jmix.executor.omodel.ModuleInst;
 import com.jmix.executor.omodel.ParaInst;
 import com.jmix.executor.omodel.PartInst;
 import com.jmix.executor.omodel.Result;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.google.ortools.sat.CpModel;
-import com.google.ortools.sat.CpSolver;
-import com.google.ortools.sat.CpSolverSolutionCallback;
-import com.google.ortools.sat.CpSolverStatus;
-import com.google.ortools.sat.IntVar;
-
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.Collections;
