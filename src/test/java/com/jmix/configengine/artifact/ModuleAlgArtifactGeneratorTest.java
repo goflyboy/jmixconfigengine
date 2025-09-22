@@ -154,7 +154,7 @@ public class ModuleAlgArtifactGeneratorTest {
         // 测试doSelectProObjs方法（通过反射调用私有方法）
         try {
             Pair<VarInfo<? extends Extensible>, List<String>> result = generator
-                    .doSelectProObjs(generator.getModuleVarInfo(), exprSchema);
+                    .doSelectProObjs(generator.getModuleVarInfo(), exprSchema).orElse(null);
 
             // 由于当前实现中getPara和getPart可能返回null，所以result可能为null
             // 这是预期的行为，我们主要验证方法调用不会抛出异常

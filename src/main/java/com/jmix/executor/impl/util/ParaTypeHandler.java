@@ -1,11 +1,11 @@
 package com.jmix.executor.impl.util;
 
-import java.util.Arrays;
-
 import com.jmix.executor.imodel.Para;
 import com.jmix.executor.imodel.ParaOption;
 import com.jmix.executor.imodel.ParaType;
 import com.jmix.executor.omodel.AlgLoaderException;
+
+import java.util.Arrays;
 
 /**
  * Para类型处理工具类
@@ -32,7 +32,7 @@ public class ParaTypeHandler {
             case INTEGER:
                 return value;
             case ENUM:
-                ParaOption option = para.getOption(value);
+                ParaOption option = para.getOption(value).orElse(null);
                 if (option == null) {
                     throw new AlgLoaderException(String.format(
                             "Option not found in parameter %s: %s, available options: %s",

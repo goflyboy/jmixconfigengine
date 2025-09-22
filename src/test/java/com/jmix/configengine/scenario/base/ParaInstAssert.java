@@ -1,16 +1,16 @@
 package com.jmix.configengine.scenario.base;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.Para;
 import com.jmix.executor.imodel.ParaOption;
 import com.jmix.executor.impl.util.ParaTypeHandler;
 import com.jmix.executor.omodel.ModuleInst;
 import com.jmix.executor.omodel.ParaInst;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * 参数实例断言类
@@ -96,7 +96,7 @@ public class ParaInstAssert extends ProgammableInstAssert {
     public ParaInstAssert valueIn(String... expectValues) {
         boolean found = false;
         for (String expectValue : expectValues) {
-            ParaOption option = para.getOption(expectValue);
+            ParaOption option = para.getOption(expectValue).orElse(null);
             if (option != null && Objects.equals(actual.getValue(), String.valueOf(option.getCodeId()))) {
                 found = true;
                 break;
