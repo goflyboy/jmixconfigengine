@@ -15,8 +15,11 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class PartVarInfo extends VarInfo<Part> {
     private String code;
+
     private String fatherCode;
+
     private int maxQuantity = 10000;
+
     private int minQuantity = 0;
 
     public PartVarInfo() {

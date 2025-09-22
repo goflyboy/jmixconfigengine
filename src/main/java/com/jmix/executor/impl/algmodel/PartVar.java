@@ -26,12 +26,24 @@ public class PartVar extends Var<Part> {
      */
     public static final String VAR_PATTEN_PREFIX = "##Part.";
 
-    public static final String QTY_PATTEN = VAR_PATTEN_PREFIX + "qty.%s"; // ##Part.qty.{code}
+    /**
+     * 部件数量Var的命名模式
+     */
+    public static final String QTY_PATTEN = VAR_PATTEN_PREFIX + "qty.%s";
 
-    public static final String HIDDEN_PATTEN = VAR_PATTEN_PREFIX + "isHidden.%s"; // ##Part.isHidden.{code}
+    /**
+     * 显示隐藏Var的命名模式
+     */
+    public static final String HIDDEN_PATTEN = VAR_PATTEN_PREFIX + "isHidden.%s";
 
+    /**
+     * 部件数量Var的短名称
+     */
     public static final String QTY_SHORT_NAME = "Q";
 
+    /**
+     * 显示隐藏Var的短名称
+     */
     public static final String HIDDEN_SHORT_NAME = "H";
 
     /**
