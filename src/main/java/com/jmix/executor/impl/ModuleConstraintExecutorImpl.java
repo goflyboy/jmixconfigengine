@@ -185,7 +185,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
             }
             if (config.isLogModelProto()) {
                 // 将module的CpModelProto信息输出到文件config.logFilePath/module.proto.txt
-                model.exportToFile(config.getLogFilePath() + "/" + module.getCode() + ".proto.txt");
+                model.exportToFile(config.getLogFilePath() + File.separator + module.getCode() + ".proto.txt");
             }
             CpSolver solver = new CpSolver();
             if (req.isEnumerateAllSolution()) {

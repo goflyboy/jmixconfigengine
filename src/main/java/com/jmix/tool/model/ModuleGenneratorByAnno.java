@@ -128,7 +128,7 @@ public final class ModuleGenneratorByAnno {
 
         // 3. 保存Module到文件
         String fileName = module.getCode() + ".base.json";
-        String filePath = resourcePath + "/" + fileName;
+        String filePath = resourcePath + File.separator + fileName;
 
         try {
             ModuleUtils.toJsonFile(module, filePath);

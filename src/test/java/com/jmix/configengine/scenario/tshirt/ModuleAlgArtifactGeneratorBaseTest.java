@@ -138,11 +138,11 @@ public class ModuleAlgArtifactGeneratorBaseTest {
      */
     private String getCurrentPackagePath() {
         // 获取当前类的包路径
-        String packagePath = this.getClass().getPackage().getName().replace('.', '/');
+        String packagePath = this.getClass().getPackage().getName().replace('.', File.separatorChar);
 
         // 构建完整的目录路径
         String baseDir = "src/test/java";
-        String fullPath = baseDir + "/" + packagePath;
+        String fullPath = baseDir + File.separator + packagePath;
 
         // 确保目录存在
         File dir = new File(fullPath);

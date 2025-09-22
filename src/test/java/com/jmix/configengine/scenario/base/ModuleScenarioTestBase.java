@@ -454,17 +454,17 @@ public abstract class ModuleScenarioTestBase {
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.append("\n******************************************\n");
+        sb.append(System.lineSeparator()).append("******************************************").append(System.lineSeparator());
         // 打印缩语解释
-        sb.append("Abbreviation explanation:\n");
+        sb.append("Abbreviation explanation:").append(System.lineSeparator());
 
         // 1. shortCodes(P1:Size, P2:Color,PT1:part1)
-        sb.append("1.").append(module.getProgObjShortCodeMemo()).append("\n");
+        sb.append("1.").append(module.getProgObjShortCodeMemo()).append(System.lineSeparator());
         // 2. Attrs(V:value, H:isHidden, Q:qty)
-        sb.append("2. Attrs(V:value, H:isHidden, Q:qty)\n");
+        sb.append("2. Attrs(V:value, H:isHidden, Q:qty)").append(System.lineSeparator());
         // 3. Other Variable shortName
-        sb.append("3. Other Variable shortName:\n");
-        sb.append("Solutions:\n");
+        sb.append("3. Other Variable shortName:").append(System.lineSeparator());
+        sb.append("Solutions:").append(System.lineSeparator());
         if (!solutions.isEmpty()) {
             ModuleInst firstSolution = solutions.get(0);
             Object otherVarsMemo = firstSolution.getExtAttrs().get(ModuleInst.OTHER_VARIABLES_MEMO_KEY);
@@ -473,18 +473,18 @@ public abstract class ModuleScenarioTestBase {
                 Map<String, OtherVar> otherVarMap = (Map<String, OtherVar>) otherVarsMemo;
                 for (Map.Entry<String, OtherVar> entry : otherVarMap.entrySet()) {
                     OtherVar otherVar = entry.getValue();
-                    sb.append(" ").append(otherVar.getShortCode()).append(":").append(otherVar.getCode()).append("\n");
+                    sb.append(" ").append(otherVar.getShortCode()).append(":").append(otherVar.getCode()).append(System.lineSeparator());
                 }
             }
         }
 
-        sb.append("\n");
+        sb.append(System.lineSeparator());
 
         // 打印解
         for (int i = 0; i < solutions.size(); i++) {
-            sb.append("S_").append(i + 1).append(": ").append(solutions.get(i).toShortString()).append("\n");
+            sb.append("S_").append(i + 1).append(": ").append(solutions.get(i).toShortString()).append(System.lineSeparator());
         }
-        sb.append("\n******************************************\n");
+        sb.append(System.lineSeparator()).append("******************************************").append(System.lineSeparator());
         log.info(sb.toString());
     }
 

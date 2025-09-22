@@ -110,8 +110,8 @@ public class ModelHelper {
         String currentDir = System.getProperty("user.dir");
 
         // 构建测试源码路径
-        String packagePath = packageName.replace('.', '/');
-        return currentDir + "/src/test/java/" + packagePath;
+        String packagePath = packageName.replace('.', File.separatorChar);
+        return currentDir + File.separator + "src" + File.separator + "test" + File.separator + "java" + File.separator + packagePath;
     }
 
     /**

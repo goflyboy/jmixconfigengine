@@ -108,7 +108,7 @@ public final class ModelHelperTool {
         try {
             // 获取当前类文件所在目录
             String currentDir = ModelHelperTool.class.getResource(".").getPath();
-            if (currentDir.startsWith("/")) {
+            if (currentDir.startsWith(File.separator)) {
                 currentDir = currentDir.substring(1);
             }
 

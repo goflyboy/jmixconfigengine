@@ -33,7 +33,7 @@ public class CommHelper {
      */
     public static String getResourcePath(Class<?> clazz) {
         String currentDir = clazz.getResource(".").getPath();
-        if (currentDir.startsWith("/")) {
+        if (currentDir.startsWith(File.separator)) {
             currentDir = currentDir.substring(1);
         }
 
@@ -47,11 +47,11 @@ public class CommHelper {
             currentDir = currentDir.substring(0, targetIndex);
         }
 
-        String packagePath = clazz.getPackage().getName().replace('.', '/');
-        if (!currentDir.endsWith("/")) {
-            currentDir = currentDir + "/";
+        String packagePath = clazz.getPackage().getName().replace('.', File.separatorChar);
+        if (!currentDir.endsWith(File.separator)) {
+            currentDir = currentDir + File.separator;
         }
-        return currentDir + "src/test/java/" + packagePath;
+        return currentDir + "src" + File.separator + "test" + File.separator + "java" + File.separator + packagePath;
     }
 
     /**

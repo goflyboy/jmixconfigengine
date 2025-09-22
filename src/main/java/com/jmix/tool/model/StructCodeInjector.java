@@ -72,7 +72,7 @@ public class StructCodeInjector {
             newBody = body.substring(0, replaceStart) + generated + body.substring(replaceEnd);
         } else {
             // 否则插入到方法体顶部（去除首行换行）
-            String prefix = body.startsWith("\n") ? "" : "\n";
+            String prefix = body.startsWith(System.lineSeparator()) ? "" : System.lineSeparator();
             newBody = prefix + generated + body;
         }
 
@@ -80,7 +80,7 @@ public class StructCodeInjector {
     }
 
     private Optional<String> detectIndentForBody(String body) {
-        String[] lines = body.split("\n", -1);
+        String[] lines = body.split(System.lineSeparator(), -1);
         for (String line : lines) {
             String trimmed = line.trim();
             if (trimmed.isEmpty()) {
@@ -152,20 +152,20 @@ public class StructCodeInjector {
                 String targetVar = m.group(3);
                 String targetVal = m.group(4);
                 StringBuilder sb = new StringBuilder();
-                sb.append(indent).append("//自动生成，请勿编辑--start\n");
+                sb.append(indent).append("//自动生成，请勿编辑--start").append(System.lineSeparator());
                 sb.append(indent).append("if (\"").append(condVal).append("\".equals(String.valueOf(")
-                        .append(condVar).append(".var))) {\n");
+                        .append(condVar).append(".var))) {").append(System.lineSeparator());
                 sb.append(indent).append("\t").append(targetVar).append(".var = \"")
-                        .append(targetVal).append("\";\n");
-                sb.append(indent).append("}\n");
-                sb.append(indent).append("//自动生成，请勿编辑--end\n");
+                        .append(targetVal).append("\";").append(System.lineSeparator());
+                sb.append(indent).append("}").append(System.lineSeparator());
+                sb.append(indent).append("//自动生成，请勿编辑--end").append(System.lineSeparator());
                 return sb.toString();
             }
             // 默认回退为注释块，避免破坏编译
-            return indent + "\n\n" + indent + "//自动生成，请勿编辑--start\n"
-            // + indent + "// 未识别的伪代码: " + escapeForComment(code) + "\n"
-                    + indent + escapeForComment(code) + "\n"
-                    + indent + "//自动生成，请勿编辑--end\n";
+            return indent + System.lineSeparator() + System.lineSeparator() + indent + "//自动生成，请勿编辑--start" + System.lineSeparator()
+            // + indent + "// 未识别的伪代码: " + escapeForComment(code) + System.lineSeparator()
+                    + indent + escapeForComment(code) + System.lineSeparator()
+                    + indent + "//自动生成，请勿编辑--end" + System.lineSeparator();
         }
 
         private String escapeForComment(String s) {
@@ -225,7 +225,7 @@ public class StructCodeInjector {
             fileName = enclosingClass.getSimpleName();
         }
         String packagePath = CommHelper.getResourcePath(clazz);
-        return packagePath + "/" + fileName + ".java";
+        return packagePath + File.separator + fileName + ".java";
     }
 
     /**
