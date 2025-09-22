@@ -102,11 +102,17 @@ public class DCModuleConstraintExecutor {
      * DC推理请求类
      */
     public static class DCInferParasReq {
-        public Long moduleId;
-        public String moduleCode;
-        public DCPartInst mainPartInst;
-        public List<DCParaInst> preParaInsts;
-        public List<DCPartInst> prePartInsts;
-        public boolean enumerateAllSolution;
+
+        private Long moduleId;
+
+        private String moduleCode;
+
+        private DCPartInst mainPartInst;
+
+        private List<DCParaInst> preParaInsts;
+
+        private List<DCPartInst> prePartInsts;
+
+        private boolean enumerateAllSolution;
     }
 }

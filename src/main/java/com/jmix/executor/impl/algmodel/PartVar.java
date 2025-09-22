@@ -37,17 +37,17 @@ public class PartVar extends Var<Part> {
     /**
      * 部件的数量值
      */
-    public IntVar qty;
+    private IntVar qty;
 
     /**
      * 显示隐藏属性
      */
-    public BoolVar isHidden;
+    private BoolVar isHidden;
 
     /**
      * 子部件选中状态(Part.code -> BoolVar)
      */
-    public Map<String, BoolVar> subPartSelectedVars = new HashMap<>();
+    private Map<String, BoolVar> subPartSelectedVars = new HashMap<>();
 
     /**
      * 获取变量字符串表示

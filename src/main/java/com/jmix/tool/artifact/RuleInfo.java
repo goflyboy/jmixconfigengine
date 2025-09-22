@@ -18,71 +18,71 @@ public class RuleInfo {
     /**
      * 规则编码
      */
-    public String code;
+    private String code;
 
     /**
      * 规则Schema类型全名
      * 例如：CDSL.V5.Struct.CompatiableRule
      */
-    public String ruleSchemaTypeFullName;
+    private String ruleSchemaTypeFullName;
 
     /**
      * 规则名称
      */
-    public String name;
+    private String name;
 
     /**
      * 自然语言描述
      */
-    public String normalNaturalCode;
+    private String normalNaturalCode;
 
     /**
      * 左类型名称
      */
-    public String leftTypeName;
+    private String leftTypeName;
 
     /**
      * 左变量信息
      */
-    public VarInfo<? extends Extensible> left;
+    private VarInfo<? extends Extensible> left;
 
     /**
      * 左对象过滤后的列表-CodeId
      */
-    public List<String> leftFilterCodes;// 名字不太好，过滤后的结果
+    private List<String> leftFilterCodes; // 名字不太好，过滤后的结果
 
     /**
      * 右类型名称
      */
-    public String rightTypeName;
+    private String rightTypeName;
 
     /**
      * 右变量信息
      */
-    public VarInfo<? extends Extensible> right;
+    private VarInfo<? extends Extensible> right;
 
     /**
      * 左对象过滤后的列表-Code
      */
-    public List<String> rightFilterCodes;
+    private List<String> rightFilterCodes;
 
     /**
      * 兼容性操作符
      * 例如：Requires、Incompatible、CoDependent
      */
-    public String compatiableOperator;
+    private String compatiableOperator;
 
     /**
      * 左变量名称
      * 例如：ColorVar、SizeVar等
      */
-    public String leftVarName;
+    private String leftVarName;
 
     /**
      * 右变量名称
      * 例如：ColorVar、SizeVar等
      */
-    public String rightVarName;
+    private String rightVarName;
 
     public boolean isCompatibleRule() {
         return RuleTypeConstants.isCompatiableRule(this.ruleSchemaTypeFullName);
