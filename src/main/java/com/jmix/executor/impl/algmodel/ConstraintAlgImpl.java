@@ -465,6 +465,15 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     }
 
     /**
+     * 获取CP约束求解模型实例
+     * 
+     * @return CP约束求解模型实例
+     */
+    public AlgCPModel getModel() {
+        return model;
+    }
+
+    /**
      * 获取变量映射
      * 
      * @return 变量映射Map

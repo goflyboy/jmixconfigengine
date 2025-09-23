@@ -5,11 +5,8 @@ import com.jmix.executor.imodel.ConstraintConfig;
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.rule.RefProgObjSchema;
 import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
-import com.jmix.executor.impl.algmodel.OtherVar;
-import com.jmix.executor.impl.algmodel.ParaVar;
-import com.jmix.executor.impl.algmodel.PartVar;
-import com.jmix.executor.impl.algmodel.Var;
 import com.jmix.executor.impl.util.Pair;
+import com.jmix.executor.omodel.AlgLoaderException;
 import com.jmix.executor.omodel.ExtensibleProcess;
 import com.jmix.executor.omodel.InferParasPostProcess;
 import com.jmix.executor.omodel.InferParasReq;
@@ -22,15 +19,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.google.ortools.sat.CpModel;
 import com.google.ortools.sat.CpSolver;
-import com.google.ortools.sat.CpSolverSolutionCallback;
 import com.google.ortools.sat.CpSolverStatus;
-import com.google.ortools.sat.IntVar;
 
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -111,79 +105,15 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
         if (req == null) {
             return Result.failed("req is null");
         }
-        Module module = null;
-        if (req.getModuleId() != null) {
-            module = moduleMap.get(req.getModuleId());
-        } else if (req.getModuleCode() != null) {
-            for (Module m : moduleMap.values()) {
-                if (req.getModuleCode().equals(m.getCode())) {
-                    module = m;
-                    break;
-                }
-            }
-        }
-        if (module == null) {
-            return Result.failed("module not found");
-        }
-        ModuleAlgClassLoader loader = moduleAlgClassLoaderMap.get(module.getId());
-        if (loader == null) {
-            return Result.failed("loader not found");
-        }
-
         try {
-            ConstraintAlgImpl alg = loader.newConstraintAlg(module.getCode());
-            CpModel model = new CpModel();
+            // 获取基础数据
+            Module module = getModule(req.getModuleId(), req.getModuleCode());
             module.init();
 
-            // 根据loadType决定是否使用差量加载模型
-            if (config != null && config.getLoadType() == 0) {
-                // 差量加载模型
-                List<String> inputProgObjs = new ArrayList<>();
+            // 初始化约束模型
+            ConstraintAlgImpl alg = initConstraintModel(module, req);
+            CpModel model = alg.getModel().getModel();
 
-                // 根据req.mainPartInst、preParaInsts、prePartInsts构建inputProgObjs（三个结合相加)
-                if (req.getMainPartInst() != null) {
-                    inputProgObjs.add(req.getMainPartInst().getCode());
-                }
-                if (req.getPreParaInsts() != null) {
-                    for (ParaInst paraInst : req.getPreParaInsts()) {
-                        inputProgObjs.add(paraInst.getCode());
-                    }
-                }
-                if (req.getPrePartInsts() != null) {
-                    for (PartInst partInst : req.getPrePartInsts()) {
-                        inputProgObjs.add(partInst.getCode());
-                    }
-                }
-
-                // 查询子图
-                Pair<List<String>, List<RefProgObjSchema>> relativePair = module
-                        .querySubGraph(inputProgObjs.toArray(new String[0]));
-
-                // 打印relativePair.first,relativePair.second, 本次推理涉及到exeRules和exeProgObjs
-                log.info("Incremental loading - involved rules: {}", relativePair.getFirst());
-                log.info("Incremental loading - involved progObjs: {}",
-                        relativePair.getSecond().stream().map(RefProgObjSchema::getProgObjCode)
-                                .collect(java.util.stream.Collectors.toList()));
-
-                // 调用新的initModel方法
-                alg.initModel(model, module, relativePair.getFirst(), relativePair.getSecond());
-            } else {
-                // 全量加载模型
-                alg.initModel(model, module);
-            }
-            if (req.getMainPartInst() != null) {
-                alg.addPartEquality(req.getMainPartInst().getCode(), req.getMainPartInst().getQuantity());
-            }
-            if (req.getPreParaInsts() != null) {
-                for (ParaInst paraInst : req.getPreParaInsts()) {
-                    alg.addParaEquality(paraInst.getCode(), paraInst.getValue());
-                }
-            }
-            if (req.getPrePartInsts() != null) {
-                for (PartInst partInst : req.getPrePartInsts()) {
-                    alg.addPartEquality(partInst.getCode(), partInst.getQuantity());
-                }
-            }
             if (config.isLogModelProto()) {
                 // 将module的CpModelProto信息输出到文件config.logFilePath/module.proto.txt
                 model.exportToFile(config.getLogFilePath() + File.separator + module.getCode() + ".proto.txt");
@@ -193,7 +123,6 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
                 solver.getParameters().setEnumerateAllSolutions(true);
             }
             // 可按需设置更多参数
-            // if (config != null) { solver.getParameters().setLogSearchProgress(true); }
             ModuleInstSolutionCallBack cb = new ModuleInstSolutionCallBack(module, alg.getVars(), alg.getOtherVarMap());
             CpSolverStatus status = solver.solve(model, cb);
 
@@ -208,9 +137,6 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
                     && status != CpSolverStatus.INFEASIBLE) {
                 return Result.failed("solver status: " + status);
             }
-            // if(cb.getAllSolutions().isEmpty()){
-            // return Result.noSolution();
-            // }
 
             // 执行后处理
             List<ModuleInst> solutions = cb.getAllSolutions();
@@ -221,119 +147,6 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
             log.error("Failed to infer paras", ex);
             return Result.failed("exception: " + ex.getMessage());
         }
-    }
-
-    static class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
-
-        private final Module module;
-
-        private final List<Var<?>> vars;
-
-        private final List<ModuleInst> allSolutions = new ArrayList<>();
-
-        // 第几个解
-        private int solutionIndex = 0;
-
-        // 其他变量映射
-        private Map<String, OtherVar> otherVarMap;
-
-        // 常量定义
-        private static final String OTHER_VARIABLES_VALUE_KEY = "OTHER_VARIABLES_VALUE";
-
-        private static final String OTHER_VARIABLES_MEMO_KEY = "OTHER_VARIABLES_MEMO";
-
-        public ModuleInstSolutionCallBack(Module module, List<Var<?>> vars) {
-            this.vars = vars != null ? vars : Collections.emptyList();
-            this.module = module;
-        }
-
-        public ModuleInstSolutionCallBack(Module module, List<Var<?>> vars, Map<String, OtherVar> otherVarMap) {
-            this.vars = vars != null ? vars : Collections.emptyList();
-            this.module = module;
-            this.otherVarMap = otherVarMap;
-        }
-
-        @Override
-        public void onSolutionCallback() {
-            solutionIndex++;
-            // 创建ModuleInst实例，instanceId从0开始
-            ModuleInst moduleInst = createModuleInst(module, 0);
-            for (Var<?> v : vars) {
-                // 打印var.getVarString
-                log.info("-------------varInfos-solutionIndex:{}----------- \n {}", solutionIndex,
-                        v.getVarString(this));
-                // 如果不是debug模式，则不打印Var的值
-                if (v instanceof ParaVar) {
-                    ParaVar pv = (ParaVar) v;
-                    ParaInst pi = new ParaInst();
-                    pi.setCode(pv.getCode());
-                    // 从模块中获取对应的Para模型，设置shortCode
-                    pi.setShortCode(pv.getBase().getShortCode());
-
-                    // value: read IntVar domain value
-                    int value = (int) value((IntVar) pv.value);
-                    pi.setValue(String.valueOf(value));
-                    // options: selected option codes
-                    List<String> options = new ArrayList<>();
-                    pv.optionSelectVars.forEach((codeId, optionVar) -> {
-                        long sel = value(optionVar.getIsSelectedVar());
-                        if (sel == 1L) {
-                            options.add(optionVar.getCode());
-                        }
-                    });
-                    pi.setOptions(options);
-                    pi.setHidden((int) value((IntVar) pv.isHidden) == 1);
-                    moduleInst.addParaInst(pi);
-                } else if (v instanceof PartVar) {
-                    PartVar partVar = (PartVar) v;
-                    PartInst inst = new PartInst();
-                    inst.setCode(partVar.getCode());
-                    // 从模块中获取对应的Part模型，设置shortCode
-                    inst.setShortCode(partVar.getBase().getShortCode());
-                    inst.setQuantity((int) value((IntVar) partVar.qty));
-                    moduleInst.addPartInst(inst);
-                }
-            }
-
-            // 如果isLogVariables为true，则增加根据otherVarMap值的获取,组织otherVarKeyMap
-            if (otherVarMap != null && !otherVarMap.isEmpty()) {
-                Map<String, Long> otherVarKeyMap = new HashMap<>();
-                for (Map.Entry<String, OtherVar> entry : otherVarMap.entrySet()) {
-                    OtherVar otherVar = entry.getValue();
-                    long varValue = value(otherVar.getVar());
-                    otherVarKeyMap.put(otherVar.getShortCode(), varValue);
-                }
-                moduleInst.getExtAttrs().put(OTHER_VARIABLES_VALUE_KEY, otherVarKeyMap);
-                moduleInst.getExtAttrs().put(OTHER_VARIABLES_MEMO_KEY, otherVarMap);
-            }
-
-            allSolutions.add(moduleInst);
-        }
-
-        public List<ModuleInst> getAllSolutions() {
-            return allSolutions;
-        }
-    }
-
-    /**
-     * 创建ModuleInst实例
-     * 
-     * @param module     模块对象
-     * @param instanceId 实例ID，默认为0
-     * @return ModuleInst实例
-     */
-    private static ModuleInst createModuleInst(Module module, int instanceId) {
-        ModuleInst moduleInst = new ModuleInst();
-        moduleInst.setId(module.getId());
-        moduleInst.setCode(module.getCode());
-        // 设置ModuleInst的shortCode
-        moduleInst.setShortCode(module.getShortCode());
-        moduleInst.setInstanceConfigId("0");
-        moduleInst.setInstanceId(instanceId);
-        moduleInst.setQuantity(1);
-        moduleInst.setParas(new ArrayList<>());
-        moduleInst.setParts(new ArrayList<>());
-        return moduleInst;
     }
 
     @Override
@@ -386,6 +199,135 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
             log.error("Failed to unregister extensible process: {}", eProcess.getProcessName(), e);
             return Result.failed("Exception: " + e.getMessage());
         }
+    }
+
+    /**
+     * 根据模块ID获取模块算法类加载器
+     * 
+     * @param moduleId 模块ID
+     * @return 找到的ModuleAlgClassLoader对象，如果未找到则返回null
+     */
+    private ModuleAlgClassLoader getModuleClassLoader(Long moduleId) {
+        return moduleAlgClassLoaderMap.get(moduleId);
+    }
+
+    /**
+     * 初始化约束模型
+     * 
+     * @param module 模块对象
+     * @param req    参数反推请求
+     * @return 初始化完成的约束算法实现
+     * @throws AlgLoaderException 当算法加载器未找到时抛出
+     * @throws Exception          当创建算法实例时抛出
+     */
+    private ConstraintAlgImpl initConstraintModel(Module module, InferParasReq req)
+            throws AlgLoaderException, Exception {
+        // 加载算法类
+        ModuleAlgClassLoader loader = getModuleClassLoader(module.getId());
+        if (loader == null) {
+            throw new AlgLoaderException("ModuleAlgClassLoader not found for module: " + module.getId());
+        }
+
+        // 初始化约束模型
+        ConstraintAlgImpl alg = loader.newConstraintAlg(module.getCode());
+        CpModel model = new CpModel();
+
+        // 根据loadType决定是否使用差量加载模型
+        if (config != null && config.getLoadType() == 0) {
+            // 差量加载模型
+            List<String> inputProgObjs = buildInputProgObjs(req);
+
+            // 查询子图
+            Pair<List<String>, List<RefProgObjSchema>> relativePair = module
+                    .querySubGraph(inputProgObjs.toArray(new String[0]));
+
+            // 打印relativePair.first,relativePair.second, 本次推理涉及到exeRules和exeProgObjs
+            log.info("Incremental loading - involved rules: {}", relativePair.getFirst());
+            log.info("Incremental loading - involved progObjs: {}",
+                    relativePair.getSecond().stream().map(RefProgObjSchema::getProgObjCode)
+                            .collect(java.util.stream.Collectors.toList()));
+
+            // 调用新的initModel方法
+            alg.initModel(model, module, relativePair.getFirst(), relativePair.getSecond());
+        } else {
+            // 全量加载模型
+            alg.initModel(model, module);
+        }
+
+        // 根据请求初始化约束模型
+        initModelByReq(req, alg);
+
+        return alg;
+    }
+
+    /**
+     * 构建输入编程对象列表
+     * 
+     * @param req 参数反推请求
+     * @return 输入编程对象代码列表
+     */
+    private List<String> buildInputProgObjs(InferParasReq req) {
+        List<String> inputProgObjs = new ArrayList<>();
+
+        // 根据req.mainPartInst、preParaInsts、prePartInsts构建inputProgObjs（三个结合相加)
+        if (req.getMainPartInst() != null) {
+            inputProgObjs.add(req.getMainPartInst().getCode());
+        }
+        if (req.getPreParaInsts() != null) {
+            for (ParaInst paraInst : req.getPreParaInsts()) {
+                inputProgObjs.add(paraInst.getCode());
+            }
+        }
+        if (req.getPrePartInsts() != null) {
+            for (PartInst partInst : req.getPrePartInsts()) {
+                inputProgObjs.add(partInst.getCode());
+            }
+        }
+
+        return inputProgObjs;
+    }
+
+    /**
+     * 根据请求初始化约束模型
+     * 
+     * @param req 参数反推请求
+     * @param alg 约束算法实现
+     */
+    private void initModelByReq(InferParasReq req, ConstraintAlgImpl alg) {
+        if (req.getMainPartInst() != null) {
+            alg.addPartEquality(req.getMainPartInst().getCode(), req.getMainPartInst().getQuantity());
+        }
+        if (req.getPreParaInsts() != null) {
+            for (ParaInst paraInst : req.getPreParaInsts()) {
+                alg.addParaEquality(paraInst.getCode(), paraInst.getValue());
+            }
+        }
+        if (req.getPrePartInsts() != null) {
+            for (PartInst partInst : req.getPrePartInsts()) {
+                alg.addPartEquality(partInst.getCode(), partInst.getQuantity());
+            }
+        }
+    }
+
+    /**
+     * 根据模块ID或模块代码获取模块对象
+     * 
+     * @param moduleId   模块ID，可为null
+     * @param moduleCode 模块代码，可为null
+     * @return 找到的模块对象，如果未找到则返回null
+     */
+    private Module getModule(Long moduleId, String moduleCode) {
+        if (moduleId != null) {
+            return moduleMap.get(moduleId);
+        } else if (moduleCode != null) {
+            for (Module m : moduleMap.values()) {
+                if (moduleCode.equals(m.getCode())) {
+                    return m;
+                }
+            }
+        }
+        throw new AlgLoaderException(
+                String.format("Module not found: moduleId=%s, moduleCode=%s", moduleId, moduleCode));
     }
 
     /**
