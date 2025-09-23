@@ -28,7 +28,7 @@ import java.util.Map;
 @Data
 public class AlgCPModel {
     // 底层的CpModel实例
-    private CpModel model;
+    private CpModel cpModel;
 
     // other variables map
     private Map<String, OtherVar> otherVarMap = new HashMap<>();
@@ -40,7 +40,7 @@ public class AlgCPModel {
      * 默认构造函数，创建新的CpModel实例
      */
     public AlgCPModel() {
-        this.model = new CpModel();
+        this.cpModel = new CpModel();
     }
 
     /**
@@ -48,8 +48,8 @@ public class AlgCPModel {
      * 
      * @param model 要封装的CpModel实例
      */
-    public AlgCPModel(final CpModel model) {
-        this.model = model;
+    public AlgCPModel(final CpModel cpModel) {
+        this.cpModel = cpModel;
     }
 
     /**
@@ -57,8 +57,8 @@ public class AlgCPModel {
      * 
      * @return 封装的CpModel实例
      */
-    public CpModel getModel() {
-        return model;
+    public CpModel getCpModel() {
+        return cpModel;
     }
 
     /**
@@ -70,7 +70,7 @@ public class AlgCPModel {
      * @return 创建的整数变量
      */
     public IntVar newIntVar(final long left, final long right, final String name) {
-        IntVar tv = this.model.newIntVar(left, right, name);
+        IntVar tv = this.cpModel.newIntVar(left, right, name);
         registerVariables(tv, name);
         return tv;
     }
@@ -83,7 +83,7 @@ public class AlgCPModel {
      * @return 创建的整数变量
      */
     public IntVar newIntVarFromDomain(final long value, final String name) {
-        IntVar tv = this.model.newIntVarFromDomain(Domain.fromValues(new long[] { value }), name);
+        IntVar tv = this.cpModel.newIntVarFromDomain(Domain.fromValues(new long[] { value }), name);
         registerVariables(tv, name);
         return tv;
     }
@@ -96,7 +96,7 @@ public class AlgCPModel {
      * @return 创建的整数变量
      */
     public IntVar newIntVarFromDomain(final long[] values, final String name) {
-        IntVar tv = this.model.newIntVarFromDomain(Domain.fromValues(values), name);
+        IntVar tv = this.cpModel.newIntVarFromDomain(Domain.fromValues(values), name);
         registerVariables(tv, name);
         return tv;
     }
@@ -109,7 +109,7 @@ public class AlgCPModel {
      * @return 创建的整数变量
      */
     public IntVar newIntVarFromDomain(final long[][] intervals, final String name) {
-        IntVar tv = this.model.newIntVarFromDomain(Domain.fromIntervals(intervals), name);
+        IntVar tv = this.cpModel.newIntVarFromDomain(Domain.fromIntervals(intervals), name);
         registerVariables(tv, name);
         return tv;
     }
@@ -121,7 +121,7 @@ public class AlgCPModel {
      * @return 创建的整数变量
      */
     public IntVar newIntVarFromDomain(final String name) {
-        IntVar tv = this.model.newIntVarFromDomain(Domain.fromValues(new long[] { Long.MIN_VALUE, Long.MAX_VALUE }),
+        IntVar tv = this.cpModel.newIntVarFromDomain(Domain.fromValues(new long[] { Long.MIN_VALUE, Long.MAX_VALUE }),
                 name);
         registerVariables(tv, name);
         return tv;
@@ -134,7 +134,7 @@ public class AlgCPModel {
      * @return 创建的布尔变量
      */
     public BoolVar newBoolVar(final String name) {
-        BoolVar tv = this.model.newBoolVar(name);
+        BoolVar tv = this.cpModel.newBoolVar(name);
         registerVariables(tv, name);
         return tv;
     }
@@ -183,7 +183,7 @@ public class AlgCPModel {
      * @return 添加的约束
      */
     public Constraint addBoolOr(final Literal[] literals) {
-        return model.addBoolOr(literals);
+        return cpModel.addBoolOr(literals);
     }
 
     /**
@@ -193,7 +193,7 @@ public class AlgCPModel {
      * @return 添加的约束
      */
     public Constraint addBoolOr(final Iterable<Literal> literals) {
-        return model.addBoolOr(literals);
+        return cpModel.addBoolOr(literals);
     }
 
     /**
@@ -203,7 +203,7 @@ public class AlgCPModel {
      * @return 添加的约束
      */
     public Constraint addAtLeastOne(final Literal[] literals) {
-        return model.addAtLeastOne(literals);
+        return cpModel.addAtLeastOne(literals);
     }
 
     /**
@@ -213,7 +213,7 @@ public class AlgCPModel {
      * @return 添加的约束
      */
     public Constraint addAtLeastOne(final Iterable<Literal> literals) {
-        return model.addAtLeastOne(literals);
+        return cpModel.addAtLeastOne(literals);
     }
 
     /**
@@ -223,7 +223,7 @@ public class AlgCPModel {
      * @return 添加的约束
      */
     public Constraint addAtMostOne(final Literal[] literals) {
-        return model.addAtMostOne(literals);
+        return cpModel.addAtMostOne(literals);
     }
 
     /**
@@ -233,7 +233,7 @@ public class AlgCPModel {
      * @return 添加的约束
      */
     public Constraint addAtMostOne(final Iterable<Literal> literals) {
-        return model.addAtMostOne(literals);
+        return cpModel.addAtMostOne(literals);
     }
 
     /**
@@ -243,7 +243,7 @@ public class AlgCPModel {
      * @return 添加的约束
      */
     public Constraint addExactlyOne(final Literal[] literals) {
-        return model.addExactlyOne(literals);
+        return cpModel.addExactlyOne(literals);
     }
 
     /**
@@ -253,7 +253,7 @@ public class AlgCPModel {
      * @return 添加的约束
      */
     public Constraint addExactlyOne(final Iterable<Literal> literals) {
-        return model.addExactlyOne(literals);
+        return cpModel.addExactlyOne(literals);
     }
 
     /**
@@ -263,7 +263,7 @@ public class AlgCPModel {
      * @return 添加的约束
      */
     public Constraint addBoolAnd(final Literal[] literals) {
-        return model.addBoolAnd(literals);
+        return cpModel.addBoolAnd(literals);
     }
 
     /**
@@ -273,7 +273,7 @@ public class AlgCPModel {
      * @return 添加的约束
      */
     public Constraint addBoolAnd(final Iterable<Literal> literals) {
-        return model.addBoolAnd(literals);
+        return cpModel.addBoolAnd(literals);
     }
 
     /**
@@ -283,7 +283,7 @@ public class AlgCPModel {
      * @return 添加的约束
      */
     public Constraint addBoolXor(final Literal[] literals) {
-        return model.addBoolXor(literals);
+        return cpModel.addBoolXor(literals);
     }
 
     /**
@@ -293,7 +293,7 @@ public class AlgCPModel {
      * @return 添加的约束
      */
     public Constraint addBoolXor(final Iterable<Literal> literals) {
-        return model.addBoolXor(literals);
+        return cpModel.addBoolXor(literals);
     }
 
     /**
@@ -304,7 +304,7 @@ public class AlgCPModel {
      * @return 添加的约束
      */
     public Constraint addImplication(final Literal a, final Literal b) {
-        return model.addImplication(a, b);
+        return cpModel.addImplication(a, b);
     }
 
     // Linear constraints
@@ -317,7 +317,7 @@ public class AlgCPModel {
      * @return 添加的约束
      */
     public Constraint addEquality(final LinearArgument expr, final long value) {
-        return model.addEquality(expr, value);
+        return cpModel.addEquality(expr, value);
     }
 
     /**
@@ -328,7 +328,7 @@ public class AlgCPModel {
      * @return 添加的约束
      */
     public Constraint addEquality(final LinearArgument left, final LinearArgument right) {
-        return model.addEquality(left, right);
+        return cpModel.addEquality(left, right);
     }
 
     /**
@@ -339,7 +339,7 @@ public class AlgCPModel {
      * @return 添加的约束
      */
     public Constraint addLessOrEqual(final LinearArgument expr, final long value) {
-        return model.addLessOrEqual(expr, value);
+        return cpModel.addLessOrEqual(expr, value);
     }
 
     /**
@@ -350,7 +350,7 @@ public class AlgCPModel {
      * @return 添加的约束
      */
     public Constraint addLessOrEqual(final LinearArgument left, final LinearArgument right) {
-        return model.addLessOrEqual(left, right);
+        return cpModel.addLessOrEqual(left, right);
     }
 
     /**
@@ -361,7 +361,7 @@ public class AlgCPModel {
      * @return 添加的约束
      */
     public Constraint addLessThan(final LinearArgument expr, final long value) {
-        return model.addLessThan(expr, value);
+        return cpModel.addLessThan(expr, value);
     }
 
     /**
@@ -372,7 +372,7 @@ public class AlgCPModel {
      * @return 添加的约束
      */
     public Constraint addLessThan(final LinearArgument left, final LinearArgument right) {
-        return model.addLessThan(left, right);
+        return cpModel.addLessThan(left, right);
     }
 
     /**
@@ -383,7 +383,7 @@ public class AlgCPModel {
      * @return 添加的约束
      */
     public Constraint addGreaterOrEqual(final LinearArgument expr, final long value) {
-        return model.addGreaterOrEqual(expr, value);
+        return cpModel.addGreaterOrEqual(expr, value);
     }
 
     /**
@@ -394,7 +394,7 @@ public class AlgCPModel {
      * @return 添加的约束
      */
     public Constraint addGreaterOrEqual(final LinearArgument left, final LinearArgument right) {
-        return model.addGreaterOrEqual(left, right);
+        return cpModel.addGreaterOrEqual(left, right);
     }
 
     /**
@@ -405,7 +405,7 @@ public class AlgCPModel {
      * @return 添加的约束
      */
     public Constraint addGreaterThan(final LinearArgument expr, final long value) {
-        return model.addGreaterThan(expr, value);
+        return cpModel.addGreaterThan(expr, value);
     }
 
     /**
@@ -416,7 +416,7 @@ public class AlgCPModel {
      * @return 添加的约束
      */
     public Constraint addGreaterThan(final LinearArgument left, final LinearArgument right) {
-        return model.addGreaterThan(left, right);
+        return cpModel.addGreaterThan(left, right);
     }
 
     /**
@@ -427,7 +427,7 @@ public class AlgCPModel {
      * @return 添加的约束
      */
     public Constraint addDifferent(final LinearArgument expr, final long value) {
-        return model.addDifferent(expr, value);
+        return cpModel.addDifferent(expr, value);
     }
 
     /**
@@ -438,7 +438,7 @@ public class AlgCPModel {
      * @return 添加的约束
      */
     public Constraint addDifferent(final LinearArgument left, final LinearArgument right) {
-        return model.addDifferent(left, right);
+        return cpModel.addDifferent(left, right);
     }
 
     // Integer constraints
@@ -450,7 +450,7 @@ public class AlgCPModel {
      * @return 添加的约束
      */
     public Constraint addAllDifferent(final LinearArgument[] expressions) {
-        return model.addAllDifferent(expressions);
+        return cpModel.addAllDifferent(expressions);
     }
 
     /**
@@ -460,7 +460,7 @@ public class AlgCPModel {
      * @return 添加的约束
      */
     public Constraint addAllDifferent(final Iterable<? extends LinearArgument> expressions) {
-        return model.addAllDifferent(expressions);
+        return cpModel.addAllDifferent(expressions);
     }
 
     // Variable creation methods (delegated without registration)
@@ -473,7 +473,7 @@ public class AlgCPModel {
      * @return 创建的整数变量
      */
     public IntVar newIntVarFromDomain(final Domain domain, final String name) {
-        return model.newIntVarFromDomain(domain, name);
+        return cpModel.newIntVarFromDomain(domain, name);
     }
 
     /**
@@ -483,7 +483,7 @@ public class AlgCPModel {
      * @return 创建的常量变量
      */
     public IntVar newConstant(final long value) {
-        return model.newConstant(value);
+        return cpModel.newConstant(value);
     }
 
     /**
@@ -492,7 +492,7 @@ public class AlgCPModel {
      * @return 真字面量
      */
     public Literal trueLiteral() {
-        return model.trueLiteral();
+        return cpModel.trueLiteral();
     }
 
     /**
@@ -501,7 +501,7 @@ public class AlgCPModel {
      * @return 假字面量
      */
     public Literal falseLiteral() {
-        return model.falseLiteral();
+        return cpModel.falseLiteral();
     }
 
     // Utility methods
@@ -512,7 +512,7 @@ public class AlgCPModel {
      * @return 模型统计信息
      */
     public String modelStats() {
-        return model.modelStats();
+        return cpModel.modelStats();
     }
 
     /**
@@ -521,7 +521,7 @@ public class AlgCPModel {
      * @return 如果模型有效返回空字符串，否则返回错误信息
      */
     public String validate() {
-        return model.validate();
+        return cpModel.validate();
     }
 
     /**
@@ -531,7 +531,7 @@ public class AlgCPModel {
      * @return 导出是否成功
      */
     public Boolean exportToFile(final String file) {
-        return model.exportToFile(file);
+        return cpModel.exportToFile(file);
     }
 
     /**
@@ -540,7 +540,7 @@ public class AlgCPModel {
      * @return CpModelProto构建器
      */
     public CpModelProto.Builder getBuilder() {
-        return model.getBuilder();
+        return cpModel.getBuilder();
     }
 
     /**
@@ -549,7 +549,7 @@ public class AlgCPModel {
      * @return CpModelProto模型
      */
     public CpModelProto model() {
-        return model.model();
+        return cpModel.model();
     }
 
     /**
@@ -558,7 +558,7 @@ public class AlgCPModel {
      * @return 模型的克隆
      */
     public CpModel getClone() {
-        return model.getClone();
+        return cpModel.getClone();
     }
 
     /**
@@ -568,7 +568,7 @@ public class AlgCPModel {
      * @return 重建的布尔变量
      */
     public BoolVar getBoolVarFromProtoIndex(final int index) {
-        return model.getBoolVarFromProtoIndex(index);
+        return cpModel.getBoolVarFromProtoIndex(index);
     }
 
     /**
@@ -578,7 +578,7 @@ public class AlgCPModel {
      * @return 重建的整数变量
      */
     public IntVar getIntVarFromProtoIndex(final int index) {
-        return model.getIntVarFromProtoIndex(index);
+        return cpModel.getIntVarFromProtoIndex(index);
     }
 
     // Objective methods
@@ -589,7 +589,7 @@ public class AlgCPModel {
      * @param expr 线性表达式
      */
     public void minimize(final LinearArgument expr) {
-        model.minimize(expr);
+        cpModel.minimize(expr);
     }
 
     /**
@@ -598,7 +598,7 @@ public class AlgCPModel {
      * @param expr 双精度线性表达式
      */
     public void minimize(final DoubleLinearExpr expr) {
-        model.minimize(expr);
+        cpModel.minimize(expr);
     }
 
     /**
@@ -607,7 +607,7 @@ public class AlgCPModel {
      * @param expr 线性表达式
      */
     public void maximize(final LinearArgument expr) {
-        model.maximize(expr);
+        cpModel.maximize(expr);
     }
 
     /**
@@ -616,14 +616,14 @@ public class AlgCPModel {
      * @param expr 双精度线性表达式
      */
     public void maximize(final DoubleLinearExpr expr) {
-        model.maximize(expr);
+        cpModel.maximize(expr);
     }
 
     /**
      * 清除目标函数
      */
     public void clearObjective() {
-        model.clearObjective();
+        cpModel.clearObjective();
     }
 
     /**
@@ -632,23 +632,23 @@ public class AlgCPModel {
      * @return 如果包含目标函数返回true，否则返回false
      */
     public boolean hasObjective() {
-        return model.hasObjective();
+        return cpModel.hasObjective();
     }
 
     // Standard Object methods
 
     @Override
     public final String toString() {
-        return model.toString();
+        return cpModel.toString();
     }
 
     @Override
     public final boolean equals(final Object obj) {
-        return model.equals(obj);
+        return cpModel.equals(obj);
     }
 
     @Override
     public final int hashCode() {
-        return model.hashCode();
+        return cpModel.hashCode();
     }
 }

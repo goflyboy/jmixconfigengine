@@ -112,7 +112,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
 
             // 初始化约束模型
             ConstraintAlgImpl alg = initConstraintModel(module, req);
-            CpModel model = alg.getModel().getModel();
+            CpModel model = alg.getModel().getCpModel();
 
             if (config.isLogModelProto()) {
                 // 将module的CpModelProto信息输出到文件config.logFilePath/module.proto.txt

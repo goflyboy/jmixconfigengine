@@ -22,6 +22,7 @@ public class CodeRuleSchema extends RuleSchema {
      * 引用编程对象,没有去重的
      */
     private List<RefProgObjSchema> rightRefProgObjs;
+
     /**
      * 引用编程对象,没有去重的
      */
