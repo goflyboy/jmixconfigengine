@@ -11,7 +11,6 @@ import com.jmix.tool.model.ParaAnno;
 import com.jmix.tool.model.PartAnno;
 
 import com.google.ortools.sat.BoolVar;
-import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.Literal;
 
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +28,7 @@ public class MyTShirtTest extends ModuleScenarioTestBase {
 
     // ---------------start----------------------------------------
     @ModuleAnno(id = 123L)
-    static public class MyTShirtConstraint extends ConstraintAlgImpl {
+    private static class MyTShirtConstraint extends ConstraintAlgImpl {
         @ParaAnno(options = { "op11", "op12", "op13" })
         private ParaVar p1Var;
 
@@ -59,8 +58,8 @@ public class MyTShirtTest extends ModuleScenarioTestBase {
                     p2Var.getParaOptionByCode("op21").getIsSelectedVar().not()
             }).onlyEnforceIf(condition.not());
 
-            model.addEquality((IntVar) pt1Var.qty, 1).onlyEnforceIf(condition);
-            model.addEquality((IntVar) pt1Var.qty, 3).onlyEnforceIf(condition.not());
+            model.addEquality(pt1Var.qty, 1).onlyEnforceIf(condition);
+            model.addEquality(pt1Var.qty, 3).onlyEnforceIf(condition.not());
         }
     }
     // ---------------?????end----------------------------------------

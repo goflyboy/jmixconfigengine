@@ -28,7 +28,7 @@ public class ParaIntegerTest extends ModuleScenarioTestBase {
 
     // ---------------ģ�͵Ķ���start----------------------------------------
     @ModuleAnno(id = 123L)
-    static public class ParaIntegerConstraint extends ConstraintAlgImpl {
+    private static class ParaIntegerConstraint extends ConstraintAlgImpl {
         @ParaAnno(type = ParaType.INTEGER, defaultValue = "0", minValue = "0", maxValue = "50")
         private ParaVar p1;
 

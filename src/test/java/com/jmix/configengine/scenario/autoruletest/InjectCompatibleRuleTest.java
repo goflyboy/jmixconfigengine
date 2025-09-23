@@ -21,9 +21,15 @@ import org.junit.Test;
  */
 @Slf4j
 public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
+    /**
+     * 构造InjectCompatibleRuleTest测试类
+     */
+    public InjectCompatibleRuleTest() {
+        super(InjectCompatibleRuleConstraint.class);
+    }
 
     @ModuleAnno(id = 123L)
-    static public class InjectCompatibleRuleConstraint extends ConstraintAlgImpl {
+    private static class InjectCompatibleRuleConstraint extends ConstraintAlgImpl {
         @ParaAnno(options = { "Red", "Black", "White" })
         private ParaVar ColorVar;
 
@@ -64,13 +70,6 @@ public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
             // 自动生成，请勿编辑--end
 
         }
-    }
-
-    /**
-     * 构造InjectCompatibleRuleTest测试类
-     */
-    public InjectCompatibleRuleTest() {
-        super(InjectCompatibleRuleConstraint.class);
     }
 
     @Override

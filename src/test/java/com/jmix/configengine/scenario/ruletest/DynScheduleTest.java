@@ -25,13 +25,11 @@ import org.junit.Test;
  * @since 2025-09-22
  */
 @Slf4j
-@SuppressWarnings("checkstyle:all")
 public class DynScheduleTest extends ModuleScenarioTestBase {
 
     // ---------------start----------------------------------------
     @ModuleAnno(id = 123L)
-    @SuppressWarnings("checkstyle:all")
-    static public class DynScheduleConstraint extends ConstraintAlgImpl {
+    private static class DynScheduleConstraint extends ConstraintAlgImpl {
         @ParaAnno(type = ParaType.INTEGER, defaultValue = "0", minValue = "0", maxValue = "4")
         private ParaVar p0;
 
@@ -106,7 +104,7 @@ public class DynScheduleTest extends ModuleScenarioTestBase {
 
         @CodeRuleAnno(normalNaturalCode = "pt1.qty = p11.value")
         private void rule11() {
-            model.addEquality((IntVar) pt1.qty, (IntVar) p11.value);
+            model.addEquality(pt1.qty, (IntVar) p11.value);
         }
 
         @CodeRuleAnno(normalNaturalCode = "if p21.value in (op211,op212) then "
@@ -127,11 +125,11 @@ public class DynScheduleTest extends ModuleScenarioTestBase {
             // p21InOp212.not()}).onlyEnforceIf(p21InFirstGroup.not());
 
             // Then branch: pt2.qty = 1 * p22.value
-            model.addEquality((IntVar) pt2.qty, (IntVar) p22.value).onlyEnforceIf(p21InFirstGroup);
+            model.addEquality(pt2.qty, (IntVar) p22.value).onlyEnforceIf(p21InFirstGroup);
 
             // Else branch: pt2.qty = 2 * p22.value
             LinearExpr p22Times2 = LinearExpr.newBuilder().addTerm((IntVar) p22.value, 2).build();
-            model.addEquality((IntVar) pt2.qty, p22Times2).onlyEnforceIf(p21InFirstGroup.not());
+            model.addEquality(pt2.qty, p22Times2).onlyEnforceIf(p21InFirstGroup.not());
         }
     }
     // ---------------?????end----------------------------------------

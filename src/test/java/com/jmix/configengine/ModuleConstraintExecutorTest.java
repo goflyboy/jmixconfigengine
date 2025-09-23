@@ -14,6 +14,7 @@ import com.jmix.tool.ModuleUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -34,7 +35,8 @@ public class ModuleConstraintExecutorTest {
     public void testInitAddModuleAndInfer2() {
     }
 
-    // @Test
+    @Test
+    @Ignore
     /**
      * 测试初始化、添加模块和推理参数
      */

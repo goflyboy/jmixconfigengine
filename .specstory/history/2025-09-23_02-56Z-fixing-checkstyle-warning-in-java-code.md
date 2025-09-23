@@ -6749,3 +6749,473 @@ Lines added: 3, lines removed: undefined
 
 ---
 
+_**User (2025-09-22 22:41Z)**_
+
+类似 这个 @SuppressWarnings("checkstyle:all") 都去掉
+
+---
+
+_**Assistant**_
+
+搜索项目中所有 `@SuppressWarnings("checkstyle:all")` 并移除。
+
+
+---
+
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/perf/Perf20ParasTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: undefined, lines removed: 1
+
+```diff
+@@ -29,5 +29,4 @@
+   */
+  @Slf4j
+- @SuppressWarnings("checkstyle:all")
+  public class Perf20ParasTest extends ModuleScenarioTestBase {
+  
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/DynScheduleTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: undefined, lines removed: 1
+
+```diff
+@@ -26,5 +26,4 @@
+   */
+  @Slf4j
+- @SuppressWarnings("checkstyle:all")
+  public class DynScheduleTest extends ModuleScenarioTestBase {
+  
+```
+
+</details>
+
+---
+
+检查是否还有其他 `@SuppressWarnings("checkstyle:all")` 注解。
+
+
+---
+
+
+
+---
+
+移除 `DynScheduleTest.java` 中剩余的 `@SuppressWarnings("checkstyle:all")` 注解。
+
+
+---
+
+Read file: undefined
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/DynScheduleTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: undefined, lines removed: 1
+
+```diff
+@@ -30,5 +30,4 @@
+      // ---------------start----------------------------------------
+      @ModuleAnno(id = 123L)
+-     @SuppressWarnings("checkstyle:all")
+      static public class DynScheduleConstraint extends ConstraintAlgImpl {
+          @ParaAnno(type = ParaType.INTEGER, defaultValue = "0", minValue = "0", maxValue = "4")
+```
+
+</details>
+
+---
+
+
+
+---
+
+已移除项目中所有 `@SuppressWarnings("checkstyle:all")` 注解：
+
+1. **Perf20ParasTest.java** - 移除了类级别的 `@SuppressWarnings("checkstyle:all")`
+2. **DynScheduleTest.java** - 移除了类级别和内部类级别的 `@SuppressWarnings("checkstyle:all")`
+
+项目已不再包含该注解。
+
+---
+
+_**User (2025-09-22 22:41Z)**_
+
+改造一下  1、类似 testPerformancept003_onlyOneSolution改成 小驼峰  2、 失效的测试用例如下处理： 修改前：
+  // @Test
+    public void testPerformancept003_allSolutions()
+
+修改后：
+    @Test
+    @Ignore
+    public void testPerformancept003_allSolutions()   3、看一下其它测试类是否存在类似情况
+
+---
+
+_**Assistant**_
+
+创建初始待办清单，开始改造测试类。
+
+
+---
+
+## Todo List
+
+- [-] 修改Perf20ParasTest.java中的测试方法名为小驼峰格式
+- [ ] 为失效的测试用例添加@Ignore注解
+- [ ] 检查其他测试类是否存在类似情况
+
+---
+
+修改 `Perf20ParasTest.java` 中的测试方法名为小驼峰格式。
+
+
+---
+
+Read file: undefined
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/perf/Perf20ParasTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 6, lines removed: 5
+
+```diff
+@@ -483,11 +483,12 @@
+      // ---------------模型的定义end----------------------------------------
+      @Test
+-     public void testPerformancept003_onlyOneSolution() {
+-         executeTest("testPerformancept003_onlyOneSolution", false);
++     public void testPerformancePt003OnlyOneSolution() {
++         executeTest("testPerformancePt003OnlyOneSolution", false);
+      }
+  
+-     // @Test
+-     public void testPerformancept003_allSolutions() {
+-         executeTest("testPerformancept003_allSolutions", true);
++     @Test
++     @Ignore
++     public void testPerformancePt003AllSolutions() {
++         executeTest("testPerformancePt003AllSolutions", true);
+      }
+  
+```
+
+</details>
+
+---
+
+检查是否已导入 `@Ignore` 注解。
+
+
+---
+
+Read file: undefined
+
+---
+
+添加 `@Ignore` 注解的导入。
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/perf/Perf20ParasTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -17,4 +17,5 @@
+  
+  import org.junit.Assert;
++ import org.junit.Ignore;
+  import org.junit.Test;
+  
+```
+
+</details>
+
+---
+
+## Todo List
+
+- [x] 修改Perf20ParasTest.java中的测试方法名为小驼峰格式
+- [x] 为失效的测试用例添加@Ignore注解
+- [ ] 检查其他测试类是否存在类似情况
+
+---
+
+检查其他测试类是否存在类似情况。
+
+
+---
+
+## Todo List
+
+- [x] 修改Perf20ParasTest.java中的测试方法名为小驼峰格式
+- [x] 为失效的测试用例添加@Ignore注解
+- [-] 检查其他测试类是否存在类似情况
+
+---
+
+
+
+---
+
+
+
+---
+
+检查 `ModuleConstraintExecutorTest.java` 中被注释的测试方法。
+
+
+---
+
+Read file: undefined
+
+---
+
+检查该测试类是否已导入 `@Ignore` 注解。
+
+
+---
+
+Read file: undefined
+
+---
+
+修改 `ModuleConstraintExecutorTest.java`：添加 `@Ignore` 导入，并将被注释的测试方法改为使用 `@Ignore`。
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/ModuleConstraintExecutorTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -15,4 +15,5 @@
+  import lombok.extern.slf4j.Slf4j;
+  
++ import org.junit.Ignore;
+  import org.junit.Test;
+  
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/ModuleConstraintExecutorTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 1
+
+```diff
+@@ -36,5 +36,6 @@
+      }
+  
+-     // @Test
++     @Test
++     @Ignore
+      /**
+       * 测试初始化、添加模块和推理参数
+```
+
+</details>
+
+---
+
+检查是否还有其他被注释的测试方法。
+
+
+---
+
+
+
+---
+
+检查测试方法命名是否符合小驼峰规范。
+
+
+---
+
+
+
+---
+
+检查 `ModuleConstraintExecutorTest.java` 中的测试方法命名。
+
+
+---
+
+Read file: undefined
+
+---
+
+将 `testInitAddModuleAndInfer2` 重命名为小驼峰格式。
+
+
+---
+
+Invalid: old_string and new_string are exactly the same.
+
+---
+
+Invalid: old_string and new_string are exactly the same.
+
+---
+
+Invalid: old_string and new_string are exactly the same.
+
+---
+
+<think>
+我看到我陷入了循环错误。原因是 `testInitAddModuleAndInfer2` 这个方法名实际上已经符合小驼峰规范了。我需要重新检查一下这个方法名，看看它是否确实需要修改。
+
+让我重新分析一下需要修改的项目：
+1. 已经完成了 Perf20ParasTest.java 的修改
+2. 已经完成了为失效测试添加 @Ignore 注解
+3. 现在需要检查其他测试类的类似情况
+
+实际上，`testInitAddModuleAndInfer2` 这个名字本身就是小驼峰格式，只是末尾有个数字，这其实是符合规范的。我应该专注于查找真正不符合小驼峰规范的测试方法名，比如使用下划线分隔的。
+</think>
+
+---
+
+
+
+---
+
+找到了使用下划线命名的测试方法。让我逐一修改它们。
+
+---
+
+## Todo List
+
+- [x] 修改Perf20ParasTest.java中的测试方法名为小驼峰格式
+- [x] 为失效的测试用例添加@Ignore注解
+- [x] 检查其他测试类是否存在类似情况
+- [-] 修改CalculateRuleIfThenTest.java中的测试方法名
+- [ ] 修改CalculateRuleSimpleTest.java中的测试方法名
+- [ ] 修改ParaTypeHandlerTest.java中的测试方法名
+
+---
+
+Read file: undefined
+
+---
+
+
+
+---
+
+## Todo List
+
+- [x] 修改Perf20ParasTest.java中的测试方法名为小驼峰格式
+- [x] 为失效的测试用例添加@Ignore注解
+- [x] 检查其他测试类是否存在类似情况
+- [x] 修改CalculateRuleIfThenTest.java中的测试方法名
+- [-] 修改CalculateRuleSimpleTest.java中的测试方法名
+- [ ] 修改ParaTypeHandlerTest.java中的测试方法名
+
+---
+
+Read file: undefined
+
+---
+
+
+
+---
+
+## Todo List
+
+- [x] 修改Perf20ParasTest.java中的测试方法名为小驼峰格式
+- [x] 为失效的测试用例添加@Ignore注解
+- [x] 检查其他测试类是否存在类似情况
+- [x] 修改CalculateRuleIfThenTest.java中的测试方法名
+- [x] 修改CalculateRuleSimpleTest.java中的测试方法名
+- [-] 修改ParaTypeHandlerTest.java中的测试方法名
+
+---
+
+Read file: undefined
+
+---
+
+
+
+---
+
+## Todo List
+
+- [x] 修改Perf20ParasTest.java中的测试方法名为小驼峰格式
+- [x] 为失效的测试用例添加@Ignore注解
+- [x] 检查其他测试类是否存在类似情况
+- [x] 修改CalculateRuleIfThenTest.java中的测试方法名
+- [x] 修改CalculateRuleSimpleTest.java中的测试方法名
+- [x] 修改ParaTypeHandlerTest.java中的测试方法名
+
+---
+
+检查是否还有其他下划线命名的测试方法。
+
+
+---
+
+
+
+---
+
+完成！所有任务已完成：
+
+### 改造总结
+
+1. ✅ **修改测试方法名为小驼峰格式**：
+   - `Perf20ParasTest.java`: 将 `testPerformancept003_onlyOneSolution` 改为 `testPerformancePt003OnlyOneSolution`
+   - `CalculateRuleIfThenTest.java`: 修改了3个方法 (`test_rule2_if_op11_op21` 等)
+   - `CalculateRuleSimpleTest.java`: 修改了3个方法 (`test_if_op11` 等)
+   - `ParaTypeHandlerTest.java`: 修改了11个方法 (如 `testGetCodeIdValue_Integer` 等)
+
+2. ✅ **为失效测试添加@Ignore注解**：
+   - `Perf20ParasTest.java`: 将注释的 `testPerformancept003_allSolutions` 改为启用状态并添加 `@Ignore`
+   - `ModuleConstraintExecutorTest.java`: 将注释的 `testInitAddModuleAndInfer` 改为启用状态并添加 `@Ignore`
+
+3. ✅ **检查其他测试类**：
+   - 检查了整个 `src/test` 目录下的所有测试类
+   - 找到并修改了所有不符合小驼峰命名规范的测试方法
+   - 找到并处理了所有被注释的测试方法
+
+所有测试方法名现在都符合小驼峰命名规范，所有失效的测试用例都已正确添加了 `@Ignore` 注解。
+
+---
+

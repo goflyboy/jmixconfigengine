@@ -22,10 +22,16 @@ import org.junit.Test;
  */
 @Slf4j
 public class CalculateRuleIfThenTest extends ModuleScenarioTestBase {
+    /**
+     * 构造CalculateRuleIfThenTest测试类
+     */
+    public CalculateRuleIfThenTest() {
+        super(CalculateRuleConstraint.class);
+    }
 
     // ---------------规则定义start----------------------------------------
     @ModuleAnno(id = 123L)
-    static public class CalculateRuleConstraint extends ConstraintAlgImpl {
+    private static class CalculateRuleConstraint extends ConstraintAlgImpl {
 
         @ParaAnno(defaultValue = "op11", options = { "op11", "op12", "op13" })
         private ParaVar p1Var;
@@ -76,15 +82,8 @@ public class CalculateRuleIfThenTest extends ModuleScenarioTestBase {
             model.addEquality((IntVar) this.pt1Var.qty, 3).onlyEnforceIf(rule2_op11Andop21.not());
         }
     }
+
     // ---------------规则定义end----------------------------------------
-
-    /**
-     * 构造CalculateRuleIfThenTest测试类
-     */
-    public CalculateRuleIfThenTest() {
-        super(CalculateRuleConstraint.class);
-    }
-
     protected void beforeInitConfig(ConstraintConfig cfg) {
         cfg.setLoadType(1);
     }
@@ -93,7 +92,7 @@ public class CalculateRuleIfThenTest extends ModuleScenarioTestBase {
      * 测试规则2的if条件（op11和op21）
      */
     @Test
-    public void test_rule2_if_op11_op21() {
+    public void testRule2IfOp11Op21() {
         // 测试颜色参数推理
         inferParas("pt1", 1);
 
@@ -107,7 +106,7 @@ public class CalculateRuleIfThenTest extends ModuleScenarioTestBase {
      * 测试规则2的else条件（op11和op21）
      */
     @Test
-    public void test_rule2_else_op11_op21() {
+    public void testRule2ElseOp11Op21() {
         inferParas("pt1", 3);
         printSolutions();
         // 反推有8个接口 8=3*3 - 1
@@ -125,7 +124,7 @@ public class CalculateRuleIfThenTest extends ModuleScenarioTestBase {
      * 测试规则2的无if-else情况
      */
     @Test
-    public void test_rule2_no_if_else() {
+    public void testRule2NoIfElse() {
         inferParas("pt1", 4);
         printSolutions();
         // 反推有8个接口 8=3*3 - 1

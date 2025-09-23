@@ -17,7 +17,7 @@ import org.junit.Test;
 public class ParaTypeHandlerTest {
 
     @Test
-    public void testGetCodeIdValue_Integer() {
+    public void testGetCodeIdValueInteger() {
         Para para = new Para();
         para.setCode("TestPara");
         para.setType(ParaType.INTEGER);
@@ -27,7 +27,7 @@ public class ParaTypeHandlerTest {
     }
 
     @Test
-    public void testGetCodeIdValue_Enum() {
+    public void testGetCodeIdValueEnum() {
         Para para = new Para();
         para.setCode("TestPara");
         para.setType(ParaType.ENUM);
@@ -47,7 +47,7 @@ public class ParaTypeHandlerTest {
     }
 
     @Test(expected = RuntimeException.class)
-    public void testGetCodeIdValue_Enum_OptionNotFound() {
+    public void testGetCodeIdValueEnumOptionNotFound() {
         Para para = new Para();
         para.setCode("TestPara");
         para.setType(ParaType.ENUM);
@@ -62,7 +62,7 @@ public class ParaTypeHandlerTest {
     }
 
     @Test
-    public void testGetDisplayValue_Integer() {
+    public void testGetDisplayValueInteger() {
         Para para = new Para();
         para.setCode("TestPara");
         para.setType(ParaType.INTEGER);
@@ -72,7 +72,7 @@ public class ParaTypeHandlerTest {
     }
 
     @Test
-    public void testGetDisplayValue_Enum() {
+    public void testGetDisplayValueEnum() {
         Para para = new Para();
         para.setCode("TestPara");
         para.setType(ParaType.ENUM);
@@ -92,7 +92,7 @@ public class ParaTypeHandlerTest {
     }
 
     @Test(expected = RuntimeException.class)
-    public void testGetDisplayValue_Enum_CodeIdNotFound() {
+    public void testGetDisplayValueEnumCodeIdNotFound() {
         Para para = new Para();
         para.setCode("TestPara");
         para.setType(ParaType.ENUM);
@@ -107,7 +107,7 @@ public class ParaTypeHandlerTest {
     }
 
     @Test
-    public void testValidateParaType_Valid() {
+    public void testValidateParaTypeValid() {
         Para para = new Para();
         para.setCode("TestPara");
         para.setType(ParaType.INTEGER);
@@ -117,12 +117,12 @@ public class ParaTypeHandlerTest {
     }
 
     @Test(expected = RuntimeException.class)
-    public void testValidateParaType_Null() {
+    public void testValidateParaTypeNull() {
         ParaTypeHandler.validateParaType(null);
     }
 
     @Test
-    public void testHasOption_True() {
+    public void testHasOptionTrue() {
         Para para = new Para();
         para.setCode("TestPara");
         para.setType(ParaType.ENUM);
@@ -137,7 +137,7 @@ public class ParaTypeHandlerTest {
     }
 
     @Test
-    public void testHasOption_False() {
+    public void testHasOptionFalse() {
         Para para = new Para();
         para.setCode("TestPara");
         para.setType(ParaType.ENUM);
@@ -152,7 +152,7 @@ public class ParaTypeHandlerTest {
     }
 
     @Test
-    public void testHasOption_IntegerType() {
+    public void testHasOptionIntegerType() {
         Para para = new Para();
         para.setCode("TestPara");
         para.setType(ParaType.INTEGER);

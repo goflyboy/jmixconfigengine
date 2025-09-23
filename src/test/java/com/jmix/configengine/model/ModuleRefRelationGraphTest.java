@@ -20,10 +20,12 @@ import java.util.Set;
 /**
  * ModuleRefRelationGraph 测试类
  * 测试模块引用关系图的各种功能
+ * 
+ * @since 2025-09-23
  */
 public class ModuleRefRelationGraphTest {
-
     private ModuleRefRelationGraph graph;
+
     private RefProgObjSchema p0, p11, p21, p22, pt1, pt2;
 
     /**

@@ -11,12 +11,12 @@ import com.jmix.tool.model.ParaAnno;
 import com.jmix.tool.model.PartAnno;
 
 import com.google.ortools.sat.BoolVar;
-import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.Literal;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
@@ -28,12 +28,14 @@ import java.util.concurrent.TimeUnit;
  * @since 2025-09-22
  */
 @Slf4j
-@SuppressWarnings("checkstyle:all")
 public class Perf20ParasTest extends ModuleScenarioTestBase {
+    public Perf20ParasTest() {
+        super(Perf20ParasConstraint.class);
+    }
 
     // ---------------模型的定义start----------------------------------------
     @ModuleAnno(id = 123L)
-    static public class Perf20ParasConstraint extends ConstraintAlgImpl {
+    private static class Perf20ParasConstraint extends ConstraintAlgImpl {
         @ParaAnno(options = {
                 "op00101", "op00102", "op00103", "op00104", "op00105",
                 "op00106", "op00107", "op00108", "op00109", "op00110"
@@ -354,10 +356,8 @@ public class Perf20ParasTest extends ModuleScenarioTestBase {
                     p012.getParaOptionByCode("op01202").getIsSelectedVar().not()
             }).onlyEnforceIf(condition2.not());
 
-            model.addEquality((IntVar) pt001.qty, 1).onlyEnforceIf(condition1);
-            model.addEquality((IntVar) pt001.qty, 2).onlyEnforceIf(condition2);
-            // model.addEquality((IntVar)pt001.qty, 3).onlyEnforceIf(condition1.not(),
-            // condition2.not());
+            model.addEquality(pt001.qty, 1).onlyEnforceIf(condition1);
+            model.addEquality(pt001.qty, 2).onlyEnforceIf(condition2);
         }
 
         @CodeRuleAnno(normalNaturalCode = "if(p013.value==op01301 && p014.value==op01401) then pt002.qty=1 " +
@@ -385,10 +385,8 @@ public class Perf20ParasTest extends ModuleScenarioTestBase {
                     p014.getParaOptionByCode("op01402").getIsSelectedVar().not()
             }).onlyEnforceIf(condition2.not());
 
-            model.addEquality((IntVar) pt002.qty, 1).onlyEnforceIf(condition1);
-            model.addEquality((IntVar) pt002.qty, 2).onlyEnforceIf(condition2);
-            // model.addEquality((IntVar)pt002.qty, 3).onlyEnforceIf(condition1.not(),
-            // condition2.not());
+            model.addEquality(pt002.qty, 1).onlyEnforceIf(condition1);
+            model.addEquality(pt002.qty, 2).onlyEnforceIf(condition2);
         }
 
         @CodeRuleAnno(normalNaturalCode = "if(p015.value==op01501 && p016.value==op01601) then pt003.qty=1 " +
@@ -416,10 +414,8 @@ public class Perf20ParasTest extends ModuleScenarioTestBase {
                     p016.getParaOptionByCode("op01602").getIsSelectedVar().not()
             }).onlyEnforceIf(condition2.not());
 
-            model.addEquality((IntVar) pt003.qty, 1).onlyEnforceIf(condition1);
-            model.addEquality((IntVar) pt003.qty, 2).onlyEnforceIf(condition2);
-            // model.addEquality((IntVar)pt003.qty, 3).onlyEnforceIf(condition1.not(),
-            // condition2.not());
+            model.addEquality(pt003.qty, 1).onlyEnforceIf(condition1);
+            model.addEquality(pt003.qty, 2).onlyEnforceIf(condition2);
         }
 
         @CodeRuleAnno(normalNaturalCode = "if(p017.value==op01701 && p018.value==op01801) then pt004.qty=1 " +
@@ -447,8 +443,8 @@ public class Perf20ParasTest extends ModuleScenarioTestBase {
                     p018.getParaOptionByCode("op01802").getIsSelectedVar().not()
             }).onlyEnforceIf(condition2.not());
 
-            model.addEquality((IntVar) pt004.qty, 1).onlyEnforceIf(condition1);
-            model.addEquality((IntVar) pt004.qty, 2).onlyEnforceIf(condition2);
+            model.addEquality(pt004.qty, 1).onlyEnforceIf(condition1);
+            model.addEquality(pt004.qty, 2).onlyEnforceIf(condition2);
             // model.addEquality((IntVar)pt004.qty, 3).onlyEnforceIf(condition1.not(),
             // condition2.not());
         }
@@ -478,29 +474,26 @@ public class Perf20ParasTest extends ModuleScenarioTestBase {
                     p020.getParaOptionByCode("op02002").getIsSelectedVar().not()
             }).onlyEnforceIf(condition2.not());
 
-            model.addEquality((IntVar) pt005.qty, 1).onlyEnforceIf(condition1);
-            model.addEquality((IntVar) pt005.qty, 2).onlyEnforceIf(condition2);
+            model.addEquality(pt005.qty, 1).onlyEnforceIf(condition1);
+            model.addEquality(pt005.qty, 2).onlyEnforceIf(condition2);
             // model.addEquality((IntVar)pt005.qty, 3).onlyEnforceIf(condition1.not(),
             // condition2.not());
         }
     }
-    // ---------------模型的定义end----------------------------------------
 
-    public Perf20ParasTest() {
-        super(Perf20ParasConstraint.class);
+    // ---------------模型的定义end----------------------------------------
+    @Test
+    public void testPerformancePt003OnlyOneSolution() {
+        executeTest("testPerformancePt003OnlyOneSolution", false);
     }
 
     @Test
-    public void testPerformancept003_onlyOneSolution() {
-        executeTest("testPerformancept003_onlyOneSolution", false);
+    @Ignore
+    public void testPerformancePt003AllSolutions() {
+        executeTest("testPerformancePt003AllSolutions", true);
     }
 
-    // @Test
-    public void testPerformancept003_allSolutions() {
-        executeTest("testPerformancept003_allSolutions", true);
-    }
-
-    public void executeTest(String testCaseName, boolean tmpEnumerateAllSolution) {
+    private void executeTest(String testCaseName, boolean tmpEnumerateAllSolution) {
         long totalTime = 0;
         int iterations = 10;
         this.setEnumerateAllSolution(tmpEnumerateAllSolution);

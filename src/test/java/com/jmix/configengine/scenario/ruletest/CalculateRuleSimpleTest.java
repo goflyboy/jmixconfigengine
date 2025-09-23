@@ -25,7 +25,7 @@ public class CalculateRuleSimpleTest extends ModuleScenarioTestBase {
 
     // ---------------规则定义start----------------------------------------
     @ModuleAnno(id = 123L)
-    static public class CalculateRuleConstraint extends ConstraintAlgImpl {
+    private static class CalculateRuleConstraint extends ConstraintAlgImpl {
 
         @ParaAnno(options = { "op11", "op12", "op13" })
         private ParaVar p1Var;
@@ -87,7 +87,7 @@ public class CalculateRuleSimpleTest extends ModuleScenarioTestBase {
      * 测试if条件（op11）
      */
     @Test
-    public void test_if_op11() {
+    public void testIfOp11() {
         // 测试颜色参数推理
         inferParas("pt1", 1);
 
@@ -100,7 +100,7 @@ public class CalculateRuleSimpleTest extends ModuleScenarioTestBase {
      * 测试else条件（op11）
      */
     @Test
-    public void test_else_op11() {
+    public void testElseOp11() {
         inferParas("pt1", 3);
         printSolutions();
         // 反推有8个接口 8=3*3 - 1
@@ -116,7 +116,7 @@ public class CalculateRuleSimpleTest extends ModuleScenarioTestBase {
      * 测试无if-else情况
      */
     @Test
-    public void test_no_if_else() {
+    public void testNoIfElse() {
         inferParas("pt1", 4);
         printSolutions();
         // 反推有8个接口 8=3*3 - 1

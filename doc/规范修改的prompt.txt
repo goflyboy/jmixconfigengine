@@ -1,0 +1,46 @@
+要求：G.TYP.09 字符串大小写转换、数字格式化为西方数字时，必须加上Locale.ROOT 或Locale.ENGLISH
+
+检查所有的类（或接口）, 大概有61个地方不遵循下列要求，请修复并提交git \    要求：G.TYP.14 在引用类型向下转换前用instanceof 进行判断
+===
+检查所有的类（或接口）, 大概有16个地方不遵循下列要求，请修复并提交git \    要求：G.TYP.07 不要在代码中硬编码用于表示换行、文件路径分隔的字符
+
+
+
+检查所有的类（或接口）, 大概有21个地方不遵循下列要求，请修复并提交git \    要求：G.OBJ.01 应避免public且非final的成员变量定义
+检查所有的类（或接口）, 大概有21个地方不遵循下列要求，请修复并提交git \    要求： G.MET.06 Java 8使用Optional 代替null作为返回值或者可能的缺失值；禁止对Optional 对象赋值为null
+检查所有的类（或接口）, 大概有21个地方不遵循下列要求，请修复并提交git 
+###  要求：  
+1、G.LOG.01 日志的记录，不要使用System.out 与System.err 进行控制台打印，应使用Facade模式的日志框架 
+2、统一使用import lombok.extern.slf4j.Slf4j;
+3、日志内容使用英文
+
+
+G.CMT.03 方法的Javadoc中应该包含功能说明，根据实际需要按顺序使用@param、@return、
+
+
+现在让我运行 Checkstyle 来检查所有文件中的问题：
+PS D:\01.code\mygithub\jmixconfigengine> mvn checkstyle:check
+让我检查 Checkstyle 报告文件：
+看起来 Checkstyle 没有生成报告。让我尝试直接运行 Checkstyle 检查：
+
+修改前：
+  // @Test
+    public void testPerformancept003_allSolutions()
+
+修改后：
+    @Test
+    @Ignore
+    public void testPerformancept003_allSolutions()
+
+
+
+
+ private ParaVar ColorVar;
+
+        @ParaAnno(options = { "Small", "Medium", "Big" })
+        private ParaVar SizeVar;
+
+
+(IntVar) this.pt
+
+ if (!solutions.isEmpty()) {

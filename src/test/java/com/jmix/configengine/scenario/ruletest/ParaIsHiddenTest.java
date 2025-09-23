@@ -30,7 +30,7 @@ public class ParaIsHiddenTest extends ModuleScenarioTestBase {
 
     // ---------------ģ�͵Ķ���start----------------------------------------
     @ModuleAnno(id = 123L)
-    static public class ParaIsHiddenConstraint extends ConstraintAlgImpl {
+    private static class ParaIsHiddenConstraint extends ConstraintAlgImpl {
         @ParaAnno(type = ParaType.INTEGER, defaultValue = "0", minValue = "0", maxValue = "3")
         private ParaVar p0;
 
