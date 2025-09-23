@@ -150,9 +150,10 @@ public class CompatibleRuleCodependentTest extends ModuleScenarioTestBase {
         // 测试正向规则1.1: 如果A在CA中(a1)，则B必须在CB中(b1、b2或b3)
         inferParasByPara("a", "a1");
 
+        // B有3种选择
         resultAssert()
                 .assertSuccess()
-                .assertSolutionSizeEqual(3); // B有3种选择
+                .assertSolutionSizeEqual(3);
 
         // 验证所有解中B都在CB中
         for (int i = 0; i < 3; i++) {
@@ -173,9 +174,10 @@ public class CompatibleRuleCodependentTest extends ModuleScenarioTestBase {
         // 测试正向规则1.1: 如果A在CA中(a3)，则B必须在CB中(b1、b2或b3)
         inferParasByPara("a", "a3");
 
+        // B有3种选择
         resultAssert()
                 .assertSuccess()
-                .assertSolutionSizeEqual(3); // B有3种选择
+                .assertSolutionSizeEqual(3);
 
         // 验证所有解中B都在CB中
         for (int i = 0; i < 3; i++) {
@@ -206,9 +208,10 @@ public class CompatibleRuleCodependentTest extends ModuleScenarioTestBase {
         // 测试正向规则1.2: 如果A不在CA中(a2)，则B必须不在CB中(b4或b5)
         inferParasByPara("a", "a2");
 
+        // B有2种选择
         resultAssert()
                 .assertSuccess()
-                .assertSolutionSizeEqual(2); // B有2种选择
+                .assertSolutionSizeEqual(2);
 
         // 验证B不在CB中
         assertSolutionNum("b:b4", 1);
@@ -228,9 +231,10 @@ public class CompatibleRuleCodependentTest extends ModuleScenarioTestBase {
         // 测试正向规则1.2: 如果A不在CA中(a4)，则B必须不在CB中(b4或b5)
         inferParasByPara("a", "a4");
 
+        // B有2种选择
         resultAssert()
                 .assertSuccess()
-                .assertSolutionSizeEqual(2); // B有2种选择
+                .assertSolutionSizeEqual(2);
 
         // 验证B不在CB中
         assertSolutionNum("b:b4", 1);
@@ -250,9 +254,10 @@ public class CompatibleRuleCodependentTest extends ModuleScenarioTestBase {
         // 测试正向规则1.2: 如果A不在CA中(a5)，则B必须不在CB中(b4或b5)
         inferParasByPara("a", "a5");
 
+        // B有2种选择
         resultAssert()
                 .assertSuccess()
-                .assertSolutionSizeEqual(2); // B有2种选择
+                .assertSolutionSizeEqual(2);
 
         // 验证B不在CB中
         assertSolutionNum("b:b4", 1);
@@ -272,9 +277,10 @@ public class CompatibleRuleCodependentTest extends ModuleScenarioTestBase {
         // 测试反向规则2.1: 如果B在CB中(b1)，则A必须在CA中(a1或a3)
         inferParasByPara("b", "b1");
 
+        // A有2种选择
         resultAssert()
                 .assertSuccess()
-                .assertSolutionSizeEqual(2); // A有2种选择
+                .assertSolutionSizeEqual(2);
 
         // 验证A在CA中
         assertSolutionNum("a:a1", 1);
@@ -294,9 +300,10 @@ public class CompatibleRuleCodependentTest extends ModuleScenarioTestBase {
         // 测试反向规则2.1: 如果B在CB中(b2或b3)，则A必须在CA中(a1或a3)
         inferParasByPara("b", "b2");
 
+        // A有2种选择
         resultAssert()
                 .assertSuccess()
-                .assertSolutionSizeEqual(2); // A有2种选择
+                .assertSolutionSizeEqual(2);
 
         // 验证A在CA中
         assertSolutionNum("a:a1", 1);
@@ -316,9 +323,10 @@ public class CompatibleRuleCodependentTest extends ModuleScenarioTestBase {
         // 测试反向规则2.2: 如果B不在CB中(b4)，则A必须不在CA中(a2、a4或a5)
         inferParasByPara("b", "b4");
 
+        // A有3种选择
         resultAssert()
                 .assertSuccess()
-                .assertSolutionSizeEqual(3); // A有3种选择
+                .assertSolutionSizeEqual(3);
 
         // 验证A不在CA中
         assertSolutionNum("a:a2", 1);
@@ -338,9 +346,10 @@ public class CompatibleRuleCodependentTest extends ModuleScenarioTestBase {
         // 测试反向规则2.2: 如果B不在CB中(b5)，则A必须不在CA中(a2、a4或a5)
         inferParasByPara("b", "b5");
 
+        // A有3种选择
         resultAssert()
                 .assertSuccess()
-                .assertSolutionSizeEqual(3); // A有3种选择
+                .assertSolutionSizeEqual(3);
 
         // 验证A不在CA中
         assertSolutionNum("a:a2", 1);

@@ -112,9 +112,10 @@ public class CompatibleRuleRequireTest extends ModuleScenarioTestBase {
         // 测试正向规则1.1: 如果A选择a1，则B必须是b1、b2或b3
         inferParasByPara("a", "a1");
 
+        // B有3种选择
         resultAssert()
                 .assertSuccess()
-                .assertSolutionSizeEqual(3); // B有3种选择
+                .assertSolutionSizeEqual(3);
 
         // 验证所有解中B都是b1、b2或b3
         for (int i = 0; i < 3; i++) {
@@ -133,9 +134,10 @@ public class CompatibleRuleRequireTest extends ModuleScenarioTestBase {
         // 测试正向规则1.1: 如果A选择a3，则B必须是b1、b2或b3
         inferParasByPara("a", "a3");
 
+        // B有3种选择
         resultAssert()
                 .assertSuccess()
-                .assertSolutionSizeEqual(3); // B有3种选择
+                .assertSolutionSizeEqual(3);
 
         // 验证所有解中B都是b1、b2或b3
         for (int i = 0; i < 3; i++) {
@@ -165,9 +167,10 @@ public class CompatibleRuleRequireTest extends ModuleScenarioTestBase {
         // 测试反向规则2.1: 如果B选择b1，则A可以是a1、a2、a3或a4
         inferParasByPara("b", "b1");
 
+        // A有4种选择
         resultAssert()
                 .assertSuccess()
-                .assertSolutionSizeEqual(4); // A有4种选择
+                .assertSolutionSizeEqual(4);
 
         // 验证所有解中A可以是任意值
         assertSolutionNum("a:a1", 1);
@@ -184,9 +187,10 @@ public class CompatibleRuleRequireTest extends ModuleScenarioTestBase {
         // 测试反向规则2.2: 如果B选择b4，则A只能是a2或a4
         inferParasByPara("b", "b4");
 
+        // A有2种选择
         resultAssert()
                 .assertSuccess()
-                .assertSolutionSizeEqual(2); // A有2种选择
+                .assertSolutionSizeEqual(2);
 
         // 验证A只能是a2或a4
         assertSolutionNum("a:a2", 1);
@@ -205,9 +209,10 @@ public class CompatibleRuleRequireTest extends ModuleScenarioTestBase {
         // 测试额外情况: A选择a2或a4时，B可以是任意值
         inferParasByPara("a", "a2");
 
+        // B有4种选择
         resultAssert()
                 .assertSuccess()
-                .assertSolutionSizeEqual(4); // B有4种选择
+                .assertSolutionSizeEqual(4);
 
         // 验证所有解中B可以是任意值
         assertSolutionNum("b:b1", 1);
@@ -218,8 +223,9 @@ public class CompatibleRuleRequireTest extends ModuleScenarioTestBase {
         // 同样测试a4
         inferParasByPara("a", "a4");
 
+        // B有4种选择
         resultAssert()
                 .assertSuccess()
-                .assertSolutionSizeEqual(4); // B有4种选择
+                .assertSolutionSizeEqual(4);
     }
 }

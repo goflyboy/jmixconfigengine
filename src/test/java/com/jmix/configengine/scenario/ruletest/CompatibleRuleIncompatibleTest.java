@@ -177,9 +177,10 @@ public class CompatibleRuleIncompatibleTest extends ModuleScenarioTestBase {
         // 测试正向规则1.1: 如果A在CA中(a3)，则B必须不在CB中(b4或b5)
         inferParasByPara("a", "a3");
 
+        // B有2种选择
         resultAssert()
                 .assertSuccess()
-                .assertSolutionSizeEqual(2); // B有2种选择
+                .assertSolutionSizeEqual(2);
 
         // 验证所有解中B都在NCB中
         for (int i = 0; i < 2; i++) {
@@ -212,9 +213,10 @@ public class CompatibleRuleIncompatibleTest extends ModuleScenarioTestBase {
         // 测试正向规则1.2: 如果A不在CA中(a2)，则B可以是CB或NCB中的任意值
         inferParasByPara("a", "a2");
 
+        // B有5种选择
         resultAssert()
                 .assertSuccess()
-                .assertSolutionSizeEqual(5); // B有5种选择
+                .assertSolutionSizeEqual(5);
 
         // 验证B可以在CB中
         assertSolutionNum("b:b1", 1);
@@ -234,9 +236,10 @@ public class CompatibleRuleIncompatibleTest extends ModuleScenarioTestBase {
         // 测试正向规则1.2: 如果A不在CA中(a4)，则B可以是CB或NCB中的任意值
         inferParasByPara("a", "a4");
 
+        // B有5种选择
         resultAssert()
                 .assertSuccess()
-                .assertSolutionSizeEqual(5); // B有5种选择
+                .assertSolutionSizeEqual(5);
 
         // 验证B可以在CB中
         assertSolutionNum("b:b1", 1);
@@ -256,9 +259,10 @@ public class CompatibleRuleIncompatibleTest extends ModuleScenarioTestBase {
         // 测试正向规则1.2: 如果A不在CA中(a5)，则B可以是CB或NCB中的任意值
         inferParasByPara("a", "a5");
 
+        // B有5种选择
         resultAssert()
                 .assertSuccess()
-                .assertSolutionSizeEqual(5); // B有5种选择
+                .assertSolutionSizeEqual(5);
 
         // 验证B可以在CB中
         assertSolutionNum("b:b1", 1);
@@ -278,9 +282,10 @@ public class CompatibleRuleIncompatibleTest extends ModuleScenarioTestBase {
         // 测试反向规则2.1: 如果B在CB中(b1)，则A必须不在CA中(a2、a4或a5)
         inferParasByPara("b", "b1");
 
+        // A有3种选择
         resultAssert()
                 .assertSuccess()
-                .assertSolutionSizeEqual(3); // A有3种选择
+                .assertSolutionSizeEqual(3);
 
         // 验证A在NCA中
         assertSolutionNum("a:a2", 1);
@@ -300,9 +305,10 @@ public class CompatibleRuleIncompatibleTest extends ModuleScenarioTestBase {
         // 测试反向规则2.1: 如果B在CB中(b2或b3)，则A必须不在CA中(a2、a4或a5)
         inferParasByPara("b", "b2");
 
+        // A有3种选择
         resultAssert()
                 .assertSuccess()
-                .assertSolutionSizeEqual(3); // A有3种选择
+                .assertSolutionSizeEqual(3);
 
         // 验证A在NCA中
         assertSolutionNum("a:a2", 1);
@@ -322,9 +328,10 @@ public class CompatibleRuleIncompatibleTest extends ModuleScenarioTestBase {
         // 测试反向规则2.2: 如果B不在CB中(b4)，则A可以是CA或NCA中的任意值
         inferParasByPara("b", "b4");
 
+        // A有5种选择
         resultAssert()
                 .assertSuccess()
-                .assertSolutionSizeEqual(5); // A有5种选择
+                .assertSolutionSizeEqual(5);
 
         // 验证A可以在CA中
         assertSolutionNum("a:a1", 1);
@@ -344,9 +351,10 @@ public class CompatibleRuleIncompatibleTest extends ModuleScenarioTestBase {
         // 测试反向规则2.2: 如果B不在CB中(b5)，则A可以是CA或NCA中的任意值
         inferParasByPara("b", "b5");
 
+        // A有5种选择
         resultAssert()
                 .assertSuccess()
-                .assertSolutionSizeEqual(5); // A有5种选择
+                .assertSolutionSizeEqual(5);
 
         // 验证A可以在CA中
         assertSolutionNum("a:a1", 1);

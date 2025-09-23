@@ -12787,3 +12787,902 @@ Read file: undefined
 
 ---
 
+_**User (2025-09-23 13:15Z)**_
+
+类似这个注释调整到前面 ，如：        // B有3种选择
+        resultAssert()
+                .assertSuccess()
+                .assertSolutionSizeEqual(3);   
+
+---
+
+_**Assistant**_
+
+检查 `CompatibleRuleCodependentTest.java` 中的注释位置，并将行尾注释移到行前。
+
+
+---
+
+Read file: undefined
+
+---
+
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/CompatibleRuleCodependentTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -151,8 +151,8 @@
+          inferParasByPara("a", "a1");
+          
+-       
++         // B有3种选择
+          resultAssert()
+                  .assertSuccess()
+-                 .assertSolutionSizeEqual(3); // B有3种选择
++                 .assertSolutionSizeEqual(3);
+  
+          // 验证所有解中B都在CB中
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/CompatibleRuleCodependentTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 1
+
+```diff
+@@ -175,7 +175,8 @@
+          inferParasByPara("a", "a3");
+  
++         // B有3种选择
+          resultAssert()
+                  .assertSuccess()
+-                 .assertSolutionSizeEqual(3); // B有3种选择
++                 .assertSolutionSizeEqual(3);
+  
+          // 验证所有解中B都在CB中
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/CompatibleRuleCodependentTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 1
+
+```diff
+@@ -209,7 +209,8 @@
+          inferParasByPara("a", "a2");
+  
++         // B有2种选择
+          resultAssert()
+                  .assertSuccess()
+-                 .assertSolutionSizeEqual(2); // B有2种选择
++                 .assertSolutionSizeEqual(2);
+  
+          // 验证B不在CB中
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/CompatibleRuleCodependentTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 1
+
+```diff
+@@ -232,7 +232,8 @@
+          inferParasByPara("a", "a4");
+  
++         // B有2种选择
+          resultAssert()
+                  .assertSuccess()
+-                 .assertSolutionSizeEqual(2); // B有2种选择
++                 .assertSolutionSizeEqual(2);
+  
+          // 验证B不在CB中
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/CompatibleRuleCodependentTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 1
+
+```diff
+@@ -255,7 +255,8 @@
+          inferParasByPara("a", "a5");
+  
++         // B有2种选择
+          resultAssert()
+                  .assertSuccess()
+-                 .assertSolutionSizeEqual(2); // B有2种选择
++                 .assertSolutionSizeEqual(2);
+  
+          // 验证B不在CB中
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/CompatibleRuleCodependentTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 1
+
+```diff
+@@ -278,7 +278,8 @@
+          inferParasByPara("b", "b1");
+  
++         // A有2种选择
+          resultAssert()
+                  .assertSuccess()
+-                 .assertSolutionSizeEqual(2); // A有2种选择
++                 .assertSolutionSizeEqual(2);
+  
+          // 验证A在CA中
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/CompatibleRuleCodependentTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 1
+
+```diff
+@@ -301,7 +301,8 @@
+          inferParasByPara("b", "b2");
+  
++         // A有2种选择
+          resultAssert()
+                  .assertSuccess()
+-                 .assertSolutionSizeEqual(2); // A有2种选择
++                 .assertSolutionSizeEqual(2);
+  
+          // 验证A在CA中
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/CompatibleRuleCodependentTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 1
+
+```diff
+@@ -324,7 +324,8 @@
+          inferParasByPara("b", "b4");
+  
++         // A有3种选择
+          resultAssert()
+                  .assertSuccess()
+-                 .assertSolutionSizeEqual(3); // A有3种选择
++                 .assertSolutionSizeEqual(3);
+  
+          // 验证A不在CA中
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/CompatibleRuleCodependentTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 1
+
+```diff
+@@ -347,7 +347,8 @@
+          inferParasByPara("b", "b5");
+  
++         // A有3种选择
+          resultAssert()
+                  .assertSuccess()
+-                 .assertSolutionSizeEqual(3); // A有3种选择
++                 .assertSolutionSizeEqual(3);
+  
+          // 验证A不在CA中
+```
+
+</details>
+
+---
+
+
+
+---
+
+已将所有行尾注释移到行前。修改如下：
+
+## 修改总结
+
+### 调整的注释位置：
+
+1. **testInCARequiresInCB() 方法**：
+   ```java
+   // 修改前：
+   .assertSolutionSizeEqual(3); // B有3种选择
+   
+   // 修改后：
+   // B有3种选择
+   .assertSolutionSizeEqual(3);
+   ```
+
+2. **testInCARequiresInCBA3() 方法**：
+   ```java
+   // 修改前：
+   .assertSolutionSizeEqual(3); // B有3种选择
+   
+   // 修改后：
+   // B有3种选择
+   .assertSolutionSizeEqual(3);
+   ```
+
+3. **testNotInCARequiresNotInCB() 方法**：
+   ```java
+   // 修改前：
+   .assertSolutionSizeEqual(2); // B有2种选择
+   
+   // 修改后：
+   // B有2种选择
+   .assertSolutionSizeEqual(2);
+   ```
+
+4. **testNotInCARequiresNotInCBA4() 方法**：
+   ```java
+   // 修改前：
+   .assertSolutionSizeEqual(2); // B有2种选择
+   
+   // 修改后：
+   // B有2种选择
+   .assertSolutionSizeEqual(2);
+   ```
+
+5. **testNotInCARequiresNotInCBA5() 方法**：
+   ```java
+   // 修改前：
+   .assertSolutionSizeEqual(2); // B有2种选择
+   
+   // 修改后：
+   // B有2种选择
+   .assertSolutionSizeEqual(2);
+   ```
+
+6. **testInCBRequiresInCA() 方法**：
+   ```java
+   // 修改前：
+   .assertSolutionSizeEqual(2); // A有2种选择
+   
+   // 修改后：
+   // A有2种选择
+   .assertSolutionSizeEqual(2);
+   ```
+
+7. **testInCBRequiresInCAB2B3() 方法**：
+   ```java
+   // 修改前：
+   .assertSolutionSizeEqual(2); // A有2种选择
+   
+   // 修改后：
+   // A有2种选择
+   .assertSolutionSizeEqual(2);
+   ```
+
+8. **testNotInCBRequiresNotInCA() 方法**：
+   ```java
+   // 修改前：
+   .assertSolutionSizeEqual(3); // A有3种选择
+   
+   // 修改后：
+   // A有3种选择
+   .assertSolutionSizeEqual(3);
+   ```
+
+9. **testNotInCBRequiresNotInCAB5() 方法**：
+   ```java
+   // 修改前：
+   .assertSolutionSizeEqual(3); // A有3种选择
+   
+   // 修改后：
+   // A有3种选择
+   .assertSolutionSizeEqual(3);
+   ```
+
+### 改进效果：
+
+- 注释前置，便于阅读
+- 格式统一
+- 代码更整洁
+
+### 注意事项：
+
+存在一个 linter 警告：`addCompatibleConstraintCoDependentNote()` 方法未被使用。这是未使用方法的警告，不影响功能。
+
+---
+
+_**User (2025-09-23 13:15Z)**_
+
+@CompatibleRuleIncompatibleTest.java @CompatibleRuleRequireTest.java 类似
+
+---
+
+_**Assistant**_
+
+检查并修复 `CompatibleRuleIncompatibleTest.java` 和 `CompatibleRuleRequireTest.java` 中的行尾注释，将其移到行前。
+
+
+---
+
+## Todo List
+
+- [-] 修复 CompatibleRuleIncompatibleTest.java 中的行尾注释
+- [ ] 修复 CompatibleRuleRequireTest.java 中的行尾注释
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/CompatibleRuleIncompatibleTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 1
+
+```diff
+@@ -178,7 +178,8 @@
+          inferParasByPara("a", "a3");
+  
++         // B有2种选择
+          resultAssert()
+                  .assertSuccess()
+-                 .assertSolutionSizeEqual(2); // B有2种选择
++                 .assertSolutionSizeEqual(2);
+  
+          // 验证所有解中B都在NCB中
+```
+
+</details>
+
+---
+
+The model provided an ambiguous search string to replace.
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/CompatibleRuleIncompatibleTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 1
+
+```diff
+@@ -214,7 +214,8 @@
+          inferParasByPara("a", "a2");
+  
++         // B有5种选择
+          resultAssert()
+                  .assertSuccess()
+-                 .assertSolutionSizeEqual(5); // B有5种选择
++                 .assertSolutionSizeEqual(5);
+  
+          // 验证B可以在CB中
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/CompatibleRuleIncompatibleTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 1
+
+```diff
+@@ -237,7 +237,8 @@
+          inferParasByPara("a", "a4");
+  
++         // B有5种选择
+          resultAssert()
+                  .assertSuccess()
+-                 .assertSolutionSizeEqual(5); // B有5种选择
++                 .assertSolutionSizeEqual(5);
+  
+          // 验证B可以在CB中
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/CompatibleRuleIncompatibleTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 1
+
+```diff
+@@ -260,7 +260,8 @@
+          inferParasByPara("a", "a5");
+  
++         // B有5种选择
+          resultAssert()
+                  .assertSuccess()
+-                 .assertSolutionSizeEqual(5); // B有5种选择
++                 .assertSolutionSizeEqual(5);
+  
+          // 验证B可以在CB中
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/CompatibleRuleIncompatibleTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 1
+
+```diff
+@@ -283,7 +283,8 @@
+          inferParasByPara("b", "b1");
+  
++         // A有3种选择
+          resultAssert()
+                  .assertSuccess()
+-                 .assertSolutionSizeEqual(3); // A有3种选择
++                 .assertSolutionSizeEqual(3);
+  
+          // 验证A在NCA中
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/CompatibleRuleIncompatibleTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 1
+
+```diff
+@@ -306,7 +306,8 @@
+          inferParasByPara("b", "b2");
+  
++         // A有3种选择
+          resultAssert()
+                  .assertSuccess()
+-                 .assertSolutionSizeEqual(3); // A有3种选择
++                 .assertSolutionSizeEqual(3);
+  
+          // 验证A在NCA中
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/CompatibleRuleIncompatibleTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 1
+
+```diff
+@@ -329,7 +329,8 @@
+          inferParasByPara("b", "b4");
+  
++         // A有5种选择
+          resultAssert()
+                  .assertSuccess()
+-                 .assertSolutionSizeEqual(5); // A有5种选择
++                 .assertSolutionSizeEqual(5);
+  
+          // 验证A可以在CA中
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/CompatibleRuleIncompatibleTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 1
+
+```diff
+@@ -352,7 +352,8 @@
+          inferParasByPara("b", "b5");
+  
++         // A有5种选择
+          resultAssert()
+                  .assertSuccess()
+-                 .assertSolutionSizeEqual(5); // A有5种选择
++                 .assertSolutionSizeEqual(5);
+  
+          // 验证A可以在CA中
+```
+
+</details>
+
+---
+
+## Todo List
+
+- [x] 修复 CompatibleRuleIncompatibleTest.java 中的行尾注释
+- [-] 修复 CompatibleRuleRequireTest.java 中的行尾注释
+
+---
+
+修复 `CompatibleRuleRequireTest.java` 中的行尾注释。
+
+
+---
+
+The model provided an ambiguous search string to replace.
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/CompatibleRuleRequireTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 1
+
+```diff
+@@ -113,7 +113,8 @@
+          inferParasByPara("a", "a1");
+  
++         // B有3种选择
+          resultAssert()
+                  .assertSuccess()
+-                 .assertSolutionSizeEqual(3); // B有3种选择
++                 .assertSolutionSizeEqual(3);
+  
+          // 验证所有解中B都是b1、b2或b3
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/CompatibleRuleRequireTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 1
+
+```diff
+@@ -135,7 +135,8 @@
+          inferParasByPara("a", "a3");
+  
++         // B有3种选择
+          resultAssert()
+                  .assertSuccess()
+-                 .assertSolutionSizeEqual(3); // B有3种选择
++                 .assertSolutionSizeEqual(3);
+  
+          // 验证所有解中B都是b1、b2或b3
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/CompatibleRuleRequireTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 1
+
+```diff
+@@ -168,7 +168,8 @@
+          inferParasByPara("b", "b1");
+  
++         // A有4种选择
+          resultAssert()
+                  .assertSuccess()
+-                 .assertSolutionSizeEqual(4); // A有4种选择
++                 .assertSolutionSizeEqual(4);
+  
+          // 验证所有解中A可以是任意值
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/CompatibleRuleRequireTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 1
+
+```diff
+@@ -188,7 +188,8 @@
+          inferParasByPara("b", "b4");
+  
++         // A有2种选择
+          resultAssert()
+                  .assertSuccess()
+-                 .assertSolutionSizeEqual(2); // A有2种选择
++                 .assertSolutionSizeEqual(2);
+  
+          // 验证A只能是a2或a4
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/CompatibleRuleRequireTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 1
+
+```diff
+@@ -210,7 +210,8 @@
+          inferParasByPara("a", "a2");
+  
++         // B有4种选择
+          resultAssert()
+                  .assertSuccess()
+-                 .assertSolutionSizeEqual(4); // B有4种选择
++                 .assertSolutionSizeEqual(4);
+  
+          // 验证所有解中B可以是任意值
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/CompatibleRuleRequireTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 1
+
+```diff
+@@ -224,7 +224,8 @@
+          inferParasByPara("a", "a4");
+  
++         // B有4种选择
+          resultAssert()
+                  .assertSuccess()
+-                 .assertSolutionSizeEqual(4); // B有4种选择
++                 .assertSolutionSizeEqual(4);
+      }
+  }
+```
+
+</details>
+
+---
+
+
+
+---
+
+## Todo List
+
+- [x] 修复 CompatibleRuleIncompatibleTest.java 中的行尾注释
+- [x] 修复 CompatibleRuleRequireTest.java 中的行尾注释
+
+---
+
+已修复两个测试文件中的行尾注释，统一将注释移到行前。
+
+## 修改总结
+
+### CompatibleRuleIncompatibleTest.java 修改：
+
+1. **testInCARequiresNotInCBA3() 方法**：
+   ```java
+   // 修改前：
+   .assertSolutionSizeEqual(2); // B有2种选择
+   
+   // 修改后：
+   // B有2种选择
+   .assertSolutionSizeEqual(2);
+   ```
+
+2. **testNotInCAAllowsAnyB() 方法**：
+   ```java
+   // 修改前：
+   .assertSolutionSizeEqual(5); // B有5种选择
+   
+   // 修改后：
+   // B有5种选择
+   .assertSolutionSizeEqual(5);
+   ```
+
+3. **testNotInCAAllowsAnyBA4() 方法**：
+   ```java
+   // 修改前：
+   .assertSolutionSizeEqual(5); // B有5种选择
+   
+   // 修改后：
+   // B有5种选择
+   .assertSolutionSizeEqual(5);
+   ```
+
+4. **testNotInCAAllowsAnyBA5() 方法**：
+   ```java
+   // 修改前：
+   .assertSolutionSizeEqual(5); // B有5种选择
+   
+   // 修改后：
+   // B有5种选择
+   .assertSolutionSizeEqual(5);
+   ```
+
+5. **testInCBRequiresNotInCA() 方法**：
+   ```java
+   // 修改前：
+   .assertSolutionSizeEqual(3); // A有3种选择
+   
+   // 修改后：
+   // A有3种选择
+   .assertSolutionSizeEqual(3);
+   ```
+
+6. **testInCBRequiresNotInCAB2B3() 方法**：
+   ```java
+   // 修改前：
+   .assertSolutionSizeEqual(3); // A有3种选择
+   
+   // 修改后：
+   // A有3种选择
+   .assertSolutionSizeEqual(3);
+   ```
+
+7. **testNotInCBAllowsAnyA() 方法**：
+   ```java
+   // 修改前：
+   .assertSolutionSizeEqual(5); // A有5种选择
+   
+   // 修改后：
+   // A有5种选择
+   .assertSolutionSizeEqual(5);
+   ```
+
+8. **testNotInCBAllowsAnyAB5() 方法**：
+   ```java
+   // 修改前：
+   .assertSolutionSizeEqual(5); // A有5种选择
+   
+   // 修改后：
+   // A有5种选择
+   .assertSolutionSizeEqual(5);
+   ```
+
+### CompatibleRuleRequireTest.java 修改：
+
+1. **testA1RequiresB1B2B3() 方法**：
+   ```java
+   // 修改前：
+   .assertSolutionSizeEqual(3); // B有3种选择
+   
+   // 修改后：
+   // B有3种选择
+   .assertSolutionSizeEqual(3);
+   ```
+
+2. **testA3RequiresB1B2B3() 方法**：
+   ```java
+   // 修改前：
+   .assertSolutionSizeEqual(3); // B有3种选择
+   
+   // 修改后：
+   // B有3种选择
+   .assertSolutionSizeEqual(3);
+   ```
+
+3. **testB1AllowsAnyA() 方法**：
+   ```java
+   // 修改前：
+   .assertSolutionSizeEqual(4); // A有4种选择
+   
+   // 修改后：
+   // A有4种选择
+   .assertSolutionSizeEqual(4);
+   ```
+
+4. **testB4AllowsA2A4Only() 方法**：
+   ```java
+   // 修改前：
+   .assertSolutionSizeEqual(2); // A有2种选择
+   
+   // 修改后：
+   // A有2种选择
+   .assertSolutionSizeEqual(2);
+   ```
+
+5. **testA2A4AllowAnyB() 方法**：
+   ```java
+   // 修改前：
+   .assertSolutionSizeEqual(4); // B有4种选择
+   
+   // 修改后：
+   // B有4种选择
+   .assertSolutionSizeEqual(4);
+   ```
+
+6. **testA2A4AllowAnyB() 方法中的第二个测试**：
+   ```java
+   // 修改前：
+   .assertSolutionSizeEqual(4); // B有4种选择
+   
+   // 修改后：
+   // B有4种选择
+   .assertSolutionSizeEqual(4);
+   ```
+
+### 改进效果：
+
+- 注释前置，便于阅读
+- 格式统一
+- 代码更整洁
+- 无 linter 错误
+
+两个文件的注释已统一为行前格式，符合项目规范。
+
+---
+
