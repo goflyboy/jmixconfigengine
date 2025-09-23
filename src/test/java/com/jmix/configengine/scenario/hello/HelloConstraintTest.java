@@ -9,6 +9,8 @@ import org.junit.Test;
 
 /**
  * Hello约束算法测试类
+ * 
+ * @since 2025-09-23
  */
 @Slf4j
 public class HelloConstraintTest extends ModuleScenarioTestBase {

@@ -8,6 +8,8 @@ import java.util.List;
 
 /**
  * 计算规则Schema
+ * 
+ * @since 2025-09-23
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

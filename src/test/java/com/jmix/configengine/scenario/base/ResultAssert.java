@@ -8,6 +8,8 @@ import java.util.Collection;
 
 /**
  * 结果断言类，提供链式API验证执行结果
+ * 
+ * @since 2025-09-23
  */
 @Slf4j
 public class ResultAssert {

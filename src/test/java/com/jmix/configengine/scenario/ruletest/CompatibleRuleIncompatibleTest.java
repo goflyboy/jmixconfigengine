@@ -18,6 +18,8 @@ import java.util.Arrays;
 
 /**
  * 不兼容性规则测试类
+ * 
+ * @since 2025-09-23
  */
 @Slf4j
 public class CompatibleRuleIncompatibleTest extends ModuleScenarioTestBase {

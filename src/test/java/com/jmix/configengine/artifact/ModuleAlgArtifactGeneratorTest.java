@@ -29,6 +29,8 @@ import java.util.List;
 
 /**
  * ModuleAlgArtifactGenerator单元测试
+ * 
+ * @since 2025-09-23
  */
 @Slf4j
 public class ModuleAlgArtifactGeneratorTest {

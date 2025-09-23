@@ -12,6 +12,9 @@ import com.google.ortools.sat.CpSolverSolutionCallback;
  * @since 2025-09-22
  */
 public abstract class Var<T extends Programmable> implements Programmable {
+    /**
+     * 基础对象
+     */
     protected T base;
 
     /**

@@ -9,6 +9,8 @@ import java.util.List;
 /**
  * 代码规则Schema
  * 用于表示没有结构化的规则，代码是Code（需要手工转化为约束规则）
+ * 
+ * @since 2025-09-23
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

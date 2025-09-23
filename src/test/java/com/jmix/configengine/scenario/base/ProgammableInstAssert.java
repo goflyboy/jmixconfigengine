@@ -9,6 +9,8 @@ import com.jmix.executor.omodel.PartInst;
 
 /**
  * 可编程实例断言基类
+ * 
+ * @since 2025-09-23
  */
 public class ProgammableInstAssert {
     private ModuleInst actualModuleInst;

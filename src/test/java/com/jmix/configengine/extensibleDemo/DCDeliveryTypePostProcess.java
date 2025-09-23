@@ -19,6 +19,8 @@ import java.util.List;
 /**
  * DC交付类型后处理器
  * 根据Part类型和PartInst信息计算DCParaInst的deliveryType
+ * 
+ * @since 2025-09-23
  */
 @Slf4j
 public class DCDeliveryTypePostProcess extends ExtensibleProcess implements InferParasPostProcess {

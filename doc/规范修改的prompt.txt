@@ -35,6 +35,8 @@ PS D:\01.code\mygithub\jmixconfigengine> mvn checkstyle:check
  
 
  
- if (!solutions.isEmpty()) {
+ 
+private方法如果写的Javadoc，必须要符合规范，按需添加@param, @return等，如果没有写，保持现状不写
+
 
  G.CTL.02 含else if分支的条件判断应在最后加一个else分支

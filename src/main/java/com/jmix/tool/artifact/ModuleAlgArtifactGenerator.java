@@ -42,6 +42,8 @@ import freemarker.template.Template;
  * 2. 提供paraMaps和partMaps映射表，简化内部处理
  * 3. 支持快速查找参数和部件
  * 4. 提供便利的getter方法访问内部状态
+ * 
+ * @since 2025-09-23
  */
 @Slf4j
 public class ModuleAlgArtifactGenerator {

@@ -26,6 +26,8 @@ import java.nio.file.Paths;
  * 1. 根据T恤衫模块样例数据生成Module数据
  * 2. 调用ModuleAlgArtifactGenerator.buildConstraintRule生成约束规则代码
  * 3. 验证生成的代码文件是否正确
+ * 
+ * @since 2025-09-23
  */
 @Slf4j
 public class ModuleAlgArtifactGeneratorBaseTest {

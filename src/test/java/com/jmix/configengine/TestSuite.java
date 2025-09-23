@@ -27,6 +27,8 @@ import org.junit.runners.Suite.SuiteClasses;
  * - 工具类测试
  * - 场景测试
  * - 集成测试
+ * 
+ * @since 2025-09-23
  */
 @RunWith(Suite.class)
 @SuiteClasses({

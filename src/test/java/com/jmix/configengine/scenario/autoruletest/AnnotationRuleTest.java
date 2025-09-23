@@ -26,6 +26,8 @@ import java.lang.reflect.Method;
 /**
  * 注解规则测试类
  * 用于测试CompatiableRuleAnno和CodeRuleAnno注解的功能
+ * 
+ * @since 2025-09-23
  */
 @Slf4j
 /**

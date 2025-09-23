@@ -13,6 +13,8 @@ import java.util.List;
 /**
  * 简化的数据验证工具类
  * 用于验证T恤衫模块样例数据的完整性和正确性
+ * 
+ * @since 2025-09-23
  */
 @Slf4j
 public class SimpleDataValidator {
