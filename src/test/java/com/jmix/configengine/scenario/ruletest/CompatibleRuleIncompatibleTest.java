@@ -126,6 +126,9 @@ public class CompatibleRuleIncompatibleTest extends ModuleScenarioTestBase {
     }
     // ---------------规则定义end----------------------------------------
 
+    /**
+     * 构造CompatibleRuleIncompatibleTest测试类
+     */
     public CompatibleRuleIncompatibleTest() {
         super(CompatibleRuleIncompatibleConstraint.class);
     }
@@ -134,6 +137,9 @@ public class CompatibleRuleIncompatibleTest extends ModuleScenarioTestBase {
         cfg.setLoadType(1);
     }
 
+    /**
+     * 测试在CA中要求不在CB中
+     */
     @Test
     public void testInCARequiresNotInCB() {
         // 测试正向规则1.1: 如果A在CA中(a1)，则B必须不在CB中(b4或b5)
@@ -154,6 +160,9 @@ public class CompatibleRuleIncompatibleTest extends ModuleScenarioTestBase {
         assertSolutionNum("b:b3", 0);
     }
 
+    /**
+     * 测试在CA中要求不在CB中（a3情况）
+     */
     @Test
     public void testInCARequiresNotInCBA3() {
         // 测试正向规则1.1: 如果A在CA中(a3)，则B必须不在CB中(b4或b5)
@@ -174,6 +183,9 @@ public class CompatibleRuleIncompatibleTest extends ModuleScenarioTestBase {
         assertSolutionNum("b:b3", 0);
     }
 
+    /**
+     * 测试在CA中与在CB中组合无效
+     */
     @Test
     public void testInCAWithInCBIsInvalid() {
         // 测试正向规则1.1: 如果A在CA中(a1)，则B在CB中(b1、b2或b3)是不合法的
@@ -183,6 +195,9 @@ public class CompatibleRuleIncompatibleTest extends ModuleScenarioTestBase {
         assertSolutionNum("b:b3", 0);
     }
 
+    /**
+     * 测试不在CA中允许任意B
+     */
     @Test
     public void testNotInCAAllowsAnyB() {
         // 测试正向规则1.2: 如果A不在CA中(a2)，则B可以是CB或NCB中的任意值
@@ -202,6 +217,9 @@ public class CompatibleRuleIncompatibleTest extends ModuleScenarioTestBase {
         assertSolutionNum("b:b5", 1);
     }
 
+    /**
+     * 测试不在CA中允许任意B（a4情况）
+     */
     @Test
     public void testNotInCAAllowsAnyBA4() {
         // 测试正向规则1.2: 如果A不在CA中(a4)，则B可以是CB或NCB中的任意值
@@ -221,6 +239,9 @@ public class CompatibleRuleIncompatibleTest extends ModuleScenarioTestBase {
         assertSolutionNum("b:b5", 1);
     }
 
+    /**
+     * 测试不在CA中允许任意B（a5情况）
+     */
     @Test
     public void testNotInCAAllowsAnyBA5() {
         // 测试正向规则1.2: 如果A不在CA中(a5)，则B可以是CB或NCB中的任意值
@@ -240,6 +261,9 @@ public class CompatibleRuleIncompatibleTest extends ModuleScenarioTestBase {
         assertSolutionNum("b:b5", 1);
     }
 
+    /**
+     * 测试在CB中要求不在CA中
+     */
     @Test
     public void testInCBRequiresNotInCA() {
         // 测试反向规则2.1: 如果B在CB中(b1)，则A必须不在CA中(a2、a4或a5)
@@ -259,6 +283,9 @@ public class CompatibleRuleIncompatibleTest extends ModuleScenarioTestBase {
         assertSolutionNum("a:a3", 0);
     }
 
+    /**
+     * 测试在CB中要求不在CA中（b2、b3情况）
+     */
     @Test
     public void testInCBRequiresNotInCAB2B3() {
         // 测试反向规则2.1: 如果B在CB中(b2或b3)，则A必须不在CA中(a2、a4或a5)
@@ -278,6 +305,9 @@ public class CompatibleRuleIncompatibleTest extends ModuleScenarioTestBase {
         assertSolutionNum("a:a3", 0);
     }
 
+    /**
+     * 测试不在CB中允许任意A
+     */
     @Test
     public void testNotInCBAllowsAnyA() {
         // 测试反向规则2.2: 如果B不在CB中(b4)，则A可以是CA或NCA中的任意值
@@ -297,6 +327,9 @@ public class CompatibleRuleIncompatibleTest extends ModuleScenarioTestBase {
         assertSolutionNum("a:a5", 1);
     }
 
+    /**
+     * 测试不在CB中允许任意A（b5情况）
+     */
     @Test
     public void testNotInCBAllowsAnyAB5() {
         // 测试反向规则2.2: 如果B不在CB中(b5)，则A可以是CA或NCA中的任意值
@@ -316,6 +349,9 @@ public class CompatibleRuleIncompatibleTest extends ModuleScenarioTestBase {
         assertSolutionNum("a:a5", 1);
     }
 
+    /**
+     * 测试Incompatible双向约束
+     */
     @Test
     public void testIncompatibleBidirectionalConstraint() {
         // 测试Incompatible双向约束的完整性

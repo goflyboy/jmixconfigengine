@@ -120,6 +120,9 @@ public class CompatibleRuleCodependentTest extends ModuleScenarioTestBase {
     }
     // ---------------规则定义end----------------------------------------
 
+    /**
+     * 构造CompatibleRuleCodependentTest测试类
+     */
     public CompatibleRuleCodependentTest() {
         super(CompatibleRuleCodependentConstraint.class);
     }
@@ -128,6 +131,9 @@ public class CompatibleRuleCodependentTest extends ModuleScenarioTestBase {
         cfg.setLoadType(1);
     }
 
+    /**
+     * 测试在CA中要求在CB中
+     */
     @Test
     public void testInCARequiresInCB() {
         // 测试正向规则1.1: 如果A在CA中(a1)，则B必须在CB中(b1、b2或b3)
@@ -148,6 +154,9 @@ public class CompatibleRuleCodependentTest extends ModuleScenarioTestBase {
         printSolutions();
     }
 
+    /**
+     * 测试在CA中要求在CB中（a3情况）
+     */
     @Test
     public void testInCARequiresInCBA3() {
         // 测试正向规则1.1: 如果A在CA中(a3)，则B必须在CB中(b1、b2或b3)
@@ -167,6 +176,9 @@ public class CompatibleRuleCodependentTest extends ModuleScenarioTestBase {
         assertSolutionNum("b:b5", 0);
     }
 
+    /**
+     * 测试在CA中但不在CB中是无效的
+     */
     @Test
     public void testInCAWithNotInCBIsInvalid() {
         // 测试正向规则1.1: 如果A在CA中(a1)，则B不在CB中(b4或b5)是不合法的
@@ -175,6 +187,9 @@ public class CompatibleRuleCodependentTest extends ModuleScenarioTestBase {
         assertSolutionNum("b:b5", 0);
     }
 
+    /**
+     * 测试不在CA中要求不在CB中
+     */
     @Test
     public void testNotInCARequiresNotInCB() {
         // 测试正向规则1.2: 如果A不在CA中(a2)，则B必须不在CB中(b4或b5)
@@ -194,6 +209,9 @@ public class CompatibleRuleCodependentTest extends ModuleScenarioTestBase {
         assertSolutionNum("b:b3", 0);
     }
 
+    /**
+     * 测试不在CA中要求不在CB中（a4情况）
+     */
     @Test
     public void testNotInCARequiresNotInCBA4() {
         // 测试正向规则1.2: 如果A不在CA中(a4)，则B必须不在CB中(b4或b5)
@@ -213,6 +231,9 @@ public class CompatibleRuleCodependentTest extends ModuleScenarioTestBase {
         assertSolutionNum("b:b3", 0);
     }
 
+    /**
+     * 测试不在CA中要求不在CB中（a5情况）
+     */
     @Test
     public void testNotInCARequiresNotInCBA5() {
         // 测试正向规则1.2: 如果A不在CA中(a5)，则B必须不在CB中(b4或b5)
@@ -232,6 +253,9 @@ public class CompatibleRuleCodependentTest extends ModuleScenarioTestBase {
         assertSolutionNum("b:b3", 0);
     }
 
+    /**
+     * 测试在CB中要求在CA中
+     */
     @Test
     public void testInCBRequiresInCA() {
         // 测试反向规则2.1: 如果B在CB中(b1)，则A必须在CA中(a1或a3)
@@ -251,6 +275,9 @@ public class CompatibleRuleCodependentTest extends ModuleScenarioTestBase {
         assertSolutionNum("a:a5", 0);
     }
 
+    /**
+     * 测试在CB中要求在CA中（b2、b3情况）
+     */
     @Test
     public void testInCBRequiresInCAB2B3() {
         // 测试反向规则2.1: 如果B在CB中(b2或b3)，则A必须在CA中(a1或a3)
@@ -270,6 +297,9 @@ public class CompatibleRuleCodependentTest extends ModuleScenarioTestBase {
         assertSolutionNum("a:a5", 0);
     }
 
+    /**
+     * 测试不在CB中要求不在CA中
+     */
     @Test
     public void testNotInCBRequiresNotInCA() {
         // 测试反向规则2.2: 如果B不在CB中(b4)，则A必须不在CA中(a2、a4或a5)
@@ -289,6 +319,9 @@ public class CompatibleRuleCodependentTest extends ModuleScenarioTestBase {
         assertSolutionNum("a:a3", 0);
     }
 
+    /**
+     * 测试不在CB中要求不在CA中（b5情况）
+     */
     @Test
     public void testNotInCBRequiresNotInCAB5() {
         // 测试反向规则2.2: 如果B不在CB中(b5)，则A必须不在CA中(a2、a4或a5)
@@ -308,6 +341,9 @@ public class CompatibleRuleCodependentTest extends ModuleScenarioTestBase {
         assertSolutionNum("a:a3", 0);
     }
 
+    /**
+     * 测试Codependent双向约束
+     */
     @Test
     public void testCodependentBidirectionalConstraint() {
         // 测试Codependent双向约束的完整性

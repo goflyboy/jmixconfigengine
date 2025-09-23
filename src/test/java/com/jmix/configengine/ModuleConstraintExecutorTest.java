@@ -18,6 +18,9 @@ import java.io.IOException;
 import java.util.List;
 
 public class ModuleConstraintExecutorTest {
+    /**
+     * 测试初始化、添加模块和推理参数（空测试）
+     */
     @Test
     public void testInitAddModuleAndInfer2() {
     }

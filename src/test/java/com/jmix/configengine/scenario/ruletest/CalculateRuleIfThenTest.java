@@ -41,6 +41,9 @@ public class CalculateRuleIfThenTest extends ModuleScenarioTestBase {
             addConstraint_rule2();
         }
 
+        /**
+         * 添加约束规则2
+         */
         public void addConstraint_rule2() {
 
             // if(p1Var.value ==op11 && p2Var.value == op21 ) {
@@ -75,6 +78,9 @@ public class CalculateRuleIfThenTest extends ModuleScenarioTestBase {
     }
     // ---------------规则定义end----------------------------------------
 
+    /**
+     * 构造CalculateRuleIfThenTest测试类
+     */
     public CalculateRuleIfThenTest() {
         super(CalculateRuleConstraint.class);
     }
@@ -83,6 +89,9 @@ public class CalculateRuleIfThenTest extends ModuleScenarioTestBase {
         cfg.setLoadType(1);
     }
 
+    /**
+     * 测试规则2的if条件（op11和op21）
+     */
     @Test
     public void test_rule2_if_op11_op21() {
         // 测试颜色参数推理
@@ -94,6 +103,9 @@ public class CalculateRuleIfThenTest extends ModuleScenarioTestBase {
         printSolutions();
     }
 
+    /**
+     * 测试规则2的else条件（op11和op21）
+     */
     @Test
     public void test_rule2_else_op11_op21() {
         inferParas("pt1", 3);
@@ -109,6 +121,9 @@ public class CalculateRuleIfThenTest extends ModuleScenarioTestBase {
         printSolutions();
     }
 
+    /**
+     * 测试规则2的无if-else情况
+     */
     @Test
     public void test_rule2_no_if_else() {
         inferParas("pt1", 4);

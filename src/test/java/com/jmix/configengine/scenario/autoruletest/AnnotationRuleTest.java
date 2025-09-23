@@ -41,6 +41,9 @@ public class AnnotationRuleTest extends ConstraintAlgImpl {
      * 兼容性规则：如果颜色是红色，则部件1的数量必须是1
      */
     @CompatiableRuleAnno(leftExprCode = "Color.value==\"Red\"", operator = "Requires", rightExprCode = "Part1.qty==1", normalNaturalCode = "如果颜色是红色，则部件1的数量必须是1")
+    /**
+     * 规则1：兼容性规则
+     */
     public void rule1() {
         // 自动生成的约束代码将在这里注入
     }
@@ -49,10 +52,16 @@ public class AnnotationRuleTest extends ConstraintAlgImpl {
      * 代码规则：自定义逻辑
      */
     @CodeRuleAnno(code = "if (Color.value == \"Blue\" && Size.value == \"Large\") { return false; }", normalNaturalCode = "蓝色大尺寸的组合不允许")
+    /**
+     * 规则2：代码规则
+     */
     public void rule2() {
         // 代码规则不需要注入代码
     }
 
+    /**
+     * 初始化约束
+     */
     @Override
     public void initConstraint() {
         // 约束初始化逻辑
@@ -62,6 +71,9 @@ public class AnnotationRuleTest extends ConstraintAlgImpl {
      * 测试规则生成
      */
     @org.junit.Test
+    /**
+     * 测试规则生成
+     */
     public void testRuleGeneration() {
         // 创建临时路径
         String tempPath = CommHelper.createTempPath(AnnotationRuleTest.class);
@@ -102,6 +114,9 @@ public class AnnotationRuleTest extends ConstraintAlgImpl {
      * 测试注解解析
      */
     @org.junit.Test
+    /**
+     * 测试注解解析
+     */
     public void testAnnotationParsing() {
         // 测试CompatiableRuleAnno注解解析
         try {

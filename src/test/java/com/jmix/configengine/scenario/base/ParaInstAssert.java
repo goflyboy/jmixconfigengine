@@ -19,16 +19,36 @@ public class ParaInstAssert extends ProgammableInstAssert {
     private ParaInst actual;
     private Para para;
 
+    /**
+     * 构造参数实例断言对象
+     * 
+     * @param actualModuleInst 实际的模块实例
+     * @param module           模块定义
+     * @param actual           实际的参数实例
+     * @param para             参数定义
+     */
     public ParaInstAssert(ModuleInst actualModuleInst, Module module, ParaInst actual, Para para) {
         super(actualModuleInst, module);
         this.actual = actual;
         this.para = para;
     }
 
+    /**
+     * 断言参数值等于指定整数值
+     * 
+     * @param expectValue 期望的整数值
+     * @return 参数实例断言对象
+     */
     public ParaInstAssert valueEqual(Integer expectValue) {
         return valueEqual(expectValue.toString());
     }
 
+    /**
+     * 断言参数值等于指定字符串值
+     * 
+     * @param expectValue 期望的字符串值
+     * @return 参数实例断言对象
+     */
     public ParaInstAssert valueEqual(String expectValue) {
         // expectValue的值是code值，转化为codeId
         try {
@@ -43,6 +63,12 @@ public class ParaInstAssert extends ProgammableInstAssert {
         return this;
     }
 
+    /**
+     * 断言参数值ID等于指定值
+     * 
+     * @param expectValueId 期望的值ID
+     * @return 参数实例断言对象
+     */
     public ParaInstAssert valueIdEqual(String expectValueId) {
         if (!Objects.equals(actual.getValue(), expectValueId)) {
             throw new AssertionError(String.format(
@@ -51,6 +77,12 @@ public class ParaInstAssert extends ProgammableInstAssert {
         return this;
     }
 
+    /**
+     * 断言参数值不等于指定值
+     * 
+     * @param expectValue 期望的值
+     * @return 参数实例断言对象
+     */
     public ParaInstAssert valueNotEqual(String expectValue) {
         if (Objects.equals(actual.getValue(), expectValue)) {
             throw new AssertionError(String.format(
@@ -59,6 +91,12 @@ public class ParaInstAssert extends ProgammableInstAssert {
         return this;
     }
 
+    /**
+     * 断言参数选项等于指定选项
+     * 
+     * @param expectOptions 期望的选项数组
+     * @return 参数实例断言对象
+     */
     public ParaInstAssert optionsEqual(String... expectOptions) {
         if (actual.getOptions() == null) {
             throw new AssertionError("参数选项为空");
@@ -75,6 +113,12 @@ public class ParaInstAssert extends ProgammableInstAssert {
         return this;
     }
 
+    /**
+     * 断言参数隐藏状态等于指定值
+     * 
+     * @param expectHidden 期望的隐藏状态
+     * @return 参数实例断言对象
+     */
     public ParaInstAssert hiddenEqual(boolean expectHidden) {
         if (actual.isHidden() != expectHidden) {
             throw new AssertionError(String.format(
@@ -83,16 +127,34 @@ public class ParaInstAssert extends ProgammableInstAssert {
         return this;
     }
 
+    /**
+     * 断言参数隐藏状态等于指定值（布尔值）
+     * 
+     * @param expectHidden 期望的隐藏状态
+     * @return 参数实例断言对象
+     */
     public ParaInstAssert isHiddenEqual(boolean expectHidden) {
         return hiddenEqual(expectHidden);
     }
 
+    /**
+     * 断言参数隐藏状态等于指定值（字符串）
+     * 
+     * @param expectHidden 期望的隐藏状态（"0"或"1"）
+     * @return 参数实例断言对象
+     */
     public ParaInstAssert isHiddenEqual(String expectHidden) {
         // expectHidden="0" or "1"
         boolean expectHiddenValue = expectHidden.equals("0") ? false : true;
         return hiddenEqual(expectHiddenValue);
     }
 
+    /**
+     * 断言参数值在指定值列表中
+     * 
+     * @param expectValues 期望的值列表
+     * @return 参数实例断言对象
+     */
     public ParaInstAssert valueIn(String... expectValues) {
         boolean found = false;
         for (String expectValue : expectValues) {

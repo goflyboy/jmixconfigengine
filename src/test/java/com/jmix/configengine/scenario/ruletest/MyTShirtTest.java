@@ -59,6 +59,9 @@ public class MyTShirtTest extends ModuleScenarioTestBase {
     }
     // ---------------?????end----------------------------------------
 
+    /**
+     * 构造MyTShirtTest测试类
+     */
     public MyTShirtTest() {
         super(MyTShirtConstraint.class);
     }
@@ -67,6 +70,9 @@ public class MyTShirtTest extends ModuleScenarioTestBase {
         cfg.setLoadType(1);
     }
 
+    /**
+     * 测试if条件分支
+     */
     @Test
     public void testIfCondition() {
         inferParas("pt1", 1);
@@ -79,6 +85,9 @@ public class MyTShirtTest extends ModuleScenarioTestBase {
                 .assertPara("p2").valueEqual("op21");
     }
 
+    /**
+     * 测试else条件分支
+     */
     @Test
     public void testElseCondition() {
         inferParas("pt1", 3);
@@ -89,6 +98,9 @@ public class MyTShirtTest extends ModuleScenarioTestBase {
         assertSolutionNum("p1:op11,p2:op21", 0);
     }
 
+    /**
+     * 测试多参数推理
+     */
     @Test
     public void testMultipleParaInference() {
         inferParasByPara("p1", "op11", "p2", "op21");
@@ -99,6 +111,9 @@ public class MyTShirtTest extends ModuleScenarioTestBase {
         solutions(0).assertPart("pt1").quantityEqual(1);
     }
 
+    /**
+     * 测试无解情况
+     */
     @Test
     public void testNoSolution() {
         inferParas("pt1", 5);

@@ -41,6 +41,9 @@ public class ParaIntegerTest extends ModuleScenarioTestBase {
     }
     // ---------------ģ�͵Ķ���end----------------------------------------
 
+    /**
+     * 构造ParaIntegerTest测试类
+     */
     public ParaIntegerTest() {
         super(ParaIntegerConstraint.class);
     }
@@ -49,6 +52,9 @@ public class ParaIntegerTest extends ModuleScenarioTestBase {
         cfg.setLoadType(1);
     }
 
+    /**
+     * 测试多解情况
+     */
     @Test
     public void testMultipleSolutions() {
         inferParas("part1", 3);
@@ -61,12 +67,18 @@ public class ParaIntegerTest extends ModuleScenarioTestBase {
         assertSolutionNum("p1:3,p2:0", 1);
     }
 
+    /**
+     * 测试无解情况
+     */
     @Test
     public void testNoSolution() {
         inferParas("part1", 4);
         resultAssert().assertNoSolution();
     }
 
+    /**
+     * 测试参数驱动推理
+     */
     @Test
     public void testParaDrivenInference() {
         inferParasByPara("p1", "2", "p2", "1");
@@ -77,6 +89,9 @@ public class ParaIntegerTest extends ModuleScenarioTestBase {
                 .assertPart("part1").quantityEqual(3);
     }
 
+    /**
+     * 测试零数量情况
+     */
     @Test
     public void testZeroQuantity() {
         inferParas("part1", 0);
@@ -88,6 +103,9 @@ public class ParaIntegerTest extends ModuleScenarioTestBase {
                 .assertPara("p2").valueEqual("0");
     }
 
+    /**
+     * 测试多参数推理
+     */
     @Test
     public void testMultipleParaInference() {
         // 使用可变参数版本：inferParasByPara(String paraCode1, String value1, String paraCode2,

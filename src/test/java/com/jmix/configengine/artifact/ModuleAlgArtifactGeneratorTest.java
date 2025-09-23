@@ -30,10 +30,16 @@ import java.util.List;
  */
 public class ModuleAlgArtifactGeneratorTest {
 
+    /**
+     * 测试设置方法
+     */
     @Before
     public void setUp() {
     }
 
+    /**
+     * 测试forModule工厂方法
+     */
     @Test
     public void testForModuleFactoryMethod() {
         Module module = createTestModule();
@@ -48,11 +54,10 @@ public class ModuleAlgArtifactGeneratorTest {
         System.out.println("forModule factory method test passed successfully");
     }
 
-    // @Test
     /**
      * 测试buildRule方法
      * 
-     * @throws Exception
+     * @throws Exception 异常
      */
     public void testBuildRule() throws Exception {
         // 创建测试模块和ModuleInfo
@@ -133,6 +138,9 @@ public class ModuleAlgArtifactGeneratorTest {
         System.out.println("BuildRule test passed successfully");
     }
 
+    /**
+     * 测试doSelectProObjs方法
+     */
     @Test
     public void testDoSelectProObjs() {
         Module module = createTestModule();
@@ -181,7 +189,6 @@ public class ModuleAlgArtifactGeneratorTest {
         }
     }
 
-    // @Test
     /**
      * 测试Module方法
      */

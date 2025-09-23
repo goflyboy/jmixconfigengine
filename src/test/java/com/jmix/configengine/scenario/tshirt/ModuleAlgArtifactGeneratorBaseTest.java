@@ -33,6 +33,11 @@ public class ModuleAlgArtifactGeneratorBaseTest {
     // 是否删除生成的文件
     private boolean deleteGeneratedFile = true;
 
+    /**
+     * 测试设置方法
+     * 
+     * @throws Exception 异常
+     */
     @Before
     public void setUp() throws Exception {
         // 初始化生成器
@@ -51,6 +56,11 @@ public class ModuleAlgArtifactGeneratorBaseTest {
         tshirtModule.init();
     }
 
+    /**
+     * 测试buildConstraintRule方法
+     * 
+     * @throws Exception 异常
+     */
     @Test
     public void testBuildConstraintRule() throws Exception {
         deleteGeneratedFile = false;
@@ -153,6 +163,9 @@ public class ModuleAlgArtifactGeneratorBaseTest {
         return fullPath;
     }
 
+    /**
+     * 测试清理方法
+     */
     @After
     public void tearDown() {
         // 清理生成的测试文件

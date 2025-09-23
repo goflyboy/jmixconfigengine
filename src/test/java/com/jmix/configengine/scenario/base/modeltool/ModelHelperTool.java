@@ -21,12 +21,20 @@ public final class ModelHelperTool {
      * 
      * @param args 命令行参数
      */
+    /**
+     * 主方法
+     * 
+     * @param args 命令行参数
+     */
     public static void main(String[] args) {
         generatorModelFile();
         // injectConstraintCode();
 
     }
 
+    /**
+     * 注入约束代码
+     */
     /**
      * 注入约束代码
      */
@@ -42,6 +50,9 @@ public final class ModelHelperTool {
 
     /**
      * 调用大模型生成模型文件和测试文件
+     */
+    /**
+     * 生成模型文件
      */
     public static void generatorModelFile() {
         try {

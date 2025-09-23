@@ -130,10 +130,16 @@ public class DynScheduleTest extends ModuleScenarioTestBase {
     }
     // ---------------?????end----------------------------------------
 
+    /**
+     * 构造DynScheduleTest测试类
+     */
     public DynScheduleTest() {
         super(DynScheduleConstraint.class);
     }
 
+    /**
+     * 测试案例1：从PT1数量推理P0和P11
+     */
     @Test
     public void testCase1InferP0P11FromPT1Qty() {
         // Test case 1: Infer P0.value and P11.value from PT1.qty with constraints
@@ -150,6 +156,9 @@ public class DynScheduleTest extends ModuleScenarioTestBase {
         printSolutions();
     }
 
+    /**
+     * 测试案例2：从PT2数量推理P0和P21
+     */
     @Test
     public void testCase2InferP0P21FromPT2Qty() {
         // Test case 2: Infer P0.value and P21.value from PT2.qty with constraints
@@ -166,6 +175,9 @@ public class DynScheduleTest extends ModuleScenarioTestBase {
         printSolutions();
     }
 
+    /**
+     * 测试规则01：P0大于1的情况
+     */
     @Test
     public void testRule01CaseP0GreaterThan1() {
         // Test Rule01 when P0.value > 1: P11.value > P0.value + 1
@@ -179,6 +191,9 @@ public class DynScheduleTest extends ModuleScenarioTestBase {
         printSolutions();
     }
 
+    /**
+     * 测试规则01：P0小于等于1的情况
+     */
     @Test
     public void testRule01CaseP0LessOrEqual1() {
         // Test Rule01 when P0.value <= 1: P11.value < P0.value
@@ -192,6 +207,9 @@ public class DynScheduleTest extends ModuleScenarioTestBase {
         printSolutions();
     }
 
+    /**
+     * 测试规则02：P0不等于2的情况
+     */
     @Test
     public void testRule02CaseP0NotEqual2() {
         // Test Rule02 when P0.value != 2: P21.value in (op211, op212)
@@ -205,6 +223,9 @@ public class DynScheduleTest extends ModuleScenarioTestBase {
         printSolutions();
     }
 
+    /**
+     * 测试规则02：P0等于2的情况
+     */
     @Test
     public void testRule02CaseP0Equal2() {
         // Test Rule02 when P0.value == 2: P21.value in (op213, op214)
@@ -218,6 +239,9 @@ public class DynScheduleTest extends ModuleScenarioTestBase {
         printSolutions();
     }
 
+    /**
+     * 测试规则11：PT1数量等于P11值
+     */
     @Test
     public void testRule11PT1QtyEqualsP11Value() {
         // Test Rule11: PT1.qty should always equal P11.value
@@ -231,6 +255,9 @@ public class DynScheduleTest extends ModuleScenarioTestBase {
         printSolutions();
     }
 
+    /**
+     * 测试规则21：P21在第一组的情况
+     */
     @Test
     public void testRule21CaseP21InFirstGroup() {
         // Test Rule21 when P21.value in (op211, op212): PT2.qty = 1 * P22.value
@@ -244,6 +271,9 @@ public class DynScheduleTest extends ModuleScenarioTestBase {
         printSolutions();
     }
 
+    /**
+     * 测试规则21：P21在第二组的情况
+     */
     @Test
     public void testRule21CaseP21InSecondGroup() {
         // Test Rule21 when P21.value in (op213, op214): PT2.qty = 2 * P22.value
@@ -257,6 +287,9 @@ public class DynScheduleTest extends ModuleScenarioTestBase {
         printSolutions();
     }
 
+    /**
+     * 测试无解情况
+     */
     @Test
     public void testNoSolutionCase() {
         // Test case with no valid solution

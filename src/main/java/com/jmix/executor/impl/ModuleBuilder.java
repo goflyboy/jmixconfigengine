@@ -23,7 +23,7 @@ public class ModuleBuilder {
     /**
      * ParaOption构建器
      */
-    public static class ParaOptionBuilder {
+    public static final class ParaOptionBuilder {
 
         private final ParaOption paraOption;
 
@@ -40,6 +40,9 @@ public class ModuleBuilder {
 
         /**
          * 设置选项编码ID
+         * 
+         * @param codeId 选项编码ID
+         * @return 当前构建器实例
          */
         public ParaOptionBuilder codeId(int codeId) {
             paraOption.setCodeId(codeId);
@@ -48,6 +51,9 @@ public class ModuleBuilder {
 
         /**
          * 设置对象编码
+         * 
+         * @param code 对象编码
+         * @return 当前构建器实例
          */
         public ParaOptionBuilder code(String code) {
             paraOption.setCode(code);
@@ -56,6 +62,9 @@ public class ModuleBuilder {
 
         /**
          * 设置父对象编码
+         * 
+         * @param fatherCode 父对象编码
+         * @return 当前构建器实例
          */
         public ParaOptionBuilder fatherCode(String fatherCode) {
             paraOption.setFatherCode(fatherCode);
@@ -64,6 +73,9 @@ public class ModuleBuilder {
 
         /**
          * 设置默认值
+         * 
+         * @param defaultValue 默认值
+         * @return 当前构建器实例
          */
         public ParaOptionBuilder defaultValue(String defaultValue) {
             paraOption.setDefaultValue(defaultValue);
@@ -72,6 +84,9 @@ public class ModuleBuilder {
 
         /**
          * 设置描述信息
+         * 
+         * @param description 描述信息
+         * @return 当前构建器实例
          */
         public ParaOptionBuilder description(String description) {
             paraOption.setDescription(description);
@@ -80,6 +95,9 @@ public class ModuleBuilder {
 
         /**
          * 设置排序号
+         * 
+         * @param sortNo 排序号
+         * @return 当前构建器实例
          */
         public ParaOptionBuilder sortNo(int sortNo) {
             paraOption.setSortNo(sortNo);
@@ -88,6 +106,9 @@ public class ModuleBuilder {
 
         /**
          * 设置扩展属性Schema
+         * 
+         * @param extSchema 扩展属性Schema
+         * @return 当前构建器实例
          */
         public ParaOptionBuilder extSchema(String extSchema) {
             paraOption.setExtSchema(extSchema);
@@ -96,6 +117,10 @@ public class ModuleBuilder {
 
         /**
          * 动态添加扩展属性
+         * 
+         * @param key   属性键
+         * @param value 属性值
+         * @return 当前构建器实例
          */
         public ParaOptionBuilder extAttr(String key, String value) {
             paraOption.setExtAttr(key, value);
@@ -104,6 +129,9 @@ public class ModuleBuilder {
 
         /**
          * 批量添加扩展属性
+         * 
+         * @param extAttrs 扩展属性映射
+         * @return 当前构建器实例
          */
         public ParaOptionBuilder extAttrs(Map<String, String> extAttrs) {
             if (extAttrs != null) {
@@ -114,6 +142,11 @@ public class ModuleBuilder {
 
         /**
          * 创建选项的便捷方法
+         * 
+         * @param codeId      选项编码ID
+         * @param code        对象编码
+         * @param description 描述信息
+         * @return 当前构建器实例
          */
         public ParaOptionBuilder asOption(int codeId, String code, String description) {
             return this.codeId(codeId)
@@ -123,6 +156,8 @@ public class ModuleBuilder {
 
         /**
          * 构建并返回ParaOption对象
+         * 
+         * @return 构建的ParaOption对象
          */
         public ParaOption build() {
             return paraOption;
@@ -130,6 +165,8 @@ public class ModuleBuilder {
 
         /**
          * 设置默认值并构建
+         * 
+         * @return 构建的ParaOption对象
          */
         public ParaOption buildWithDefaults() {
             if (paraOption.getDefaultValue() == null && paraOption.getCode() != null) {
@@ -147,7 +184,7 @@ public class ModuleBuilder {
     /**
      * Part构建器
      */
-    public static class PartBuilder {
+    public static final class PartBuilder {
 
         private final Part part;
 
@@ -164,6 +201,9 @@ public class ModuleBuilder {
 
         /**
          * 设置对象编码
+         * 
+         * @param code 对象编码
+         * @return 当前构建器实例
          */
         public PartBuilder code(String code) {
             part.setCode(code);
@@ -172,6 +212,9 @@ public class ModuleBuilder {
 
         /**
          * 设置父对象编码
+         * 
+         * @param fatherCode 父对象编码
+         * @return 当前构建器实例
          */
         public PartBuilder fatherCode(String fatherCode) {
             part.setFatherCode(fatherCode);
@@ -180,6 +223,9 @@ public class ModuleBuilder {
 
         /**
          * 设置默认值
+         * 
+         * @param defaultValue 默认值
+         * @return 当前构建器实例
          */
         public PartBuilder defaultValue(Integer defaultValue) {
             part.setDefaultValue(defaultValue);
@@ -188,6 +234,9 @@ public class ModuleBuilder {
 
         /**
          * 设置描述信息
+         * 
+         * @param description 描述信息
+         * @return 当前构建器实例
          */
         public PartBuilder description(String description) {
             part.setDescription(description);
@@ -196,6 +245,9 @@ public class ModuleBuilder {
 
         /**
          * 设置排序号
+         * 
+         * @param sortNo 排序号
+         * @return 当前构建器实例
          */
         public PartBuilder sortNo(int sortNo) {
             part.setSortNo(sortNo);
@@ -204,6 +256,9 @@ public class ModuleBuilder {
 
         /**
          * 设置扩展属性Schema
+         * 
+         * @param extSchema 扩展属性Schema
+         * @return 当前构建器实例
          */
         public PartBuilder extSchema(String extSchema) {
             part.setExtSchema(extSchema);
@@ -212,6 +267,10 @@ public class ModuleBuilder {
 
         /**
          * 动态添加扩展属性
+         * 
+         * @param key   属性键
+         * @param value 属性值
+         * @return 当前构建器实例
          */
         public PartBuilder extAttr(String key, String value) {
             part.setExtAttr(key, value);
@@ -220,6 +279,9 @@ public class ModuleBuilder {
 
         /**
          * 批量添加扩展属性
+         * 
+         * @param extAttrs 扩展属性映射
+         * @return 当前构建器实例
          */
         public PartBuilder extAttrs(Map<String, String> extAttrs) {
             if (extAttrs != null) {
@@ -230,6 +292,9 @@ public class ModuleBuilder {
 
         /**
          * 设置部件类型
+         * 
+         * @param type 部件类型
+         * @return 当前构建器实例
          */
         public PartBuilder type(PartType type) {
             part.setType(type);
@@ -238,6 +303,9 @@ public class ModuleBuilder {
 
         /**
          * 设置价格
+         * 
+         * @param price 价格
+         * @return 当前构建器实例
          */
         public PartBuilder price(Long price) {
             part.setPrice(price);
@@ -246,6 +314,9 @@ public class ModuleBuilder {
 
         /**
          * 设置规格属性
+         * 
+         * @param attrs 规格属性映射
+         * @return 当前构建器实例
          */
         public PartBuilder attrs(Map<String, String> attrs) {
             part.setAttrs(attrs);
@@ -254,6 +325,10 @@ public class ModuleBuilder {
 
         /**
          * 添加单个规格属性
+         * 
+         * @param key   属性键
+         * @param value 属性值
+         * @return 当前构建器实例
          */
         public PartBuilder attr(String key, String value) {
             if (part.getAttrs() == null) {
@@ -265,6 +340,12 @@ public class ModuleBuilder {
 
         /**
          * 创建部件的便捷方法
+         * 
+         * @param code        对象编码
+         * @param description 描述信息
+         * @param sortNo      排序号
+         * @param price       价格
+         * @return 当前构建器实例
          */
         public PartBuilder asPart(String code, String description, int sortNo, Long price) {
             return this.code(code)
@@ -276,6 +357,8 @@ public class ModuleBuilder {
 
         /**
          * 构建并返回Part对象
+         * 
+         * @return 构建的Part对象
          */
         public Part build() {
             return part;
@@ -283,6 +366,8 @@ public class ModuleBuilder {
 
         /**
          * 设置默认值并构建
+         * 
+         * @return 构建的Part对象
          */
         public Part buildWithDefaults() {
             if (part.getDefaultValue() == null) {
@@ -303,7 +388,7 @@ public class ModuleBuilder {
     /**
      * Para构建器
      */
-    public static class ParaBuilder {
+    public static final class ParaBuilder {
 
         private final Para para;
 
@@ -320,6 +405,9 @@ public class ModuleBuilder {
 
         /**
          * 设置对象编码
+         * 
+         * @param code 对象编码
+         * @return 当前构建器实例
          */
         public ParaBuilder code(String code) {
             para.setCode(code);
@@ -328,6 +416,9 @@ public class ModuleBuilder {
 
         /**
          * 设置父对象编码
+         * 
+         * @param fatherCode 父对象编码
+         * @return 当前构建器实例
          */
         public ParaBuilder fatherCode(String fatherCode) {
             para.setFatherCode(fatherCode);
@@ -336,6 +427,9 @@ public class ModuleBuilder {
 
         /**
          * 设置默认值
+         * 
+         * @param defaultValue 默认值
+         * @return 当前构建器实例
          */
         public ParaBuilder defaultValue(String defaultValue) {
             para.setDefaultValue(defaultValue);
@@ -344,6 +438,9 @@ public class ModuleBuilder {
 
         /**
          * 设置描述信息
+         * 
+         * @param description 描述信息
+         * @return 当前构建器实例
          */
         public ParaBuilder description(String description) {
             para.setDescription(description);
@@ -352,6 +449,9 @@ public class ModuleBuilder {
 
         /**
          * 设置排序号
+         * 
+         * @param sortNo 排序号
+         * @return 当前构建器实例
          */
         public ParaBuilder sortNo(int sortNo) {
             para.setSortNo(sortNo);
@@ -360,6 +460,9 @@ public class ModuleBuilder {
 
         /**
          * 设置扩展属性Schema
+         * 
+         * @param extSchema 扩展属性Schema
+         * @return 当前构建器实例
          */
         public ParaBuilder extSchema(String extSchema) {
             para.setExtSchema(extSchema);
@@ -368,6 +471,10 @@ public class ModuleBuilder {
 
         /**
          * 动态添加扩展属性
+         * 
+         * @param key   属性键
+         * @param value 属性值
+         * @return 当前构建器实例
          */
         public ParaBuilder extAttr(String key, String value) {
             para.setExtAttr(key, value);
@@ -376,6 +483,9 @@ public class ModuleBuilder {
 
         /**
          * 批量添加扩展属性
+         * 
+         * @param extAttrs 扩展属性映射
+         * @return 当前构建器实例
          */
         public ParaBuilder extAttrs(Map<String, String> extAttrs) {
             if (extAttrs != null) {
@@ -386,6 +496,9 @@ public class ModuleBuilder {
 
         /**
          * 设置参数类型
+         * 
+         * @param type 参数类型
+         * @return 当前构建器实例
          */
         public ParaBuilder type(ParaType type) {
             para.setType(type);
@@ -394,6 +507,9 @@ public class ModuleBuilder {
 
         /**
          * 设置选项列表
+         * 
+         * @param options 选项列表
+         * @return 当前构建器实例
          */
         public ParaBuilder options(java.util.List<ParaOption> options) {
             para.setOptions(options);
@@ -402,6 +518,11 @@ public class ModuleBuilder {
 
         /**
          * 创建颜色参数的便捷方法
+         * 
+         * @param code        对象编码
+         * @param description 描述信息
+         * @param sortNo      排序号
+         * @return 当前构建器实例
          */
         public ParaBuilder asColorPara(String code, String description, int sortNo) {
             return this.code(code)
@@ -412,6 +533,11 @@ public class ModuleBuilder {
 
         /**
          * 创建尺寸参数的便捷方法
+         * 
+         * @param code        对象编码
+         * @param description 描述信息
+         * @param sortNo      排序号
+         * @return 当前构建器实例
          */
         public ParaBuilder asSizePara(String code, String description, int sortNo) {
             return this.code(code)
@@ -422,6 +548,8 @@ public class ModuleBuilder {
 
         /**
          * 构建并返回Para对象
+         * 
+         * @return 构建的Para对象
          */
         public Para build() {
             return para;
@@ -429,6 +557,8 @@ public class ModuleBuilder {
 
         /**
          * 设置默认值并构建
+         * 
+         * @return 构建的Para对象
          */
         public Para buildWithDefaults() {
             if (para.getDefaultValue() == null) {

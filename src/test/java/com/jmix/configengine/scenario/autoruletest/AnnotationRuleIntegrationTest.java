@@ -23,6 +23,9 @@ public class AnnotationRuleIntegrationTest {
     /**
      * 测试完整的注解规则功能
      */
+    /**
+     * 测试完整的注解规则流程
+     */
     @org.junit.Test
     public void testCompleteAnnotationRuleFlow() {
         try {
@@ -116,6 +119,9 @@ public class AnnotationRuleIntegrationTest {
     /**
      * 测试ModelHelper的自动注入功能
      */
+    /**
+     * 测试模型助手自动注入
+     */
     @org.junit.Test
     public void testModelHelperAutoInjection() {
         try {
@@ -131,6 +137,9 @@ public class AnnotationRuleIntegrationTest {
     /**
      * 测试注解常量使用
      */
+    /**
+     * 测试注解常量
+     */
     @org.junit.Test
     public void testAnnotationConstants() {
         // 测试CompatiableRuleSchema.Operator常量
@@ -144,6 +153,9 @@ public class AnnotationRuleIntegrationTest {
 
     /**
      * 测试ProgObject解析
+     */
+    /**
+     * 测试编程对象解析
      */
     @org.junit.Test
     public void testProgObjectParsing() {

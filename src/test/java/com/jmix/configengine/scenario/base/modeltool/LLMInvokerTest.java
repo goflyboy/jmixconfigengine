@@ -12,6 +12,11 @@ public final class LLMInvokerTest {
         // 工具类应隐藏 public 构造器
     }
 
+    /**
+     * 主方法
+     * 
+     * @param args 命令行参数
+     */
     public static void main(String[] args) {
         try {
             System.out.println("=== LLM调用框架测试 ===\n");

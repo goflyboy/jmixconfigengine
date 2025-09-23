@@ -60,6 +60,9 @@ public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
         }
     }
 
+    /**
+     * 构造InjectCompatibleRuleTest测试类
+     */
     public InjectCompatibleRuleTest() {
         super(InjectCompatibleRuleConstraint.class);
     }
@@ -69,6 +72,9 @@ public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
         cfg.setLoadType(1);
     }
 
+    /**
+     * 测试规则2的Requires约束
+     */
     @Test
     public void testRule2Requires() {
         inferParasByPara("Color", "Red");
@@ -80,6 +86,9 @@ public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
                 .assertPara("Size").valueEqual("Small");
     }
 
+    /**
+     * 测试规则2的CoDependent约束
+     */
     @Test
     public void testRule2CoDependent() {
         inferParasByPara("Color", "Black");
@@ -91,6 +100,9 @@ public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
                 .assertPara("Size").valueEqual("Medium");
     }
 
+    /**
+     * 测试规则2的InCompatible约束
+     */
     @Test
     public void testRule2InCompatible() {
         inferParasByPara("Color", "White");

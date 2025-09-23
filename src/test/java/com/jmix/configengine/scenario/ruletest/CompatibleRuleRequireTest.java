@@ -82,6 +82,9 @@ public class CompatibleRuleRequireTest extends ModuleScenarioTestBase {
     }
     // ---------------规则定义end----------------------------------------
 
+    /**
+     * 构造CompatibleRuleRequireTest测试类
+     */
     public CompatibleRuleRequireTest() {
         super(CompatibleRuleRequireConstraint.class);
     }
@@ -90,6 +93,9 @@ public class CompatibleRuleRequireTest extends ModuleScenarioTestBase {
         cfg.setLoadType(1);
     }
 
+    /**
+     * 测试A1要求B1、B2、B3
+     */
     @Test
     public void testA1RequiresB1B2B3() {
         // 测试正向规则1.1: 如果A选择a1，则B必须是b1、b2或b3
@@ -108,6 +114,9 @@ public class CompatibleRuleRequireTest extends ModuleScenarioTestBase {
         assertSolutionNum("b:b4", 0);
     }
 
+    /**
+     * 测试A3要求B1、B2、B3
+     */
     @Test
     public void testA3RequiresB1B2B3() {
         // 测试正向规则1.1: 如果A选择a3，则B必须是b1、b2或b3
@@ -126,6 +135,9 @@ public class CompatibleRuleRequireTest extends ModuleScenarioTestBase {
         assertSolutionNum("b:b4", 0);
     }
 
+    /**
+     * 测试A1与B4组合无效
+     */
     @Test
     public void testA1WithB4IsInvalid() {
         // 测试正向规则1.2: 如果A选择a1，则B选择b4是不合法的
@@ -134,6 +146,9 @@ public class CompatibleRuleRequireTest extends ModuleScenarioTestBase {
         assertSolutionNum("b:b4", 0);
     }
 
+    /**
+     * 测试B1允许任意A
+     */
     @Test
     public void testB1AllowsAnyA() {
         // 测试反向规则2.1: 如果B选择b1，则A可以是a1、a2、a3或a4
@@ -150,6 +165,9 @@ public class CompatibleRuleRequireTest extends ModuleScenarioTestBase {
         assertSolutionNum("a:a4", 1);
     }
 
+    /**
+     * 测试B4只允许A2、A4
+     */
     @Test
     public void testB4AllowsA2A4Only() {
         // 测试反向规则2.2: 如果B选择b4，则A只能是a2或a4
@@ -168,6 +186,9 @@ public class CompatibleRuleRequireTest extends ModuleScenarioTestBase {
         assertSolutionNum("a:a3", 0);
     }
 
+    /**
+     * 测试A2、A4允许任意B
+     */
     @Test
     public void testA2A4AllowAnyB() {
         // 测试额外情况: A选择a2或a4时，B可以是任意值

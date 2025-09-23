@@ -196,7 +196,6 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     /**
      * 根据exeRules执行规则
      * 
-     * @param exeRules 要执行的规则列表
      */
     private void initRules() {
         if (ruleMethods.isEmpty()) {

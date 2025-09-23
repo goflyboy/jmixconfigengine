@@ -18,6 +18,9 @@ import java.util.List;
  */
 public class CodeRuleSchemaTest {
 
+    /**
+     * 测试CodeRuleSchema创建
+     */
     @Test
     public void testCodeRuleSchemaCreation() {
         // 创建CodeRuleSchema实例
@@ -49,6 +52,9 @@ public class CodeRuleSchemaTest {
         assertEquals("value", codeRule.getLeftRefProgObjs().get(0).getProgObjField());
     }
 
+    /**
+     * 测试CodeRuleSchema继承
+     */
     @Test
     public void testCodeRuleSchemaInheritance() {
         // 验证CodeRuleSchema正确继承了RuleSchema
@@ -56,6 +62,11 @@ public class CodeRuleSchemaTest {
         assertTrue(codeRule instanceof RuleSchema);
     }
 
+    /**
+     * 测试CodeRuleSchemaJSON序列化
+     * 
+     * @throws Exception 异常
+     */
     @Test
     public void testCodeRuleSchemaJsonSerialization() throws Exception {
         // 测试JSON序列化和反序列化

@@ -36,12 +36,20 @@ public class ModuleUtilsTest {
     private String testJsonFile = "test_module.json";
     private boolean deleteGeneratedFile;
 
+    /**
+     * 测试设置方法
+     */
     @Before
     public void setUp() {
         // 创建测试用的Module对象
         testModule = createTestModule();
     }
 
+    /**
+     * 测试toJsonFile方法
+     * 
+     * @throws IOException IO异常
+     */
     @Test
     public void testToJsonFile() throws IOException {
         System.out.println("=== 测试 toJsonFile 方法 ===");
@@ -60,6 +68,11 @@ public class ModuleUtilsTest {
         System.out.println("  文件大小: " + jsonFile.length() + " 字节");
     }
 
+    /**
+     * 测试fromJsonFile方法
+     * 
+     * @throws IOException IO异常
+     */
     @Test
     public void testFromJsonFile() throws IOException {
         System.out.println("=== 测试 fromJsonFile 方法 ===");
@@ -97,6 +110,11 @@ public class ModuleUtilsTest {
         System.out.println("  规则数量: " + loadedModule.getRules().size());
     }
 
+    /**
+     * 测试toJsonString和fromJsonString方法
+     * 
+     * @throws IOException IO异常
+     */
     @Test
     public void testToJsonStringAndFromJsonString() throws IOException {
         System.out.println("=== 测试 toJsonString 和 fromJsonString 方法 ===");
@@ -117,6 +135,11 @@ public class ModuleUtilsTest {
         System.out.println("  加载的模块: " + loadedModule.getCode());
     }
 
+    /**
+     * 测试validateJsonFile方法
+     * 
+     * @throws IOException IO异常
+     */
     @Test
     public void testValidateJsonFile() throws IOException {
         System.out.println("=== 测试 validateJsonFile 方法 ===");
@@ -135,6 +158,11 @@ public class ModuleUtilsTest {
         System.out.println("✓ validateJsonFile测试通过");
     }
 
+    /**
+     * 测试完整往返流程
+     * 
+     * @throws IOException IO异常
+     */
     @Test
     public void testRoundTrip() throws IOException {
         System.out.println("=== 测试完整往返流程 ===");
@@ -264,6 +292,9 @@ public class ModuleUtilsTest {
         return module;
     }
 
+    /**
+     * 测试清理方法
+     */
     @After
     public void tearDown() {
         // 清理测试文件

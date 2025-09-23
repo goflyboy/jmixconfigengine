@@ -15,6 +15,9 @@ import java.io.File;
  */
 public class CommHelperTest {
 
+    /**
+     * 测试getResourcePath方法
+     */
     @Test
     public void testGetResourcePath() {
         // 测试获取资源路径
@@ -24,6 +27,9 @@ public class CommHelperTest {
         assertTrue("Resource path should contain package path", path.contains("com/jmix/configengine/scenario/base"));
     }
 
+    /**
+     * 测试createDirectory方法
+     */
     @Test
     public void testCreateDirectory() {
         // 测试创建目录
@@ -46,6 +52,9 @@ public class CommHelperTest {
         testDir.delete();
     }
 
+    /**
+     * 测试createTempPath方法
+     */
     @Test
     public void testCreateTempPath() {
         // 测试创建临时路径
@@ -64,6 +73,9 @@ public class CommHelperTest {
         tempDir.delete();
     }
 
+    /**
+     * 测试createTempPath方法（已存在目录的情况）
+     */
     @Test
     public void testCreateTempPathWithExistingDirectory() {
         // 测试在已存在目录的情况下创建临时路径

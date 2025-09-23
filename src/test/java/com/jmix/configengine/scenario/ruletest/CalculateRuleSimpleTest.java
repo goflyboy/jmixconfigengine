@@ -38,6 +38,9 @@ public class CalculateRuleSimpleTest extends ModuleScenarioTestBase {
             addConstraint_rule1();
         }
 
+        /**
+         * 添加约束规则1
+         */
         public void addConstraint_rule1() {
             // if(p1Var.value == op11) {
             // pt1Var.qty = 1;
@@ -69,6 +72,9 @@ public class CalculateRuleSimpleTest extends ModuleScenarioTestBase {
     }
     // ---------------规则定义end----------------------------------------
 
+    /**
+     * 构造CalculateRuleSimpleTest测试类
+     */
     public CalculateRuleSimpleTest() {
         super(CalculateRuleConstraint.class);
     }
@@ -77,6 +83,9 @@ public class CalculateRuleSimpleTest extends ModuleScenarioTestBase {
         cfg.setLoadType(1);
     }
 
+    /**
+     * 测试if条件（op11）
+     */
     @Test
     public void test_if_op11() {
         // 测试颜色参数推理
@@ -87,6 +96,9 @@ public class CalculateRuleSimpleTest extends ModuleScenarioTestBase {
         printSolutions();
     }
 
+    /**
+     * 测试else条件（op11）
+     */
     @Test
     public void test_else_op11() {
         inferParas("pt1", 3);
@@ -100,6 +112,9 @@ public class CalculateRuleSimpleTest extends ModuleScenarioTestBase {
         printSolutions();
     }
 
+    /**
+     * 测试无if-else情况
+     */
     @Test
     public void test_no_if_else() {
         inferParas("pt1", 4);

@@ -1,12 +1,12 @@
 package com.jmix.configengine.other;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * 简化的数据验证工具类
@@ -15,11 +15,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class SimpleDataValidator {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+
     private final List<String> validationErrors = new ArrayList<>();
+
     private final List<String> validationWarnings = new ArrayList<>();
 
     /**
      * 验证JSON文件
+     * 
+     * @param filePath JSON文件路径
+     * @return 验证是否成功
      */
     public boolean validateJsonFile(String filePath) {
         try {
@@ -308,9 +313,9 @@ public class SimpleDataValidator {
      * 验证规则Schema
      */
     private boolean isValidRuleSchemaTypeFullName(String schema) {
-        return schema.contains("CompatiableRule") ||
-                schema.contains("CalculateRule") ||
-                schema.contains("SelectRule");
+        return schema.contains("CompatiableRule")
+                || schema.contains("CalculateRule")
+                || schema.contains("SelectRule");
     }
 
     /**
@@ -331,6 +336,8 @@ public class SimpleDataValidator {
 
     /**
      * 获取验证结果
+     * 
+     * @return 验证结果对象，包含错误和警告信息
      */
     public ValidationResult getValidationResult() {
         return new ValidationResult(validationErrors, validationWarnings);
@@ -369,29 +376,61 @@ public class SimpleDataValidator {
      */
     public static class ValidationResult {
         private final List<String> errors;
+
         private final List<String> warnings;
 
+        /**
+         * 构造验证结果对象
+         * 
+         * @param errors   错误信息列表
+         * @param warnings 警告信息列表
+         */
         public ValidationResult(List<String> errors, List<String> warnings) {
             this.errors = new ArrayList<>(errors);
             this.warnings = new ArrayList<>(warnings);
         }
 
+        /**
+         * 获取错误信息列表
+         * 
+         * @return 错误信息列表
+         */
         public List<String> getErrors() {
             return errors;
         }
 
+        /**
+         * 获取警告信息列表
+         * 
+         * @return 警告信息列表
+         */
         public List<String> getWarnings() {
             return warnings;
         }
 
+        /**
+         * 检查验证是否通过
+         * 
+         * @return 如果没有错误则返回true，否则返回false
+         */
         public boolean isValid() {
             return errors.isEmpty();
         }
 
+        /**
+         * 获取错误数量
+         * 
+         * @return 错误数量
+         */
         public int getErrorCount() {
             return errors.size();
         }
 
+        /**
+         * 获取警告数量
+         * 
+         * @return 警告数量
+         */
         public int getWarningCount() {
             return warnings.size();
         }

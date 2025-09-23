@@ -298,6 +298,10 @@ public class ModuleAlgArtifactGenerator {
 
     /**
      * 选择编程对象
+     * 
+     * @param moduleVarInfo 模块变量信息
+     * @param exprSchema    表达式模式
+     * @return 包含目标对象和过滤对象代码列表的可选结果
      */
     @SuppressWarnings("rawtypes")
     public Optional<Pair<VarInfo<? extends Extensible>, List<String>>> doSelectProObjs(

@@ -26,6 +26,9 @@ public class ModuleRefRelationGraphTest {
     private ModuleRefRelationGraph graph;
     private RefProgObjSchema p0, p11, p21, p22, pt1, pt2;
 
+    /**
+     * 设置测试环境
+     */
     @Before
     public void setUp() {
         graph = new ModuleRefRelationGraph();
@@ -49,6 +52,9 @@ public class ModuleRefRelationGraphTest {
         return schema;
     }
 
+    /**
+     * 测试添加单一关系
+     */
     @Test
     public void testAddSingleRelation() {
         // 执行
@@ -68,6 +74,9 @@ public class ModuleRefRelationGraphTest {
         assertEquals("Rule01", inEdges.get("P0"));
     }
 
+    /**
+     * 测试添加多个左侧关系
+     */
     @Test
     public void testAddMultipleFromLeftsRelation() {
         // 执行：Rule21: From(left):[P21,P22],To(Right):PT2
@@ -96,6 +105,9 @@ public class ModuleRefRelationGraphTest {
         assertEquals("Rule21", pt2InEdges.get("P22"));
     }
 
+    /**
+     * 测试添加空参数关系
+     */
     @Test
     public void testAddRelationWithNullParameters() {
         // 测试null fromLeft
@@ -114,6 +126,9 @@ public class ModuleRefRelationGraphTest {
         assertTrue(graph.getAllNodes().isEmpty());
     }
 
+    /**
+     * 测试添加重复关系
+     */
     @Test
     public void testAddDuplicateRelation() {
         // 添加相同的关系两次
@@ -127,6 +142,9 @@ public class ModuleRefRelationGraphTest {
         assertEquals("Rule01", outEdges.get("P11"));
     }
 
+    /**
+     * 测试查询单一目标简单链
+     */
     @Test
     public void testQuerySingleTargetSimpleChain() {
         // 构建复杂的依赖关系图
@@ -152,6 +170,9 @@ public class ModuleRefRelationGraphTest {
         assertEquals(3, progObjs.size());
     }
 
+    /**
+     * 测试查询单一目标多个分支
+     */
     @Test
     public void testQuerySingleTargetMultipleBranches() {
         // 构建复杂的依赖关系图
@@ -182,6 +203,9 @@ public class ModuleRefRelationGraphTest {
         assertEquals(4, progObjs.size());
     }
 
+    /**
+     * 测试查询多个目标
+     */
     @Test
     public void testQueryMultipleTargets() {
         // 构建复杂的依赖关系图
@@ -207,6 +231,9 @@ public class ModuleRefRelationGraphTest {
         assertEquals(3, progObjs.size());
     }
 
+    /**
+     * 测试查询不存在的目标
+     */
     @Test
     public void testQueryNonExistentTarget() {
         // 构建简单的依赖关系图
@@ -223,6 +250,9 @@ public class ModuleRefRelationGraphTest {
         assertTrue(progObjs.isEmpty());
     }
 
+    /**
+     * 测试查询空输入
+     */
     @Test
     public void testQueryEmptyInput() {
         // 查询空输入
@@ -233,6 +263,9 @@ public class ModuleRefRelationGraphTest {
         assertTrue(result.getSecond().isEmpty());
     }
 
+    /**
+     * 测试查询循环依赖
+     */
     @Test
     public void testQueryCircularDependency() {
         // 添加循环依赖：A -> B -> A
@@ -253,6 +286,9 @@ public class ModuleRefRelationGraphTest {
         }
     }
 
+    /**
+     * 测试复杂依赖图
+     */
     @Test
     public void testComplexDependencyGraph() {
         // 构建复杂的依赖图
@@ -282,6 +318,9 @@ public class ModuleRefRelationGraphTest {
         assertEquals(4, result2.getSecond().size());
     }
 
+    /**
+     * 测试多路径依赖
+     */
     @Test
     public void testMultiplePathDependency() {
         // 构建多路径依赖：A -> B -> D, A -> C -> D
@@ -312,6 +351,9 @@ public class ModuleRefRelationGraphTest {
         assertTrue(containsProgObjCode(result.getSecond(), "D"));
     }
 
+    /**
+     * 测试大数据集
+     */
     @Test
     public void testLargeDataSet() {
         // 创建大量节点和关系
@@ -329,6 +371,9 @@ public class ModuleRefRelationGraphTest {
         assertEquals(101, result.getSecond().size()); // 包含P0到P100
     }
 
+    /**
+     * 测试获取图信息
+     */
     @Test
     public void testGetGraphInfo() {
         // 添加一些关系
@@ -346,6 +391,9 @@ public class ModuleRefRelationGraphTest {
         assertTrue(info.contains("edges"));
     }
 
+    /**
+     * 测试图结构
+     */
     @Test
     public void testGraphStructure() {
         // 构建测试图

@@ -13,6 +13,9 @@ import org.junit.Test;
 @Slf4j
 public class HelloConstraintTest extends ModuleScenarioTestBase {
 
+    /**
+     * 构造HelloConstraintTest测试类
+     */
     public HelloConstraintTest() {
         super(HelloConstraint.class);
     }
@@ -21,6 +24,9 @@ public class HelloConstraintTest extends ModuleScenarioTestBase {
         cfg.setLoadType(1);
     }
 
+    /**
+     * 测试只有一个解的情况
+     */
     @Test
     public void testOnlyOneSolution() {
         // 测试颜色参数推理
@@ -37,6 +43,9 @@ public class HelloConstraintTest extends ModuleScenarioTestBase {
         printSolutions();
     }
 
+    /**
+     * 测试多解情况
+     */
     @Test
     public void testMultiSolution() {
         // "Red-10", "Black-20", "White-30"

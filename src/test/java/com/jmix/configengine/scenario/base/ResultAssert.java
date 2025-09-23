@@ -14,12 +14,20 @@ public class ResultAssert {
 
     private final Result<?> actualResult;
 
+    /**
+     * 构造ResultAssert实例
+     * 
+     * @param actualResult 实际执行结果
+     */
     public ResultAssert(Result<?> actualResult) {
         this.actualResult = actualResult;
     }
 
     /**
      * 断言解决方案数量
+     * 
+     * @param expectedSize 期望的解决方案数量
+     * @return 当前ResultAssert实例，支持链式调用
      */
     public ResultAssert assertSolutionSizeEqual(int expectedSize) {
         if (actualResult.getData() == null) {
@@ -41,6 +49,9 @@ public class ResultAssert {
 
     /**
      * 断言解决方案数量大于指定值
+     * 
+     * @param minSize 最小解决方案数量
+     * @return 当前ResultAssert实例，支持链式调用
      */
     public ResultAssert assertSolutionSizeGreaterThan(int minSize) {
         if (actualResult.getData() == null) {
@@ -62,6 +73,9 @@ public class ResultAssert {
 
     /**
      * 断言解决方案数量大于等于指定值
+     * 
+     * @param minSize 最小解决方案数量
+     * @return 当前ResultAssert实例，支持链式调用
      */
     public ResultAssert assertSolutionSizeGreaterThanOrEqual(int minSize) {
         if (actualResult.getData() == null) {
@@ -83,6 +97,9 @@ public class ResultAssert {
 
     /**
      * 断言解决方案数量小于指定值
+     * 
+     * @param maxSize 最大解决方案数量
+     * @return 当前ResultAssert实例，支持链式调用
      */
     public ResultAssert assertSolutionSizeLessThan(int maxSize) {
         if (actualResult.getData() == null) {
@@ -104,6 +121,9 @@ public class ResultAssert {
 
     /**
      * 断言解决方案数量小于等于指定值
+     * 
+     * @param maxSize 最大解决方案数量
+     * @return 当前ResultAssert实例，支持链式调用
      */
     public ResultAssert assertSolutionSizeLessThanOrEqual(int maxSize) {
         if (actualResult.getData() == null) {
@@ -125,6 +145,9 @@ public class ResultAssert {
 
     /**
      * 断言结果代码
+     * 
+     * @param expectedCode 期望的结果代码
+     * @return 当前ResultAssert实例，支持链式调用
      */
     public ResultAssert assertCodeEqual(int expectedCode) {
         if (actualResult.getCode() != expectedCode) {
@@ -136,6 +159,9 @@ public class ResultAssert {
 
     /**
      * 断言结果代码不等于指定值
+     * 
+     * @param unexpectedCode 不期望的结果代码
+     * @return 当前ResultAssert实例，支持链式调用
      */
     public ResultAssert assertCodeNotEqual(int unexpectedCode) {
         if (actualResult.getCode() == unexpectedCode) {
@@ -147,6 +173,9 @@ public class ResultAssert {
 
     /**
      * 断言结果消息
+     * 
+     * @param expectedMessage 期望的结果消息
+     * @return 当前ResultAssert实例，支持链式调用
      */
     public ResultAssert assertMessage(String expectedMessage) {
         if (!expectedMessage.equals(actualResult.getMessage())) {
@@ -158,6 +187,9 @@ public class ResultAssert {
 
     /**
      * 断言结果消息包含指定内容
+     * 
+     * @param expectedContent 期望包含的内容
+     * @return 当前ResultAssert实例，支持链式调用
      */
     public ResultAssert assertMessageContains(String expectedContent) {
         if (actualResult.getMessage() == null || !actualResult.getMessage().contains(expectedContent)) {
@@ -169,6 +201,9 @@ public class ResultAssert {
 
     /**
      * 断言结果消息不包含指定内容
+     * 
+     * @param unexpectedContent 不期望包含的内容
+     * @return 当前ResultAssert实例，支持链式调用
      */
     public ResultAssert assertMessageNotContains(String unexpectedContent) {
         if (actualResult.getMessage() != null && actualResult.getMessage().contains(unexpectedContent)) {
@@ -180,6 +215,8 @@ public class ResultAssert {
 
     /**
      * 断言执行成功
+     * 
+     * @return 当前ResultAssert实例，支持链式调用
      */
     public ResultAssert assertSuccess() {
         if (actualResult.getCode() != Result.SUCCESS) {
@@ -192,6 +229,8 @@ public class ResultAssert {
 
     /**
      * 断言执行失败
+     * 
+     * @return 当前ResultAssert实例，支持链式调用
      */
     public ResultAssert assertFailure() {
         if (actualResult.getCode() == Result.SUCCESS) {
@@ -204,6 +243,8 @@ public class ResultAssert {
 
     /**
      * 断言无解
+     * 
+     * @return 当前ResultAssert实例，支持链式调用
      */
     public ResultAssert assertNoSolution() {
         if (actualResult.getCode() != Result.SUCCESS
@@ -221,6 +262,8 @@ public class ResultAssert {
 
     /**
      * 断言结果数据不为空
+     * 
+     * @return 当前ResultAssert实例，支持链式调用
      */
     public ResultAssert assertDataNotNull() {
         if (actualResult.getData() == null) {
@@ -231,6 +274,8 @@ public class ResultAssert {
 
     /**
      * 断言结果数据为空
+     * 
+     * @return 当前ResultAssert实例，支持链式调用
      */
     public ResultAssert assertDataNull() {
         if (actualResult.getData() != null) {

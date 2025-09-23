@@ -74,6 +74,9 @@ public class ParaIsHiddenTest extends ModuleScenarioTestBase {
     }
     // ---------------?????end----------------------------------------
 
+    /**
+     * 构造ParaIsHiddenTest测试类
+     */
     public ParaIsHiddenTest() {
         super(ParaIsHiddenConstraint.class);
     }
@@ -82,6 +85,9 @@ public class ParaIsHiddenTest extends ModuleScenarioTestBase {
         cfg.setLoadType(1);
     }
 
+    /**
+     * 测试p0值为0时p1隐藏
+     */
     @Test
     public void testp0Value0p1Hidden() {
         // Test when p0=0, p1 should be hidden and p1.var=0
@@ -99,6 +105,9 @@ public class ParaIsHiddenTest extends ModuleScenarioTestBase {
                 .assertPart("part1").quantityEqual(1).hiddenEqual(false);
     }
 
+    /**
+     * 测试p0值为1时p1隐藏
+     */
     @Test
     public void testp0Value1p1Hidden() {
         // Test when p0=0, p1 should be hidden and p1.var=0
@@ -116,6 +125,9 @@ public class ParaIsHiddenTest extends ModuleScenarioTestBase {
                 .assertPart("part1").quantityEqual(1).hiddenEqual(false);
     }
 
+    /**
+     * 测试p0值为2时p2隐藏
+     */
     @Test
     public void testp0Value2p2Hidden() {
         // Test when p0=0, p1 should be hidden and p1.var=0
@@ -132,6 +144,9 @@ public class ParaIsHiddenTest extends ModuleScenarioTestBase {
                 .assertPart("part1").quantityEqual(1).hiddenEqual(false);
     }
 
+    /**
+     * 测试p2到part1的推理
+     */
     @Test
     public void testp2Topart1() {
         // Test when p0=0, p1 should be hidden and p1.var=0
@@ -148,6 +163,9 @@ public class ParaIsHiddenTest extends ModuleScenarioTestBase {
                 .assertPart("part1").quantityEqual(2).hiddenEqual(false);
     }
 
+    /**
+     * 测试p1到part1的推理
+     */
     @Test
     public void testp1Topart1() {
         // Test when p0=0, p1 should be hidden and p1.var=0
@@ -164,6 +182,9 @@ public class ParaIsHiddenTest extends ModuleScenarioTestBase {
                 .assertPart("part1").quantityEqual(2).hiddenEqual(false);
     }
 
+    /**
+     * 测试p1到part1的无效输入
+     */
     @Test
     public void testp1Topart1InvalidInput() {
         // Test when p0=0, p1 should be hidden and p1.var=0
