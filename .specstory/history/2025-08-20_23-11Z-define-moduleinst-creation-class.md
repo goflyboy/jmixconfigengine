@@ -2971,7 +2971,7 @@ class ModuleGenneratorByAnno {
 		
 		//2.遍历moduleClazz的每个成员变量field
 		//2.1 如果field是ParaVar类型，则根据ParaAnno创建Para 
-		//2.1.1 Para.code= {Para.code}Var,例如：ColorVar其code="Color"
+		//2.1.1 Para.code= {Para.code}Var,例如：colorVar其code="Color"
 		//2.1.2 ParaAnno.options是codes,codeId需要按10,20,30生成
 		//2.1.3 其它按默认值
 		
@@ -2988,7 +2988,7 @@ class ModuleGenneratorByAnno {
  
 @interface ModuleAnno{
 /**
-	 * 对象编码，根据的字段的code生成，例如：ColorVar，则为code="Color"
+	 * 对象编码，根据的字段的code生成，例如：colorVar，则为code="Color"
 	 */
 	private String code ;
 	
@@ -3035,7 +3035,7 @@ class ModuleGenneratorByAnno {
 }
 @interface ParaAnno{
 /**
-	 * 对象编码，根据的字段的code生成，例如：ColorVar，则为code="Color"
+	 * 对象编码，根据的字段的code生成，例如：colorVar，则为code="Color"
 	 */
 	private String code ;
 	
@@ -3090,7 +3090,7 @@ class ModuleGenneratorByAnno {
 
 @interface PartAnno{
 /**
-	 * 对象编码，根据的字段的code生成，例如：ColorVar，则为code="Color"
+	 * 对象编码，根据的字段的code生成，例如：colorVar，则为code="Color"
 	 */
 	private String code ;
 	
@@ -3145,7 +3145,7 @@ class ModuleGenneratorByAnno {
 @ModuleAnno(id = 123)
 public class HelloConstraint extends ConstraintAlgImpl { 
 	@ParaAnno(options="Red,Black,White",defaultValue="Red")
-    private ParaVar ColorVar; 
+    private ParaVar colorVar; 
     @PartAnno(price=100,attrs=[“weight:180g"],extAttrs=["material:cotton"],)
     private PartVar TShirt11Var; 
 }
@@ -3862,7 +3862,7 @@ public class HelloConstraint extends ConstraintAlgImpl {
         options = {"Red", "Black", "White"},
         extAttrs = {"category:color", "required:true"}
     )
-    private ParaVar ColorVar;
+    private ParaVar colorVar;
     
     @PartAnno(
         code = "TShirt11",
@@ -5362,7 +5362,7 @@ Lines added: 52, lines removed: 1
 +         options = {"Red", "Black", "White"},
 +         extAttrs = {"category:color", "required:true"}
 +     )
-+     private ParaVar ColorVar;
++     private ParaVar colorVar;
 +     
 +     @PartAnno(
 +         code = "TShirt11",
@@ -7114,7 +7114,7 @@ Lines added: 180, lines removed: 1
 +     
 +     /**
 +      * 从字段名提取代码
-+      * 例如: ColorVar -> Color, TShirt11Var -> TShirt11
++      * 例如: colorVar -> Color, TShirt11Var -> TShirt11
 +      */
 +     private String extractCodeFromFieldName(String fieldName) {
 +         // 移除末尾的"Var"
@@ -7317,7 +7317,7 @@ Lines added: 91, lines removed: 1
 + 	
 + 	/**
 + 	 * 从字段名提取代码
-+ 	 * 例如: ColorVar -> Color, TShirt11Var -> TShirt11
++ 	 * 例如: colorVar -> Color, TShirt11Var -> TShirt11
 + 	 */
 + 	private String extractCodeFromFieldName(String fieldName) {
 + 		// 移除末尾的"Var"
@@ -7417,7 +7417,7 @@ Lines added: 69, lines removed: 1
 +         options = {"Red", "Black", "White"},
 +         extAttrs = {"category:color", "required:true"}
 +     )
-+     private ParaVar ColorVar;
++     private ParaVar colorVar;
 +     
 +     @PartAnno(
 +         code = "TShirt11",
@@ -7946,7 +7946,7 @@ f9965f2 feat: 完善约束算法实现和模板系统
 ### 🔧 技术特点
 
 - **反射机制**：自动识别`ParaVar`和`PartVar`字段
-- **命名约定**：字段名以"Var"结尾，自动提取代码（如`ColorVar` → `Color`）
+- **命名约定**：字段名以"Var"结尾，自动提取代码（如`colorVar` → `Color`）
 - **向后兼容**：现有代码无需修改，子类可选择使用新功能
 - **错误处理**：优雅处理不存在的参数/部件，跳过而非报错
 
@@ -7960,7 +7960,7 @@ f9965f2 feat: 完善约束算法实现和模板系统
 ### �� 使用方式
 
 现在子类只需要：
-1. 声明字段（如`private ParaVar ColorVar;`）
+1. 声明字段（如`private ParaVar colorVar;`）
 2. 重写`onInitCustomVariables()`添加自定义逻辑
 3. 重写`initConstraint()`实现约束规则
 
@@ -8094,7 +8094,7 @@ class ModuleGenneratorByAnno {
 		
 		//2.遍历moduleClazz的每个成员变量field
 		//2.1 如果field是ParaVar类型，则根据ParaAnno创建Para 
-		//2.1.1 Para.code= {Para.code}Var,例如：ColorVar其code="Color"
+		//2.1.1 Para.code= {Para.code}Var,例如：colorVar其code="Color"
 		//2.1.2 ParaAnno.options是codes,codeId需要按10,20,30生成
 		//2.1.3 其它按默认值
 		
@@ -8111,7 +8111,7 @@ class ModuleGenneratorByAnno {
  
 @interface ModuleAnno{
 /**
-	 * 对象编码，根据的字段的code生成，例如：ColorVar，则为code="Color"
+	 * 对象编码，根据的字段的code生成，例如：colorVar，则为code="Color"
 	 */
 	private String code ;
 	
@@ -8158,7 +8158,7 @@ class ModuleGenneratorByAnno {
 }
 @interface ParaAnno{
 /**
-	 * 对象编码，根据的字段的code生成，例如：ColorVar，则为code="Color"
+	 * 对象编码，根据的字段的code生成，例如：colorVar，则为code="Color"
 	 */
 	private String code ;
 	
@@ -8213,7 +8213,7 @@ class ModuleGenneratorByAnno {
 
 @interface PartAnno{
 /**
-	 * 对象编码，根据的字段的code生成，例如：ColorVar，则为code="Color"
+	 * 对象编码，根据的字段的code生成，例如：colorVar，则为code="Color"
 	 */
 	private String code ;
 	
@@ -8268,7 +8268,7 @@ class ModuleGenneratorByAnno {
 @ModuleAnno(id = 123)
 public class HelloConstraint extends ConstraintAlgImpl { 
 	@ParaAnno(options="Red,Black,White",defaultValue="Red")
-    private ParaVar ColorVar; 
+    private ParaVar colorVar; 
     @PartAnno(price=100,attrs=[“weight:180g"],extAttrs=["material:cotton"],)
     private PartVar TShirt11Var; 
 }
@@ -8387,7 +8387,7 @@ _**User**_
 请参考addConstraint_rule1_comment的规则编写，来写addConstraint_rule2的规则，规则的伪代码如下： "Red-10", "Black-20", "White-30"
 "Small-10", "Medium-20", "Big-30"
  
-if(ColorVar.var ==Red && SizeVar.var == Small  ) {
+if(colorVar.var ==Red && sizeVar.var == Small  ) {
 	TShirt11Var.var = 1;
 } 
 else {
@@ -8463,14 +8463,14 @@ Lines added: 23, lines removed: 6
 +         
 +         // 实现条件逻辑：redAndSmall = (Color == Red) AND (Size == Small)
 +         model.addBoolAnd(new Literal[]{
-+             this.ColorVar.getParaOptionByCode("Red").getIsSelectedVar(),
-+             this.SizeVar.getParaOptionByCode("Small").getIsSelectedVar()
++             this.colorVar.getParaOptionByCode("Red").getIsSelectedVar(),
++             this.sizeVar.getParaOptionByCode("Small").getIsSelectedVar()
 +         }).onlyEnforceIf(redAndSmall);
 +         
 +         // 如果不是红色且小号的组合，则redAndSmall为false
 +         model.addBoolOr(new Literal[]{
-+             this.ColorVar.getParaOptionByCode("Red").getIsSelectedVar().not(),
-+             this.SizeVar.getParaOptionByCode("Small").getIsSelectedVar().not()
++             this.colorVar.getParaOptionByCode("Red").getIsSelectedVar().not(),
++             this.sizeVar.getParaOptionByCode("Small").getIsSelectedVar().not()
 +         }).onlyEnforceIf(redAndSmall.not());
 +         
 +         // 根据条件设置TShirt11的数量
@@ -8580,8 +8580,8 @@ BoolVar redAndSmall = model.newBoolVar("rule2_redAndSmall");
 ```java
 // redAndSmall = (Color == Red) AND (Size == Small)
 model.addBoolAnd(new Literal[]{
-    this.ColorVar.getParaOptionByCode("Red").getIsSelectedVar(),
-    this.SizeVar.getParaOptionByCode("Small").getIsSelectedVar()
+    this.colorVar.getParaOptionByCode("Red").getIsSelectedVar(),
+    this.sizeVar.getParaOptionByCode("Small").getIsSelectedVar()
 }).onlyEnforceIf(redAndSmall);
 ```
 
@@ -8602,8 +8602,8 @@ model.addEquality((IntVar)this.TShirt11Var.var, 3).onlyEnforceIf(redAndSmall.not
 4. **数量约束**：根据条件动态设置部件数量
 
 ### 🎨 规则映射
-- **"Red-10"** → `ColorVar.getParaOptionByCode("Red")`
-- **"Small-10"** → `SizeVar.getParaOptionByCode("Small")`
+- **"Red-10"** → `colorVar.getParaOptionByCode("Red")`
+- **"Small-10"** → `sizeVar.getParaOptionByCode("Small")`
 - **条件满足** → `TShirt11Var.var = 1`
 - **条件不满足** → `TShirt11Var.var = 3`
 
@@ -11334,7 +11334,7 @@ f3eee2a (HEAD -> main) 完善HelloConstraint测试用例和约束逻辑
    - 验证else分支的8种组合解，每种组合应该有1个解
 
 2. **约束逻辑验证**
-   - 测试条件：`if(ColorVar.var == Red && SizeVar.var == Small)`
+   - 测试条件：`if(colorVar.var == Red && sizeVar.var == Small)`
    - 期望结果：TShirt11数量为1的解应该不存在（0个）
    - 其他8种组合：每种应该有1个解
 
@@ -11350,7 +11350,7 @@ f3eee2a (HEAD -> main) 完善HelloConstraint测试用例和约束逻辑
 
 根据你的约束规则：
 ```java
-// if(ColorVar.var == Red && SizeVar.var == Small) {
+// if(colorVar.var == Red && sizeVar.var == Small) {
 //     TShirt11Var.var = 1;
 // } else {
 //     TShirt11Var.var = 3

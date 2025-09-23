@@ -372,7 +372,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
     /**
      * 从字段名提取代码
-     * 例如: ColorVar -> Color, TShirt11Var -> TShirt11
+     * 例如: colorVar -> Color, TShirt11Var -> TShirt11
      */
     private String extractCodeFromFieldName(String fieldName) {
         // 移除末尾的"Var"

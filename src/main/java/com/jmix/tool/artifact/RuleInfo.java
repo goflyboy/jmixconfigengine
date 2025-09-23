@@ -74,13 +74,13 @@ public class RuleInfo {
 
     /**
      * 左变量名称
-     * 例如：ColorVar、SizeVar等
+     * 例如：colorVar、sizeVar等
      */
     private String leftVarName;
 
     /**
      * 右变量名称
-     * 例如：ColorVar、SizeVar等
+     * 例如：colorVar、sizeVar等
      */
     private String rightVarName;
 

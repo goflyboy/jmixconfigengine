@@ -349,11 +349,11 @@ Lines added: 3, lines removed: 3
 @@ -22,11 +22,11 @@
   
       @ParaAnno(defaultValue = "Red", options = { "Red:1", "Black:2", "White:3" })
--     private ParaVar ColorVar;
+-     private ParaVar colorVar;
 +     private ParaVar colorVar;
   
       @ParaAnno(defaultValue = "Small", options = { "Small", "Medium", "Big" })
--     private ParaVar SizeVar;
+-     private ParaVar sizeVar;
 +     private ParaVar sizeVar;
   
       @PartAnno(price = 100L, attrs = { "weight:180g", "size:M" }, extAttrs = { "material:cotton", "brand:Hello" })
@@ -383,16 +383,16 @@ Lines added: 6, lines removed: 6
 @@ -55,20 +55,20 @@
           // 实现条件逻辑：redAndSmall = (Color == Red) AND (Size == Small)
           model.addBoolAnd(new Literal[] {
--                 this.ColorVar.getParaOptionByCode("Red").getIsSelectedVar(),
--                 this.SizeVar.getParaOptionByCode("Small").getIsSelectedVar()
+-                 this.colorVar.getParaOptionByCode("Red").getIsSelectedVar(),
+-                 this.sizeVar.getParaOptionByCode("Small").getIsSelectedVar()
 +                 this.colorVar.getParaOptionByCode("Red").getIsSelectedVar(),
 +                 this.sizeVar.getParaOptionByCode("Small").getIsSelectedVar()
           }).onlyEnforceIf(redAndSmall);
   
           // 如果不是红色且小号的组合，则redAndSmall为false
           model.addBoolOr(new Literal[] {
--                 this.ColorVar.getParaOptionByCode("Red").getIsSelectedVar().not(),
--                 this.SizeVar.getParaOptionByCode("Small").getIsSelectedVar().not()
+-                 this.colorVar.getParaOptionByCode("Red").getIsSelectedVar().not(),
+-                 this.sizeVar.getParaOptionByCode("Small").getIsSelectedVar().not()
 +                 this.colorVar.getParaOptionByCode("Red").getIsSelectedVar().not(),
 +                 this.sizeVar.getParaOptionByCode("Small").getIsSelectedVar().not()
           }).onlyEnforceIf(redAndSmall.not());
@@ -643,8 +643,8 @@ Lines added: 4, lines removed: 4
 @@ -123,10 +123,10 @@
   
           // 验证参数变量
--         assertTrue("应该包含Color参数变量", content.contains("private ParaVar ColorVar"));
--         assertTrue("应该包含Size参数变量", content.contains("private ParaVar SizeVar"));
+-         assertTrue("应该包含Color参数变量", content.contains("private ParaVar colorVar"));
+-         assertTrue("应该包含Size参数变量", content.contains("private ParaVar sizeVar"));
 +         assertTrue("应该包含Color参数变量", content.contains("private ParaVar colorVar"));
 +         assertTrue("应该包含Size参数变量", content.contains("private ParaVar sizeVar"));
   
@@ -1234,7 +1234,7 @@ Lines added: 3, lines removed: 3
 @@ -51,9 +51,9 @@
           // "Red-10", "Black-20", "White-30"
           // "Small-10", "Medium-20", "Big-30"
--         // if(ColorVar.value ==Red && SizeVar.value == Small ) {
+-         // if(colorVar.value ==Red && sizeVar.value == Small ) {
 -         // TShirt11Var.qty = 1;
 +         // if(colorVar.value ==Red && sizeVar.value == Small ) {
 +         // tShirt11Var.qty = 1;
@@ -1502,7 +1502,7 @@ mvn test -Dtest="com.jmix.configengine.scenario.hello.HelloConstraintTest"
    - 识别了需要修改的变量和方法
 
 2. **修改变量命名**：
-   - `HelloConstraint.java`: `ColorVar` → `colorVar`, `SizeVar` → `sizeVar`, `TShirt11Var` → `tShirt11Var`
+   - `HelloConstraint.java`: `colorVar` → `colorVar`, `sizeVar` → `sizeVar`, `TShirt11Var` → `tShirt11Var`
    - `LLMInvokerTest.java`: `P1Var` → `p1Var`, `P2Var` → `p2Var`, `PT1Var` → `pt1Var`
    - `ModelHelperTool.java`: 修改了字符串模板中的变量名
    - `ModuleAlgArtifactGeneratorBaseTest.java`: 修改了断言中的变量名

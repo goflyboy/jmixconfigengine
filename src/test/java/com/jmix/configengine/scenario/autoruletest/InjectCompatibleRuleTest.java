@@ -31,10 +31,10 @@ public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
     @ModuleAnno(id = 123L)
     public static class InjectCompatibleRuleConstraint extends ConstraintAlgImpl {
         @ParaAnno(options = { "Red", "Black", "White" })
-        private ParaVar ColorVar;
+        private ParaVar colorVar;
 
         @ParaAnno(options = { "Small", "Medium", "Big" })
-        private ParaVar SizeVar;
+        private ParaVar sizeVar;
 
         // @Override
         // protected void initConstraint() {//不能有这个代码
@@ -44,29 +44,29 @@ public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
             log.info("****************rule1****************");
         }
 
-        @CompatiableRuleAnno(leftExprCode = "ColorVar.value == Red", operator = "Requires", rightExprCode = "SizeVar.value == Small")
+        @CompatiableRuleAnno(leftExprCode = "colorVar.value == Red", operator = "Requires", rightExprCode = "sizeVar.value == Small")
         private void rule2() {
 
             // 自动生成，请勿编辑--start
-            addCompatibleConstraintRequires("rule2", this.ColorVar, listOf("Red"), this.SizeVar, listOf("Small"));
+            addCompatibleConstraintRequires("rule2", this.colorVar, listOf("Red"), this.sizeVar, listOf("Small"));
             // 自动生成，请勿编辑--end
 
         }
 
-        @CompatiableRuleAnno(leftExprCode = "ColorVar.value == Black", operator = "CoDependent", rightExprCode = "SizeVar.value == Medium")
+        @CompatiableRuleAnno(leftExprCode = "colorVar.value == Black", operator = "CoDependent", rightExprCode = "sizeVar.value == Medium")
         private void rule3() {
 
             // 自动生成，请勿编辑--start
-            addCompatibleConstraintCoDependent("rule3", this.ColorVar, listOf("Black"), this.SizeVar, listOf("Medium"));
+            addCompatibleConstraintCoDependent("rule3", this.colorVar, listOf("Black"), this.sizeVar, listOf("Medium"));
             // 自动生成，请勿编辑--end
 
         }
 
-        @CompatiableRuleAnno(leftExprCode = "ColorVar.value == White", operator = "InCompatible", rightExprCode = "SizeVar.value == Big")
+        @CompatiableRuleAnno(leftExprCode = "colorVar.value == White", operator = "InCompatible", rightExprCode = "sizeVar.value == Big")
         private void rule4() {
 
             // 自动生成，请勿编辑--start
-            addCompatibleConstraintInCompatible("rule4", this.ColorVar, listOf("White"), this.SizeVar, listOf("Big"));
+            addCompatibleConstraintInCompatible("rule4", this.colorVar, listOf("White"), this.sizeVar, listOf("Big"));
             // 自动生成，请勿编辑--end
 
         }

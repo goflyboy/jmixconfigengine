@@ -66,7 +66,7 @@ class Var<T extends Programmable> implements Programmable{
 
 4、TShirtConstraint增强如下：
 对 protected void initVariables()做下列简化：
-4.1 做类似参数Var的重构 this.ColorVar = new ParaVar()-->改造为 this.ColorVar = buildParaVar("Color");
+4.1 做类似参数Var的重构 this.colorVar = new ParaVar()-->改造为 this.colorVar = buildParaVar("Color");
   this.thsirt12Var  =  buildPartVar("thsirt12"); 
 
 
@@ -218,10 +218,10 @@ No results found
         
 | File | Line | Match |
 |------|------|-------|
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtConstraint.java` | L23 | `this.ColorVar.var = newIntVarFromDomain(model, new long[] {10,20,30}, "Color");` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtConstraint.java` | L37 | `this.SizeVar.var = newIntVarFromDomain(model, new long[] {1,2,3}, "Size");` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/other/TShirtConstraint.java` | L29 | `this.ColorVar.var = newIntVarFromDomain(model, new long[] {10, 20, 30}, "Color");` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/other/TShirtConstraint.java` | L47 | `this.SizeVar.var = newIntVarFromDomain(model, new long[] {1, 2, 3}, "Size");` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtConstraint.java` | L23 | `this.colorVar.var = newIntVarFromDomain(model, new long[] {10,20,30}, "Color");` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtConstraint.java` | L37 | `this.sizeVar.var = newIntVarFromDomain(model, new long[] {1,2,3}, "Size");` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/other/TShirtConstraint.java` | L29 | `this.colorVar.var = newIntVarFromDomain(model, new long[] {10, 20, 30}, "Color");` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/other/TShirtConstraint.java` | L47 | `this.sizeVar.var = newIntVarFromDomain(model, new long[] {1, 2, 3}, "Size");` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java` | L29 | `public static IntVar newIntVarFromDomain(CpModel model, long[] values, String name) {` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java` | L30 | `return model.newIntVarFromDomain(Domain.fromValues(values), name);` |
 
@@ -382,7 +382,7 @@ I need to implement a significant refactor based on the user request. They sugge
 I also need to figure out the right package for this new Var class. Since it’s about wrapping Programmable from the model, it seems like it should belong under the artifact package. Additionally, I’ll need to ensure that other Var classes, like ParaVar and PartVar, extend this new implementation while removing their individual code fields. I need to consider test references too, as they may require adjustments.
 **Enhancing TShirtConstraint**
 
-The user wants to enhance TShirtConstraint by simplifying the initialization of variables. For example, they suggested changing how variables like `this.ColorVar` are initialized, using builder methods instead. This means I need to implement builder methods inside `ConstraintAlgImpl` to create these variables via a module.
+The user wants to enhance TShirtConstraint by simplifying the initialization of variables. For example, they suggested changing how variables like `this.colorVar` are initialized, using builder methods instead. This means I need to implement builder methods inside `ConstraintAlgImpl` to create these variables via a module.
 
 I'll need to add a new `Module` field in `ConstraintAlgImpl`, along with a `varMap`, a method to `registerVar`, and an altered `initModel` signature. They also want both versions of the `registerVar` method to cater to different usages, ensuring we can register variables by code as well as by just passing the `Var` object.
 **Modifying variable handling**
@@ -399,7 +399,7 @@ To implement `createParaOptionVar`, I'll retrieve the parameter using `module.ge
 Additionally, since `ParaOptionVar` should extend `Var<ParaOption>`, I’ll remove its `codeId` field and implement `getCodeId` to delegate to its base, ensuring existing uses of `getParaOptionByCode` call `option.getCode()` accordingly.
 **Analyzing TShirtConstraint tests and updates**
 
-In `testTShirtConstraintCreation`, they create a `TShirtConstraint` instance and assert that `ColorVar` isn’t null, but it might fail because `initVariables` isn't called in the constructor. The current `other TShirtConstraint` initializes fields in `initVariables`, so I need to consider how the tests and class behavior align.
+In `testTShirtConstraintCreation`, they create a `TShirtConstraint` instance and assert that `colorVar` isn’t null, but it might fail because `initVariables` isn't called in the constructor. The current `other TShirtConstraint` initializes fields in `initVariables`, so I need to consider how the tests and class behavior align.
 
 I see that to maintain compatibility, I should add a new `initModel(CpModel, Module)` method while keeping the original `initModel(CpModel)` method and calling the new one with `module` as null. This way, existing tests won't break. I plan to implement methods like `createParaVar`, `registerVar`, and define a `Var` class as required. I'll also update dependent classes accordingly, ensuring backward compatibility while implementing the new architecture.
 **Implementing changes to TShirtConstraint**
@@ -993,46 +993,46 @@ Lines added: 4, lines removed: 47
 @@ -20,51 +20,8 @@
       @Override
       protected void initVariables() {
--         this.ColorVar = new ParaVar();
--         this.SizeVar = new ParaVar();
+-         this.colorVar = new ParaVar();
+-         this.sizeVar = new ParaVar();
 -         this.thsirt11Var = new PartVar();
 -         this.thsirt12Var = new PartVar();
 - 
 -         // 1. 定义属性变量
--         this.ColorVar.code = "Color"; 
--         this.ColorVar.var = newIntVarFromDomain(model, new long[] {10, 20, 30}, "Color");
+-         this.colorVar.code = "Color"; 
+-         this.colorVar.var = newIntVarFromDomain(model, new long[] {10, 20, 30}, "Color");
 -         
 -         // 创建颜色选项
 -         ParaOptionVar colorOption10 = new ParaOptionVar("Red", 10, model.newBoolVar("Color_" + 10));
 -         ParaOptionVar colorOption20 = new ParaOptionVar("Black", 20, model.newBoolVar("Color_" + 20));
 -         ParaOptionVar colorOption30 = new ParaOptionVar("White", 30, model.newBoolVar("Color_" + 30));
 -         
--         this.ColorVar.optionSelectVars.put(10, colorOption10);
--         this.ColorVar.optionSelectVars.put(20, colorOption20);
--         this.ColorVar.optionSelectVars.put(30, colorOption30);
+-         this.colorVar.optionSelectVars.put(10, colorOption10);
+-         this.colorVar.optionSelectVars.put(20, colorOption20);
+-         this.colorVar.optionSelectVars.put(30, colorOption30);
 -         
 -         // 建立属性变量与选项变量之间的关系
--         this.ColorVar.optionSelectVars.forEach((optionId, optionVar) -> {
--             model.addEquality((IntVar) this.ColorVar.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar());
--             model.addDifferent((IntVar) this.ColorVar.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar().not());
+-         this.colorVar.optionSelectVars.forEach((optionId, optionVar) -> {
+-             model.addEquality((IntVar) this.colorVar.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar());
+-             model.addDifferent((IntVar) this.colorVar.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar().not());
 -         });
 - 
--         this.SizeVar.code = "Size";
--         this.SizeVar.var = newIntVarFromDomain(model, new long[] {1, 2, 3}, "Size");
+-         this.sizeVar.code = "Size";
+-         this.sizeVar.var = newIntVarFromDomain(model, new long[] {1, 2, 3}, "Size");
 -         
 -         // 创建尺寸选项
 -         ParaOptionVar sizeOption1 = new ParaOptionVar("Big", 1, model.newBoolVar("Size_" + 1));
 -         ParaOptionVar sizeOption2 = new ParaOptionVar("Medium", 2, model.newBoolVar("Size_" + 2));
 -         ParaOptionVar sizeOption3 = new ParaOptionVar("Small", 3, model.newBoolVar("Size_" + 3));
 -         
--         this.SizeVar.optionSelectVars.put(1, sizeOption1);
--         this.SizeVar.optionSelectVars.put(2, sizeOption2);
--         this.SizeVar.optionSelectVars.put(3, sizeOption3);
+-         this.sizeVar.optionSelectVars.put(1, sizeOption1);
+-         this.sizeVar.optionSelectVars.put(2, sizeOption2);
+-         this.sizeVar.optionSelectVars.put(3, sizeOption3);
 -         
 -         // 建立属性变量与选项变量之间的关系
--         this.SizeVar.optionSelectVars.forEach((optionId, optionVar) -> {
--             model.addEquality((IntVar) this.SizeVar.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar());
--             model.addDifferent((IntVar) this.SizeVar.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar().not());
+-         this.sizeVar.optionSelectVars.forEach((optionId, optionVar) -> {
+-             model.addEquality((IntVar) this.sizeVar.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar());
+-             model.addDifferent((IntVar) this.sizeVar.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar().not());
 -         });
 - 
 -         this.thsirt11Var.code = "thsirt11";
@@ -1040,8 +1040,8 @@ Lines added: 4, lines removed: 47
 - 
 -         this.thsirt12Var.code = "thsirt12";
 -         this.thsirt12Var.var = model.newIntVar(0, 1000, "thsirt12");
-+         this.ColorVar = createParaVar("Color");
-+         this.SizeVar = createParaVar("Size");
++         this.colorVar = createParaVar("Color");
++         this.sizeVar = createParaVar("Size");
 +         this.thsirt11Var = createPartVar("thsirt11");
 +         this.thsirt12Var = createPartVar("thsirt12");
       }
@@ -1065,32 +1065,32 @@ Lines added: 4, lines removed: 39
       public void initVariables() {
 -         //参数创建
 -             //参数Color创建
--             this.ColorVar = new ParaVar();
--             this.ColorVar.code = "Color";
--             this.ColorVar.var = newIntVarFromDomain(model, new long[] {10,20,30}, "Color");
+-             this.colorVar = new ParaVar();
+-             this.colorVar.code = "Color";
+-             this.colorVar.var = newIntVarFromDomain(model, new long[] {10,20,30}, "Color");
 -             
 -             //为参数可选值创建“是否选择的var"
--             this.ColorVar.optionSelectVars.put(10, new ParaOptionVar("Red", 10, model.newBoolVar("Color"+"_" + 10)));
--             this.ColorVar.optionSelectVars.put(20, new ParaOptionVar("Black", 20, model.newBoolVar("Color"+"_" + 20)));
--             this.ColorVar.optionSelectVars.put(30, new ParaOptionVar("White", 30, model.newBoolVar("Color"+"_" + 30)));
+-             this.colorVar.optionSelectVars.put(10, new ParaOptionVar("Red", 10, model.newBoolVar("Color"+"_" + 10)));
+-             this.colorVar.optionSelectVars.put(20, new ParaOptionVar("Black", 20, model.newBoolVar("Color"+"_" + 20)));
+-             this.colorVar.optionSelectVars.put(30, new ParaOptionVar("White", 30, model.newBoolVar("Color"+"_" + 30)));
 -         // 建立属性变量与选项变量之间的关系
--         this.ColorVar.optionSelectVars.forEach((optionId, optionVar) -> {
--             model.addEquality((IntVar) this.ColorVar.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar());
--             model.addDifferent((IntVar) this.ColorVar.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar().not());
+-         this.colorVar.optionSelectVars.forEach((optionId, optionVar) -> {
+-             model.addEquality((IntVar) this.colorVar.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar());
+-             model.addDifferent((IntVar) this.colorVar.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar().not());
 -         });
 -             //参数Size创建
--             this.SizeVar = new ParaVar();
--             this.SizeVar.code = "Size";
--             this.SizeVar.var = newIntVarFromDomain(model, new long[] {1,2,3}, "Size");
+-             this.sizeVar = new ParaVar();
+-             this.sizeVar.code = "Size";
+-             this.sizeVar.var = newIntVarFromDomain(model, new long[] {1,2,3}, "Size");
 -             
 -             //为参数可选值创建“是否选择的var"
--             this.SizeVar.optionSelectVars.put(1, new ParaOptionVar("Big", 1, model.newBoolVar("Size"+"_" + 1)));
--             this.SizeVar.optionSelectVars.put(2, new ParaOptionVar("Medium", 2, model.newBoolVar("Size"+"_" + 2)));
--             this.SizeVar.optionSelectVars.put(3, new ParaOptionVar("Small", 3, model.newBoolVar("Size"+"_" + 3)));
+-             this.sizeVar.optionSelectVars.put(1, new ParaOptionVar("Big", 1, model.newBoolVar("Size"+"_" + 1)));
+-             this.sizeVar.optionSelectVars.put(2, new ParaOptionVar("Medium", 2, model.newBoolVar("Size"+"_" + 2)));
+-             this.sizeVar.optionSelectVars.put(3, new ParaOptionVar("Small", 3, model.newBoolVar("Size"+"_" + 3)));
 -         // 建立属性变量与选项变量之间的关系
--         this.SizeVar.optionSelectVars.forEach((optionId, optionVar) -> {
--             model.addEquality((IntVar) this.SizeVar.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar());
--             model.addDifferent((IntVar) this.SizeVar.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar().not());
+-         this.sizeVar.optionSelectVars.forEach((optionId, optionVar) -> {
+-             model.addEquality((IntVar) this.sizeVar.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar());
+-             model.addDifferent((IntVar) this.sizeVar.var, optionId).onlyEnforceIf(optionVar.getIsSelectedVar().not());
 -         });
 -         
 -         //部件创建
@@ -1102,8 +1102,8 @@ Lines added: 4, lines removed: 39
 -             this.TShirt12Var = new PartVar();
 -             this.TShirt12Var.code = "TShirt12";
 -             this.TShirt12Var.var = model.newIntVar(0, 1000, "TShirt12");
-+         this.ColorVar = createParaVar("Color");
-+         this.SizeVar = createParaVar("Size");
++         this.colorVar = createParaVar("Color");
++         this.sizeVar = createParaVar("Size");
 +         this.TShirt11Var = createPartVar("TShirt11");
 +         this.TShirt12Var = createPartVar("TShirt12");
       }
@@ -1309,8 +1309,8 @@ Lines added: 2, lines removed: 2
 
 ```diff
 @@ -22,6 +22,6 @@
-          this.ColorVar = createParaVar("Color");
-          this.SizeVar = createParaVar("Size");
+          this.colorVar = createParaVar("Color");
+          this.sizeVar = createParaVar("Size");
 -         this.thsirt11Var = createPartVar("thsirt11");
 -         this.thsirt12Var = createPartVar("thsirt12");
 +         this.thsirt11Var = createPartVar("TShirt11");
@@ -2287,7 +2287,7 @@ mvn -DskipTests=false -DtrimStackTrace=false test
 ```
 onstraint.java:[22,26] 找不到符号
   符号:   变量 code
-  位置: 类型为com.jmix.configengine.artifact.ParaVar的变量 ColorVar
+  位置: 类型为com.jmix.configengine.artifact.ParaVar的变量 colorVar
 [ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtC
 onstraint.java:[26,52] 对于ParaOptionVar(java.lang.String,int,com.google.ortools.sat.BoolVar), 找不到合适
 的构造器
@@ -2324,7 +2324,7 @@ ion,com.google.ortools.sat.BoolVar)不适用
 [ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtC
 onstraint.java:[36,25] 找不到符号
   符号:   变量 code
-  位置: 类型为com.jmix.configengine.artifact.ParaVar的变量 SizeVar
+  位置: 类型为com.jmix.configengine.artifact.ParaVar的变量 sizeVar
 [ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtC
 onstraint.java:[40,50] 对于ParaOptionVar(java.lang.String,int,com.google.ortools.sat.BoolVar), 找不到合适
 的构造器
@@ -2379,7 +2379,7 @@ testCompile) on project configengine: Compilation failure: Compilation failure:
 [ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtC
 onstraint.java:[22,26] 找不到符号
 [ERROR]   符号:   变量 code
-[ERROR]   位置: 类型为com.jmix.configengine.artifact.ParaVar的变量 ColorVar
+[ERROR]   位置: 类型为com.jmix.configengine.artifact.ParaVar的变量 colorVar
 [ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtC
 onstraint.java:[26,52] 对于ParaOptionVar(java.lang.String,int,com.google.ortools.sat.BoolVar), 找不到合适
 的构造器
@@ -2416,7 +2416,7 @@ onstraint.java:[28,52] 对于ParaOptionVar(java.lang.String,int,com.google.ortoo
 [ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtC
 onstraint.java:[36,25] 找不到符号
 [ERROR]   符号:   变量 code
-[ERROR]   位置: 类型为com.jmix.configengine.artifact.ParaVar的变量 SizeVar
+[ERROR]   位置: 类型为com.jmix.configengine.artifact.ParaVar的变量 sizeVar
 [ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtC
 onstraint.java:[40,50] 对于ParaOptionVar(java.lang.String,int,com.google.ortools.sat.BoolVar), 找不到合适
 的构造器

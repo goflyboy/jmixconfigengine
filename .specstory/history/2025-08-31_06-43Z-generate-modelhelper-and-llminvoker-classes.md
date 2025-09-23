@@ -188,18 +188,18 @@ public class {{modelScenarioName}}Test extends ModuleSecnarioTestBase {
     @ParaAnno( 
         options = {"Red", "Black", "White"}
     )
-    private ParaVar ColorVar;
+    private ParaVar colorVar;
 
     @ParaAnno( 
         options = {"Small", "Medium", "Big"}
     )
-    private ParaVar SizeVar;
+    private ParaVar sizeVar;
     @PartAnno()
     private PartVar TShirt11Var;
 1.2 输入2：用户的规则-伪代码
 	//"Red-10", "Black-20", "White-30"
 	//"Small-10", "Medium-20", "Big-30"
-	if(ColorVar.var ==Red && SizeVar.var == Small  ) {
+	if(colorVar.var ==Red && sizeVar.var == Small  ) {
 		TShirt11Var.var = 1;
 	}
 	else {
@@ -231,12 +231,12 @@ public class HelloSampleTest extends ModuleSecnarioTestBase {
         @ParaAnno(
                 options = {"Red", "Black", "White"}
         )
-        private ParaVar ColorVar;
+        private ParaVar colorVar;
 
         @ParaAnno(
                 options = {"Small", "Medium", "Big"}
         )
-        private ParaVar SizeVar;
+        private ParaVar sizeVar;
         @PartAnno()
         private PartVar TShirt11Var;
 
@@ -245,7 +245,7 @@ public class HelloSampleTest extends ModuleSecnarioTestBase {
             //规则内容：如果颜色选择红色且尺寸选择小号，则TShirt11数量为1；否则为3
             // "Red-10", "Black-20", "White-30"
             // "Small-10", "Medium-20", "Big-30"
-            // if(ColorVar.var ==Red && SizeVar.var == Small  ) {
+            // if(colorVar.var ==Red && sizeVar.var == Small  ) {
             //     TShirt11Var.var = 1;
             // }
             // else {
@@ -257,14 +257,14 @@ public class HelloSampleTest extends ModuleSecnarioTestBase {
 
             // 实现条件逻辑：redAndSmall = (Color == Red) AND (Size == Small)
             model.addBoolAnd(new Literal[]{
-                    this.ColorVar.getParaOptionByCode("Red").getIsSelectedVar(),
-                    this.SizeVar.getParaOptionByCode("Small").getIsSelectedVar()
+                    this.colorVar.getParaOptionByCode("Red").getIsSelectedVar(),
+                    this.sizeVar.getParaOptionByCode("Small").getIsSelectedVar()
             }).onlyEnforceIf(redAndSmall);
 
             // 如果不是红色且小号的组合，则redAndSmall为false
             model.addBoolOr(new Literal[]{
-                    this.ColorVar.getParaOptionByCode("Red").getIsSelectedVar().not(),
-                    this.SizeVar.getParaOptionByCode("Small").getIsSelectedVar().not()
+                    this.colorVar.getParaOptionByCode("Red").getIsSelectedVar().not(),
+                    this.sizeVar.getParaOptionByCode("Small").getIsSelectedVar().not()
             }).onlyEnforceIf(redAndSmall.not());
 
             // 根据条件设置TShirt11的数量
@@ -793,7 +793,7 @@ Lines added: 170, lines removed: 117
 -     @ParaAnno( 
 -         options = {"Red", "Black", "White"}
 -     )
--     private ParaVar ColorVar;
+-     private ParaVar colorVar;
 +     ${生成的测试用例} 
 + }
 + ```
@@ -812,18 +812,18 @@ Lines added: 170, lines removed: 117
 + @ParaAnno( 
 +     options = {"Red", "Black", "White"}
 + )
-+ private ParaVar ColorVar;
++ private ParaVar colorVar;
   
 -     @ParaAnno( 
 -         options = {"Small", "Medium", "Big"}
 -     )
--     private ParaVar SizeVar;
+-     private ParaVar sizeVar;
 -     @PartAnno()
 -     private PartVar TShirt11Var;
 - 1.3 输入3： ${userLogicByPseudocode}
 - 	//"Red-10", "Black-20", "White-30"
 - 	//"Small-10", "Medium-20", "Big-30"
-- 	if(ColorVar.var ==Red && SizeVar.var == Small  ) {
+- 	if(colorVar.var ==Red && sizeVar.var == Small  ) {
 - 		TShirt11Var.var = 1;
 - 	}
 - 	else {
@@ -833,7 +833,7 @@ Lines added: 170, lines removed: 117
 + @ParaAnno( 
 +     options = {"Small", "Medium", "Big"}
 + )
-+ private ParaVar SizeVar;
++ private ParaVar sizeVar;
 + 
 + @PartAnno()
 + private PartVar TShirt11Var;
@@ -843,7 +843,7 @@ Lines added: 170, lines removed: 117
 + ```java
 + // "Red-10", "Black-20", "White-30"
 + // "Small-10", "Medium-20", "Big-30"
-+ if(ColorVar.var == Red && SizeVar.var == Small) {
++ if(colorVar.var == Red && sizeVar.var == Small) {
 +     TShirt11Var.var = 1;
 + }
 + else {
@@ -875,7 +875,7 @@ Lines added: 4, lines removed: 3
 ```diff
 @@ -166,17 +220,18 @@
           )
-          private ParaVar SizeVar;
+          private ParaVar sizeVar;
 +         
           @PartAnno()
           private PartVar TShirt11Var;
@@ -886,8 +886,8 @@ Lines added: 4, lines removed: 3
 +             // 规则内容：如果颜色选择红色且尺寸选择小号，则TShirt11数量为1；否则为3
               // "Red-10", "Black-20", "White-30"
               // "Small-10", "Medium-20", "Big-30"
--             // if(ColorVar.var ==Red && SizeVar.var == Small  ) {
-+             // if(ColorVar.var == Red && SizeVar.var == Small) {
+-             // if(colorVar.var ==Red && sizeVar.var == Small  ) {
++             // if(colorVar.var == Red && sizeVar.var == Small) {
               //     TShirt11Var.var = 1;
               // }
               // else {
@@ -3811,12 +3811,12 @@ _**User**_
 @ParaAnno( 
     options = {"Red", "Black", "White"}
 )
-private ParaVar ColorVar;
+private ParaVar colorVar;
 
 @ParaAnno( 
     options = {"Small", "Medium", "Big"}
 )
-private ParaVar SizeVar;
+private ParaVar sizeVar;
 
 @PartAnno()
 private PartVar TShirt11Var;
@@ -3826,7 +3826,7 @@ private PartVar TShirt11Var;
 ```java
 // "Red-10", "Black-20", "White-30"
 // "Small-10", "Medium-20", "Big-30"
-if(ColorVar.var == Red && SizeVar.var == Small) {
+if(colorVar.var == Red && sizeVar.var == Small) {
     TShirt11Var.var = 1;
 }
 else {
@@ -3861,12 +3861,12 @@ Lines added: 27, lines removed: 1
 + @ParaAnno( 
 +     options = {"Red", "Black", "White"}
 + )
-+ private ParaVar ColorVar;
++ private ParaVar colorVar;
 + 
 + @ParaAnno( 
 +     options = {"Small", "Medium", "Big"}
 + )
-+ private ParaVar SizeVar;
++ private ParaVar sizeVar;
 + 
 + @PartAnno()
 + private PartVar TShirt11Var;
@@ -3876,7 +3876,7 @@ Lines added: 27, lines removed: 1
 + ```java
 + // "Red-10", "Black-20", "White-30"
 + // "Small-10", "Medium-20", "Big-30"
-+ if(ColorVar.var == Red && SizeVar.var == Small) {
++ if(colorVar.var == Red && sizeVar.var == Small) {
 +     TShirt11Var.var = 1;
 + }
 + else {
@@ -4103,7 +4103,7 @@ private static String readFromMarkdown(String section)
 @ParaAnno( 
     options = {"Red", "Black", "White"}
 )
-private ParaVar ColorVar;
+private ParaVar colorVar;
 // ... 其他代码
 ```
 ```
@@ -4366,13 +4366,13 @@ MyTShirt
 @ParaAnno( 
     options = {"Red", "Black", "White"}
 )
-private ParaVar ColorVar;
+private ParaVar colorVar;
 // ... 其他代码
 ```
 
 ##userLogicByPseudocode
 ```java
-if(ColorVar.var == Red && SizeVar.var == Small) {
+if(colorVar.var == Red && sizeVar.var == Small) {
     TShirt11Var.var = 1;
 }
 else {
@@ -4772,12 +4772,12 @@ Lines added: 427, lines removed: 1
 + @ParaAnno(
 +     options = {"Red", "Black", "White"}
 + )
-+ private ParaVar ColorVar;
++ private ParaVar colorVar;
 + 
 + @ParaAnno(
 +     options = {"Small", "Medium", "Big"}
 + )
-+ private ParaVar SizeVar;
++ private ParaVar sizeVar;
 + 
 + @PartAnno()
 + private PartVar TShirt11Var;
@@ -4787,7 +4787,7 @@ Lines added: 427, lines removed: 1
 + ```java
 + // "Red-10", "Black-20", "White-30"
 + // "Small-10", "Medium-20", "Big-30"
-+ if(ColorVar.var == Red && SizeVar.var == Small) {
++ if(colorVar.var == Red && sizeVar.var == Small) {
 +     TShirt11Var.var = 1;
 + }
 + else {
@@ -4876,13 +4876,13 @@ Lines added: 427, lines removed: 1
 + @ParaAnno(
 +     options = {"Red", "Blue", "Green"}
 + )
-+ private ParaVar ColorVar;
++ private ParaVar colorVar;
 + 
 + // 尺寸参数
 + @ParaAnno(
 +     options = {"Small", "Medium", "Large"}
 + )
-+ private ParaVar SizeVar;
++ private ParaVar sizeVar;
 + 
 + // 产品部件
 + @PartAnno()
@@ -4916,7 +4916,7 @@ Lines added: 427, lines removed: 1
 + 
 + ```java
 + // 如果颜色是红色且尺寸是小号，则产品数量为1
-+ if(ColorVar.var == Red && SizeVar.var == Small) {
++ if(colorVar.var == Red && sizeVar.var == Small) {
 +     ProductVar.var = 1;
 + }
 + // 否则产品数量为3
@@ -4931,13 +4931,13 @@ Lines added: 427, lines removed: 1
 + 
 + ```java
 + // 多条件组合
-+ if(ColorVar.var == Red && SizeVar.var == Small) {
++ if(colorVar.var == Red && sizeVar.var == Small) {
 +     ProductVar.var = 1;
 + }
-+ else if(ColorVar.var == Blue && SizeVar.var == Medium) {
++ else if(colorVar.var == Blue && sizeVar.var == Medium) {
 +     ProductVar.var = 2;
 + }
-+ else if(ColorVar.var == Green && SizeVar.var == Large) {
++ else if(colorVar.var == Green && sizeVar.var == Large) {
 +     ProductVar.var = 3;
 + }
 + else {
@@ -4949,7 +4949,7 @@ Lines added: 427, lines removed: 1
 + 
 + ```java
 + // 同时约束多个部件
-+ if(ColorVar.var == Red) {
++ if(colorVar.var == Red) {
 +     ShirtVar.var = 1;
 +     PantsVar.var = 0;
 + }
@@ -5006,7 +5006,7 @@ Lines added: 427, lines removed: 1
 + ### 1. 命名规范
 + 
 + - **模型名**: 使用描述性的英文名称，如 `ProductConstraint`、`UserPreference`
-+ - **参数名**: 使用驼峰命名，如 `ColorVar`、`SizeVar`
++ - **参数名**: 使用驼峰命名，如 `colorVar`、`sizeVar`
 + - **选项值**: 使用有意义的标识符，如 `Red`、`Small`、`Premium`
 + 
 + ### 2. 约束设计
@@ -5407,7 +5407,7 @@ Lines added: 1, lines removed: 1
 
 ```diff
 @@ -20,5 +20,5 @@
-  private ParaVar SizeVar;
+  private ParaVar sizeVar;
   
 - @PartAnno()
 + @PartAnno(maxQuantity = 100)

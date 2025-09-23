@@ -73,12 +73,12 @@ MyTShirt
 @ParaAnno(
     options = {"Red", "Black", "White"}
 )
-private ParaVar ColorVar;
+private ParaVar colorVar;
 
 @ParaAnno(
     options = {"Small", "Medium", "Big"}
 )
-private ParaVar SizeVar;
+private ParaVar sizeVar;
 
 @PartAnno()
 private PartVar TShirt11Var;
@@ -86,7 +86,7 @@ private PartVar TShirt11Var;
 
 ##userLogicByPseudocode
 ```java
-if(ColorVar.value == Red && SizeVar.value == Small) {
+if(colorVar.value == Red && sizeVar.value == Small) {
     TShirt11Var.qty = 1;
 }
 else {
@@ -185,13 +185,13 @@ private PartVar limitedPartName;
 @ParaAnno(
     options = {"Red", "Blue", "Green"}
 )
-private ParaVar ColorVar;
+private ParaVar colorVar;
 
 // 尺寸参数
 @ParaAnno(
     options = {"Small", "Medium", "Large"}
 )
-private ParaVar SizeVar;
+private ParaVar sizeVar;
 
 // 产品部件
 @PartAnno()
@@ -229,7 +229,7 @@ else {
 
 ```java
 // 如果颜色是红色且尺寸是小号，则产品数量为1
-if(ColorVar.value == Red && SizeVar.value == Small) {
+if(colorVar.value == Red && sizeVar.value == Small) {
     ProductVar.qty = 1;
 }
 // 否则产品数量为3
@@ -261,13 +261,13 @@ else {
 
 ```java
 // 多条件组合
-if(ColorVar.value == Red && SizeVar.value == Small) {
+if(colorVar.value == Red && sizeVar.value == Small) {
     ProductVar.qty = 1;
 }
-else if(ColorVar.value == Blue && SizeVar.value == Medium) {
+else if(colorVar.value == Blue && sizeVar.value == Medium) {
     ProductVar.qty = 2;
 }
-else if(ColorVar.value == Green && SizeVar.value == Large) {
+else if(colorVar.value == Green && sizeVar.value == Large) {
     ProductVar.qty = 3;
 }
 else {
@@ -279,7 +279,7 @@ else {
 
 ```java
 // 同时约束多个部件
-if(ColorVar.value == Red) {
+if(colorVar.value == Red) {
     ShirtVar.qty = 1;
     PantsVar.qty = 0;
 }
@@ -306,8 +306,8 @@ else {
 ```java
 // 兼容性规则示例
 // 如果两个参数是兼容的，则它们的隐藏状态应该一致
-if(CompatibilityRule(ColorVar, SizeVar)) {
-    ColorVar.isHidden == SizeVar.isHidden;
+if(CompatibilityRule(colorVar, sizeVar)) {
+    colorVar.isHidden == sizeVar.isHidden;
 }
 ```
 
@@ -404,7 +404,7 @@ if(CompatibilityRule(ColorVar, SizeVar)) {
 ### 1. 命名规范
 
 - **模型名**: 使用描述性的英文名称，如 `ProductConstraint`、`UserPreference`
-- **参数名**: 使用驼峰命名，如 `ColorVar`、`SizeVar`
+- **参数名**: 使用驼峰命名，如 `colorVar`、`sizeVar`
 - **选项值**: 使用有意义的标识符，如 `Red`、`Small`、`Premium`
 
 ### 2. 约束设计

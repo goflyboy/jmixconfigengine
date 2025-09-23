@@ -35,10 +35,10 @@ PS D:\01.code\mygithub\jmixconfigengine> mvn checkstyle:check
 (IntVar) p
 
 
- private ParaVar ColorVar;
+ private ParaVar colorVar;
 
         @ParaAnno(options = { "Small", "Medium", "Big" })
-        private ParaVar SizeVar;
+        private ParaVar sizeVar;
 
 
 (IntVar) this.pt

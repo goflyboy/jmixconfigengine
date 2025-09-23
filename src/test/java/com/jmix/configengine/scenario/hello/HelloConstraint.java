@@ -42,7 +42,7 @@ public class HelloConstraint extends ConstraintAlgImpl {
 
         // "Red-10", "Black-20", "White-30"
         // "Small-10", "Medium-20", "Big-30"
-        // if(ColorVar.value ==Red && SizeVar.value == Small ) {
+        // if(colorVar.value ==Red && sizeVar.value == Small ) {
         // TShirt11Var.qty = 1;
         // }
         // else {

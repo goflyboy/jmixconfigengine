@@ -332,7 +332,7 @@ public class ModuleAlgArtifactGenerator {
                 }
                 // parsedRawCode = replaceToOptionCode(exprSchema.getRawCode(), progObjCode,
                 // "code");
-                // 例如：SizeVar.value == Small --> SizeVar.code == Small(本质是对option的code进行搜索)
+                // 例如：sizeVar.value == Small --> sizeVar.code == Small(本质是对option的code进行搜索)
                 parsedRawCode = replaceToOptionCode(exprSchema.getRawCode(), "value", "code");
             }
         } else if ("Part".equals(progObjType)) { // 根据exprSchema.refProgObjs.progObjType = Part

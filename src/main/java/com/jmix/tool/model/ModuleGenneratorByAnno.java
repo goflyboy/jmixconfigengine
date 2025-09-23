@@ -82,7 +82,8 @@ public final class ModuleGenneratorByAnno {
             if (enclosingClass != null) {
                 // 是内部类，设置父类名称
                 alg.setParentClassName(enclosingClass.getSimpleName());
-                log.info("Detected inner class: {}, parent class: {}", moduleAlgClazz.getName(), enclosingClass.getName());
+                log.info("Detected inner class: {}, parent class: {}", moduleAlgClazz.getName(),
+                        enclosingClass.getName());
             } else {
                 // 不是内部类，保持默认空字符串
                 alg.setParentClassName("");
@@ -411,7 +412,7 @@ public final class ModuleGenneratorByAnno {
 
         while (matcher.find()) {
             String objCode = matcher.group(1);
-            // 如果objCode="ColorVar"，则objCode="Color"
+            // 如果objCode="colorVar"，则objCode="Color"
             if (objCode.endsWith("Var")) {
                 objCode = objCode.substring(0, objCode.length() - "Var".length());
             }

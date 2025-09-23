@@ -137,14 +137,14 @@ Read file: src/test/resources/constraint_generate_prompt.jtl
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/doc/%E7%BA%A6%E6%9D%9F%E8%A7%84%E5%88%99%E7%94%9F%E6%88%90%E8%AE%BE%E8%AE%A1.md` | L942 | `- `paraMaps`: 参数变量映射（Map<String, ParaVar>）` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/doc/%E7%BA%A6%E6%9D%9F%E8%A7%84%E5%88%99%E7%94%9F%E6%88%90%E8%AE%BE%E8%AE%A1.md` | L943 | `- `partMaps`: 部件变量映射（Map<String, PartVar>）` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/doc/%E7%BA%A6%E6%9D%9F%E8%A7%84%E5%88%99%E7%94%9F%E6%88%90%E8%AE%BE%E8%AE%A1.md` | L971 | `Module → ModuleAlgArtifactGenerator → ModuleInfo → ParaVar/PartVar/ParaOptionVar` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/doc/%E7%BA%A6%E6%9D%9F%E8%A7%84%E5%88%99%E7%94%9F%E6%88%90%E8%AE%BE%E8%AE%A1.md` | L1021 | `public ParaVar ColorVar;` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/doc/%E7%BA%A6%E6%9D%9F%E8%A7%84%E5%88%99%E7%94%9F%E6%88%90%E8%AE%BE%E8%AE%A1.md` | L1022 | `public ParaVar SizeVar;` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/doc/%E7%BA%A6%E6%9D%9F%E8%A7%84%E5%88%99%E7%94%9F%E6%88%90%E8%AE%BE%E8%AE%A1.md` | L1021 | `public ParaVar colorVar;` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/doc/%E7%BA%A6%E6%9D%9F%E8%A7%84%E5%88%99%E7%94%9F%E6%88%90%E8%AE%BE%E8%AE%A1.md` | L1022 | `public ParaVar sizeVar;` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/doc/%E7%BA%A6%E6%9D%9F%E8%A7%84%E5%88%99%E7%94%9F%E6%88%90%E8%AE%BE%E8%AE%A1.md` | L1023 | `public PartVar thsirt11Var;` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/doc/%E7%BA%A6%E6%9D%9F%E8%A7%84%E5%88%99%E7%94%9F%E6%88%90%E8%AE%BE%E8%AE%A1.md` | L1024 | `public PartVar thsirt12Var;` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/doc/%E7%BA%A6%E6%9D%9F%E8%A7%84%E5%88%99%E7%94%9F%E6%88%90%E8%AE%BE%E8%AE%A1.md` | L1027 | `public void initVariables() {` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/doc/%E7%BA%A6%E6%9D%9F%E8%A7%84%E5%88%99%E7%94%9F%E6%88%90%E8%AE%BE%E8%AE%A1.md` | L1029 | `this.ColorVar.var = model.newIntVarFromDomain(` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/doc/%E7%BA%A6%E6%9D%9F%E8%A7%84%E5%88%99%E7%94%9F%E6%88%90%E8%AE%BE%E8%AE%A1.md` | L1033 | `this.SizeVar.var = model.newIntVarFromDomain(` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/doc/%E7%BA%A6%E6%9D%9F%E8%A7%84%E5%88%99%E7%94%9F%E6%88%90%E8%AE%BE%E8%AE%A1.md` | L1039 | `addConstrain_rule1(model, this.ColorVar, this.SizeVar);` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/doc/%E7%BA%A6%E6%9D%9F%E8%A7%84%E5%88%99%E7%94%9F%E6%88%90%E8%AE%BE%E8%AE%A1.md` | L1029 | `this.colorVar.var = model.newIntVarFromDomain(` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/doc/%E7%BA%A6%E6%9D%9F%E8%A7%84%E5%88%99%E7%94%9F%E6%88%90%E8%AE%BE%E8%AE%A1.md` | L1033 | `this.sizeVar.var = model.newIntVarFromDomain(` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/doc/%E7%BA%A6%E6%9D%9F%E8%A7%84%E5%88%99%E7%94%9F%E6%88%90%E8%AE%BE%E8%AE%A1.md` | L1039 | `addConstrain_rule1(model, this.colorVar, this.sizeVar);` |
 
 </details>
 
@@ -297,7 +297,7 @@ Lines added: 4, lines removed: 4
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/ParaIsHiddenTest.java` | L148 | `// Test when P0=0, P1 should be hidden and P1.var=0` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/ParaIsHiddenTest.java` | L164 | `// Test when P0=0, P1 should be hidden and P1.var=0` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/ParaIntegerTest.java` | L38 | `model.addEquality((IntVar)Part1.var, LinearExpr.sum(new IntVar[]{(IntVar)P1.var, (IntVar)P2.var}));` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/MyTShirtTest.java` | L32 | `// if(ColorVar.var == Red && SizeVar.var == Small) {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/MyTShirtTest.java` | L32 | `// if(colorVar.var == Red && sizeVar.var == Small) {` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/MyTShirtTest.java` | L33 | `//     TShirt11Var.var = 1;` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/MyTShirtTest.java` | L36 | `//     TShirt11Var.var = 3;` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/MyTShirtTest.java` | L51 | `model.addEquality((IntVar)TShirt11Var.var, 1).onlyEnforceIf(redAndSmall);` |
@@ -316,10 +316,10 @@ Lines added: 4, lines removed: 4
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/CalculateRuleIfThenTest.java` | L43 | `//     PT1Var.var = 3` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/CalculateRuleIfThenTest.java` | L63 | `model.addEquality((IntVar)this.PT1Var.var, 1).onlyEnforceIf(rule2_op11Andop21);` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/CalculateRuleIfThenTest.java` | L66 | `model.addEquality((IntVar)this.PT1Var.var, 3).onlyEnforceIf(rule2_op11Andop21.not());` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/hello/HelloConstraintTest.java` | L38 | `// if(ColorVar.var ==Red && SizeVar.var == Small  ) {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/hello/HelloConstraintTest.java` | L38 | `// if(colorVar.var ==Red && sizeVar.var == Small  ) {` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/hello/HelloConstraintTest.java` | L39 | `//     TShirt11Var.var = 1;` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/hello/HelloConstraintTest.java` | L42 | `//     TShirt11Var.var = 3` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/hello/HelloConstraint.java` | L50 | `// if(ColorVar.var ==Red && SizeVar.var == Small  ) {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/hello/HelloConstraint.java` | L50 | `// if(colorVar.var ==Red && sizeVar.var == Small  ) {` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/hello/HelloConstraint.java` | L51 | `//     TShirt11Var.var = 1;` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/hello/HelloConstraint.java` | L54 | `//     TShirt11Var.var = 3` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/hello/HelloConstraint.java` | L74 | `model.addEquality((IntVar)this.TShirt11Var.var, 1).onlyEnforceIf(redAndSmall);` |
@@ -351,7 +351,7 @@ Lines added: 4, lines removed: 4
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java` | L228 | `partVar.isHiddenVar = model.newBoolVar(code + "_is_hidden");` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java` | L302 | `model.addEquality((IntVar) partVar.var, partQuantity);` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java` | L309 | `model.addEquality((IntVar) paraVar.var, Integer.parseInt(paraValue));` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/hello/HelloConstraintTest.java` | L38 | `// if(ColorVar.var ==Red && SizeVar.var == Small  ) {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/hello/HelloConstraintTest.java` | L38 | `// if(colorVar.var ==Red && sizeVar.var == Small  ) {` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/hello/HelloConstraintTest.java` | L39 | `//     TShirt11Var.var = 1;` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/hello/HelloConstraintTest.java` | L42 | `//     TShirt11Var.var = 3` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/ParaIsHiddenTest.java` | L43 | `// Logic1: P1.isHiddenVar and P2.isHiddenVar are incompatible` |
@@ -744,9 +744,9 @@ Lines added: 3, lines removed: 3
 @@ -30,9 +30,9 @@
               // "Red-10", "Black-20", "White-30"
               // "Small-10", "Medium-20", "Big-30"
--             // if(ColorVar.var == Red && SizeVar.var == Small) {
+-             // if(colorVar.var == Red && sizeVar.var == Small) {
 -             //     TShirt11Var.var = 1;
-+             // if(ColorVar.value == Red && SizeVar.value == Small) {
++             // if(colorVar.value == Red && sizeVar.value == Small) {
 +             //     TShirt11Var.qty = 1;
               // }
               // else {
@@ -921,13 +921,13 @@ Lines added: 6, lines removed: 6
 @@ -36,10 +36,10 @@
           // "Red-10", "Black-20", "White-30"
           // "Small-10", "Medium-20", "Big-30"
--         // if(ColorVar.var ==Red && SizeVar.var == Small  ) {
+-         // if(colorVar.var ==Red && sizeVar.var == Small  ) {
 -         //     TShirt11Var.var = 1;
 -         // }
 -         // else {
 -         //     TShirt11Var.var = 3
 -         // }
-+                     // if(ColorVar.value ==Red && SizeVar.value == Small  ) {
++                     // if(colorVar.value ==Red && sizeVar.value == Small  ) {
 +             //     TShirt11Var.qty = 1;
 +             // }
 +             // else {
@@ -957,9 +957,9 @@ Lines added: 3, lines removed: 3
 @@ -48,9 +48,9 @@
           // "Red-10", "Black-20", "White-30"
           // "Small-10", "Medium-20", "Big-30"
--         // if(ColorVar.var ==Red && SizeVar.var == Small  ) {
+-         // if(colorVar.var ==Red && sizeVar.var == Small  ) {
 -         //     TShirt11Var.var = 1;
-+                     // if(ColorVar.value ==Red && SizeVar.value == Small  ) {
++                     // if(colorVar.value ==Red && sizeVar.value == Small  ) {
 +             //     TShirt11Var.qty = 1;
               // }
               // else {
@@ -1215,9 +1215,9 @@ Lines added: 3, lines removed: 3
 @@ -274,9 +274,9 @@
               // "Red-10", "Black-20", "White-30"
               // "Small-10", "Medium-20", "Big-30"
--             // if(ColorVar.var == Red && SizeVar.var == Small) {
+-             // if(colorVar.var == Red && sizeVar.var == Small) {
 -             //     TShirt11Var.var = 1;
-+             // if(ColorVar.value == Red && SizeVar.value == Small) {
++             // if(colorVar.value == Red && sizeVar.value == Small) {
 +             //     TShirt11Var.qty = 1;
               // }
               // else {
@@ -1339,8 +1339,8 @@ Lines added: 1, lines removed: 1
 @@ -1027,5 +1027,5 @@
       public void initVariables() {
           // 初始化颜色参数（离散值：10, 20, 30）
--         this.ColorVar.var = model.newIntVarFromDomain(
-+         this.ColorVar.value = model.newIntVarFromDomain(
+-         this.colorVar.var = model.newIntVarFromDomain(
++         this.colorVar.value = model.newIntVarFromDomain(
               Domain.fromValues(new long[] {10, 20, 30}), "Color");
           
 ```
@@ -1360,8 +1360,8 @@ Lines added: 1, lines removed: 1
 @@ -1031,5 +1031,5 @@
           
           // 初始化尺寸参数（离散值：1, 2, 3）
--         this.SizeVar.var = model.newIntVarFromDomain(
-+         this.SizeVar.value = model.newIntVarFromDomain(
+-         this.sizeVar.var = model.newIntVarFromDomain(
++         this.sizeVar.value = model.newIntVarFromDomain(
               Domain.fromValues(new long[] {1, 2, 3}), "Size");
       }
 ```

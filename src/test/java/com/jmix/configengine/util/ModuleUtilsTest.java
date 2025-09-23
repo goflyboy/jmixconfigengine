@@ -37,9 +37,10 @@ import java.nio.file.Paths;
  */
 @Slf4j
 public class ModuleUtilsTest {
-
     private Module testModule;
+
     private String testJsonFile = "test_module.json";
+
     private boolean deleteGeneratedFile;
 
     /**
