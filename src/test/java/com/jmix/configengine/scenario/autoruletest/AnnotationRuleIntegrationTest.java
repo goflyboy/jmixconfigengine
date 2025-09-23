@@ -16,20 +16,17 @@ import com.jmix.tool.model.StructCodeInjector;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.junit.Test;
+
 /**
  * 注解规则集成测试类
  * 用于测试完整的注解规则功能，包括代码注入
+ * 
+ * @since 2025-09-23
  */
 @Slf4j
 public class AnnotationRuleIntegrationTest {
-
-    /**
-     * 测试完整的注解规则功能
-     */
-    /**
-     * 测试完整的注解规则流程
-     */
-    @org.junit.Test
+    @Test
     public void testCompleteAnnotationRuleFlow() {
         try {
             // 1. 测试注解规则生成
@@ -46,9 +43,6 @@ public class AnnotationRuleIntegrationTest {
         }
     }
 
-    /**
-     * 测试注解规则生成
-     */
     private void testAnnotationRuleGeneration() {
         // 创建临时路径
         String tempPath = CommHelper.createTempPath(AnnotationRuleTest.class);
@@ -119,13 +113,7 @@ public class AnnotationRuleIntegrationTest {
         }
     }
 
-    /**
-     * 测试ModelHelper的自动注入功能
-     */
-    /**
-     * 测试模型助手自动注入
-     */
-    @org.junit.Test
+    @Test
     public void testModelHelperAutoInjection() {
         try {
             // 测试自动注入功能（这里只是验证方法存在，不实际执行）
@@ -137,13 +125,7 @@ public class AnnotationRuleIntegrationTest {
         }
     }
 
-    /**
-     * 测试注解常量使用
-     */
-    /**
-     * 测试注解常量
-     */
-    @org.junit.Test
+    @Test
     public void testAnnotationConstants() {
         // 测试CompatiableRuleSchema.Operator常量
         assertEquals("INCOMPATIBLE should be Incompatible", "Incompatible",
@@ -154,13 +136,7 @@ public class AnnotationRuleIntegrationTest {
         log.info("✓ Annotation constant test passed");
     }
 
-    /**
-     * 测试ProgObject解析
-     */
-    /**
-     * 测试编程对象解析
-     */
-    @org.junit.Test
+    @Test
     public void testProgObjectParsing() {
         // 测试变量对象解析 - 通过生成Module来间接测试
         String tempPath = CommHelper.createTempPath(AnnotationRuleTest.class);

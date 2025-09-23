@@ -24,20 +24,12 @@ public final class ModelHelperTool {
      * 
      * @param args 命令行参数
      */
-    /**
-     * 主方法
-     * 
-     * @param args 命令行参数
-     */
     public static void main(String[] args) {
         generatorModelFile();
         // injectConstraintCode();
 
     }
 
-    /**
-     * 注入约束代码
-     */
     /**
      * 注入约束代码
      */
@@ -53,9 +45,6 @@ public final class ModelHelperTool {
 
     /**
      * 调用大模型生成模型文件和测试文件
-     */
-    /**
-     * 生成模型文件
      */
     public static void generatorModelFile() {
         try {
@@ -99,25 +88,25 @@ public final class ModelHelperTool {
              */
 
             try {
-                System.out.println("Generating and running test files...");
+                log.info("Generating and running test files...");
 
                 // 测试生成并运行功能
                 modelHelper.generatorRunModelFile(packageName, modelName, userVariableModel, userLogicByPseudocode,
                         userTestCaseSpec);
 
-                System.out.println("Test completed successfully!");
+                log.info("Test completed successfully!");
 
             } catch (Exception e) {
-                System.out.println("Test failed: " + e.getMessage());
-                System.out.println("Possible causes:");
-                System.out.println("1. LLM API configuration issue");
-                System.out.println("2. Network connection problem");
-                System.out.println("3. Code generation or compilation issue");
+                log.error("Test failed: {}", e.getMessage());
+                log.error("Possible causes:");
+                log.error("1. LLM API configuration issue");
+                log.error("2. Network connection problem");
+                log.error("3. Code generation or compilation issue");
                 e.printStackTrace();
             }
 
         } catch (Exception e) {
-            System.err.println("Error occurred during test execution: " + e.getMessage());
+            log.error("Error occurred during test execution: {}", e.getMessage());
             e.printStackTrace();
         }
     }
@@ -146,8 +135,8 @@ public final class ModelHelperTool {
             return parseMarkdownSection(content, section);
 
         } catch (Exception e) {
-            System.err.println("Failed to read Markdown file: " + e.getMessage());
-            System.err.println("Will use default content");
+            log.warn("Failed to read Markdown file: {}", e.getMessage());
+            log.warn("Will use default content");
 
             // 返回默认内容
             if ("packageName".equals(section)) {
@@ -197,7 +186,7 @@ public final class ModelHelperTool {
             // 提取代码内容
             String code = content.substring(codeStart + 7, codeEnd).trim();
 
-            System.out.println("Successfully read " + section + " section from Markdown file");
+            log.info("Successfully read {} section from Markdown file", section);
             return code;
 
         } catch (Exception e) {

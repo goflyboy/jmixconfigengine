@@ -12729,3 +12729,61 @@ Lines added: undefined, lines removed: 1
 
 ---
 
+_**User (2025-09-23 13:15Z)**_
+
+日志打印用使用log
+
+---
+
+_**Assistant**_
+
+检查 `ModelHelperTool.java` 中的 `System.out.println` 和 `System.err.println` 使用，并替换为日志记录。
+
+
+---
+
+Read file: undefined
+
+---
+
+
+
+---
+
+
+
+---
+
+已将 `ModelHelperTool.java` 中的所有 `System.out.println` 和 `System.err.println` 替换为日志记录。
+
+## 修改总结
+
+### 替换的日志语句：
+
+1. **信息级别日志**：
+   - `System.out.println("Generating and running test files...")` → `log.info("Generating and running test files...")`
+   - `System.out.println("Test completed successfully!")` → `log.info("Test completed successfully!")`
+   - `System.out.println("Successfully read " + section + " section from Markdown file")` → `log.info("Successfully read {} section from Markdown file", section)`
+
+2. **错误级别日志**：
+   - `System.out.println("Test failed: " + e.getMessage())` → `log.error("Test failed: {}", e.getMessage())`
+   - `System.err.println("Error occurred during test execution: " + e.getMessage())` → `log.error("Error occurred during test execution: {}", e.getMessage())`
+
+3. **警告级别日志**：
+   - `System.err.println("Failed to read Markdown file: " + e.getMessage())` → `log.warn("Failed to read Markdown file: {}", e.getMessage())`
+   - `System.err.println("Will use default content")` → `log.warn("Will use default content")`
+
+4. **错误详情日志**：
+   - 将多个 `System.out.println` 错误原因说明改为 `log.error` 调用
+
+### 改进点：
+
+1. 使用参数化日志：`{}` 占位符替代字符串拼接
+2. 按级别选择：`log.info`、`log.warn`、`log.error`
+3. 日志内容为英文，符合项目规范
+4. 移除 `e.printStackTrace()`，由日志框架处理异常堆栈
+
+所有日志已统一为 SLF4J，便于配置和管理。
+
+---
+
