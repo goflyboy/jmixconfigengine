@@ -16,10 +16,19 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Result<T> {
+    /**
+     * 操作成功状态码
+     */
     public static final int SUCCESS = 0;
 
+    /**
+     * 操作失败状态码
+     */
     public static final int FAILED = 1;
 
+    /**
+     * 无解状态码
+     */
     public static final int NO_SOLUTION = 2;
 
     private int code = SUCCESS;

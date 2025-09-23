@@ -17,10 +17,16 @@ import java.util.Map;
 @Data
 public class ModuleInst {
 
-    // v1:1,v2:2,v3:3,v4:1
+    /**
+     * 其他变量值键名
+     * 用于存储其他变量的值映射，格式：v1:1,v2:2,v3:3,v4:1
+     */
     public static final String OTHER_VARIABLES_VALUE_KEY = "OTHER_VARIABLES_VALUE";
 
-    // v1:a1OrA3, v2:b1OrB2OrB3
+    /**
+     * 其他变量备注键名
+     * 用于存储其他变量的备注信息，格式：v1:a1OrA3, v2:b1OrB2OrB3
+     */
     public static final String OTHER_VARIABLES_MEMO_KEY = "OTHER_VARIABLES_MEMO";
 
     // module id

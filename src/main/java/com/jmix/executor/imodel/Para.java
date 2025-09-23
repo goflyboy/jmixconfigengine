@@ -19,10 +19,19 @@ import java.util.Optional;
 @EqualsAndHashCode(callSuper = true)
 public class Para extends ProgrammableObject<String> {
 
+    /**
+     * 参数默认最小值
+     */
     public static final String DEFAULT_MIN_VALUE = "-1000";
 
+    /**
+     * 参数默认最大值
+     */
     public static final String DEFAULT_MAX_VALUE = "1000";
 
+    /**
+     * 参数短编码前缀
+     */
     public static final String SHORT_CODE_PREFIX = "P";
 
     /**

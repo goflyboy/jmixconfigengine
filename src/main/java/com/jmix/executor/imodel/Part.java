@@ -19,10 +19,19 @@ import java.util.Map;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class Part extends ProgrammableObject<Integer> {
+    /**
+     * 部件最大数量限制
+     */
     public static final int MAX_QUANTITY = 20;
 
+    /**
+     * 部件最小数量限制
+     */
     public static final int MIN_QUANTITY = 0;
 
+    /**
+     * 部件短编码前缀
+     */
     public static final String SHORT_CODE_PREFIX = "PT";
 
     /**
