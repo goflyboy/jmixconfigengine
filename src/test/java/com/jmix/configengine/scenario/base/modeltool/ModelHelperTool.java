@@ -1,9 +1,10 @@
 package com.jmix.configengine.scenario.base.modeltool;
 
-import lombok.extern.slf4j.Slf4j;
 import com.jmix.configengine.scenario.autoruletest.InjectCompatibleRuleTest.InjectCompatibleRuleConstraint;
 import com.jmix.executor.omodel.AlgLoaderException;
 import com.jmix.tool.model.ModelHelper;
+
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 
@@ -80,20 +81,20 @@ public final class ModelHelperTool {
              * String userVariableModel = "@ParaAnno( \n" +
              * "\t\t\toptions = {\"op11\", \"op12\", \"op13\"} \n" +
              * "        )\n" +
-             * "        private ParaVar P1Var;\n" +
+             * "        private ParaVar p1Var;\n" +
              * "    \n" +
              * "        @ParaAnno( \n" +
              * "            options = {\"op21\", \"op22\", \"op23\"}\n" +
              * "        )\n" +
-             * "        private ParaVar P2Var;\n" +
+             * "        private ParaVar p2Var;\n" +
              * "        @PartAnno\n" +
-             * "        private ParaVar PT1Var;";
+             * "        private PartVar pt1Var;";
              * String userLogicByPseudocode =
-             * "if(P1Var.value == op11 && P2Var.value == op21) {\n" +
-             * "                PT1Var.qty = 1;\n" +
+             * "if(p1Var.value == op11 && p2Var.value == op21) {\n" +
+             * "                pt1Var.qty = 1;\n" +
              * "            }\n" +
              * "            else {\n" +
-             * "                PT1Var.qty = 3;\n" +
+             * "                pt1Var.qty = 3;\n" +
              * "            }";
              */
 
@@ -231,14 +232,14 @@ public final class ModelHelperTool {
         return "@ParaAnno( \n"
                 + "\t\t\toptions = {\"op11\", \"op12\", \"op13\"} \n"
                 + "        )\n"
-                + "        private ParaVar P1Var;\n"
+                + "        private ParaVar p1Var;\n"
                 + "    \n"
                 + "        @ParaAnno( \n"
                 + "            options = {\"op21\", \"op22\", \"op23\"}\n"
                 + "        )\n"
-                + "        private ParaVar P2Var;\n"
+                + "        private ParaVar p2Var;\n"
                 + "        @PartAnno\n"
-                + "        private PartVar PT1Var;";
+                + "        private PartVar pt1Var;";
     }
 
     /**
@@ -247,11 +248,11 @@ public final class ModelHelperTool {
      * @return 默认逻辑伪代码
      */
     private static String getDefaultLogicPseudocode() {
-        return "if(P1Var.value == op11 && P2Var.value == op21) {\n"
-                + "                PT1Var.qty = 1;\n"
+        return "if(p1Var.value == op11 && p2Var.value == op21) {\n"
+                + "                pt1Var.qty = 1;\n"
                 + "            }\n"
                 + "            else {\n"
-                + "                PT1Var.qty = 3;\n"
+                + "                pt1Var.qty = 3;\n"
                 + "            }";
     }
 

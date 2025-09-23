@@ -21,13 +21,13 @@ import lombok.extern.slf4j.Slf4j;
 public class HelloConstraint extends ConstraintAlgImpl {
 
     @ParaAnno(defaultValue = "Red", options = { "Red:1", "Black:2", "White:3" })
-    private ParaVar ColorVar;
+    private ParaVar colorVar;
 
     @ParaAnno(defaultValue = "Small", options = { "Small", "Medium", "Big" })
-    private ParaVar SizeVar;
+    private ParaVar sizeVar;
 
     @PartAnno(price = 100L, attrs = { "weight:180g", "size:M" }, extAttrs = { "material:cotton", "brand:Hello" })
-    private PartVar TShirt11Var;
+    private PartVar tShirt11Var;
 
     @Override
     protected void initConstraint() {
@@ -54,21 +54,21 @@ public class HelloConstraint extends ConstraintAlgImpl {
 
         // 实现条件逻辑：redAndSmall = (Color == Red) AND (Size == Small)
         model.addBoolAnd(new Literal[] {
-                this.ColorVar.getParaOptionByCode("Red").getIsSelectedVar(),
-                this.SizeVar.getParaOptionByCode("Small").getIsSelectedVar()
+                this.colorVar.getParaOptionByCode("Red").getIsSelectedVar(),
+                this.sizeVar.getParaOptionByCode("Small").getIsSelectedVar()
         }).onlyEnforceIf(redAndSmall);
 
         // 如果不是红色且小号的组合，则redAndSmall为false
         model.addBoolOr(new Literal[] {
-                this.ColorVar.getParaOptionByCode("Red").getIsSelectedVar().not(),
-                this.SizeVar.getParaOptionByCode("Small").getIsSelectedVar().not()
+                this.colorVar.getParaOptionByCode("Red").getIsSelectedVar().not(),
+                this.sizeVar.getParaOptionByCode("Small").getIsSelectedVar().not()
         }).onlyEnforceIf(redAndSmall.not());
 
         // 根据条件设置TShirt11的数量
         // 如果redAndSmall为true，则TShirt11数量为1
-        model.addEquality((IntVar) this.TShirt11Var.qty, 1).onlyEnforceIf(redAndSmall);
+        model.addEquality((IntVar) this.tShirt11Var.qty, 1).onlyEnforceIf(redAndSmall);
 
         // 如果redAndSmall为false，则TShirt11数量为3
-        model.addEquality((IntVar) this.TShirt11Var.qty, 3).onlyEnforceIf(redAndSmall.not());
+        model.addEquality((IntVar) this.tShirt11Var.qty, 3).onlyEnforceIf(redAndSmall.not());
     }
 }

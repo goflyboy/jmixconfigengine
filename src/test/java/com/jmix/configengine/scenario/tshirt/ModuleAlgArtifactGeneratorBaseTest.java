@@ -1,6 +1,5 @@
 package com.jmix.configengine.scenario.tshirt;
 
-import lombok.extern.slf4j.Slf4j;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -8,6 +7,8 @@ import static org.junit.Assert.assertTrue;
 import com.jmix.executor.imodel.Module;
 import com.jmix.tool.ModuleUtils;
 import com.jmix.tool.artifact.ModuleAlgArtifactGenerator;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.junit.After;
 import org.junit.Before;
@@ -122,12 +123,12 @@ public class ModuleAlgArtifactGeneratorBaseTest {
         assertTrue("生成的代码应该继承ConstraintAlgImpl", content.contains("extends ConstraintAlgImpl"));
 
         // 验证参数变量
-        assertTrue("应该包含Color参数变量", content.contains("private ParaVar ColorVar"));
-        assertTrue("应该包含Size参数变量", content.contains("private ParaVar SizeVar"));
+        assertTrue("应该包含Color参数变量", content.contains("private ParaVar colorVar"));
+        assertTrue("应该包含Size参数变量", content.contains("private ParaVar sizeVar"));
 
         // 验证部件变量
-        assertTrue("应该包含TShirt11部件变量", content.contains("private PartVar TShirt11Var"));
-        assertTrue("应该包含TShirt12部件变量", content.contains("private PartVar TShirt12Var"));
+        assertTrue("应该包含TShirt11部件变量", content.contains("private PartVar tShirt11Var"));
+        assertTrue("应该包含TShirt12部件变量", content.contains("private PartVar tShirt12Var"));
 
         // 验证方法
         assertTrue("应该包含initVariables方法", content.contains("public void initVariables()"));

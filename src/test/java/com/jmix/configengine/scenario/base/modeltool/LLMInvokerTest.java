@@ -36,19 +36,19 @@ public final class LLMInvokerTest {
             String userVariableModel = "@ParaAnno( \n"
                     + "\t\t\toptions = {\"op11\", \"op12\", \"op13\"} \n"
                     + "        )\n"
-                    + "        private ParaVar P1Var;\n"
+                    + "        private ParaVar p1Var;\n"
                     + "    \n"
                     + "        @ParaAnno( \n"
                     + "            options = {\"op21\", \"op22\", \"op23\"}\n"
                     + "        )\n"
-                    + "        private ParaVar P2Var;\n"
+                    + "        private ParaVar p2Var;\n"
                     + "        @PartAnno\n"
-                    + "        private PartVar PT1Var;";
-            String userLogicByPseudocode = "if(P1Var.value == op11 && P2Var.value == op21) {\n"
-                    + "                PT1Var.qty = 1;\n"
+                    + "        private PartVar pt1Var;";
+            String userLogicByPseudocode = "if(p1Var.value == op11 && p2Var.value == op21) {\n"
+                    + "                pt1Var.qty = 1;\n"
                     + "            }\n"
                     + "            else {\n"
-                    + "                PT1Var.qty = 3;\n"
+                    + "                pt1Var.qty = 3;\n"
                     + "            }";
 
             try {

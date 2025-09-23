@@ -20,6 +20,7 @@ import java.util.Map;
 @EqualsAndHashCode(callSuper = true)
 public class Part extends ProgrammableObject<Integer> {
     public static final int MAX_QUANTITY = 20;
+
     public static final int MIN_QUANTITY = 0;
 
     public static final String SHORT_CODE_PREFIX = "PT";
