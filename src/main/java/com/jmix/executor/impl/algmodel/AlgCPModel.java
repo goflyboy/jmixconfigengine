@@ -46,7 +46,7 @@ public class AlgCPModel {
     /**
      * 构造函数，使用指定的CpModel实例
      * 
-     * @param model 要封装的CpModel实例
+     * @param cpModel 要封装的CpModel实例
      */
     public AlgCPModel(final CpModel cpModel) {
         this.cpModel = cpModel;

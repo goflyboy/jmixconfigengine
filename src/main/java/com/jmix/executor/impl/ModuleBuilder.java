@@ -33,6 +33,8 @@ public class ModuleBuilder {
 
         /**
          * 创建新的构建器实例
+         * 
+         * @return ParaOptionBuilder实例
          */
         public static ParaOptionBuilder create() {
             return new ParaOptionBuilder();
@@ -194,6 +196,8 @@ public class ModuleBuilder {
 
         /**
          * 创建新的构建器实例
+         * 
+         * @return PartBuilder实例
          */
         public static PartBuilder create() {
             return new PartBuilder();
@@ -398,6 +402,8 @@ public class ModuleBuilder {
 
         /**
          * 创建新的构建器实例
+         * 
+         * @return ParaBuilder实例
          */
         public static ParaBuilder create() {
             return new ParaBuilder();

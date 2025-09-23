@@ -204,56 +204,6 @@ public class ModelHelper {
         }
     }
 
-    // /**
-    // * 使用JUnit运行测试类
-    // *
-    // * @param testClass 测试类
-    // */
-    // private void runWithJUnit(Class<?> testClass) {
-    // try {
-    // // 检查是否有@Test注解的方法
-    // java.lang.reflect.Method[] methods = testClass.getMethods();
-    // java.util.List<java.lang.reflect.Method> testMethods = new
-    // java.util.ArrayList<>();
-
-    // for (java.lang.reflect.Method method : methods) {
-    // if (method.isAnnotationPresent(org.junit.Test.class)) {
-    // testMethods.add(method);
-    // }
-    // }
-
-    // if (!testMethods.isEmpty()) {
-    // log.info("Found {} @Test methods, running...", testMethods.size());
-
-    // // 创建测试类实例
-    // Object testInstance = testClass.getDeclaredConstructor().newInstance();
-
-    // // 运行每个测试方法
-    // for (java.lang.reflect.Method testMethod : testMethods) {
-    // try {
-    // log.info("Running test method: {}", testMethod.getName());
-    // testMethod.invoke(testInstance);
-    // log.info("✓ Test method {} executed successfully", testMethod.getName());
-    // } catch (Exception e) {
-    // log.error("✗ Test method {} execution failed: {}", testMethod.getName(), e.getMessage());
-    // if (e.getCause() != null) {
-    // log.error("  Reason: {}", e.getCause().getMessage());
-    // }
-    // }
-    // }
-
-    // log.info("All test methods execution completed");
-
-    // } else {
-    // log.info("No @Test methods found, cannot run");
-    // }
-
-    // } catch (Exception e) {
-    // log.error("JUnit execution failed: {}", e.getMessage());
-    // e.printStackTrace();
-    // }
-    // }
-
     /**
      * 编译Java文件
      * 
@@ -337,8 +287,7 @@ public class ModelHelper {
     /**
      * 自动注入约束代码
      * 
-     * @param className   类名
-     * @param packageName 包名
+     * @param injectedClazz 类
      * @return 是否需要注入
      */
     public boolean autoInjectConstraintCode(Class<?> injectedClazz) {

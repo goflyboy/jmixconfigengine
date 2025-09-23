@@ -338,6 +338,9 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
     /**
      * 自动创建并赋值参数变量
+     * 
+     * @param field 字段对象
+     * @throws Exception 反射操作异常
      */
     private void autoCreateAndAssignParaVar(Field field) throws Exception {
         String fieldName = field.getName();
@@ -359,6 +362,9 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
     /**
      * 自动创建并赋值部件变量
+     * 
+     * @param field 字段对象
+     * @throws Exception 反射操作异常
      */
     private void autoCreateAndAssignPartVar(Field field) throws Exception {
         String fieldName = field.getName();
@@ -439,8 +445,8 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     /**
      * 封装CpModel的newIntVarFromDomain方法 - 多个值
      * 
-     * @param values
-     * @param name
+     * @param values 允许的值数组
+     * @param name   变量名称
      * @return 创建的整数变量
      */
     protected IntVar newIntVarFromDomain(long[] values, String name) {

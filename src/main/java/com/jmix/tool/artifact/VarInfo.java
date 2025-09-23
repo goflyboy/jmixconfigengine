@@ -23,16 +23,10 @@ public class VarInfo<T extends Extensible> {
      */
     private T base;
 
-    /**
-     * 构造函数
-     */
     public VarInfo() {
         // 注意：泛型类型T不能直接实例化，所以这里不设置base
     }
 
-    /**
-     * 构造函数
-     */
     public VarInfo(T base) {
         this.base = base;
     }

@@ -152,6 +152,13 @@ public class LLMInvoker {
 
     /**
      * 构建带包名的prompt模板（包含用户测试用例特殊规格）
+     * 
+     * @param packageName           包名
+     * @param modelName             模型名称
+     * @param userVariableModel     用户变量模型描述
+     * @param userLogicByPseudocode 用户逻辑伪代码
+     * @param userTestCaseSpec      用户测试用例特殊规格
+     * @return 构建的prompt字符串
      */
     private String buildPromptWithPackage(String packageName, String modelName, String userVariableModel,
             String userLogicByPseudocode, String userTestCaseSpec) {
@@ -215,6 +222,9 @@ public class LLMInvoker {
 
     /**
      * 创建DeepSeek模型
+     * 
+     * @return 配置好的DeepSeek ChatLanguageModel实例
+     * @throws IllegalStateException 当API密钥未配置或无效时
      */
     private ChatLanguageModel createDeepSeekModel() {
         // 优先从环境变量读取，然后从配置文件读取
@@ -250,6 +260,9 @@ public class LLMInvoker {
 
     /**
      * 创建Qwen模型
+     * 
+     * @return 配置好的Qwen ChatLanguageModel实例
+     * @throws IllegalStateException 当API密钥未配置或无效时
      */
     private ChatLanguageModel createQwenModel() {
         // 优先从环境变量读取，然后从配置文件读取
@@ -285,6 +298,9 @@ public class LLMInvoker {
 
     /**
      * 加载配置文件
+     * 
+     * @return 加载的配置属性对象
+     * @throws AlgLoaderException 当配置文件不存在或加载失败时
      */
     private Properties loadConfig() {
         Properties props = new Properties();

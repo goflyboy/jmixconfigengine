@@ -11183,7 +11183,1070 @@ _**Assistant**_
 
 ---
 
-Error parsing todo list data
+## Todo List
+
+- [-] 检查测试类是否缺少 @since 标签
+- [ ] 为缺少 @since 标签的测试类添加标签
+
+---
+
+
+
+---
+
+
+
+---
+
+为缺少 `@since` 标签的测试类补充标签。
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/CompatibleRuleRequireTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: undefined
+
+```diff
+@@ -19,4 +19,6 @@
+  /**
+   * 兼容性规则测试类
++  * 
++  * @since 2025-09-23
+   */
+  @Slf4j
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/CalculateRuleIfThenTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: undefined
+
+```diff
+@@ -19,4 +19,6 @@
+  /**
+   * Hello约束算法测试类
++  * 
++  * @since 2025-09-23
+   */
+  @Slf4j
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/CompatibleRuleIncompatibleTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: undefined
+
+```diff
+@@ -19,4 +19,6 @@
+  /**
+   * 不兼容性规则测试类
++  * 
++  * @since 2025-09-23
+   */
+  @Slf4j
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/autoruletest/AnnotationRuleTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: undefined
+
+```diff
+@@ -27,4 +27,6 @@
+   * 注解规则测试类
+   * 用于测试CompatiableRuleAnno和CodeRuleAnno注解的功能
++  * 
++  * @since 2025-09-23
+   */
+  @Slf4j
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/ruletest/CalculateRuleSimpleTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: undefined
+
+```diff
+@@ -19,4 +19,6 @@
+  /**
+   * Hello约束算法测试类
++  * 
++  * @since 2025-09-23
+   */
+  @Slf4j
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ResultAssert.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: undefined
+
+```diff
+@@ -9,4 +9,6 @@
+  /**
+   * 结果断言类，提供链式API验证执行结果
++  * 
++  * @since 2025-09-23
+   */
+  @Slf4j
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ParaInstAssert.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: undefined
+
+```diff
+@@ -15,4 +15,6 @@
+  /**
+   * 参数实例断言类
++  * 
++  * @since 2025-09-23
+   */
+  public class ParaInstAssert extends ProgammableInstAssert {
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ProgammableInstAssert.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: undefined
+
+```diff
+@@ -10,4 +10,6 @@
+  /**
+   * 可编程实例断言基类
++  * 
++  * @since 2025-09-23
+   */
+  public class ProgammableInstAssert {
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/artifact/ModuleAlgArtifactGeneratorTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: undefined
+
+```diff
+@@ -30,4 +30,6 @@
+  /**
+   * ModuleAlgArtifactGenerator单元测试
++  * 
++  * @since 2025-09-23
+   */
+  @Slf4j
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/hello/HelloConstraintTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: undefined
+
+```diff
+@@ -10,4 +10,6 @@
+  /**
+   * Hello约束算法测试类
++  * 
++  * @since 2025-09-23
+   */
+  @Slf4j
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/extensibleDemo/DCDeliveryTypePostProcess.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: undefined
+
+```diff
+@@ -20,4 +20,6 @@
+   * DC交付类型后处理器
+   * 根据Part类型和PartInst信息计算DCParaInst的deliveryType
++  * 
++  * @since 2025-09-23
+   */
+  @Slf4j
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/tshirt/ModuleAlgArtifactGeneratorBaseTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: undefined
+
+```diff
+@@ -27,4 +27,6 @@
+   * 2. 调用ModuleAlgArtifactGenerator.buildConstraintRule生成约束规则代码
+   * 3. 验证生成的代码文件是否正确
++  * 
++  * @since 2025-09-23
+   */
+  @Slf4j
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/other/SimpleDataValidator.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: undefined
+
+```diff
+@@ -14,4 +14,6 @@
+   * 简化的数据验证工具类
+   * 用于验证T恤衫模块样例数据的完整性和正确性
++  * 
++  * @since 2025-09-23
+   */
+  @Slf4j
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/util/ParaTypeHandlerTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: undefined
+
+```diff
+@@ -14,4 +14,6 @@
+  /**
+   * ParaTypeHandler测试类
++  * 
++  * @since 2025-09-23
+   */
+  public class ParaTypeHandlerTest {
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/artifact/FilterExpressionExecutorTest.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: undefined
+
+```diff
+@@ -15,4 +15,6 @@
+  /**
+   * FilterExpressionExecutor测试类
++  * 
++  * @since 2025-09-23
+   */
+  public class FilterExpressionExecutorTest {
+```
+
+</details>
+
+---
+
+## Todo List
+
+- [x] 检查测试类是否缺少 @since 标签
+- [x] 为缺少 @since 标签的测试类添加标签
+
+---
+
+已完成测试类 Javadoc 检查与修复。
+
+## 已完成的工作：
+
+### 检查测试类 Javadoc
+已检查 `src/test/java` 下的测试类，发现多个缺少 `@since` 标签。
+
+### 为缺少 `@since` 标签的测试类添加标签
+已为以下测试类补充 `@since 2025-09-23`：
+
+1. **规则测试类**：
+   - `CompatibleRuleRequireTest` - 兼容性规则测试类
+   - `CalculateRuleIfThenTest` - Hello约束算法测试类
+   - `CompatibleRuleIncompatibleTest` - 不兼容性规则测试类
+   - `CalculateRuleSimpleTest` - Hello约束算法测试类
+
+2. **注解测试类**：
+   - `AnnotationRuleTest` - 注解规则测试类
+
+3. **基础断言类**：
+   - `ResultAssert` - 结果断言类
+   - `ParaInstAssert` - 参数实例断言类
+   - `ProgammableInstAssert` - 可编程实例断言基类
+
+4. **工具测试类**：
+   - `ModuleAlgArtifactGeneratorTest` - ModuleAlgArtifactGenerator单元测试
+   - `ParaTypeHandlerTest` - ParaTypeHandler测试类
+   - `FilterExpressionExecutorTest` - FilterExpressionExecutor测试类
+
+5. **场景测试类**：
+   - `HelloConstraintTest` - Hello约束算法测试类
+   - `ModuleAlgArtifactGeneratorBaseTest` - T恤衫模块测试类
+
+6. **其他测试类**：
+   - `DCDeliveryTypePostProcess` - DC交付类型后处理器
+   - `SimpleDataValidator` - 简化的数据验证工具类
+
+### 检查结果总结
+- 已有 `@since` 标签的测试类：`TestSuite`、`MyTShirtTest`、`Perf20ParasTest`、`ParaIsHiddenTest`、`ParaIntegerTest`、`DynScheduleTest`、`InjectCompatibleRuleTest`、`CompatibleRuleCodependentTest`、`ModuleUtilsTest`、`ModuleConstraintExecutorTest`、`ModuleRefRelationGraphTest`、`HelloConstraint`
+- 已修复：上述 15 个测试类
+
+所有测试类 Javadoc 已符合规范，包含 `@since` 标签。日志内容使用英文，注释使用中文。
+
+---
+
+_**User (2025-09-23 13:15Z)**_
+
+类似选择的public或protected方法，javadoc不符合规范，方法如果写的Javadoc，必须要符合规范，按需添加@param, @return等
+
+---
+
+_**Assistant**_
+
+检查 `ModuleBuilder.java` 中 public/protected 方法的 Javadoc，按需补充 `@param`、`@return` 等标签。
+
+
+---
+
+Read file: undefined
+
+---
+
+## Todo List
+
+- [-] 检查 ModuleBuilder.java 中 public/protected 方法的 Javadoc 规范
+- [ ] 修复不符合规范的 Javadoc 方法
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/ModuleBuilder.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: undefined
+
+```diff
+@@ -34,4 +34,6 @@
+          /**
+           * 创建新的构建器实例
++          * 
++          * @return ParaOptionBuilder实例
+           */
+          public static ParaOptionBuilder create() {
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/ModuleBuilder.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: undefined
+
+```diff
+@@ -197,4 +197,6 @@
+          /**
+           * 创建新的构建器实例
++          * 
++          * @return PartBuilder实例
+           */
+          public static PartBuilder create() {
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/ModuleBuilder.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: undefined
+
+```diff
+@@ -403,4 +403,6 @@
+          /**
+           * 创建新的构建器实例
++          * 
++          * @return ParaBuilder实例
+           */
+          public static ParaBuilder create() {
+```
+
+</details>
+
+---
+
+## Todo List
+
+- [x] 检查 ModuleBuilder.java 中 public/protected 方法的 Javadoc 规范
+- [x] 修复不符合规范的 Javadoc 方法
+
+---
+
+已完成 `ModuleBuilder.java` 中 public/protected 方法的 Javadoc 规范检查和修复。
+
+## 检查结果：
+
+### 分析现状
+已仔细检查了 `ModuleBuilder.java` 中所有 public/protected 方法的 Javadoc：
+
+1. **类 Javadoc**：已有完整的类文档，包含 `@author` 和 `@since` 标签
+2. **内部类 Javadoc**：三个构建器类都有简洁的描述
+3. **方法 Javadoc**：大部分方法已有 `@param` 和 `@return` 标签
+
+### 发现的问题
+缺少 `@return` 标签的方法（3个静态工厂方法）：
+- `ParaOptionBuilder.create()`
+- `PartBuilder.create()` 
+- `ParaBuilder.create()`
+
+### 已修复的问题
+为以上3个方法补充了 `@return` 标签：
+
+1. **ParaOptionBuilder.create()**：
+   ```java
+   /**
+    * 创建新的构建器实例
+    * 
+    * @return ParaOptionBuilder实例
+    */
+   ```
+
+2. **PartBuilder.create()**：
+   ```java
+   /**
+    * 创建新的构建器实例
+    * 
+    * @return PartBuilder实例
+    */
+   ```
+
+3. **ParaBuilder.create()**：
+   ```java
+   /**
+    * 创建新的构建器实例
+    * 
+    * @return ParaBuilder实例
+    */
+   ```
+
+### 规范情况总结
+✅ **已符合规范的方法**：所有其他 public 方法都已有完整的 `@param` 和 `@return` 标签
+
+✅ **修复后状态**：所有 public/protected 方法现在都符合 Javadoc 规范，包含必要的 `@param` 和 `@return` 标签
+
+现在 `ModuleBuilder.java` 中所有方法的 Javadoc 都符合规范要求。
+
+---
+
+_**User (2025-09-23 13:15Z)**_
+
+类似选择的private方法，javadoc不符合规范，
+ 
+private方法如果写了Javadoc，必须要符合规范，按需添加@param, @return等，如果没有写，保持现状不写
+
+---
+
+_**Assistant**_
+
+检查 `ConstraintAlgImpl.java` 中 private 方法的 Javadoc 规范，并修复不符合项。
+
+
+---
+
+Read file: undefined
+
+---
+
+## Todo List
+
+- [-] 检查 ConstraintAlgImpl.java 中 private 方法的 Javadoc 规范
+- [ ] 修复不符合规范的 private 方法 Javadoc
+
+---
+
+
+
+---
+
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/algmodel/ConstraintAlgImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 3, lines removed: undefined
+
+```diff
+@@ -339,4 +339,7 @@
+      /**
+       * 自动创建并赋值参数变量
++      * 
++      * @param field 字段对象
++      * @throws Exception 反射操作异常
+       */
+      private void autoCreateAndAssignParaVar(Field field) throws Exception {
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/algmodel/ConstraintAlgImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 3, lines removed: undefined
+
+```diff
+@@ -363,4 +363,7 @@
+      /**
+       * 自动创建并赋值部件变量
++      * 
++      * @param field 字段对象
++      * @throws Exception 反射操作异常
+       */
+      private void autoCreateAndAssignPartVar(Field field) throws Exception {
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/algmodel/ConstraintAlgImpl.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -446,6 +446,6 @@
+       * 封装CpModel的newIntVarFromDomain方法 - 多个值
+       * 
+-      * @param values
+-      * @param name
++      * @param values 允许的值数组
++      * @param name   变量名称
+       * @return 创建的整数变量
+       */
+```
+
+</details>
+
+---
+
+## Todo List
+
+- [x] 检查 ConstraintAlgImpl.java 中 private 方法的 Javadoc 规范
+- [x] 修复不符合规范的 private 方法 Javadoc
+
+---
+
+已完成对 `ConstraintAlgImpl.java` 中 private 方法的 Javadoc 规范检查与修复。
+
+## 检查结果：
+
+### 分析现状
+已检查所有 private 方法的 Javadoc：
+
+1. 有 Javadoc 的 private 方法：多数已符合规范
+2. 无 Javadoc 的 private 方法：按规则保持现状
+
+### 发现的问题
+以下 3 个 private 方法的 Javadoc 缺少 `@param` 或 `@throws`：
+
+1. `autoCreateAndAssignParaVar(Field field)`：缺少 `@param` 和 `@throws`
+2. `autoCreateAndAssignPartVar(Field field)`：缺少 `@param` 和 `@throws`
+3. `newIntVarFromDomain(long[] values, String name)`：`@param` 描述不完整
+
+### 已修复的问题
+已为上述方法补充完整标签：
+
+1. `autoCreateAndAssignParaVar`：
+   ```java
+   /**
+    * 自动创建并赋值参数变量
+    * 
+    * @param field 字段对象
+    * @throws Exception 反射操作异常
+    */
+   ```
+
+2. `autoCreateAndAssignPartVar`：
+   ```java
+   /**
+    * 自动创建并赋值部件变量
+    * 
+    * @param field 字段对象
+    * @throws Exception 反射操作异常
+    */
+   ```
+
+3. `newIntVarFromDomain`：
+   ```java
+   /**
+    * 封装CpModel的newIntVarFromDomain方法 - 多个值
+    * 
+    * @param values 允许的值数组
+    * @param name   变量名称
+    * @return 创建的整数变量
+    */
+   ```
+
+### 规范情况总结
+- 有 Javadoc 的 private 方法：均已包含必要的 `@param`、`@return`、`@throws`
+- 无 Javadoc 的 private 方法：保持现状
+- 修复后：所有带 Javadoc 的 private 方法均符合规范
+
+`ConstraintAlgImpl.java` 中所有 private 方法的 Javadoc 已符合规范。
+
+---
+
+_**User (2025-09-23 13:15Z)**_
+
+@ModuleAlgArtifactGenerator.java  同上
+
+---
+
+_**Assistant**_
+
+检查 `ModuleAlgArtifactGenerator.java` 中 private 方法的 Javadoc 规范。
+
+
+---
+
+## Todo List
+
+- [-] 检查 ModuleAlgArtifactGenerator.java 中 private 方法的 Javadoc 规范
+- [ ] 修复不符合规范的 private 方法 Javadoc
+
+---
+
+
+
+---
+
+
+
+---
+
+修复 `ModuleAlgArtifactGenerator.java` 中 private 方法的 Javadoc 问题。
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/tool/artifact/ModuleAlgArtifactGenerator.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 3, lines removed: undefined
+
+```diff
+@@ -134,4 +134,7 @@
+      /**
+       * 构建参数信息
++      * 
++      * @param para 参数对象
++      * @return 构建的参数变量信息
+       */
+      private ParaVarInfo buildParaInfo(Para para) {
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/tool/artifact/ModuleAlgArtifactGenerator.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 3, lines removed: undefined
+
+```diff
+@@ -157,4 +157,7 @@
+      /**
+       * 构建参数选项信息
++      * 
++      * @param option 参数选项对象
++      * @return 构建的参数选项变量信息
+       */
+      private ParaOptionVarInfo buildParaOptionInfo(ParaOption option) {
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/tool/artifact/ModuleAlgArtifactGenerator.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 3, lines removed: undefined
+
+```diff
+@@ -171,4 +171,7 @@
+      /**
+       * 构建部件信息
++      * 
++      * @param part 部件对象
++      * @return 构建的部件变量信息
+       */
+      private PartVarInfo buildPartInfo(Part part) {
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/tool/artifact/ModuleAlgArtifactGenerator.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 3, lines removed: undefined
+
+```diff
+@@ -185,4 +185,7 @@
+      /**
+       * 构建规则列表
++      * 
++      * @param moduleInfo 模块信息
++      * @return 构建的规则信息列表
+       */
+      private List<RuleInfo> buildRules(ModuleVarInfo moduleInfo) {
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/tool/artifact/ModuleAlgArtifactGenerator.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 5, lines removed: undefined
+
+```diff
+@@ -383,4 +383,9 @@
+      /**
+       * 将rawCode中的progObjCode替换为指定的字段名
++      * 
++      * @param rawCode 原始代码字符串
++      * @param from    要替换的源字符串
++      * @param to      替换目标字符串
++      * @return 替换后的字符串
+       */
+      private String replaceToOptionCode(String rawCode, String from, String to) {
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/tool/artifact/ModuleAlgArtifactGenerator.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 4, lines removed: undefined
+
+```diff
+@@ -398,4 +398,8 @@
+      /**
+       * 生成约束代码
++      * 
++      * @param moduleInfo 模块信息
++      * @param outputPath 输出文件路径
++      * @throws Exception 生成过程中的异常
+       */
+      private void generateConstraintCode(ModuleVarInfo moduleInfo, String outputPath) throws Exception {
+```
+
+</details>
+
+---
+
+## Todo List
+
+- [x] 检查 ModuleAlgArtifactGenerator.java 中 private 方法的 Javadoc 规范
+- [x] 修复不符合规范的 private 方法 Javadoc
+
+---
+
+已完成对 `ModuleAlgArtifactGenerator.java` 中 private 方法的 Javadoc 规范检查与修复。
+
+## 检查结果：
+
+### 分析现状
+已检查所有 private 方法的 Javadoc：
+
+1. 有 Javadoc 的 private 方法：多数已符合规范
+2. 无 Javadoc 的 private 方法：按规则保持现状
+
+### 发现的问题
+以下 6 个 private 方法的 Javadoc 缺少 `@param` 或 `@return`：
+
+1. `buildParaInfo(Para para)`：缺少 `@param` 和 `@return`
+2. `buildParaOptionInfo(ParaOption option)`：缺少 `@param` 和 `@return`
+3. `buildPartInfo(Part part)`：缺少 `@param` 和 `@return`
+4. `buildRules(ModuleVarInfo moduleInfo)`：缺少 `@param` 和 `@return`
+5. `replaceToOptionCode(String rawCode, String from, String to)`：缺少 `@param` 和 `@return`
+6. `generateConstraintCode(ModuleVarInfo moduleInfo, String outputPath)`：缺少 `@param` 和 `@throws`
+
+### 已修复的问题
+已为上述方法补充完整标签：
+
+1. `buildParaInfo`：
+   ```java
+   /**
+    * 构建参数信息
+    * 
+    * @param para 参数对象
+    * @return 构建的参数变量信息
+    */
+   ```
+
+2. `buildParaOptionInfo`：
+   ```java
+   /**
+    * 构建参数选项信息
+    * 
+    * @param option 参数选项对象
+    * @return 构建的参数选项变量信息
+    */
+   ```
+
+3. `buildPartInfo`：
+   ```java
+   /**
+    * 构建部件信息
+    * 
+    * @param part 部件对象
+    * @return 构建的部件变量信息
+    */
+   ```
+
+4. `buildRules`：
+   ```java
+   /**
+    * 构建规则列表
+    * 
+    * @param moduleInfo 模块信息
+    * @return 构建的规则信息列表
+    */
+   ```
+
+5. `replaceToOptionCode`：
+   ```java
+   /**
+    * 将rawCode中的progObjCode替换为指定的字段名
+    * 
+    * @param rawCode 原始代码字符串
+    * @param from    要替换的源字符串
+    * @param to      替换目标字符串
+    * @return 替换后的字符串
+    */
+   ```
+
+6. `generateConstraintCode`：
+   ```java
+   /**
+    * 生成约束代码
+    * 
+    * @param moduleInfo 模块信息
+    * @param outputPath 输出文件路径
+    * @throws Exception 生成过程中的异常
+    */
+   ```
+
+### 规范情况总结
+- 有 Javadoc 的 private 方法：均已包含必要的 `@param`、`@return`、`@throws`
+- 无 Javadoc 的 private 方法：保持现状
+- 修复后：所有带 Javadoc 的 private 方法均符合规范
+
+`ModuleAlgArtifactGenerator.java` 中所有 private 方法的 Javadoc 已符合规范。
+
+---
+
+_**User (2025-09-23 13:15Z)**_
+
+@LLMInvoker.java  同上
+
+---
+
+_**Assistant**_
+
+检查 `LLMInvoker.java` 中 private 方法的 Javadoc 规范。
+
+
+---
+
+## Todo List
+
+- [-] 检查 LLMInvoker.java 中 private 方法的 Javadoc 规范
+- [ ] 修复不符合规范的 private 方法 Javadoc
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
 
 ---
 

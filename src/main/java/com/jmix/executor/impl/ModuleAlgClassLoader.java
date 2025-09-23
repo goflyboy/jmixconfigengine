@@ -96,10 +96,6 @@ public class ModuleAlgClassLoader extends ClassLoader {
         }
     }
 
-    /**
-     * 
-     * @return 模块算法类加载器信息
-     */
     @Override
     public String toString() {
         return "ModuleAlgClassLoader{"

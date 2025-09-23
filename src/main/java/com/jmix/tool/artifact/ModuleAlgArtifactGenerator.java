@@ -133,6 +133,9 @@ public class ModuleAlgArtifactGenerator {
 
     /**
      * 构建参数信息
+     * 
+     * @param para 参数对象
+     * @return 构建的参数变量信息
      */
     private ParaVarInfo buildParaInfo(Para para) {
         ParaVarInfo paraInfo = new ParaVarInfo(para);
@@ -153,6 +156,9 @@ public class ModuleAlgArtifactGenerator {
 
     /**
      * 构建参数选项信息
+     * 
+     * @param option 参数选项对象
+     * @return 构建的参数选项变量信息
      */
     private ParaOptionVarInfo buildParaOptionInfo(ParaOption option) {
         ParaOptionVarInfo optionInfo = new ParaOptionVarInfo(option);
@@ -164,6 +170,9 @@ public class ModuleAlgArtifactGenerator {
 
     /**
      * 构建部件信息
+     * 
+     * @param part 部件对象
+     * @return 构建的部件变量信息
      */
     private PartVarInfo buildPartInfo(Part part) {
         PartVarInfo partInfo = new PartVarInfo(part);
@@ -175,6 +184,9 @@ public class ModuleAlgArtifactGenerator {
 
     /**
      * 构建规则列表
+     * 
+     * @param moduleInfo 模块信息
+     * @return 构建的规则信息列表
      */
     private List<RuleInfo> buildRules(ModuleVarInfo moduleInfo) {
         return moduleInfo.getBase().getRules().stream()
@@ -370,6 +382,11 @@ public class ModuleAlgArtifactGenerator {
 
     /**
      * 将rawCode中的progObjCode替换为指定的字段名
+     * 
+     * @param rawCode 原始代码字符串
+     * @param from    要替换的源字符串
+     * @param to      替换目标字符串
+     * @return 替换后的字符串
      */
     private String replaceToOptionCode(String rawCode, String from, String to) {
         if (rawCode == null || from == null || to == null) {
@@ -380,6 +397,10 @@ public class ModuleAlgArtifactGenerator {
 
     /**
      * 生成约束代码
+     * 
+     * @param moduleInfo 模块信息
+     * @param outputPath 输出文件路径
+     * @throws Exception 生成过程中的异常
      */
     private void generateConstraintCode(ModuleVarInfo moduleInfo, String outputPath) throws Exception {
         // 准备模板数据
