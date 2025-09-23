@@ -159,6 +159,8 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
                 if (pt.isHidden != null) {
                     model.addEquality(pt.isHidden, 0);
                 }
+            } else {
+                throw new AlgLoaderException("Unsupported variable type: " + v.getClass().getSimpleName());
             }
         }
     }
@@ -324,6 +326,8 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
                     autoCreateAndAssignParaVar(field);
                 } else if (PartVar.class.isAssignableFrom(field.getType())) {
                     autoCreateAndAssignPartVar(field);
+                } else {
+                    throw new AlgLoaderException("Unsupported field type: " + field.getType().getSimpleName());
                 }
             }
 

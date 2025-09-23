@@ -202,6 +202,8 @@ public class ModuleAlgArtifactGenerator {
                 buildCalculateRule(ruleInfo, moduleInfo, rule);
             } else if (RuleTypeConstants.isSelectRule(rule.getRuleSchemaTypeFullName())) {
                 buildSelectRule(ruleInfo, moduleInfo, rule);
+            } else {
+                throw new AlgLoaderException("Unsupported rule type: " + rule.getRuleSchemaTypeFullName());
             }
         } catch (Exception e) {
             log.error("Failed to build rule: {}", rule.getCode(), e);
@@ -341,6 +343,8 @@ public class ModuleAlgArtifactGenerator {
                 targetObj = part;
                 objects = moduleVarInfo.getBase().getChildrenPart(progObjCode);
             }
+        } else {
+            throw new AlgLoaderException("Unsupported progObjType: " + progObjType);
         }
 
         if (targetObj == null || objects == null) {

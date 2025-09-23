@@ -11,6 +11,8 @@ import com.jmix.executor.imodel.rule.CompatiableRuleSchema;
 import com.jmix.executor.imodel.rule.ExprSchema;
 import com.jmix.executor.imodel.rule.RefProgObjSchema;
 import com.jmix.executor.impl.algmodel.ConstraintAlg;
+import com.jmix.executor.impl.algmodel.ParaVar;
+import com.jmix.executor.impl.algmodel.PartVar;
 import com.jmix.executor.omodel.AlgLoaderException;
 import com.jmix.tool.ModuleUtils;
 
@@ -109,16 +111,18 @@ public final class ModuleGenneratorByAnno {
         List<Part> parts = new ArrayList<>();
 
         for (Field field : moduleAlgClazz.getDeclaredFields()) {
-            if (field.getType().getSimpleName().equals("ParaVar")) {
+            if (field.getType().getSimpleName().equals(ParaVar.class.getSimpleName())) {
                 Optional<Para> paraOpt = createParaFromField(field);
                 if (paraOpt.isPresent()) {
                     paras.add(paraOpt.get());
                 }
-            } else if (field.getType().getSimpleName().equals("PartVar")) {
+            } else if (field.getType().getSimpleName().equals(PartVar.class.getSimpleName())) {
                 Optional<Part> partOpt = createPartFromField(field);
                 if (partOpt.isPresent()) {
                     parts.add(partOpt.get());
                 }
+            } else {
+                log.info("ignore field type: " + field.getType().getSimpleName());
             }
         }
 

@@ -5,6 +5,7 @@ import com.jmix.executor.impl.algmodel.OtherVar;
 import com.jmix.executor.impl.algmodel.ParaVar;
 import com.jmix.executor.impl.algmodel.PartVar;
 import com.jmix.executor.impl.algmodel.Var;
+import com.jmix.executor.omodel.AlgLoaderException;
 import com.jmix.executor.omodel.ModuleInst;
 import com.jmix.executor.omodel.ParaInst;
 import com.jmix.executor.omodel.PartInst;
@@ -89,6 +90,8 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
                 PartVar partVar = (PartVar) v;
                 PartInst inst = toPartInst(partVar);
                 moduleInst.addPartInst(inst);
+            } else {
+                throw new AlgLoaderException("Unsupported variable type: " + v.getClass().getSimpleName());
             }
         }
 

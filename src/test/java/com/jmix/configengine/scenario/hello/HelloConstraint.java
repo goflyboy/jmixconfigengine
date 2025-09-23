@@ -11,14 +11,11 @@ import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.Literal;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
  * Hello模块约束算法
  * 
  * @since 2025-09-23
  */
-@Slf4j
 @ModuleAnno(id = 123L)
 public class HelloConstraint extends ConstraintAlgImpl {
 

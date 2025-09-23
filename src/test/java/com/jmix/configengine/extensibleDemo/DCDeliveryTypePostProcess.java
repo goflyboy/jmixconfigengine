@@ -3,6 +3,7 @@ package com.jmix.configengine.extensibleDemo;
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.Part;
 import com.jmix.executor.imodel.PartType;
+import com.jmix.executor.omodel.AlgLoaderException;
 import com.jmix.executor.omodel.ExtensibleProcess;
 import com.jmix.executor.omodel.InferParasPostProcess;
 import com.jmix.executor.omodel.ModuleInst;
@@ -114,9 +115,9 @@ public class DCDeliveryTypePostProcess extends ExtensibleProcess implements Infe
             return "Express";
         } else if (part.getType() == PartType.CATEGORY || part.getType() == PartType.BUNDLE) {
             return "Standard";
+        } else {
+            throw new AlgLoaderException("Unsupported part type: " + part.getType());
         }
-
-        return "Standard";
     }
 
     /**
