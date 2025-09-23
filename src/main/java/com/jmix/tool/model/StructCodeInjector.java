@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 public class StructCodeInjector {
 
     private static final String GEN_START = "//自动生成，请勿编辑--start";
+
     private static final String GEN_END = "//自动生成，请勿编辑--end";
 
     private final PseudoToJavaConverter converter = new PseudoToJavaConverter();
@@ -83,6 +84,12 @@ public class StructCodeInjector {
         return source.substring(0, bodyStart) + newBody + source.substring(bodyEnd);
     }
 
+    /**
+     * 检测方法体的缩进
+     * 
+     * @param body 方法体字符串
+     * @return 检测到的缩进字符串，如果未找到则返回空
+     */
     private Optional<String> detectIndentForBody(String body) {
         String[] lines = body.split(System.lineSeparator(), -1);
         for (String line : lines) {
@@ -99,6 +106,12 @@ public class StructCodeInjector {
         return Optional.empty();
     }
 
+    /**
+     * 从匹配器获取默认缩进
+     * 
+     * @param m 正则表达式匹配器
+     * @return 默认缩进字符串
+     */
     private String defaultIndentFromMatcher(Matcher m) {
         String declIndent = m.group(2) == null ? "" : m.group(2);
         // 保持风格：若声明行以tab开头则+"\t"，否则+4空格
@@ -108,6 +121,13 @@ public class StructCodeInjector {
         return declIndent + "    ";
     }
 
+    /**
+     * 查找匹配的闭合大括号
+     * 
+     * @param s         字符串
+     * @param openIndex 开始大括号的索引
+     * @return 匹配的闭合大括号索引，如果未找到则返回-1
+     */
     private int findMatchingBrace(String s, int openIndex) {
         int depth = 0;
         for (int i = openIndex; i < s.length(); i++) {
@@ -173,6 +193,12 @@ public class StructCodeInjector {
                     + indent + "//自动生成，请勿编辑--end" + System.lineSeparator();
         }
 
+        /**
+         * 转义注释中的特殊字符
+         * 
+         * @param s 需要转义的字符串
+         * @return 转义后的字符串
+         */
         private String escapeForComment(String s) {
             return s.replace("*/", "* /");
         }
@@ -221,6 +247,9 @@ public class StructCodeInjector {
 
     /**
      * 获取类的源文件路径
+     * 
+     * @param clazz 类对象
+     * @return 源文件路径
      */
     private String getSourceFile(Class<?> clazz) {
         String fileName = clazz.getSimpleName();
@@ -235,6 +264,10 @@ public class StructCodeInjector {
 
     /**
      * 生成注入代码
+     * 
+     * @param ruleInfo 规则信息
+     * @return 生成的注入代码
+     * @throws AlgLoaderException 当规则类型不支持时
      */
     private String generatorInjectorCode(RuleInfo ruleInfo) {
         if (ruleInfo.getRuleSchemaTypeFullName().contains("CompatiableRule")) {
@@ -243,6 +276,12 @@ public class StructCodeInjector {
         throw new AlgLoaderException("Unsupported rule type: " + ruleInfo.getRuleSchemaTypeFullName());
     }
 
+    /**
+     * 生成兼容性规则的注入代码
+     * 
+     * @param ruleInfo 规则信息
+     * @return 生成的兼容性规则注入代码
+     */
     private String generatorInjectorCode4Compatible(RuleInfo ruleInfo) {
         StringBuilder sb = new StringBuilder();
         sb.append("addCompatibleConstraint").append(ruleInfo.getCompatiableOperator()).append("(\"")
@@ -258,6 +297,12 @@ public class StructCodeInjector {
         return sb.toString();
     }
 
+    /**
+     * 将过滤代码列表转换为参数字符串
+     * 
+     * @param filterCodes 过滤代码列表
+     * @return 格式化的参数字符串
+     */
     private String toArgumentString(List<String> filterCodes) {
         StringBuilder sb = new StringBuilder();
         sb.append("listOf(");

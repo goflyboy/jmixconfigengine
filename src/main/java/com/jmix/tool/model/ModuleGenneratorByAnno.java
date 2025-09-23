@@ -173,6 +173,10 @@ public final class ModuleGenneratorByAnno {
 
     /**
      * 从方法中创建规则
+     * 
+     * @param moduleAlgClazz 模块算法类
+     * @param module         模块对象
+     * @return 创建的规则列表
      */
     private static List<Rule> createRulesFromMethods(Class<?> moduleAlgClazz, Module module) {
         List<Rule> rules = new ArrayList<>();
@@ -203,6 +207,11 @@ public final class ModuleGenneratorByAnno {
 
     /**
      * 创建兼容性规则
+     * 
+     * @param method 方法对象
+     * @param anno   兼容性规则注解
+     * @param module 模块对象
+     * @return 创建的兼容性规则
      */
     private static Rule createCompatibleRule(java.lang.reflect.Method method, CompatiableRuleAnno anno, Module module) {
         Rule rule = new Rule();
@@ -247,6 +256,11 @@ public final class ModuleGenneratorByAnno {
 
     /**
      * 创建代码规则
+     * 
+     * @param method 方法对象
+     * @param anno   代码规则注解
+     * @param module 模块对象
+     * @return 创建的代码规则
      */
     private static Rule createCodeRule(java.lang.reflect.Method method, CodeRuleAnno anno, Module module) {
         Rule rule = new Rule();
@@ -279,6 +293,10 @@ public final class ModuleGenneratorByAnno {
 
     /**
      * 生成引用编程对象Schema列表
+     * 
+     * @param code          代码字符串
+     * @param currentModule 当前模块
+     * @return 引用编程对象Schema列表
      */
     private static List<RefProgObjSchema> generateRefProgObjSchemas(String code, Module currentModule) {
         List<RefProgObjSchema> refProgObjs = new ArrayList<>();
@@ -306,6 +324,9 @@ public final class ModuleGenneratorByAnno {
 
     /**
      * 解析代码中的变量对象
+     * 
+     * @param code 代码字符串
+     * @return 解析出的编程对象列表
      */
     private static List<ProgObject> parseVariableObjects(String code) {
         List<ProgObject> progObjects = new ArrayList<>();

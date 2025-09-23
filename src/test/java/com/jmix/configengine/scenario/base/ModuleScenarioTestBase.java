@@ -31,6 +31,8 @@ import java.util.Map;
 
 /**
  * 模块场景测试基类
+ * 
+ * @since 2025-09-22
  */
 @Slf4j
 @Data
@@ -132,7 +134,7 @@ public abstract class ModuleScenarioTestBase {
     /**
      * 初始化配置
      * 
-     * @param cfg
+     * @param cfg 配置
      */
     protected void beforeInitConfig(ConstraintConfig cfg) {
 
@@ -324,7 +326,6 @@ public abstract class ModuleScenarioTestBase {
             // 在module.parts中查找
             java.util.Optional<Part> partOpt = getModule().getPart(key);
             if (partOpt.isPresent()) {
-                Part part = partOpt.get();
                 // 找到Part
                 elements.add(new ConditionElement("part", key, value));
                 continue;

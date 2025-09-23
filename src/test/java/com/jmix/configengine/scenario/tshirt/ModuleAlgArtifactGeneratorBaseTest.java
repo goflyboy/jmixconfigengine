@@ -33,8 +33,11 @@ import java.nio.file.Paths;
 public class ModuleAlgArtifactGeneratorBaseTest {
 
     private ModuleAlgArtifactGenerator generator;
+
     private Module tshirtModule;
+
     private String outputPath;
+
     // 是否删除生成的文件
     private boolean deleteGeneratedFile = true;
 
@@ -148,11 +151,6 @@ public class ModuleAlgArtifactGeneratorBaseTest {
         log.info("  Contains all constraint rule methods");
     }
 
-    /**
-     * 获取当前包所在目录路径
-     * 
-     * @return 当前包对应的目录路径
-     */
     private String getCurrentPackagePath() {
         // 获取当前类的包路径
         String packagePath = this.getClass().getPackage().getName().replace('.', File.separatorChar);

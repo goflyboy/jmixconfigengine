@@ -133,6 +133,10 @@ public class SimpleDataValidator {
 
     /**
      * 验证单个参数
+     * 
+     * @param paraNode 参数节点
+     * @param index    参数索引
+     * @return 验证是否通过
      */
     private boolean validatePara(JsonNode paraNode, int index) {
         boolean isValid = true;
@@ -170,6 +174,11 @@ public class SimpleDataValidator {
 
     /**
      * 验证参数选项
+     * 
+     * @param optionNode  选项节点
+     * @param paraIndex   参数索引
+     * @param optionIndex 选项索引
+     * @return 验证是否通过
      */
     private boolean validateParaOption(JsonNode optionNode, int paraIndex, int optionIndex) {
         boolean isValid = true;
@@ -187,6 +196,9 @@ public class SimpleDataValidator {
 
     /**
      * 验证部件数据
+     * 
+     * @param partsNode 部件节点
+     * @return 验证是否通过
      */
     private boolean validateParts(JsonNode partsNode) {
         if (!partsNode.isArray()) {
@@ -205,6 +217,10 @@ public class SimpleDataValidator {
 
     /**
      * 验证单个部件
+     * 
+     * @param partNode 部件节点
+     * @param index    部件索引
+     * @return 验证是否通过
      */
     private boolean validatePart(JsonNode partNode, int index) {
         boolean isValid = true;
@@ -232,6 +248,9 @@ public class SimpleDataValidator {
 
     /**
      * 验证规则数据
+     * 
+     * @param rulesNode 规则节点
+     * @return 验证是否通过
      */
     private boolean validateRules(JsonNode rulesNode) {
         if (!rulesNode.isArray()) {
@@ -250,6 +269,10 @@ public class SimpleDataValidator {
 
     /**
      * 验证单个规则
+     * 
+     * @param ruleNode 规则节点
+     * @param index    规则索引
+     * @return 验证是否通过
      */
     private boolean validateRule(JsonNode ruleNode, int index) {
         boolean isValid = true;
@@ -285,6 +308,9 @@ public class SimpleDataValidator {
 
     /**
      * 验证模块类型
+     * 
+     * @param type 模块类型
+     * @return 是否为有效的模块类型
      */
     private boolean isValidModuleType(String type) {
         String[] validTypes = { "General", "SET", "Template", "Tool" };
@@ -298,6 +324,9 @@ public class SimpleDataValidator {
 
     /**
      * 验证参数类型
+     * 
+     * @param type 参数类型
+     * @return 是否为有效的参数类型
      */
     private boolean isValidParaType(String type) {
         String[] validTypes = { "EnumType", "Boolean", "Integer", "Float", "Double", "String", "Range", "Date",
@@ -312,6 +341,9 @@ public class SimpleDataValidator {
 
     /**
      * 验证部件类型
+     * 
+     * @param type 部件类型
+     * @return 是否为有效的部件类型
      */
     private boolean isValidPartType(String type) {
         String[] validTypes = { "AtomicPart", "PartCategory", "Bundle", "Group" };
@@ -325,6 +357,9 @@ public class SimpleDataValidator {
 
     /**
      * 验证规则Schema
+     * 
+     * @param schema 规则Schema
+     * @return 是否为有效的规则Schema
      */
     private boolean isValidRuleSchemaTypeFullName(String schema) {
         return schema.contains("CompatiableRule")
@@ -334,6 +369,8 @@ public class SimpleDataValidator {
 
     /**
      * 添加错误信息
+     * 
+     * @param error 错误信息
      */
     private void addError(String error) {
         validationErrors.add("ERROR: " + error);
@@ -342,6 +379,8 @@ public class SimpleDataValidator {
 
     /**
      * 添加警告信息
+     * 
+     * @param warning 警告信息
      */
     private void addWarning(String warning) {
         validationWarnings.add("WARNING: " + warning);

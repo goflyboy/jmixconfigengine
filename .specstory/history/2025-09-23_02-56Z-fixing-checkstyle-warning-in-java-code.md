@@ -12254,3 +12254,478 @@ _**Assistant**_
 
 ---
 
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+<think>
+通过查看代码，我发现 LLMInvoker.java 中有以下 private 方法需要检查和修复 Javadoc：
+
+1. `buildPromptWithPackage` (line 156) - 缺少 @param 和 @return 标签
+2. `cleanGeneratedCode` (line 168) - 已经有正确的 Javadoc，包含 @param 和 @return
+3. `ensureProperEncoding` (line 194) - 已经有正确的 Javadoc，包含 @param 和 @return
+4. `createDeepSeekModel` (line 219) - 缺少 @return 和可能的 @throws 标签
+5. `createQwenModel` (line 254) - 缺少 @return 和可能的 @throws 标签
+
+让我查看 loadConfig 方法：
+</think>
+
+---
+
+
+
+---
+
+现在我分析需要修复的 private 方法 Javadoc：
+
+---
+
+## Todo List
+
+- [x] 检查 LLMInvoker.java 中 private 方法的 Javadoc 规范
+- [-] 修复不符合规范的 private 方法 Javadoc
+
+---
+
+
+
+---
+
+
+
+---
+
+## Todo List
+
+- [x] 检查 LLMInvoker.java 中 private 方法的 Javadoc 规范
+- [x] 修复不符合规范的 private 方法 Javadoc
+
+---
+
+已完成对 `LLMInvoker.java` 的 Javadoc 修复。修复内容包括：
+
+## 修复的 private 方法 Javadoc
+
+1. **`buildPromptWithPackage`** - 添加了所有参数的 `@param` 标签和 `@return` 标签
+2. **`createDeepSeekModel`** - 添加了 `@return` 和 `@throws` 标签
+3. **`createQwenModel`** - 添加了 `@return` 和 `@throws` 标签  
+4. **`loadConfig`** - 添加了 `@return` 和 `@throws` 标签
+
+## 保持不变的方法
+
+- `cleanGeneratedCode` 和 `ensureProperEncoding` 已经有完整的 Javadoc，包含正确的 `@param` 和 `@return` 标签
+
+现在 `LLMInvoker.java` 中的所有 private 方法都符合 Javadoc 规范，与 `ModuleAlgArtifactGenerator.java` 的修复保持一致。
+
+---
+
+_**User (2025-09-23 13:15Z)**_
+
+@ModuleGenneratorByAnno.java @StructCodeInjector.java @FilterExpressionExecutorTest.java @ModuleAlgArtifactGeneratorTest.java @ModuleRefRelationGraphTest.java @SimpleDataValidator.java @ModuleScenarioTestBase.java 
+
+---
+
+_**Assistant**_
+
+检查这些文件的 Javadoc 规范，重点核对 `@since` 标签和 private 方法的 Javadoc。
+
+
+---
+
+## Todo List
+
+- [-] 检查指定文件的 Javadoc 规范
+- [ ] 修复缺少 @since 标签的类
+- [ ] 修复 private 方法的 Javadoc 规范
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+检查 `ModuleGenneratorByAnno.java` 和 `ModuleScenarioTestBase.java` 的类级 Javadoc：
+
+
+---
+
+
+
+---
+
+
+
+---
+
+检查 `ModuleScenarioTestBase.java` 的类级 Javadoc：
+
+
+---
+
+
+
+---
+
+检查这些文件中的 private 方法 Javadoc：
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+## Todo List
+
+- [x] 检查指定文件的 Javadoc 规范
+- [-] 修复缺少 @since 标签的类
+- [ ] 修复 private 方法的 Javadoc 规范
+
+---
+
+为 `ModuleScenarioTestBase.java` 添加缺失的 `@since` 标签。
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: undefined
+
+```diff
+@@ -32,4 +32,6 @@
+  /**
+   * 模块场景测试基类
++  * 
++  * @since 2025-09-22
+   */
+  @Slf4j
+```
+
+</details>
+
+---
+
+## Todo List
+
+- [x] 检查指定文件的 Javadoc 规范
+- [x] 修复缺少 @since 标签的类
+- [-] 修复 private 方法的 Javadoc 规范
+
+---
+
+修复 private 方法的 Javadoc，先处理 `ModuleGenneratorByAnno.java` 中缺少 `@param` 和 `@return` 的方法。
+
+
+---
+
+
+
+---
+
+修复 `StructCodeInjector.java` 中缺少 Javadoc 的 private 方法。
+
+
+---
+
+
+
+---
+
+修复 `SimpleDataValidator.java` 中缺少 `@param` 和 `@return` 的 private 方法。
+
+
+---
+
+
+
+---
+
+
+
+---
+
+修复 linter 错误。
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/tool/model/StructCodeInjector.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -26,4 +26,5 @@
+  
+      private static final String GEN_START = "//自动生成，请勿编辑--start";
++ 
+      private static final String GEN_END = "//自动生成，请勿编辑--end";
+  
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: undefined, lines removed: 1
+
+```diff
+@@ -327,5 +327,4 @@
+              java.util.Optional<Part> partOpt = getModule().getPart(key);
+              if (partOpt.isPresent()) {
+-                 Part part = partOpt.get();
+                  // 找到Part
+                  elements.add(new ConditionElement("part", key, value));
+```
+
+</details>
+
+---
+
+## Todo List
+
+- [x] 检查指定文件的 Javadoc 规范
+- [x] 修复缺少 @since 标签的类
+- [x] 修复 private 方法的 Javadoc 规范
+
+---
+
+已完成对指定文件的 Javadoc 规范修复。总结如下：
+
+## 修复总结
+
+### 1. 类级 Javadoc 修复
+- **ModuleScenarioTestBase.java** - 添加了缺失的 `@since 2025-09-22` 标签
+
+### 2. Private 方法 Javadoc 修复
+
+#### ModuleGenneratorByAnno.java
+修复了 5 个 private 方法的 Javadoc：
+- `createRulesFromMethods` - 添加了 `@param` 和 `@return` 标签
+- `createCompatibleRule` - 添加了 `@param` 和 `@return` 标签
+- `createCodeRule` - 添加了 `@param` 和 `@return` 标签
+- `generateRefProgObjSchemas` - 添加了 `@param` 和 `@return` 标签
+- `parseVariableObjects` - 添加了 `@param` 和 `@return` 标签
+
+#### StructCodeInjector.java
+修复了 8 个 private 方法的 Javadoc：
+- `detectIndentForBody` - 添加了完整的 Javadoc
+- `defaultIndentFromMatcher` - 添加了完整的 Javadoc
+- `findMatchingBrace` - 添加了完整的 Javadoc
+- `escapeForComment` - 添加了完整的 Javadoc
+- `getSourceFile` - 添加了 `@param` 和 `@return` 标签
+- `generatorInjectorCode` - 添加了 `@param`、`@return` 和 `@throws` 标签
+- `generatorInjectorCode4Compatible` - 添加了完整的 Javadoc
+- `toArgumentString` - 添加了完整的 Javadoc
+
+#### SimpleDataValidator.java
+修复了 12 个 private 方法的 Javadoc：
+- `validatePara` - 添加了 `@param` 和 `@return` 标签
+- `validateParaOption` - 添加了 `@param` 和 `@return` 标签
+- `validateParts` - 添加了 `@param` 和 `@return` 标签
+- `validatePart` - 添加了 `@param` 和 `@return` 标签
+- `validateRules` - 添加了 `@param` 和 `@return` 标签
+- `validateRule` - 添加了 `@param` 和 `@return` 标签
+- `isValidModuleType` - 添加了 `@param` 和 `@return` 标签
+- `isValidParaType` - 添加了 `@param` 和 `@return` 标签
+- `isValidPartType` - 添加了 `@param` 和 `@return` 标签
+- `isValidRuleSchemaTypeFullName` - 添加了 `@param` 和 `@return` 标签
+- `addError` - 添加了 `@param` 标签
+- `addWarning` - 添加了 `@param` 标签
+
+### 3. Linter 错误修复
+- **StructCodeInjector.java** - 修复了常量声明之间的空行问题
+- **ModuleScenarioTestBase.java** - 移除了未使用的局部变量
+
+### 4. 已符合规范的文件
+以下文件的 Javadoc 已符合规范，无需修改：
+- **FilterExpressionExecutorTest.java** - 已有 `@since 2025-09-23`
+- **ModuleAlgArtifactGeneratorTest.java** - 已有 `@since 2025-09-23`
+- **ModuleRefRelationGraphTest.java** - 已有 `@since 2025-09-23`
+- **SimpleDataValidator.java** - 已有 `@since 2025-09-23`
+- **ModuleGenneratorByAnno.java** - 已有 `@since 2025-09-22`
+- **StructCodeInjector.java** - 已有 `@since 2025-09-22`
+
+所有指定文件的 Javadoc 已符合规范，包含必要的 `@since`、`@param`、`@return` 和 `@throws` 标签。
+
+---
+
