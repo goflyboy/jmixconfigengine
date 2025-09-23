@@ -16,12 +16,20 @@ public final class ModelHelperTool {
         // 工具类私有构造器
     }
 
+    /**
+     * 主方法
+     * 
+     * @param args 命令行参数
+     */
     public static void main(String[] args) {
         generatorModelFile();
         // injectConstraintCode();
 
     }
 
+    /**
+     * 注入约束代码
+     */
     public static void injectConstraintCode() {
         try {
             ModelHelper modelHelper = new ModelHelper();

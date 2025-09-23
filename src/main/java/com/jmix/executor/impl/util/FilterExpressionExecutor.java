@@ -53,7 +53,12 @@ public final class FilterExpressionExecutor {
     }
 
     /**
-     * Filter objects based on filter expression
+     * 根据过滤表达式过滤对象列表
+     * 
+     * @param objects    要过滤的对象列表
+     * @param filterExpr 过滤表达式
+     * @param <T>        对象类型，必须继承自Extensible
+     * @return 过滤后的对象列表
      */
     public static <T extends Extensible> List<T> doSelect(List<T> objects, String filterExpr) {
         log.info("Starting filter expression execution, object count: {}, filter expression: {}",

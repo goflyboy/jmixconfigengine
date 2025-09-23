@@ -27,6 +27,9 @@ public class Extensible {
 
     /**
      * 获取扩展属性值
+     * 
+     * @param key 属性键
+     * @return 属性值，如果不存在则返回null
      */
     @JsonIgnore
     public String getExtAttr(String key) {
@@ -35,6 +38,9 @@ public class Extensible {
 
     /**
      * 设置扩展属性值
+     * 
+     * @param key   属性键
+     * @param value 属性值
      */
     @JsonIgnore
     public void setExtAttr(String key, String value) {

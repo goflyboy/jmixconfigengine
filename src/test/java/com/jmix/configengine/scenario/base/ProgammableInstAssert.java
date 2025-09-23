@@ -14,11 +14,23 @@ public class ProgammableInstAssert {
     private ModuleInst actualModuleInst;
     private Module module;
 
+    /**
+     * 构造函数
+     * 
+     * @param actualModuleInst 实际的模块实例
+     * @param module           模块定义
+     */
     public ProgammableInstAssert(ModuleInst actualModuleInst, Module module) {
         this.actualModuleInst = actualModuleInst;
         this.module = module;
     }
 
+    /**
+     * 断言参数
+     * 
+     * @param code 参数编码
+     * @return 参数实例断言对象
+     */
     public ParaInstAssert assertPara(String code) {
         ParaInst paraInst = findParaByCode(code);
         if (paraInst == null) {
@@ -32,6 +44,12 @@ public class ProgammableInstAssert {
         return new ParaInstAssert(actualModuleInst, module, paraInst, para);
     }
 
+    /**
+     * 断言部件
+     * 
+     * @param code 部件编码
+     * @return 部件实例断言对象
+     */
     public PartInstAssert assertPart(String code) {
         PartInst partInst = findPartByCode(code);
         if (partInst == null) {

@@ -22,10 +22,18 @@ public class PartVarInfo extends VarInfo<Part> {
 
     private int minQuantity = 0;
 
+    /**
+     * 默认构造函数
+     */
     public PartVarInfo() {
         super();
     }
 
+    /**
+     * 带参数的构造函数
+     * 
+     * @param part 部件对象
+     */
     public PartVarInfo(Part part) {
         super(part);
     }

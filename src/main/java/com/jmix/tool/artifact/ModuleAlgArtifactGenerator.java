@@ -50,6 +50,10 @@ public class ModuleAlgArtifactGenerator {
     // 当前处理的模块信息
     private ModuleVarInfo moduleVarInfo;
 
+    /**
+     * 默认构造函数
+     * 初始化FreeMarker配置
+     */
     public ModuleAlgArtifactGenerator() {
         // 初始化FreeMarker配置
         freemarkerConfig = new Configuration(Configuration.VERSION_2_3_32);
@@ -95,7 +99,10 @@ public class ModuleAlgArtifactGenerator {
     }
 
     /**
-     * 构建模块信息
+     * 构建模块信息基础数据
+     * 
+     * @param module 模块对象
+     * @return 构建的模块变量信息
      */
     public ModuleVarInfo buildModuleInfoBase(Module module) {
         ModuleVarInfo moduleVarInfo = new ModuleVarInfo(module);
@@ -174,7 +181,11 @@ public class ModuleAlgArtifactGenerator {
     }
 
     /**
-     * 构建单个规则
+     * 构建单个规则信息
+     * 
+     * @param moduleInfo 模块信息
+     * @param rule       规则对象
+     * @return 构建的规则信息
      */
     public RuleInfo buildRule(ModuleVarInfo moduleInfo, Rule rule) {
         RuleInfo ruleInfo = new RuleInfo();
@@ -200,7 +211,11 @@ public class ModuleAlgArtifactGenerator {
     }
 
     /**
-     * 构建兼容规则
+     * 构建兼容性规则
+     * 
+     * @param ruleInfo   规则信息
+     * @param moduleInfo 模块信息
+     * @param rule       规则对象
      */
     public void buildCompatiableRule(RuleInfo ruleInfo, ModuleVarInfo moduleInfo, Rule rule) {
         try {
@@ -259,6 +274,10 @@ public class ModuleAlgArtifactGenerator {
 
     /**
      * 构建计算规则
+     * 
+     * @param ruleInfo   规则信息
+     * @param moduleInfo 模块信息
+     * @param rule       规则对象
      */
     public void buildCalculateRule(RuleInfo ruleInfo, ModuleVarInfo moduleInfo, Rule rule) {
         ruleInfo.setLeftTypeName("PartVar");
@@ -267,6 +286,10 @@ public class ModuleAlgArtifactGenerator {
 
     /**
      * 构建选择规则
+     * 
+     * @param ruleInfo   规则信息
+     * @param moduleInfo 模块信息
+     * @param rule       规则对象
      */
     public void buildSelectRule(RuleInfo ruleInfo, ModuleVarInfo moduleInfo, Rule rule) {
         ruleInfo.setLeftTypeName("ParaVar");
@@ -374,6 +397,8 @@ public class ModuleAlgArtifactGenerator {
 
     /**
      * 获取当前模块信息
+     * 
+     * @return 当前模块信息
      */
     public ModuleVarInfo getModuleVarInfo() {
         return moduleVarInfo;
@@ -382,6 +407,9 @@ public class ModuleAlgArtifactGenerator {
     /**
      * 静态工厂方法：为指定的Module创建新的生成器实例
      * 每个Module都需要新建一个实例来处理
+     * 
+     * @param module 模块对象
+     * @return 新的生成器实例
      */
     public static ModuleAlgArtifactGenerator forModule(Module module) {
         ModuleAlgArtifactGenerator generator = new ModuleAlgArtifactGenerator();

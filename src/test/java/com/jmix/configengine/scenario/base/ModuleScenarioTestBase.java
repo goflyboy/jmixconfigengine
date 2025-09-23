@@ -73,6 +73,8 @@ public abstract class ModuleScenarioTestBase {
 
     /**
      * 构造函数
+     * 
+     * @param constraintAlgClazz 约束算法类
      */
     public ModuleScenarioTestBase(Class<? extends ConstraintAlgImpl> constraintAlgClazz) {
         this.constraintAlgClazz = constraintAlgClazz;
@@ -96,6 +98,9 @@ public abstract class ModuleScenarioTestBase {
 
     /**
      * 构建Module数据
+     * 
+     * @param moduleAlgClazz 模块算法类
+     * @return 构建的模块
      */
     protected Module buildModule(Class<? extends ConstraintAlgImpl> moduleAlgClazz) {
         // 通过注解生成Module
