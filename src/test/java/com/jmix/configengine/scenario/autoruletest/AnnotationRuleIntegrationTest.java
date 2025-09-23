@@ -35,7 +35,7 @@ public class AnnotationRuleIntegrationTest {
             // 2. 测试代码注入功能
             testCodeInjection();
 
-            System.out.println("✓ 完整的注解规则功能测试通过");
+            log.info("✓ Complete annotation rule functionality test passed");
 
         } catch (Exception e) {
             fail("集成测试失败: " + e.getMessage());
@@ -70,7 +70,7 @@ public class AnnotationRuleIntegrationTest {
         assertNotNull("Module parts should not be null", module.getParts());
         assertEquals("Should have 1 part", 1, module.getParts().size());
 
-        System.out.println("✓ 注解规则生成测试通过");
+        log.info("✓ Annotation rule generation test passed");
     }
 
     /**
@@ -108,7 +108,7 @@ public class AnnotationRuleIntegrationTest {
             StructCodeInjector injector = new StructCodeInjector();
             injector.injectRule(AnnotationRuleTest.class, moduleInfo.getRules());
 
-            System.out.println("✓ 代码注入测试通过");
+            log.info("✓ Code injection test passed");
 
         } catch (Exception e) {
             fail("代码注入测试失败: " + e.getMessage());
@@ -126,7 +126,7 @@ public class AnnotationRuleIntegrationTest {
     public void testModelHelperAutoInjection() {
         try {
             // 测试自动注入功能（这里只是验证方法存在，不实际执行）
-            System.out.println("✓ ModelHelper自动注入功能测试通过");
+            log.info("✓ ModelHelper auto-injection functionality test passed");
 
         } catch (Exception e) {
             fail("ModelHelper自动注入测试失败: " + e.getMessage());
@@ -148,7 +148,7 @@ public class AnnotationRuleIntegrationTest {
         assertEquals("CO_REFENT should be CoDependent", "CoDependent", CompatiableRuleSchema.Operator.CO_REFENT);
         assertEquals("REQUIRES should be Requires", "Requires", CompatiableRuleSchema.Operator.REQUIRES);
 
-        System.out.println("✓ 注解常量测试通过");
+        log.info("✓ Annotation constant test passed");
     }
 
     /**
@@ -171,6 +171,6 @@ public class AnnotationRuleIntegrationTest {
         Rule firstRule = module.getRules().get(0);
         assertNotNull("First rule schema should not be null", firstRule.getRawCode());
 
-        System.out.println("✓ ProgObject解析测试通过");
+        log.info("✓ ProgObject parsing test passed");
     }
 }

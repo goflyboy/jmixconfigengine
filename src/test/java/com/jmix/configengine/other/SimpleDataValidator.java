@@ -28,7 +28,7 @@ public class SimpleDataValidator {
      */
     public boolean validateJsonFile(String filePath) {
         try {
-            System.out.println("开始验证JSON文件: " + filePath);
+            log.info("Starting JSON file validation: {}", filePath);
 
             // 读取JSON文件
             File file = new File(filePath);
@@ -323,7 +323,7 @@ public class SimpleDataValidator {
      */
     private void addError(String error) {
         validationErrors.add("ERROR: " + error);
-        System.err.println("ERROR: " + error);
+        log.error("ERROR: {}", error);
     }
 
     /**
@@ -331,7 +331,7 @@ public class SimpleDataValidator {
      */
     private void addWarning(String warning) {
         validationWarnings.add("WARNING: " + warning);
-        System.out.println("WARNING: " + warning);
+        log.warn("WARNING: {}", warning);
     }
 
     /**
@@ -347,28 +347,28 @@ public class SimpleDataValidator {
      * 打印验证结果
      */
     public void printValidationResult() {
-        System.out.println("=== 数据验证结果 ===");
+        log.info("=== Data Validation Results ===");
 
         if (validationErrors.isEmpty() && validationWarnings.isEmpty()) {
-            System.out.println("✅ 验证通过，数据格式正确！");
+            log.info("✅ Validation passed, data format is correct!");
             return;
         }
 
         if (!validationErrors.isEmpty()) {
-            System.out.println("\n❌ 验证错误:");
+            log.error("\n❌ Validation errors:");
             for (String error : validationErrors) {
-                System.out.println("  " + error);
+                log.error("  {}", error);
             }
         }
 
         if (!validationWarnings.isEmpty()) {
-            System.out.println("\n⚠️  验证警告:");
+            log.warn("\n⚠️  Validation warnings:");
             for (String warning : validationWarnings) {
-                System.out.println("  " + warning);
+                log.warn("  {}", warning);
             }
         }
 
-        System.out.println("\n总计: " + validationErrors.size() + " 个错误, " + validationWarnings.size() + " 个警告");
+        log.info("\nTotal: {} errors, {} warnings", validationErrors.size(), validationWarnings.size());
     }
 
     /**
@@ -440,15 +440,15 @@ public class SimpleDataValidator {
      * 主方法，用于测试验证功能
      */
     public static void main(String[] args) {
-        System.out.println("🚀 启动T恤衫模块数据验证工具");
+        log.info("🚀 Starting T-shirt module data validation tool");
 
         SimpleDataValidator validator = new SimpleDataValidator();
 
         // 验证样例数据文件
         String jsonFilePath = "doc/T恤衫模块样例数据.json";
 
-        System.out.println("\n📁 开始验证文件: " + jsonFilePath);
-        System.out.println("==================================");
+        log.info("\n📁 Starting file validation: {}", jsonFilePath);
+        log.info("==================================");
 
         validator.validateJsonFile(jsonFilePath);
 
@@ -458,14 +458,14 @@ public class SimpleDataValidator {
         // 输出详细结果
         ValidationResult result = validator.getValidationResult();
         if (result.isValid()) {
-            System.out.println("\n🎉 数据验证成功！可以用于约束规则生成。");
+            log.info("\n🎉 Data validation successful! Ready for constraint rule generation.");
         } else {
-            System.out.println("\n❌ 数据验证失败，请修复上述错误后重试。");
+            log.error("\n❌ Data validation failed, please fix the above errors and retry.");
         }
 
-        System.out.println("\n📊 验证统计:");
-        System.out.println("  错误数量: " + result.getErrorCount());
-        System.out.println("  警告数量: " + result.getWarningCount());
-        System.out.println("  验证状态: " + (result.isValid() ? "通过" : "失败"));
+        log.info("\n📊 Validation statistics:");
+        log.info("  Error count: {}", result.getErrorCount());
+        log.info("  Warning count: {}", result.getWarningCount());
+        log.info("  Validation status: {}", (result.isValid() ? "PASSED" : "FAILED"));
     }
 }

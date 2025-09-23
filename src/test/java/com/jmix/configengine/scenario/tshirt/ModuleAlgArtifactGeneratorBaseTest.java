@@ -1,5 +1,6 @@
 package com.jmix.configengine.scenario.tshirt;
 
+import lombok.extern.slf4j.Slf4j;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -25,6 +26,7 @@ import java.nio.file.Paths;
  * 2. 调用ModuleAlgArtifactGenerator.buildConstraintRule生成约束规则代码
  * 3. 验证生成的代码文件是否正确
  */
+@Slf4j
 public class ModuleAlgArtifactGeneratorBaseTest {
 
     private ModuleAlgArtifactGenerator generator;
@@ -64,8 +66,8 @@ public class ModuleAlgArtifactGeneratorBaseTest {
     @Test
     public void testBuildConstraintRule() throws Exception {
         deleteGeneratedFile = false;
-        System.out.println("=== 开始测试 buildConstraintRule 方法 ===");
-        System.out.println("输出路径: " + outputPath);
+        log.info("=== Starting test for buildConstraintRule method ===");
+        log.info("Output path: {}", outputPath);
 
         // 验证模块数据是否正确创建
         assertNotNull("T恤衫模块应该创建成功", tshirtModule);
@@ -74,20 +76,20 @@ public class ModuleAlgArtifactGeneratorBaseTest {
         assertNotNull("部件列表不应该为空", tshirtModule.getParts());
         assertNotNull("规则列表不应该为空", tshirtModule.getRules());
 
-        System.out.println("✓ 模块数据验证通过");
-        System.out.println("  参数数量: " + tshirtModule.getParas().size());
-        System.out.println("  部件数量: " + tshirtModule.getParts().size());
-        System.out.println("  规则数量: " + tshirtModule.getRules().size());
+        log.info("✓ Module data validation passed");
+        log.info("  Parameter count: {}", tshirtModule.getParas().size());
+        log.info("  Part count: {}", tshirtModule.getParts().size());
+        log.info("  Rule count: {}", tshirtModule.getRules().size());
 
         // 调用buildConstraintRule方法
-        System.out.println("\n=== 调用 buildConstraintRule 方法 ===");
+        log.info("\n=== Calling buildConstraintRule method ===");
 
         // 由于模板需要rule.left和rule.right属性，我们需要先手动构建这些信息
         // 或者修改模板来处理这种情况
         try {
             generator.buildConstraintRule(tshirtModule, outputPath);
         } catch (Exception e) {
-            System.out.println("buildConstraintRule 调用失败，错误信息: " + e.getMessage());
+            log.error("buildConstraintRule call failed, error message: {}", e.getMessage());
             // 这是一个已知问题，模板需要rule.left和rule.right属性
             // 但当前的实现没有正确设置这些属性
             throw e;
@@ -98,14 +100,14 @@ public class ModuleAlgArtifactGeneratorBaseTest {
         assertTrue("生成的约束代码文件应该存在", generatedFile.exists());
         assertTrue("生成的约束代码文件应该可读", generatedFile.canRead());
 
-        System.out.println("✓ 约束代码文件生成成功");
-        System.out.println("  文件路径: " + generatedFile.getAbsolutePath());
-        System.out.println("  文件大小: " + generatedFile.length() + " 字节");
+        log.info("✓ Constraint code file generated successfully");
+        log.info("  File path: {}", generatedFile.getAbsolutePath());
+        log.info("  File size: {} bytes", generatedFile.length());
 
         // 验证生成的代码内容
         validateGeneratedCode();
 
-        System.out.println("\n=== 测试完成 ===");
+        log.info("\n=== Test completed ===");
     }
 
     /**
@@ -136,11 +138,11 @@ public class ModuleAlgArtifactGeneratorBaseTest {
         assertTrue("应该包含规则2的约束方法", content.contains("addConstraint_rule2"));
         assertTrue("应该包含规则3的约束方法", content.contains("addConstraint_rule3"));
 
-        System.out.println("✓ 生成的代码内容验证通过");
-        System.out.println("  包含正确的类定义");
-        System.out.println("  包含所有参数变量");
-        System.out.println("  包含所有部件变量");
-        System.out.println("  包含所有约束规则方法");
+        log.info("✓ Generated code content validation passed");
+        log.info("  Contains correct class definition");
+        log.info("  Contains all parameter variables");
+        log.info("  Contains all part variables");
+        log.info("  Contains all constraint rule methods");
     }
 
     /**
@@ -177,10 +179,10 @@ public class ModuleAlgArtifactGeneratorBaseTest {
             File generatedFile = new File(outputPath);
             if (generatedFile.exists()) {
                 generatedFile.delete();
-                System.out.println("清理测试文件: " + outputPath);
+                log.info("Cleaning up test file: {}", outputPath);
             }
         } catch (Exception e) {
-            System.err.println("清理测试文件失败: " + e.getMessage());
+            log.error("Failed to clean up test file: {}", e.getMessage());
         }
     }
 }

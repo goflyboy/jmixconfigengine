@@ -19,16 +19,16 @@ public final class LLMInvokerTest {
      */
     public static void main(String[] args) {
         try {
-            System.out.println("=== LLM调用框架测试 ===\n");
+            log.info("=== LLM Invocation Framework Test ===\n");
 
             // 创建LLM调用器
             LLMInvoker invoker = new LLMInvoker();
             ModelHelper modelHelper = new ModelHelper();
             // 显示配置信息
-            System.out.println(invoker.getConfigInfo());
+            log.info("{}", invoker.getConfigInfo());
 
             // 测试用例1：MyTShirt约束模型
-            System.out.println("\n测试用例1：MyTShirt约束模型");
+            log.info("\nTest Case 1: MyTShirt Constraint Model");
             String modelName = "MyTShirt";
             String userVariableModel = "@ParaAnno( \n"
                     + "\t\t\toptions = {\"op11\", \"op12\", \"op13\"} \n"
@@ -49,37 +49,37 @@ public final class LLMInvokerTest {
                     + "            }";
 
             try {
-                System.out.println("正在调用LLM生成代码...");
+                log.info("Calling LLM to generate code...");
 
                 // 测试默认包名生成
-                System.out.println("正在使用默认包名生成代码...");
+                log.info("Generating code with default package name...");
                 modelHelper.generatorModelFile(modelName, userVariableModel, userLogicByPseudocode);
                 // 使用默认包名生成并运行
                 // modelHelper.generatorRunModelFile(modelName, userVariableModel,
                 // userLogicByPseudocode);
 
                 // 测试自定义包名生成
-                System.out.println("\n正在使用自定义包名生成代码...");
+                log.info("\nGenerating code with custom package name...");
                 // String customPackage = "com.jmix.configengine.scenario.custom";
                 // modelHelper.generatorModelFile(customPackage, modelName, userVariableModel,
                 // userLogicByPseudocode);
-                System.out.println("生成的代码：");
-                System.out.println("==================================================");
-                // System.out.println(generatedCode);
-                System.out.println("==================================================");
+                log.info("Generated code:");
+                log.info("==================================================");
+                // log.info(generatedCode);
+                log.info("==================================================");
             } catch (Exception e) {
-                System.out.println("代码生成失败: " + e.getMessage());
-                System.out.println("可能的原因：");
-                System.out.println("1. API密钥未配置");
-                System.out.println("2. 网络连接问题");
-                System.out.println("3. API服务不可用");
+                log.error("Code generation failed: {}", e.getMessage());
+                log.error("Possible reasons:");
+                log.error("1. API key not configured");
+                log.error("2. Network connection issues");
+                log.error("3. API service unavailable");
                 e.printStackTrace();
             }
 
-            System.out.println("\n测试完成！");
+            log.info("\nTest completed!");
 
         } catch (Exception e) {
-            System.err.println("测试过程中发生错误: " + e.getMessage());
+            log.error("Error occurred during testing: {}", e.getMessage());
             e.printStackTrace();
         }
     }

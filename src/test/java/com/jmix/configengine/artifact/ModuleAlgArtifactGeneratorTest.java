@@ -1,5 +1,6 @@
 package com.jmix.configengine.artifact;
 
+import lombok.extern.slf4j.Slf4j;
 import com.jmix.executor.imodel.Extensible;
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.Para;
@@ -28,6 +29,7 @@ import java.util.List;
 /**
  * ModuleAlgArtifactGenerator单元测试
  */
+@Slf4j
 public class ModuleAlgArtifactGeneratorTest {
 
     /**
@@ -51,7 +53,7 @@ public class ModuleAlgArtifactGeneratorTest {
         Assert.assertEquals("Module code should match", module.getCode(),
                 generator.getModuleVarInfo().getCode());
 
-        System.out.println("forModule factory method test passed successfully");
+        log.info("forModule factory method test passed successfully");
     }
 
     /**
@@ -135,7 +137,7 @@ public class ModuleAlgArtifactGeneratorTest {
         Assert.assertNull("RightTypeName should be null for unknown type",
                 unknownRuleInfo.getRightTypeName());
 
-        System.out.println("BuildRule test passed successfully");
+        log.info("BuildRule test passed successfully");
     }
 
     /**
@@ -170,19 +172,19 @@ public class ModuleAlgArtifactGeneratorTest {
                 Assert.assertNotNull("Target object should not be null", result.getFirst());
                 Assert.assertNotNull("Filtered objects should not be null", result.getSecond());
 
-                System.out.println("doSelectProObjs test passed - targetObj: "
-                        + (result.getFirst() != null ? result.getFirst().getClass().getSimpleName() : "null")
-                        + ", filterObjects size: " + result.getSecond().size());
+                log.info("doSelectProObjs test passed - targetObj: {}, filterObjects size: {}",
+                        (result.getFirst() != null ? result.getFirst().getClass().getSimpleName() : "null"),
+                        result.getSecond().size());
             } else {
                 System.out
                         .println("doSelectProObjs test passed - result is null (expected for current implementation)");
             }
 
         } catch (Exception e) {
-            System.err.println("Failed to test doSelectProObjs method: " + e.getMessage());
-            System.err.println("Exception type: " + e.getClass().getSimpleName());
+            log.error("Failed to test doSelectProObjs method: {}", e.getMessage());
+            log.error("Exception type: {}", e.getClass().getSimpleName());
             if (e.getCause() != null) {
-                System.err.println("Cause: " + e.getCause().getMessage());
+                log.error("Cause: {}", e.getCause().getMessage());
             }
             e.printStackTrace();
             Assert.fail("Test failed with exception: " + e.getMessage());
@@ -249,7 +251,7 @@ public class ModuleAlgArtifactGeneratorTest {
         Assert.assertFalse("Should not have non-existent para", module.hasPara("NonExistent"));
         Assert.assertFalse("Should not have non-existent part", module.hasPart("NonExistent"));
 
-        System.out.println("Module methods test passed successfully");
+        log.info("Module methods test passed successfully");
     }
 
     /**

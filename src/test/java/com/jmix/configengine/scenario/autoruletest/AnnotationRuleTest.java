@@ -104,10 +104,10 @@ public class AnnotationRuleTest extends ConstraintAlgImpl {
         assertNotNull("Module parts should not be null", module.getParts());
         assertEquals("Should have 1 part", 1, module.getParts().size());
 
-        System.out.println("✓ 规则生成测试通过");
-        System.out.println("  生成的规则数量: " + module.getRules().size());
-        System.out.println("  生成的参数数量: " + module.getParas().size());
-        System.out.println("  生成的部件数量: " + module.getParts().size());
+        log.info("✓ Rule generation test passed");
+        log.info("  Generated rule count: {}", module.getRules().size());
+        log.info("  Generated parameter count: {}", module.getParas().size());
+        log.info("  Generated part count: {}", module.getParts().size());
     }
 
     /**
@@ -128,7 +128,7 @@ public class AnnotationRuleTest extends ConstraintAlgImpl {
             assertEquals("Operator should match", "Requires", compatiableRuleAnno.operator());
             assertEquals("Right expression should match", "Part1.qty==1", compatiableRuleAnno.rightExprCode());
 
-            System.out.println("✓ CompatiableRuleAnno注解解析测试通过");
+            log.info("✓ CompatiableRuleAnno annotation parsing test passed");
         } catch (NoSuchMethodException e) {
             fail("Method rule1 not found: " + e.getMessage());
         }
@@ -142,7 +142,7 @@ public class AnnotationRuleTest extends ConstraintAlgImpl {
             assertTrue("Code should contain Color.value", codeRuleAnno.code().contains("Color.value"));
             assertTrue("Code should contain Size.value", codeRuleAnno.code().contains("Size.value"));
 
-            System.out.println("✓ CodeRuleAnno注解解析测试通过");
+            log.info("✓ CodeRuleAnno annotation parsing test passed");
         } catch (NoSuchMethodException e) {
             fail("Method rule2 not found: " + e.getMessage());
         }

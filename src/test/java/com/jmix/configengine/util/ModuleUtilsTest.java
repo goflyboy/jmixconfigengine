@@ -1,5 +1,6 @@
 package com.jmix.configengine.util;
 
+import lombok.extern.slf4j.Slf4j;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -30,6 +31,7 @@ import java.nio.file.Paths;
 /**
  * ModuleUtils工具类测试
  */
+@Slf4j
 public class ModuleUtilsTest {
 
     private Module testModule;
@@ -52,7 +54,7 @@ public class ModuleUtilsTest {
      */
     @Test
     public void testToJsonFile() throws IOException {
-        System.out.println("=== 测试 toJsonFile 方法 ===");
+        log.info("=== Testing toJsonFile method ===");
         deleteGeneratedFile = false;
         // 调用toJsonFile方法
         ModuleUtils.toJsonFile(testModule, testJsonFile);
@@ -63,9 +65,9 @@ public class ModuleUtilsTest {
         assertTrue("JSON文件应该可读", jsonFile.canRead());
         assertTrue("JSON文件应该不为空", jsonFile.length() > 0);
 
-        System.out.println("✓ toJsonFile测试通过");
-        System.out.println("  文件路径: " + jsonFile.getAbsolutePath());
-        System.out.println("  文件大小: " + jsonFile.length() + " 字节");
+        log.info("✓ toJsonFile test passed");
+        log.info("  File path: {}", jsonFile.getAbsolutePath());
+        log.info("  File size: {} bytes", jsonFile.length());
     }
 
     /**
@@ -75,7 +77,7 @@ public class ModuleUtilsTest {
      */
     @Test
     public void testFromJsonFile() throws IOException {
-        System.out.println("=== 测试 fromJsonFile 方法 ===");
+        log.info("=== Testing fromJsonFile method ===");
 
         // 先创建JSON文件
         ModuleUtils.toJsonFile(testModule, testJsonFile);
@@ -103,11 +105,11 @@ public class ModuleUtilsTest {
         assertNotNull("规则列表不应该为null", loadedModule.getRules());
         assertEquals("规则数量应该匹配", testModule.getRules().size(), loadedModule.getRules().size());
 
-        System.out.println("✓ fromJsonFile测试通过");
-        System.out.println("  加载的模块: " + loadedModule.getCode());
-        System.out.println("  参数数量: " + loadedModule.getParas().size());
-        System.out.println("  部件数量: " + loadedModule.getParts().size());
-        System.out.println("  规则数量: " + loadedModule.getRules().size());
+        log.info("✓ fromJsonFile test passed");
+        log.info("  Loaded module: {}", loadedModule.getCode());
+        log.info("  Parameter count: {}", loadedModule.getParas().size());
+        log.info("  Part count: {}", loadedModule.getParts().size());
+        log.info("  Rule count: {}", loadedModule.getRules().size());
     }
 
     /**
@@ -117,7 +119,7 @@ public class ModuleUtilsTest {
      */
     @Test
     public void testToJsonStringAndFromJsonString() throws IOException {
-        System.out.println("=== 测试 toJsonString 和 fromJsonString 方法 ===");
+        log.info("=== Testing toJsonString and fromJsonString methods ===");
 
         // 测试toJsonString
         String jsonString = ModuleUtils.toJsonString(testModule);
@@ -130,9 +132,9 @@ public class ModuleUtilsTest {
         assertNotNull("从JSON字符串加载的Module对象不应该为null", loadedModule);
         assertEquals("模块代码应该匹配", testModule.getCode(), loadedModule.getCode());
 
-        System.out.println("✓ toJsonString和fromJsonString测试通过");
-        System.out.println("  JSON字符串长度: " + jsonString.length());
-        System.out.println("  加载的模块: " + loadedModule.getCode());
+        log.info("✓ toJsonString and fromJsonString test passed");
+        log.info("  JSON string length: {}", jsonString.length());
+        log.info("  Loaded module: {}", loadedModule.getCode());
     }
 
     /**
@@ -142,7 +144,7 @@ public class ModuleUtilsTest {
      */
     @Test
     public void testValidateJsonFile() throws IOException {
-        System.out.println("=== 测试 validateJsonFile 方法 ===");
+        log.info("=== Testing validateJsonFile method ===");
 
         // 先创建有效的JSON文件
         ModuleUtils.toJsonFile(testModule, testJsonFile);
@@ -155,7 +157,7 @@ public class ModuleUtilsTest {
         boolean isInvalid = ModuleUtils.validateJsonFile("nonexistent.json");
         assertFalse("无效的JSON文件应该验证失败", isInvalid);
 
-        System.out.println("✓ validateJsonFile测试通过");
+        log.info("✓ validateJsonFile test passed");
     }
 
     /**
@@ -165,7 +167,7 @@ public class ModuleUtilsTest {
      */
     @Test
     public void testRoundTrip() throws IOException {
-        System.out.println("=== 测试完整往返流程 ===");
+        log.info("=== Testing complete round trip ===");
 
         // 1. 创建Module对象
         Module originalModule = createTestModule();
@@ -191,7 +193,7 @@ public class ModuleUtilsTest {
         // 清理第二个文件
         new File(secondJsonFile).delete();
 
-        System.out.println("✓ 完整往返流程测试通过");
+        log.info("✓ Complete round trip test passed");
     }
 
     /**
@@ -305,10 +307,10 @@ public class ModuleUtilsTest {
             File testFile = new File(testJsonFile);
             if (testFile.exists()) {
                 testFile.delete();
-                System.out.println("清理测试文件: " + testJsonFile);
+                log.info("Cleaning up test file: {}", testJsonFile);
             }
         } catch (Exception e) {
-            System.err.println("清理测试文件失败: " + e.getMessage());
+            log.error("Failed to clean up test file: {}", e.getMessage());
         }
     }
 }

@@ -29,7 +29,7 @@ public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
         // }
         @CodeRuleAnno(code = "rule1")
         private void rule1() {
-            System.out.println("****************rule1****************");
+            log.info("****************rule1****************");
         }
 
         @CompatiableRuleAnno(leftExprCode = "ColorVar.value == Red", operator = "Requires", rightExprCode = "SizeVar.value == Small")

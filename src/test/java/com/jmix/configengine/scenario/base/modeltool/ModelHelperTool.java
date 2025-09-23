@@ -1,5 +1,6 @@
 package com.jmix.configengine.scenario.base.modeltool;
 
+import lombok.extern.slf4j.Slf4j;
 import com.jmix.configengine.scenario.autoruletest.InjectCompatibleRuleTest.InjectCompatibleRuleConstraint;
 import com.jmix.executor.omodel.AlgLoaderException;
 import com.jmix.tool.model.ModelHelper;
@@ -10,6 +11,7 @@ import java.io.File;
  * ModelHelper测试类
  * 测试生成并运行模型文件的功能
  */
+@Slf4j
 public final class ModelHelperTool {
 
     private ModelHelperTool() {
@@ -42,9 +44,9 @@ public final class ModelHelperTool {
         try {
             ModelHelper modelHelper = new ModelHelper();
             modelHelper.autoInjectConstraintCode(InjectCompatibleRuleConstraint.class); //
-            System.out.println("正在注入约束代码...");
+            log.info("Injecting constraint code...");
         } catch (Exception e) {
-            System.out.println("注入约束代码失败: " + e.getMessage());
+            log.error("Failed to inject constraint code: {}", e.getMessage());
         }
     }
 
@@ -56,7 +58,7 @@ public final class ModelHelperTool {
      */
     public static void generatorModelFile() {
         try {
-            System.out.println("=== ModelHelper测试 ===\n");
+            log.info("=== ModelHelper Test ===\n");
 
             // 创建ModelHelper实例
             ModelHelper modelHelper = new ModelHelper();
@@ -68,8 +70,8 @@ public final class ModelHelperTool {
             String userLogicByPseudocode = readFromMarkdown("userLogicByPseudocode");
             String userTestCaseSpec = readFromMarkdown("userTestCaseSpec");
 
-            System.out.println("包名: " + packageName);
-            System.out.println("模型名: " + modelName);
+            log.info("Package name: {}", packageName);
+            log.info("Model name: {}", modelName);
 
             // 方式2：直接使用字符串（保留原有方式）
             /*

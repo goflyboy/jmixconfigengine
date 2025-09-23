@@ -1,5 +1,6 @@
 package com.jmix.configengine;
 
+import lombok.extern.slf4j.Slf4j;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -17,6 +18,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.List;
 
+@Slf4j
 public class ModuleConstraintExecutorTest {
     /**
      * 测试初始化、添加模块和推理参数（空测试）
@@ -44,7 +46,7 @@ public class ModuleConstraintExecutorTest {
             m = ModuleUtils.fromJsonFile(jsonFilePath);
         } catch (IOException e) {
             e.printStackTrace();
-            System.out.println("读取JSON文件失败:" + e.getMessage());
+            log.error("Failed to read JSON file: {}", e.getMessage());
             // e.printStackTrace();
             return;
         }
@@ -60,9 +62,9 @@ public class ModuleConstraintExecutorTest {
         int i = 0;
         r.getData().forEach(inst -> {
             // 打印第一个解
-            System.out.println("--------------------------------");
-            System.out.println("解" + (i + 1) + ":");
-            System.out.println(ModuleConstraintExecutorImpl.toJson(inst));
+            log.info("--------------------------------");
+            log.info("Solution {}:", (i + 1));
+            log.info(ModuleConstraintExecutorImpl.toJson(inst));
             // i++;
         });
 
