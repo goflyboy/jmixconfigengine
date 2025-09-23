@@ -82,13 +82,13 @@ public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
      */
     @Test
     public void testRule2Requires() {
-        inferParasByPara("Color", "Red");
+        inferParasByPara("color", "Red");
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(1);
         solutions(0)
-                .assertPara("Color").valueEqual("Red")
-                .assertPara("Size").valueEqual("Small");
+                .assertPara("color").valueEqual("Red")
+                .assertPara("size").valueEqual("Small");
     }
 
     /**
@@ -96,13 +96,13 @@ public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
      */
     @Test
     public void testRule2CoDependent() {
-        inferParasByPara("Color", "Black");
+        inferParasByPara("color", "Black");
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(1);
         solutions(0)
-                .assertPara("Color").valueEqual("Black")
-                .assertPara("Size").valueEqual("Medium");
+                .assertPara("color").valueEqual("Black")
+                .assertPara("size").valueEqual("Medium");
     }
 
     /**
@@ -110,7 +110,7 @@ public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
      */
     @Test
     public void testRule2InCompatible() {
-        inferParasByPara("Color", "White");
-        assertSolutionNum("Color:White,Size:Big", 0);
+        inferParasByPara("color", "White");
+        assertSolutionNum("color:White,size:Big", 0);
     }
 }
