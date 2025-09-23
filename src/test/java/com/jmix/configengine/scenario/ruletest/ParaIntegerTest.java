@@ -26,7 +26,14 @@ import org.junit.Test;
 @Slf4j
 public class ParaIntegerTest extends ModuleScenarioTestBase {
 
-    // ---------------ģ�͵Ķ���start----------------------------------------
+    /**
+     * 构造ParaIntegerTest测试类
+     */
+    public ParaIntegerTest() {
+        super(ParaIntegerConstraint.class);
+    }
+
+    // --------------start----------------------------------------
     @ModuleAnno(id = 123L)
     private static class ParaIntegerConstraint extends ConstraintAlgImpl {
         @ParaAnno(type = ParaType.INTEGER, defaultValue = "0", minValue = "0", maxValue = "50")
@@ -41,19 +48,13 @@ public class ParaIntegerTest extends ModuleScenarioTestBase {
         @Override
         protected void initConstraint() {
             // part1.quantity = p1.value + p2.value
-            model.addEquality((IntVar) part1.qty,
-                    LinearExpr.sum(new IntVar[] { (IntVar) p1.value, (IntVar) p2.value }));
+            model.addEquality(part1.qty,
+                    LinearExpr.sum(new IntVar[] { p1.value, p2.value }));
         }
     }
-    // ---------------ģ�͵Ķ���end----------------------------------------
 
-    /**
-     * 构造ParaIntegerTest测试类
-     */
-    public ParaIntegerTest() {
-        super(ParaIntegerConstraint.class);
-    }
-
+    // --------------end----------------------------------------
+    @Override
     protected void beforeInitConfig(ConstraintConfig cfg) {
         cfg.setLoadType(1);
     }

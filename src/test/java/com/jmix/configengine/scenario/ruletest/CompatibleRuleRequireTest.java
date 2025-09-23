@@ -21,6 +21,14 @@ import java.util.Arrays;
  */
 @Slf4j
 public class CompatibleRuleRequireTest extends ModuleScenarioTestBase {
+
+    /**
+     * 构造CompatibleRuleRequireTest测试类
+     */
+    public CompatibleRuleRequireTest() {
+        super(CompatibleRuleRequireConstraint.class);
+    }
+
     // ---------------规则定义start----------------------------------------
     @ModuleAnno(id = 123L)
     private static class CompatibleRuleRequireConstraint extends ConstraintAlgImpl {
@@ -80,15 +88,9 @@ public class CompatibleRuleRequireTest extends ModuleScenarioTestBase {
             // 反向推理的结果是正向约束的自然结果
         }
     }
+
     // ---------------规则定义end----------------------------------------
-
-    /**
-     * 构造CompatibleRuleRequireTest测试类
-     */
-    public CompatibleRuleRequireTest() {
-        super(CompatibleRuleRequireConstraint.class);
-    }
-
+    @Override
     protected void beforeInitConfig(ConstraintConfig cfg) {
         cfg.setLoadType(1);
     }

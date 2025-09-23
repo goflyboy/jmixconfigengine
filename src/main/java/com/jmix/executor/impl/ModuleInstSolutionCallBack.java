@@ -120,7 +120,7 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
         pi.setShortCode(pv.getBase().getShortCode());
 
         // value: read IntVar domain value
-        int value = (int) value((IntVar) pv.value);
+        int value = (int) value(pv.value);
         pi.setValue(String.valueOf(value));
 
         // options: selected option codes
@@ -148,7 +148,7 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
         inst.setCode(partVar.getCode());
         // 从模块中获取对应的Part模型，设置shortCode
         inst.setShortCode(partVar.getBase().getShortCode());
-        inst.setQuantity((int) value((IntVar) partVar.qty));
+        inst.setQuantity((int) value(partVar.qty));
         return inst;
     }
 

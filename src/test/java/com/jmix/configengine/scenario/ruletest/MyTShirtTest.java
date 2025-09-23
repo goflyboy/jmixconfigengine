@@ -25,6 +25,12 @@ import org.junit.Test;
  */
 @Slf4j
 public class MyTShirtTest extends ModuleScenarioTestBase {
+    /**
+     * 构造MyTShirtTest测试类
+     */
+    public MyTShirtTest() {
+        super(MyTShirtConstraint.class);
+    }
 
     // ---------------start----------------------------------------
     @ModuleAnno(id = 123L)
@@ -62,15 +68,9 @@ public class MyTShirtTest extends ModuleScenarioTestBase {
             model.addEquality(pt1Var.qty, 3).onlyEnforceIf(condition.not());
         }
     }
-    // ---------------?????end----------------------------------------
+    // ---------------end----------------------------------------
 
-    /**
-     * 构造MyTShirtTest测试类
-     */
-    public MyTShirtTest() {
-        super(MyTShirtConstraint.class);
-    }
-
+    @Override
     protected void beforeInitConfig(ConstraintConfig cfg) {
         cfg.setLoadType(1);
     }

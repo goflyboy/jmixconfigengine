@@ -10,7 +10,6 @@ import com.jmix.tool.model.ParaAnno;
 import com.jmix.tool.model.PartAnno;
 
 import com.google.ortools.sat.BoolVar;
-import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.Literal;
 
 import lombok.extern.slf4j.Slf4j;
@@ -60,26 +59,26 @@ public class CalculateRuleIfThenTest extends ModuleScenarioTestBase {
             // }
 
             // 创建条件变量：颜色是红色且尺寸是小号
-            BoolVar rule2_op11Andop21 = model.newBoolVar("rule2_op11Andop21");
+            BoolVar op11Andop21 = model.newBoolVar("rule2_op11Andop21");
 
             // 实现条件逻辑：redAndSmall = (p1== op11) AND (p2 == op21)
             model.addBoolAnd(new Literal[] {
                     this.p1Var.getParaOptionByCode("op11").getIsSelectedVar(),
                     this.p2Var.getParaOptionByCode("op21").getIsSelectedVar()
-            }).onlyEnforceIf(rule2_op11Andop21);
+            }).onlyEnforceIf(op11Andop21);
 
             // 如果不是红色且小号的组合，则op11Andop2为false
             model.addBoolOr(new Literal[] {
                     this.p1Var.getParaOptionByCode("op11").getIsSelectedVar().not(),
                     this.p2Var.getParaOptionByCode("op21").getIsSelectedVar().not()
-            }).onlyEnforceIf(rule2_op11Andop21.not());
+            }).onlyEnforceIf(op11Andop21.not());
 
             // 根据条件设置pt1Var的数量
             // 如果op11Andop2为true，则pt1Var数量为1
-            model.addEquality((IntVar) this.pt1Var.qty, 1).onlyEnforceIf(rule2_op11Andop21);
+            model.addEquality(pt1Var.qty, 1).onlyEnforceIf(op11Andop21);
 
             // 如果op11Andop2为false，则pt1Var数量为3
-            model.addEquality((IntVar) this.pt1Var.qty, 3).onlyEnforceIf(rule2_op11Andop21.not());
+            model.addEquality(pt1Var.qty, 3).onlyEnforceIf(op11Andop21.not());
         }
     }
 

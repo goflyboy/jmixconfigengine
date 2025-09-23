@@ -11,7 +11,6 @@ import com.jmix.tool.model.ParaAnno;
 import com.jmix.tool.model.PartAnno;
 
 import com.google.ortools.sat.BoolVar;
-import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.LinearExpr;
 
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +25,12 @@ import org.junit.Test;
  */
 @Slf4j
 public class DynScheduleTest extends ModuleScenarioTestBase {
+    /**
+     * 构造DynScheduleTest测试类
+     */
+    public DynScheduleTest() {
+        super(DynScheduleConstraint.class);
+    }
 
     // ---------------start----------------------------------------
     @ModuleAnno(id = 123L)
@@ -52,15 +57,15 @@ public class DynScheduleTest extends ModuleScenarioTestBase {
         private void rule01() {
             // Create condition variable: p0.value > 1
             BoolVar p0GreaterThan1 = model.newBoolVar("rule01_p0GreaterThan1");
-            model.addGreaterThan((IntVar) p0.value, 1).onlyEnforceIf(p0GreaterThan1);
-            model.addLessOrEqual((IntVar) p0.value, 1).onlyEnforceIf(p0GreaterThan1.not());
+            model.addGreaterThan(p0.value, 1).onlyEnforceIf(p0GreaterThan1);
+            model.addLessOrEqual(p0.value, 1).onlyEnforceIf(p0GreaterThan1.not());
 
             // Then branch: p11.value > p0.value + 1
-            LinearExpr p0Plus1 = LinearExpr.newBuilder().add((IntVar) p0.value).add(1).build();
-            model.addGreaterThan((IntVar) p11.value, p0Plus1).onlyEnforceIf(p0GreaterThan1);
+            LinearExpr p0Plus1 = LinearExpr.newBuilder().add(p0.value).add(1).build();
+            model.addGreaterThan(p11.value, p0Plus1).onlyEnforceIf(p0GreaterThan1);
 
             // Else branch: p11.value < p0.value
-            model.addLessThan((IntVar) p11.value, (IntVar) p0.value).onlyEnforceIf(p0GreaterThan1.not());
+            model.addLessThan(p11.value, p0.value).onlyEnforceIf(p0GreaterThan1.not());
         }
 
         @CodeRuleAnno(normalNaturalCode = "if p0.value != 2 then p21.value in (op211,op212) "
@@ -69,15 +74,11 @@ public class DynScheduleTest extends ModuleScenarioTestBase {
             // Create condition variable: p0.value != 2
             BoolVar p0NotEqual2 = model.newBoolVar("rule02_p0NotEqual2");
             // model.addNotEqual((IntVar)p0.value, 2).onlyEnforceIf(p0NotEqual2);
-            model.addEquality((IntVar) p0.value, 2).onlyEnforceIf(p0NotEqual2.not());
+            model.addEquality(p0.value, 2).onlyEnforceIf(p0NotEqual2.not());
 
             // Then branch: p21.value in (op211, op212)
             BoolVar p21InOp211 = model.newBoolVar("rule02_p21InOp211");
             BoolVar p21InOp212 = model.newBoolVar("rule02_p21InOp212");
-            // model.addEquality((IntVar)p21.value,
-            // p21.getParaOptionByCode("op211").codeId).onlyEnforceIf(p21InOp211);
-            // model.addEquality((IntVar)p21.value,
-            // p21.getParaOptionByCode("op212").codeId).onlyEnforceIf(p21InOp212);
 
             BoolVar p21InFirstGroup = model.newBoolVar("rule02_p21InFirstGroup");
             model.addBoolOr(new BoolVar[] { p21InOp211, p21InOp212 }).onlyEnforceIf(p21InFirstGroup);
@@ -89,22 +90,16 @@ public class DynScheduleTest extends ModuleScenarioTestBase {
             // Else branch: p21.value in (op213, op214)
             BoolVar p21InOp213 = model.newBoolVar("rule02_p21InOp213");
             BoolVar p21InOp214 = model.newBoolVar("rule02_p21InOp214");
-            // model.addEquality((IntVar)p21.value,
-            // p21.getParaOptionByCode("op213").codeId).onlyEnforceIf(p21InOp213);
-            // model.addEquality((IntVar)p21.value,
-            // p21.getParaOptionByCode("op214").codeId).onlyEnforceIf(p21InOp214);
 
             BoolVar p21InSecondGroup = model.newBoolVar("rule02_p21InSecondGroup");
             model.addBoolOr(new BoolVar[] { p21InOp213, p21InOp214 }).onlyEnforceIf(p21InSecondGroup);
-            // model.addBoolAnd(new BoolVar[]{p21InOp213.not(),
-            // p21InOp214.not()}).onlyEnforceIf(p21InSecondGroup.not());
 
             model.addEquality(p21InSecondGroup, 1).onlyEnforceIf(p0NotEqual2.not());
         }
 
         @CodeRuleAnno(normalNaturalCode = "pt1.qty = p11.value")
         private void rule11() {
-            model.addEquality(pt1.qty, (IntVar) p11.value);
+            model.addEquality(pt1.qty, p11.value);
         }
 
         @CodeRuleAnno(normalNaturalCode = "if p21.value in (op211,op212) then "
@@ -115,32 +110,18 @@ public class DynScheduleTest extends ModuleScenarioTestBase {
             BoolVar p21InOp211 = model.newBoolVar("rule21_p21InOp211");
             BoolVar p21InOp212 = model.newBoolVar("rule21_p21InOp212");
 
-            // model.addEquality((IntVar)p21.value,
-            // p21.getParaOptionByCode("op211").codeId).onlyEnforceIf(p21InOp211);
-            // model.addEquality((IntVar)p21.value,
-            // p21.getParaOptionByCode("op212").codeId).onlyEnforceIf(p21InOp212);
-
             model.addBoolOr(new BoolVar[] { p21InOp211, p21InOp212 }).onlyEnforceIf(p21InFirstGroup);
-            // model.addBoolAnd(new BoolVar[]{p21InOp211.not(),
-            // p21InOp212.not()}).onlyEnforceIf(p21InFirstGroup.not());
 
             // Then branch: pt2.qty = 1 * p22.value
-            model.addEquality(pt2.qty, (IntVar) p22.value).onlyEnforceIf(p21InFirstGroup);
+            model.addEquality(pt2.qty, p22.value).onlyEnforceIf(p21InFirstGroup);
 
             // Else branch: pt2.qty = 2 * p22.value
-            LinearExpr p22Times2 = LinearExpr.newBuilder().addTerm((IntVar) p22.value, 2).build();
+            LinearExpr p22Times2 = LinearExpr.newBuilder().addTerm(p22.value, 2).build();
             model.addEquality(pt2.qty, p22Times2).onlyEnforceIf(p21InFirstGroup.not());
         }
     }
-    // ---------------?????end----------------------------------------
 
-    /**
-     * 构造DynScheduleTest测试类
-     */
-    public DynScheduleTest() {
-        super(DynScheduleConstraint.class);
-    }
-
+    // ---------------end----------------------------------------
     /**
      * 测试案例1：从PT1数量推理P0和P11
      */

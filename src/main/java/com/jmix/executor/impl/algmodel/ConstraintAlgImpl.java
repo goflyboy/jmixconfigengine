@@ -545,8 +545,8 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
                     paraVar.optionSelectVars.put(option.getCodeId(), optionVar);
                 }
                 paraVar.optionSelectVars.forEach((optionId, optionVar) -> {
-                    model.addEquality((IntVar) paraVar.value, optionId).onlyEnforceIf(optionVar.getIsSelectedVar());
-                    model.addDifferent((IntVar) paraVar.value, optionId)
+                    model.addEquality(paraVar.value, optionId).onlyEnforceIf(optionVar.getIsSelectedVar());
+                    model.addDifferent(paraVar.value, optionId)
                             .onlyEnforceIf(optionVar.getIsSelectedVar().not());
                 });
                 break;
@@ -667,7 +667,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         PartVar partVar = (PartVar) var;
 
         // 2. 使用model.addEquality添加数量约束
-        model.addEquality((IntVar) partVar.qty, partQuantity);
+        model.addEquality(partVar.qty, partQuantity);
     }
 
     /**
@@ -682,7 +682,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             throw new AlgLoaderException("ParaVar not found for code: " + paraCode);
         }
         ParaVar paraVar = (ParaVar) var;
-        model.addEquality((IntVar) paraVar.value, Integer.parseInt(paraValue));
+        model.addEquality(paraVar.value, Integer.parseInt(paraValue));
     }
 
     /**

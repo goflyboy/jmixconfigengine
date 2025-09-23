@@ -27,8 +27,14 @@ import org.junit.Test;
  */
 @Slf4j
 public class ParaIsHiddenTest extends ModuleScenarioTestBase {
+    /**
+     * 构造ParaIsHiddenTest测试类
+     */
+    public ParaIsHiddenTest() {
+        super(ParaIsHiddenConstraint.class);
+    }
 
-    // ---------------ģ�͵Ķ���start----------------------------------------
+    // --------------start----------------------------------------
     @ModuleAnno(id = 123L)
     private static class ParaIsHiddenConstraint extends ConstraintAlgImpl {
         @ParaAnno(type = ParaType.INTEGER, defaultValue = "0", minValue = "0", maxValue = "3")
@@ -52,10 +58,10 @@ public class ParaIsHiddenTest extends ModuleScenarioTestBase {
             // Logic2: if p0.value in (0,1) then p1.isHidden=1 else p2.isHidden=1
             BoolVar p0Eq0 = model.newBoolVar("p0_eq_0");
             BoolVar p0Eq1 = model.newBoolVar("p0_eq_1");
-            model.addEquality((IntVar) p0.value, 0).onlyEnforceIf(p0Eq0);
-            model.addDifferent((IntVar) p0.value, 0).onlyEnforceIf(p0Eq0.not());
-            model.addEquality((IntVar) p0.value, 1).onlyEnforceIf(p0Eq1);
-            model.addDifferent((IntVar) p0.value, 1).onlyEnforceIf(p0Eq1.not());
+            model.addEquality(p0.value, 0).onlyEnforceIf(p0Eq0);
+            model.addDifferent(p0.value, 0).onlyEnforceIf(p0Eq0.not());
+            model.addEquality(p0.value, 1).onlyEnforceIf(p0Eq1);
+            model.addDifferent(p0.value, 1).onlyEnforceIf(p0Eq1.not());
 
             // p0In01 is true iff p0.value == 0 or p0.value == 1
             BoolVar p0In01 = model.newBoolVar("p0_in_01");
@@ -68,25 +74,18 @@ public class ParaIsHiddenTest extends ModuleScenarioTestBase {
             model.addEquality(p2.isHidden, 1).onlyEnforceIf(p0In01.not());
 
             // Logic3: if p1.isHidden=1 then p1.value=0
-            model.addEquality((IntVar) p1.value, 0).onlyEnforceIf(p1.isHidden);
+            model.addEquality(p1.value, 0).onlyEnforceIf(p1.isHidden);
 
             // Logic4: if p2.isHidden=1 then p2.value=0
-            model.addEquality((IntVar) p2.value, 0).onlyEnforceIf(p2.isHidden);
+            model.addEquality(p2.value, 0).onlyEnforceIf(p2.isHidden);
 
             // Logic5: part1.quantity = p1.value + p2.value
-            model.addEquality((IntVar) part1.qty,
-                    LinearExpr.sum(new IntVar[] { (IntVar) p1.value, (IntVar) p2.value }));
+            model.addEquality(part1.qty,
+                    LinearExpr.sum(new IntVar[] { p1.value, p2.value }));
         }
     }
-    // ---------------?????end----------------------------------------
 
-    /**
-     * 构造ParaIsHiddenTest测试类
-     */
-    public ParaIsHiddenTest() {
-        super(ParaIsHiddenConstraint.class);
-    }
-
+    // ---------------end----------------------------------------
     protected void beforeInitConfig(ConstraintConfig cfg) {
         cfg.setLoadType(1);
     }

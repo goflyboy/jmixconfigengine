@@ -32,7 +32,7 @@ PS D:\01.code\mygithub\jmixconfigengine> mvn checkstyle:check
     @Ignore
     public void testPerformancept003_allSolutions()
 
-
+(IntVar) p
 
 
  private ParaVar ColorVar;
@@ -44,3 +44,6 @@ PS D:\01.code\mygithub\jmixconfigengine> mvn checkstyle:check
 (IntVar) this.pt
 
  if (!solutions.isEmpty()) {
+
+
+修改对应的Prompt？

@@ -29,7 +29,7 @@ public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
     }
 
     @ModuleAnno(id = 123L)
-    private static class InjectCompatibleRuleConstraint extends ConstraintAlgImpl {
+    public static class InjectCompatibleRuleConstraint extends ConstraintAlgImpl {
         @ParaAnno(options = { "Red", "Black", "White" })
         private ParaVar ColorVar;
 
