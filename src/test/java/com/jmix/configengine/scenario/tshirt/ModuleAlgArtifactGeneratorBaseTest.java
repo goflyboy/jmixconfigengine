@@ -148,6 +148,8 @@ public class ModuleAlgArtifactGeneratorBaseTest {
 
     /**
      * 获取当前包所在目录路径
+     * 
+     * @return 当前包对应的目录路径
      */
     private String getCurrentPackagePath() {
         // 获取当前类的包路径

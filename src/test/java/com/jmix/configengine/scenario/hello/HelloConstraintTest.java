@@ -20,6 +20,7 @@ public class HelloConstraintTest extends ModuleScenarioTestBase {
         super(HelloConstraint.class);
     }
 
+    @Override
     protected void beforeInitConfig(ConstraintConfig cfg) {
         cfg.setLoadType(1);
     }

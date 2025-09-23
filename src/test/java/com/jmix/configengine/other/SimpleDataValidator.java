@@ -51,6 +51,9 @@ public class SimpleDataValidator {
 
     /**
      * 验证模块数据
+     * 
+     * @param rootNode JSON根节点
+     * @return 验证是否通过
      */
     private boolean validateModuleData(JsonNode rootNode) {
         boolean isValid = true;
@@ -78,6 +81,9 @@ public class SimpleDataValidator {
 
     /**
      * 验证必需字段
+     * 
+     * @param rootNode JSON根节点
+     * @return 验证是否通过
      */
     private boolean validateRequiredFields(JsonNode rootNode) {
         boolean isValid = true;
@@ -104,6 +110,9 @@ public class SimpleDataValidator {
 
     /**
      * 验证参数数据
+     * 
+     * @param parasNode 参数节点
+     * @return 验证是否通过
      */
     private boolean validateParas(JsonNode parasNode) {
         if (!parasNode.isArray()) {

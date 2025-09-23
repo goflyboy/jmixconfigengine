@@ -108,7 +108,6 @@ public abstract class ModuleScenarioTestBase {
         return module;
     }
 
-    // createTempPath方法已移动到CommHelper类中
     /**
      * 初始化测试环境
      */
@@ -130,6 +129,11 @@ public abstract class ModuleScenarioTestBase {
         setModule(moduleInstance);
     }
 
+    /**
+     * 初始化配置
+     * 
+     * @param cfg
+     */
     protected void beforeInitConfig(ConstraintConfig cfg) {
 
     }
@@ -273,6 +277,9 @@ public abstract class ModuleScenarioTestBase {
     /**
      * 解析条件表达式
      * 格式："Color:Red,TShirt1:2" -> {"Color":"Red", "TShirt1":"2"}
+     * 
+     * @param conditionExpr 条件表达式字符串
+     * @return 解析后的键值对映射
      */
     private Map<String, String> parseConditionExpr(String conditionExpr) {
         Map<String, String> kvMap = new HashMap<>();
@@ -292,6 +299,9 @@ public abstract class ModuleScenarioTestBase {
 
     /**
      * 构建条件元素列表
+     * 
+     * @param kvMap 键值对映射
+     * @return 条件元素列表
      */
     private List<ConditionElement> buildConditionElements(Map<String, String> kvMap) {
         List<ConditionElement> elements = new ArrayList<>();
@@ -329,6 +339,9 @@ public abstract class ModuleScenarioTestBase {
 
     /**
      * 计算匹配条件的解决方案数量
+     * 
+     * @param conditionElements 条件元素列表
+     * @return 匹配的解决方案数量
      */
     private int countMatchingSolutions(List<ConditionElement> conditionElements) {
         int matchCount = 0;
@@ -364,6 +377,10 @@ public abstract class ModuleScenarioTestBase {
 
     /**
      * 根据代码查找ParaInst
+     * 
+     * @param solution 模块实例
+     * @param code     参数代码
+     * @return 匹配的ParaInst，如果未找到则返回null
      */
     private ParaInst findParaInstByCode(ModuleInst solution, String code) {
         if (solution.getParas() == null) {
@@ -377,6 +394,10 @@ public abstract class ModuleScenarioTestBase {
 
     /**
      * 根据代码查找PartInst
+     * 
+     * @param solution 模块实例
+     * @param code     部件代码
+     * @return 匹配的PartInst，如果未找到则返回null
      */
     private PartInst findPartInstByCode(ModuleInst solution, String code) {
         if (solution.getParts() == null) {
@@ -442,8 +463,6 @@ public abstract class ModuleScenarioTestBase {
     /**
      * 打印短格式解信息
      * 
-     * @param module    模块
-     * @param solutions 解列表
      */
     protected void printSolutions() {
         printSolutions(getModule(), getSolutions());
@@ -473,7 +492,28 @@ public abstract class ModuleScenarioTestBase {
         sb.append("2. Attrs(V:value, H:isHidden, Q:qty)").append(System.lineSeparator());
         // 3. Other Variable shortName
         sb.append("3. Other Variable shortName:").append(System.lineSeparator());
+        printOthers(solutions, sb);
+
         sb.append("Solutions:").append(System.lineSeparator());
+
+        sb.append(System.lineSeparator());
+        // 打印解
+        for (int i = 0; i < solutions.size(); i++) {
+            sb.append("S_").append(i + 1).append(": ").append(solutions.get(i).toShortString())
+                    .append(System.lineSeparator());
+        }
+        sb.append(System.lineSeparator()).append("******************************************")
+                .append(System.lineSeparator());
+        log.info(sb.toString());
+    }
+
+    /**
+     * 打印其他变量的短名称信息
+     * 
+     * @param solutions 解决方案列表
+     * @param sb        字符串构建器
+     */
+    private void printOthers(List<ModuleInst> solutions, StringBuilder sb) {
         if (!solutions.isEmpty()) {
             ModuleInst firstSolution = solutions.get(0);
             Object otherVarsMemo = firstSolution.getExtAttrs().get(ModuleInst.OTHER_VARIABLES_MEMO_KEY);
@@ -487,18 +527,5 @@ public abstract class ModuleScenarioTestBase {
                 }
             }
         }
-
-        sb.append(System.lineSeparator());
-
-        // 打印解
-        for (int i = 0; i < solutions.size(); i++) {
-            sb.append("S_").append(i + 1).append(": ").append(solutions.get(i).toShortString())
-                    .append(System.lineSeparator());
-        }
-        sb.append(System.lineSeparator()).append("******************************************")
-                .append(System.lineSeparator());
-        log.info(sb.toString());
     }
-
-    // getResourcePath和createDirectory方法已移动到CommHelper类中
 }

@@ -130,6 +130,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
     /**
      * 初始化AlgCPModel
+     * 用于增量加载的AlgCPModel初始化逻辑
      */
     private void initAlgCPModel() {
         // 初始化AlgCPModel的相关逻辑
@@ -139,6 +140,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     /**
      * 设置默认可见性约束
      * 对于没有显式控制可见性的变量，设置 isHiddenVar == 0（即默认可见）
+     * 遍历所有变量，为没有显式可见性控制的变量设置默认可见状态
      */
     private void setDefaultVisibilityConstraints() {
         for (Map.Entry<String, Var<?>> entry : varMap.entrySet()) {
@@ -163,6 +165,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
     /**
      * 根据module.getRules构建ruleMethods映射
+     * 通过反射获取所有带有@CodeRuleAnno注解的方法，并建立规则代码到方法的映射关系
      */
     private void buildRuleMethods() {
         if (module == null || module.getRules() == null) {
@@ -195,7 +198,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
     /**
      * 根据exeRules执行规则
-     * 
+     * 执行所有已构建的规则方法
      */
     private void initRules() {
         if (ruleMethods.isEmpty()) {
@@ -306,6 +309,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
     /**
      * 通过反射自动创建和赋值变量
+     * 扫描当前类的所有字段，为带有@PartAnno注解的字段自动创建对应的PartVar实例
      */
     private void autoInitVariables() {
         try {
@@ -373,6 +377,9 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     /**
      * 从字段名提取代码
      * 例如: colorVar -> Color, TShirt11Var -> TShirt11
+     * 
+     * @param fieldName 字段名
+     * @return 提取的代码，如果字段名不以"Var"结尾则返回原字段名
      */
     private String extractCodeFromFieldName(String fieldName) {
         // 移除末尾的"Var"

@@ -86,6 +86,7 @@ public class ParaIsHiddenTest extends ModuleScenarioTestBase {
     }
 
     // ---------------end----------------------------------------
+    @Override
     protected void beforeInitConfig(ConstraintConfig cfg) {
         cfg.setLoadType(1);
     }

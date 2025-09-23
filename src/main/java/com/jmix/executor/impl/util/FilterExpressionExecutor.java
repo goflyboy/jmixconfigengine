@@ -95,6 +95,9 @@ public final class FilterExpressionExecutor {
 
     /**
      * Parse filter expression once and return FilterCondition
+     * 
+     * @param filterExpr 过滤表达式字符串
+     * @return 解析后的过滤条件，如果解析失败则返回空
      */
     private static Optional<FilterCondition> parseFilterExpression(String filterExpr) {
         try {
@@ -117,6 +120,10 @@ public final class FilterExpressionExecutor {
 
     /**
      * Check if object matches filter condition
+     * 
+     * @param object    要检查的对象
+     * @param condition 过滤条件
+     * @return 如果对象匹配条件则返回true，否则返回false
      */
     private static <T extends Extensible> boolean matchesFilter(T object, FilterCondition condition) {
         try {
@@ -130,6 +137,12 @@ public final class FilterExpressionExecutor {
 
     /**
      * Evaluate condition
+     * 
+     * @param object    要检查的对象
+     * @param fieldName 字段名
+     * @param operator  操作符
+     * @param value     比较值
+     * @return 如果条件满足则返回true，否则返回false
      */
     private static <T extends Extensible> boolean evaluateCondition(T object, String fieldName, String operator,
             String value) {
@@ -184,6 +197,10 @@ public final class FilterExpressionExecutor {
 
     /**
      * Get field value with caching and Spring ReflectionUtils
+     * 
+     * @param object    要获取字段值的对象
+     * @param fieldName 字段名
+     * @return 字段值，如果获取失败则返回空
      */
     private static Optional<Object> getFieldValue(Object object, String fieldName) {
         try {
@@ -229,6 +246,10 @@ public final class FilterExpressionExecutor {
 
     /**
      * Get field from cache or find it using Spring ReflectionUtils
+     * 
+     * @param clazz     要查找字段的类
+     * @param fieldName 字段名
+     * @return 找到的字段，如果未找到则返回null
      */
     private static java.lang.reflect.Field getFieldFromCache(Class<?> clazz, String fieldName) {
         // Get class field map from cache
@@ -255,6 +276,10 @@ public final class FilterExpressionExecutor {
 
     /**
      * Compare values
+     * 
+     * @param value1 第一个值
+     * @param value2 第二个值
+     * @return 比较结果：负数表示value1小于value2，0表示相等，正数表示value1大于value2
      */
     private static int compareValues(String value1, String value2) {
         try {

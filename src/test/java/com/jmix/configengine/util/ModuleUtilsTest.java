@@ -203,6 +203,8 @@ public class ModuleUtilsTest {
 
     /**
      * 创建测试用的Module对象
+     * 
+     * @return 测试用的Module对象
      */
     private Module createTestModule() {
         Module module = new Module();

@@ -83,6 +83,7 @@ public class CalculateRuleIfThenTest extends ModuleScenarioTestBase {
     }
 
     // ---------------规则定义end----------------------------------------
+    @Override
     protected void beforeInitConfig(ConstraintConfig cfg) {
         cfg.setLoadType(1);
     }

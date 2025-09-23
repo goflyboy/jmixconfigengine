@@ -32,18 +32,9 @@ PS D:\01.code\mygithub\jmixconfigengine> mvn checkstyle:check
     @Ignore
     public void testPerformancept003_allSolutions()
 
-(IntVar) p
+ 
 
-
- private ParaVar colorVar;
-
-        @ParaAnno(options = { "Small", "Medium", "Big" })
-        private ParaVar sizeVar;
-
-
-(IntVar) this.pt
-
+ 
  if (!solutions.isEmpty()) {
 
-
-修改对应的Prompt？
+ G.CTL.02 含else if分支的条件判断应在最后加一个else分支

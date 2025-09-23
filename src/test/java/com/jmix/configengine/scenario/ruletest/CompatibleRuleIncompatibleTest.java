@@ -57,11 +57,11 @@ public class CompatibleRuleIncompatibleTest extends ModuleScenarioTestBase {
                     Arrays.asList("b1", "b2", "b3"));
         }
 
-        protected void beforeInitConfig(ConstraintConfig cfg) {
-            cfg.setLoadType(1);
-        }
-
-        private void addCompatibleConstraintIncompatibleNote() {
+        /**
+         * 添加兼容性规则：Incompatible关系约束, 参考样例
+         * 
+         */
+        public void addCompatibleConstraintIncompatibleNote() {
             // 创建条件变量：A在CA中
             BoolVar inCA = model.newBoolVar("inCA");
             model.addBoolOr(new Literal[] {
@@ -133,6 +133,7 @@ public class CompatibleRuleIncompatibleTest extends ModuleScenarioTestBase {
         super(CompatibleRuleIncompatibleConstraint.class);
     }
 
+    @Override
     protected void beforeInitConfig(ConstraintConfig cfg) {
         cfg.setLoadType(1);
     }
@@ -145,9 +146,10 @@ public class CompatibleRuleIncompatibleTest extends ModuleScenarioTestBase {
         // 测试正向规则1.1: 如果A在CA中(a1)，则B必须不在CB中(b4或b5)
         inferParasByPara("a", "a1");
 
+        // B有2种选择
         resultAssert()
                 .assertSuccess()
-                .assertSolutionSizeEqual(2); // B有2种选择
+                .assertSolutionSizeEqual(2);
 
         // 验证所有解中B都在NCB中
         for (int i = 0; i < 2; i++) {

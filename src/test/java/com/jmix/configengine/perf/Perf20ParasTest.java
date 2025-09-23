@@ -509,6 +509,7 @@ public class Perf20ParasTest extends ModuleScenarioTestBase {
                 averageTime <= 300);
     }
 
+    @Override
     protected void beforeInitConfig(ConstraintConfig cfg) {
         cfg.setLoadType(1); // 全量加载
     }

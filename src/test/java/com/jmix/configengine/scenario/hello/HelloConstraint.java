@@ -15,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * Hello模块约束算法
+ * 
+ * @since 2025-09-23
  */
 @Slf4j
 @ModuleAnno(id = 123L)
@@ -31,14 +33,14 @@ public class HelloConstraint extends ConstraintAlgImpl {
 
     @Override
     protected void initConstraint() {
-        addConstraint_rule2();
+        addConstraintRule2();
     }
 
     /**
      * 条件数量规则：基于颜色和尺寸的部件数量规则
      * 规则内容：如果颜色选择红色且尺寸选择小号，则TShirt11数量为1；否则为3
      */
-    public void addConstraint_rule2() {
+    public void addConstraintRule2() {
 
         // "Red-10", "Black-20", "White-30"
         // "Small-10", "Medium-20", "Big-30"

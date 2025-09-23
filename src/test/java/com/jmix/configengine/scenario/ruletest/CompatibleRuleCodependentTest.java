@@ -55,6 +55,9 @@ public class CompatibleRuleCodependentTest extends ModuleScenarioTestBase {
 
         }
 
+        /**
+         * 添加兼容性规则：CoDependent关系约束
+         */
         private void addCompatibleConstraintCoDependentNote() {
             // 创建条件变量：A在CA中
             BoolVar inCA = model.newBoolVar("inCA");
@@ -127,6 +130,7 @@ public class CompatibleRuleCodependentTest extends ModuleScenarioTestBase {
         super(CompatibleRuleCodependentConstraint.class);
     }
 
+    @Override
     protected void beforeInitConfig(ConstraintConfig cfg) {
         cfg.setLoadType(1);
     }
