@@ -34,7 +34,7 @@ public class MyTShirtTest extends ModuleScenarioTestBase {
 
     // ---------------start----------------------------------------
     @ModuleAnno(id = 123L)
-    private static class MyTShirtConstraint extends ConstraintAlgImpl {
+    public static class MyTShirtConstraint extends ConstraintAlgImpl {
         @ParaAnno(options = { "op11", "op12", "op13" })
         private ParaVar p1Var;
 

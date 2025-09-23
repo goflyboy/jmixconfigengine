@@ -31,7 +31,7 @@ public class CompatibleRuleRequireTest extends ModuleScenarioTestBase {
 
     // ---------------规则定义start----------------------------------------
     @ModuleAnno(id = 123L)
-    private static class CompatibleRuleRequireConstraint extends ConstraintAlgImpl {
+    public static class CompatibleRuleRequireConstraint extends ConstraintAlgImpl {
         @ParaAnno(options = { "a1", "a2", "a3", "a4" })
         private ParaVar aVar;
 

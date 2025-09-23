@@ -30,7 +30,7 @@ public class CalculateRuleIfThenTest extends ModuleScenarioTestBase {
 
     // ---------------规则定义start----------------------------------------
     @ModuleAnno(id = 123L)
-    private static class CalculateRuleConstraint extends ConstraintAlgImpl {
+    public static class CalculateRuleConstraint extends ConstraintAlgImpl {
 
         @ParaAnno(defaultValue = "op11", options = { "op11", "op12", "op13" })
         private ParaVar p1Var;
@@ -43,13 +43,13 @@ public class CalculateRuleIfThenTest extends ModuleScenarioTestBase {
 
         @Override
         protected void initConstraint() {
-            addConstraint_rule2();
+            addConstraintRule2();
         }
 
         /**
          * 添加约束规则2
          */
-        public void addConstraint_rule2() {
+        public void addConstraintRule2() {
 
             // if(p1Var.value ==op11 && p2Var.value == op21 ) {
             // pt1Var.qty = 1;

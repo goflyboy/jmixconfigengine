@@ -23,7 +23,7 @@ import java.util.Arrays;
 public class CompatibleRuleIncompatibleTest extends ModuleScenarioTestBase {
     // ---------------规则定义start----------------------------------------
     @ModuleAnno(id = 123L)
-    private static class CompatibleRuleIncompatibleConstraint extends ConstraintAlgImpl {
+    public static class CompatibleRuleIncompatibleConstraint extends ConstraintAlgImpl {
 
         @ParaAnno(options = { "a1", "a2", "a3", "a4", "a5" })
         private ParaVar aVar;

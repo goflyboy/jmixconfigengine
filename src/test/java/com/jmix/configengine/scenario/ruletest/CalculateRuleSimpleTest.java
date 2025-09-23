@@ -21,10 +21,16 @@ import org.junit.Test;
  */
 @Slf4j
 public class CalculateRuleSimpleTest extends ModuleScenarioTestBase {
+    /**
+     * 构造CalculateRuleSimpleTest测试类
+     */
+    public CalculateRuleSimpleTest() {
+        super(CalculateRuleConstraint.class);
+    }
 
     // ---------------规则定义start----------------------------------------
     @ModuleAnno(id = 123L)
-    private static class CalculateRuleConstraint extends ConstraintAlgImpl {
+    public static class CalculateRuleConstraint extends ConstraintAlgImpl {
 
         @ParaAnno(options = { "op11", "op12", "op13" })
         private ParaVar p1Var;
@@ -34,13 +40,13 @@ public class CalculateRuleSimpleTest extends ModuleScenarioTestBase {
 
         @Override
         protected void initConstraint() {
-            addConstraint_rule1();
+            addConstraintRule1();
         }
 
         /**
          * 添加约束规则1
          */
-        public void addConstraint_rule1() {
+        public void addConstraintRule1() {
             // if(p1Var.value == op11) {
             // pt1Var.qty = 1;
             // }
@@ -69,15 +75,9 @@ public class CalculateRuleSimpleTest extends ModuleScenarioTestBase {
             model.addEquality(pt1Var.qty, 3).onlyEnforceIf(op11.not());
         }
     }
+
     // ---------------规则定义end----------------------------------------
-
-    /**
-     * 构造CalculateRuleSimpleTest测试类
-     */
-    public CalculateRuleSimpleTest() {
-        super(CalculateRuleConstraint.class);
-    }
-
+    @Override
     protected void beforeInitConfig(ConstraintConfig cfg) {
         cfg.setLoadType(1);
     }
