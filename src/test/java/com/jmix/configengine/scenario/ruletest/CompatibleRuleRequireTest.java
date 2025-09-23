@@ -30,6 +30,11 @@ public class CompatibleRuleRequireTest extends ModuleScenarioTestBase {
     }
 
     // ---------------规则定义start----------------------------------------
+    /**
+     * 兼容性规则要求约束模型类
+     * 
+     * @since 2025-09-23
+     */
     @ModuleAnno(id = 123L)
     public static class CompatibleRuleRequireConstraint extends ConstraintAlgImpl {
         @ParaAnno(options = { "a1", "a2", "a3", "a4" })
@@ -55,8 +60,10 @@ public class CompatibleRuleRequireTest extends ModuleScenarioTestBase {
                     Arrays.asList("b1", "b2", "b3"));
         }
 
-        // @Override
-        protected void initConstraint2() {
+        /**
+         * 初始化约束2,参考
+         */
+        protected void initConstraintNote() {
             // 创建条件变量：A是a1或a3
             BoolVar a1OrA3 = model.newBoolVar("a1OrA3");
             model.addBoolOr(new Literal[] {

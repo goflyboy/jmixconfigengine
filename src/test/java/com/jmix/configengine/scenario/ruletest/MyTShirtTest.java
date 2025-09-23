@@ -33,6 +33,11 @@ public class MyTShirtTest extends ModuleScenarioTestBase {
     }
 
     // ---------------start----------------------------------------
+    /**
+     * 我的T恤衫约束模型类
+     * 
+     * @since 2025-09-23
+     */
     @ModuleAnno(id = 123L)
     public static class MyTShirtConstraint extends ConstraintAlgImpl {
         @ParaAnno(options = { "op11", "op12", "op13" })
@@ -45,7 +50,7 @@ public class MyTShirtTest extends ModuleScenarioTestBase {
         private PartVar pt1Var;
 
         @CodeRuleAnno(normalNaturalCode = "if(p1Var.value == op11 && p2Var.value == op21) then { pt1Var.qty = 1; } else { pt1Var.qty = 3; }")
-        protected void rule1() {
+        private void rule1() {
             // if(p1Var.value == op11 && p2Var.value == op21) {
             // pt1Var.qty = 1;
             // }

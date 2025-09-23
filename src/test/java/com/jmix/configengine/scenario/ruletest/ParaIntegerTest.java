@@ -34,6 +34,11 @@ public class ParaIntegerTest extends ModuleScenarioTestBase {
     }
 
     // --------------start----------------------------------------
+    /**
+     * 整数参数约束模型类
+     * 
+     * @since 2025-09-23
+     */
     @ModuleAnno(id = 123L)
     public static class ParaIntegerConstraint extends ConstraintAlgImpl {
         @ParaAnno(type = ParaType.INTEGER, defaultValue = "0", minValue = "0", maxValue = "50")

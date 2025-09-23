@@ -22,6 +22,11 @@ import java.util.Arrays;
 @Slf4j
 public class CompatibleRuleIncompatibleTest extends ModuleScenarioTestBase {
     // ---------------规则定义start----------------------------------------
+    /**
+     * 不兼容性规则约束模型类
+     * 
+     * @since 2025-09-23
+     */
     @ModuleAnno(id = 123L)
     public static class CompatibleRuleIncompatibleConstraint extends ConstraintAlgImpl {
 

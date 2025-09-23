@@ -34,6 +34,11 @@ public class Perf20ParasTest extends ModuleScenarioTestBase {
     }
 
     // ---------------模型的定义start----------------------------------------
+    /**
+     * 20参数性能测试约束模型类
+     * 
+     * @since 2025-09-23
+     */
     @ModuleAnno(id = 123L)
     private static class Perf20ParasConstraint extends ConstraintAlgImpl {
         @ParaAnno(options = {
@@ -331,8 +336,8 @@ public class Perf20ParasTest extends ModuleScenarioTestBase {
             model.addDifferent(p020.value, 2).onlyEnforceIf(condition.not());
         }
 
-        @CodeRuleAnno(normalNaturalCode = "if(p011.value==op01101 && p012.value==op01201) then pt001.qty=1 " +
-                "else if(p011.value==op01102 && p012.value==op01202) then pt001.qty=2 else pt001.qty=3")
+        @CodeRuleAnno(normalNaturalCode = "if(p011.value==op01101 && p012.value==op01201) then pt001.qty=1 "
+                + "else if(p011.value==op01102 && p012.value==op01202) then pt001.qty=2 else pt001.qty=3")
         private void rule21() {
             BoolVar condition1 = model.newBoolVar("rule21_condition1");
             Literal[] cond1Literals = new Literal[] {
@@ -360,8 +365,8 @@ public class Perf20ParasTest extends ModuleScenarioTestBase {
             model.addEquality(pt001.qty, 2).onlyEnforceIf(condition2);
         }
 
-        @CodeRuleAnno(normalNaturalCode = "if(p013.value==op01301 && p014.value==op01401) then pt002.qty=1 " +
-                "else if(p013.value==op01302 && p014.value==op01402) then pt002.qty=2 else pt002.qty=3")
+        @CodeRuleAnno(normalNaturalCode = "if(p013.value==op01301 && p014.value==op01401) then pt002.qty=1 "
+                + "else if(p013.value==op01302 && p014.value==op01402) then pt002.qty=2 else pt002.qty=3")
         private void rule22() {
             BoolVar condition1 = model.newBoolVar("rule22_condition1");
             Literal[] cond1Literals = new Literal[] {
@@ -389,8 +394,8 @@ public class Perf20ParasTest extends ModuleScenarioTestBase {
             model.addEquality(pt002.qty, 2).onlyEnforceIf(condition2);
         }
 
-        @CodeRuleAnno(normalNaturalCode = "if(p015.value==op01501 && p016.value==op01601) then pt003.qty=1 " +
-                "else if(p015.value==op01502 && p016.value==op01602) then pt003.qty=2 else pt003.qty=3")
+        @CodeRuleAnno(normalNaturalCode = "if(p015.value==op01501 && p016.value==op01601) then pt003.qty=1 "
+                + "else if(p015.value==op01502 && p016.value==op01602) then pt003.qty=2 else pt003.qty=3")
         private void rule23() {
             BoolVar condition1 = model.newBoolVar("rule23_condition1");
             Literal[] cond1Literals = new Literal[] {
@@ -418,8 +423,8 @@ public class Perf20ParasTest extends ModuleScenarioTestBase {
             model.addEquality(pt003.qty, 2).onlyEnforceIf(condition2);
         }
 
-        @CodeRuleAnno(normalNaturalCode = "if(p017.value==op01701 && p018.value==op01801) then pt004.qty=1 " +
-                "else if(p017.value==op01702 && p018.value==op01802) then pt004.qty=2 else pt004.qty=3")
+        @CodeRuleAnno(normalNaturalCode = "if(p017.value==op01701 && p018.value==op01801) then pt004.qty=1 "
+                + "else if(p017.value==op01702 && p018.value==op01802) then pt004.qty=2 else pt004.qty=3")
         private void rule24() {
             BoolVar condition1 = model.newBoolVar("rule24_condition1");
             Literal[] cond1Literals = new Literal[] {
@@ -449,8 +454,8 @@ public class Perf20ParasTest extends ModuleScenarioTestBase {
             // condition2.not());
         }
 
-        @CodeRuleAnno(normalNaturalCode = "if(p019.value==op01901 && p020.value==op02001) then pt005.qty=1 " +
-                "else if(p019.value==op01902 && p020.value==op02002) then pt005.qty=2 else pt005.qty=3")
+        @CodeRuleAnno(normalNaturalCode = "if(p019.value==op01901 && p020.value==op02001) then pt005.qty=1 "
+                + "else if(p019.value==op01902 && p020.value==op02002) then pt005.qty=2 else pt005.qty=3")
         private void rule25() {
             BoolVar condition1 = model.newBoolVar("rule25_condition1");
             Literal[] cond1Literals = new Literal[] {

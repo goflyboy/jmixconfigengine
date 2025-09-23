@@ -35,6 +35,11 @@ public class ParaIsHiddenTest extends ModuleScenarioTestBase {
     }
 
     // --------------start----------------------------------------
+    /**
+     * 参数隐藏约束模型类
+     * 
+     * @since 2025-09-23
+     */
     @ModuleAnno(id = 123L)
     public static class ParaIsHiddenConstraint extends ConstraintAlgImpl {
         @ParaAnno(type = ParaType.INTEGER, defaultValue = "0", minValue = "0", maxValue = "3")
@@ -194,7 +199,7 @@ public class ParaIsHiddenTest extends ModuleScenarioTestBase {
     @Test
     public void testp1Topart1InvalidInput() {
         // Test when p0=0, p1 should be hidden and p1.var=0
-        inferParasByPara("p0", "2", "p1", "3");// 超出p1值域
+        inferParasByPara("p0", "2", "p1", "3"); // 超出p1值域
         printSolutions();
         resultAssert().assertNoSolution();
 

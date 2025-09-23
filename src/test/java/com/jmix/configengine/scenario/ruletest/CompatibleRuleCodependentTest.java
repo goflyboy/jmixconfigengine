@@ -18,10 +18,17 @@ import java.util.Arrays;
 
 /**
  * 兼容性规则测试类
+ * 
+ * @since 2025-09-23
  */
 @Slf4j
 public class CompatibleRuleCodependentTest extends ModuleScenarioTestBase {
     // ---------------规则定义start----------------------------------------
+    /**
+     * 兼容性规则约束模型类
+     * 
+     * @since 2025-09-23
+     */
     @ModuleAnno(id = 123L)
     public static class CompatibleRuleCodependentConstraint extends ConstraintAlgImpl {
         @ParaAnno(options = { "a1", "a2", "a3", "a4", "a5" })

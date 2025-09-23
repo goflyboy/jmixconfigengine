@@ -28,6 +28,11 @@ public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
         super(InjectCompatibleRuleConstraint.class);
     }
 
+    /**
+     * 注入兼容性规则约束模型类
+     * 
+     * @since 2025-09-23
+     */
     @ModuleAnno(id = 123L)
     public static class InjectCompatibleRuleConstraint extends ConstraintAlgImpl {
         @ParaAnno(options = { "Red", "Black", "White" })

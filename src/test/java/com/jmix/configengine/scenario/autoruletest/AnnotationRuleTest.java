@@ -28,6 +28,11 @@ import java.lang.reflect.Method;
  * 用于测试CompatiableRuleAnno和CodeRuleAnno注解的功能
  */
 @Slf4j
+/**
+ * 注解规则测试约束模型类
+ * 
+ * @since 2025-09-23
+ */
 @ModuleAnno(id = 123, code = "AnnotationRule", packageName = "com.jmix.configengine.scenario.ruletest", version = "1.0", description = "注解规则测试模块", sortNo = 1)
 public class AnnotationRuleTest extends ConstraintAlgImpl {
 

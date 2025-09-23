@@ -33,6 +33,11 @@ public class DynScheduleTest extends ModuleScenarioTestBase {
     }
 
     // ---------------start----------------------------------------
+    /**
+     * 动态调度约束模型类
+     * 
+     * @since 2025-09-23
+     */
     @ModuleAnno(id = 123L)
     private static class DynScheduleConstraint extends ConstraintAlgImpl {
         @ParaAnno(type = ParaType.INTEGER, defaultValue = "0", minValue = "0", maxValue = "4")

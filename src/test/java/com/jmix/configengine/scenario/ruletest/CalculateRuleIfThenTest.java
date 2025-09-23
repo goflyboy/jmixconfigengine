@@ -29,6 +29,11 @@ public class CalculateRuleIfThenTest extends ModuleScenarioTestBase {
     }
 
     // ---------------规则定义start----------------------------------------
+    /**
+     * 计算规则约束模型类
+     * 
+     * @since 2025-09-23
+     */
     @ModuleAnno(id = 123L)
     public static class CalculateRuleConstraint extends ConstraintAlgImpl {
 
