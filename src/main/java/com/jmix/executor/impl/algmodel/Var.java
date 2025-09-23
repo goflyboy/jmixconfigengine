@@ -14,9 +14,17 @@ import com.google.ortools.sat.CpSolverSolutionCallback;
 public abstract class Var<T extends Programmable> implements Programmable {
     protected T base;
 
+    /**
+     * 默认构造函数
+     */
     protected Var() {
     }
 
+    /**
+     * 带基础对象的构造函数
+     * 
+     * @param base 基础对象
+     */
     protected Var(T base) {
         this.base = base;
     }
@@ -51,7 +59,7 @@ public abstract class Var<T extends Programmable> implements Programmable {
      * @return 变量的字符串表示
      */
     public String getVarString(CpSolverSolutionCallback solutionCallback) {
-        return base != null ? base.getCode() : null;
+        return base != null ? base.getCode() : "";
     }
 
     /**

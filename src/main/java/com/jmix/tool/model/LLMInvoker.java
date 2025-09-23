@@ -31,6 +31,9 @@ public class LLMInvoker {
 
     private final String defaultModel;
 
+    /**
+     * 构造函数，初始化配置和默认模型
+     */
     public LLMInvoker() {
         this.config = loadConfig();
         this.defaultModel = config.getProperty("default.model", "deepseek");

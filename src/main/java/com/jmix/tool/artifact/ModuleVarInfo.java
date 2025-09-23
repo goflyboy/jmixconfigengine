@@ -34,10 +34,18 @@ public class ModuleVarInfo extends VarInfo<Module> {
 
     private Map<String, PartVarInfo> partMap = new HashMap<>();
 
+    /**
+     * 默认构造函数
+     */
     public ModuleVarInfo() {
         super();
     }
 
+    /**
+     * 带模块对象的构造函数
+     * 
+     * @param module 模块对象
+     */
     public ModuleVarInfo(Module module) {
         super(module);
     }
@@ -100,14 +108,32 @@ public class ModuleVarInfo extends VarInfo<Module> {
         return partMap.get(code);
     }
 
+    /**
+     * 检查是否包含指定代码的参数
+     * 
+     * @param code 参数代码
+     * @return 如果包含则返回true，否则返回false
+     */
     public boolean hasPara(String code) {
         return paraMap.containsKey(code);
     }
 
+    /**
+     * 检查是否包含指定代码的部件
+     * 
+     * @param code 部件代码
+     * @return 如果包含则返回true，否则返回false
+     */
     public boolean hasPart(String code) {
         return partMap.containsKey(code);
     }
 
+    /**
+     * 获取指定父级代码的子部件列表
+     * 
+     * @param fatherCode 父级部件代码
+     * @return 子部件列表
+     */
     public List<PartVarInfo> getChildrenPart(String fatherCode) {
         if (parts == null || fatherCode == null) {
             return new ArrayList<>();
@@ -115,6 +141,11 @@ public class ModuleVarInfo extends VarInfo<Module> {
         return parts.stream().filter(p -> fatherCode.equals(p.getFatherCode())).collect(Collectors.toList());
     }
 
+    /**
+     * 获取顶级部件列表（没有父级代码的部件）
+     * 
+     * @return 顶级部件列表
+     */
     public List<PartVarInfo> getTopLevelParts() {
         if (parts == null) {
             return new ArrayList<>();

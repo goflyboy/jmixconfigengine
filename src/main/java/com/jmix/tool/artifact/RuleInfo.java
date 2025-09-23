@@ -84,10 +84,20 @@ public class RuleInfo {
      */
     private String rightVarName;
 
+    /**
+     * 判断是否为兼容性规则
+     * 
+     * @return 如果是兼容性规则返回true，否则返回false
+     */
     public boolean isCompatibleRule() {
         return RuleTypeConstants.isCompatiableRule(this.ruleSchemaTypeFullName);
     }
 
+    /**
+     * 判断是否为计算规则
+     * 
+     * @return 如果是计算规则返回true，否则返回false
+     */
     public boolean isCalculateRule() {
         return RuleTypeConstants.isCalculateRule(this.ruleSchemaTypeFullName);
     }

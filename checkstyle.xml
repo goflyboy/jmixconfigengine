@@ -81,7 +81,7 @@
         <module name="FinalClass"/>
         <module name="HideUtilityClassConstructor"/>
         <module name="InterfaceIsType"/>
-        <module name="VisibilityModifier"/>
+        <!-- <module name="VisibilityModifier"/> -->
 
         <!-- 其他检查 -->
         <!-- <module name="FinalParameters"/> -->

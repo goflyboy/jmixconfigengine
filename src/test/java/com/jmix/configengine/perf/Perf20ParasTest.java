@@ -21,6 +21,12 @@ import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * 20参数性能测试类
+ * 测试包含20个参数的模块性能表现
+ * 
+ * @since 2025-09-22
+ */
 @Slf4j
 @SuppressWarnings("checkstyle:all")
 public class Perf20ParasTest extends ModuleScenarioTestBase {

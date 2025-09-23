@@ -25,6 +25,12 @@ public class ModuleAlgClassLoader extends ClassLoader {
 
     private ModuleAlgArtifact algArtifact;
 
+    /**
+     * 构造函数
+     * 
+     * @param isAttachedDebug 是否附加调试信息
+     * @param rootFilePath    根文件路径
+     */
     public ModuleAlgClassLoader(boolean isAttachedDebug, String rootFilePath) {
         this.isAttachedDebug = isAttachedDebug;
         this.rootFilePath = rootFilePath;
@@ -94,6 +100,7 @@ public class ModuleAlgClassLoader extends ClassLoader {
      * 
      * @return 模块算法类加载器信息
      */
+    @Override
     public String toString() {
         return "ModuleAlgClassLoader{"
                 + "isAttachedDebug="

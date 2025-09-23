@@ -39,6 +39,13 @@ public class Result<T> {
 
     private Map<String, Object> extAttrs;
 
+    /**
+     * 创建成功结果
+     * 
+     * @param data 成功时返回的数据
+     * @param <X>  数据类型
+     * @return 成功结果对象
+     */
     public static <X> Result<X> success(X data) {
         Result<X> r = new Result<>();
         r.setCode(SUCCESS);
@@ -46,6 +53,13 @@ public class Result<T> {
         return r;
     }
 
+    /**
+     * 创建失败结果
+     * 
+     * @param msg 失败消息
+     * @param <X> 数据类型
+     * @return 失败结果对象
+     */
     public static <X> Result<X> failed(String msg) {
         Result<X> r = new Result<>();
         r.setCode(FAILED);
@@ -53,6 +67,12 @@ public class Result<T> {
         return r;
     }
 
+    /**
+     * 创建无解结果
+     * 
+     * @param <X> 数据类型
+     * @return 无解结果对象
+     */
     public static <X> Result<X> noSolution() {
         Result<X> r = new Result<>();
         r.setCode(NO_SOLUTION);

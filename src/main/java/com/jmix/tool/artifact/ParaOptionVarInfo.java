@@ -24,12 +24,17 @@ public class ParaOptionVarInfo extends VarInfo<ParaOption> {
      */
     private String code;
 
+    /**
+     * 默认构造函数
+     */
     public ParaOptionVarInfo() {
         super(); // 调用VarInfo的默认构造函数
     }
 
     /**
-     * 构造函数
+     * 带参数选项对象的构造函数
+     * 
+     * @param option 参数选项对象
      */
     public ParaOptionVarInfo(ParaOption option) {
         super(option); // 调用VarInfo的构造函数，传入ParaOption（因为ParaOption继承自Extensible）

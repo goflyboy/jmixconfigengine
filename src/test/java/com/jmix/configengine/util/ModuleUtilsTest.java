@@ -1,6 +1,5 @@
 package com.jmix.configengine.util;
 
-import lombok.extern.slf4j.Slf4j;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -19,6 +18,8 @@ import com.jmix.executor.imodel.rule.ExprSchema;
 import com.jmix.executor.imodel.rule.RefProgObjSchema;
 import com.jmix.tool.ModuleUtils;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,6 +31,9 @@ import java.nio.file.Paths;
 
 /**
  * ModuleUtils工具类测试
+ * 测试模块工具类的各种功能，包括JSON文件读取、模块创建等
+ * 
+ * @since 2025-09-22
  */
 @Slf4j
 public class ModuleUtilsTest {

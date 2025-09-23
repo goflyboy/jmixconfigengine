@@ -20,14 +20,31 @@ public enum ModuleType {
         this.name = name;
     }
 
+    /**
+     * 获取模块类型的数值
+     * 
+     * @return 模块类型的数值
+     */
     public int getValue() {
         return value;
     }
 
+    /**
+     * 获取模块类型的名称
+     * 
+     * @return 模块类型的名称
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * 根据数值获取对应的模块类型
+     * 
+     * @param value 模块类型的数值
+     * @return 对应的模块类型枚举值
+     * @throws IllegalArgumentException 当数值不匹配任何已知的模块类型时抛出
+     */
     public static ModuleType fromValue(int value) {
         for (ModuleType type : values()) {
             if (type.value == value) {

@@ -18,6 +18,12 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.junit.Test;
 
+/**
+ * 动态调度测试类
+ * 测试动态调度相关的约束规则和参数处理
+ * 
+ * @since 2025-09-22
+ */
 @Slf4j
 @SuppressWarnings("checkstyle:all")
 public class DynScheduleTest extends ModuleScenarioTestBase {

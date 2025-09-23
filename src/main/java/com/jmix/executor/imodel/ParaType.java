@@ -19,6 +19,7 @@ public enum ParaType {
     GROUP(10, "Group");
 
     private final int value;
+
     private final String name;
 
     ParaType(int value, String name) {
@@ -26,14 +27,31 @@ public enum ParaType {
         this.name = name;
     }
 
+    /**
+     * 获取参数类型的数值
+     * 
+     * @return 参数类型的数值
+     */
     public int getValue() {
         return value;
     }
 
+    /**
+     * 获取参数类型的名称
+     * 
+     * @return 参数类型的名称
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * 根据value获取ParaType
+     * 
+     * @param value 参数类型的数值
+     * @return 对应的ParaType枚举值
+     * @throws IllegalArgumentException 当value不匹配任何枚举值时
+     */
     public static ParaType fromValue(int value) {
         for (ParaType type : values()) {
             if (type.value == value) {

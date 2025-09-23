@@ -19,6 +19,12 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.junit.Test;
 
+/**
+ * 参数隐藏测试类
+ * 测试参数隐藏功能的各种场景和约束规则
+ * 
+ * @since 2025-09-22
+ */
 @Slf4j
 public class ParaIsHiddenTest extends ModuleScenarioTestBase {
 

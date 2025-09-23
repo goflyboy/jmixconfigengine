@@ -55,10 +55,20 @@ public class ModuleInst {
     @JsonIgnore
     private String shortCode;
 
+    /**
+     * 添加参数实例
+     * 
+     * @param paraInst 参数实例
+     */
     public void addParaInst(ParaInst paraInst) {
         paras.add(paraInst);
     }
 
+    /**
+     * 添加部件实例
+     * 
+     * @param partInst 部件实例
+     */
     public void addPartInst(PartInst partInst) {
         parts.add(partInst);
     }
@@ -92,6 +102,22 @@ public class ModuleInst {
         }
 
         // 添加其他变量信息
+        appendOtherVariablesInfo(sb);
+
+        // 如果有shortCode，则使用shortCode作为前缀
+        if (shortCode != null) {
+            return shortCode + "(" + sb.toString() + ")";
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     * 添加其他变量信息到字符串构建器
+     * 
+     * @param sb 字符串构建器
+     */
+    private void appendOtherVariablesInfo(StringBuilder sb) {
         Object otherVarsValue = extAttrs.get(OTHER_VARIABLES_VALUE_KEY);
         if (otherVarsValue instanceof Map) {
             @SuppressWarnings("unchecked")
@@ -112,13 +138,6 @@ public class ModuleInst {
                 sb.append(")");
             }
         }
-
-        // 如果有shortCode，则使用shortCode作为前缀
-        if (shortCode != null) {
-            return shortCode + "(" + sb.toString() + ")";
-        }
-
-        return sb.toString();
     }
 
 }

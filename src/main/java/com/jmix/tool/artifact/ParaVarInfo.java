@@ -21,6 +21,9 @@ public class ParaVarInfo extends VarInfo<Para> {
 
     private List<ParaOptionVarInfo> options;
 
+    /**
+     * 默认构造函数
+     */
     public ParaVarInfo() {
         super();
     }
@@ -34,6 +37,11 @@ public class ParaVarInfo extends VarInfo<Para> {
         return options.stream().map(ParaOptionVarInfo::getCodeId).map(String::valueOf).collect(Collectors.joining(","));
     }
 
+    /**
+     * 带参数对象的构造函数
+     * 
+     * @param para 参数对象
+     */
     public ParaVarInfo(Para para) {
         super(para);
     }

@@ -286,6 +286,9 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
     }
 
+    /**
+     * 初始化变量
+     */
     protected void initVariables() {
         // 默认实现：通过反射自动创建和赋值变量
         autoInitVariables();

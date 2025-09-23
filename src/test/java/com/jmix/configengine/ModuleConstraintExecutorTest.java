@@ -1,6 +1,5 @@
 package com.jmix.configengine;
 
-import lombok.extern.slf4j.Slf4j;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -13,11 +12,19 @@ import com.jmix.executor.omodel.ModuleInst;
 import com.jmix.executor.omodel.Result;
 import com.jmix.tool.ModuleUtils;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.Test;
 
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * 模块约束执行器测试类
+ * 测试模块约束执行器的基本功能，包括初始化、添加模块和推理参数
+ * 
+ * @since 2025-09-22
+ */
 @Slf4j
 public class ModuleConstraintExecutorTest {
     /**

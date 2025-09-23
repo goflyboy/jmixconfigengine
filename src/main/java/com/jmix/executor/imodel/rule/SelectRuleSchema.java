@@ -41,6 +41,7 @@ public class SelectRuleSchema extends RuleSchema {
          */
         private List<RefProgObjSchema> leftRefProgObjs;
 
+        @Override
         public String toString() {
             return "AssignMapSchema{"
                     + "leftExpr="
@@ -78,6 +79,7 @@ public class SelectRuleSchema extends RuleSchema {
         return new ArrayList<>();
     }
 
+    @Override
     public String toString() {
         return "SelectRuleSchema{"
                 + "type='"

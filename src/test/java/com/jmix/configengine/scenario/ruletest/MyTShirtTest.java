@@ -18,6 +18,12 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.junit.Test;
 
+/**
+ * 我的T恤衫测试类
+ * 测试T恤衫模块的约束规则和参数推理功能
+ * 
+ * @since 2025-09-22
+ */
 @Slf4j
 public class MyTShirtTest extends ModuleScenarioTestBase {
 

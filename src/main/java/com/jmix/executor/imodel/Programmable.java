@@ -7,5 +7,10 @@ package com.jmix.executor.imodel;
  * @since 2025-09-22
  */
 public interface Programmable {
+    /**
+     * 获取编码
+     * 
+     * @return 编码
+     */
     String getCode();
 }

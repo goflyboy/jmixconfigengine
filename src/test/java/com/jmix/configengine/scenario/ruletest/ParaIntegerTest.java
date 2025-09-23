@@ -17,6 +17,12 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.junit.Test;
 
+/**
+ * 整数参数测试类
+ * 测试整数类型参数的各种约束和计算功能
+ * 
+ * @since 2025-09-22
+ */
 @Slf4j
 public class ParaIntegerTest extends ModuleScenarioTestBase {
 
