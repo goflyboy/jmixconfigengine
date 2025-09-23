@@ -3,6 +3,8 @@ package com.jmix.configengine.other;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,6 +14,7 @@ import java.util.List;
  * 简化的数据验证工具类
  * 用于验证T恤衫模块样例数据的完整性和正确性
  */
+@Slf4j
 public class SimpleDataValidator {
 
     private final ObjectMapper objectMapper = new ObjectMapper();

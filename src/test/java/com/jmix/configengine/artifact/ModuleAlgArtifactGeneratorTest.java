@@ -1,6 +1,5 @@
 package com.jmix.configengine.artifact;
 
-import lombok.extern.slf4j.Slf4j;
 import com.jmix.executor.imodel.Extensible;
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.Para;
@@ -18,6 +17,8 @@ import com.jmix.tool.artifact.ModuleAlgArtifactGenerator;
 import com.jmix.tool.artifact.ModuleVarInfo;
 import com.jmix.tool.artifact.RuleInfo;
 import com.jmix.tool.artifact.VarInfo;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.junit.Assert;
 import org.junit.Before;

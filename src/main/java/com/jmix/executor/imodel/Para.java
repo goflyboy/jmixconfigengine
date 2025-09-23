@@ -20,6 +20,7 @@ import java.util.Optional;
 public class Para extends ProgrammableObject<String> {
 
     public static final String DEFAULT_MIN_VALUE = "-1000";
+
     public static final String DEFAULT_MAX_VALUE = "1000";
 
     public static final String SHORT_CODE_PREFIX = "P";

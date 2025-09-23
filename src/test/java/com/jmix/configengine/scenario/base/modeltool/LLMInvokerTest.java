@@ -3,9 +3,12 @@ package com.jmix.configengine.scenario.base.modeltool;
 import com.jmix.tool.model.LLMInvoker;
 import com.jmix.tool.model.ModelHelper;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * LLM调用框架测试类
  */
+@Slf4j
 public final class LLMInvokerTest {
 
     private LLMInvokerTest() {

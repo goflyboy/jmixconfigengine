@@ -14,10 +14,13 @@ import com.jmix.tool.model.CommHelper;
 import com.jmix.tool.model.ModuleGenneratorByAnno;
 import com.jmix.tool.model.StructCodeInjector;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * 注解规则集成测试类
  * 用于测试完整的注解规则功能，包括代码注入
  */
+@Slf4j
 public class AnnotationRuleIntegrationTest {
 
     /**

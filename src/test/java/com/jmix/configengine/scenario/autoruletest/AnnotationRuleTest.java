@@ -19,12 +19,15 @@ import com.jmix.tool.model.ModuleGenneratorByAnno;
 import com.jmix.tool.model.ParaAnno;
 import com.jmix.tool.model.PartAnno;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.lang.reflect.Method;
 
 /**
  * 注解规则测试类
  * 用于测试CompatiableRuleAnno和CodeRuleAnno注解的功能
  */
+@Slf4j
 @ModuleAnno(id = 123, code = "AnnotationRule", packageName = "com.jmix.configengine.scenario.ruletest", version = "1.0", description = "注解规则测试模块", sortNo = 1)
 public class AnnotationRuleTest extends ConstraintAlgImpl {
 
