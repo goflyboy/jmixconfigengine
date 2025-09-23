@@ -130,7 +130,7 @@ public class ${module.code}Constraint extends ConstraintAlgImpl {
      */
     public void addConstraint_${rule.code}() {
         // TODO: 实现兼容性约束TODO 
-        System.out.println("添加兼容性约束: ${rule.name}");
+        System.out.println("Adding compatibility constraint: ${rule.name}");
     }
            
        //===================================类型1===================================
@@ -140,7 +140,7 @@ public class ${module.code}Constraint extends ConstraintAlgImpl {
      * 规则内容：${rule.normalNaturalCode}
      */
     public void addConstraint_${rule.code}() {
-        System.out.println("未知规则类型: ${rule.name}");
+        System.out.println("Unknown rule type: ${rule.name}");
     }
         </#if>
     </#list>
@@ -157,7 +157,7 @@ public class ${module.code}Constraint extends ConstraintAlgImpl {
         constraint.addConstraint_${rule.code}();
         </#list>
         
-        System.out.println("约束规则执行完成");
+        System.out.println("Constraint rules execution completed");
     }
     @Override
     protected void initModelAfter(CpModel model) {

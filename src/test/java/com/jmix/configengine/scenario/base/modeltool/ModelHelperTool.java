@@ -99,25 +99,25 @@ public final class ModelHelperTool {
              */
 
             try {
-                System.out.println("正在生成并运行测试文件...");
+                System.out.println("Generating and running test files...");
 
                 // 测试生成并运行功能
                 modelHelper.generatorRunModelFile(packageName, modelName, userVariableModel, userLogicByPseudocode,
                         userTestCaseSpec);
 
-                System.out.println("测试完成！");
+                System.out.println("Test completed successfully!");
 
             } catch (Exception e) {
-                System.out.println("测试失败: " + e.getMessage());
-                System.out.println("可能的原因：");
-                System.out.println("1. LLM API配置问题");
-                System.out.println("2. 网络连接问题");
-                System.out.println("3. 代码生成或编译问题");
+                System.out.println("Test failed: " + e.getMessage());
+                System.out.println("Possible causes:");
+                System.out.println("1. LLM API configuration issue");
+                System.out.println("2. Network connection problem");
+                System.out.println("3. Code generation or compilation issue");
                 e.printStackTrace();
             }
 
         } catch (Exception e) {
-            System.err.println("测试过程中发生错误: " + e.getMessage());
+            System.err.println("Error occurred during test execution: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -146,8 +146,8 @@ public final class ModelHelperTool {
             return parseMarkdownSection(content, section);
 
         } catch (Exception e) {
-            System.err.println("读取Markdown文件失败: " + e.getMessage());
-            System.err.println("将使用默认内容");
+            System.err.println("Failed to read Markdown file: " + e.getMessage());
+            System.err.println("Will use default content");
 
             // 返回默认内容
             if ("packageName".equals(section)) {
@@ -197,7 +197,7 @@ public final class ModelHelperTool {
             // 提取代码内容
             String code = content.substring(codeStart + 7, codeEnd).trim();
 
-            System.out.println("成功从Markdown文件读取 " + section + " 部分");
+            System.out.println("Successfully read " + section + " section from Markdown file");
             return code;
 
         } catch (Exception e) {

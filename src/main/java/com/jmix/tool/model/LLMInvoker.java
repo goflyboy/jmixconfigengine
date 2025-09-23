@@ -234,7 +234,8 @@ public class LLMInvoker {
         }
 
         if (apiKey == null || apiKey.trim().isEmpty() || "your_deepseek_api_key_here".equals(apiKey)) {
-            throw new IllegalStateException("请配置有效的DeepSeek API密钥，可通过环境变量DEEPSEEK_API_KEY或配置文件设置");
+            throw new IllegalStateException(
+                    "Please configure a valid DeepSeek API key via environment variable DEEPSEEK_API_KEY or configuration file");
         }
 
         return OpenAiChatModel.builder()
@@ -268,7 +269,8 @@ public class LLMInvoker {
         }
 
         if (apiKey == null || apiKey.trim().isEmpty() || "your_qwen_api_key_here".equals(apiKey)) {
-            throw new IllegalStateException("请配置有效的Qwen API密钥，可通过环境变量QWEN_API_KEY或配置文件设置");
+            throw new IllegalStateException(
+                    "Please configure a valid Qwen API key via environment variable QWEN_API_KEY or configuration file");
         }
 
         return OpenAiChatModel.builder()

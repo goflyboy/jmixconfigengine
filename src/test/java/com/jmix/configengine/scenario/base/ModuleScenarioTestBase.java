@@ -164,7 +164,7 @@ public abstract class ModuleScenarioTestBase {
         }
 
         Result<List<ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(req);
-        log.info("推理结果: {}", result);
+        log.info("Inference result: {}", result);
         setResult(result);
         setSolutions(result.getData());
         return getSolutions();
@@ -186,7 +186,7 @@ public abstract class ModuleScenarioTestBase {
         req.setPreParaInsts(buildParaInstsFromPairs(paraCodeValuePairs));
 
         Result<List<ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(req);
-        log.info("推理结果: {}", result);
+        log.info("Inference result: {}", result);
         setResult(result);
         setSolutions(result.getData());
         return getSolutions();
@@ -208,7 +208,7 @@ public abstract class ModuleScenarioTestBase {
      */
     protected ProgammableInstAssert solutions(int index) {
         if (getSolutions() == null || index >= getSolutions().size()) {
-            throw new IndexOutOfBoundsException("解决方案索引超出范围: " + index);
+            throw new IndexOutOfBoundsException("Solution index out of bounds: " + index);
         }
         ModuleInst solution = getSolutions().get(index);
         return new ProgammableInstAssert(solution, getModule());
@@ -219,14 +219,15 @@ public abstract class ModuleScenarioTestBase {
      */
     protected void printSolutionsDetail() {
         if (getSolutions() == null || getSolutions().isEmpty()) {
-            log.info("没有找到解决方案");
+            log.info("No solutions found");
             return;
         }
 
-        log.info("找到 {} 个解决方案:\n", getSolutions().size());
+        log.info("Found {} solutions:\n", getSolutions().size());
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < getSolutions().size(); i++) {
-            sb.append(String.format("\n解决方案%d: %s", i, ModuleConstraintExecutorImpl.toJson(getSolutions().get(i))));
+            sb.append(
+                    String.format("\nSolution %d: %s", i, ModuleConstraintExecutorImpl.toJson(getSolutions().get(i))));
         }
         log.info(sb.toString());
     }
@@ -236,7 +237,7 @@ public abstract class ModuleScenarioTestBase {
      */
     protected ResultAssert resultAssert() {
         if (getResult() == null) {
-            throw new IllegalStateException("尚未执行推理，无法获取结果断言");
+            throw new IllegalStateException("Inference not executed yet, cannot get result assertion");
         }
         return new ResultAssert(getResult());
     }
@@ -253,7 +254,7 @@ public abstract class ModuleScenarioTestBase {
             return;
         }
         if (getSolutions() == null || getSolutions().isEmpty()) {
-            throw new AssertionError("没有解决方案可供验证");
+            throw new AssertionError("No solutions available for verification");
         }
         // 解析条件表达式
         Map<String, String> kvMap = parseConditionExpr(conditionExpr);
@@ -271,7 +272,7 @@ public abstract class ModuleScenarioTestBase {
                     expectSolutionNum, actualMatchSolutionNum, conditionExpr));
         }
 
-        log.info("解决方案数量验证通过，条件: {}，数量: {}", conditionExpr, actualMatchSolutionNum);
+        log.info("Solution count verification passed, condition: {}, count: {}", conditionExpr, actualMatchSolutionNum);
     }
 
     /**
@@ -290,7 +291,7 @@ public abstract class ModuleScenarioTestBase {
             if (kv.length == 2) {
                 kvMap.put(kv[0].trim(), kv[1].trim());
             } else {
-                throw new IllegalArgumentException("条件表达式格式错误: " + pair);
+                throw new IllegalArgumentException("Invalid condition expression format: " + pair);
             }
         }
 
@@ -417,7 +418,8 @@ public abstract class ModuleScenarioTestBase {
      */
     private List<ParaInst> buildParaInstsFromPairs(String... paraCodeValuePairs) {
         if (paraCodeValuePairs.length % 2 != 0) {
-            throw new IllegalArgumentException("参数必须是偶数个，格式：paraCode1, value1, paraCode2, value2, ...");
+            throw new IllegalArgumentException(
+                    "Parameters must be in even numbers, format: paraCode1, value1, paraCode2, value2, ...");
         }
 
         List<ParaInst> paraInsts = new ArrayList<>();

@@ -99,7 +99,7 @@ public class ParaInstAssert extends ProgammableInstAssert {
      */
     public ParaInstAssert optionsEqual(String... expectOptions) {
         if (actual.getOptions() == null) {
-            throw new AssertionError("参数选项为空");
+            throw new AssertionError("Parameter option is null");
         }
 
         Set<String> actualOptions = new HashSet<>(actual.getOptions());

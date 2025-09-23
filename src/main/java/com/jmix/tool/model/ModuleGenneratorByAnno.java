@@ -13,6 +13,7 @@ import com.jmix.executor.imodel.rule.RefProgObjSchema;
 import com.jmix.executor.impl.algmodel.ConstraintAlg;
 import com.jmix.executor.impl.algmodel.ParaVar;
 import com.jmix.executor.impl.algmodel.PartVar;
+import com.jmix.executor.impl.util.Pair;
 import com.jmix.executor.omodel.AlgLoaderException;
 import com.jmix.tool.ModuleUtils;
 
@@ -54,96 +55,32 @@ public final class ModuleGenneratorByAnno {
 
         // 1. 根据ModuleAnno信息创建Module
         ModuleAnno moduleAnno = moduleAlgClazz.getAnnotation(ModuleAnno.class);
-        if (moduleAnno != null) {
-            // 1.1 生成Module.code
-            String className = moduleAlgClazz.getSimpleName();
-            // 优化代码生成逻辑：只去掉末尾的"Constraint"
-            String code = className;
-            if (className.endsWith("Constraint")) {
-                code = className.substring(0, className.length() - "Constraint".length());
-            }
-            module.setCode(code);
-
-            // 1.2 设置其他属性
-            module.setId(moduleAnno.id());
-            module.setPackageName(moduleAnno.packageName().isEmpty() ? moduleAlgClazz.getPackage().getName()
-                    : moduleAnno.packageName());
-            module.setVersion(moduleAnno.version());
-            module.setDescription(moduleAnno.description());
-            module.setSortNo(moduleAnno.sortNo());
-            module.setExtSchema(moduleAnno.extSchema());
-
-            // 生成module.alg
-            ModuleAlgArtifact alg = new ModuleAlgArtifact();
-            alg.setId(module.getId());
-            alg.setFileName(moduleAlgClazz.getName());
-            alg.setPackageName(moduleAlgClazz.getPackage().getName());
-
-            // 检查是否为内部类，设置parentClassName
-            Class<?> enclosingClass = moduleAlgClazz.getEnclosingClass();
-            if (enclosingClass != null) {
-                // 是内部类，设置父类名称
-                alg.setParentClassName(enclosingClass.getSimpleName());
-                log.info("Detected inner class: {}, parent class: {}", moduleAlgClazz.getName(),
-                        enclosingClass.getName());
-            } else {
-                // 不是内部类，保持默认空字符串
-                alg.setParentClassName("");
-            }
-
-            module.setAlg(alg);
-
-            // 处理扩展属性
-            if (moduleAnno.extAttrs().length > 0) {
-                Map<String, String> extAttrs = new HashMap<>();
-                for (String attr : moduleAnno.extAttrs()) {
-                    String[] parts = attr.split(":");
-                    if (parts.length == 2) {
-                        extAttrs.put(parts[0], parts[1]);
-                    }
-                }
-                module.setExtAttrs(extAttrs);
-            }
+        if (moduleAnno == null) {
+            log.error("ModuleAnno not found for class: {}", moduleAlgClazz.getName());
+            throw new AlgLoaderException("ModuleAnno not found for class: " + moduleAlgClazz.getName());
         }
+        // 1. 设置模块基础属性
+        buildModuleBase(module, moduleAnno, moduleAlgClazz);
+
+        // 生成module.alg
+        ModuleAlgArtifact alg = buildAlg(module, moduleAlgClazz);
+
+        module.setAlg(alg);
+
+        // 处理扩展属性
+        buildExtAttr(moduleAnno, module);
 
         // 2. 遍历成员变量，创建Para和Part
-        List<Para> paras = new ArrayList<>();
-        List<Part> parts = new ArrayList<>();
-
-        for (Field field : moduleAlgClazz.getDeclaredFields()) {
-            if (field.getType().getSimpleName().equals(ParaVar.class.getSimpleName())) {
-                Optional<Para> paraOpt = createParaFromField(field);
-                if (paraOpt.isPresent()) {
-                    paras.add(paraOpt.get());
-                }
-            } else if (field.getType().getSimpleName().equals(PartVar.class.getSimpleName())) {
-                Optional<Part> partOpt = createPartFromField(field);
-                if (partOpt.isPresent()) {
-                    parts.add(partOpt.get());
-                }
-            } else {
-                log.info("ignore field type: " + field.getType().getSimpleName());
-            }
-        }
-
-        module.setParas(paras);
-        module.setParts(parts);
+        Pair<List<Para>, List<Part>> paraParts = buildParaParts(moduleAlgClazz);
+        module.setParas(paraParts.getFirst());
+        module.setParts(paraParts.getSecond());
         module.init(); // 保证后续能使用getPara等函数
         // 4. 生成规则
         List<Rule> rules = createRulesFromMethods(moduleAlgClazz, module);
         module.setRules(rules);
 
         // 3. 保存Module到文件
-        String fileName = module.getCode() + ".base.json";
-        String filePath = resourcePath + File.separator + fileName;
-
-        try {
-            ModuleUtils.toJsonFile(module, filePath);
-            log.info("Module saved to: {}", filePath);
-        } catch (Exception e) {
-            log.error("Failed to save Module", e);
-        }
-
+        saveToFile(module, resourcePath);
         return module;
     }
 
@@ -187,31 +124,7 @@ public final class ModuleGenneratorByAnno {
             List<ParaOption> options = new ArrayList<>();
             for (int i = 0; i < paraAnno.options().length; i++) {
                 String raw = paraAnno.options()[i];
-                String label = raw;
-                Integer explicitId = null;
-                int sep = raw.indexOf(':');
-                if (sep >= 0) {
-                    String left = raw.substring(0, sep).trim();
-                    String right = raw.substring(sep + 1).trim();
-                    // Preferred: label:id
-                    if (!right.isEmpty() && right.chars().allMatch(Character::isDigit)) {
-                        label = left;
-                        explicitId = Integer.parseInt(right);
-                    } else if (!left.isEmpty() && left.chars().allMatch(Character::isDigit)) {
-                        // Backward compatibility: id:label
-                        explicitId = Integer.parseInt(left);
-                        label = right;
-                    } else {
-                        // Fallback: treat whole as label
-                        label = raw.trim();
-                    }
-                }
-                ParaOption option = new ParaOption();
-                option.setCode(label);
-                option.setCodeId(explicitId != null ? explicitId : (i + 1) * 10);
-                option.setDefaultValue(label);
-                option.setDescription("");
-                option.setSortNo(i + 1);
+                ParaOption option = createParaOption(raw, i);
                 options.add(option);
             }
             para.setOptions(options);
@@ -245,25 +158,13 @@ public final class ModuleGenneratorByAnno {
 
         // 处理规格属性
         if (partAnno.attrs().length > 0) {
-            Map<String, String> attrs = new HashMap<>();
-            for (String attr : partAnno.attrs()) {
-                String[] parts = attr.split(":");
-                if (parts.length == 2) {
-                    attrs.put(parts[0], parts[1]);
-                }
-            }
+            Map<String, String> attrs = parseAttributes(partAnno.attrs());
             part.setAttrs(attrs);
         }
 
         // 处理扩展属性
         if (partAnno.extAttrs().length > 0) {
-            Map<String, String> extAttrs = new HashMap<>();
-            for (String attr : partAnno.extAttrs()) {
-                String[] parts = attr.split(":");
-                if (parts.length == 2) {
-                    extAttrs.put(parts[0], parts[1]);
-                }
-            }
+            Map<String, String> extAttrs = parseAttributes(partAnno.extAttrs());
             part.setExtAttrs(extAttrs);
         }
 
@@ -486,5 +387,179 @@ public final class ModuleGenneratorByAnno {
         }
 
         return Arrays.asList(leftRefProgObjs, rightRefProgObjs);
+    }
+
+    /**
+     * 构建扩展属性映射
+     * 
+     * @param moduleAnno 模块注解
+     * @param module     模块对象
+     */
+    private static void buildExtAttr(ModuleAnno moduleAnno, Module module) {
+        if (moduleAnno.extAttrs().length > 0) {
+            Map<String, String> extAttrs = new HashMap<>();
+            for (String attr : moduleAnno.extAttrs()) {
+                String[] parts = attr.split(":");
+                if (parts.length == 2) {
+                    extAttrs.put(parts[0], parts[1]);
+                }
+            }
+            module.setExtAttrs(extAttrs);
+        }
+    }
+
+    /**
+     * 构建Para和Part列表
+     * 
+     * @param moduleAlgClazz 模块算法类
+     * @return 包含Para列表和Part列表的Pair
+     */
+    private static Pair<List<Para>, List<Part>> buildParaParts(Class<?> moduleAlgClazz) {
+        List<Para> paras = new ArrayList<>();
+        List<Part> parts = new ArrayList<>();
+
+        for (Field field : moduleAlgClazz.getDeclaredFields()) {
+            if (field.getType().getSimpleName().equals(ParaVar.class.getSimpleName())) {
+                Optional<Para> paraOpt = createParaFromField(field);
+                if (paraOpt.isPresent()) {
+                    paras.add(paraOpt.get());
+                }
+            } else if (field.getType().getSimpleName().equals(PartVar.class.getSimpleName())) {
+                Optional<Part> partOpt = createPartFromField(field);
+                if (partOpt.isPresent()) {
+                    parts.add(partOpt.get());
+                }
+            } else {
+                log.info("ignore field type: " + field.getType().getSimpleName());
+            }
+        }
+
+        return Pair.of(paras, parts);
+    }
+
+    /**
+     * 构建ModuleAlgArtifact对象
+     * 
+     * @param module         模块对象
+     * @param moduleAlgClazz 模块算法类
+     * @return 配置好的ModuleAlgArtifact对象
+     */
+    private static ModuleAlgArtifact buildAlg(Module module, Class<?> moduleAlgClazz) {
+        ModuleAlgArtifact alg = new ModuleAlgArtifact();
+        alg.setId(module.getId());
+        alg.setFileName(moduleAlgClazz.getName());
+        alg.setPackageName(moduleAlgClazz.getPackage().getName());
+
+        // 检查是否为内部类，设置parentClassName
+        Class<?> enclosingClass = moduleAlgClazz.getEnclosingClass();
+        if (enclosingClass != null) {
+            // 是内部类，设置父类名称
+            alg.setParentClassName(enclosingClass.getSimpleName());
+            log.info("Detected inner class: {}, parent class: {}", moduleAlgClazz.getName(),
+                    enclosingClass.getName());
+        } else {
+            // 不是内部类，保持默认空字符串
+            alg.setParentClassName("");
+        }
+
+        return alg;
+    }
+
+    /**
+     * 构建模块基础属性
+     * 
+     * @param module         模块对象
+     * @param moduleAnno     模块注解
+     * @param moduleAlgClazz 模块算法类
+     */
+    private static void buildModuleBase(Module module, ModuleAnno moduleAnno, Class<?> moduleAlgClazz) {
+        // 1.1 生成Module.code
+        String className = moduleAlgClazz.getSimpleName();
+        // 优化代码生成逻辑：只去掉末尾的"Constraint"
+        String code = className;
+        if (className.endsWith("Constraint")) {
+            code = className.substring(0, className.length() - "Constraint".length());
+        }
+        module.setCode(code);
+
+        // 1.2 设置其他属性
+        module.setId(moduleAnno.id());
+        module.setPackageName(moduleAnno.packageName().isEmpty() ? moduleAlgClazz.getPackage().getName()
+                : moduleAnno.packageName());
+        module.setVersion(moduleAnno.version());
+        module.setDescription(moduleAnno.description());
+        module.setSortNo(moduleAnno.sortNo());
+        module.setExtSchema(moduleAnno.extSchema());
+    }
+
+    /**
+     * 保存模块到文件
+     * 
+     * @param module       模块对象
+     * @param resourcePath 资源路径
+     */
+    private static void saveToFile(Module module, String resourcePath) {
+        String fileName = module.getCode() + ".base.json";
+        String filePath = resourcePath + File.separator + fileName;
+
+        try {
+            ModuleUtils.toJsonFile(module, filePath);
+            log.info("Module saved to: {}", filePath);
+        } catch (Exception e) {
+            log.error("Failed to save Module", e);
+        }
+    }
+
+    /**
+     * 创建参数选项
+     * 
+     * @param raw   原始选项字符串
+     * @param index 选项索引
+     * @return 创建的ParaOption对象
+     */
+    private static ParaOption createParaOption(String raw, int index) {
+        String label = raw;
+        Integer explicitId = null;
+        int sep = raw.indexOf(':');
+        if (sep >= 0) {
+            String left = raw.substring(0, sep).trim();
+            String right = raw.substring(sep + 1).trim();
+            // Preferred: label:id
+            if (!right.isEmpty() && right.chars().allMatch(Character::isDigit)) {
+                label = left;
+                explicitId = Integer.parseInt(right);
+            } else if (!left.isEmpty() && left.chars().allMatch(Character::isDigit)) {
+                // Backward compatibility: id:label
+                explicitId = Integer.parseInt(left);
+                label = right;
+            } else {
+                // Fallback: treat whole as label
+                label = raw.trim();
+            }
+        }
+        ParaOption option = new ParaOption();
+        option.setCode(label);
+        option.setCodeId(explicitId != null ? explicitId : (index + 1) * 10);
+        option.setDefaultValue(label);
+        option.setDescription("");
+        option.setSortNo(index + 1);
+        return option;
+    }
+
+    /**
+     * 解析属性字符串数组为Map
+     * 
+     * @param attributes 属性字符串数组，格式为 "key:value"
+     * @return 解析后的属性Map
+     */
+    private static Map<String, String> parseAttributes(String[] attributes) {
+        Map<String, String> attrs = new HashMap<>();
+        for (String attr : attributes) {
+            String[] parts = attr.split(":");
+            if (parts.length == 2) {
+                attrs.put(parts[0], parts[1]);
+            }
+        }
+        return attrs;
     }
 }

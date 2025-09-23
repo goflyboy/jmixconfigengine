@@ -42,7 +42,7 @@ public class ResultAssert {
                         "解决方案数量不匹配，期望: %d，实际: %d", expectedSize, actualSize));
             }
         } else {
-            throw new AssertionError("结果数据不是集合类型，无法获取数量");
+            throw new AssertionError("Result data is not a collection type, cannot get count");
         }
         return this;
     }
@@ -66,7 +66,7 @@ public class ResultAssert {
                         "解决方案数量应大于: %d，实际: %d", minSize, actualSize));
             }
         } else {
-            throw new AssertionError("结果数据不是集合类型，无法获取数量");
+            throw new AssertionError("Result data is not a collection type, cannot get count");
         }
         return this;
     }
@@ -90,7 +90,7 @@ public class ResultAssert {
                         "解决方案数量应大于等于: %d，实际: %d", minSize, actualSize));
             }
         } else {
-            throw new AssertionError("结果数据不是集合类型，无法获取数量");
+            throw new AssertionError("Result data is not a collection type, cannot get count");
         }
         return this;
     }
@@ -114,7 +114,7 @@ public class ResultAssert {
                         "解决方案数量应小于: %d，实际: %d", maxSize, actualSize));
             }
         } else {
-            throw new AssertionError("结果数据不是集合类型，无法获取数量");
+            throw new AssertionError("Result data is not a collection type, cannot get count");
         }
         return this;
     }
@@ -138,7 +138,7 @@ public class ResultAssert {
                         "解决方案数量应小于等于: %d，实际: %d", maxSize, actualSize));
             }
         } else {
-            throw new AssertionError("结果数据不是集合类型，无法获取数量");
+            throw new AssertionError("Result data is not a collection type, cannot get count");
         }
         return this;
     }
@@ -267,7 +267,7 @@ public class ResultAssert {
      */
     public ResultAssert assertDataNotNull() {
         if (actualResult.getData() == null) {
-            throw new AssertionError("结果数据不应为空");
+            throw new AssertionError("Result data should not be null");
         }
         return this;
     }
@@ -279,7 +279,7 @@ public class ResultAssert {
      */
     public ResultAssert assertDataNull() {
         if (actualResult.getData() != null) {
-            throw new AssertionError("结果数据应为空");
+            throw new AssertionError("Result data should be null");
         }
         return this;
     }

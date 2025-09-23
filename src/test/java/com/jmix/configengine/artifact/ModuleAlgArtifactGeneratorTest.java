@@ -177,8 +177,7 @@ public class ModuleAlgArtifactGeneratorTest {
                         (result.getFirst() != null ? result.getFirst().getClass().getSimpleName() : "null"),
                         result.getSecond().size());
             } else {
-                System.out
-                        .println("doSelectProObjs test passed - result is null (expected for current implementation)");
+                log.info("doSelectProObjs test passed - result is null (expected for current implementation)");
             }
 
         } catch (Exception e) {

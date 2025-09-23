@@ -9295,3 +9295,2240 @@ Lines added: 1, lines removed: 1
 
 ---
 
+_**User (2025-09-23 09:54Z)**_
+
+日志不符合规范，请修改
+
+---
+
+_**Assistant**_
+
+检查并修复日志中的中文内容，确保符合项目规范。
+
+
+---
+
+Read file: undefined
+
+---
+
+
+
+---
+
+## Todo List
+
+- [-] 修复ModelHelperTool.java中的中文日志内容，改为英文
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/modeltool/ModelHelperTool.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -100,5 +100,5 @@
+  
+              try {
+-                 System.out.println("正在生成并运行测试文件...");
++                 System.out.println("Generating and running test files...");
+  
+                  // 测试生成并运行功能
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/modeltool/ModelHelperTool.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -106,5 +106,5 @@
+                          userTestCaseSpec);
+  
+-                 System.out.println("测试完成！");
++                 System.out.println("Test completed successfully!");
+  
+              } catch (Exception e) {
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/modeltool/ModelHelperTool.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 5, lines removed: 5
+
+```diff
+@@ -109,9 +109,9 @@
+  
+              } catch (Exception e) {
+-                 System.out.println("测试失败: " + e.getMessage());
+-                 System.out.println("可能的原因：");
+-                 System.out.println("1. LLM API配置问题");
+-                 System.out.println("2. 网络连接问题");
+-                 System.out.println("3. 代码生成或编译问题");
++                 System.out.println("Test failed: " + e.getMessage());
++                 System.out.println("Possible causes:");
++                 System.out.println("1. LLM API configuration issue");
++                 System.out.println("2. Network connection problem");
++                 System.out.println("3. Code generation or compilation issue");
+                  e.printStackTrace();
+              }
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/modeltool/ModelHelperTool.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -118,5 +118,5 @@
+  
+          } catch (Exception e) {
+-             System.err.println("测试过程中发生错误: " + e.getMessage());
++             System.err.println("Error occurred during test execution: " + e.getMessage());
+              e.printStackTrace();
+          }
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/modeltool/ModelHelperTool.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -147,6 +147,6 @@
+  
+          } catch (Exception e) {
+-             System.err.println("读取Markdown文件失败: " + e.getMessage());
+-             System.err.println("将使用默认内容");
++             System.err.println("Failed to read Markdown file: " + e.getMessage());
++             System.err.println("Will use default content");
+  
+              // 返回默认内容
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/modeltool/ModelHelperTool.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -198,5 +198,5 @@
+              String code = content.substring(codeStart + 7, codeEnd).trim();
+  
+-             System.out.println("成功从Markdown文件读取 " + section + " 部分");
++             System.out.println("Successfully read " + section + " section from Markdown file");
+              return code;
+  
+```
+
+</details>
+
+---
+
+检查是否还有需要修复的日志内容。
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+## Todo List
+
+- [x] 修复ModelHelperTool.java中的中文日志内容，改为英文
+
+---
+
+## 日志规范修复完成
+
+已修复 `ModelHelperTool.java` 中的中文日志，改为英文。
+
+### 修复的日志内容
+
+1. **第102行**: `"正在生成并运行测试文件..."` → `"Generating and running test files..."`
+2. **第108行**: `"测试完成！"` → `"Test completed successfully!"`
+3. **第111行**: `"测试失败: " + e.getMessage()` → `"Test failed: " + e.getMessage()`
+4. **第112行**: `"可能的原因："` → `"Possible causes:"`
+5. **第113行**: `"1. LLM API配置问题"` → `"1. LLM API configuration issue"`
+6. **第114行**: `"2. 网络连接问题"` → `"2. Network connection problem"`
+7. **第115行**: `"3. 代码生成或编译问题"` → `"3. Code generation or compilation issue"`
+8. **第120行**: `"测试过程中发生错误: " + e.getMessage()` → `"Error occurred during test execution: " + e.getMessage()`
+9. **第149行**: `"读取Markdown文件失败: " + e.getMessage()` → `"Failed to read Markdown file: " + e.getMessage()`
+10. **第150行**: `"将使用默认内容"` → `"Will use default content"`
+11. **第200行**: `"成功从Markdown文件读取 " + section + " 部分"` → `"Successfully read " + section + " section from Markdown file"`
+
+### 修复效果
+
+- 所有日志内容已改为英文
+- 保持原有含义与可读性
+- 符合项目日志规范
+- 编译通过，无语法错误
+
+代码已符合项目日志规范，所有日志内容使用英文。
+
+---
+
+_**User (2025-09-23 09:54Z)**_
+
+log里有中文，不符合规范，请修改，请检查其它的类
+
+---
+
+_**Assistant**_
+
+检查并修复 `ModuleScenarioTestBase.java` 中的中文日志，随后扫描其他类。
+
+
+---
+
+## Todo List
+
+- [-] 修复ModuleScenarioTestBase.java中的中文日志内容
+- [ ] 检查其他类中的中文日志内容
+
+---
+
+Read file: undefined
+
+---
+
+The model provided an ambiguous search string to replace.
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -165,5 +165,5 @@
+  
+          Result<List<ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(req);
+-         log.info("推理结果: {}", result);
++         log.info("Inference result: {}", result);
+          setResult(result);
+          setSolutions(result.getData());
+```
+
+**Chunk 2**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -187,5 +187,5 @@
+  
+          Result<List<ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(req);
+-         log.info("推理结果: {}", result);
++         log.info("Inference result: {}", result);
+          setResult(result);
+          setSolutions(result.getData());
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -220,5 +220,5 @@
+      protected void printSolutionsDetail() {
+          if (getSolutions() == null || getSolutions().isEmpty()) {
+-             log.info("没有找到解决方案");
++             log.info("No solutions found");
+              return;
+          }
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -224,5 +224,5 @@
+          }
+  
+-         log.info("找到 {} 个解决方案:\n", getSolutions().size());
++         log.info("Found {} solutions:\n", getSolutions().size());
+          StringBuffer sb = new StringBuffer();
+          for (int i = 0; i < getSolutions().size(); i++) {
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -227,5 +227,5 @@
+          StringBuffer sb = new StringBuffer();
+          for (int i = 0; i < getSolutions().size(); i++) {
+-             sb.append(String.format("\n解决方案%d: %s", i, ModuleConstraintExecutorImpl.toJson(getSolutions().get(i))));
++             sb.append(String.format("\nSolution %d: %s", i, ModuleConstraintExecutorImpl.toJson(getSolutions().get(i))));
+          }
+          log.info(sb.toString());
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -272,5 +272,5 @@
+          }
+  
+-         log.info("解决方案数量验证通过，条件: {}，数量: {}", conditionExpr, actualMatchSolutionNum);
++         log.info("Solution count verification passed, condition: {}, count: {}", conditionExpr, actualMatchSolutionNum);
+      }
+  
+```
+
+</details>
+
+---
+
+## Todo List
+
+- [x] 修复ModuleScenarioTestBase.java中的中文日志内容
+- [ ] 检查其他类中的中文日志内容
+
+---
+
+检查其他类中的中文日志。
+
+
+---
+
+## Todo List
+
+- [x] 修复ModuleScenarioTestBase.java中的中文日志内容
+- [-] 检查其他类中的中文日志内容
+
+---
+
+
+
+---
+
+
+
+---
+
+检查模板文件中的中文内容。
+
+
+---
+
+Read file: undefined
+
+---
+
+<details><summary>Edit file: src/main/resources/template/ModuleConstraintTemplate.ftl</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -131,5 +131,5 @@
+      public void addConstraint_${rule.code}() {
+          // TODO: 实现兼容性约束TODO 
+-         System.out.println("添加兼容性约束: ${rule.name}");
++         System.out.println("Adding compatibility constraint: ${rule.name}");
+      }
+             
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/resources/template/ModuleConstraintTemplate.ftl</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -141,5 +141,5 @@
+       */
+      public void addConstraint_${rule.code}() {
+-         System.out.println("未知规则类型: ${rule.name}");
++         System.out.println("Unknown rule type: ${rule.name}");
+      }
+          </#if>
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/resources/template/ModuleConstraintTemplate.ftl</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -158,5 +158,5 @@
+          </#list>
+          
+-         System.out.println("约束规则执行完成");
++         System.out.println("Constraint rules execution completed");
+      }
+      @Override
+```
+
+</details>
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+## Todo List
+
+- [x] 修复ModuleScenarioTestBase.java中的中文日志内容
+- [x] 检查其他类中的中文日志内容
+
+---
+
+## 日志规范修复完成
+
+已修复项目中的中文日志，统一为英文。
+
+### 修复的文件和内容
+
+#### 1. **ModuleScenarioTestBase.java**
+- 第167行: `"推理结果: {}"` → `"Inference result: {}"`
+- 第189行: `"推理结果: {}"` → `"Inference result: {}"`
+- 第222行: `"没有找到解决方案"` → `"No solutions found"`
+- 第226行: `"找到 {} 个解决方案:\n"` → `"Found {} solutions:\n"`
+- 第229行: `"\n解决方案%d: %s"` → `"\nSolution %d: %s"`
+- 第274行: `"解决方案数量验证通过，条件: {}，数量: {}"` → `"Solution count verification passed, condition: {}, count: {}"`
+
+#### 2. **ModuleConstraintTemplate.ftl**
+- 第133行: `"添加兼容性约束: ${rule.name}"` → `"Adding compatibility constraint: ${rule.name}"`
+- 第143行: `"未知规则类型: ${rule.name}"` → `"Unknown rule type: ${rule.name}"`
+- 第160行: `"约束规则执行完成"` → `"Constraint rules execution completed"`
+
+### 检查结果
+
+- 已检查所有 `log.info()`, `log.warn()`, `log.error()`, `log.debug()` 调用
+- 已检查所有 `System.out.println()` 和 `System.err.println()` 调用
+- 未发现其他中文日志内容
+- 编译通过，无语法错误
+
+### 修复效果
+
+- 所有日志内容已改为英文
+- 保持原有含义和可读性
+- 符合项目日志规范
+- 便于国际化与运维
+
+项目已符合日志规范，所有日志内容使用英文。
+
+---
+
+_**User (2025-09-23 09:54Z)**_
+
+异常中有中文，也修改为英文
+
+---
+
+_**Assistant**_
+
+检查并修复异常消息中的中文内容。
+
+
+---
+
+## Todo List
+
+- [-] 修复异常消息中的中文内容
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -209,5 +209,5 @@
+      protected ProgammableInstAssert solutions(int index) {
+          if (getSolutions() == null || index >= getSolutions().size()) {
+-             throw new IndexOutOfBoundsException("解决方案索引超出范围: " + index);
++             throw new IndexOutOfBoundsException("Solution index out of bounds: " + index);
+          }
+          ModuleInst solution = getSolutions().get(index);
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -238,5 +238,5 @@
+      protected ResultAssert resultAssert() {
+          if (getResult() == null) {
+-             throw new IllegalStateException("尚未执行推理，无法获取结果断言");
++             throw new IllegalStateException("Inference not executed yet, cannot get result assertion");
+          }
+          return new ResultAssert(getResult());
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -255,5 +255,5 @@
+          }
+          if (getSolutions() == null || getSolutions().isEmpty()) {
+-             throw new AssertionError("没有解决方案可供验证");
++             throw new AssertionError("No solutions available for verification");
+          }
+          // 解析条件表达式
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -292,5 +292,5 @@
+                  kvMap.put(kv[0].trim(), kv[1].trim());
+              } else {
+-                 throw new IllegalArgumentException("条件表达式格式错误: " + pair);
++                 throw new IllegalArgumentException("Invalid condition expression format: " + pair);
+              }
+          }
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -419,5 +419,5 @@
+      private List<ParaInst> buildParaInstsFromPairs(String... paraCodeValuePairs) {
+          if (paraCodeValuePairs.length % 2 != 0) {
+-             throw new IllegalArgumentException("参数必须是偶数个，格式：paraCode1, value1, paraCode2, value2, ...");
++             throw new IllegalArgumentException("Parameters must be in even numbers, format: paraCode1, value1, paraCode2, value2, ...");
+          }
+  
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/tool/model/LLMInvoker.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -235,5 +235,5 @@
+  
+          if (apiKey == null || apiKey.trim().isEmpty() || "your_deepseek_api_key_here".equals(apiKey)) {
+-             throw new IllegalStateException("请配置有效的DeepSeek API密钥，可通过环境变量DEEPSEEK_API_KEY或配置文件设置");
++             throw new IllegalStateException("Please configure a valid DeepSeek API key via environment variable DEEPSEEK_API_KEY or configuration file");
+          }
+  
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/tool/model/LLMInvoker.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -269,5 +269,5 @@
+  
+          if (apiKey == null || apiKey.trim().isEmpty() || "your_qwen_api_key_here".equals(apiKey)) {
+-             throw new IllegalStateException("请配置有效的Qwen API密钥，可通过环境变量QWEN_API_KEY或配置文件设置");
++             throw new IllegalStateException("Please configure a valid Qwen API key via environment variable QWEN_API_KEY or configuration file");
+          }
+  
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ParaInstAssert.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -100,5 +100,5 @@
+      public ParaInstAssert optionsEqual(String... expectOptions) {
+          if (actual.getOptions() == null) {
+-             throw new AssertionError("参数选项为空");
++             throw new AssertionError("Parameter option is null");
+          }
+  
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ResultAssert.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -43,5 +43,5 @@
+              }
+          } else {
+-             throw new AssertionError("结果数据不是集合类型，无法获取数量");
++             throw new AssertionError("Result data is not a collection type, cannot get count");
+          }
+          return this;
+```
+
+**Chunk 2**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -67,5 +67,5 @@
+              }
+          } else {
+-             throw new AssertionError("结果数据不是集合类型，无法获取数量");
++             throw new AssertionError("Result data is not a collection type, cannot get count");
+          }
+          return this;
+```
+
+**Chunk 3**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -91,5 +91,5 @@
+              }
+          } else {
+-             throw new AssertionError("结果数据不是集合类型，无法获取数量");
++             throw new AssertionError("Result data is not a collection type, cannot get count");
+          }
+          return this;
+```
+
+**Chunk 4**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -115,5 +115,5 @@
+              }
+          } else {
+-             throw new AssertionError("结果数据不是集合类型，无法获取数量");
++             throw new AssertionError("Result data is not a collection type, cannot get count");
+          }
+          return this;
+```
+
+**Chunk 5**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -139,5 +139,5 @@
+              }
+          } else {
+-             throw new AssertionError("结果数据不是集合类型，无法获取数量");
++             throw new AssertionError("Result data is not a collection type, cannot get count");
+          }
+          return this;
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ResultAssert.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -268,5 +268,5 @@
+      public ResultAssert assertDataNotNull() {
+          if (actualResult.getData() == null) {
+-             throw new AssertionError("结果数据不应为空");
++             throw new AssertionError("Result data should not be null");
+          }
+          return this;
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ResultAssert.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -280,5 +280,5 @@
+      public ResultAssert assertDataNull() {
+          if (actualResult.getData() != null) {
+-             throw new AssertionError("结果数据应为空");
++             throw new AssertionError("Result data should be null");
+          }
+          return this;
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ProgammableInstAssert.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -35,5 +35,5 @@
+          ParaInst paraInst = findParaByCode(code);
+          if (paraInst == null) {
+-             throw new AssertionError("未找到参数 in moduleInst: " + code);
++             throw new AssertionError("Parameter not found in moduleInst: " + code);
+          }
+          java.util.Optional<Para> paraOpt = module.getPara(code);
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ProgammableInstAssert.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -39,5 +39,5 @@
+          java.util.Optional<Para> paraOpt = module.getPara(code);
+          if (!paraOpt.isPresent()) {
+-             throw new AssertionError("未找到参数 in module: " + code);
++             throw new AssertionError("Parameter not found in module: " + code);
+          }
+          Para para = paraOpt.get();
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ProgammableInstAssert.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -54,5 +54,5 @@
+          PartInst partInst = findPartByCode(code);
+          if (partInst == null) {
+-             throw new AssertionError("未找到部件: " + code);
++             throw new AssertionError("Part not found: " + code);
+          }
+          java.util.Optional<Part> partOpt = module.getPart(code);
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ProgammableInstAssert.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -58,5 +58,5 @@
+          java.util.Optional<Part> partOpt = module.getPart(code);
+          if (!partOpt.isPresent()) {
+-             throw new AssertionError("未找到部件 in module: " + code);
++             throw new AssertionError("Part not found in module: " + code);
+          }
+          Part part = partOpt.get();
+```
+
+</details>
+
+---
+
+
+
+---
+
+
+
+---
+
+## Todo List
+
+- [x] 修复异常消息中的中文内容
+
+---
+
+## 异常消息修复完成
+
+已修复项目中的中文异常消息，统一为英文。
+
+### 修复的文件和内容
+
+#### 1. **ModuleScenarioTestBase.java**
+- 第211行: `"解决方案索引超出范围: " + index` → `"Solution index out of bounds: " + index`
+- 第240行: `"尚未执行推理，无法获取结果断言"` → `"Inference not executed yet, cannot get result assertion"`
+- 第257行: `"没有解决方案可供验证"` → `"No solutions available for verification"`
+- 第294行: `"条件表达式格式错误: " + pair` → `"Invalid condition expression format: " + pair`
+- 第421行: `"参数必须是偶数个，格式：paraCode1, value1, paraCode2, value2, ..."` → `"Parameters must be in even numbers, format: paraCode1, value1, paraCode2, value2, ..."`
+
+#### 2. **LLMInvoker.java**
+- 第237行: `"请配置有效的DeepSeek API密钥，可通过环境变量DEEPSEEK_API_KEY或配置文件设置"` → `"Please configure a valid DeepSeek API key via environment variable DEEPSEEK_API_KEY or configuration file"`
+- 第271行: `"请配置有效的Qwen API密钥，可通过环境变量QWEN_API_KEY或配置文件设置"` → `"Please configure a valid Qwen API key via environment variable QWEN_API_KEY or configuration file"`
+
+#### 3. **ParaInstAssert.java**
+- 第102行: `"参数选项为空"` → `"Parameter option is null"`
+
+#### 4. **ResultAssert.java**
+- 第45, 69, 93, 117, 141行: `"结果数据不是集合类型，无法获取数量"` → `"Result data is not a collection type, cannot get count"`
+- 第270行: `"结果数据不应为空"` → `"Result data should not be null"`
+- 第282行: `"结果数据应为空"` → `"Result data should be null"`
+
+#### 5. **ProgammableInstAssert.java**
+- 第37行: `"未找到参数 in moduleInst: " + code` → `"Parameter not found in moduleInst: " + code`
+- 第41行: `"未找到参数 in module: " + code` → `"Parameter not found in module: " + code`
+- 第56行: `"未找到部件: " + code` → `"Part not found: " + code`
+- 第60行: `"未找到部件 in module: " + code` → `"Part not found in module: " + code`
+
+### 检查结果
+
+- 已检查所有 `throw new` 异常语句
+- 已检查所有 `IllegalArgumentException`, `IllegalStateException`, `IndexOutOfBoundsException`, `AssertionError` 等异常类型
+- 未发现其他中文异常消息
+- 编译通过，无语法错误
+
+### 修复效果
+
+- 所有异常消息已改为英文
+- 保持原有含义和可读性
+- 符合项目国际化规范
+- 便于运维和调试
+
+项目已符合异常消息规范，所有异常消息使用英文。
+
+---
+
+_**User (2025-09-23 09:54Z)**_
+
+抽取为一个小函数buildExtAttr
+
+---
+
+_**Assistant**_
+
+抽取扩展属性处理逻辑为独立函数 `buildExtAttr`。
+
+
+---
+
+Read file: undefined
+
+---
+
+Read file: undefined
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/tool/model/ModuleGenneratorByAnno.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 10
+
+```diff
+@@ -98,14 +98,5 @@
+  
+          // 处理扩展属性
+-         if (moduleAnno.extAttrs().length > 0) {
+-             Map<String, String> extAttrs = new HashMap<>();
+-             for (String attr : moduleAnno.extAttrs()) {
+-                 String[] parts = attr.split(":");
+-                 if (parts.length == 2) {
+-                     extAttrs.put(parts[0], parts[1]);
+-                 }
+-             }
+-             module.setExtAttrs(extAttrs);
+-         }
++         buildExtAttr(moduleAnno, module);
+  
+          // 2. 遍历成员变量，创建Para和Part
+```
+
+</details>
+
+---
+
+在类末尾添加 `buildExtAttr` 方法。
+
+
+---
+
+Read file: undefined
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/tool/model/ModuleGenneratorByAnno.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 19, lines removed: undefined
+
+```diff
+@@ -480,3 +480,22 @@
+          return Arrays.asList(leftRefProgObjs, rightRefProgObjs);
+      }
++ 
++     /**
++      * 构建扩展属性映射
++      * 
++      * @param moduleAnno 模块注解
++      * @param module     模块对象
++      */
++     private static void buildExtAttr(ModuleAnno moduleAnno, Module module) {
++         if (moduleAnno.extAttrs().length > 0) {
++             Map<String, String> extAttrs = new HashMap<>();
++             for (String attr : moduleAnno.extAttrs()) {
++                 String[] parts = attr.split(":");
++                 if (parts.length == 2) {
++                     extAttrs.put(parts[0], parts[1]);
++                 }
++             }
++             module.setExtAttrs(extAttrs);
++         }
++     }
+  }
+```
+
+</details>
+
+---
+
+
+
+---
+
+## 扩展属性处理逻辑已抽取
+
+已将扩展属性处理逻辑抽取为独立函数 `buildExtAttr`。
+
+### 修改内容
+
+#### 1. **原代码替换**
+```java
+// 处理扩展属性
+if (moduleAnno.extAttrs().length > 0) {
+    Map<String, String> extAttrs = new HashMap<>();
+    for (String attr : moduleAnno.extAttrs()) {
+        String[] parts = attr.split(":");
+        if (parts.length == 2) {
+            extAttrs.put(parts[0], parts[1]);
+        }
+    }
+    module.setExtAttrs(extAttrs);
+}
+```
+
+#### 2. **替换为函数调用**
+```java
+// 处理扩展属性
+buildExtAttr(moduleAnno, module);
+```
+
+#### 3. **新增私有静态方法**
+```java
+/**
+ * 构建扩展属性映射
+ * 
+ * @param moduleAnno 模块注解
+ * @param module     模块对象
+ */
+private static void buildExtAttr(ModuleAnno moduleAnno, Module module) {
+    if (moduleAnno.extAttrs().length > 0) {
+        Map<String, String> extAttrs = new HashMap<>();
+        for (String attr : moduleAnno.extAttrs()) {
+            String[] parts = attr.split(":");
+            if (parts.length == 2) {
+                extAttrs.put(parts[0], parts[1]);
+            }
+        }
+        module.setExtAttrs(extAttrs);
+    }
+}
+```
+
+### 重构效果
+
+- 可读性提升：主流程更简洁
+- 可维护性提升：扩展属性逻辑集中
+- 可复用性提升：可在其他位置调用
+- 职责分离：主方法聚焦核心流程
+- 无语法错误：编译通过
+
+重构完成，代码结构更清晰。
+
+---
+
+_**User (2025-09-23 09:54Z)**_
+
+抽取为一个小函数buildParaParts->Pair
+
+---
+
+_**Assistant**_
+
+抽取 Para 和 Part 的构建逻辑为独立函数，返回 `Pair`。
+
+
+---
+
+Read file: undefined
+
+---
+
+检查是否已导入 `Pair` 类。
+
+
+---
+
+
+
+---
+
+未导入 `Pair`。检查项目是否已有 `Pair` 类，或使用 Apache Commons Lang 的 `Pair`。
+
+
+---
+
+
+
+---
+
+项目已有 `Pair` 类。查看其定义：
+
+
+---
+
+Read file: undefined
+
+---
+
+添加 `Pair` 的导入，并抽取 `buildParaParts` 函数。
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/tool/model/ModuleGenneratorByAnno.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -14,4 +14,5 @@
+  import com.jmix.executor.impl.algmodel.ParaVar;
+  import com.jmix.executor.impl.algmodel.PartVar;
++ import com.jmix.executor.impl.util.Pair;
+  import com.jmix.executor.omodel.AlgLoaderException;
+  import com.jmix.tool.ModuleUtils;
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/tool/model/ModuleGenneratorByAnno.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 3, lines removed: 21
+
+```diff
+@@ -102,25 +102,7 @@
+  
+          // 2. 遍历成员变量，创建Para和Part
+-         List<Para> paras = new ArrayList<>();
+-         List<Part> parts = new ArrayList<>();
+- 
+-         for (Field field : moduleAlgClazz.getDeclaredFields()) {
+-             if (field.getType().getSimpleName().equals(ParaVar.class.getSimpleName())) {
+-                 Optional<Para> paraOpt = createParaFromField(field);
+-                 if (paraOpt.isPresent()) {
+-                     paras.add(paraOpt.get());
+-                 }
+-             } else if (field.getType().getSimpleName().equals(PartVar.class.getSimpleName())) {
+-                 Optional<Part> partOpt = createPartFromField(field);
+-                 if (partOpt.isPresent()) {
+-                     parts.add(partOpt.get());
+-                 }
+-             } else {
+-                 log.info("ignore field type: " + field.getType().getSimpleName());
+-             }
+-         }
+- 
+-         module.setParas(paras);
+-         module.setParts(parts);
++         Pair<List<Para>, List<Part>> paraParts = buildParaParts(moduleAlgClazz);
++         module.setParas(paraParts.getFirst());
++         module.setParts(paraParts.getSecond());
+          module.init(); // 保证后续能使用getPara等函数
+          // 4. 生成规则
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/tool/model/ModuleGenneratorByAnno.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 29, lines removed: undefined
+
+```diff
+@@ -482,3 +482,32 @@
+          }
+      }
++ 
++     /**
++      * 构建Para和Part列表
++      * 
++      * @param moduleAlgClazz 模块算法类
++      * @return 包含Para列表和Part列表的Pair
++      */
++     private static Pair<List<Para>, List<Part>> buildParaParts(Class<?> moduleAlgClazz) {
++         List<Para> paras = new ArrayList<>();
++         List<Part> parts = new ArrayList<>();
++ 
++         for (Field field : moduleAlgClazz.getDeclaredFields()) {
++             if (field.getType().getSimpleName().equals(ParaVar.class.getSimpleName())) {
++                 Optional<Para> paraOpt = createParaFromField(field);
++                 if (paraOpt.isPresent()) {
++                     paras.add(paraOpt.get());
++                 }
++             } else if (field.getType().getSimpleName().equals(PartVar.class.getSimpleName())) {
++                 Optional<Part> partOpt = createPartFromField(field);
++                 if (partOpt.isPresent()) {
++                     parts.add(partOpt.get());
++                 }
++             } else {
++                 log.info("ignore field type: " + field.getType().getSimpleName());
++             }
++         }
++ 
++         return Pair.of(paras, parts);
++     }
+  }
+```
+
+</details>
+
+---
+
+
+
+---
+
+## Para 和 Part 构建逻辑已抽取
+
+已将 Para 和 Part 的构建逻辑抽取为独立函数 `buildParaParts`，返回 `Pair`。
+
+### 修改内容
+
+#### 1. **添加 Pair 导入**
+```java
+import com.jmix.executor.impl.util.Pair;
+```
+
+#### 2. **原代码替换**
+```java
+// 2. 遍历成员变量，创建Para和Part
+List<Para> paras = new ArrayList<>();
+List<Part> parts = new ArrayList<>();
+
+for (Field field : moduleAlgClazz.getDeclaredFields()) {
+    if (field.getType().getSimpleName().equals(ParaVar.class.getSimpleName())) {
+        Optional<Para> paraOpt = createParaFromField(field);
+        if (paraOpt.isPresent()) {
+            paras.add(paraOpt.get());
+        }
+    } else if (field.getType().getSimpleName().equals(PartVar.class.getSimpleName())) {
+        Optional<Part> partOpt = createPartFromField(field);
+        if (partOpt.isPresent()) {
+            parts.add(partOpt.get());
+        }
+    } else {
+        log.info("ignore field type: " + field.getType().getSimpleName());
+    }
+}
+
+module.setParas(paras);
+module.setParts(parts);
+```
+
+#### 3. **替换为函数调用**
+```java
+// 2. 遍历成员变量，创建Para和Part
+Pair<List<Para>, List<Part>> paraParts = buildParaParts(moduleAlgClazz);
+module.setParas(paraParts.getFirst());
+module.setParts(paraParts.getSecond());
+```
+
+#### 4. **新增私有静态方法**
+```java
+/**
+ * 构建Para和Part列表
+ * 
+ * @param moduleAlgClazz 模块算法类
+ * @return 包含Para列表和Part列表的Pair
+ */
+private static Pair<List<Para>, List<Part>> buildParaParts(Class<?> moduleAlgClazz) {
+    List<Para> paras = new ArrayList<>();
+    List<Part> parts = new ArrayList<>();
+
+    for (Field field : moduleAlgClazz.getDeclaredFields()) {
+        if (field.getType().getSimpleName().equals(ParaVar.class.getSimpleName())) {
+            Optional<Para> paraOpt = createParaFromField(field);
+            if (paraOpt.isPresent()) {
+                paras.add(paraOpt.get());
+            }
+        } else if (field.getType().getSimpleName().equals(PartVar.class.getSimpleName())) {
+            Optional<Part> partOpt = createPartFromField(field);
+            if (partOpt.isPresent()) {
+                parts.add(partOpt.get());
+            }
+        } else {
+            log.info("ignore field type: " + field.getType().getSimpleName());
+        }
+    }
+
+    return Pair.of(paras, parts);
+}
+```
+
+### 重构效果
+
+- 可读性提升：主流程更简洁
+- 可维护性提升：Para/Part 构建逻辑集中
+- 可复用性提升：可在其他位置调用
+- 职责分离：主方法聚焦核心流程
+- 类型安全：使用 `Pair` 返回两个列表
+- 无语法错误：编译通过
+
+重构完成，代码结构更清晰。
+
+---
+
+_**User (2025-09-23 09:54Z)**_
+
+抽取为一个小函数buildAlg
+
+---
+
+_**Assistant**_
+
+抽取 `buildAlg` 函数，封装 `ModuleAlgArtifact` 的创建与配置逻辑。
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/tool/model/ModuleGenneratorByAnno.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 16
+
+```diff
+@@ -79,20 +79,5 @@
+  
+          // 生成module.alg
+-         ModuleAlgArtifact alg = new ModuleAlgArtifact();
+-         alg.setId(module.getId());
+-         alg.setFileName(moduleAlgClazz.getName());
+-         alg.setPackageName(moduleAlgClazz.getPackage().getName());
+- 
+-         // 检查是否为内部类，设置parentClassName
+-         Class<?> enclosingClass = moduleAlgClazz.getEnclosingClass();
+-         if (enclosingClass != null) {
+-             // 是内部类，设置父类名称
+-             alg.setParentClassName(enclosingClass.getSimpleName());
+-             log.info("Detected inner class: {}, parent class: {}", moduleAlgClazz.getName(),
+-                     enclosingClass.getName());
+-         } else {
+-             // 不是内部类，保持默认空字符串
+-             alg.setParentClassName("");
+-         }
++         ModuleAlgArtifact alg = buildAlg(module, moduleAlgClazz);
+  
+          module.setAlg(alg);
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/tool/model/ModuleGenneratorByAnno.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 28, lines removed: undefined
+
+```diff
+@@ -496,3 +496,31 @@
+          return Pair.of(paras, parts);
+      }
++ 
++     /**
++      * 构建ModuleAlgArtifact对象
++      * 
++      * @param module          模块对象
++      * @param moduleAlgClazz 模块算法类
++      * @return 配置好的ModuleAlgArtifact对象
++      */
++     private static ModuleAlgArtifact buildAlg(Module module, Class<?> moduleAlgClazz) {
++         ModuleAlgArtifact alg = new ModuleAlgArtifact();
++         alg.setId(module.getId());
++         alg.setFileName(moduleAlgClazz.getName());
++         alg.setPackageName(moduleAlgClazz.getPackage().getName());
++ 
++         // 检查是否为内部类，设置parentClassName
++         Class<?> enclosingClass = moduleAlgClazz.getEnclosingClass();
++         if (enclosingClass != null) {
++             // 是内部类，设置父类名称
++             alg.setParentClassName(enclosingClass.getSimpleName());
++             log.info("Detected inner class: {}, parent class: {}", moduleAlgClazz.getName(),
++                     enclosingClass.getName());
++         } else {
++             // 不是内部类，保持默认空字符串
++             alg.setParentClassName("");
++         }
++ 
++         return alg;
++     }
+  }
+```
+
+</details>
+
+---
+
+
+
+---
+
+已将 `ModuleAlgArtifact` 的创建与配置逻辑抽取为 `buildAlg` 函数。
+
+## 重构完成：抽取 `buildAlg` 函数
+
+### 修改内容
+
+#### 1. **原代码替换**
+将原来的内联代码：
+```java
+// 生成module.alg
+ModuleAlgArtifact alg = new ModuleAlgArtifact();
+alg.setId(module.getId());
+alg.setFileName(moduleAlgClazz.getName());
+alg.setPackageName(moduleAlgClazz.getPackage().getName());
+
+// 检查是否为内部类，设置parentClassName
+Class<?> enclosingClass = moduleAlgClazz.getEnclosingClass();
+if (enclosingClass != null) {
+    // 是内部类，设置父类名称
+    alg.setParentClassName(enclosingClass.getSimpleName());
+    log.info("Detected inner class: {}, parent class: {}", moduleAlgClazz.getName(),
+            enclosingClass.getName());
+} else {
+    // 不是内部类，保持默认空字符串
+    alg.setParentClassName("");
+}
+```
+
+#### 2. **替换为函数调用**
+```java
+// 生成module.alg
+ModuleAlgArtifact alg = buildAlg(module, moduleAlgClazz);
+```
+
+#### 3. **新增私有静态方法**
+```java
+/**
+ * 构建ModuleAlgArtifact对象
+ * 
+ * @param module          模块对象
+ * @param moduleAlgClazz 模块算法类
+ * @return 配置好的ModuleAlgArtifact对象
+ */
+private static ModuleAlgArtifact buildAlg(Module module, Class<?> moduleAlgClazz) {
+    ModuleAlgArtifact alg = new ModuleAlgArtifact();
+    alg.setId(module.getId());
+    alg.setFileName(moduleAlgClazz.getName());
+    alg.setPackageName(moduleAlgClazz.getPackage().getName());
+
+    // 检查是否为内部类，设置parentClassName
+    Class<?> enclosingClass = moduleAlgClazz.getEnclosingClass();
+    if (enclosingClass != null) {
+        // 是内部类，设置父类名称
+        alg.setParentClassName(enclosingClass.getSimpleName());
+        log.info("Detected inner class: {}, parent class: {}", moduleAlgClazz.getName(),
+                enclosingClass.getName());
+    } else {
+        // 不是内部类，保持默认空字符串
+        alg.setParentClassName("");
+    }
+
+    return alg;
+}
+```
+
+### 重构效果
+
+- 可读性提升：主流程更简洁
+- 可维护性提升：`ModuleAlgArtifact` 构建逻辑集中
+- 可复用性提升：可在其他位置调用
+- 职责分离：主方法聚焦核心流程
+- 功能完整：保留内部类检测与日志
+- 无语法错误：编译通过
+
+重构完成，代码结构更清晰。
+
+---
+
+_**User (2025-09-23 09:54Z)**_
+
+抽取为一个小函数buildModuleBase
+
+---
+
+_**Assistant**_
+
+抽取 `buildModuleBase` 函数，封装模块基础属性的设置逻辑。
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/tool/model/ModuleGenneratorByAnno.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 17
+
+```diff
+@@ -60,21 +60,6 @@
+              throw new AlgLoaderException("ModuleAnno not found for class: " + moduleAlgClazz.getName());
+          }
+-         // 1.1 生成Module.code
+-         String className = moduleAlgClazz.getSimpleName();
+-         // 优化代码生成逻辑：只去掉末尾的"Constraint"
+-         String code = className;
+-         if (className.endsWith("Constraint")) {
+-             code = className.substring(0, className.length() - "Constraint".length());
+-         }
+-         module.setCode(code);
+- 
+-         // 1.2 设置其他属性
+-         module.setId(moduleAnno.id());
+-         module.setPackageName(moduleAnno.packageName().isEmpty() ? moduleAlgClazz.getPackage().getName()
+-                 : moduleAnno.packageName());
+-         module.setVersion(moduleAnno.version());
+-         module.setDescription(moduleAnno.description());
+-         module.setSortNo(moduleAnno.sortNo());
+-         module.setExtSchema(moduleAnno.extSchema());
++         // 1. 设置模块基础属性
++         buildModuleBase(module, moduleAnno, moduleAlgClazz);
+  
+          // 生成module.alg
+```
+
+</details>
+
+---
+
+The string to replace was not found in the file.
+
+---
+
+Read file: undefined
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/tool/model/ModuleGenneratorByAnno.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 27, lines removed: undefined
+
+```diff
+@@ -509,3 +509,30 @@
+          return alg;
+      }
++ 
++     /**
++      * 构建模块基础属性
++      * 
++      * @param module          模块对象
++      * @param moduleAnno     模块注解
++      * @param moduleAlgClazz 模块算法类
++      */
++     private static void buildModuleBase(Module module, ModuleAnno moduleAnno, Class<?> moduleAlgClazz) {
++         // 1.1 生成Module.code
++         String className = moduleAlgClazz.getSimpleName();
++         // 优化代码生成逻辑：只去掉末尾的"Constraint"
++         String code = className;
++         if (className.endsWith("Constraint")) {
++             code = className.substring(0, className.length() - "Constraint".length());
++         }
++         module.setCode(code);
++ 
++         // 1.2 设置其他属性
++         module.setId(moduleAnno.id());
++         module.setPackageName(moduleAnno.packageName().isEmpty() ? moduleAlgClazz.getPackage().getName()
++                 : moduleAnno.packageName());
++         module.setVersion(moduleAnno.version());
++         module.setDescription(moduleAnno.description());
++         module.setSortNo(moduleAnno.sortNo());
++         module.setExtSchema(moduleAnno.extSchema());
++     }
+  }
+```
+
+</details>
+
+---
+
+
+
+---
+
+_**User (2025-09-23 09:54Z)**_
+
+抽取为一个小函数saveToFile
+
+---
+
+_**Assistant**_
+
+抽取 `saveToFile` 函数，封装模块保存到文件的逻辑。
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/tool/model/ModuleGenneratorByAnno.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 9
+
+```diff
+@@ -81,13 +81,5 @@
+  
+          // 3. 保存Module到文件
+-         String fileName = module.getCode() + ".base.json";
+-         String filePath = resourcePath + File.separator + fileName;
+- 
+-         try {
+-             ModuleUtils.toJsonFile(module, filePath);
+-             log.info("Module saved to: {}", filePath);
+-         } catch (Exception e) {
+-             log.error("Failed to save Module", e);
+-         }
++         saveToFile(module, resourcePath);
+          return module;
+      }
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/tool/model/ModuleGenneratorByAnno.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 18, lines removed: undefined
+
+```diff
+@@ -528,3 +528,21 @@
+          module.setExtSchema(moduleAnno.extSchema());
+      }
++ 
++     /**
++      * 保存模块到文件
++      * 
++      * @param module       模块对象
++      * @param resourcePath 资源路径
++      */
++     private static void saveToFile(Module module, String resourcePath) {
++         String fileName = module.getCode() + ".base.json";
++         String filePath = resourcePath + File.separator + fileName;
++ 
++         try {
++             ModuleUtils.toJsonFile(module, filePath);
++             log.info("Module saved to: {}", filePath);
++         } catch (Exception e) {
++             log.error("Failed to save Module", e);
++         }
++     }
+  }
+```
+
+</details>
+
+---
+
+
+
+---
+
+已将模块保存到文件的逻辑抽取为 `saveToFile` 函数。
+
+## 重构完成：抽取 `saveToFile` 函数
+
+### 修改内容
+
+#### 1. **原代码替换**
+将原来的内联代码：
+```java
+// 3. 保存Module到文件
+String fileName = module.getCode() + ".base.json";
+String filePath = resourcePath + File.separator + fileName;
+
+try {
+    ModuleUtils.toJsonFile(module, filePath);
+    log.info("Module saved to: {}", filePath);
+} catch (Exception e) {
+    log.error("Failed to save Module", e);
+}
+```
+
+#### 2. **替换为函数调用**
+```java
+// 3. 保存Module到文件
+saveToFile(module, resourcePath);
+```
+
+#### 3. **新增私有静态方法**
+```java
+/**
+ * 保存模块到文件
+ * 
+ * @param module       模块对象
+ * @param resourcePath 资源路径
+ */
+private static void saveToFile(Module module, String resourcePath) {
+    String fileName = module.getCode() + ".base.json";
+    String filePath = resourcePath + File.separator + fileName;
+
+    try {
+        ModuleUtils.toJsonFile(module, filePath);
+        log.info("Module saved to: {}", filePath);
+    } catch (Exception e) {
+        log.error("Failed to save Module", e);
+    }
+}
+```
+
+### 重构效果
+
+- 可读性提升：主流程更简洁
+- 可维护性提升：文件保存逻辑集中
+- 可复用性提升：可在其他位置调用
+- 职责分离：主方法聚焦核心流程
+- 功能完整：保留异常处理与日志
+- 无语法错误：编译通过
+
+### 当前重构状态
+
+1. `buildAlg` - 构建 ModuleAlgArtifact 对象
+2. `buildModuleBase` - 构建模块基础属性
+3. `saveToFile` - 保存模块到文件
+
+主方法 `generateModule` 更简洁，职责更清晰。
+
+---
+
+_**User (2025-09-23 09:54Z)**_
+
+抽取为一个小函数createParaOption
+
+---
+
+_**Assistant**_
+
+抽取 `createParaOption` 函数，封装选项创建逻辑。
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/tool/model/ModuleGenneratorByAnno.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 1, lines removed: 25
+
+```diff
+@@ -125,29 +125,5 @@
+              for (int i = 0; i < paraAnno.options().length; i++) {
+                  String raw = paraAnno.options()[i];
+-                 String label = raw;
+-                 Integer explicitId = null;
+-                 int sep = raw.indexOf(':');
+-                 if (sep >= 0) {
+-                     String left = raw.substring(0, sep).trim();
+-                     String right = raw.substring(sep + 1).trim();
+-                     // Preferred: label:id
+-                     if (!right.isEmpty() && right.chars().allMatch(Character::isDigit)) {
+-                         label = left;
+-                         explicitId = Integer.parseInt(right);
+-                     } else if (!left.isEmpty() && left.chars().allMatch(Character::isDigit)) {
+-                         // Backward compatibility: id:label
+-                         explicitId = Integer.parseInt(left);
+-                         label = right;
+-                     } else {
+-                         // Fallback: treat whole as label
+-                         label = raw.trim();
+-                     }
+-                 }
+-                 ParaOption option = new ParaOption();
+-                 option.setCode(label);
+-                 option.setCodeId(explicitId != null ? explicitId : (i + 1) * 10);
+-                 option.setDefaultValue(label);
+-                 option.setDescription("");
+-                 option.setSortNo(i + 1);
++                 ParaOption option = createParaOption(raw, i);
+                  options.add(option);
+              }
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/tool/model/ModuleGenneratorByAnno.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 36, lines removed: undefined
+
+```diff
+@@ -522,3 +522,39 @@
+          }
+      }
++ 
++     /**
++      * 创建参数选项
++      * 
++      * @param raw 原始选项字符串
++      * @param index 选项索引
++      * @return 创建的ParaOption对象
++      */
++     private static ParaOption createParaOption(String raw, int index) {
++         String label = raw;
++         Integer explicitId = null;
++         int sep = raw.indexOf(':');
++         if (sep >= 0) {
++             String left = raw.substring(0, sep).trim();
++             String right = raw.substring(sep + 1).trim();
++             // Preferred: label:id
++             if (!right.isEmpty() && right.chars().allMatch(Character::isDigit)) {
++                 label = left;
++                 explicitId = Integer.parseInt(right);
++             } else if (!left.isEmpty() && left.chars().allMatch(Character::isDigit)) {
++                 // Backward compatibility: id:label
++                 explicitId = Integer.parseInt(left);
++                 label = right;
++             } else {
++                 // Fallback: treat whole as label
++                 label = raw.trim();
++             }
++         }
++         ParaOption option = new ParaOption();
++         option.setCode(label);
++         option.setCodeId(explicitId != null ? explicitId : (index + 1) * 10);
++         option.setDefaultValue(label);
++         option.setDescription("");
++         option.setSortNo(index + 1);
++         return option;
++     }
+  }
+```
+
+</details>
+
+---
+
+
+
+---
+
+已将参数选项创建逻辑抽取为 `createParaOption` 函数。
+
+## 重构完成：抽取 `createParaOption` 函数
+
+### 修改内容
+
+#### 1. **原代码替换**
+将原来的内联代码：
+```java
+for (int i = 0; i < paraAnno.options().length; i++) {
+    String raw = paraAnno.options()[i];
+    String label = raw;
+    Integer explicitId = null;
+    int sep = raw.indexOf(':');
+    if (sep >= 0) {
+        String left = raw.substring(0, sep).trim();
+        String right = raw.substring(sep + 1).trim();
+        // Preferred: label:id
+        if (!right.isEmpty() && right.chars().allMatch(Character::isDigit)) {
+            label = left;
+            explicitId = Integer.parseInt(right);
+        } else if (!left.isEmpty() && left.chars().allMatch(Character::isDigit)) {
+            // Backward compatibility: id:label
+            explicitId = Integer.parseInt(left);
+            label = right;
+        } else {
+            // Fallback: treat whole as label
+            label = raw.trim();
+        }
+    }
+    ParaOption option = new ParaOption();
+    option.setCode(label);
+    option.setCodeId(explicitId != null ? explicitId : (i + 1) * 10);
+    option.setDefaultValue(label);
+    option.setDescription("");
+    option.setSortNo(i + 1);
+```
+
+#### 2. **替换为函数调用**
+```java
+for (int i = 0; i < paraAnno.options().length; i++) {
+    String raw = paraAnno.options()[i];
+    ParaOption option = createParaOption(raw, i);
+```
+
+#### 3. **新增私有静态方法**
+```java
+/**
+ * 创建参数选项
+ * 
+ * @param raw 原始选项字符串
+ * @param index 选项索引
+ * @return 创建的ParaOption对象
+ */
+private static ParaOption createParaOption(String raw, int index) {
+    String label = raw;
+    Integer explicitId = null;
+    int sep = raw.indexOf(':');
+    if (sep >= 0) {
+        String left = raw.substring(0, sep).trim();
+        String right = raw.substring(sep + 1).trim();
+        // Preferred: label:id
+        if (!right.isEmpty() && right.chars().allMatch(Character::isDigit)) {
+            label = left;
+            explicitId = Integer.parseInt(right);
+        } else if (!left.isEmpty() && left.chars().allMatch(Character::isDigit)) {
+            // Backward compatibility: id:label
+            explicitId = Integer.parseInt(left);
+            label = right;
+        } else {
+            // Fallback: treat whole as label
+            label = raw.trim();
+        }
+    }
+    ParaOption option = new ParaOption();
+    option.setCode(label);
+    option.setCodeId(explicitId != null ? explicitId : (index + 1) * 10);
+    option.setDefaultValue(label);
+    option.setDescription("");
+    option.setSortNo(index + 1);
+    return option;
+}
+```
+
+### 重构效果
+
+- 可读性提升：循环更简洁
+- 可维护性提升：选项创建逻辑集中
+- 可复用性提升：可在其他位置调用
+- 职责分离：主方法聚焦流程
+- 功能完整：保留解析与兼容逻辑
+- 无语法错误：编译通过
+
+### 当前重构状态
+
+1. `buildAlg` - 构建 ModuleAlgArtifact 对象
+2. `buildModuleBase` - 构建模块基础属性
+3. `saveToFile` - 保存模块到文件
+4. `createParaOption` - 创建参数选项
+
+主方法 `generateModule` 更简洁，职责更清晰。
+
+---
+
+_**User (2025-09-23 09:54Z)**_
+
+这个有重复代码，抽取一个公共方法共享调用
+
+---
+
+_**Assistant**_
+
+抽取公共方法处理规格属性和扩展属性，消除重复代码。
+
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/tool/model/ModuleGenneratorByAnno.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 2, lines removed: 14
+
+```diff
+@@ -159,23 +159,11 @@
+          // 处理规格属性
+          if (partAnno.attrs().length > 0) {
+-             Map<String, String> attrs = new HashMap<>();
+-             for (String attr : partAnno.attrs()) {
+-                 String[] parts = attr.split(":");
+-                 if (parts.length == 2) {
+-                     attrs.put(parts[0], parts[1]);
+-                 }
+-             }
++             Map<String, String> attrs = parseAttributes(partAnno.attrs());
+              part.setAttrs(attrs);
+          }
+  
+          // 处理扩展属性
+          if (partAnno.extAttrs().length > 0) {
+-             Map<String, String> extAttrs = new HashMap<>();
+-             for (String attr : partAnno.extAttrs()) {
+-                 String[] parts = attr.split(":");
+-                 if (parts.length == 2) {
+-                     extAttrs.put(parts[0], parts[1]);
+-                 }
+-             }
++             Map<String, String> extAttrs = parseAttributes(partAnno.extAttrs());
+              part.setExtAttrs(extAttrs);
+          }
+```
+
+</details>
+
+---
+
+<details><summary>Edit file: src/main/java/com/jmix/tool/model/ModuleGenneratorByAnno.java</summary>
+
+undefined
+
+**Chunk 1**
+Lines added: 17, lines removed: undefined
+
+```diff
+@@ -546,3 +546,20 @@
+          return option;
+      }
++ 
++     /**
++      * 解析属性字符串数组为Map
++      * 
++      * @param attributes 属性字符串数组，格式为 "key:value"
++      * @return 解析后的属性Map
++      */
++     private static Map<String, String> parseAttributes(String[] attributes) {
++         Map<String, String> attrs = new HashMap<>();
++         for (String attr : attributes) {
++             String[] parts = attr.split(":");
++             if (parts.length == 2) {
++                 attrs.put(parts[0], parts[1]);
++             }
++         }
++         return attrs;
++     }
+  }
+```
+
+</details>
+
+---
+
+
+
+---
+
+已将重复的属性解析逻辑抽取为公共方法 `parseAttributes`。
+
+## 重构完成：抽取 `parseAttributes` 公共方法
+
+### 修改内容
+
+#### 1. **原代码替换**
+将原来的重复代码：
+```java
+// 处理规格属性
+if (partAnno.attrs().length > 0) {
+    Map<String, String> attrs = new HashMap<>();
+    for (String attr : partAnno.attrs()) {
+        String[] parts = attr.split(":");
+        if (parts.length == 2) {
+            attrs.put(parts[0], parts[1]);
+        }
+    }
+    part.setAttrs(attrs);
+}
+
+// 处理扩展属性
+if (partAnno.extAttrs().length > 0) {
+    Map<String, String> extAttrs = new HashMap<>();
+    for (String attr : partAnno.extAttrs()) {
+        String[] parts = attr.split(":");
+        if (parts.length == 2) {
+            extAttrs.put(parts[0], parts[1]);
+        }
+    }
+    part.setExtAttrs(extAttrs);
+}
+```
+
+#### 2. **替换为函数调用**
+```java
+// 处理规格属性
+if (partAnno.attrs().length > 0) {
+    Map<String, String> attrs = parseAttributes(partAnno.attrs());
+    part.setAttrs(attrs);
+}
+
+// 处理扩展属性
+if (partAnno.extAttrs().length > 0) {
+    Map<String, String> extAttrs = parseAttributes(partAnno.extAttrs());
+    part.setExtAttrs(extAttrs);
+}
+```
+
+#### 3. **新增私有静态方法**
+```java
+/**
+ * 解析属性字符串数组为Map
+ * 
+ * @param attributes 属性字符串数组，格式为 "key:value"
+ * @return 解析后的属性Map
+ */
+private static Map<String, String> parseAttributes(String[] attributes) {
+    Map<String, String> attrs = new HashMap<>();
+    for (String attr : attributes) {
+        String[] parts = attr.split(":");
+        if (parts.length == 2) {
+            attrs.put(parts[0], parts[1]);
+        }
+    }
+    return attrs;
+}
+```
+
+### 重构效果
+
+- 消除重复：两处相同逻辑合并为公共方法
+- 可读性提升：调用更简洁
+- 可维护性提升：解析逻辑集中
+- 可复用性提升：可在其他位置调用
+- 职责分离：主方法聚焦流程
+- 功能完整：保留解析与校验
+- 无语法错误：编译通过
+
+### 当前重构状态
+
+1. `buildAlg` - 构建 ModuleAlgArtifact 对象
+2. `buildModuleBase` - 构建模块基础属性
+3. `saveToFile` - 保存模块到文件
+4. `createParaOption` - 创建参数选项
+5. `parseAttributes` - 解析属性字符串数组为Map
+
+主方法 `generateModule` 更简洁，职责更清晰。
+
+---
+

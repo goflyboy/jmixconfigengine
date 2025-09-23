@@ -34,11 +34,11 @@ public class ProgammableInstAssert {
     public ParaInstAssert assertPara(String code) {
         ParaInst paraInst = findParaByCode(code);
         if (paraInst == null) {
-            throw new AssertionError("未找到参数 in moduleInst: " + code);
+            throw new AssertionError("Parameter not found in moduleInst: " + code);
         }
         java.util.Optional<Para> paraOpt = module.getPara(code);
         if (!paraOpt.isPresent()) {
-            throw new AssertionError("未找到参数 in module: " + code);
+            throw new AssertionError("Parameter not found in module: " + code);
         }
         Para para = paraOpt.get();
         return new ParaInstAssert(actualModuleInst, module, paraInst, para);
@@ -53,11 +53,11 @@ public class ProgammableInstAssert {
     public PartInstAssert assertPart(String code) {
         PartInst partInst = findPartByCode(code);
         if (partInst == null) {
-            throw new AssertionError("未找到部件: " + code);
+            throw new AssertionError("Part not found: " + code);
         }
         java.util.Optional<Part> partOpt = module.getPart(code);
         if (!partOpt.isPresent()) {
-            throw new AssertionError("未找到部件 in module: " + code);
+            throw new AssertionError("Part not found in module: " + code);
         }
         Part part = partOpt.get();
         return new PartInstAssert(actualModuleInst, module, partInst, part);
