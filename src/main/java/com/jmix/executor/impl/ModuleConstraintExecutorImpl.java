@@ -342,24 +342,39 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
 
         for (ExtensibleProcess process : extensibleProcesses) {
             if (process instanceof InferParasPostProcess) {
-                try {
-                    InferParasPostProcess postProcess = (InferParasPostProcess) process;
-                    Result<List<ModuleInst>> processResult = postProcess.postProcess(module, result);
-
-                    if (processResult.getCode() == Result.SUCCESS && processResult.getData() != null) {
-                        result = processResult.getData();
-                        log.debug("Applied post process: {} successfully", process.getProcessName());
-                    } else {
-                        log.warn("Post process failed: {}, message: {}",
-                                process.getProcessName(), processResult.getMessage());
-                    }
-                } catch (Exception e) {
-                    log.error("Exception in post process: {}", process.getProcessName(), e);
-                }
+                result = applyPostProcess(module, result, (InferParasPostProcess) process);
             }
         }
 
         return result;
+    }
+
+    /**
+     * 应用单个后处理流程
+     * 
+     * @param module        模块
+     * @param currentResult 当前结果
+     * @param postProcess   后处理流程
+     * @return 处理后的结果
+     */
+    private List<ModuleInst> applyPostProcess(Module module, List<ModuleInst> currentResult,
+            InferParasPostProcess postProcess) {
+        try {
+            Result<List<ModuleInst>> processResult = postProcess.postProcess(module, currentResult);
+
+            if (processResult.getCode() != Result.SUCCESS || processResult.getData() == null) {
+                log.warn("Post process failed: {}, message: {}",
+                        postProcess.getClass().getSimpleName(), processResult.getMessage());
+                return currentResult;
+            }
+
+            log.debug("Applied post process: {} successfully", postProcess.getClass().getSimpleName());
+            return processResult.getData();
+
+        } catch (Exception e) {
+            log.error("Exception in post process: {}", postProcess.getClass().getSimpleName(), e);
+            return currentResult;
+        }
     }
 
     /**

@@ -313,30 +313,61 @@ public abstract class ModuleScenarioTestBase {
             String key = entry.getKey();
             String value = entry.getValue();
 
-            // 在module.paras中查找
-            java.util.Optional<Para> paraOpt = getModule().getPara(key);
-            if (paraOpt.isPresent()) {
-                Para para = paraOpt.get();
-                // 找到Para，进一步根据value在option中查找
-                String codeIdValue = ParaTypeHandler.getCodeIdValue(para, value);
-                elements.add(new ConditionElement("para", key, codeIdValue));
-                continue;
-            }
-
-            // 在module.parts中查找
-            java.util.Optional<Part> partOpt = getModule().getPart(key);
-            if (partOpt.isPresent()) {
-                // 找到Part
-                elements.add(new ConditionElement("part", key, value));
-                continue;
-            }
-
-            // 都找不到，报错
-            throw new AlgLoaderException(String.format(
-                    "Parameter or part not found in Module: %s", key));
+            ConditionElement element = createConditionElement(key, value);
+            elements.add(element);
         }
 
         return elements;
+    }
+
+    /**
+     * 创建条件元素
+     * 
+     * @param key   键
+     * @param value 值
+     * @return 条件元素
+     * @throws AlgLoaderException 当找不到参数或部件时
+     */
+    private ConditionElement createConditionElement(String key, String value) {
+        // 在module.paras中查找
+        java.util.Optional<Para> paraOpt = getModule().getPara(key);
+        if (paraOpt.isPresent()) {
+            return createParaConditionElement(key, value, paraOpt.get());
+        }
+
+        // 在module.parts中查找
+        java.util.Optional<Part> partOpt = getModule().getPart(key);
+        if (partOpt.isPresent()) {
+            return createPartConditionElement(key, value);
+        }
+
+        // 都找不到，报错
+        throw new AlgLoaderException(String.format(
+                "Parameter or part not found in Module: %s", key));
+    }
+
+    /**
+     * 创建参数条件元素
+     * 
+     * @param key   键
+     * @param value 值
+     * @param para  参数对象
+     * @return 条件元素
+     */
+    private ConditionElement createParaConditionElement(String key, String value, Para para) {
+        String codeIdValue = ParaTypeHandler.getCodeIdValue(para, value);
+        return new ConditionElement("para", key, codeIdValue);
+    }
+
+    /**
+     * 创建部件条件元素
+     * 
+     * @param key   键
+     * @param value 值
+     * @return 条件元素
+     */
+    private ConditionElement createPartConditionElement(String key, String value) {
+        return new ConditionElement("part", key, value);
     }
 
     /**

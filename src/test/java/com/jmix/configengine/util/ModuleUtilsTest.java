@@ -192,8 +192,8 @@ public class ModuleUtilsTest {
 
         // 由于类型信息可能不同，我们只比较基本内容
         assertTrue("往返后的JSON应该包含相同的基本信息",
-                secondJson.contains(originalModule.getCode()) &&
-                        secondJson.contains(originalModule.getDescription()));
+                secondJson.contains(originalModule.getCode())
+                        && secondJson.contains(originalModule.getDescription()));
 
         // 清理第二个文件
         new File(secondJsonFile).delete();
@@ -207,6 +207,27 @@ public class ModuleUtilsTest {
      * @return 测试用的Module对象
      */
     private Module createTestModule() {
+        Module module = createBaseModule();
+
+        // 创建并设置子对象
+        Para testPara = createTestPara();
+        Part testPart = createTestPart();
+        Rule testRule = createTestRule();
+
+        // 设置模块属性
+        module.setParas(java.util.Arrays.asList(testPara));
+        module.setParts(java.util.Arrays.asList(testPart));
+        module.setRules(java.util.Arrays.asList(testRule));
+
+        return module;
+    }
+
+    /**
+     * 创建基础Module对象
+     * 
+     * @return 基础Module对象
+     */
+    private Module createBaseModule() {
         Module module = new Module();
         module.setCode("TestModule");
         module.setId(999L);
@@ -222,7 +243,15 @@ public class ModuleUtilsTest {
         module.setExtAttr("testCategory", "test");
         module.setExtAttr("testPurpose", "unitTest");
 
-        // 创建测试参数
+        return module;
+    }
+
+    /**
+     * 创建测试参数
+     * 
+     * @return 测试参数对象
+     */
+    private Para createTestPara() {
         Para testPara = new Para();
         testPara.setCode("TestPara");
         testPara.setFatherCode("TestModule");
@@ -234,6 +263,18 @@ public class ModuleUtilsTest {
         testPara.setExtAttr("testAttr", "testValue");
 
         // 创建参数选项
+        ParaOption testOption = createTestParaOption();
+        testPara.setOptions(java.util.Arrays.asList(testOption));
+
+        return testPara;
+    }
+
+    /**
+     * 创建测试参数选项
+     * 
+     * @return 测试参数选项对象
+     */
+    private ParaOption createTestParaOption() {
         ParaOption testOption = new ParaOption();
         testOption.setCodeId(100);
         testOption.setCode("TestOption");
@@ -243,9 +284,15 @@ public class ModuleUtilsTest {
         testOption.setSortNo(1);
         testOption.setExtAttr("optionAttr", "optionValue");
 
-        testPara.setOptions(java.util.Arrays.asList(testOption));
+        return testOption;
+    }
 
-        // 创建测试部件
+    /**
+     * 创建测试部件
+     * 
+     * @return 测试部件对象
+     */
+    private Part createTestPart() {
         Part testPart = new Part();
         testPart.setCode("TestPart");
         testPart.setFatherCode("TestModule");
@@ -261,7 +308,15 @@ public class ModuleUtilsTest {
         testPart.setAttrs(new java.util.HashMap<>());
         testPart.setAttr("partProperty", "propertyValue");
 
-        // 创建测试规则
+        return testPart;
+    }
+
+    /**
+     * 创建测试规则
+     * 
+     * @return 测试规则对象
+     */
+    private Rule createTestRule() {
         Rule testRule = new Rule();
         testRule.setCode("TestRule");
         testRule.setName("测试规则");
@@ -274,10 +329,35 @@ public class ModuleUtilsTest {
         testRule.setRuleSchemaTypeFullName("CDSL.V5.Struct.TestRule");
 
         // 创建规则Schema
+        CompatiableRuleSchema ruleSchema = createTestRuleSchema();
+        testRule.setRawCode(ruleSchema);
+
+        return testRule;
+    }
+
+    /**
+     * 创建测试规则Schema
+     * 
+     * @return 测试规则Schema对象
+     */
+    private CompatiableRuleSchema createTestRuleSchema() {
         CompatiableRuleSchema ruleSchema = new CompatiableRuleSchema();
         ruleSchema.setOperator("Requires");
 
         // 创建表达式
+        ExprSchema exprSchema = createTestExprSchema();
+        ruleSchema.setLeftExpr(exprSchema);
+        ruleSchema.setRightExpr(exprSchema);
+
+        return ruleSchema;
+    }
+
+    /**
+     * 创建测试表达式Schema
+     * 
+     * @return 测试表达式Schema对象
+     */
+    private ExprSchema createTestExprSchema() {
         ExprSchema exprSchema = new ExprSchema();
         exprSchema.setRawCode("TestPara=\"TestOption\"");
 
@@ -288,17 +368,7 @@ public class ModuleUtilsTest {
 
         exprSchema.setRefProgObjs(java.util.Arrays.asList(refProgObj));
 
-        ruleSchema.setLeftExpr(exprSchema);
-        ruleSchema.setRightExpr(exprSchema);
-
-        testRule.setRawCode(ruleSchema);
-
-        // 设置模块属性
-        module.setParas(java.util.Arrays.asList(testPara));
-        module.setParts(java.util.Arrays.asList(testPart));
-        module.setRules(java.util.Arrays.asList(testRule));
-
-        return module;
+        return exprSchema;
     }
 
     /**

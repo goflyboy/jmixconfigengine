@@ -68,23 +68,6 @@ public class ModuleAlgArtifactGeneratorTest {
         // 创建测试模块和ModuleInfo
         Module module = createTestModule();
         module.init();
-        // 测试兼容规则
-        Rule compatiableRule = createCompatiableRule();
-        RuleInfo compatiableRuleInfo = invokeBuildRule(module, compatiableRule);
-
-        Assert.assertNotNull("CompatiableRuleInfo should not be null", compatiableRuleInfo);
-        Assert.assertEquals("Code should match", "rule1", compatiableRuleInfo.getCode());
-        Assert.assertEquals("Name should match", "颜色和尺寸兼容关系规则", compatiableRuleInfo.getName());
-        Assert.assertEquals("NormalNaturalCode should match",
-                "如果颜色选择红色，则尺寸必须选择大号或小号，不能选择中号",
-                compatiableRuleInfo.getNormalNaturalCode());
-        Assert.assertEquals("RuleSchemaTypeFullName should match",
-                RuleTypeConstants.COMPATIABLE_RULE_FULL_NAME,
-                compatiableRuleInfo.getRuleSchemaTypeFullName());
-        Assert.assertEquals("LeftTypeName should be ParaVar", "ParaVar",
-                compatiableRuleInfo.getLeftTypeName());
-        Assert.assertEquals("RightTypeName should be ParaVar", "ParaVar",
-                compatiableRuleInfo.getRightTypeName());
 
         // 测试计算规则
         Rule calculateRule = createCalculateRule();

@@ -82,13 +82,14 @@ public class AnnotationRuleIntegrationTest {
             Module module = ModuleGenneratorByAnno.build(AnnotationRuleTest.class, tempPath);
 
             // 检查是否需要注入
+            if (module.getRules() == null) {
+                return;
+            }
             boolean isNeedInject = false;
-            if (module.getRules() != null) {
-                for (Rule rule : module.getRules()) {
-                    if ("CDSL.V5.Struct.CompatiableRule".equals(rule.getRuleSchemaTypeFullName())) {
-                        isNeedInject = true;
-                        break;
-                    }
+            for (Rule rule : module.getRules()) {
+                if ("CDSL.V5.Struct.CompatiableRule".equals(rule.getRuleSchemaTypeFullName())) {
+                    isNeedInject = true;
+                    break;
                 }
             }
 

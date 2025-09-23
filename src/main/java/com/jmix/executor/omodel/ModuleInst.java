@@ -119,24 +119,26 @@ public class ModuleInst {
      */
     private void appendOtherVariablesInfo(StringBuilder sb) {
         Object otherVarsValue = extAttrs.get(OTHER_VARIABLES_VALUE_KEY);
-        if (otherVarsValue instanceof Map) {
-            @SuppressWarnings("unchecked")
-            Map<String, Long> otherVarKeyMap = (Map<String, Long>) otherVarsValue;
-            if (!otherVarKeyMap.isEmpty()) {
-                if (sb.length() > 0) {
-                    sb.append(",");
-                }
-                sb.append("Other(");
-                boolean first = true;
-                for (Map.Entry<String, Long> entry : otherVarKeyMap.entrySet()) {
-                    if (!first) {
-                        sb.append(",");
-                    }
-                    sb.append(entry.getKey()).append(":").append(entry.getValue());
-                    first = false;
-                }
-                sb.append(")");
+        if (!(otherVarsValue instanceof Map)) {
+            return;
+        }
+        @SuppressWarnings("unchecked")
+        Map<String, Long> otherVarKeyMap = (Map<String, Long>) otherVarsValue;
+        if (otherVarKeyMap.isEmpty()) {
+            return;
+        }
+        if (sb.length() > 0) {
+            sb.append(",");
+        }
+        sb.append("Other(");
+        boolean first = true;
+        for (Map.Entry<String, Long> entry : otherVarKeyMap.entrySet()) {
+            if (!first) {
+                sb.append(",");
             }
+            sb.append(entry.getKey()).append(":").append(entry.getValue());
+            first = false;
+            sb.append(")");
         }
     }
 

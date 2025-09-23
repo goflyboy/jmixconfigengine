@@ -237,55 +237,84 @@ public class ModuleAlgArtifactGenerator {
         try {
             // 直接使用RuleSchema对象
             RuleSchema rawCode = rule.getRawCode();
-            if (rawCode instanceof CompatiableRuleSchema) {
-                CompatiableRuleSchema compatiableRule = (CompatiableRuleSchema) rawCode;
-
-                // 设置兼容性操作符
-                ruleInfo.setCompatiableOperator(compatiableRule.getOperator());
-
-                // 处理左表达式
-                if (compatiableRule.getLeftExpr() != null) {
-                    ruleInfo.setLeftTypeName("ParaVar");
-                    // 调用doSelectProObjs方法
-                    Optional<Pair<VarInfo<? extends Extensible>, List<String>>> pairOpt = doSelectProObjs(
-                            moduleInfo,
-                            compatiableRule.getLeftExpr());
-                    if (pairOpt.isPresent()) {
-                        Pair<VarInfo<? extends Extensible>, List<String>> pair = pairOpt.get();
-                        ruleInfo.setLeft(pair.getFirst());
-                        ruleInfo.setLeftFilterCodes(pair.getSecond());
-                        // 设置左变量名称
-                        ruleInfo.setLeftVarName(pair.getFirst().getVarName());
-                    } else {
-                        log.error("Failed to select programming objects for rule: {}", rule.getCode());
-                        throw new AlgLoaderException(
-                                "Failed to select programming objects for rule: " + rule.getCode());
-                    }
-                }
-
-                // 处理右表达式
-                if (compatiableRule.getRightExpr() != null) {
-                    ruleInfo.setRightTypeName("ParaVar");
-                    // 调用doSelectProObjs方法
-                    Optional<Pair<VarInfo<? extends Extensible>, List<String>>> pairOpt = doSelectProObjs(
-                            moduleInfo,
-                            compatiableRule.getRightExpr());
-                    if (pairOpt.isPresent()) {
-                        Pair<VarInfo<? extends Extensible>, List<String>> pair = pairOpt.get();
-                        ruleInfo.setRight(pair.getFirst());
-                        ruleInfo.setRightFilterCodes(pair.getSecond());
-                        // 设置右变量名称
-                        ruleInfo.setRightVarName(pair.getFirst().getVarName());
-                    } else {
-                        log.error("Failed to select programming objects for rule: {}", rule.getCode());
-                        throw new AlgLoaderException(
-                                "Failed to select programming objects for rule: " + rule.getCode());
-                    }
-                }
+            if (!(rawCode instanceof CompatiableRuleSchema)) {
+                return;
             }
+
+            CompatiableRuleSchema compatiableRule = (CompatiableRuleSchema) rawCode;
+
+            // 设置兼容性操作符
+            ruleInfo.setCompatiableOperator(compatiableRule.getOperator());
+
+            // 处理左表达式
+            processLeftExpression(ruleInfo, moduleInfo, compatiableRule, rule);
+
+            // 处理右表达式
+            processRightExpression(ruleInfo, moduleInfo, compatiableRule, rule);
+
         } catch (Exception e) {
             log.error("Failed to parse compatible rule: {}", rule.getCode(), e);
         }
+    }
+
+    /**
+     * 处理左表达式
+     * 
+     * @param ruleInfo        规则信息
+     * @param moduleInfo      模块信息
+     * @param compatiableRule 兼容性规则
+     * @param rule            规则对象
+     * @throws AlgLoaderException 算法加载异常
+     */
+    private void processLeftExpression(RuleInfo ruleInfo, ModuleVarInfo moduleInfo,
+            CompatiableRuleSchema compatiableRule, Rule rule) throws AlgLoaderException {
+        if (compatiableRule.getLeftExpr() == null) {
+            return;
+        }
+
+        ruleInfo.setLeftTypeName("ParaVar");
+        Optional<Pair<VarInfo<? extends Extensible>, List<String>>> pairOpt = doSelectProObjs(
+                moduleInfo, compatiableRule.getLeftExpr());
+
+        if (!pairOpt.isPresent()) {
+            log.error("Failed to select programming objects for rule: {}", rule.getCode());
+            throw new AlgLoaderException("Failed to select programming objects for rule: " + rule.getCode());
+        }
+
+        Pair<VarInfo<? extends Extensible>, List<String>> pair = pairOpt.get();
+        ruleInfo.setLeft(pair.getFirst());
+        ruleInfo.setLeftFilterCodes(pair.getSecond());
+        ruleInfo.setLeftVarName(pair.getFirst().getVarName());
+    }
+
+    /**
+     * 处理右表达式
+     * 
+     * @param ruleInfo        规则信息
+     * @param moduleInfo      模块信息
+     * @param compatiableRule 兼容性规则
+     * @param rule            规则对象
+     * @throws AlgLoaderException 算法加载异常
+     */
+    private void processRightExpression(RuleInfo ruleInfo, ModuleVarInfo moduleInfo,
+            CompatiableRuleSchema compatiableRule, Rule rule) throws AlgLoaderException {
+        if (compatiableRule.getRightExpr() == null) {
+            return;
+        }
+
+        ruleInfo.setRightTypeName("ParaVar");
+        Optional<Pair<VarInfo<? extends Extensible>, List<String>>> pairOpt = doSelectProObjs(
+                moduleInfo, compatiableRule.getRightExpr());
+
+        if (!pairOpt.isPresent()) {
+            log.error("Failed to select programming objects for rule: {}", rule.getCode());
+            throw new AlgLoaderException("Failed to select programming objects for rule: " + rule.getCode());
+        }
+
+        Pair<VarInfo<? extends Extensible>, List<String>> pair = pairOpt.get();
+        ruleInfo.setRight(pair.getFirst());
+        ruleInfo.setRightFilterCodes(pair.getSecond());
+        ruleInfo.setRightVarName(pair.getFirst().getVarName());
     }
 
     /**

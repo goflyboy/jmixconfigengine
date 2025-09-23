@@ -44,3 +44,9 @@ private方法如果写了Javadoc，必须要符合规范，按需添加@param, @
 
 
  G.CTL.02 含else if分支的条件判断应在最后加一个else分支
+
+要求：
+G.OTH.11 超大函数深度，单函数最大深度是4层
+参考重构方法
+重构方法1：if(xx) {  code }  ==>  if(!xxx) {return  }    code;
+重构方法2：封装小函数

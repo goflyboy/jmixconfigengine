@@ -300,26 +300,12 @@ public class ModelHelper {
             Class<? extends ConstraintAlg> constraintAlgClass = (Class<? extends ConstraintAlg>) injectedClazz;
             Module module = ModuleGenneratorByAnno.build(constraintAlgClass, tempPath);
 
-            // 检查是否需要注入：如果module.getRules()都不是CompatibleRule，则为false，否则为true
-            boolean isNeedInject = false;
-            if (module.getRules() != null) {
-                for (Rule rule : module.getRules()) {
-                    if ("CDSL.V5.Struct.CompatibleRule".equals(rule.getRuleSchemaTypeFullName())) {
-                        isNeedInject = true;
-                        break;
-                    }
-                }
-            }
+            // 检查是否需要注入
+            boolean isNeedInject = checkNeedInject(module);
 
             if (isNeedInject) {
-                // 生成ModuleInfo
-                ModuleAlgArtifactGenerator generator = new ModuleAlgArtifactGenerator();
-                ModuleVarInfo moduleInfo = generator.buildModuleInfo(module);
-
-                // 注入规则
-                StructCodeInjector injector = new StructCodeInjector();
-                injector.injectRule(injectedClazz, moduleInfo.getRules());
-
+                // 执行注入操作
+                performInjection(injectedClazz, module);
                 log.info("✓ Automatic constraint code injection completed");
             }
 
@@ -330,5 +316,42 @@ public class ModelHelper {
             e.printStackTrace();
             return false;
         }
+    }
+
+    /**
+     * 检查是否需要注入约束代码
+     * 
+     * @param module 模块对象
+     * @return 是否需要注入
+     */
+    private boolean checkNeedInject(Module module) {
+        if (module.getRules() == null) {
+            return false;
+        }
+
+        for (Rule rule : module.getRules()) {
+            if ("CDSL.V5.Struct.CompatibleRule".equals(rule.getRuleSchemaTypeFullName())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * 执行约束代码注入
+     * 
+     * @param injectedClazz 注入的类
+     * @param module        模块对象
+     * @throws Exception 注入过程中的异常
+     */
+    private void performInjection(Class<?> injectedClazz, Module module) throws Exception {
+        // 生成ModuleInfo
+        ModuleAlgArtifactGenerator generator = new ModuleAlgArtifactGenerator();
+        ModuleVarInfo moduleInfo = generator.buildModuleInfo(module);
+
+        // 注入规则
+        StructCodeInjector injector = new StructCodeInjector();
+        injector.injectRule(injectedClazz, moduleInfo.getRules());
     }
 }
