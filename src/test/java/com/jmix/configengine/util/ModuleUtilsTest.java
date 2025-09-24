@@ -66,9 +66,9 @@ public class ModuleUtilsTest {
 
         // 验证文件是否创建成功
         File jsonFile = new File(testJsonFile);
-        assertTrue("JSON文件应该创建成功", jsonFile.exists());
-        assertTrue("JSON文件应该可读", jsonFile.canRead());
-        assertTrue("JSON文件应该不为空", jsonFile.length() > 0);
+        assertTrue(jsonFile.exists(), "JSON文件应该创建成功");
+        assertTrue(jsonFile.canRead(), "JSON文件应该可读");
+        assertTrue(jsonFile.length() > 0, "JSON文件应该不为空");
 
         log.info("✓ toJsonFile test passed");
         log.info("  File path: {}", jsonFile.getAbsolutePath());
@@ -91,24 +91,24 @@ public class ModuleUtilsTest {
         Module loadedModule = ModuleUtils.fromJsonFile(testJsonFile);
 
         // 验证加载的对象
-        assertNotNull("加载的Module对象不应该为null", loadedModule);
-        assertEquals("模块代码应该匹配", testModule.getCode(), loadedModule.getCode());
-        assertEquals("模块ID应该匹配", testModule.getId(), loadedModule.getId());
-        assertEquals("模块版本应该匹配", testModule.getVersion(), loadedModule.getVersion());
-        assertEquals("模块类型应该匹配", testModule.getType(), loadedModule.getType());
-        assertEquals("模块描述应该匹配", testModule.getDescription(), loadedModule.getDescription());
+        assertNotNull(loadedModule, "加载的Module对象不应该为null");
+        assertEquals(testModule.getCode(), loadedModule.getCode(), "模块代码应该匹配");
+        assertEquals(testModule.getId(), loadedModule.getId(), "模块ID应该匹配");
+        assertEquals(testModule.getVersion(), loadedModule.getVersion(), "模块版本应该匹配");
+        assertEquals(testModule.getType(), loadedModule.getType(), "模块类型应该匹配");
+        assertEquals(testModule.getDescription(), loadedModule.getDescription(), "模块描述应该匹配");
 
         // 验证参数
-        assertNotNull("参数列表不应该为null", loadedModule.getParas());
-        assertEquals("参数数量应该匹配", testModule.getParas().size(), loadedModule.getParas().size());
+        assertNotNull(loadedModule.getParas(), "参数列表不应该为null");
+        assertEquals(testModule.getParas().size(), loadedModule.getParas().size(), "参数数量应该匹配");
 
         // 验证部件
-        assertNotNull("部件列表不应该为null", loadedModule.getParts());
-        assertEquals("部件数量应该匹配", testModule.getParts().size(), loadedModule.getParts().size());
+        assertNotNull(loadedModule.getParts(), "部件列表不应该为null");
+        assertEquals(testModule.getParts().size(), loadedModule.getParts().size(), "部件数量应该匹配");
 
         // 验证规则
-        assertNotNull("规则列表不应该为null", loadedModule.getRules());
-        assertEquals("规则数量应该匹配", testModule.getRules().size(), loadedModule.getRules().size());
+        assertNotNull(loadedModule.getRules(), "规则列表不应该为null");
+        assertEquals(testModule.getRules().size(), loadedModule.getRules().size(), "规则数量应该匹配");
 
         log.info("✓ fromJsonFile test passed");
         log.info("  Loaded module: {}", loadedModule.getCode());
@@ -128,14 +128,14 @@ public class ModuleUtilsTest {
 
         // 测试toJsonString
         String jsonString = ModuleUtils.toJsonString(testModule);
-        assertNotNull("JSON字符串不应该为null", jsonString);
-        assertTrue("JSON字符串应该不为空", jsonString.length() > 0);
-        assertTrue("JSON字符串应该包含模块代码", jsonString.contains(testModule.getCode()));
+        assertNotNull(jsonString, "JSON字符串不应该为null");
+        assertTrue(jsonString.length() > 0, "JSON字符串应该不为空");
+        assertTrue(jsonString.contains(testModule.getCode()), "JSON字符串应该包含模块代码");
 
         // 测试fromJsonString
         Module loadedModule = ModuleUtils.fromJsonString(jsonString);
-        assertNotNull("从JSON字符串加载的Module对象不应该为null", loadedModule);
-        assertEquals("模块代码应该匹配", testModule.getCode(), loadedModule.getCode());
+        assertNotNull(loadedModule, "从JSON字符串加载的Module对象不应该为null");
+        assertEquals(testModule.getCode(), loadedModule.getCode(), "模块代码应该匹配");
 
         log.info("✓ toJsonString and fromJsonString test passed");
         log.info("  JSON string length: {}", jsonString.length());
@@ -156,11 +156,11 @@ public class ModuleUtilsTest {
 
         // 验证有效文件
         boolean isValid = ModuleUtils.validateJsonFile(testJsonFile);
-        assertTrue("有效的JSON文件应该通过验证", isValid);
+        assertTrue(isValid, "有效的JSON文件应该通过验证");
 
         // 验证无效文件（不存在的文件）
         boolean isInvalid = ModuleUtils.validateJsonFile("nonexistent.json");
-        assertFalse("无效的JSON文件应该验证失败", isInvalid);
+        assertFalse(isInvalid, "无效的JSON文件应该验证失败");
 
         log.info("✓ validateJsonFile test passed");
     }
@@ -191,9 +191,8 @@ public class ModuleUtilsTest {
         String secondJson = new String(Files.readAllBytes(Paths.get(secondJsonFile)));
 
         // 由于类型信息可能不同，我们只比较基本内容
-        assertTrue("往返后的JSON应该包含相同的基本信息",
-                secondJson.contains(originalModule.getCode())
-                        && secondJson.contains(originalModule.getDescription()));
+        assertTrue(secondJson.contains(originalModule.getCode())
+                && secondJson.contains(originalModule.getDescription()), "往返后的JSON应该包含相同的基本信息");
 
         // 清理第二个文件
         new File(secondJsonFile).delete();

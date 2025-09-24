@@ -20,6 +20,7 @@ import com.jmix.tool.model.ParaAnno;
 import com.jmix.tool.model.PartAnno;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -39,19 +40,19 @@ import java.lang.reflect.Method;
 @ModuleAnno(id = 123, code = "AnnotationRule", packageName = "com.jmix.configengine.scenario.ruletest", version = "1.0", description = "注解规则测试模块", sortNo = 1)
 public class AnnotationRuleTest extends ConstraintAlgImpl {
 
-    @ParaAnno(code = "Color", description = "颜色参数", type = ParaType.ENUM, options = { "Red", "Blue", "Green" })
+    @ParaAnno(description = "颜色参数", type = ParaType.ENUM, options = { "Red", "Blue", "Green" })
     private ParaVar colorVar;
 
-    @ParaAnno(code = "Size", description = "尺寸参数", type = ParaType.ENUM, options = { "Small", "Medium", "Large" })
+    @ParaAnno(description = "尺寸参数", type = ParaType.ENUM, options = { "Small", "Medium", "Large" })
     private ParaVar sizeVar;
 
-    @PartAnno(code = "Part1", description = "部件1", maxQuantity = 10)
+    @PartAnno(description = "部件1", maxQuantity = 10)
     private PartVar part1Var;
 
     /**
      * 兼容性规则：如果颜色是红色，则部件1的数量必须是1
      */
-    @CompatiableRuleAnno(leftExprCode = "Color.value==\"Red\"", operator = "Requires", rightExprCode = "Part1.qty==1", normalNaturalCode = "如果颜色是红色，则部件1的数量必须是1")
+    @CompatiableRuleAnno(leftExprCode = "color.value==\"Red\"", operator = "Requires", rightExprCode = "part1.qty==1", normalNaturalCode = "如果颜色是红色，则部件1的数量必须是1")
     /**
      * 规则1：兼容性规则
      */
@@ -62,10 +63,7 @@ public class AnnotationRuleTest extends ConstraintAlgImpl {
     /**
      * 代码规则：自定义逻辑
      */
-    @CodeRuleAnno(code = "if (Color.value == \"Blue\" && Size.value == \"Large\") { return false; }", normalNaturalCode = "蓝色大尺寸的组合不允许")
-    /**
-     * 规则2：代码规则
-     */
+    @CodeRuleAnno(code = "if (color.value == \"Blue\" && size.value == \"Large\") { return false; }", normalNaturalCode = "蓝色大尺寸的组合不允许")
     public void rule2() {
         // 代码规则不需要注入代码
     }
@@ -82,9 +80,6 @@ public class AnnotationRuleTest extends ConstraintAlgImpl {
      * 测试规则生成
      */
     @Test
-    /**
-     * 测试规则生成
-     */
     public void testRuleGeneration() {
         // 创建临时路径
         String tempPath = CommHelper.createTempPath(AnnotationRuleTest.class);
@@ -99,21 +94,20 @@ public class AnnotationRuleTest extends ConstraintAlgImpl {
 
         // 验证第一个规则是兼容性规则
         Rule rule1 = module.getRules().get(0);
-        assertEquals("First rule should be rule1", "rule1", rule1.getCode());
-        assertEquals("First rule should be CompatiableRule", "CDSL.V5.Struct.CompatiableRule",
-                rule1.getRuleSchemaTypeFullName());
-
+        assertEquals(rule1.getCode(), "rule1", "First rule should be rule1");
+        assertEquals(rule1.getRuleSchemaTypeFullName(),
+                "CDSL.V5.Struct.CompatiableRule", "First rule should be CompatiableRule");
         // 验证第二个规则是代码规则
         Rule rule2 = module.getRules().get(1);
-        assertEquals("Second rule should be rule2", "rule2", rule2.getCode());
-        assertEquals("Second rule should be CodeRule", "CDSL.V5.Struct.CodeRule", rule2.getRuleSchemaTypeFullName());
+        assertEquals(rule2.getCode(), "rule2", "Second rule should be rule2");
+        assertEquals(rule2.getRuleSchemaTypeFullName(), "CDSL.V5.Struct.CodeRule", "Second rule should be CodeRule");
 
         // 验证参数和部件
-        assertNotNull("Module paras should not be null", module.getParas());
-        assertEquals("Should have 2 paras", 2, module.getParas().size());
+        assertNotNull(module.getParas(), "Module paras should not be null");
+        assertEquals(2, module.getParas().size(), "Should have 2 paras");
 
-        assertNotNull("Module parts should not be null", module.getParts());
-        assertEquals("Should have 1 part", 1, module.getParts().size());
+        assertNotNull(module.getParts(), "Module parts should not be null");
+        assertEquals(1, module.getParts().size(), "Should have 1 part");
 
         log.info("✓ Rule generation test passed");
         log.info("  Generated rule count: {}", module.getRules().size());
@@ -134,10 +128,10 @@ public class AnnotationRuleTest extends ConstraintAlgImpl {
             Method rule1Method = AnnotationRuleTest.class.getMethod("rule1");
             CompatiableRuleAnno compatiableRuleAnno = rule1Method.getAnnotation(CompatiableRuleAnno.class);
 
-            assertNotNull("CompatiableRuleAnno should not be null", compatiableRuleAnno);
-            assertEquals("Left expression should match", "Color.value==\"Red\"", compatiableRuleAnno.leftExprCode());
-            assertEquals("Operator should match", "Requires", compatiableRuleAnno.operator());
-            assertEquals("Right expression should match", "Part1.qty==1", compatiableRuleAnno.rightExprCode());
+            assertNotNull(compatiableRuleAnno, "CompatiableRuleAnno should not be null");
+            assertEquals(compatiableRuleAnno.leftExprCode(), "Color.value==\"Red\"", "Left expression should match");
+            assertEquals(compatiableRuleAnno.operator(), "Requires", "Operator should match");
+            assertEquals(compatiableRuleAnno.rightExprCode(), "Part1.qty==1", "Right expression should match");
 
             log.info("✓ CompatiableRuleAnno annotation parsing test passed");
         } catch (NoSuchMethodException e) {
@@ -149,9 +143,9 @@ public class AnnotationRuleTest extends ConstraintAlgImpl {
             Method rule2Method = AnnotationRuleTest.class.getMethod("rule2");
             CodeRuleAnno codeRuleAnno = rule2Method.getAnnotation(CodeRuleAnno.class);
 
-            assertNotNull("CodeRuleAnno should not be null", codeRuleAnno);
-            assertTrue("Code should contain Color.value", codeRuleAnno.code().contains("Color.value"));
-            assertTrue("Code should contain Size.value", codeRuleAnno.code().contains("Size.value"));
+            assertNotNull(codeRuleAnno, "CodeRuleAnno should not be null");
+            assertTrue(codeRuleAnno.code().contains("Color.value"), "Code should contain Color.value");
+            assertTrue(codeRuleAnno.code().contains("Size.value"), "Code should contain Size.value");
 
             log.info("✓ CodeRuleAnno annotation parsing test passed");
         } catch (NoSuchMethodException e) {

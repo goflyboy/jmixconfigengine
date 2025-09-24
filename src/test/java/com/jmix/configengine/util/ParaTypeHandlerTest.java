@@ -12,6 +12,8 @@ import com.jmix.executor.impl.util.ParaTypeHandler;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+
 /**
  * ParaTypeHandler测试类
  * 
@@ -155,7 +157,7 @@ public class ParaTypeHandlerTest {
         option1.setCode("Red");
         option1.setCodeId(10);
 
-        para.setOptions(java.util.Arrays.asList(option1));
+        para.setOptions(Arrays.asList(option1));
 
         assertFalse(ParaTypeHandler.hasOption(para, "Blue"));
     }

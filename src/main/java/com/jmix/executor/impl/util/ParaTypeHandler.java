@@ -104,6 +104,6 @@ public class ParaTypeHandler {
         if (para == null || para.getType() != ParaType.ENUM) {
             return false;
         }
-        return para.getOption(optionCode) != null;
+        return para.getOption(optionCode).isPresent();
     }
 }

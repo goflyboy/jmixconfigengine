@@ -59,9 +59,9 @@ public class CompatiableRuleSchemaTest {
         };
 
         for (String operator : validOperators) {
-            assertNotNull("Operator should not be null", operator);
-            assertFalse("Operator should not be empty", operator.isEmpty());
-            assertTrue("Operator should be a valid string", operator.length() > 0);
+            assertNotNull(operator, "Operator should not be null");
+            assertFalse(operator.isEmpty(), "Operator should not be empty");
+            assertTrue(operator.length() > 0, "Operator should be a valid string");
         }
     }
 }

@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.Rule;
-import com.jmix.executor.imodel.rule.CompatiableRuleSchema;
 import com.jmix.tool.artifact.ModuleAlgArtifactGenerator;
 import com.jmix.tool.artifact.ModuleVarInfo;
 import com.jmix.tool.model.CommHelper;
@@ -51,21 +50,20 @@ public class AnnotationRuleIntegrationTest {
         Module module = ModuleGenneratorByAnno.build(AnnotationRuleTest.class, tempPath);
 
         // 验证Module生成
-        assertNotNull("Module should not be null", module);
-        assertEquals("Module code should be AnnotationRuleTest", "AnnotationRuleTest",
-                module.getCode());
+        assertNotNull(module, "Module should not be null");
+        assertEquals(module.getCode(), "AnnotationRuleTest", "Module code should be AnnotationRuleTest");
 
         // 验证规则生成
-        assertNotNull("Module rules should not be null", module.getRules());
-        assertEquals("Should have 2 rules", 2, module.getRules().size());
+        assertNotNull(module.getRules(), "Module rules should not be null");
+        assertEquals(2, module.getRules().size(), "Should have 2 rules");
 
         // 验证参数生成
-        assertNotNull("Module paras should not be null", module.getParas());
-        assertEquals("Should have 2 paras", 2, module.getParas().size());
+        assertNotNull(module.getParas(), "Module paras should not be null");
+        assertEquals(2, module.getParas().size(), "Should have 2 paras");
 
         // 验证部件生成
-        assertNotNull("Module parts should not be null", module.getParts());
-        assertEquals("Should have 1 part", 1, module.getParts().size());
+        assertNotNull(module.getParts(), "Module parts should not be null");
+        assertEquals(1, module.getParts().size(), "Should have 1 part");
 
         log.info("✓ Annotation rule generation test passed");
     }
@@ -93,14 +91,14 @@ public class AnnotationRuleIntegrationTest {
                 }
             }
 
-            assertTrue("Should need injection for CompatiableRule", isNeedInject);
+            assertTrue(isNeedInject, "Should need injection for CompatiableRule");
 
             // 生成ModuleInfo
             ModuleAlgArtifactGenerator generator = new ModuleAlgArtifactGenerator();
             ModuleVarInfo moduleInfo = generator.buildModuleInfo(module);
 
-            assertNotNull("ModuleInfo should not be null", moduleInfo);
-            assertNotNull("ModuleInfo rules should not be null", moduleInfo.getRules());
+            assertNotNull(moduleInfo, "ModuleInfo should not be null");
+            assertNotNull(moduleInfo.getRules(), "ModuleInfo rules should not be null");
 
             // 注入规则
             StructCodeInjector injector = new StructCodeInjector();
@@ -127,29 +125,18 @@ public class AnnotationRuleIntegrationTest {
     }
 
     @Test
-    public void testAnnotationConstants() {
-        // 测试CompatiableRuleSchema.Operator常量
-        assertEquals("INCOMPATIBLE should be Incompatible", "Incompatible",
-                CompatiableRuleSchema.Operator.INCOMPATIBLE);
-        assertEquals("CO_REFENT should be CoDependent", "CoDependent", CompatiableRuleSchema.Operator.CO_REFENT);
-        assertEquals("REQUIRES should be Requires", "Requires", CompatiableRuleSchema.Operator.REQUIRES);
-
-        log.info("✓ Annotation constant test passed");
-    }
-
-    @Test
     public void testProgObjectParsing() {
         // 测试变量对象解析 - 通过生成Module来间接测试
         String tempPath = CommHelper.createTempPath(AnnotationRuleTest.class);
         Module module = ModuleGenneratorByAnno.build(AnnotationRuleTest.class, tempPath);
 
         // 验证规则中的引用对象解析
-        assertNotNull("Module rules should not be null", module.getRules());
-        assertTrue("Should have at least one rule", module.getRules().size() > 0);
+        assertNotNull(module.getRules(), "Module rules should not be null");
+        assertTrue(module.getRules().size() > 0, "Should have at least one rule");
 
         // 验证第一个规则（CompatiableRule）的引用对象
         Rule firstRule = module.getRules().get(0);
-        assertNotNull("First rule schema should not be null", firstRule.getRawCode());
+        assertNotNull(firstRule.getRawCode(), "First rule schema should not be null");
 
         log.info("✓ ProgObject parsing test passed");
     }

@@ -79,11 +79,11 @@ public class ModuleAlgArtifactGeneratorBaseTest {
         log.info("Output path: {}", outputPath);
 
         // 验证模块数据是否正确创建
-        assertNotNull("T恤衫模块应该创建成功", tshirtModule);
+        assertNotNull(tshirtModule, "T恤衫模块应该创建成功");
         assertEquals("模块代码应该是TShirt", "TShirt", tshirtModule.getCode());
-        assertNotNull("参数列表不应该为空", tshirtModule.getParas());
-        assertNotNull("部件列表不应该为空", tshirtModule.getParts());
-        assertNotNull("规则列表不应该为空", tshirtModule.getRules());
+        assertNotNull(tshirtModule.getParas(), "参数列表不应该为空");
+        assertNotNull(tshirtModule.getParts(), "部件列表不应该为空");
+        assertNotNull(tshirtModule.getRules(), "规则列表不应该为空");
 
         log.info("✓ Module data validation passed");
         log.info("  Parameter count: {}", tshirtModule.getParas().size());
@@ -106,8 +106,8 @@ public class ModuleAlgArtifactGeneratorBaseTest {
 
         // 验证生成的代码文件是否存在
         File generatedFile = new File(outputPath);
-        assertTrue("生成的约束代码文件应该存在", generatedFile.exists());
-        assertTrue("生成的约束代码文件应该可读", generatedFile.canRead());
+        assertTrue(generatedFile.exists(), "生成的约束代码文件应该存在");
+        assertTrue(generatedFile.canRead(), "生成的约束代码文件应该可读");
 
         log.info("✓ Constraint code file generated successfully");
         log.info("  File path: {}", generatedFile.getAbsolutePath());
@@ -127,25 +127,25 @@ public class ModuleAlgArtifactGeneratorBaseTest {
         String content = new String(Files.readAllBytes(path));
 
         // 验证基本结构
-        assertTrue("生成的代码应该包含类定义", content.contains("public class TShirtConstraint"));
-        assertTrue("生成的代码应该继承ConstraintAlgImpl", content.contains("extends ConstraintAlgImpl"));
+        assertTrue(content.contains("public class TShirtConstraint"), "生成的代码应该包含类定义");
+        assertTrue(content.contains("extends ConstraintAlgImpl"), "生成的代码应该继承ConstraintAlgImpl");
 
         // 验证参数变量
-        assertTrue("应该包含Color参数变量", content.contains("private ParaVar colorVar"));
-        assertTrue("应该包含Size参数变量", content.contains("private ParaVar sizeVar"));
+        assertTrue(content.contains("private ParaVar colorVar"), "应该包含Color参数变量");
+        assertTrue(content.contains("private ParaVar sizeVar"), "应该包含Size参数变量");
 
         // 验证部件变量
-        assertTrue("应该包含TShirt11部件变量", content.contains("private PartVar tShirt11Var"));
-        assertTrue("应该包含TShirt12部件变量", content.contains("private PartVar tShirt12Var"));
+        assertTrue(content.contains("private PartVar tShirt11Var"), "应该包含TShirt11部件变量");
+        assertTrue(content.contains("private PartVar tShirt12Var"), "应该包含TShirt12部件变量");
 
         // 验证方法
-        assertTrue("应该包含initVariables方法", content.contains("public void initVariables()"));
-        assertTrue("应该包含initConstraint方法", content.contains("public void initConstraint()"));
+        assertTrue(content.contains("public void initVariables()"), "应该包含initVariables方法");
+        assertTrue(content.contains("public void initConstraint()"), "应该包含initConstraint方法");
 
         // 验证约束规则方法
-        assertTrue("应该包含规则1的约束方法", content.contains("addConstraint_rule1"));
-        assertTrue("应该包含规则2的约束方法", content.contains("addConstraint_rule2"));
-        assertTrue("应该包含规则3的约束方法", content.contains("addConstraint_rule3"));
+        assertTrue(content.contains("addConstraint_rule1"), "应该包含规则1的约束方法");
+        assertTrue(content.contains("addConstraint_rule2"), "应该包含规则2的约束方法");
+        assertTrue(content.contains("addConstraint_rule3"), "应该包含规则3的约束方法");
 
         log.info("✓ Generated code content validation passed");
         log.info("  Contains correct class definition");

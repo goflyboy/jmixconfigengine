@@ -22,9 +22,9 @@ public class CommHelperTest {
     public void testGetResourcePath() {
         // 测试获取资源路径
         String path = CommHelper.getResourcePath(CommHelperTest.class);
-        assertNotNull("Resource path should not be null", path);
-        assertTrue("Resource path should contain src/test/java", path.contains("src/test/java"));
-        assertTrue("Resource path should contain package path", path.contains("com/jmix/configengine/scenario/base"));
+        assertNotNull(path, "Resource path should not be null");
+        assertTrue(path.contains("src/test/java"), "Resource path should contain src/test/java");
+        assertTrue(path.contains("com/jmix/configengine/scenario/base"), "Resource path should contain package path");
     }
 
     /**
@@ -45,8 +45,8 @@ public class CommHelperTest {
         CommHelper.createDirectory(testDirPath);
 
         // 验证目录已创建
-        assertTrue("Directory should be created", testDir.exists());
-        assertTrue("Should be a directory", testDir.isDirectory());
+        assertTrue(testDir.exists(), "Directory should be created");
+        assertTrue(testDir.isDirectory(), "Should be a directory");
 
         // 清理测试目录
         testDir.delete();
@@ -60,14 +60,14 @@ public class CommHelperTest {
         // 测试创建临时路径
         String tempPath = CommHelper.createTempPath(CommHelperTest.class);
 
-        assertNotNull("Temp path should not be null", tempPath);
-        assertTrue("Temp path should contain tempResource", tempPath.contains("tempResource"));
-        assertTrue("Temp path should contain package path", tempPath.contains("com/jmix/configengine/scenario/base"));
+        assertNotNull(tempPath, "Temp path should not be null");
+        assertTrue(tempPath.contains("tempResource"), "Temp path should contain tempResource");
+        assertTrue(tempPath.contains("com/jmix/configengine/scenario/base"), "Temp path should contain package path");
 
         // 验证临时目录已创建
         File tempDir = new File(tempPath);
-        assertTrue("Temp directory should be created", tempDir.exists());
-        assertTrue("Should be a directory", tempDir.isDirectory());
+        assertTrue(tempDir.exists(), "Temp directory should be created");
+        assertTrue(tempDir.isDirectory(), "Should be a directory");
 
         // 清理测试目录
         tempDir.delete();
@@ -84,7 +84,7 @@ public class CommHelperTest {
         // 再次调用，应该不会出错
         String tempPath2 = CommHelper.createTempPath(CommHelperTest.class);
 
-        assertEquals("Should return same path for same class", tempPath, tempPath2);
+        assertEquals(tempPath, tempPath2, "Should return same path for same class");
 
         // 清理测试目录
         new File(tempPath).delete();
