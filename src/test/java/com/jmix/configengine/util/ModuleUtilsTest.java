@@ -16,7 +16,7 @@ import com.jmix.executor.imodel.Rule;
 import com.jmix.executor.imodel.rule.CompatiableRuleSchema;
 import com.jmix.executor.imodel.rule.ExprSchema;
 import com.jmix.executor.imodel.rule.RefProgObjSchema;
-import com.jmix.tool.ModuleUtils;
+import com.jmix.executor.impl.util.ModuleUtils;
 
 import lombok.extern.slf4j.Slf4j;
 

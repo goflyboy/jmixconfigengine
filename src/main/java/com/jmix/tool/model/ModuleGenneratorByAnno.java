@@ -13,9 +13,9 @@ import com.jmix.executor.imodel.rule.RefProgObjSchema;
 import com.jmix.executor.impl.algmodel.ConstraintAlg;
 import com.jmix.executor.impl.algmodel.ParaVar;
 import com.jmix.executor.impl.algmodel.PartVar;
+import com.jmix.executor.impl.util.ModuleUtils;
 import com.jmix.executor.impl.util.Pair;
 import com.jmix.executor.omodel.AlgLoaderException;
-import com.jmix.tool.ModuleUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
