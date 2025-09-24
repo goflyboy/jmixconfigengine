@@ -40,6 +40,7 @@ public abstract class ExtensibleProcess {
     }
 
     public ExtensibleProcess(String processName) {
+        this(); // 调用无参构造方法
         this.processName = processName;
     }
 

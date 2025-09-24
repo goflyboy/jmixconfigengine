@@ -51,7 +51,7 @@ public class ParaOptionVar extends Var<ParaOption> {
      * @return 参数选项代码
      */
     public String getCode() {
-        return base != null ? base.getCode() : null;
+        return base != null ? base.getCode() : "";
     }
 
     /**

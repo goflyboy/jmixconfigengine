@@ -14,6 +14,7 @@ import com.jmix.executor.omodel.PartInst;
  */
 public class ProgammableInstAssert {
     private ModuleInst actualModuleInst;
+
     private Module module;
 
     /**

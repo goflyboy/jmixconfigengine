@@ -66,8 +66,7 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
      * @param otherVarMap 其他变量映射
      */
     public ModuleInstSolutionCallBack(Module module, List<Var<?>> vars, Map<String, OtherVar> otherVarMap) {
-        this.vars = vars != null ? vars : Collections.emptyList();
-        this.module = module;
+        this(module, vars);
         this.otherVarMap = otherVarMap;
     }
 

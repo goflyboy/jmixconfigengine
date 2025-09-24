@@ -40,7 +40,7 @@ public class AlgCPModel {
      * 默认构造函数，创建新的CpModel实例
      */
     public AlgCPModel() {
-        this.cpModel = new CpModel();
+        this(new CpModel());
     }
 
     /**
