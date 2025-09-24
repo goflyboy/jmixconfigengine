@@ -8,7 +8,6 @@ import com.jmix.tool.model.ParaAnno;
 import com.jmix.tool.model.PartAnno;
 
 import com.google.ortools.sat.BoolVar;
-import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.Literal;
 
 /**
@@ -65,9 +64,9 @@ public class HelloConstraint extends ConstraintAlgImpl {
 
         // 根据条件设置TShirt11的数量
         // 如果redAndSmall为true，则TShirt11数量为1
-        model.addEquality((IntVar) this.tShirt11Var.qty, 1).onlyEnforceIf(redAndSmall);
+        model.addEquality(this.tShirt11Var.qty, 1).onlyEnforceIf(redAndSmall);
 
         // 如果redAndSmall为false，则TShirt11数量为3
-        model.addEquality((IntVar) this.tShirt11Var.qty, 3).onlyEnforceIf(redAndSmall.not());
+        model.addEquality(this.tShirt11Var.qty, 3).onlyEnforceIf(redAndSmall.not());
     }
 }

@@ -107,17 +107,17 @@ public class ModuleAlgArtifactGenerator {
      * @return 构建的模块变量信息
      */
     public ModuleVarInfo buildModuleInfoBase(Module module) {
-        ModuleVarInfo moduleVarInfo = new ModuleVarInfo(module);
-        moduleVarInfo.setCode(module.getCode());
-        moduleVarInfo.setVarName(module.getCode() + "Var");
-        moduleVarInfo.setPackageName(module.getPackageName());
+        ModuleVarInfo tmpModuleVarInfo = new ModuleVarInfo(module);
+        tmpModuleVarInfo.setCode(module.getCode());
+        tmpModuleVarInfo.setVarName(module.getCode() + "Var");
+        tmpModuleVarInfo.setPackageName(module.getPackageName());
 
         // 根据Para生成ParaVarInfo
         if (module.getParas() != null) {
             List<ParaVarInfo> paraInfos = module.getParas().stream()
                     .map(this::buildParaInfo)
                     .collect(Collectors.toList());
-            moduleVarInfo.setParas(paraInfos);
+            tmpModuleVarInfo.setParas(paraInfos);
 
         }
 
@@ -126,9 +126,9 @@ public class ModuleAlgArtifactGenerator {
             List<PartVarInfo> partInfos = module.getParts().stream()
                     .map(this::buildPartInfo)
                     .collect(Collectors.toList());
-            moduleVarInfo.setParts(partInfos);
+            tmpModuleVarInfo.setParts(partInfos);
         }
-        return moduleVarInfo;
+        return tmpModuleVarInfo;
     }
 
     /**

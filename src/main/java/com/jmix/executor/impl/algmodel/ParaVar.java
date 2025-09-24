@@ -130,7 +130,7 @@ public class ParaVar extends Var<Para> {
         StringBuilder sb = new StringBuilder();
         sb.append("Para{code=").append(getCode());
         if (value != null) {
-            sb.append(",value=").append(solutionCallback.value((IntVar) this.value));
+            sb.append(",value=").append(solutionCallback.value(this.value));
 
         }
         if (isHidden != null) {
@@ -151,6 +151,6 @@ public class ParaVar extends Var<Para> {
     public String getShortString(CpSolverSolutionCallback solutionCallback) {
         // P1(V:1,H:0)
         return String.format("%s(%s:%s,%s:%s)", getCode(), VALUE_SHORT_NAME,
-                solutionCallback.value((IntVar) this.value), HIDDEN_SHORT_NAME, solutionCallback.value(this.isHidden));
+                solutionCallback.value(this.value), HIDDEN_SHORT_NAME, solutionCallback.value(this.isHidden));
     }
 }

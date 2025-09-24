@@ -34,14 +34,14 @@ public class ResultAssert {
     public ResultAssert assertSolutionSizeEqual(int expectedSize) {
         if (actualResult.getData() == null) {
             throw new AssertionError(String.format(
-                    "解决方案数量不匹配，期望: %d，实际: null", expectedSize));
+                    "Solution count mismatch, expected: %d, actual: null", expectedSize));
         }
 
         if (actualResult.getData() instanceof Collection) {
             int actualSize = ((Collection<?>) actualResult.getData()).size();
             if (actualSize != expectedSize) {
                 throw new AssertionError(String.format(
-                        "解决方案数量不匹配，期望: %d，实际: %d", expectedSize, actualSize));
+                        "Solution count mismatch, expected: %d, actual: %d", expectedSize, actualSize));
             }
         } else {
             throw new AssertionError("Result data is not a collection type, cannot get count");
@@ -58,14 +58,14 @@ public class ResultAssert {
     public ResultAssert assertSolutionSizeGreaterThan(int minSize) {
         if (actualResult.getData() == null) {
             throw new AssertionError(String.format(
-                    "解决方案数量应大于: %d，实际: null", minSize));
+                    "Solution count should be greater than: %d, actual: null", minSize));
         }
 
         if (actualResult.getData() instanceof Collection) {
             int actualSize = ((Collection<?>) actualResult.getData()).size();
             if (actualSize <= minSize) {
                 throw new AssertionError(String.format(
-                        "解决方案数量应大于: %d，实际: %d", minSize, actualSize));
+                        "Solution count should be greater than: %d, actual: %d", minSize, actualSize));
             }
         } else {
             throw new AssertionError("Result data is not a collection type, cannot get count");
@@ -82,14 +82,14 @@ public class ResultAssert {
     public ResultAssert assertSolutionSizeGreaterThanOrEqual(int minSize) {
         if (actualResult.getData() == null) {
             throw new AssertionError(String.format(
-                    "解决方案数量应大于等于: %d，实际: null", minSize));
+                    "Solution count should be greater than or equal to: %d, actual: null", minSize));
         }
 
         if (actualResult.getData() instanceof Collection) {
             int actualSize = ((Collection<?>) actualResult.getData()).size();
             if (actualSize < minSize) {
                 throw new AssertionError(String.format(
-                        "解决方案数量应大于等于: %d，实际: %d", minSize, actualSize));
+                        "Solution count should be greater than or equal to: %d, actual: %d", minSize, actualSize));
             }
         } else {
             throw new AssertionError("Result data is not a collection type, cannot get count");
@@ -106,14 +106,14 @@ public class ResultAssert {
     public ResultAssert assertSolutionSizeLessThan(int maxSize) {
         if (actualResult.getData() == null) {
             throw new AssertionError(String.format(
-                    "解决方案数量应小于: %d，实际: null", maxSize));
+                    "Solution count should be less than: %d, actual: null", maxSize));
         }
 
         if (actualResult.getData() instanceof Collection) {
             int actualSize = ((Collection<?>) actualResult.getData()).size();
             if (actualSize >= maxSize) {
                 throw new AssertionError(String.format(
-                        "解决方案数量应小于: %d，实际: %d", maxSize, actualSize));
+                        "Solution count should be less than: %d, actual: %d", maxSize, actualSize));
             }
         } else {
             throw new AssertionError("Result data is not a collection type, cannot get count");
@@ -130,14 +130,14 @@ public class ResultAssert {
     public ResultAssert assertSolutionSizeLessThanOrEqual(int maxSize) {
         if (actualResult.getData() == null) {
             throw new AssertionError(String.format(
-                    "解决方案数量应小于等于: %d，实际: null", maxSize));
+                    "Solution count should be less than or equal to: %d, actual: null", maxSize));
         }
 
         if (actualResult.getData() instanceof Collection) {
             int actualSize = ((Collection<?>) actualResult.getData()).size();
             if (actualSize > maxSize) {
                 throw new AssertionError(String.format(
-                        "解决方案数量应小于等于: %d，实际: %d", maxSize, actualSize));
+                        "Solution count should be less than or equal to: %d, actual: %d", maxSize, actualSize));
             }
         } else {
             throw new AssertionError("Result data is not a collection type, cannot get count");
@@ -154,7 +154,7 @@ public class ResultAssert {
     public ResultAssert assertCodeEqual(int expectedCode) {
         if (actualResult.getCode() != expectedCode) {
             throw new AssertionError(String.format(
-                    "结果代码不匹配，期望: %d，实际: %d", expectedCode, actualResult.getCode()));
+                    "Result code mismatch, expected: %d, actual: %d", expectedCode, actualResult.getCode()));
         }
         return this;
     }
@@ -168,7 +168,7 @@ public class ResultAssert {
     public ResultAssert assertCodeNotEqual(int unexpectedCode) {
         if (actualResult.getCode() == unexpectedCode) {
             throw new AssertionError(String.format(
-                    "结果代码不应等于: %d", unexpectedCode));
+                    "Result code should not equal: %d", unexpectedCode));
         }
         return this;
     }
@@ -182,7 +182,7 @@ public class ResultAssert {
     public ResultAssert assertMessage(String expectedMessage) {
         if (!expectedMessage.equals(actualResult.getMessage())) {
             throw new AssertionError(String.format(
-                    "结果消息不匹配，期望: %s，实际: %s", expectedMessage, actualResult.getMessage()));
+                    "Result message mismatch, expected: %s, actual: %s", expectedMessage, actualResult.getMessage()));
         }
         return this;
     }
@@ -196,7 +196,7 @@ public class ResultAssert {
     public ResultAssert assertMessageContains(String expectedContent) {
         if (actualResult.getMessage() == null || !actualResult.getMessage().contains(expectedContent)) {
             throw new AssertionError(String.format(
-                    "结果消息应包含: %s，实际: %s", expectedContent, actualResult.getMessage()));
+                    "Result message should contain: %s, actual: %s", expectedContent, actualResult.getMessage()));
         }
         return this;
     }
@@ -210,7 +210,7 @@ public class ResultAssert {
     public ResultAssert assertMessageNotContains(String unexpectedContent) {
         if (actualResult.getMessage() != null && actualResult.getMessage().contains(unexpectedContent)) {
             throw new AssertionError(String.format(
-                    "结果消息不应包含: %s，实际: %s", unexpectedContent, actualResult.getMessage()));
+                    "Result message should not contain: %s, actual: %s", unexpectedContent, actualResult.getMessage()));
         }
         return this;
     }
@@ -223,7 +223,7 @@ public class ResultAssert {
     public ResultAssert assertSuccess() {
         if (actualResult.getCode() != Result.SUCCESS) {
             throw new AssertionError(String.format(
-                    "期望执行成功，实际结果代码: %d，消息: %s",
+                    "Expected execution success, actual result code: %d, message: %s",
                     actualResult.getCode(), actualResult.getMessage()));
         }
         return this;
@@ -237,7 +237,7 @@ public class ResultAssert {
     public ResultAssert assertFailure() {
         if (actualResult.getCode() == Result.SUCCESS) {
             throw new AssertionError(String.format(
-                    "期望执行失败，实际结果代码: %d，消息: %s",
+                    "Expected execution failure, actual result code: %d, message: %s",
                     actualResult.getCode(), actualResult.getMessage()));
         }
         return this;
@@ -253,7 +253,7 @@ public class ResultAssert {
                 || (actualResult.getData() instanceof Collection
                         && ((Collection<?>) actualResult.getData()).size() > 0)) {
             throw new AssertionError(String.format(
-                    "期望无解，实际结果代码: %d，解数量: %s",
+                    "Expected no solution, actual result code: %d, solution count: %s",
                     actualResult.getCode(),
                     actualResult.getData() instanceof Collection
                             ? String.valueOf(((Collection<?>) actualResult.getData()).size())

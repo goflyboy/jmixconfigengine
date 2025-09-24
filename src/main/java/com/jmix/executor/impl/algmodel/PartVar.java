@@ -94,6 +94,6 @@ public class PartVar extends Var<Part> {
     public String getShortString(CpSolverSolutionCallback solutionCallback) {
         // P1(Q:1,H:0)
         return String.format("%s(%s:%s,%s:%s)", getCode(), QTY_SHORT_NAME,
-                solutionCallback.value((IntVar) this.qty), HIDDEN_SHORT_NAME, solutionCallback.value(this.isHidden));
+                solutionCallback.value(this.qty), HIDDEN_SHORT_NAME, solutionCallback.value(this.isHidden));
     }
 }
