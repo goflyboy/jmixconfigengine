@@ -11,7 +11,7 @@ import com.jmix.tool.model.ParaAnno;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * 注入兼容性规则测试类

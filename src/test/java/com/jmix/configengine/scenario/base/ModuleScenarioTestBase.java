@@ -21,8 +21,8 @@ import com.jmix.tool.model.ModuleGenneratorByAnno;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -85,7 +85,7 @@ public abstract class ModuleScenarioTestBase {
     /**
      * 每个用例执行前调用
      */
-    @Before
+    @BeforeEach
     public void setUp() {
         init();
     }
@@ -93,7 +93,7 @@ public abstract class ModuleScenarioTestBase {
     /**
      * 每个用例执行后调用
      */
-    @After
+    @AfterEach
     public void tearDown() {
         ModuleConstraintExecutor.INST.fini();
     }

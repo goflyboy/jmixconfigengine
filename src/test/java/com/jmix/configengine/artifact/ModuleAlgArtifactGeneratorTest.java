@@ -20,9 +20,9 @@ import com.jmix.tool.artifact.VarInfo;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +38,7 @@ public class ModuleAlgArtifactGeneratorTest {
     /**
      * 测试设置方法
      */
-    @Before
+    @BeforeEach
     public void setUp() {
     }
 
@@ -51,10 +51,10 @@ public class ModuleAlgArtifactGeneratorTest {
         ModuleAlgArtifactGenerator generator = ModuleAlgArtifactGenerator.forModule(module);
 
         // 验证生成器是否正确初始化
-        Assert.assertNotNull("Generator should not be null", generator);
-        Assert.assertNotNull("ModuleInfo should not be null", generator.getModuleVarInfo());
-        Assert.assertEquals("Module code should match", module.getCode(),
-                generator.getModuleVarInfo().getCode());
+        assertNotNull(generator, "Generator should not be null");
+        assertNotNull(generator.getModuleVarInfo(), "ModuleInfo should not be null");
+        assertEquals(module.getCode(),
+                generator.getModuleVarInfo().getCode(), "Module code should match");
 
         log.info("forModule factory method test passed successfully");
     }
@@ -73,55 +73,52 @@ public class ModuleAlgArtifactGeneratorTest {
         Rule calculateRule = createCalculateRule();
         RuleInfo calculateRuleInfo = invokeBuildRule(module, calculateRule);
 
-        Assert.assertNotNull("CalculateRuleInfo should not be null", calculateRuleInfo);
-        Assert.assertEquals("Code should match", "rule2", calculateRuleInfo.getCode());
-        Assert.assertEquals("Name should match", "部件数量关系规则", calculateRuleInfo.getName());
-        Assert.assertEquals("NormalNaturalCode should match",
-                "装饰部件TShirt12的数量必须等于主体部件TShirt11数量的2倍",
-                calculateRuleInfo.getNormalNaturalCode());
-        Assert.assertEquals("RuleSchemaTypeFullName should match", "CDSL.V5.Struct.CalculateRule",
-                calculateRuleInfo.getRuleSchemaTypeFullName());
-        Assert.assertEquals("LeftTypeName should be PartVar", "PartVar",
-                calculateRuleInfo.getLeftTypeName());
-        Assert.assertEquals("RightTypeName should be PartVar", "PartVar",
-                calculateRuleInfo.getRightTypeName());
+        assertNotNull(calculateRuleInfo, "CalculateRuleInfo should not be null");
+        assertEquals("rule2", calculateRuleInfo.getCode(), "Code should match");
+        assertEquals("部件数量关系规则", calculateRuleInfo.getName(), "Name should match");
+        assertEquals("装饰部件TShirt12的数量必须等于主体部件TShirt11数量的2倍",
+                calculateRuleInfo.getNormalNaturalCode(), "NormalNaturalCode should match");
+        assertEquals("CDSL.V5.Struct.CalculateRule",
+                calculateRuleInfo.getRuleSchemaTypeFullName(), "RuleSchemaTypeFullName should match");
+        assertEquals("PartVar",
+                calculateRuleInfo.getLeftTypeName(), "LeftTypeName should be PartVar");
+        assertEquals("PartVar",
+                calculateRuleInfo.getRightTypeName(), "RightTypeName should be PartVar");
 
         // 测试选择规则
         Rule selectRule = createSelectRule();
         RuleInfo selectRuleInfo = invokeBuildRule(module, selectRule);
 
-        Assert.assertNotNull("SelectRuleInfo should not be null", selectRuleInfo);
-        Assert.assertEquals("Code should match", "rule3", selectRuleInfo.getCode());
-        Assert.assertEquals("Name should match", "颜色选择规则", selectRuleInfo.getName());
-        Assert.assertEquals("NormalNaturalCode should match", "颜色参数必须且只能选择一个选项",
-                selectRuleInfo.getNormalNaturalCode());
-        Assert.assertEquals("RuleSchemaTypeFullName should match", "CDSL.V5.Struct.SelectRule",
-                selectRuleInfo.getRuleSchemaTypeFullName());
-        Assert.assertEquals("LeftTypeName should be ParaVar", "ParaVar",
-                selectRuleInfo.getLeftTypeName());
-        Assert.assertEquals("RightTypeName should be ParaVar", "ParaVar",
-                selectRuleInfo.getRightTypeName());
+        assertNotNull(selectRuleInfo, "SelectRuleInfo should not be null");
+        assertEquals("rule3", selectRuleInfo.getCode(), "Code should match");
+        assertEquals("颜色选择规则", selectRuleInfo.getName(), "Name should match");
+        assertEquals("颜色参数必须且只能选择一个选项",
+                selectRuleInfo.getNormalNaturalCode(), "NormalNaturalCode should match");
+        assertEquals("CDSL.V5.Struct.SelectRule",
+                selectRuleInfo.getRuleSchemaTypeFullName(), "RuleSchemaTypeFullName should match");
+        assertEquals("ParaVar",
+                selectRuleInfo.getLeftTypeName(), "LeftTypeName should be ParaVar");
+        assertEquals("ParaVar",
+                selectRuleInfo.getRightTypeName(), "RightTypeName should be ParaVar");
 
         // 测试无效规则（应该不会抛出异常，而是记录错误日志）
         Rule invalidRule = createInvalidRule();
         RuleInfo invalidRuleInfo = invokeBuildRule(module, invalidRule);
 
-        Assert.assertNotNull("InvalidRuleInfo should not be null", invalidRuleInfo);
-        Assert.assertEquals("Code should match", "invalidRule", invalidRuleInfo.getCode());
-        Assert.assertEquals("Name should match", "无效规则", invalidRuleInfo.getName());
+        assertNotNull(invalidRuleInfo, "InvalidRuleInfo should not be null");
+        assertEquals("invalidRule", invalidRuleInfo.getCode(), "Code should match");
+        assertEquals("无效规则", invalidRuleInfo.getName(), "Name should match");
 
         // 测试未知类型规则
         Rule unknownRule = createUnknownRuleType();
         RuleInfo unknownRuleInfo = invokeBuildRule(module, unknownRule);
 
-        Assert.assertNotNull("UnknownRuleInfo should not be null", unknownRuleInfo);
-        Assert.assertEquals("Code should match", "unknownRule", unknownRuleInfo.getCode());
-        Assert.assertEquals("Name should match", "未知类型规则", unknownRuleInfo.getName());
+        assertNotNull(unknownRuleInfo, "UnknownRuleInfo should not be null");
+        assertEquals("unknownRule", unknownRuleInfo.getCode(), "Code should match");
+        assertEquals("未知类型规则", unknownRuleInfo.getName(), "Name should match");
         // 对于未知类型，左右类型名称应该为null
-        Assert.assertNull("LeftTypeName should be null for unknown type",
-                unknownRuleInfo.getLeftTypeName());
-        Assert.assertNull("RightTypeName should be null for unknown type",
-                unknownRuleInfo.getRightTypeName());
+        assertNull(unknownRuleInfo.getLeftTypeName(), "LeftTypeName should be null for unknown type");
+        assertNull(unknownRuleInfo.getRightTypeName(), "RightTypeName should be null for unknown type");
 
         log.info("BuildRule test passed successfully");
     }
@@ -155,8 +152,8 @@ public class ModuleAlgArtifactGeneratorTest {
             // 由于当前实现中getPara和getPart可能返回null，所以result可能为null
             // 这是预期的行为，我们主要验证方法调用不会抛出异常
             if (result != null) {
-                Assert.assertNotNull("Target object should not be null", result.getFirst());
-                Assert.assertNotNull("Filtered objects should not be null", result.getSecond());
+                assertNotNull(result.getFirst(), "Target object should not be null");
+                assertNotNull(result.getSecond(), "Filtered objects should not be null");
 
                 log.info("doSelectProObjs test passed - targetObj: {}, filterObjects size: {}",
                         (result.getFirst() != null ? result.getFirst().getClass().getSimpleName() : "null"),
@@ -172,7 +169,7 @@ public class ModuleAlgArtifactGeneratorTest {
                 log.error("Cause: {}", e.getCause().getMessage());
             }
             e.printStackTrace();
-            Assert.fail("Test failed with exception: " + e.getMessage());
+            fail("Test failed with exception: " + e.getMessage());
         }
     }
 
@@ -187,54 +184,54 @@ public class ModuleAlgArtifactGeneratorTest {
 
         // 测试getPara方法
         java.util.Optional<Para> colorParaOpt = module.getPara("Color");
-        Assert.assertTrue("Color para should be present", colorParaOpt.isPresent());
+        assertTrue(colorParaOpt.isPresent(), "Color para should be present");
         Para colorPara = colorParaOpt.get();
-        Assert.assertEquals("Color", colorPara.getCode());
+        assertEquals("Color", colorPara.getCode());
 
         java.util.Optional<Para> sizeParaOpt = module.getPara("Size");
-        Assert.assertTrue("Size para should be present", sizeParaOpt.isPresent());
+        assertTrue(sizeParaOpt.isPresent(), "Size para should be present");
         Para sizePara = sizeParaOpt.get();
-        Assert.assertNotNull("Size para should not be null", sizePara);
-        Assert.assertEquals("Size", sizePara.getCode());
+        assertNotNull(sizePara, "Size para should not be null");
+        assertEquals("Size", sizePara.getCode());
 
         // 测试getPart方法
         java.util.Optional<Part> bodyPartOpt = module.getPart("Body");
-        Assert.assertTrue("Body part should be present", bodyPartOpt.isPresent());
+        assertTrue(bodyPartOpt.isPresent(), "Body part should be present");
         Part bodyPart = bodyPartOpt.get();
-        Assert.assertNotNull("Body part should not be null", bodyPart);
-        Assert.assertEquals("Body", bodyPart.getCode());
+        assertNotNull(bodyPart, "Body part should not be null");
+        assertEquals("Body", bodyPart.getCode());
 
         java.util.Optional<Part> sleevePartOpt = module.getPart("Sleeve");
-        Assert.assertTrue("Sleeve part should be present", sleevePartOpt.isPresent());
+        assertTrue(sleevePartOpt.isPresent(), "Sleeve part should be present");
         Part sleevePart = sleevePartOpt.get();
-        Assert.assertNotNull("Sleeve part should not be null", sleevePart);
-        Assert.assertEquals("Sleeve", sleevePart.getCode());
+        assertNotNull(sleevePart, "Sleeve part should not be null");
+        assertEquals("Sleeve", sleevePart.getCode());
 
         // 测试getChildrenPart方法
         List<Part> bodyChildren = module.getChildrenPart("Body");
-        Assert.assertNotNull("Body children should not be null", bodyChildren);
-        Assert.assertEquals("Body should have 2 children", 2, bodyChildren.size());
+        assertNotNull(bodyChildren, "Body children should not be null");
+        assertEquals(2, bodyChildren.size(), "Body should have 2 children");
 
         // 验证子部件的fatherCode设置
         for (Part child : bodyChildren) {
-            Assert.assertEquals("Child should have correct fatherCode", "Body", child.getFatherCode());
+            assertEquals("Body", child.getFatherCode(), "Child should have correct fatherCode");
         }
 
         // 测试getTopLevelParts方法
         List<Part> topLevelParts = module.getTopLevelParts();
-        Assert.assertNotNull("Top level parts should not be null", topLevelParts);
-        Assert.assertEquals("Should have 1 top level part", 1, topLevelParts.size());
-        Assert.assertEquals("Top level part should be Body", "Body", topLevelParts.get(0).getCode());
+        assertNotNull(topLevelParts, "Top level parts should not be null");
+        assertEquals(1, topLevelParts.size(), "Should have 1 top level part");
+        assertEquals("Body", topLevelParts.get(0).getCode(), "Top level part should be Body");
 
         // 测试hasPara和hasPart方法
-        Assert.assertTrue("Should have Color para", module.hasPara("Color"));
-        Assert.assertTrue("Should have Size para", module.hasPara("Size"));
-        Assert.assertTrue("Should have Body part", module.hasPart("Body"));
-        Assert.assertTrue("Should have Sleeve part", module.hasPart("Sleeve"));
+        assertTrue(module.hasPara("Color"), "Should have Color para");
+        assertTrue(module.hasPara("Size"), "Should have Size para");
+        assertTrue(module.hasPart("Body"), "Should have Body part");
+        assertTrue(module.hasPart("Sleeve"), "Should have Sleeve part");
 
         // 测试不存在的编码
-        Assert.assertFalse("Should not have non-existent para", module.hasPara("NonExistent"));
-        Assert.assertFalse("Should not have non-existent part", module.hasPart("NonExistent"));
+        assertFalse(module.hasPara("NonExistent"), "Should not have non-existent para");
+        assertFalse(module.hasPart("NonExistent"), "Should not have non-existent part");
 
         log.info("Module methods test passed successfully");
     }

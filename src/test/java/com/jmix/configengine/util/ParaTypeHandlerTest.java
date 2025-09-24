@@ -1,15 +1,16 @@
 package com.jmix.configengine.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jmix.executor.imodel.Para;
 import com.jmix.executor.imodel.ParaOption;
 import com.jmix.executor.imodel.ParaType;
 import com.jmix.executor.impl.util.ParaTypeHandler;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * ParaTypeHandler测试类
@@ -48,7 +49,7 @@ public class ParaTypeHandlerTest {
         assertEquals("10", result);
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void testGetCodeIdValueEnumOptionNotFound() {
         Para para = new Para();
         para.setCode("TestPara");
@@ -60,7 +61,9 @@ public class ParaTypeHandlerTest {
 
         para.setOptions(java.util.Arrays.asList(option1));
 
-        ParaTypeHandler.getCodeIdValue(para, "Green");
+        assertThrows(RuntimeException.class, () -> {
+            ParaTypeHandler.getCodeIdValue(para, "Green");
+        });
     }
 
     @Test
@@ -93,7 +96,7 @@ public class ParaTypeHandlerTest {
         assertEquals("Red", result);
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void testGetDisplayValueEnumCodeIdNotFound() {
         Para para = new Para();
         para.setCode("TestPara");
@@ -105,7 +108,9 @@ public class ParaTypeHandlerTest {
 
         para.setOptions(java.util.Arrays.asList(option1));
 
-        ParaTypeHandler.getDisplayValue(para, "30");
+        assertThrows(RuntimeException.class, () -> {
+            ParaTypeHandler.getDisplayValue(para, "30");
+        });
     }
 
     @Test
@@ -118,9 +123,11 @@ public class ParaTypeHandlerTest {
         ParaTypeHandler.validateParaType(para);
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void testValidateParaTypeNull() {
-        ParaTypeHandler.validateParaType(null);
+        assertThrows(RuntimeException.class, () -> {
+            ParaTypeHandler.validateParaType(null);
+        });
     }
 
     @Test

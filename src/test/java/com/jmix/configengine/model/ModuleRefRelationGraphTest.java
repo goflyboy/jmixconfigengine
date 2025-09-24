@@ -1,16 +1,16 @@
 package com.jmix.configengine.model;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.jmix.executor.imodel.rule.RefProgObjSchema;
 import com.jmix.executor.impl.ModuleRefRelationGraph;
 import com.jmix.executor.impl.util.Pair;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
@@ -41,7 +41,7 @@ public class ModuleRefRelationGraphTest {
     /**
      * 设置测试环境
      */
-    @Before
+    @BeforeEach
     public void setUp() {
         graph = new ModuleRefRelationGraph();
 

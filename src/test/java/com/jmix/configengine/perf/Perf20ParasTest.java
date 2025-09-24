@@ -15,9 +15,9 @@ import com.google.ortools.sat.Literal;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.concurrent.TimeUnit;
 
@@ -493,7 +493,7 @@ public class Perf20ParasTest extends ModuleScenarioTestBase {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testPerformancePt003AllSolutions() {
         executeTest("testPerformancePt003AllSolutions", true);
     }
@@ -510,8 +510,8 @@ public class Perf20ParasTest extends ModuleScenarioTestBase {
         totalTime += TimeUnit.NANOSECONDS.toMillis(endTime - startTime);
         long averageTime = totalTime / iterations;
         log.info("{} Average time for inferParas(pt003, 4): {} ms", testCaseName, averageTime);
-        Assert.assertTrue(testCaseName + " Performance test failed: average time " + averageTime + " ms exceeds 300 ms",
-                averageTime <= 300);
+        assertTrue(averageTime <= 300,
+                testCaseName + " Performance test failed: average time " + averageTime + " ms exceeds 300 ms");
     }
 
     @Override

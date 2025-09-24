@@ -1,8 +1,8 @@
 package com.jmix.configengine;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jmix.executor.imodel.ConstraintConfig;
 import com.jmix.executor.imodel.Module;
@@ -14,8 +14,8 @@ import com.jmix.tool.ModuleUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.List;
@@ -36,7 +36,7 @@ public class ModuleConstraintExecutorTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     /**
      * 测试初始化、添加模块和推理参数
      */

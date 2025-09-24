@@ -1,8 +1,8 @@
 package com.jmix.configengine.scenario.tshirt;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.omodel.AlgLoaderException;
@@ -11,10 +11,10 @@ import com.jmix.tool.artifact.ModuleAlgArtifactGenerator;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -48,7 +48,7 @@ public class ModuleAlgArtifactGeneratorBaseTest {
      * 
      * @throws Exception 异常
      */
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         // 初始化生成器
         generator = new ModuleAlgArtifactGenerator();
@@ -72,7 +72,7 @@ public class ModuleAlgArtifactGeneratorBaseTest {
      * @throws Exception 异常
      */
     @Test
-    @Ignore
+    @Disabled
     public void testBuildConstraintRule() throws Exception {
         deleteGeneratedFile = false;
         log.info("=== Starting test for buildConstraintRule method ===");
@@ -174,7 +174,7 @@ public class ModuleAlgArtifactGeneratorBaseTest {
     /**
      * 测试清理方法
      */
-    @After
+    @AfterEach
     public void tearDown() {
         // 清理生成的测试文件
         if (!deleteGeneratedFile) {

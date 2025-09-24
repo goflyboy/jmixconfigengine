@@ -1,9 +1,9 @@
 package com.jmix.configengine.scenario.autoruletest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.Rule;
@@ -16,7 +16,7 @@ import com.jmix.tool.model.StructCodeInjector;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * 注解规则集成测试类

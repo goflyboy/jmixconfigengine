@@ -15,9 +15,8 @@ import com.jmix.configengine.scenario.ruletest.ParaIntegerTest;
 import com.jmix.configengine.scenario.ruletest.ParaIsHiddenTest;
 import com.jmix.configengine.util.ModuleUtilsTest;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
 /**
  * JMix Config Engine 测试套件
@@ -30,8 +29,8 @@ import org.junit.runners.Suite.SuiteClasses;
  * 
  * @since 2025-09-23
  */
-@RunWith(Suite.class)
-@SuiteClasses({
+@Suite
+@SelectClasses({
         // 核心功能测试
         FilterExpressionExecutorTest.class,
         ModuleAlgArtifactGeneratorTest.class,

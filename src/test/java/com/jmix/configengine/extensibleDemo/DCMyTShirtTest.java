@@ -1,8 +1,8 @@
 package com.jmix.configengine.extensibleDemo;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jmix.executor.ModuleConstraintExecutor;
 import com.jmix.executor.imodel.ConstraintConfig;
@@ -14,9 +14,9 @@ import com.jmix.executor.omodel.Result;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ public class DCMyTShirtTest {
 
     private DCDeliveryTypePostProcess postProcess;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         // 使用单例DC执行器
 
@@ -52,7 +52,7 @@ public class DCMyTShirtTest {
         DCModuleConstraintExecutor.INST.addDCModule(1L, getDCModule());
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         // 清理资源
         DCModuleConstraintExecutor.INST.fini();

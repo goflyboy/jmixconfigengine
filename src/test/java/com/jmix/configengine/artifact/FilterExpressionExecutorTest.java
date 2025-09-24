@@ -6,8 +6,8 @@ import com.jmix.executor.imodel.Part;
 import com.jmix.executor.impl.ModuleBuilder;
 import com.jmix.executor.impl.util.FilterExpressionExecutor;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
@@ -31,8 +31,8 @@ public class FilterExpressionExecutorTest {
         // 测试code="para31"的过滤
         List<TestObject> result = FilterExpressionExecutor.doSelect(objects, "code=\"para31\"");
 
-        Assert.assertEquals(1, result.size());
-        Assert.assertEquals("para31", result.get(0).getCode());
+        assertEquals(1, result.size());
+        assertEquals("para31", result.get(0).getCode());
     }
 
     @Test
@@ -47,9 +47,9 @@ public class FilterExpressionExecutorTest {
         // 测试sortNo=2的过滤
         List<TestObject> result = FilterExpressionExecutor.doSelect(objects, "sortNo=2");
 
-        Assert.assertEquals(2, result.size());
-        Assert.assertEquals("para12", result.get(0).getCode());
-        Assert.assertEquals("para31", result.get(1).getCode());
+        assertEquals(2, result.size());
+        assertEquals("para12", result.get(0).getCode());
+        assertEquals("para31", result.get(1).getCode());
     }
 
     @Test
@@ -64,15 +64,15 @@ public class FilterExpressionExecutorTest {
         // 测试freq="5G"的过滤
         List<TestObject> result = FilterExpressionExecutor.doSelect(objects, "freq=\"5G\"");
 
-        Assert.assertEquals(1, result.size());
-        Assert.assertEquals("para31", result.get(0).getCode());
+        assertEquals(1, result.size());
+        assertEquals("para31", result.get(0).getCode());
     }
 
     @Test
     public void testDoSelectWithEmptyList() {
         List<TestObject> objects = Arrays.asList();
         List<TestObject> result = FilterExpressionExecutor.doSelect(objects, "code=\"test\"");
-        Assert.assertEquals(0, result.size());
+        assertEquals(0, result.size());
     }
 
     @Test
@@ -80,7 +80,7 @@ public class FilterExpressionExecutorTest {
         List<TestObject> objects = Arrays.asList(
                 new TestObject("para11", "para11 description", 1, "3G", "1"));
         List<TestObject> result = FilterExpressionExecutor.doSelect(objects, null);
-        Assert.assertEquals(1, result.size());
+        assertEquals(1, result.size());
     }
 
     // ========== ParaOption 过滤测试用例 ==========
@@ -96,9 +96,9 @@ public class FilterExpressionExecutorTest {
         // 测试code="Red"的过滤
         List<ParaOption> result = FilterExpressionExecutor.doSelect(colorOptions, "code=\"Red\"");
 
-        Assert.assertEquals(1, result.size());
-        Assert.assertEquals("Red", result.get(0).getCode());
-        Assert.assertEquals(10, result.get(0).getCodeId());
+        assertEquals(1, result.size());
+        assertEquals("Red", result.get(0).getCode());
+        assertEquals(10, result.get(0).getCodeId());
     }
 
     @Test
@@ -112,9 +112,9 @@ public class FilterExpressionExecutorTest {
         // 测试codeId=2的过滤
         List<ParaOption> result = FilterExpressionExecutor.doSelect(sizeOptions, "codeId=2");
 
-        Assert.assertEquals(1, result.size());
-        Assert.assertEquals("Medium", result.get(0).getCode());
-        Assert.assertEquals(2, result.get(0).getCodeId());
+        assertEquals(1, result.size());
+        assertEquals("Medium", result.get(0).getCode());
+        assertEquals(2, result.get(0).getCodeId());
     }
 
     @Test
@@ -128,9 +128,9 @@ public class FilterExpressionExecutorTest {
         // 测试popularity="veryHigh"的过滤
         List<ParaOption> result = FilterExpressionExecutor.doSelect(colorOptions, "popularity=\"veryHigh\"");
 
-        Assert.assertEquals(1, result.size());
-        Assert.assertEquals("Black", result.get(0).getCode());
-        Assert.assertEquals("veryHigh", result.get(0).getExtAttr("popularity"));
+        assertEquals(1, result.size());
+        assertEquals("Black", result.get(0).getCode());
+        assertEquals("veryHigh", result.get(0).getExtAttr("popularity"));
     }
 
     @Test
@@ -144,8 +144,8 @@ public class FilterExpressionExecutorTest {
         // 测试sortNo>1的过滤
         List<ParaOption> result = FilterExpressionExecutor.doSelect(colorOptions, "sortNo>1");
 
-        Assert.assertEquals(2, result.size());
-        Assert.assertTrue(result.stream().allMatch(option -> option.getSortNo() > 1));
+        assertEquals(2, result.size());
+        assertTrue(result.stream().allMatch(option -> option.getSortNo() > 1));
     }
 
     // ========== Part 过滤测试用例 ==========
@@ -160,9 +160,9 @@ public class FilterExpressionExecutorTest {
         // 测试code="TShirt11"的过滤
         List<Part> result = FilterExpressionExecutor.doSelect(parts, "code=\"TShirt11\"");
 
-        Assert.assertEquals(1, result.size());
-        Assert.assertEquals("TShirt11", result.get(0).getCode());
-        Assert.assertEquals(Long.valueOf(1500L), result.get(0).getPrice());
+        assertEquals(1, result.size());
+        assertEquals("TShirt11", result.get(0).getCode());
+        assertEquals(Long.valueOf(1500L), result.get(0).getPrice());
     }
 
     @Test
@@ -175,9 +175,9 @@ public class FilterExpressionExecutorTest {
         // 测试price<1000的过滤
         List<Part> result = FilterExpressionExecutor.doSelect(parts, "price<1000");
 
-        Assert.assertEquals(1, result.size());
-        Assert.assertEquals("TShirt12", result.get(0).getCode());
-        Assert.assertTrue(result.get(0).getPrice() < 1000);
+        assertEquals(1, result.size());
+        assertEquals("TShirt12", result.get(0).getCode());
+        assertTrue(result.get(0).getPrice() < 1000);
     }
 
     @Test
@@ -190,9 +190,9 @@ public class FilterExpressionExecutorTest {
         // 测试material="cotton"的过滤
         List<Part> result = FilterExpressionExecutor.doSelect(parts, "material=\"cotton\"");
 
-        Assert.assertEquals(1, result.size());
-        Assert.assertEquals("TShirt11", result.get(0).getCode());
-        Assert.assertEquals("cotton", result.get(0).getExtAttr("material"));
+        assertEquals(1, result.size());
+        assertEquals("TShirt11", result.get(0).getCode());
+        assertEquals("cotton", result.get(0).getExtAttr("material"));
     }
 
     @Test
@@ -207,9 +207,9 @@ public class FilterExpressionExecutorTest {
         // 测试fabric="100%棉"的过滤
         List<Part> result = FilterExpressionExecutor.doSelect(parts, "fabric=\"100%棉\"");
 
-        Assert.assertEquals(1, result.size());
-        Assert.assertEquals("TShirt11", result.get(0).getCode());
-        Assert.assertEquals("100%棉", result.get(0).getAttr("fabric"));
+        assertEquals(1, result.size());
+        assertEquals("TShirt11", result.get(0).getCode());
+        assertEquals("100%棉", result.get(0).getAttr("fabric"));
     }
 
     @Test
@@ -223,10 +223,10 @@ public class FilterExpressionExecutorTest {
         List<Part> result = FilterExpressionExecutor.doSelect(parts, "price>=1000");
         result = FilterExpressionExecutor.doSelect(result, "material=\"cotton\"");
 
-        Assert.assertEquals(1, result.size());
-        Assert.assertEquals("TShirt11", result.get(0).getCode());
-        Assert.assertTrue(result.get(0).getPrice() >= 1000);
-        Assert.assertEquals("cotton", result.get(0).getExtAttr("material"));
+        assertEquals(1, result.size());
+        assertEquals("TShirt11", result.get(0).getCode());
+        assertTrue(result.get(0).getPrice() >= 1000);
+        assertEquals("cotton", result.get(0).getExtAttr("material"));
     }
 
     /**

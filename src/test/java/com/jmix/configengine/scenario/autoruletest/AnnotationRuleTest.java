@@ -1,9 +1,9 @@
 package com.jmix.configengine.scenario.autoruletest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.ParaType;
@@ -20,6 +20,7 @@ import com.jmix.tool.model.ParaAnno;
 import com.jmix.tool.model.PartAnno;
 
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
@@ -80,7 +81,7 @@ public class AnnotationRuleTest extends ConstraintAlgImpl {
     /**
      * 测试规则生成
      */
-    @org.junit.Test
+    @Test
     /**
      * 测试规则生成
      */
@@ -92,9 +93,9 @@ public class AnnotationRuleTest extends ConstraintAlgImpl {
         Module module = ModuleGenneratorByAnno.build(AnnotationRuleTest.class, tempPath);
 
         // 验证Module中包含了生成的规则
-        assertNotNull("Module should not be null", module);
-        assertNotNull("Module rules should not be null", module.getRules());
-        assertEquals("Should have 2 rules", 2, module.getRules().size());
+        assertNotNull(module, "Module should not be null");
+        assertNotNull(module.getRules(), "Module rules should not be null");
+        assertEquals(2, module.getRules().size(), "Should have 2 rules");
 
         // 验证第一个规则是兼容性规则
         Rule rule1 = module.getRules().get(0);
@@ -123,7 +124,7 @@ public class AnnotationRuleTest extends ConstraintAlgImpl {
     /**
      * 测试注解解析
      */
-    @org.junit.Test
+    @Test
     /**
      * 测试注解解析
      */
