@@ -7,9 +7,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.Rule;
+import com.jmix.executor.impl.util.CommHelper;
 import com.jmix.tool.artifact.ModuleAlgArtifactGenerator;
 import com.jmix.tool.artifact.ModuleVarInfo;
-import com.jmix.tool.model.CommHelper;
 import com.jmix.tool.model.ModuleGenneratorByAnno;
 import com.jmix.tool.model.StructCodeInjector;
 

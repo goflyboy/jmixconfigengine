@@ -3,6 +3,7 @@ package com.jmix.tool.model;
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.Rule;
 import com.jmix.executor.impl.algmodel.ConstraintAlg;
+import com.jmix.executor.impl.util.CommHelper;
 import com.jmix.executor.omodel.AlgLoaderException;
 import com.jmix.tool.artifact.ModuleAlgArtifactGenerator;
 import com.jmix.tool.artifact.ModuleVarInfo;

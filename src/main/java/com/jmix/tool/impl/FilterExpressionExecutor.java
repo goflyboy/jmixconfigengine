@@ -1,4 +1,4 @@
-package com.jmix.executor.impl.util;
+package com.jmix.tool.impl;
 
 import com.jmix.executor.imodel.Extensible;
 import com.jmix.executor.imodel.Part;

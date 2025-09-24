@@ -1,12 +1,14 @@
 package com.jmix.configengine.artifact;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.jmix.executor.imodel.Extensible;
 import com.jmix.executor.imodel.ParaOption;
 import com.jmix.executor.imodel.Part;
 import com.jmix.executor.impl.ModuleBuilder;
-import com.jmix.executor.impl.util.FilterExpressionExecutor;
+import com.jmix.tool.impl.FilterExpressionExecutor;
 
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;

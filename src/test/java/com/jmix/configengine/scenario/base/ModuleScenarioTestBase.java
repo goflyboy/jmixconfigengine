@@ -8,6 +8,7 @@ import com.jmix.executor.imodel.Part;
 import com.jmix.executor.impl.ModuleConstraintExecutorImpl;
 import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
 import com.jmix.executor.impl.algmodel.OtherVar;
+import com.jmix.executor.impl.util.CommHelper;
 import com.jmix.executor.impl.util.ParaTypeHandler;
 import com.jmix.executor.omodel.AlgLoaderException;
 import com.jmix.executor.omodel.InferParasReq;
@@ -15,7 +16,6 @@ import com.jmix.executor.omodel.ModuleInst;
 import com.jmix.executor.omodel.ParaInst;
 import com.jmix.executor.omodel.PartInst;
 import com.jmix.executor.omodel.Result;
-import com.jmix.tool.model.CommHelper;
 import com.jmix.tool.model.ModuleGenneratorByAnno;
 
 import lombok.Data;
