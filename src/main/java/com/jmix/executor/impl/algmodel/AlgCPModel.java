@@ -173,7 +173,6 @@ public class AlgCPModel {
     }
 
     // 以下方法直接委托给底层的CpModel，保持接口兼容性
-
     // Boolean Constraints
 
     /**

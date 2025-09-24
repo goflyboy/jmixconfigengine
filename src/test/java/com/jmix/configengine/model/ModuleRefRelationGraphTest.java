@@ -123,10 +123,10 @@ public class ModuleRefRelationGraphTest {
     @Test
     public void testAddRelationWithNullParameters() {
         // 测试null fromLeft
-        graph.add("Rule01", (RefProgObjSchema) null, p11);
+        graph.add("Rule01", null, p11);
 
         // 测试null toRight
-        graph.add("Rule02", p0, (RefProgObjSchema) null);
+        graph.add("Rule02", p0, null);
 
         // 测试null fromLefts列表
         graph.add("Rule03", (List<RefProgObjSchema>) null, Arrays.asList(pt1));
