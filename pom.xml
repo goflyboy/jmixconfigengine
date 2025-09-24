@@ -17,25 +17,35 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        
+        <!-- Dependency Versions -->
+        <langchain4j.version>0.27.1</langchain4j.version>
         <ortools.version>9.12.4544</ortools.version>
-        <freemarker.version>2.3.32</freemarker.version>
-        <lombok.version>1.18.30</lombok.version>
-        <guava.version>31.1-jre</guava.version>
-        <jackson.version>2.15.2</jackson.version>
+        <freemarker.version>2.3.33</freemarker.version>
+        <lombok.version>1.18.36</lombok.version>
+        <guava.version>33.1.0-jre</guava.version>
+        <jackson.version>2.17.0</jackson.version>
         <junit.version>4.13.2</junit.version>
+        <slf4j.version>2.0.16</slf4j.version>
+        <spring.version>5.3.39</spring.version>
+        
+        <!-- Plugin Versions -->
+        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
+        <maven-checkstyle-plugin.version>3.3.0</maven-checkstyle-plugin.version>
+        <m2e-lifecycle-mapping.version>1.0.0</m2e-lifecycle-mapping.version>
     </properties>
 
     <dependencies>
-         <!-- LangChain4j 1.4.0 -->
+         <!-- LangChain4j -->
          <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j</artifactId>
-            <version>0.27.1</version>
+            <version>${langchain4j.version}</version>
         </dependency>
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-open-ai</artifactId>
-            <version>0.27.1</version>
+            <version>${langchain4j.version}</version>
         </dependency>
         
         <!-- OR-Tools -->
@@ -86,21 +96,21 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.36</version>
+            <version>${slf4j.version}</version>
         </dependency>
         
         <!-- SLF4J Simple Implementation -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <version>1.7.36</version>
+            <version>${slf4j.version}</version>      
         </dependency>
         
         <!-- Spring Core -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>5.3.27</version>
+            <version>${spring.version}</version>
         </dependency>
     </dependencies>
 
@@ -109,7 +119,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>${maven-compiler-plugin.version}</version>
                 <configuration>
                     <source>8</source>
                     <target>8</target>
@@ -119,7 +129,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>3.3.0</version>
+                <version>${maven-checkstyle-plugin.version}</version>
                 <configuration>
                     <configLocation>checkstyle.xml</configLocation>
                     <encoding>UTF-8</encoding>
@@ -145,7 +155,7 @@
                 <plugin>
                     <groupId>org.eclipse.m2e</groupId>
                     <artifactId>lifecycle-mapping</artifactId>
-                    <version>1.0.0</version>
+                    <version>${m2e-lifecycle-mapping.version}</version>
                     <configuration>
                         <lifecycleMappingMetadata>
                             <pluginExecutions>

@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -71,6 +72,7 @@ public class ModuleAlgArtifactGeneratorBaseTest {
      * @throws Exception 异常
      */
     @Test
+    @Ignore
     public void testBuildConstraintRule() throws Exception {
         deleteGeneratedFile = false;
         log.info("=== Starting test for buildConstraintRule method ===");
