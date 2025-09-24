@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import com.jmix.executor.imodel.Module;
+import com.jmix.executor.omodel.AlgLoaderException;
 import com.jmix.tool.ModuleUtils;
 import com.jmix.tool.artifact.ModuleAlgArtifactGenerator;
 
@@ -98,7 +99,7 @@ public class ModuleAlgArtifactGeneratorBaseTest {
             log.error("buildConstraintRule call failed, error message: {}", e.getMessage());
             // 这是一个已知问题，模板需要rule.left和rule.right属性
             // 但当前的实现没有正确设置这些属性
-            throw e;
+            throw new AlgLoaderException("buildConstraintRule call failed, error message: " + e.getMessage());
         }
 
         // 验证生成的代码文件是否存在

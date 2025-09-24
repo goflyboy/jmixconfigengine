@@ -14,7 +14,6 @@ import java.util.List;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@SuppressWarnings("checkstyle:DesignForExtensionCheck")
 public class CompatiableRuleSchema extends RuleSchema {
 
     /**
