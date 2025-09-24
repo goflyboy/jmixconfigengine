@@ -499,7 +499,7 @@ public class Perf20ParasTest extends ModuleScenarioTestBase {
     }
 
     private void executeTest(String testCaseName, boolean tmpEnumerateAllSolution) {
-        long totalTime = 0;
+        long totalTime = 0L;
         int iterations = 10;
         this.setEnumerateAllSolution(tmpEnumerateAllSolution);
         long startTime = System.nanoTime();

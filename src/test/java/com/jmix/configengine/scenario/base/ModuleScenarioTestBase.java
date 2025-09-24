@@ -195,17 +195,6 @@ public abstract class ModuleScenarioTestBase {
     }
 
     /**
-     * 根据单个参数值进行推理（向后兼容）
-     * 
-     * @param paraCode 参数代码
-     * @param value    参数值
-     * @return 推理结果
-     */
-    protected List<ModuleInst> inferParasByPara(String paraCode, String value) {
-        return inferParasByPara(new String[] { paraCode, value });
-    }
-
-    /**
      * 获取指定索引的解决方案
      */
     protected ProgammableInstAssert solutions(int index) {

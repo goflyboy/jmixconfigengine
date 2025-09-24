@@ -22,14 +22,6 @@ import java.nio.file.Paths;
  */
 @Slf4j
 final public class ModuleUtils {
-
-    /**
-     * 私有构造器，防止工具类被实例化
-     */
-    private ModuleUtils() {
-        throw new UnsupportedOperationException("Utility class cannot be instantiated");
-    }
-
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     static {
@@ -42,6 +34,13 @@ final public class ModuleUtils {
                 OBJECT_MAPPER.getPolymorphicTypeValidator(),
                 ObjectMapper.DefaultTyping.NON_FINAL,
                 JsonTypeInfo.As.PROPERTY);
+    }
+
+    /**
+     * 私有构造器，防止工具类被实例化
+     */
+    private ModuleUtils() {
+        throw new UnsupportedOperationException("Utility class cannot be instantiated");
     }
 
     /**

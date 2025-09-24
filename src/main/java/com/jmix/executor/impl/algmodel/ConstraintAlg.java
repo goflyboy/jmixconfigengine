@@ -6,5 +6,5 @@ package com.jmix.executor.impl.algmodel;
  * @since 2025-09-22
  */
 public interface ConstraintAlg {
-
+    // 待抽取
 }

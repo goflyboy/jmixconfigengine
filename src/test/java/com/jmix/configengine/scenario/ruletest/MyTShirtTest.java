@@ -49,7 +49,8 @@ public class MyTShirtTest extends ModuleScenarioTestBase {
         @PartAnno
         private PartVar pt1Var;
 
-        @CodeRuleAnno(normalNaturalCode = "if(p1Var.value == op11 && p2Var.value == op21) then { pt1Var.qty = 1; } else { pt1Var.qty = 3; }")
+        @CodeRuleAnno(normalNaturalCode = "if(p1Var.value == op11 && p2Var.value == op21) then { pt1Var.qty = 1; } "
+                + "else { pt1Var.qty = 3; }")
         private void rule1() {
             // if(p1Var.value == op11 && p2Var.value == op21) {
             // pt1Var.qty = 1;

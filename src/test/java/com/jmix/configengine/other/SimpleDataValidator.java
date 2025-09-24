@@ -38,7 +38,7 @@ public class SimpleDataValidator {
             // 读取JSON文件
             File file = new File(filePath);
             if (!file.exists()) {
-                addError("文件不存在: " + filePath);
+                addError("File does not exist: " + filePath);
                 return false;
             }
 
@@ -46,7 +46,7 @@ public class SimpleDataValidator {
             return validateModuleData(rootNode);
 
         } catch (IOException e) {
-            addError("读取JSON文件失败: " + e.getMessage());
+            addError("Failed to read JSON file: " + e.getMessage());
             return false;
         }
     }
@@ -93,7 +93,7 @@ public class SimpleDataValidator {
 
         for (String field : requiredFields) {
             if (!rootNode.has(field) || rootNode.get(field).isNull()) {
-                addError("缺少必需字段: " + field);
+                addError("Missing required field: " + field);
                 isValid = false;
             }
         }
@@ -102,7 +102,7 @@ public class SimpleDataValidator {
         if (rootNode.has("type")) {
             String type = rootNode.get("type").asText();
             if (!isValidModuleType(type)) {
-                addError("无效的模块类型: " + type);
+                addError("Invalid module type: " + type);
                 isValid = false;
             }
         }
@@ -118,7 +118,7 @@ public class SimpleDataValidator {
      */
     private boolean validateParas(JsonNode parasNode) {
         if (!parasNode.isArray()) {
-            addError("paras字段必须是数组");
+            addError("paras field must be an array");
             return false;
         }
 
@@ -145,7 +145,7 @@ public class SimpleDataValidator {
         String[] requiredFields = { "code", "type", "description" };
         for (String field : requiredFields) {
             if (!paraNode.has(field) || paraNode.get(field).isNull()) {
-                addError("参数[" + index + "]缺少必需字段: " + field);
+                addError("Parameter[" + index + "] missing required field: " + field);
                 isValid = false;
             }
         }
@@ -154,7 +154,7 @@ public class SimpleDataValidator {
         if (paraNode.has("type")) {
             String type = paraNode.get("type").asText();
             if (!isValidParaType(type)) {
-                addError("参数[" + index + "]无效的类型: " + type);
+                addError("Parameter[" + index + "] invalid type: " + type);
                 isValid = false;
             }
         }
@@ -186,7 +186,7 @@ public class SimpleDataValidator {
         String[] requiredFields = { "codeId", "code", "description" };
         for (String field : requiredFields) {
             if (!optionNode.has(field) || optionNode.get(field).isNull()) {
-                addError("参数[" + paraIndex + "]选项[" + optionIndex + "]缺少必需字段: " + field);
+                addError("Parameter[" + paraIndex + "] option[" + optionIndex + "] missing required field: " + field);
                 isValid = false;
             }
         }
@@ -202,7 +202,7 @@ public class SimpleDataValidator {
      */
     private boolean validateParts(JsonNode partsNode) {
         if (!partsNode.isArray()) {
-            addError("parts字段必须是数组");
+            addError("parts field must be an array");
             return false;
         }
 
@@ -229,7 +229,7 @@ public class SimpleDataValidator {
         String[] requiredFields = { "code", "type", "description" };
         for (String field : requiredFields) {
             if (!partNode.has(field) || partNode.get(field).isNull()) {
-                addError("部件[" + index + "]缺少必需字段: " + field);
+                addError("Part[" + index + "] missing required field: " + field);
                 isValid = false;
             }
         }
@@ -238,7 +238,7 @@ public class SimpleDataValidator {
         if (partNode.has("type")) {
             String type = partNode.get("type").asText();
             if (!isValidPartType(type)) {
-                addError("部件[" + index + "]无效的类型: " + type);
+                addError("Part[" + index + "] invalid type: " + type);
                 isValid = false;
             }
         }
@@ -254,7 +254,7 @@ public class SimpleDataValidator {
      */
     private boolean validateRules(JsonNode rulesNode) {
         if (!rulesNode.isArray()) {
-            addError("rules字段必须是数组");
+            addError("rules field must be an array");
             return false;
         }
 
@@ -281,7 +281,7 @@ public class SimpleDataValidator {
         String[] requiredFields = { "code", "name", "ruleSchemaTypeFullName", "normalNaturalCode" };
         for (String field : requiredFields) {
             if (!ruleNode.has(field) || ruleNode.get(field).isNull()) {
-                addError("规则[" + index + "]缺少必需字段: " + field);
+                addError("Rule[" + index + "] missing required field: " + field);
                 isValid = false;
             }
         }
@@ -290,7 +290,7 @@ public class SimpleDataValidator {
         if (ruleNode.has("ruleSchemaTypeFullName")) {
             String schema = ruleNode.get("ruleSchemaTypeFullName").asText();
             if (!isValidRuleSchemaTypeFullName(schema)) {
-                addError("规则[" + index + "]无效的Schema: " + schema);
+                addError("Rule[" + index + "] invalid Schema: " + schema);
                 isValid = false;
             }
         }
@@ -299,7 +299,7 @@ public class SimpleDataValidator {
         if (ruleNode.has("rawCode")) {
             JsonNode rawCodeNode = ruleNode.get("rawCode");
             if (!rawCodeNode.isObject()) {
-                addWarning("规则[" + index + "]rawCode应该是对象格式");
+                addWarning("Rule[" + index + "] rawCode should be object format");
             }
         }
 

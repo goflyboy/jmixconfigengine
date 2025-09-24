@@ -155,7 +155,8 @@ public class StructCodeInjector {
     public static class PseudoToJavaConverter {
 
         private static final Pattern SIMPLE_IF_ASSIGN = Pattern.compile(
-                "^\\s*if\\s+([A-Za-z_][A-Za-z0-9_]*)\\.var\\s*==\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*then\\s*([A-Za-z_][A-Za-z0-9_]*)\\.var\\s*=\\s*([A-Za-z_][A-Za-z0-9_]*)\\)?\\s*$",
+                "^\\s*if\\s+([A-Za-z_][A-Za-z0-9_]*)\\.var\\s*==\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*then\\s*([A-Za-z_]"
+                        + "[A-Za-z0-9_]*)\\.var\\s*=\\s*([A-Za-z_][A-Za-z0-9_]*)\\)?\\s*$",
                 Pattern.CASE_INSENSITIVE);
 
         /**
