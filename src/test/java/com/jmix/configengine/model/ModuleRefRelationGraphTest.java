@@ -26,7 +26,17 @@ import java.util.Set;
 public class ModuleRefRelationGraphTest {
     private ModuleRefRelationGraph graph;
 
-    private RefProgObjSchema p0, p11, p21, p22, pt1, pt2;
+    private RefProgObjSchema p0;
+
+    private RefProgObjSchema p11;
+
+    private RefProgObjSchema p21;
+
+    private RefProgObjSchema p22;
+
+    private RefProgObjSchema pt1;
+
+    private RefProgObjSchema pt2;
 
     /**
      * 设置测试环境

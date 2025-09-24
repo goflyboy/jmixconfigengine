@@ -397,6 +397,8 @@ public abstract class ModuleScenarioTestBase {
                         isMatch = false;
                         break;
                     }
+                } else {
+                    throw new IllegalArgumentException("Invalid condition element type: " + element.type);
                 }
             }
 

@@ -139,6 +139,8 @@ public class StructCodeInjector {
                 if (depth == 0) {
                     return i; // 返回匹配的闭合大括号索引
                 }
+            } else {
+                continue;
             }
         }
         return -1;

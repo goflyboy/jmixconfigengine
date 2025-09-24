@@ -319,7 +319,8 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
     private Module getModule(Long moduleId, String moduleCode) {
         if (moduleId != null) {
             return moduleMap.get(moduleId);
-        } else if (moduleCode != null) {
+        }
+        if (moduleCode != null) {
             for (Module m : moduleMap.values()) {
                 if (moduleCode.equals(m.getCode())) {
                     return m;

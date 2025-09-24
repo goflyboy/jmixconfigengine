@@ -129,8 +129,8 @@ public final class RuleTypeConstants {
             return Optional.of(CALCULATE_RULE);
         } else if (isSelectRule(ruleSchemaTypeFullName)) {
             return Optional.of(SELECT_RULE);
+        } else {
+            throw new IllegalArgumentException("Invalid rule schema type full name: " + ruleSchemaTypeFullName);
         }
-
-        return Optional.empty();
     }
 }
