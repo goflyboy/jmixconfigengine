@@ -13,15 +13,33 @@ import java.util.List;
 @Data
 public class InferParasReq {
 
+    /**
+     * 模块ID
+     */
     private Long moduleId;
 
+    /**
+     * 模块编码
+     */
     private String moduleCode;
 
+    /**
+     * 主部件实例
+     */
     private PartInst mainPartInst;
 
+    /**
+     * 前置参数实例列表
+     */
     private List<ParaInst> preParaInsts;
 
+    /**
+     * 前置部件实例列表
+     */
     private List<PartInst> prePartInsts;
 
+    /**
+     * 是否枚举所有解
+     */
     private boolean enumerateAllSolution;
 }

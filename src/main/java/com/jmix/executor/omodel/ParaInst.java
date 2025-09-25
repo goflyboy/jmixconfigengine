@@ -16,16 +16,29 @@ import java.util.Map;
 @Data
 public class ParaInst {
 
+    /**
+     * 参数编码
+     */
     private String code;
 
-    // 空表示没有赋值
+    /**
+     * 参数值，空表示没有赋值
+     */
     private String value;
 
-    // 空表示没有赋值
+    /**
+     * 参数选项列表，空表示没有赋值
+     */
     private List<String> options;
 
+    /**
+     * 是否隐藏
+     */
     private boolean isHidden = false;
 
+    /**
+     * 扩展属性
+     */
     private Map<String, Object> extAttrs;
 
     /**

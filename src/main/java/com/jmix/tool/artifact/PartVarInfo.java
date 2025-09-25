@@ -14,12 +14,24 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class PartVarInfo extends VarInfo<Part> {
+    /**
+     * 部件编码
+     */
     private String code;
 
+    /**
+     * 父部件编码
+     */
     private String fatherCode;
 
+    /**
+     * 最大数量
+     */
     private int maxQuantity = 10000;
 
+    /**
+     * 最小数量
+     */
     private int minQuantity = 0;
 
     /**

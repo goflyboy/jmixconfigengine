@@ -17,8 +17,14 @@ import java.util.stream.Collectors;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class ParaVarInfo extends VarInfo<Para> {
+    /**
+     * 参数编码
+     */
     private String code;
 
+    /**
+     * 参数选项变量信息列表
+     */
     private List<ParaOptionVarInfo> options;
 
     /**

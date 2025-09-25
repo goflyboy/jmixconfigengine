@@ -20,18 +20,39 @@ import java.util.stream.Collectors;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class ModuleVarInfo extends VarInfo<Module> {
+    /**
+     * 模块编码
+     */
     private String code;
 
+    /**
+     * 包名
+     */
     private String packageName;
 
+    /**
+     * 参数变量信息列表
+     */
     private List<ParaVarInfo> paras;
 
+    /**
+     * 部件变量信息列表
+     */
     private List<PartVarInfo> parts;
 
+    /**
+     * 规则信息列表
+     */
     private List<RuleInfo> rules;
 
+    /**
+     * 参数变量信息映射，key为参数编码
+     */
     private Map<String, ParaVarInfo> paraMap = new HashMap<>();
 
+    /**
+     * 部件变量信息映射，key为部件编码
+     */
     private Map<String, PartVarInfo> partMap = new HashMap<>();
 
     /**

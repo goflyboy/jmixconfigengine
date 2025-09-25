@@ -15,20 +15,39 @@ import java.util.Map;
 @Data
 public class PartInst {
 
+    /**
+     * 部件编码
+     */
     private String code;
 
-    // 空表示没有赋值
+    /**
+     * 部件值，空表示没有赋值
+     */
     private String value;
 
-    // 空表示没有赋值
+    /**
+     * 部件选项列表，空表示没有赋值
+     */
     private List<String> options;
 
+    /**
+     * 数量
+     */
     private Integer quantity;
 
+    /**
+     * 选择属性值映射
+     */
     private Map<String, String> selectAttrValue;
 
+    /**
+     * 是否隐藏
+     */
     private boolean isHidden = false;
 
+    /**
+     * 扩展属性
+     */
     private Map<String, Object> extAttrs;
 
     /**

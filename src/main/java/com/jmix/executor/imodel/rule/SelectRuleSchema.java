@@ -27,6 +27,7 @@ public class SelectRuleSchema extends RuleSchema {
     /**
      * 赋值映射Schema
      */
+    @Data
     public static class AssignMapSchema {
         /**
          * 左表达式
@@ -42,19 +43,6 @@ public class SelectRuleSchema extends RuleSchema {
          * 左引用编程对象
          */
         private List<RefProgObjSchema> leftRefProgObjs;
-
-        @Override
-        public String toString() {
-            return "AssignMapSchema{"
-                    + "leftExpr="
-                    + leftExpr
-                    + ", leftAttrCode='"
-                    + leftAttrCode
-                    + '\''
-                    + ", leftRefProgObjs="
-                    + leftRefProgObjs
-                    + '}';
-        }
     }
 
     /**
@@ -79,16 +67,5 @@ public class SelectRuleSchema extends RuleSchema {
     public List<RefProgObjSchema> getToRightProgObjs() {
         // SelectRule只有左侧表达式，没有右侧表达式
         return new ArrayList<>();
-    }
-
-    @Override
-    public String toString() {
-        return "SelectRuleSchema{"
-                + "type='"
-                + type
-                + '\''
-                + ", leftExpr="
-                + leftExpr
-                + '}';
     }
 }

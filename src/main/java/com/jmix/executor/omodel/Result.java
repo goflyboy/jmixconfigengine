@@ -31,12 +31,24 @@ public class Result<T> {
      */
     public static final int NO_SOLUTION = 2;
 
+    /**
+     * 状态码
+     */
     private int code = SUCCESS;
 
+    /**
+     * 返回数据
+     */
     private T data;
 
+    /**
+     * 消息
+     */
     private String message;
 
+    /**
+     * 扩展属性
+     */
     private Map<String, Object> extAttrs;
 
     /**

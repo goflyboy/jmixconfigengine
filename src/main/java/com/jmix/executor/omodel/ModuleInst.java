@@ -29,24 +29,44 @@ public class ModuleInst {
      */
     public static final String OTHER_VARIABLES_MEMO_KEY = "OTHER_VARIABLES_MEMO";
 
-    // module id
+    /**
+     * 模块ID
+     */
     private Long id;
 
-    // module code
+    /**
+     * 模块编码
+     */
     private String code;
 
-    // instance config id
+    /**
+     * 实例配置ID
+     */
     private String instanceConfigId;
 
-    // instance id 默认为0，多个实例，从0开始，如：0，1,2，....
+    /**
+     * 实例ID，默认为0，多个实例从0开始，如：0，1,2，....
+     */
     private int instanceId;
 
+    /**
+     * 数量
+     */
     private Integer quantity;
 
+    /**
+     * 参数实例列表
+     */
     private List<ParaInst> paras;
 
+    /**
+     * 部件实例列表
+     */
     private List<PartInst> parts;
 
+    /**
+     * 扩展属性
+     */
     private Map<String, Object> extAttrs = new HashMap<>();
 
     /**
