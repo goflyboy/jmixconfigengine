@@ -47,7 +47,7 @@ public class DCModuleAdapter extends AdapterInfo {
         // 设置扩展属性
         dcModule.setSeason("Spring"); // 默认季节
 
-        log.debug("Adapted Module to DCModule: {} -> {}", module.getCode(), dcModule.getDccode());
+        log.info("Adapted Module to DCModule: {} -> {}", module.getCode(), dcModule.getDccode());
         return dcModule;
     }
 

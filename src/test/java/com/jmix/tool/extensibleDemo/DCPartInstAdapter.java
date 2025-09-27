@@ -41,7 +41,7 @@ public class DCPartInstAdapter extends AdapterInfo {
         dcPartInst.setPartNumber(partInst.getCode()); // 使用code作为partNumber
         dcPartInst.setDeliveryType("Standard"); // 默认交付类型
 
-        log.debug("Adapted PartInst to DCPartInst: {} with partNumber: {}, deliveryType: {}",
+        log.info("Adapted PartInst to DCPartInst: {} with partNumber: {}, deliveryType: {}",
                 partInst.getCode(), dcPartInst.getPartNumber(), dcPartInst.getDeliveryType());
         return dcPartInst;
     }

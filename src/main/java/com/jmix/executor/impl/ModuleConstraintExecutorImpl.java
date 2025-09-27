@@ -369,7 +369,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
                 return currentResult;
             }
 
-            log.debug("Applied post process: {} successfully", postProcess.getClass().getSimpleName());
+            log.info("Applied post process: {} successfully", postProcess.getClass().getSimpleName());
             return processResult.getData();
 
         } catch (Exception e) {

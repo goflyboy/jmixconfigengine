@@ -78,7 +78,7 @@ public final class FilterExpressionExecutor {
 
         FilterCondition condition = conditionOpt.get();
 
-        log.debug("Filter expression parsed successfully - field: {}, operator: {}, value: {}",
+        log.info("Filter expression parsed successfully - field: {}, operator: {}, value: {}",
                 condition.getFieldName(), condition.getOperator(), condition.getValue());
 
         List<T> filterObjects = new ArrayList<>();
@@ -151,13 +151,13 @@ public final class FilterExpressionExecutor {
             Optional<Object> fieldValueOpt = getFieldValue(object, fieldName);
 
             if (!fieldValueOpt.isPresent()) {
-                log.debug("Field {} value is null, condition not matched", fieldName);
+                log.info("Field {} value is null, condition not matched", fieldName);
                 return false;
             }
 
             Object fieldValue = fieldValueOpt.get();
             String fieldValueStr = fieldValue.toString();
-            log.debug("Evaluating condition - field: {}, operator: {}, field value: {}, compare value: {}",
+            log.info("Evaluating condition - field: {}, operator: {}, field value: {}, compare value: {}",
                     fieldName, operator, fieldValueStr, value);
 
             boolean result = false;
@@ -186,7 +186,7 @@ public final class FilterExpressionExecutor {
                     return false;
             }
 
-            log.debug("Condition evaluation result: {} {} {} = {}", fieldValueStr, operator, value, result);
+            log.info("Condition evaluation result: {} {} {} = {}", fieldValueStr, operator, value, result);
             return result;
         } catch (Exception e) {
             log.error("Exception occurred while evaluating condition - field: {}, operator: {}, value: {}", fieldName,
@@ -209,7 +209,7 @@ public final class FilterExpressionExecutor {
                 Extensible extensible = (Extensible) object;
                 String extValue = extensible.getExtAttr(fieldName);
                 if (extValue != null) {
-                    log.debug("Getting field value from extended attributes - field: {}, value: {}", fieldName,
+                    log.info("Getting field value from extended attributes - field: {}, value: {}", fieldName,
                             extValue);
                     return Optional.of(extValue);
                 }
@@ -220,7 +220,7 @@ public final class FilterExpressionExecutor {
             if (field != null) {
                 field.setAccessible(true);
                 Object value = field.get(object);
-                log.debug("Getting field value through reflection - field: {}, value: {}, class: {}",
+                log.info("Getting field value through reflection - field: {}, value: {}, class: {}",
                         fieldName, value, field.getDeclaringClass().getSimpleName());
                 return Optional.ofNullable(value);
             }
@@ -229,15 +229,15 @@ public final class FilterExpressionExecutor {
                 Part part = (Part) object;
                 String value = part.getAttr(fieldName);
                 if (value != null) {
-                    log.debug("Getting field value from part attributes - field: {}, value: {}", fieldName, value);
+                    log.info("Getting field value from part attributes - field: {}, value: {}", fieldName, value);
                     return Optional.of(value);
                 }
             }
-            log.debug("Field {} not found in class {} or its parent classes", fieldName,
+            log.info("Field {} not found in class {} or its parent classes", fieldName,
                     object.getClass().getSimpleName());
             return Optional.empty();
         } catch (Exception e) {
-            log.debug("Failed to get field value - field: {}, object type: {}", fieldName,
+            log.info("Failed to get field value - field: {}, object type: {}", fieldName,
                     object.getClass().getSimpleName(), e);
             // Return empty if getting fails
             return Optional.empty();
@@ -268,7 +268,7 @@ public final class FilterExpressionExecutor {
         if (field != null) {
             // Cache the found field
             classFields.put(fieldName, field);
-            log.debug("Field {} found and cached for class {}", fieldName, clazz.getSimpleName());
+            log.info("Field {} found and cached for class {}", fieldName, clazz.getSimpleName());
         }
 
         return field;
@@ -287,12 +287,12 @@ public final class FilterExpressionExecutor {
             double num1 = Double.parseDouble(value1);
             double num2 = Double.parseDouble(value2);
             int result = Double.compare(num1, num2);
-            log.debug("Numeric comparison: {} vs {} = {}", value1, value2, result);
+            log.info("Numeric comparison: {} vs {} = {}", value1, value2, result);
             return result;
         } catch (NumberFormatException e) {
             // If cannot convert to numbers, compare as strings
             int result = value1.compareTo(value2);
-            log.debug("String comparison: {} vs {} = {}", value1, value2, result);
+            log.info("String comparison: {} vs {} = {}", value1, value2, result);
             return result;
         }
     }

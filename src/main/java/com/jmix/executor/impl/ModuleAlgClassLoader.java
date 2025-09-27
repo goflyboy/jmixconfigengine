@@ -228,7 +228,7 @@ public class ModuleAlgClassLoader extends ClassLoader {
         if (jarClassLoader != null) {
             try {
                 jarClassLoader.close();
-                log.debug("Jar class loader closed");
+                log.info("Jar class loader closed");
             } catch (IOException e) {
                 log.warn("Failed to close jar class loader", e);
             }

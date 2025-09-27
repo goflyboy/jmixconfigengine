@@ -35,7 +35,7 @@ public class DCDeliveryTypePostProcess extends ExtensibleProcess implements Infe
     @Override
     public Result<List<ModuleInst>> postProcess(Module module, List<ModuleInst> solutions) {
         if (solutions == null || solutions.isEmpty()) {
-            log.debug("No solutions to process");
+            log.info("No solutions to process");
             return Result.success(solutions);
         }
 
@@ -152,7 +152,7 @@ public class DCDeliveryTypePostProcess extends ExtensibleProcess implements Infe
 
         // 注意：这里无法直接设置deliveryType到ParaInst中
         // 因为ParaInst没有这个字段，这需要在业务层面处理
-        log.debug("Converted DCParaInst to ParaInst: {} with deliveryType: {}",
+        log.info("Converted DCParaInst to ParaInst: {} with deliveryType: {}",
                 dcParaInst.getCode(), dcParaInst.getDeliveryType());
 
         return paraInst;

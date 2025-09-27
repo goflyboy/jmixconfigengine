@@ -39,7 +39,7 @@ public class DCParaInstAdapter extends AdapterInfo {
         // 设置扩展属性 - 默认交付类型
         dcParaInst.setDeliveryType("Standard");
 
-        log.debug("Adapted ParaInst to DCParaInst: {} with deliveryType: {}",
+        log.info("Adapted ParaInst to DCParaInst: {} with deliveryType: {}",
                 paraInst.getCode(), dcParaInst.getDeliveryType());
         return dcParaInst;
     }

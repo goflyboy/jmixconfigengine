@@ -98,7 +98,7 @@ public class ModuleRefRelationGraph {
         // 构建反向边：toRight -> fromLeft
         toFromEdges.computeIfAbsent(toCode, k -> new HashMap<>()).put(fromCode, edgeRuleCode);
 
-        log.debug("Added edge: {} -> {} (rule: {})", fromCode, toCode, edgeRuleCode);
+        log.info("Added edge: {} -> {} (rule: {})", fromCode, toCode, edgeRuleCode);
     }
 
     /**

@@ -384,12 +384,12 @@ public final class ModuleGenneratorByAnno {
             return Arrays.asList(leftRefProgObjs, rightRefProgObjs);
         }
 
-        log.debug("Parsing rule: {}", normalNaturalCode);
+        log.info("Parsing rule: {}", normalNaturalCode);
 
         // 范式1：规则语句，如果有if A then B [else
         // C]，那么A里面的就是leftRefProgObjs,B和C就是rightRefProgObjs，根据then切割
         if (normalNaturalCode.contains("then ")) {
-            log.debug("Matched pattern 1: if-then");
+            log.info("Matched pattern 1: if-then");
             // 例如：normalNaturalCode= "if P0.value > 1 then P11.value > P0.value+1",
             // 则：leftRefProgObjs=P0,rightRefProgObjs=(P11,P0)
             String[] parts = normalNaturalCode.split(" then ");
@@ -397,7 +397,7 @@ public final class ModuleGenneratorByAnno {
                 String leftPart = parts[0].replaceFirst(".*if\\s+", ""); // 去掉"if "前缀
                 String rightPart = parts[1];
 
-                log.debug("Left part: {}, Right part: {}", leftPart, rightPart);
+                log.info("Left part: {}, Right part: {}", leftPart, rightPart);
 
                 // 解析左侧部分
                 leftRefProgObjs = generateRefProgObjSchemas(leftPart, currentModule);
@@ -406,7 +406,7 @@ public final class ModuleGenneratorByAnno {
                 rightRefProgObjs = generateRefProgObjSchemas(rightPart, currentModule);
 
                 // 日志内容保持英文，且修正大括号位置以符合代码规范
-                log.debug("Left refProgObjs: {}, Right refProgObjs: {}", leftRefProgObjs.size(),
+                log.info("Left refProgObjs: {}, Right refProgObjs: {}", leftRefProgObjs.size(),
                         rightRefProgObjs.size());
             }
         } else if (normalNaturalCode.contains(" = ")) { // 范式2：赋值语句 A=B，通过=识别，是返过来，右边决定左边

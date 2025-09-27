@@ -150,7 +150,7 @@ class DCModuleConstraintExecutorImpl implements DCModuleConstraintExecutor {
         module.setAlg(dcModule.getAlg());
         module.init();
 
-        log.debug("Converted DCModule to Module: {} -> {}", dcModule.getDccode(), module.getCode());
+        log.info("Converted DCModule to Module: {} -> {}", dcModule.getDccode(), module.getCode());
         return module;
     }
 
@@ -267,7 +267,7 @@ class DCModuleConstraintExecutorImpl implements DCModuleConstraintExecutor {
             dcSolution.setParts(standardParts);
         }
 
-        log.debug("Converted ModuleInst to DCModuleInst: {} -> {}", solution.getCode(), dcSolution.getDccode());
+        log.info("Converted ModuleInst to DCModuleInst: {} -> {}", solution.getCode(), dcSolution.getDccode());
         return dcSolution;
     }
 }

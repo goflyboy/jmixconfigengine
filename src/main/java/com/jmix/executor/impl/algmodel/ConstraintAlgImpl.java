@@ -18,6 +18,7 @@ import com.google.ortools.util.Domain;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -148,13 +149,15 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      */
     private void initAlgCPModel() {
         // 初始化AlgCPModel的相关逻辑
-        log.debug("Initializing AlgCPModel for incremental loading");
+        log.info("Initializing AlgCPModel for incremental loading");
     }
 
     /**
      * 设置默认可见性约束
      * 对于没有显式控制可见性的变量，设置 isHiddenVar == 0（即默认可见）
      * 遍历所有变量，为没有显式可见性控制的变量设置默认可见状态
+     * 
+     * @throws AlgLoaderException 异常
      */
     private void setDefaultVisibilityConstraints() {
         for (Map.Entry<String, Var<?>> entry : varMap.entrySet()) {
@@ -179,6 +182,8 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     /**
      * 根据module.getRules构建ruleMethods映射
      * 通过反射获取所有带有@CodeRuleAnno注解的方法，并建立规则代码到方法的映射关系
+     * 
+     * @throws AlgLoaderException 异常
      */
     private void buildRuleMethods() {
         if (module == null || module.getRules() == null) {
@@ -200,7 +205,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             Method method = allMethods.get(ruleCode);
             if (method != null) {
                 ruleMethods.put(ruleCode, method);
-                log.debug("Built rule method mapping: {} -> {}", ruleCode, method.getName());
+                log.info("Built rule method mapping: {} -> {}", ruleCode, method.getName());
             } else {
                 throw new AlgLoaderException("Rule method not found for rule code: " + ruleCode);
             }
@@ -239,20 +244,21 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * 
      * @param ruleCode 规则代码
      * @param method   规则方法
+     * @throws AlgLoaderException 异常
      */
     private void executeRuleMethod(String ruleCode, Method method) {
         if (method != null) {
-            try {
-                // 执行规则方法
-                method.setAccessible(true);
-                method.invoke(this);
-                log.debug("Executed rule method: {}", method.getName());
-            } catch (Exception e) {
-                log.info(ruleCode, e);
-                throw new AlgLoaderException("Failed to execute rule method: " + method.getName(), e);
-            }
-        } else {
+            log.error("Rule method not found for execution: " + ruleCode);
             throw new AlgLoaderException("Rule method not found for execution: " + ruleCode);
+        }
+        try {
+            // 执行规则方法
+            method.setAccessible(true);
+            method.invoke(this);
+            log.info("Executed rule method: {}", method.getName());
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            log.error("Failed to execute rule method: " + method.getName(), e);
+            throw new AlgLoaderException("Failed to execute rule method: " + method.getName(), e);
         }
     }
 
@@ -353,6 +359,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * 
      * @param v     变量值
      * @param field 字段对象
+     * @throws AlgLoaderException 异常
      */
     private void setVariableField(Var<?> v, Field field) throws AlgLoaderException {
         if (field == null) {
@@ -374,54 +381,6 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             fieldMap.put(extractCodeFromFieldName(field.getName()), field);
         }
         return fieldMap;
-    }
-
-    /**
-     * 自动创建并赋值参数变量
-     * 
-     * @param field 字段对象
-     * @throws Exception 反射操作异常
-     */
-    private void autoCreateAndAssignParaVar(Field field) throws Exception {
-        String fieldName = field.getName();
-        String paraCode = extractCodeFromFieldName(fieldName);
-
-        // 检查Module中是否存在对应的Para
-        Optional<Para> paraOpt = module.getPara(paraCode);
-        if (!paraOpt.isPresent()) {
-            return; // 跳过不存在的参数
-        }
-        // Para para = paraOpt.get(); // 暂时不需要使用para对象
-
-        // 创建ParaVar
-        ParaVar paraVar = createParaVar(paraCode);
-
-        // 通过反射赋值给字段
-        field.set(this, paraVar);
-    }
-
-    /**
-     * 自动创建并赋值部件变量
-     * 
-     * @param field 字段对象
-     * @throws Exception 反射操作异常
-     */
-    private void autoCreateAndAssignPartVar(Field field) throws Exception {
-        String fieldName = field.getName();
-        String partCode = extractCodeFromFieldName(fieldName);
-
-        // 检查Module中是否存在对应的Part
-        Optional<Part> partOpt = module.getPart(partCode);
-        if (!partOpt.isPresent()) {
-            return; // 跳过不存在的部件
-        }
-        // Part part = partOpt.get(); // 暂时不需要使用part对象
-
-        // 创建PartVar
-        PartVar partVar = createPartVar(partCode);
-
-        // 通过反射赋值给字段
-        field.set(this, partVar);
     }
 
     /**
@@ -549,6 +508,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * 
      * @param code 变量代码
      * @return 参数变量实例
+     * @throws AlgLoaderException 异常
      */
     public ParaVar getParaVar(String code) {
         Var<?> var = getVar(code);
@@ -564,6 +524,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * 
      * @param code 变量代码
      * @return 部件变量实例
+     * @throws AlgLoaderException 异常
      */
     public PartVar getPartVar(String code) {
         Var<?> var = getVar(code);
@@ -608,6 +569,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * 
      * @param code 参数代码
      * @return 创建的参数变量
+     * @throws AlgLoaderException 异常
      */
     protected ParaVar createParaVar(String code) {
         Optional<Para> paraOpt = module != null ? module.getPara(code) : Optional.empty();
@@ -651,6 +613,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * 
      * @param code 部件代码
      * @return 创建的部件变量
+     * @throws AlgLoaderException 异常
      */
     protected PartVar createPartVar(String code) {
         Optional<Part> partOpt = module != null ? module.getPart(code) : Optional.empty();
@@ -745,6 +708,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * 
      * @param partCode     部件代码
      * @param partQuantity 期望的部件数量
+     * @throws AlgLoaderException 异常
      */
     public void addPartEquality(String partCode, int partQuantity) {
         // 1. 根据partCode找到对应的partVar
@@ -763,6 +727,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * 
      * @param paraCode  参数代码
      * @param paraValue 参数值
+     * @throws AlgLoaderException 异常
      */
     public void addParaEquality(String paraCode, String paraValue) {
         Var<?> var = varMap.get(paraCode);

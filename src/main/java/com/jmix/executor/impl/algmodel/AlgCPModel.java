@@ -135,7 +135,7 @@ public class AlgCPModel {
      */
     public BoolVar newBoolVar(final String name) {
         BoolVar tv = this.cpModel.newBoolVar(name);
-        registerVariables(tv, name);
+        registerVariablesBool(tv, name);
         return tv;
     }
 
@@ -168,8 +168,8 @@ public class AlgCPModel {
      * @param tv   变量对象
      * @param name 变量名称
      */
-    private void registerVariables(final BoolVar tv, final String name) {
-        registerVariables((IntVar) tv, name);
+    private void registerVariablesBool(final BoolVar tv, final String name) {
+        registerVariables(tv, name);
     }
 
     // 以下方法直接委托给底层的CpModel，保持接口兼容性

@@ -100,7 +100,7 @@ final public class ModuleUtils {
      * @throws IOException 如果序列化失败
      */
     public static String toJsonString(Module module) throws IOException {
-        log.debug("Serializing Module to JSON string");
+        log.info("Serializing Module to JSON string");
         return OBJECT_MAPPER.writeValueAsString(module);
     }
 
@@ -112,7 +112,7 @@ final public class ModuleUtils {
      * @throws IOException 如果反序列化失败
      */
     public static Module fromJsonString(String jsonString) throws IOException {
-        log.debug("Deserializing Module from JSON string");
+        log.info("Deserializing Module from JSON string");
         Module module = OBJECT_MAPPER.readValue(jsonString, Module.class);
         module.init();
         return module;
