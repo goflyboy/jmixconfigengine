@@ -126,9 +126,9 @@ public abstract class ModuleScenarioTestBase {
         ModuleConstraintExecutor.INST.init(config);
         setCfg(config);
 
-        Module moduleInstance = buildModule(getConstraintAlgClazz());
-        ModuleConstraintExecutor.INST.addModule(moduleInstance.getId(), moduleInstance);
-        setModule(moduleInstance);
+        Module tempModule = buildModule(getConstraintAlgClazz());
+        ModuleConstraintExecutor.INST.addModule(tempModule.getId(), tempModule);
+        setModule(tempModule);
     }
 
     /**

@@ -57,3 +57,83 @@ G.OTH.11 超大函数深度，单函数最大深度是4层
 
 
   违法了这个条，请建议怎么改？ “G.ERR.02 不要直接捕获受检异常的基类Exception”
+
+
+	
+请对测试类中的 ParaVar、PartVar的变量及rule方法进行修改，满足checkstyle的要求
+每个测试类都要检查一下，改完后要测试一下是否通过，确保所有的测试类都要检查到。
+详细要求：
+PT*->pt*，例如： private PartVar PT005; --> private PartVar pt005;
+P*->pt(，例如： private ParaVar P018; --> private ParaVar p018;
+ protected void Rule01() ->  private void rule01()
+checkstyle的要求：
+	
+- **Line 35:** 名称 'P001' 必须匹配表达式： '^[a-z][a-zA-Z0-9]*$' 。
+- **Code:** MemberNameCheck
+- **Source:** Checkstyle
+
+
+合入修改的代码：
+文件的命名格式
+--cp-{moduleCode}-{moduleId}
+----cp-{moduleCode}-{moduleId}.jar   //运行jar包
+----cp-{moduleCode}-{moduleId}-sources.jar //对应的源码把，含测试用例
+----cp-{moduleCode}-{moduleId}.base.json //对应的基础数据，含算法包的描述
+
+
+
+
+--cproot  //cp算法包根路径
+---cp-m001-0001  //子文件夹1
+----cp-m001-0001.jar   //运行jar包
+----cp-m001-0001-sources.jar //对应的源码把，含测试用例
+----cp-m001-0001.base.json //对应的基础数据，含算法包的描述
+---cp-m002-0001  //子文件夹1
+----cp-m002-0001.jar   //运行jar包
+----cp-m002-0001-sources.jar //对应的源码把，含测试用例
+----cp-m002-0001.base.json //对应的基础数据，含算法包的描述
+---cp-m002-0002  //子文件夹1
+----cp-m002-0002.jar   //运行jar包
+----cp-m002-0002-sources.jar //对应的源码把，含测试用例
+----cp-m002-0002.base.json //对应的基础数据，含算法包的描述
+
+
+
+--测试框架：
+---当前路径的+ “../../" + "cproot"
+
+
+
+--打包的逻辑
+void package(Class  cpClazz);  
+
+//对算法进行打包
+void package(Class cpClazz,String  outDir) {
+	//根据packageName构建全路径名
+	inputDir = CommHelper.getTestResource(cpClazz) + packageNamePath
+	
+	isMultifile = isMultifile(cpClass)
+	
+	如果isMultifile = true，则 inputDir的文件都需要打包，有ConstraintAlg类和测试类两个文件
+	如果isMultifile = false, 则inputDir的文件还包含其它工程， cpClazz既有ConstraintAlg类又有测试类 
+
+	module = ModuleGenneratorByAnno.build(moduleAlgClazz, );
+
+}
+boolean isMultifile(Class cpClassName) {
+	如果cpClass继承了ConstraintAlgImpl则是多个文件，例如： com.jmix.scenario.hello.HelloConstraint (HelloConstraint extends ConstraintAlgImpl)
+	则是多文件
+	否则就是单文件， com.jmix.scenario.ruletest.ParaIntegerTest (ParaIntegerTest extends ModuleScenarioTestBase) 
+}
+
+
+createTempPath
+--先支持
+怎么用例？
+
+
+特性1: PartVar 
+
+抽取一个 Module build(Class<? extends ConstraintAlg> moduleAlgClazz)  子函数
+
+packagetest

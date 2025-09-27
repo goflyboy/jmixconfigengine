@@ -1,4 +1,4 @@
-package com.jmix.scenario.hello;
+package com.jmix.scenario.hello2;
 
 import com.jmix.executor.impl.algmodel.PartVar;
 import com.jmix.scenario.ConstraintAlgImplTmp;

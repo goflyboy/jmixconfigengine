@@ -1,4 +1,4 @@
-package com.jmix.scenario.hello;
+package com.jmix.scenario;
 
 import com.jmix.executor.imodel.Para;
 import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;

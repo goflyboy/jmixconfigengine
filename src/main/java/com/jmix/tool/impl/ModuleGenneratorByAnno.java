@@ -49,13 +49,12 @@ public final class ModuleGenneratorByAnno {
     }
 
     /**
-     * 根据约束算法类和资源路径构建Module对象
+     * 根据约束算法类构建Module对象
      * 
      * @param moduleAlgClazz 约束算法类
-     * @param resourcePath   资源路径
      * @return 构建的Module对象
      */
-    public static Module build(Class<? extends ConstraintAlg> moduleAlgClazz, String resourcePath) {
+    public static Module buildModule(Class<? extends ConstraintAlg> moduleAlgClazz) {
         Module module = new Module();
 
         // 1. 根据ModuleAnno信息创建Module
@@ -84,7 +83,20 @@ public final class ModuleGenneratorByAnno {
         List<Rule> rules = createRulesFromMethods(moduleAlgClazz, module);
         module.setRules(rules);
 
-        // 3. 保存Module到文件
+        return module;
+    }
+
+    /**
+     * 根据约束算法类和资源路径构建Module对象
+     * 
+     * @param moduleAlgClazz 约束算法类
+     * @param resourcePath   资源路径
+     * @return 构建的Module对象
+     */
+    public static Module build(Class<? extends ConstraintAlg> moduleAlgClazz, String resourcePath) {
+        Module module = buildModule(moduleAlgClazz);
+
+        // 保存Module到文件
         saveToFile(module, resourcePath);
         return module;
     }
