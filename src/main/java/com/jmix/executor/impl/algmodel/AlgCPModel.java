@@ -148,6 +148,7 @@ public class AlgCPModel {
     private void registerVariables(final IntVar tv, final String name) {
         // 判断是否已经存在，如果已经存在，则抛异常
         if (otherVarMap.containsKey(name)) {
+            log.error("Variable already exists: {}", name);
             throw new AlgLoaderException("Variable already exists: " + name);
         }
 

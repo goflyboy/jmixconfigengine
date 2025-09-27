@@ -283,6 +283,7 @@ public class ModelHelper {
         try {
             injectedClazz = Class.forName(fullClassName);
         } catch (ClassNotFoundException e) {
+            log.error("Class not found: {}", fullClassName, e);
             throw new AlgLoaderException("Class not found: " + fullClassName, e);
         }
         return autoInjectConstraintCode(injectedClazz);

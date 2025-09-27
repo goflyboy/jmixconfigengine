@@ -206,6 +206,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
         // 加载算法类
         ModuleAlgClassLoader loader = getModuleClassLoader(module.getId());
         if (loader == null) {
+            log.error("ModuleAlgClassLoader not found for module: {}", module.getId());
             throw new AlgLoaderException("ModuleAlgClassLoader not found for module: " + module.getId());
         }
 
@@ -308,6 +309,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
                 }
             }
         }
+        log.error("Module not found: moduleId={}, moduleCode={}", moduleId, moduleCode);
         throw new AlgLoaderException(
                 String.format("Module not found: moduleId=%s, moduleCode=%s", moduleId, moduleCode));
     }

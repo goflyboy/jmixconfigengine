@@ -2,6 +2,8 @@ package com.jmix.tool.impl;
 
 import com.jmix.executor.omodel.AlgLoaderException;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -16,6 +18,7 @@ import java.util.regex.Pattern;
  * 
  * @since 2025-09-22
  */
+@Slf4j
 public class PromptTemplateLoader {
 
     private static final Pattern VARIABLE_PATTERN = Pattern.compile("\\$\\{([^}]+)\\}");
@@ -29,12 +32,14 @@ public class PromptTemplateLoader {
     public static String loadTemplate(String templatePath) {
         try (InputStream input = PromptTemplateLoader.class.getClassLoader().getResourceAsStream(templatePath)) {
             if (input == null) {
+                log.error("Template file not found: {}", templatePath);
                 throw new AlgLoaderException("Template file not found: " + templatePath);
             }
             byte[] bytes = new byte[input.available()];
             input.read(bytes);
             return new String(bytes, StandardCharsets.UTF_8);
         } catch (IOException e) {
+            log.error("Failed to load template file: {}", templatePath, e);
             throw new AlgLoaderException("Failed to load template file: " + e.getMessage(), e);
         }
     }

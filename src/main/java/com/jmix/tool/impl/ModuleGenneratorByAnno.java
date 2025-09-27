@@ -332,6 +332,7 @@ public final class ModuleGenneratorByAnno {
             } else if (currentModule.getPart(progObject.getObjCode()).isPresent()) {
                 refProgObjSchema.setProgObjType(RefProgObjSchema.PROG_OBJ_TYPE_PART);
             } else {
+                log.error("Object not found: {}", progObject.getObjCode());
                 throw new AlgLoaderException("Object not found: " + progObject.getObjCode());
             }
 

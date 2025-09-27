@@ -277,6 +277,7 @@ public class StructCodeInjector {
         if (ruleInfo.getRuleSchemaTypeFullName().contains("CompatiableRule")) {
             return generatorInjectorCode4Compatible(ruleInfo);
         }
+        log.error("Unsupported rule type: {}", ruleInfo.getRuleSchemaTypeFullName());
         throw new AlgLoaderException("Unsupported rule type: " + ruleInfo.getRuleSchemaTypeFullName());
     }
 

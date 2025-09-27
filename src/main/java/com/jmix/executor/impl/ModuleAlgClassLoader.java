@@ -84,6 +84,7 @@ public class ModuleAlgClassLoader extends ClassLoader {
         if (clazz != null) {
             classMap.put(constraintRuleClassName, clazz);
         } else {
+            log.error("Class not found: clazz=null {}", constraintRuleClassName);
             throw new AlgLoaderException("Class not found: clazz=null " + constraintRuleClassName);
         }
     }
@@ -105,6 +106,7 @@ public class ModuleAlgClassLoader extends ClassLoader {
             // 检查jar文件是否存在
             Path jarPath = Paths.get(classJarFile);
             if (!Files.exists(jarPath)) {
+                log.error("Jar file not found: {}", classJarFile);
                 throw new AlgLoaderException("Jar file not found: " + classJarFile);
             }
 
@@ -208,6 +210,7 @@ public class ModuleAlgClassLoader extends ClassLoader {
         String className = this.constraintRuleClassName;
         Class<?> clazz = classMap.get(className);
         if (clazz == null) {
+            log.error("Class not found: class=null {}", className);
             throw new AlgLoaderException("Class not found:class=null " + className);
         }
         Object instance = null;
@@ -215,9 +218,11 @@ public class ModuleAlgClassLoader extends ClassLoader {
             instance = clazz.getDeclaredConstructor().newInstance();
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
                 | NoSuchMethodException | SecurityException e) {
+            log.error("Failed to create instance of ConstraintAlgImpl: {}", className, e);
             throw new AlgLoaderException("Failed to create instance of ConstraintAlgImpl: " + className, e);
         }
         if (!(instance instanceof ConstraintAlgImpl)) {
+            log.error("Loaded class is not an instance of ConstraintAlgImpl: {}", className);
             throw new AlgLoaderException("Loaded class is not an instance of ConstraintAlgImpl: " + className);
         }
         return (ConstraintAlgImpl) instance;

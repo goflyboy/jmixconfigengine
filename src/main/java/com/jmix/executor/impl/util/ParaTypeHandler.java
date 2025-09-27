@@ -5,6 +5,8 @@ import com.jmix.executor.imodel.ParaOption;
 import com.jmix.executor.imodel.ParaType;
 import com.jmix.executor.omodel.AlgLoaderException;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.Arrays;
 
 /**
@@ -13,6 +15,7 @@ import java.util.Arrays;
  * 
  * @since 2025-09-22
  */
+@Slf4j
 public class ParaTypeHandler {
 
     /**
@@ -25,6 +28,7 @@ public class ParaTypeHandler {
      */
     public static String getCodeIdValue(Para para, String value) {
         if (para == null) {
+            log.error("Para object cannot be null");
             throw new AlgLoaderException("Para object cannot be null");
         }
 
@@ -34,12 +38,15 @@ public class ParaTypeHandler {
             case ENUM:
                 ParaOption option = para.getOption(value).orElse(null);
                 if (option == null) {
+                    log.error("Option not found in parameter {}: {}, available options: {}",
+                            para.getCode(), value, Arrays.toString(para.getOptionCodes()));
                     throw new AlgLoaderException(String.format(
                             "Option not found in parameter %s: %s, available options: %s",
                             para.getCode(), value, Arrays.toString(para.getOptionCodes())));
                 }
                 return String.valueOf(option.getCodeId());
             default:
+                log.error("Parameter {} type not supported: {}", para.getCode(), para.getType());
                 throw new AlgLoaderException(String.format(
                         "Parameter %s type not supported: %s", para.getCode(), para.getType()));
         }
@@ -55,6 +62,7 @@ public class ParaTypeHandler {
      */
     public static String getDisplayValue(Para para, String codeIdValue) {
         if (para == null) {
+            log.error("Para object cannot be null");
             throw new AlgLoaderException("Para object cannot be null");
         }
 
@@ -68,9 +76,11 @@ public class ParaTypeHandler {
                         return option.getCode();
                     }
                 }
+                log.error("Option with codeId {} not found in parameter {}", codeIdValue, para.getCode());
                 throw new AlgLoaderException(String.format(
                         "Option with codeId %s not found in parameter %s", para.getCode(), codeIdValue));
             default:
+                log.error("Parameter {} type not supported: {}", para.getCode(), para.getType());
                 throw new AlgLoaderException(String.format(
                         "Parameter %s type not supported: %s", para.getCode(), para.getType()));
         }
@@ -84,10 +94,12 @@ public class ParaTypeHandler {
      */
     public static void validateParaType(Para para) {
         if (para == null) {
+            log.error("Para object cannot be null");
             throw new AlgLoaderException("Para object cannot be null");
         }
 
         if (para.getType() != ParaType.INTEGER && para.getType() != ParaType.ENUM) {
+            log.error("Parameter {} type not supported: {}", para.getCode(), para.getType());
             throw new AlgLoaderException(String.format(
                     "Parameter %s type not supported: %s", para.getCode(), para.getType()));
         }

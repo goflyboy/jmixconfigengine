@@ -9,6 +9,7 @@ import com.google.ortools.sat.IntVar;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
+@Slf4j
 public class ParaVar extends Var<Para> {
     /**
      * 参数变量命名模式常量
@@ -98,6 +100,7 @@ public class ParaVar extends Var<Para> {
                 return option;
             }
         }
+        log.error("ParaOptionVar not found for code: {}", code);
         throw new AlgLoaderException("ParaOptionVar not found for code: " + code);
     }
 

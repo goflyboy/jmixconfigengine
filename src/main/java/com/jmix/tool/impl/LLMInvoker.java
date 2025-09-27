@@ -2,6 +2,8 @@ package com.jmix.tool.impl;
 
 import com.jmix.executor.omodel.AlgLoaderException;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
@@ -23,6 +25,7 @@ import dev.langchain4j.model.output.Response;
  * 
  * @since 2025-09-22
  */
+@Slf4j
 public class LLMInvoker {
 
     private final Properties config;
@@ -244,6 +247,8 @@ public class LLMInvoker {
         }
 
         if (apiKey == null || apiKey.trim().isEmpty() || "your_deepseek_api_key_here".equals(apiKey)) {
+            log.error(
+                    "Please configure a valid DeepSeek API key via environment variable DEEPSEEK_API_KEY or configuration file");
             throw new IllegalStateException(
                     "Please configure a valid DeepSeek API key via environment variable DEEPSEEK_API_KEY or configuration file");
         }
@@ -282,6 +287,8 @@ public class LLMInvoker {
         }
 
         if (apiKey == null || apiKey.trim().isEmpty() || "your_qwen_api_key_here".equals(apiKey)) {
+            log.error(
+                    "Please configure a valid Qwen API key via environment variable QWEN_API_KEY or configuration file");
             throw new IllegalStateException(
                     "Please configure a valid Qwen API key via environment variable QWEN_API_KEY or configuration file");
         }
@@ -308,9 +315,11 @@ public class LLMInvoker {
             if (input != null) {
                 props.load(input);
             } else {
+                log.error("Configuration file llmmodel.properties not found");
                 throw new AlgLoaderException("Configuration file llmmodel.properties not found");
             }
         } catch (IOException e) {
+            log.error("Failed to load configuration file", e);
             throw new AlgLoaderException("Failed to load configuration file: " + e.getMessage(), e);
         }
         return props;

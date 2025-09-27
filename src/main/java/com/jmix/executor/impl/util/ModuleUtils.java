@@ -79,6 +79,7 @@ final public class ModuleUtils {
         // 检查文件是否存在
         File file = new File(jsonFileName);
         if (!file.exists()) {
+            log.error("JSON file not found: {}", jsonFileName);
             throw new IOException("JSON file not found: " + jsonFileName);
         }
 

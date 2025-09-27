@@ -89,6 +89,7 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
                 PartInst inst = toPartInst(partVar);
                 moduleInst.addPartInst(inst);
             } else {
+                log.error("Unsupported variable type: {}", v.getClass().getSimpleName());
                 throw new AlgLoaderException("Unsupported variable type: " + v.getClass().getSimpleName());
             }
         }

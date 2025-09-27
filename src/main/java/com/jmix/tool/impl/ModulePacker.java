@@ -84,12 +84,14 @@ public class ModulePacker {
             // 打包class文件
             boolean classJarSuccess = packClassJar(inputDir, module, isMultifile, outDir);
             if (!classJarSuccess) {
+                log.error("Failed to pack class jar");
                 throw new AlgLoaderException("Failed to pack class jar");
             }
 
             // 打包源码文件
             boolean sourceJarSuccess = packSourceJar(inputDir, module, isMultifile, outDir);
             if (!sourceJarSuccess) {
+                log.error("Failed to pack source jar");
                 throw new AlgLoaderException("Failed to pack source jar");
             }
 
