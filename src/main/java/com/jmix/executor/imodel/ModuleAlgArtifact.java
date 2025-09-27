@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import lombok.Data;
 
+import java.io.File;
+
 /**
  * 算法制品元数据
  * 包含算法制品的元数据信息
@@ -116,7 +118,7 @@ public class ModuleAlgArtifact {
      */
     @JsonIgnore
     public String getModuleDirPath(String rootDir) {
-        return rootDir + java.io.File.separator + getModuleDirName();
+        return rootDir + File.separator + getModuleDirName();
     }
 
     /**
@@ -127,7 +129,7 @@ public class ModuleAlgArtifact {
      */
     @JsonIgnore
     public String getRuntimeJarPath(String rootDir) {
-        return getModuleDirPath(rootDir) + java.io.File.separator + getRuntimeJarFileName();
+        return getModuleDirPath(rootDir) + File.separator + getRuntimeJarFileName();
     }
 
     /**
@@ -138,7 +140,7 @@ public class ModuleAlgArtifact {
      */
     @JsonIgnore
     public String getSourceJarPath(String rootDir) {
-        return getModuleDirPath(rootDir) + java.io.File.separator + getSourceJarFileName();
+        return getModuleDirPath(rootDir) + File.separator + getSourceJarFileName();
     }
 
     /**
@@ -149,6 +151,6 @@ public class ModuleAlgArtifact {
      */
     @JsonIgnore
     public String getBaseJsonPath(String rootDir) {
-        return getModuleDirPath(rootDir) + java.io.File.separator + getBaseJsonFileName();
+        return getModuleDirPath(rootDir) + File.separator + getBaseJsonFileName();
     }
 }
