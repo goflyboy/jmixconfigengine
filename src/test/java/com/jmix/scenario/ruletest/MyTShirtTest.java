@@ -1,10 +1,8 @@
 package com.jmix.scenario.ruletest;
 
+import com.jmix.coretest.ConstraintAlgImplTestBase;
 import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.executor.imodel.ConstraintConfig;
-import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
-import com.jmix.executor.impl.algmodel.ParaVar;
-import com.jmix.executor.impl.algmodel.PartVar;
 import com.jmix.tool.anno.CodeRuleAnno;
 import com.jmix.tool.anno.ModuleAnno;
 import com.jmix.tool.anno.ParaAnno;
@@ -39,7 +37,7 @@ public class MyTShirtTest extends ModuleScenarioTestBase {
      * @since 2025-09-23
      */
     @ModuleAnno(id = 123L)
-    public static class MyTShirtConstraint extends ConstraintAlgImpl {
+    public static class MyTShirtConstraint extends ConstraintAlgImplTestBase {
         @ParaAnno(options = { "op11", "op12", "op13" })
         private ParaVar p1Var;
 

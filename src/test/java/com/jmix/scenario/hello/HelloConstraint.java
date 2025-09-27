@@ -1,8 +1,7 @@
 package com.jmix.scenario.hello;
 
-import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
-import com.jmix.executor.impl.algmodel.ParaVar;
-import com.jmix.executor.impl.algmodel.PartVar;
+import com.jmix.coretest.ConstraintAlgImplTestBase;
+import com.jmix.tool.anno.CodeRuleAnno;
 import com.jmix.tool.anno.ModuleAnno;
 import com.jmix.tool.anno.ParaAnno;
 import com.jmix.tool.anno.PartAnno;
@@ -16,7 +15,7 @@ import com.google.ortools.sat.Literal;
  * @since 2025-09-23
  */
 @ModuleAnno(id = 123L)
-public class HelloConstraint extends ConstraintAlgImpl {
+public class HelloConstraint extends ConstraintAlgImplTestBase {
 
     @ParaAnno(defaultValue = "Red", options = { "Red:1", "Black:2", "White:3" })
     private ParaVar colorVar;
@@ -27,15 +26,16 @@ public class HelloConstraint extends ConstraintAlgImpl {
     @PartAnno(price = 100L, attrs = { "weight:180g", "size:M" }, extAttrs = { "material:cotton", "brand:Hello" })
     private PartVar tShirt11Var;
 
-    @Override
-    protected void initConstraint() {
-        addConstraintRule2();
-    }
+    // @Override
+    // protected void initConstraint() {
+    // addConstraintRule2();
+    // }
 
     /**
      * 条件数量规则：基于颜色和尺寸的部件数量规则
      * 规则内容：如果颜色选择红色且尺寸选择小号，则TShirt11数量为1；否则为3
      */
+    @CodeRuleAnno()
     public void addConstraintRule2() {
 
         // "Red-10", "Black-20", "White-30"

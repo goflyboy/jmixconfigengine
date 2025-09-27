@@ -2,11 +2,9 @@ package com.jmix.scenario;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.jmix.coretest.ConstraintAlgImplTestBase;
 import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.executor.imodel.ConstraintConfig;
-import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
-import com.jmix.executor.impl.algmodel.ParaVar;
-import com.jmix.executor.impl.algmodel.PartVar;
 import com.jmix.tool.anno.CodeRuleAnno;
 import com.jmix.tool.anno.ModuleAnno;
 import com.jmix.tool.anno.ParaAnno;
@@ -41,7 +39,7 @@ public class Perf20ParasTest extends ModuleScenarioTestBase {
      * @since 2025-09-23
      */
     @ModuleAnno(id = 123L)
-    private static class Perf20ParasConstraint extends ConstraintAlgImpl {
+    private static class Perf20ParasConstraint extends ConstraintAlgImplTestBase {
         @ParaAnno(options = {
                 "op00101", "op00102", "op00103", "op00104", "op00105",
                 "op00106", "op00107", "op00108", "op00109", "op00110"

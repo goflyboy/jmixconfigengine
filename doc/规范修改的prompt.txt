@@ -221,3 +221,16 @@ MultiFilePackerTest -- 用例简化
 
 
 "file:/D:/01.code/mygithub/jmixconfigengine/../cproot/cp-ParaIsHidden-123/cp-ParaIsHidden-123.jar"
+
+
+        // 创建ParaVar
+        ParaVar paraVar = createParaVar(paraCode);
+
+        // 通过反射赋值给字段
+        field.set(this, paraVar);
+
+
+ com.jmix.executor.impl.algmodel.ParaVar/Part 类似，但不是继承，而是内部类 --要替换？
+import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
+
+import com.jmix.coretest.ConstraintAlgImplTestBase;

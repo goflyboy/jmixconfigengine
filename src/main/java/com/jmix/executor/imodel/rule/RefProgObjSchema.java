@@ -3,7 +3,9 @@ package com.jmix.executor.imodel.rule;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 编程对象引用Schema
@@ -12,11 +14,24 @@ import lombok.Data;
  * @since 2025-09-22
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = RefProgObjSchema.class, name = "RefProgObjSchema")
 })
 public class RefProgObjSchema {
+
+    /**
+     * 参数类型常量
+     */
+    public static final String PROG_OBJ_TYPE_PARA = "Para";
+
+    /**
+     * 部件类型常量
+     */
+    public static final String PROG_OBJ_TYPE_PART = "Part";
+
     /**
      * 可编程对象类型
      */

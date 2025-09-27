@@ -85,18 +85,44 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @param module 模块对象
      */
     public void initModel(CpModel model, Module module) {
-        this.model = new AlgCPModel(model);
-        this.module = module;
-        initModelAfter(model);
+        // this.model = new AlgCPModel(model);
+        // this.module = module;
+        // initModelAfter(model);
 
-        initVariables();
+        // initVariables();
 
-        // 构建ruleMethods映射
-        initRules();
+        // // 构建ruleMethods映射
+        // initRules();
 
-        initConstraint();
-        // 设置默认可见性约束
-        setDefaultVisibilityConstraints();
+        // initConstraint();
+        // // 设置默认可见性约束
+        // setDefaultVisibilityConstraints();
+        List<String> fullRules = toFullRules(module);
+        List<RefProgObjSchema> fullProgObjs = toFullProgObjs(module);
+        initModel(model, module, fullRules, fullProgObjs);
+    }
+
+    private List<String> toFullRules(Module tempModule) {
+        List<String> fullRules = new ArrayList<>();
+        for (Rule rule : tempModule.getRules()) {
+            fullRules.add(rule.getCode());
+        }
+        return fullRules;
+    }
+
+    private List<RefProgObjSchema> toFullProgObjs(Module tempModule) {
+        List<RefProgObjSchema> fullProgObjs = new ArrayList<>();
+        RefProgObjSchema refProgObjSchema = null;
+        // 根据module.parts,module.paras,创建RefProgObjSchema列表
+        for (Part part : tempModule.getParts()) {
+            refProgObjSchema = new RefProgObjSchema(RefProgObjSchema.PROG_OBJ_TYPE_PART, part.getCode(), "");
+            fullProgObjs.add(refProgObjSchema);
+        }
+        for (Para para : tempModule.getParas()) {
+            refProgObjSchema = new RefProgObjSchema(RefProgObjSchema.PROG_OBJ_TYPE_PARA, para.getCode(), "");
+            fullProgObjs.add(refProgObjSchema);
+        }
+        return fullProgObjs;
     }
 
     /**
@@ -200,20 +226,6 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
     /**
      * 根据exeRules执行规则
-     * 执行所有已构建的规则方法
-     */
-    private void initRules() {
-        if (ruleMethods.isEmpty()) {
-            buildRuleMethods();
-        }
-        for (Method method : ruleMethods.values()) {
-            executeRuleMethod(method.getName(), method);
-        }
-        log.info("Executed all rule methods");
-    }
-
-    /**
-     * 根据exeRules执行规则
      * 
      * @param exeRules 要执行的规则列表
      */
@@ -265,20 +277,28 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @param exeProgObjs 要初始化的编程对象列表
      */
     private void initVariables(List<RefProgObjSchema> exeProgObjs) {
+        // 创建变量
+        createVariables(exeProgObjs);
+
+        // 将变量写回字段, 保证规则使用变量是同一个
+        writeBackVariablesToFields(varMap);
+    }
+
+    private void createVariables(List<RefProgObjSchema> exeProgObjs) {
         if (exeProgObjs == null || exeProgObjs.isEmpty()) {
             throw new AlgLoaderException("exeProgObjs is null or empty");
         }
         for (RefProgObjSchema exeProgObj : exeProgObjs) {
             String field = exeProgObj.getProgObjType();
-            if (field.equals("Para")) {
+            if (field.equals(RefProgObjSchema.PROG_OBJ_TYPE_PARA)) {
                 createParaVar(exeProgObj.getProgObjCode());
-            } else if (field.equals("Part")) {
+            } else if (field.equals(RefProgObjSchema.PROG_OBJ_TYPE_PART)) {
                 createPartVar(exeProgObj.getProgObjCode());
             } else {
                 throw new AlgLoaderException("Unsupported progObjType: " + field);
             }
         }
-        log.info("Initialized {} variables for incremental loading", varMap.size());
+        log.info("create {} variables for incremental loading", varMap.size());
     }
 
     /**
@@ -291,16 +311,16 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
     }
 
-    /**
-     * 初始化变量
-     */
-    protected void initVariables() {
-        // 默认实现：通过反射自动创建和赋值变量
-        autoInitVariables();
+    // /**
+    // * 初始化变量
+    // */
+    // protected void initVariables() {
+    // // 默认实现：通过反射自动创建和赋值变量
+    // autoInitVariables();
 
-        // 调用子类的自定义变量初始化逻辑
-        onInitCustomVariables();
-    }
+    // // 调用子类的自定义变量初始化逻辑
+    // onInitCustomVariables();
+    // }
 
     /**
      * 子类重写此方法来实现自定义变量初始化逻辑
@@ -309,31 +329,106 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         // 默认空实现，子类可以重写
     }
 
+    // /**
+    // * 通过反射自动创建和赋值变量
+    // * 扫描当前类的所有字段，为带有@PartAnno注解的字段自动创建对应的PartVar实例
+    // */
+    // private void autoInitVariables() {
+    // try {
+    // // 获取当前类的所有字段
+    // Field[] fields = this.getClass().getDeclaredFields();
+
+    // for (Field field : fields) {
+    // field.setAccessible(true);
+
+    // // 检查字段类型并创建对应的变量
+    // if (ParaVar.class.isAssignableFrom(field.getType())) {
+    // autoCreateAndAssignParaVar(field);
+    // } else if (PartVar.class.isAssignableFrom(field.getType())) {
+    // autoCreateAndAssignPartVar(field);
+    // } else {
+    // throw new AlgLoaderException("Unsupported field type: " +
+    // field.getType().getSimpleName());
+    // }
+    // }
+
+    // } catch (Exception e) {
+    // throw new AlgLoaderException("Failed to initialize variables automatically",
+    // e);
+    // }
+    // }
+
     /**
-     * 通过反射自动创建和赋值变量
-     * 扫描当前类的所有字段，为带有@PartAnno注解的字段自动创建对应的PartVar实例
+     * 将变量写回字段, 保证在初始化rule时生效
+     * 
+     * @param varMap 变量映射
+     * @throws AlgLoaderException 异常
      */
-    private void autoInitVariables() {
-        try {
-            // 获取当前类的所有字段
-            Field[] fields = this.getClass().getDeclaredFields();
-
-            for (Field field : fields) {
-                field.setAccessible(true);
-
-                // 检查字段类型并创建对应的变量
-                if (ParaVar.class.isAssignableFrom(field.getType())) {
-                    autoCreateAndAssignParaVar(field);
-                } else if (PartVar.class.isAssignableFrom(field.getType())) {
-                    autoCreateAndAssignPartVar(field);
-                } else {
-                    throw new AlgLoaderException("Unsupported field type: " + field.getType().getSimpleName());
-                }
+    private void writeBackVariablesToFields(Map<String, Var<?>> varMap) throws AlgLoaderException {
+        Map<String, Field> fieldMap = getAllFieldVariables();
+        Var<?> tVar = null;
+        for (Map.Entry<String, Var<?>> entry : varMap.entrySet()) {
+            String code = entry.getKey();
+            Var<?> v = entry.getValue();
+            if (v instanceof ParaVar) {
+                tVar = newParaVar((ParaVar) v);
+                setVariableField(tVar, fieldMap.get(code));
+            } else if (v instanceof PartVar) {
+                tVar = newPartVar((PartVar) v);
+                setVariableField(tVar, fieldMap.get(code));
+            } else {
+                throw new AlgLoaderException(
+                        "Unsupported variable to field: please check in constrain file!" + v.getCode());
             }
-
-        } catch (Exception e) {
-            throw new AlgLoaderException("Failed to initialize variables automatically", e);
         }
+    }
+
+    /**
+     * 创建部件变量, 继承类可以重载
+     * 
+     * @param internalPartVar 内部部件变量
+     * @return 创建的部件变量
+     */
+    protected Var<?> newPartVar(PartVar internalPartVar) {
+        return internalPartVar;
+    }
+
+    /**
+     * 创建参数变量, 继承类可以重载
+     * 
+     * @param internalParaVar 内部参数变量
+     * @return 创建的参数变量
+     */
+    protected Var<?> newParaVar(ParaVar internalParaVar) {
+        return internalParaVar;
+    }
+
+    /**
+     * 设置单个变量字段
+     * 
+     * @param v     变量值
+     * @param field 字段对象
+     */
+    private void setVariableField(Var<?> v, Field field) throws AlgLoaderException {
+        if (field == null) {
+            throw new AlgLoaderException("Field not found for code: null " + v.getCode());
+        }
+        try {
+            field.set(this, v);
+        } catch (IllegalArgumentException | IllegalAccessException e) {
+            log.error("Failed to write back variable to field: " + v.getCode(), e);
+            throw new AlgLoaderException("Failed to write back variable to field: " + v.getCode(), e);
+        }
+    }
+
+    private Map<String, Field> getAllFieldVariables() {
+        Field[] fields = this.getClass().getDeclaredFields();
+        Map<String, Field> fieldMap = new HashMap<>();
+        for (Field field : fields) {
+            field.setAccessible(true);
+            fieldMap.put(extractCodeFromFieldName(field.getName()), field);
+        }
+        return fieldMap;
     }
 
     /**
@@ -397,14 +492,6 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             return fieldName.substring(0, fieldName.length() - 3);
         }
         return fieldName;
-    }
-
-    /**
-     * 初始化约束
-     * 子类可以重写此方法来实现自定义约束逻辑
-     */
-    protected void initConstraint() {
-        // 自动添加约束
     }
 
     /**
@@ -500,6 +587,45 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      */
     public Map<String, Var<?>> getVarMap() {
         return varMap;
+    }
+
+    /**
+     * 获取变量
+     * 
+     * @param code 变量代码
+     * @return 变量实例
+     */
+    public Var<?> getVar(String code) {
+        return varMap.get(code);
+    }
+
+    /**
+     * 获取参数变量
+     * 
+     * @param code 变量代码
+     * @return 参数变量实例
+     */
+    public ParaVar getParaVar(String code) {
+        Var<?> var = getVar(code);
+        if (var == null || !(var instanceof ParaVar)) {
+            throw new AlgLoaderException("ParaVar not found for code: " + code);
+        }
+        return (ParaVar) varMap.get(code);
+
+    }
+
+    /**
+     * 获取部件变量
+     * 
+     * @param code 变量代码
+     * @return 部件变量实例
+     */
+    public PartVar getPartVar(String code) {
+        Var<?> var = getVar(code);
+        if (var == null || !(var instanceof PartVar)) {
+            throw new AlgLoaderException("PartVar not found for code: " + code);
+        }
+        return (PartVar) var;
     }
 
     /**

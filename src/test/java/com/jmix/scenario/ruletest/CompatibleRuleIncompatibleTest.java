@@ -1,9 +1,9 @@
 package com.jmix.scenario.ruletest;
 
+import com.jmix.coretest.ConstraintAlgImplTestBase;
 import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.executor.imodel.ConstraintConfig;
-import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
-import com.jmix.executor.impl.algmodel.ParaVar;
+import com.jmix.tool.anno.CodeRuleAnno;
 import com.jmix.tool.anno.ModuleAnno;
 import com.jmix.tool.anno.ParaAnno;
 
@@ -30,7 +30,7 @@ public class CompatibleRuleIncompatibleTest extends ModuleScenarioTestBase {
      * @since 2025-09-23
      */
     @ModuleAnno(id = 123L)
-    public static class CompatibleRuleIncompatibleConstraint extends ConstraintAlgImpl {
+    public static class CompatibleRuleIncompatibleConstraint extends ConstraintAlgImplTestBase {
 
         @ParaAnno(options = { "a1", "a2", "a3", "a4", "a5" })
         private ParaVar aVar;
@@ -38,8 +38,8 @@ public class CompatibleRuleIncompatibleTest extends ModuleScenarioTestBase {
         @ParaAnno(options = { "b1", "b2", "b3", "b4", "b5" })
         private ParaVar bVar;
 
-        @Override
-        protected void initConstraint() {
+        @CodeRuleAnno()
+        private void initConstraint() {
             // 注意： 一定要选择一个值怎么理解（如果不选择，也设置一个可选值就可以表达，这样模型统一了）
             // A=(a1,a2,a3,a4,a5),aVar.value的值域
             // B=(b1,b2,b3,b4,b5),bVar.value的值域

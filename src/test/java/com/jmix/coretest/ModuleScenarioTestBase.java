@@ -6,7 +6,6 @@ import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.Para;
 import com.jmix.executor.imodel.Part;
 import com.jmix.executor.impl.ModuleConstraintExecutorImpl;
-import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
 import com.jmix.executor.impl.algmodel.OtherVar;
 import com.jmix.executor.impl.util.CommHelper;
 import com.jmix.executor.impl.util.ParaTypeHandler;
@@ -43,7 +42,7 @@ public abstract class ModuleScenarioTestBase {
     /**
      * 约束算法类
      */
-    private Class<? extends ConstraintAlgImpl> constraintAlgClazz;
+    private Class<? extends ConstraintAlgImplTestBase> constraintAlgClazz;
 
     /**
      * 临时资源路径
@@ -80,7 +79,7 @@ public abstract class ModuleScenarioTestBase {
      * 
      * @param constraintAlgClazz 约束算法类
      */
-    public ModuleScenarioTestBase(Class<? extends ConstraintAlgImpl> constraintAlgClazz) {
+    public ModuleScenarioTestBase(Class<? extends ConstraintAlgImplTestBase> constraintAlgClazz) {
         this.constraintAlgClazz = constraintAlgClazz;
     }
 
@@ -106,7 +105,7 @@ public abstract class ModuleScenarioTestBase {
      * @param moduleAlgClazz 模块算法类
      * @return 构建的模块
      */
-    protected Module buildModule(Class<? extends ConstraintAlgImpl> moduleAlgClazz) {
+    protected Module buildModule(Class<? extends ConstraintAlgImplTestBase> moduleAlgClazz) {
         // 通过注解生成Module
         module = ModuleGenneratorByAnno.build(moduleAlgClazz, tempResourcePath);
         return module;

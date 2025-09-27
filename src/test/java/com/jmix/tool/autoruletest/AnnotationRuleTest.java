@@ -5,12 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import com.jmix.coretest.ConstraintAlgImplTestBase;
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.ParaType;
 import com.jmix.executor.imodel.Rule;
-import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
-import com.jmix.executor.impl.algmodel.ParaVar;
-import com.jmix.executor.impl.algmodel.PartVar;
 import com.jmix.executor.impl.util.CommHelper;
 import com.jmix.tool.anno.CodeRuleAnno;
 import com.jmix.tool.anno.CompatiableRuleAnno;
@@ -39,7 +37,7 @@ import java.lang.reflect.Method;
  * @since 2025-09-23
  */
 @ModuleAnno(id = 123, code = "AnnotationRule", packageName = "com.jmix.configengine.scenario.ruletest", version = "1.0", description = "注解规则测试模块", sortNo = 1)
-public class AnnotationRuleTest extends ConstraintAlgImpl {
+public class AnnotationRuleTest extends ConstraintAlgImplTestBase {
 
     @ParaAnno(description = "颜色参数", type = ParaType.ENUM, options = { "Red", "Blue", "Green" })
     private ParaVar colorVar;
@@ -72,8 +70,8 @@ public class AnnotationRuleTest extends ConstraintAlgImpl {
     /**
      * 初始化约束
      */
-    @Override
-    public void initConstraint() {
+    @CodeRuleAnno
+    private void initConstraint() {
         // 约束初始化逻辑
     }
 

@@ -328,9 +328,9 @@ public final class ModuleGenneratorByAnno {
 
             // 判断是Part还是Para
             if (currentModule.getPara(progObject.getObjCode()).isPresent()) {
-                refProgObjSchema.setProgObjType("Para");
+                refProgObjSchema.setProgObjType(RefProgObjSchema.PROG_OBJ_TYPE_PARA);
             } else if (currentModule.getPart(progObject.getObjCode()).isPresent()) {
-                refProgObjSchema.setProgObjType("Part");
+                refProgObjSchema.setProgObjType(RefProgObjSchema.PROG_OBJ_TYPE_PART);
             } else {
                 throw new AlgLoaderException("Object not found: " + progObject.getObjCode());
             }

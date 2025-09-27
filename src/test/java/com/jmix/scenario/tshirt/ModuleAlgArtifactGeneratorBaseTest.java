@@ -128,7 +128,7 @@ public class ModuleAlgArtifactGeneratorBaseTest {
 
         // 验证基本结构
         assertTrue(content.contains("public class TShirtConstraint"), "生成的代码应该包含类定义");
-        assertTrue(content.contains("extends ConstraintAlgImpl"), "生成的代码应该继承ConstraintAlgImpl");
+        assertTrue(content.contains("extends ConstraintAlgImplTestBase"), "生成的代码应该继承ConstraintAlgImplTestBase");
 
         // 验证参数变量
         assertTrue(content.contains("private ParaVar colorVar"), "应该包含Color参数变量");
