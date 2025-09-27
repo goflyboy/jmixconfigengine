@@ -41,9 +41,6 @@ public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
         @ParaAnno(options = { "Small", "Medium", "Big" })
         private ParaVar sizeVar;
 
-        // @Override
-        // protected void initConstraint() {//不能有这个代码
-        // }
         @CodeRuleAnno(code = "rule1")
         private void rule1() {
             log.info("****************rule1****************");

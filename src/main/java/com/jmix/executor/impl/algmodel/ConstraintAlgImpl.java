@@ -85,18 +85,6 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @param module 模块对象
      */
     public void initModel(CpModel model, Module module) {
-        // this.model = new AlgCPModel(model);
-        // this.module = module;
-        // initModelAfter(model);
-
-        // initVariables();
-
-        // // 构建ruleMethods映射
-        // initRules();
-
-        // initConstraint();
-        // // 设置默认可见性约束
-        // setDefaultVisibilityConstraints();
         List<String> fullRules = toFullRules(module);
         List<RefProgObjSchema> fullProgObjs = toFullProgObjs(module);
         initModel(model, module, fullRules, fullProgObjs);
@@ -177,14 +165,11 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             Var<?> v = entry.getValue();
             if (v instanceof ParaVar) {
                 ParaVar pv = (ParaVar) v;
-                if (pv.getIsHidden() != null) {
-                    model.addEquality(pv.getIsHidden(), 0);
-                }
+                model.addEquality(pv.getIsHidden(), 0);
+
             } else if (v instanceof PartVar) {
                 PartVar pt = (PartVar) v;
-                if (pt.getIsHidden() != null) {
-                    model.addEquality(pt.getIsHidden(), 0);
-                }
+                model.addEquality(pt.getIsHidden(), 0);
             } else {
                 throw new AlgLoaderException("Unsupported variable type: " + v.getClass().getSimpleName());
             }
@@ -311,52 +296,12 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
     }
 
-    // /**
-    // * 初始化变量
-    // */
-    // protected void initVariables() {
-    // // 默认实现：通过反射自动创建和赋值变量
-    // autoInitVariables();
-
-    // // 调用子类的自定义变量初始化逻辑
-    // onInitCustomVariables();
-    // }
-
     /**
      * 子类重写此方法来实现自定义变量初始化逻辑
      */
     protected void onInitCustomVariables() {
         // 默认空实现，子类可以重写
     }
-
-    // /**
-    // * 通过反射自动创建和赋值变量
-    // * 扫描当前类的所有字段，为带有@PartAnno注解的字段自动创建对应的PartVar实例
-    // */
-    // private void autoInitVariables() {
-    // try {
-    // // 获取当前类的所有字段
-    // Field[] fields = this.getClass().getDeclaredFields();
-
-    // for (Field field : fields) {
-    // field.setAccessible(true);
-
-    // // 检查字段类型并创建对应的变量
-    // if (ParaVar.class.isAssignableFrom(field.getType())) {
-    // autoCreateAndAssignParaVar(field);
-    // } else if (PartVar.class.isAssignableFrom(field.getType())) {
-    // autoCreateAndAssignPartVar(field);
-    // } else {
-    // throw new AlgLoaderException("Unsupported field type: " +
-    // field.getType().getSimpleName());
-    // }
-    // }
-
-    // } catch (Exception e) {
-    // throw new AlgLoaderException("Failed to initialize variables automatically",
-    // e);
-    // }
-    // }
 
     /**
      * 将变量写回字段, 保证在初始化rule时生效

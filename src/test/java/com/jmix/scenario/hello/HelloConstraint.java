@@ -26,11 +26,6 @@ public class HelloConstraint extends ConstraintAlgImplTestBase {
     @PartAnno(price = 100L, attrs = { "weight:180g", "size:M" }, extAttrs = { "material:cotton", "brand:Hello" })
     private PartVar tShirt11Var;
 
-    // @Override
-    // protected void initConstraint() {
-    // addConstraintRule2();
-    // }
-
     /**
      * 条件数量规则：基于颜色和尺寸的部件数量规则
      * 规则内容：如果颜色选择红色且尺寸选择小号，则TShirt11数量为1；否则为3
