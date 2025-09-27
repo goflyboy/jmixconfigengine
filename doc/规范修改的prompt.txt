@@ -234,3 +234,5 @@ MultiFilePackerTest -- 用例简化
 import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
 
 import com.jmix.coretest.ConstraintAlgImplTestBase;
+
+搞一个例子--怎么package包？**

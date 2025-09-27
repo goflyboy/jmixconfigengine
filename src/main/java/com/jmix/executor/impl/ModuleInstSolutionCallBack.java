@@ -122,19 +122,19 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
         pi.setShortCode(pv.getBase().getShortCode());
 
         // value: read IntVar domain value
-        int value = (int) value(pv.value);
+        int value = (int) value(pv.getValue());
         pi.setValue(String.valueOf(value));
 
         // options: selected option codes
         List<String> options = new ArrayList<>();
-        pv.optionSelectVars.forEach((codeId, optionVar) -> {
+        pv.getOptionSelectVars().forEach((codeId, optionVar) -> {
             long sel = value(optionVar.getIsSelectedVar());
             if (sel == 1L) {
                 options.add(optionVar.getCode());
             }
         });
         pi.setOptions(options);
-        pi.setHidden((int) value((IntVar) pv.isHidden) == 1);
+        pi.setHidden((int) value((IntVar) pv.getIsHidden()) == 1);
 
         return pi;
     }
@@ -150,7 +150,7 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
         inst.setCode(partVar.getCode());
         // 从模块中获取对应的Part模型，设置shortCode
         inst.setShortCode(partVar.getBase().getShortCode());
-        inst.setQuantity((int) value(partVar.qty));
+        inst.setQuantity((int) value(partVar.getQty()));
         return inst;
     }
 

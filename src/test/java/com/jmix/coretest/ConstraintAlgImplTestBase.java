@@ -92,9 +92,9 @@ public class ConstraintAlgImplTestBase extends ConstraintAlgImpl {
     protected Var<?> newPartVar(com.jmix.executor.impl.algmodel.PartVar internalPartVar) {
         PartVar partVar = new PartVar();
         partVar.setBase(internalPartVar.getBase());
-        partVar.qty = internalPartVar.qty;
-        partVar.isHidden = internalPartVar.isHidden;
-        partVar.subPartSelectedVars = internalPartVar.subPartSelectedVars;
+        partVar.qty = internalPartVar.getQty();
+        partVar.isHidden = internalPartVar.getIsHidden();
+        partVar.subPartSelectedVars = internalPartVar.getSubPartSelectedVars();
         return partVar;
     }
 
@@ -107,9 +107,9 @@ public class ConstraintAlgImplTestBase extends ConstraintAlgImpl {
     protected Var<?> newParaVar(com.jmix.executor.impl.algmodel.ParaVar internalParaVar) {
         ParaVar paraVar = new ParaVar();
         paraVar.setBase(internalParaVar.getBase());
-        paraVar.value = internalParaVar.value;
-        paraVar.isHidden = internalParaVar.isHidden;
-        paraVar.optionSelectVars = internalParaVar.optionSelectVars;
+        paraVar.value = internalParaVar.getValue();
+        paraVar.isHidden = internalParaVar.getIsHidden();
+        paraVar.optionSelectVars = internalParaVar.getOptionSelectVars();
         return paraVar;
     }
 
