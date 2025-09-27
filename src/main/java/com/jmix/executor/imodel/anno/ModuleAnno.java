@@ -1,4 +1,4 @@
-package com.jmix.tool.anno;
+package com.jmix.executor.imodel.anno;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

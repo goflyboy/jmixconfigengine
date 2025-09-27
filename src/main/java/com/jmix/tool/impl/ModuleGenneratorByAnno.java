@@ -6,6 +6,11 @@ import com.jmix.executor.imodel.Para;
 import com.jmix.executor.imodel.ParaOption;
 import com.jmix.executor.imodel.Part;
 import com.jmix.executor.imodel.Rule;
+import com.jmix.executor.imodel.anno.CodeRuleAnno;
+import com.jmix.executor.imodel.anno.CompatiableRuleAnno;
+import com.jmix.executor.imodel.anno.ModuleAnno;
+import com.jmix.executor.imodel.anno.ParaAnno;
+import com.jmix.executor.imodel.anno.PartAnno;
 import com.jmix.executor.imodel.rule.CodeRuleSchema;
 import com.jmix.executor.imodel.rule.CompatiableRuleSchema;
 import com.jmix.executor.imodel.rule.ExprSchema;
@@ -16,11 +21,6 @@ import com.jmix.executor.impl.algmodel.PartVar;
 import com.jmix.executor.impl.util.ModuleUtils;
 import com.jmix.executor.impl.util.Pair;
 import com.jmix.executor.omodel.AlgLoaderException;
-import com.jmix.tool.anno.CodeRuleAnno;
-import com.jmix.tool.anno.CompatiableRuleAnno;
-import com.jmix.tool.anno.ModuleAnno;
-import com.jmix.tool.anno.ParaAnno;
-import com.jmix.tool.anno.PartAnno;
 
 import lombok.extern.slf4j.Slf4j;
 

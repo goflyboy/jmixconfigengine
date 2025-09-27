@@ -9,12 +9,12 @@ import com.jmix.coretest.ConstraintAlgImplTestBase;
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.ParaType;
 import com.jmix.executor.imodel.Rule;
+import com.jmix.executor.imodel.anno.CodeRuleAnno;
+import com.jmix.executor.imodel.anno.CompatiableRuleAnno;
+import com.jmix.executor.imodel.anno.ModuleAnno;
+import com.jmix.executor.imodel.anno.ParaAnno;
+import com.jmix.executor.imodel.anno.PartAnno;
 import com.jmix.executor.impl.util.CommHelper;
-import com.jmix.tool.anno.CodeRuleAnno;
-import com.jmix.tool.anno.CompatiableRuleAnno;
-import com.jmix.tool.anno.ModuleAnno;
-import com.jmix.tool.anno.ParaAnno;
-import com.jmix.tool.anno.PartAnno;
 import com.jmix.tool.impl.ModuleGenneratorByAnno;
 
 import lombok.extern.slf4j.Slf4j;

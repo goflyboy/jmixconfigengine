@@ -1,7 +1,7 @@
-package com.jmix.tool.anno;
+package com.jmix.executor.imodel.anno;
 
-import com.jmix.executor.imodel.Part;
-import com.jmix.executor.imodel.PartType;
+import com.jmix.executor.imodel.Para;
+import com.jmix.executor.imodel.ParaType;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -9,15 +9,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 部件注解，用于标记部件变量
+ * 参数注解，用于标记参数变量
  * 
  * @since 2025-09-22
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface PartAnno {
+public @interface ParaAnno {
     /**
-     * 部件编码
+     * 参数编码
      */
     String code() default "";
 
@@ -42,19 +42,24 @@ public @interface PartAnno {
     int sortNo() default 0;
 
     /**
-     * 部件类型
+     * 参数类型
      */
-    PartType type() default PartType.ATOMIC;
+    ParaType type() default ParaType.ENUM;
 
     /**
-     * 价格
+     * 枚举选项代码列表
      */
-    long price() default 0L;
+    String[] options() default {};
 
     /**
-     * 规格属性
+     * 最小值（Range类型），是否要调整为整数？
      */
-    String[] attrs() default {};
+    String minValue() default Para.DEFAULT_MIN_VALUE;
+
+    /**
+     * 最大值（Range类型）
+     */
+    String maxValue() default Para.DEFAULT_MAX_VALUE;
 
     /**
      * 扩展模式
@@ -65,10 +70,4 @@ public @interface PartAnno {
      * 扩展属性
      */
     String[] extAttrs() default {};
-
-    /**
-     * 最大数量限制
-     * 用于约束部件的最大数量值
-     */
-    int maxQuantity() default Part.MAX_QUANTITY;
 }

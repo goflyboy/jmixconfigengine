@@ -555,7 +555,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         if (var == null || !(var instanceof ParaVar)) {
             throw new AlgLoaderException("ParaVar not found for code: " + code);
         }
-        return (ParaVar) varMap.get(code);
+        return (ParaVar) var;
 
     }
 
