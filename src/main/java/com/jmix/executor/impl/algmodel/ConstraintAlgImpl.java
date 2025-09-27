@@ -228,7 +228,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         }
 
         if (exeRules == null || exeRules.isEmpty()) {
-            log.info("No specific rules to execute, all {} rule methods are available", ruleMethods.size());
+            log.warn("No specific rules to execute, all {} rule methods are available", ruleMethods.size());
             return;
         }
 
@@ -237,7 +237,6 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             Method method = ruleMethods.get(ruleCode);
             executeRuleMethod(ruleCode, method);
         }
-
         log.info("Executed  {} requested rules", exeRules.size());
     }
 
@@ -682,35 +681,15 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             List<String> leftParaFilterOptionCodes,
             ParaVar rightParaVar, List<String> rightParaFilterOptionCodes) {
         // left:确保只有一个参数选项被选中
-        model.addExactlyOne(leftParaVar.getOptionSelectVars().values().stream()
-                .map(option -> option.getIsSelectedVar())
-                .toArray(BoolVar[]::new));
+        addExactlyOneConstraint(leftParaVar);
         // right:确保只有一个参数选项被选中
-        model.addExactlyOne(rightParaVar.getOptionSelectVars().values().stream()
-                .map(option -> option.getIsSelectedVar())
-                .toArray(BoolVar[]::new));
+        addExactlyOneConstraint(rightParaVar);
 
         // 定义左侧条件：左侧集合中至少一个被选中
-        BoolVar leftCond = newBoolVar(f("%s_leftCond", ruleCode));
-        Literal[] leftSelected = leftParaVar.getOptionSelectVars().values().stream()
-                .filter(option -> leftParaFilterOptionCodes.contains(option.getCode()))
-                .map(option -> option.getIsSelectedVar())
-                .toArray(Literal[]::new);
-        // 当leftCond为true时，左侧集合中至少一个被选中；当为false时，左侧集合全部不被选中
-        model.addBoolOr(leftSelected).onlyEnforceIf(leftCond);
-        model.addBoolAnd(Arrays.stream(leftSelected).map(Literal::not).toArray(Literal[]::new))
-                .onlyEnforceIf(leftCond.not());
+        BoolVar leftCond = createSelectedCondition(ruleCode, leftParaVar, leftParaFilterOptionCodes, "leftCond");
 
         // 定义右侧条件：右侧集合中至少一个被选中
-        BoolVar rightCond = newBoolVar(f("%s_rightCond", ruleCode));
-        Literal[] rightSelected = rightParaVar.getOptionSelectVars().values().stream()
-                .filter(option -> rightParaFilterOptionCodes.contains(option.getCode()))
-                .map(option -> option.getIsSelectedVar())
-                .toArray(Literal[]::new);
-        // 当rightCond为true时，右侧集合中至少一个被选中；当为false时，右侧集合全部不被选中
-        model.addBoolOr(rightSelected).onlyEnforceIf(rightCond);
-        model.addBoolAnd(Arrays.stream(rightSelected).map(Literal::not).toArray(Literal[]::new))
-                .onlyEnforceIf(rightCond.not());
+        BoolVar rightCond = createSelectedCondition(ruleCode, rightParaVar, rightParaFilterOptionCodes, "rightCond");
 
         // 实现Requires关系：如果左侧条件为true，则右侧条件必须为true
         model.addImplication(leftCond, rightCond);
@@ -773,57 +752,23 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             List<String> leftParaFilterOptionCodes,
             ParaVar rightParaVar, List<String> rightParaFilterOptionCodes) {
         // left:确保只有一个参数选项被选中
-        model.addExactlyOne(leftParaVar.getOptionSelectVars().values().stream()
-                .map(option -> option.getIsSelectedVar())
-                .toArray(BoolVar[]::new));
+        addExactlyOneConstraint(leftParaVar);
         // right:确保只有一个参数选项被选中
-        model.addExactlyOne(rightParaVar.getOptionSelectVars().values().stream()
-                .map(option -> option.getIsSelectedVar())
-                .toArray(BoolVar[]::new));
+        addExactlyOneConstraint(rightParaVar);
 
         // 定义左侧条件：左侧集合中至少一个被选中
-        BoolVar leftCond = newBoolVar(f("%s_leftCond", ruleCode));
-        Literal[] leftSelected = leftParaVar.getOptionSelectVars().values().stream()
-                .filter(option -> leftParaFilterOptionCodes.contains(option.getCode()))
-                .map(option -> option.getIsSelectedVar())
-                .toArray(Literal[]::new);
-        // 当leftCond为true时，左侧集合中至少一个被选中；当为false时，左侧集合全部不被选中
-        model.addBoolOr(leftSelected).onlyEnforceIf(leftCond);
-        model.addBoolAnd(Arrays.stream(leftSelected).map(Literal::not).toArray(Literal[]::new))
-                .onlyEnforceIf(leftCond.not());
+        BoolVar leftCond = createSelectedCondition(ruleCode, leftParaVar, leftParaFilterOptionCodes, "leftCond");
 
         // 定义右侧条件：右侧集合中至少一个被选中
-        BoolVar rightCond = newBoolVar(f("%s_rightCond", ruleCode));
-        Literal[] rightSelected = rightParaVar.getOptionSelectVars().values().stream()
-                .filter(option -> rightParaFilterOptionCodes.contains(option.getCode()))
-                .map(option -> option.getIsSelectedVar())
-                .toArray(Literal[]::new);
-        // 当rightCond为true时，右侧集合中至少一个被选中；当为false时，右侧集合全部不被选中
-        model.addBoolOr(rightSelected).onlyEnforceIf(rightCond);
-        model.addBoolAnd(Arrays.stream(rightSelected).map(Literal::not).toArray(Literal[]::new))
-                .onlyEnforceIf(rightCond.not());
+        BoolVar rightCond = createSelectedCondition(ruleCode, rightParaVar, rightParaFilterOptionCodes, "rightCond");
 
         // 定义左侧非条件：左侧集合外至少一个被选中
-        BoolVar leftNotCond = newBoolVar(f("%s_leftNotCond", ruleCode));
-        Literal[] leftNotSelected = leftParaVar.getOptionSelectVars().values().stream()
-                .filter(option -> !leftParaFilterOptionCodes.contains(option.getCode()))
-                .map(option -> option.getIsSelectedVar())
-                .toArray(Literal[]::new);
-        // 当leftNotCond为true时，左侧集合外至少一个被选中；当为false时，左侧集合外全部不被选中
-        model.addBoolOr(leftNotSelected).onlyEnforceIf(leftNotCond);
-        model.addBoolAnd(Arrays.stream(leftNotSelected).map(Literal::not).toArray(Literal[]::new))
-                .onlyEnforceIf(leftNotCond.not());
+        BoolVar leftNotCond = createNotSelectedCondition(ruleCode, leftParaVar, leftParaFilterOptionCodes,
+                "leftNotCond");
 
         // 定义右侧非条件：右侧集合外至少一个被选中
-        BoolVar rightNotCond = newBoolVar(f("%s_rightNotCond", ruleCode));
-        Literal[] rightNotSelected = rightParaVar.getOptionSelectVars().values().stream()
-                .filter(option -> !rightParaFilterOptionCodes.contains(option.getCode()))
-                .map(option -> option.getIsSelectedVar())
-                .toArray(Literal[]::new);
-        // 当rightNotCond为true时，右侧集合外至少一个被选中；当为false时，右侧集合外全部不被选中
-        model.addBoolOr(rightNotSelected).onlyEnforceIf(rightNotCond);
-        model.addBoolAnd(Arrays.stream(rightNotSelected).map(Literal::not).toArray(Literal[]::new))
-                .onlyEnforceIf(rightNotCond.not());
+        BoolVar rightNotCond = createNotSelectedCondition(ruleCode, rightParaVar, rightParaFilterOptionCodes,
+                "rightNotCond");
 
         // 实现CoDependent双向关系：
         // 正向1.1：如果左侧条件为true，则右侧条件必须为true
@@ -858,57 +803,23 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             List<String> leftParaFilterOptionCodes,
             ParaVar rightParaVar, List<String> rightParaFilterOptionCodes) {
         // left:确保只有一个参数选项被选中
-        model.addExactlyOne(leftParaVar.getOptionSelectVars().values().stream()
-                .map(option -> option.getIsSelectedVar())
-                .toArray(BoolVar[]::new));
+        addExactlyOneConstraint(leftParaVar);
         // right:确保只有一个参数选项被选中
-        model.addExactlyOne(rightParaVar.getOptionSelectVars().values().stream()
-                .map(option -> option.getIsSelectedVar())
-                .toArray(BoolVar[]::new));
+        addExactlyOneConstraint(rightParaVar);
 
         // 定义左侧条件：左侧集合中至少一个被选中
-        BoolVar leftCond = newBoolVar(f("%s_leftCond", ruleCode));
-        Literal[] leftSelected = leftParaVar.getOptionSelectVars().values().stream()
-                .filter(option -> leftParaFilterOptionCodes.contains(option.getCode()))
-                .map(option -> option.getIsSelectedVar())
-                .toArray(Literal[]::new);
-        // 当leftCond为true时，左侧集合中至少一个被选中；当为false时，左侧集合全部不被选中
-        model.addBoolOr(leftSelected).onlyEnforceIf(leftCond);
-        model.addBoolAnd(Arrays.stream(leftSelected).map(Literal::not).toArray(Literal[]::new))
-                .onlyEnforceIf(leftCond.not());
+        BoolVar leftCond = createSelectedCondition(ruleCode, leftParaVar, leftParaFilterOptionCodes, "leftCond");
 
         // 定义右侧条件：右侧集合中至少一个被选中
-        BoolVar rightCond = newBoolVar(f("%s_rightCond", ruleCode));
-        Literal[] rightSelected = rightParaVar.getOptionSelectVars().values().stream()
-                .filter(option -> rightParaFilterOptionCodes.contains(option.getCode()))
-                .map(option -> option.getIsSelectedVar())
-                .toArray(Literal[]::new);
-        // 当rightCond为true时，右侧集合中至少一个被选中；当为false时，右侧集合全部不被选中
-        model.addBoolOr(rightSelected).onlyEnforceIf(rightCond);
-        model.addBoolAnd(Arrays.stream(rightSelected).map(Literal::not).toArray(Literal[]::new))
-                .onlyEnforceIf(rightCond.not());
+        BoolVar rightCond = createSelectedCondition(ruleCode, rightParaVar, rightParaFilterOptionCodes, "rightCond");
 
         // 定义左侧非条件：左侧集合外至少一个被选中
-        BoolVar leftNotCond = newBoolVar(f("%s_leftNotCond", ruleCode));
-        Literal[] leftNotSelected = leftParaVar.getOptionSelectVars().values().stream()
-                .filter(option -> !leftParaFilterOptionCodes.contains(option.getCode()))
-                .map(option -> option.getIsSelectedVar())
-                .toArray(Literal[]::new);
-        // 当leftNotCond为true时，左侧集合外至少一个被选中；当为false时，左侧集合外全部不被选中
-        model.addBoolOr(leftNotSelected).onlyEnforceIf(leftNotCond);
-        model.addBoolAnd(Arrays.stream(leftNotSelected).map(Literal::not).toArray(Literal[]::new))
-                .onlyEnforceIf(leftNotCond.not());
+        BoolVar leftNotCond = createNotSelectedCondition(ruleCode, leftParaVar, leftParaFilterOptionCodes,
+                "leftNotCond");
 
         // 定义右侧非条件：右侧集合外至少一个被选中
-        BoolVar rightNotCond = newBoolVar(f("%s_rightNotCond", ruleCode));
-        Literal[] rightNotSelected = rightParaVar.getOptionSelectVars().values().stream()
-                .filter(option -> !rightParaFilterOptionCodes.contains(option.getCode()))
-                .map(option -> option.getIsSelectedVar())
-                .toArray(Literal[]::new);
-        // 当rightNotCond为true时，右侧集合外至少一个被选中；当为false时，右侧集合外全部不被选中
-        model.addBoolOr(rightNotSelected).onlyEnforceIf(rightNotCond);
-        model.addBoolAnd(Arrays.stream(rightNotSelected).map(Literal::not).toArray(Literal[]::new))
-                .onlyEnforceIf(rightNotCond.not());
+        BoolVar rightNotCond = createNotSelectedCondition(ruleCode, rightParaVar, rightParaFilterOptionCodes,
+                "rightNotCond");
 
         // 实现Incompatible双向关系：
         // 正向1.1：如果左侧条件为true，则右侧条件必须为false（右侧非条件必须为true）
@@ -944,5 +855,72 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      */
     protected List<String> listOf(String... codes) {
         return Arrays.asList(codes);
+    }
+
+    /**
+     * 为参数变量添加"确保只有一个选项被选中"的约束
+     * 
+     * @param paraVar 参数变量
+     */
+    private void addExactlyOneConstraint(ParaVar paraVar) {
+        model.addExactlyOne(paraVar.getOptionSelectVars().values().stream()
+                .map(option -> option.getIsSelectedVar())
+                .toArray(BoolVar[]::new));
+    }
+
+    /**
+     * 创建"集合中至少一个被选中"的条件变量和约束
+     * 
+     * @param ruleCode          规则代码
+     * @param paraVar           参数变量
+     * @param filterOptionCodes 过滤的选项代码列表
+     * @param conditionSuffix   条件后缀（如"leftCond"、"rightCond"）
+     * @return 条件变量
+     */
+    private BoolVar createSelectedCondition(String ruleCode, ParaVar paraVar,
+            List<String> filterOptionCodes, String conditionSuffix) {
+        // 定义条件变量
+        BoolVar condition = newBoolVar(f("%s_%s", ruleCode, conditionSuffix));
+
+        // 获取选中的选项
+        Literal[] selected = paraVar.getOptionSelectVars().values().stream()
+                .filter(option -> filterOptionCodes.contains(option.getCode()))
+                .map(option -> option.getIsSelectedVar())
+                .toArray(Literal[]::new);
+
+        // 当条件为true时，集合中至少一个被选中；当为false时，集合全部不被选中
+        model.addBoolOr(selected).onlyEnforceIf(condition);
+        model.addBoolAnd(Arrays.stream(selected).map(Literal::not).toArray(Literal[]::new))
+                .onlyEnforceIf(condition.not());
+
+        return condition;
+    }
+
+    /**
+     * 创建"集合外至少一个被选中"的条件变量和约束
+     * 
+     * @param ruleCode          规则代码
+     * @param paraVar           参数变量
+     * @param filterOptionCodes 过滤的选项代码列表（这些选项不在集合内）
+     * @param conditionSuffix   条件后缀（如"leftNotCond"、"rightNotCond"）
+     * @return 条件变量
+     */
+    private BoolVar createNotSelectedCondition(String ruleCode, ParaVar paraVar,
+            List<String> filterOptionCodes, String conditionSuffix) {
+        // 定义条件变量
+        BoolVar condition = newBoolVar(f("%s_%s", ruleCode, conditionSuffix));
+
+        // 获取集合外选中的选项
+        Literal[] notSelected = paraVar.getOptionSelectVars().values().stream()
+                .filter(option -> !filterOptionCodes.contains(option.getCode()))
+                .map(option -> option.getIsSelectedVar())
+                .toArray(Literal[]::new);
+
+        // 当条件为true时，集合外至少一个被选中；当为false时，集合外全部不被选中
+        model.addBoolOr(notSelected).onlyEnforceIf(condition);
+        model.addBoolAnd(Arrays.stream(notSelected).map(Literal::not).toArray(Literal[]::new))
+                .onlyEnforceIf(condition.not());
+
+        return condition;
     }
 }
