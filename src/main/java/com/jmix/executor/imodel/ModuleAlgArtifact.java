@@ -23,6 +23,11 @@ public class ModuleAlgArtifact {
     private Long id;
 
     /**
+     * 模块代码
+     */
+    private String moduleCode;
+
+    /**
      * 算法制品包名，例如：TShirtConstraint.jar
      */
     private String fileName;

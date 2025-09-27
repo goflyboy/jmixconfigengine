@@ -1,5 +1,6 @@
 package com.jmix.executor.impl;
 
+import com.jmix.executor.imodel.ConstraintConfig;
 import com.jmix.executor.imodel.ModuleAlgArtifact;
 import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
 import com.jmix.executor.omodel.AlgLoaderException;
@@ -28,9 +29,7 @@ import java.util.jar.JarFile;
 @Slf4j
 public class ModuleAlgClassLoader extends ClassLoader {
 
-    private final boolean isAttachedDebug;
-
-    private final String rootFilePath;
+    private ConstraintConfig config;
 
     private String constraintRuleClassName;
 
@@ -46,36 +45,30 @@ public class ModuleAlgClassLoader extends ClassLoader {
      * @param isAttachedDebug 是否附加调试信息
      * @param rootFilePath    根文件路径
      */
-    public ModuleAlgClassLoader(boolean isAttachedDebug, String rootFilePath) {
-        this.isAttachedDebug = isAttachedDebug;
-        this.rootFilePath = rootFilePath;
+    public ModuleAlgClassLoader(ConstraintConfig config, ModuleAlgArtifact algArtifact) {
+        this.config = config;
+        this.algArtifact = algArtifact;
     }
 
     /**
      * 初始化模块算法类加载器
-     * 
-     * @param moduleCode  模块代码
-     * @param algArtifact 算法制品
      */
-    public void init(String moduleCode, ModuleAlgArtifact algArtifact) {
-        this.algArtifact = algArtifact;
-        if (algArtifact != null) {
-            // 构建完整的类名，支持内部类场景
-            StringBuilder classNameBuilder = new StringBuilder();
-            // 添加包名和类名
-            classNameBuilder.append(algArtifact.getPackageName()).append(".");
-            // 如果有父类名称，先添加父类
-            if (algArtifact.getParentClassName() != null
-                    && !algArtifact.getParentClassName().isEmpty()) {
-                classNameBuilder.append(algArtifact.getParentClassName()).append("$");
-            }
-            classNameBuilder.append(moduleCode).append("Constraint");
-            this.constraintRuleClassName = classNameBuilder.toString();
+    public void init() {
+        // 构建完整的类名，支持内部类场景
+        StringBuilder classNameBuilder = new StringBuilder();
+        // 添加包名和类名
+        classNameBuilder.append(algArtifact.getPackageName()).append(".");
+        // 如果有父类名称，先添加父类
+        if (algArtifact.getParentClassName() != null
+                && !algArtifact.getParentClassName().isEmpty()) {
+            classNameBuilder.append(algArtifact.getParentClassName()).append("$");
         }
+        classNameBuilder.append(algArtifact.getModuleCode()).append("Constraint");
+        this.constraintRuleClassName = classNameBuilder.toString();
 
         // 如果isAttachedDebug=false，从rootFilePath读取class信息
-        if (!isAttachedDebug && rootFilePath != null && !rootFilePath.isEmpty()) {
-            initJarClassLoader(moduleCode);
+        if (!config.isAttachedDebug()) {
+            initJarClassLoader();
         }
     }
 
@@ -84,11 +77,13 @@ public class ModuleAlgClassLoader extends ClassLoader {
      * 
      * @param moduleCode 模块代码
      */
-    private void initJarClassLoader(String moduleCode) {
+    private void initJarClassLoader() {
         try {
             // 构建模块文件目录路径
-            String moduleFileDir = rootFilePath + File.separator + "cp-" + moduleCode + "-" + algArtifact.getId();
-            String classJarFile = moduleFileDir + File.separator + "cp-" + moduleCode + "-" + algArtifact.getId()
+            String moduleFileDir = config.getRootFilePath() + File.separator + "cp-" + algArtifact.getModuleCode()
+                    + "-" + algArtifact.getId();
+            String classJarFile = moduleFileDir + File.separator + "cp-" + algArtifact.getModuleCode() + "-"
+                    + algArtifact.getId()
                     + ".jar";
 
             log.info("Loading classes from jar: {}", classJarFile);
@@ -126,6 +121,7 @@ public class ModuleAlgClassLoader extends ClassLoader {
                     .forEach(entry -> {
                         try {
                             String className = entry.getName().replace("/", ".").replace(".class", "");
+                            className = algArtifact.getPackageName() + "." + className;
                             log.info("Processing jar entry: {} -> className: {}", entry.getName(), className);
                             loadClassFromJar(className, jarFile, entry);
                         } catch (Throwable e) {
@@ -205,7 +201,7 @@ public class ModuleAlgClassLoader extends ClassLoader {
     @Override
     public Class<?> loadClass(String name) {
         try {
-            if (isAttachedDebug) {
+            if (config.isAttachedDebug()) {
                 // 调试模式：使用现有逻辑
                 return super.loadClass(name);
             } else {
@@ -245,9 +241,9 @@ public class ModuleAlgClassLoader extends ClassLoader {
     public String toString() {
         return "ModuleAlgClassLoader{"
                 + "isAttachedDebug="
-                + isAttachedDebug
+                + config.isAttachedDebug()
                 + ", rootFilePath='"
-                + rootFilePath
+                + config.getRootFilePath()
                 + '\''
                 + ", constraintRuleClassName='"
                 + constraintRuleClassName

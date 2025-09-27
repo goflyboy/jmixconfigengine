@@ -83,9 +83,9 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
             }
             moduleMap.put(m.getId(), m);
             m.init();
-            ModuleAlgClassLoader loader = new ModuleAlgClassLoader(config != null && config.isAttachedDebug(),
-                    config != null ? config.getRootFilePath() : null);
-            loader.init(m.getCode(), m.getAlg());
+            ModuleAlgClassLoader loader = new ModuleAlgClassLoader(config,
+                    m.getAlg());
+            loader.init();
             moduleAlgClassLoaderMap.put(m.getId(), loader);
         }
         log.info("Added modules: {}", modules.length);

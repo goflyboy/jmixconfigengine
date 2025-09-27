@@ -487,6 +487,7 @@ public final class ModuleGenneratorByAnno {
     private static ModuleAlgArtifact buildAlg(Module module, Class<?> moduleAlgClazz) {
         ModuleAlgArtifact alg = new ModuleAlgArtifact();
         alg.setId(module.getId());
+        alg.setModuleCode(module.getCode());
         alg.setFileName(moduleAlgClazz.getName());
         alg.setPackageName(moduleAlgClazz.getPackage().getName());
 
