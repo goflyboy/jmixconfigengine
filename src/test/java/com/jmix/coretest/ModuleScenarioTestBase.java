@@ -17,6 +17,7 @@ import com.jmix.executor.omodel.ParaInst;
 import com.jmix.executor.omodel.PartInst;
 import com.jmix.executor.omodel.Result;
 import com.jmix.tool.impl.ModuleGenneratorByAnno;
+import com.jmix.tool.impl.ModulePacker;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -129,6 +131,45 @@ public abstract class ModuleScenarioTestBase {
         Module tempModule = buildModule(getConstraintAlgClazz());
         ModuleConstraintExecutor.INST.addModule(tempModule.getId(), tempModule);
         setModule(tempModule);
+    }
+
+    /**
+     * 初始化测试环境（打包模式）
+     * 
+     * @param isAttachedDebug 是否附加调试信息
+     */
+    protected void init(boolean isAttachedDebug) {
+        // 生成临时资源路径
+        setTempResourcePath(CommHelper.createTempPath(getConstraintAlgClazz()));
+
+        // 使用单例访问
+        ConstraintConfig config = new ConstraintConfig();
+        config.setAttachedDebug(isAttachedDebug);
+        config.setRootFilePath(getTempResourcePath());
+        config.setLogFilePath(getTempResourcePath());
+        config.setLogModelProto(true);
+        beforeInitConfig(config);
+        ModuleConstraintExecutor.INST.init(config);
+        setCfg(config);
+
+        if (isAttachedDebug) {
+            // 调试模式：直接加载class，和现有流程一样
+            Module tempModule = buildModule(getConstraintAlgClazz());
+            ModuleConstraintExecutor.INST.addModule(tempModule.getId(), tempModule);
+            setModule(tempModule);
+        } else {
+            // 打包模式
+            String rootFilePath = System.getProperty("user.dir") + File.separator + ".." + File.separator + "cproot";
+            Module tempModule = ModuleGenneratorByAnno.buildModule(getConstraintAlgClazz());
+
+            // 调用ModulePacker.pack进行打包
+            ModulePacker packer = new ModulePacker();
+            String packOutputDir = packer.pack(tempModule, getConstraintAlgClazz(), rootFilePath);
+            log.info("Module packed to: {}", packOutputDir);
+
+            ModuleConstraintExecutor.INST.addModule(tempModule.getId(), tempModule);
+            setModule(tempModule);
+        }
     }
 
     /**

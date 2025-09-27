@@ -4,8 +4,20 @@ import com.jmix.executor.imodel.ModuleAlgArtifact;
 import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
 import com.jmix.executor.omodel.AlgLoaderException;
 
+import lombok.extern.slf4j.Slf4j;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 /**
  * 模块算法类加载器
@@ -13,6 +25,7 @@ import java.util.Map;
  * 
  * @since 2025-09-22
  */
+@Slf4j
 public class ModuleAlgClassLoader extends ClassLoader {
 
     private final boolean isAttachedDebug;
@@ -24,6 +37,8 @@ public class ModuleAlgClassLoader extends ClassLoader {
     private final Map<String, Class<?>> classMap = new HashMap<>();
 
     private ModuleAlgArtifact algArtifact;
+
+    private URLClassLoader jarClassLoader;
 
     /**
      * 构造函数
@@ -57,6 +72,106 @@ public class ModuleAlgClassLoader extends ClassLoader {
             classNameBuilder.append(moduleCode).append("Constraint");
             this.constraintRuleClassName = classNameBuilder.toString();
         }
+
+        // 如果isAttachedDebug=false，从rootFilePath读取class信息
+        if (!isAttachedDebug && rootFilePath != null && !rootFilePath.isEmpty()) {
+            initJarClassLoader(moduleCode);
+        }
+    }
+
+    /**
+     * 初始化jar包类加载器
+     * 
+     * @param moduleCode 模块代码
+     */
+    private void initJarClassLoader(String moduleCode) {
+        try {
+            // 构建模块文件目录路径
+            String moduleFileDir = rootFilePath + File.separator + "cp-" + moduleCode + "-" + algArtifact.getId();
+            String classJarFile = moduleFileDir + File.separator + "cp-" + moduleCode + "-" + algArtifact.getId()
+                    + ".jar";
+
+            log.info("Loading classes from jar: {}", classJarFile);
+
+            // 检查jar文件是否存在
+            Path jarPath = Paths.get(classJarFile);
+            if (!Files.exists(jarPath)) {
+                throw new AlgLoaderException("Jar file not found: " + classJarFile);
+            }
+
+            // 创建URLClassLoader加载jar包
+            URL jarUrl = jarPath.toUri().toURL();
+            jarClassLoader = new URLClassLoader(new URL[] { jarUrl }, this.getClass().getClassLoader());
+
+            // 预加载所有class文件
+            preloadClassesFromJar(classJarFile);
+
+            log.info("Jar class loader initialized successfully");
+
+        } catch (Exception e) {
+            log.error("Failed to initialize jar class loader", e);
+            throw new AlgLoaderException("Failed to initialize jar class loader: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 从jar包预加载所有class文件
+     * 
+     * @param jarFilePath jar文件路径
+     */
+    private void preloadClassesFromJar(String jarFilePath) {
+        try (JarFile jarFile = new JarFile(jarFilePath)) {
+            jarFile.stream()
+                    .filter(entry -> entry.getName().endsWith(".class"))
+                    .forEach(entry -> {
+                        try {
+                            String className = entry.getName().replace("/", ".").replace(".class", "");
+                            loadClassFromJar(className, jarFile, entry);
+                        } catch (Exception e) {
+                            log.warn("Failed to preload class: {}", entry.getName(), e);
+                        }
+                    });
+        } catch (IOException e) {
+            log.error("Failed to read jar file: {}", jarFilePath, e);
+            throw new AlgLoaderException("Failed to read jar file: " + jarFilePath, e);
+        }
+    }
+
+    /**
+     * 从jar包加载单个class文件
+     * 
+     * @param className 类名
+     * @param jarFile   jar文件
+     * @param entry     jar条目
+     */
+    private void loadClassFromJar(String className, JarFile jarFile, JarEntry entry) {
+        try (InputStream inputStream = jarFile.getInputStream(entry)) {
+            byte[] classBytes = readAllBytes(inputStream);
+            Class<?> clazz = defineClass(className, classBytes, 0, classBytes.length);
+            classMap.put(className, clazz);
+            log.debug("Loaded class from jar: {}", className);
+        } catch (IOException e) {
+            log.warn("Failed to load class from jar: {}", className, e);
+        }
+    }
+
+    /**
+     * 读取InputStream的所有字节
+     * 
+     * @param inputStream 输入流
+     * @return 字节数组
+     * @throws IOException IO异常
+     */
+    private byte[] readAllBytes(InputStream inputStream) throws IOException {
+        java.io.ByteArrayOutputStream buffer = new java.io.ByteArrayOutputStream();
+        int nRead;
+        byte[] data = new byte[1024];
+
+        while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
+            buffer.write(data, 0, nRead);
+        }
+
+        return buffer.toByteArray();
     }
 
     /**
@@ -89,10 +204,39 @@ public class ModuleAlgClassLoader extends ClassLoader {
     @Override
     public Class<?> loadClass(String name) {
         try {
-            // : support jar loading by algArtifact and rootFilePath when not attached debug
-            return super.loadClass(name);
+            if (isAttachedDebug) {
+                // 调试模式：使用现有逻辑
+                return super.loadClass(name);
+            } else {
+                // 打包模式：从预加载的class信息加载
+                Class<?> clazz = classMap.get(name);
+                if (clazz != null) {
+                    return clazz;
+                }
+
+                // 如果classMap中没有，尝试使用jarClassLoader加载
+                if (jarClassLoader != null) {
+                    return jarClassLoader.loadClass(name);
+                }
+
+                throw new ClassNotFoundException("Class not found: " + name);
+            }
         } catch (ClassNotFoundException e) {
             throw new AlgLoaderException("Class not found: " + name, e);
+        }
+    }
+
+    /**
+     * 清理资源
+     */
+    public void cleanup() {
+        if (jarClassLoader != null) {
+            try {
+                jarClassLoader.close();
+                log.debug("Jar class loader closed");
+            } catch (IOException e) {
+                log.warn("Failed to close jar class loader", e);
+            }
         }
     }
 
