@@ -26,6 +26,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -539,6 +541,14 @@ public final class ModuleGenneratorByAnno {
     private static void saveToFile(Module module, String resourcePath) {
         String fileName = module.getCode() + ".base.json";
         String filePath = resourcePath + File.separator + fileName;
+
+        // 标准化路径，解决Windows路径问题
+        try {
+            Path normalizedPath = Paths.get(filePath).normalize();
+            filePath = normalizedPath.toString();
+        } catch (Exception e) {
+            log.error("Failed to normalize path: {}, using original path", filePath);
+        }
 
         try {
             ModuleUtils.toJsonFile(module, filePath);

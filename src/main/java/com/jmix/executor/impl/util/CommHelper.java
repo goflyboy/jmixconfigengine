@@ -20,7 +20,7 @@ public class CommHelper {
      */
     public static String createTempPath(Class<?> constraintAlgClazz) {
         // 生成临时资源路径
-        String tempPath = getResourcePath(constraintAlgClazz) + "/tempResource";
+        String tempPath = getResourcePath(constraintAlgClazz) + File.separator + "tempResource";
         createDirectory(tempPath);
         return tempPath;
     }
