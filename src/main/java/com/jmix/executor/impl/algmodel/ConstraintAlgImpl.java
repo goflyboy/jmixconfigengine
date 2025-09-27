@@ -247,7 +247,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @throws AlgLoaderException 异常
      */
     private void executeRuleMethod(String ruleCode, Method method) {
-        if (method != null) {
+        if (method == null) {
             log.error("Rule method not found for execution: " + ruleCode);
             throw new AlgLoaderException("Rule method not found for execution: " + ruleCode);
         }
