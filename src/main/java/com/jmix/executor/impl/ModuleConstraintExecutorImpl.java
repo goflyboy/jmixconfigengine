@@ -6,6 +6,7 @@ import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.rule.RefProgObjSchema;
 import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
 import com.jmix.executor.impl.util.Pair;
+import com.jmix.executor.omodel.AlgExecutorException;
 import com.jmix.executor.omodel.AlgLoaderException;
 import com.jmix.executor.omodel.ExtensibleProcess;
 import com.jmix.executor.omodel.InferParasPostProcess;
@@ -15,6 +16,7 @@ import com.jmix.executor.omodel.ParaInst;
 import com.jmix.executor.omodel.PartInst;
 import com.jmix.executor.omodel.Result;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.google.ortools.sat.CpModel;
@@ -59,11 +61,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
     public final Result<Void> fini() {
         // 销毁所有扩展处理器
         for (ExtensibleProcess process : extensibleProcesses) {
-            try {
-                process.destroy();
-            } catch (Exception e) {
-                log.warn("Failed to destroy extensible process: {}", process.getProcessName(), e);
-            }
+            process.destroy();
         }
         extensibleProcesses.clear();
         moduleAlgClassLoaderMap.clear();
@@ -83,8 +81,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
             }
             moduleMap.put(m.getId(), m);
             m.init();
-            ModuleAlgClassLoader loader = new ModuleAlgClassLoader(config,
-                    m.getAlg());
+            ModuleAlgClassLoader loader = ModuleAlgClassLoader.newInstance(config, m.getAlg());
             loader.init();
             moduleAlgClassLoaderMap.put(m.getId(), loader);
         }
@@ -143,7 +140,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
             solutions = executePostProcess(module, solutions);
 
             return Result.success(solutions);
-        } catch (Exception ex) {
+        } catch (AlgLoaderException | AlgExecutorException ex) {
             log.error("Failed to infer paras", ex);
             return Result.failed("exception: " + ex.getMessage());
         }
@@ -154,29 +151,20 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
         if (eProcess == null) {
             return Result.failed("ExtensibleProcess is null");
         }
-
         if (extensibleProcesses.contains(eProcess)) {
             log.warn("ExtensibleProcess already registered: {}", eProcess.getProcessName());
             return Result.success(null);
         }
-
-        try {
-            Result<Void> initResult = eProcess.init();
-            if (initResult.getCode() != Result.SUCCESS) {
-                return Result.failed("Failed to initialize extensible process: " + initResult.getMessage());
-            }
-
-            extensibleProcesses.add(eProcess);
-            // 按优先级排序
-            extensibleProcesses.sort(Comparator.comparingInt(ExtensibleProcess::getPriority));
-
-            log.info("Registered extensible process: {} with priority: {}",
-                    eProcess.getProcessName(), eProcess.getPriority());
-            return Result.success(null);
-        } catch (Exception e) {
-            log.error("Failed to register extensible process: {}", eProcess.getProcessName(), e);
-            return Result.failed("Exception: " + e.getMessage());
+        Result<Void> initResult = eProcess.init();
+        if (initResult.getCode() != Result.SUCCESS) {
+            return Result.failed("Failed to initialize extensible process: " + initResult.getMessage());
         }
+        extensibleProcesses.add(eProcess);
+        // 按优先级排序
+        extensibleProcesses.sort(Comparator.comparingInt(ExtensibleProcess::getPriority));
+        log.info("Registered extensible process: {} with priority: {}",
+                eProcess.getProcessName(), eProcess.getPriority());
+        return Result.success(null);
     }
 
     @Override
@@ -184,21 +172,14 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
         if (eProcess == null) {
             return Result.failed("ExtensibleProcess is null");
         }
-
         if (!extensibleProcesses.contains(eProcess)) {
             log.warn("ExtensibleProcess not registered: {}", eProcess.getProcessName());
             return Result.success(null);
         }
-
-        try {
-            eProcess.destroy();
-            extensibleProcesses.remove(eProcess);
-            log.info("Unregistered extensible process: {}", eProcess.getProcessName());
-            return Result.success(null);
-        } catch (Exception e) {
-            log.error("Failed to unregister extensible process: {}", eProcess.getProcessName(), e);
-            return Result.failed("Exception: " + e.getMessage());
-        }
+        eProcess.destroy();
+        extensibleProcesses.remove(eProcess);
+        log.info("Unregistered extensible process: {}", eProcess.getProcessName());
+        return Result.success(null);
     }
 
     /**
@@ -218,10 +199,10 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
      * @param req    参数反推请求
      * @return 初始化完成的约束算法实现
      * @throws AlgLoaderException 当算法加载器未找到时抛出
-     * @throws Exception          当创建算法实例时抛出
+     * @throws AlgLoaderException 当创建算法实例时抛出
      */
     private ConstraintAlgImpl initConstraintModel(Module module, InferParasReq req)
-            throws AlgLoaderException, Exception {
+            throws AlgLoaderException, AlgLoaderException {
         // 加载算法类
         ModuleAlgClassLoader loader = getModuleClassLoader(module.getId());
         if (loader == null) {
@@ -360,22 +341,14 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
      */
     private List<ModuleInst> applyPostProcess(Module module, List<ModuleInst> currentResult,
             InferParasPostProcess postProcess) {
-        try {
-            Result<List<ModuleInst>> processResult = postProcess.postProcess(module, currentResult);
-
-            if (processResult.getCode() != Result.SUCCESS || processResult.getData() == null) {
-                log.warn("Post process failed: {}, message: {}",
-                        postProcess.getClass().getSimpleName(), processResult.getMessage());
-                return currentResult;
-            }
-
-            log.info("Applied post process: {} successfully", postProcess.getClass().getSimpleName());
-            return processResult.getData();
-
-        } catch (Exception e) {
-            log.error("Exception in post process: {}", postProcess.getClass().getSimpleName(), e);
+        Result<List<ModuleInst>> processResult = postProcess.postProcess(module, currentResult);
+        if (processResult.getCode() != Result.SUCCESS || processResult.getData() == null) {
+            log.warn("Post process failed: {}, message: {}",
+                    postProcess.getClass().getSimpleName(), processResult.getMessage());
             return currentResult;
         }
+        log.info("Applied post process: {} successfully", postProcess.getClass().getSimpleName());
+        return processResult.getData();
     }
 
     /**
@@ -389,7 +362,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
             ObjectMapper mapper = new ObjectMapper();
             mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
             return mapper.writeValueAsString(inst);
-        } catch (Exception e) {
+        } catch (JsonProcessingException e) {
             return "{\"error\": \"Serialization failed: " + e.getMessage() + "\"}";
         }
     }

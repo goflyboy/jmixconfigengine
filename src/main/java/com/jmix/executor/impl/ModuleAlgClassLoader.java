@@ -16,6 +16,8 @@ import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -251,5 +253,17 @@ public class ModuleAlgClassLoader extends ClassLoader {
                 + ", algArtifact="
                 + algArtifact
                 + '}';
+    }
+
+    /**
+     * 创建模块算法类加载器实例, 安全访问
+     * 
+     * @param config      配置
+     * @param algArtifact 算法制品
+     * @return 模块算法类加载器实例
+     */
+    public static ModuleAlgClassLoader newInstance(ConstraintConfig config, ModuleAlgArtifact algArtifact) {
+        return AccessController.doPrivileged(
+                (PrivilegedAction<ModuleAlgClassLoader>) () -> new ModuleAlgClassLoader(config, algArtifact));
     }
 }

@@ -128,7 +128,7 @@ final public class ModuleUtils {
         try {
             fromJsonFile(jsonFileName);
             return true;
-        } catch (Exception e) {
+        } catch (IOException e) {
             log.warn("JSON file validation failed: {}", e.getMessage());
             return false;
         }

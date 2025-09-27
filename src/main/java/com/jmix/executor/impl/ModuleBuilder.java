@@ -13,13 +13,10 @@ import java.util.Map;
  * 统一模块构建器，支持流式创建各种模型对象
  * 减少类的数量，提供统一的构建接口
  * 
- * @author JMix Config Engine
+ * @author Config Engine
  * @since 2025-09-22
  */
 public class ModuleBuilder {
-
-    // ========== ParaOption构建器 ==========
-
     /**
      * ParaOption构建器
      */
