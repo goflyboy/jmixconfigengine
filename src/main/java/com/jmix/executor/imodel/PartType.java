@@ -1,11 +1,14 @@
 package com.jmix.executor.imodel;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * 部件类型枚举
  * 定义部件支持的类型
  * 
  * @since 2025-09-22
  */
+@Slf4j
 public enum PartType {
     ATOMIC(0, "AtomicPart"),
     CATEGORY(2, "PartCategory"),
@@ -60,6 +63,7 @@ public enum PartType {
                 return type;
             }
         }
+        log.error("Unknown part type value: {}", value);
         throw new IllegalArgumentException("Unknown part type value: " + value);
     }
 }

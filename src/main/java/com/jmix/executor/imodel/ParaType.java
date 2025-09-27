@@ -1,11 +1,14 @@
 package com.jmix.executor.imodel;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * 参数类型枚举
  * 定义参数支持的数据类型
  * 
  * @since 2025-09-22
  */
+@Slf4j
 public enum ParaType {
     ENUM(0, "EnumType"),
     BOOLEAN(1, "Boolean"),
@@ -66,6 +69,7 @@ public enum ParaType {
                 return type;
             }
         }
+        log.error("Unknown para type value: {}", value);
         throw new IllegalArgumentException("Unknown para type value: " + value);
     }
 }

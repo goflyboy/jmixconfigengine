@@ -1,11 +1,14 @@
 package com.jmix.executor.imodel;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * 模块类型枚举
  * 定义模块支持的类型
  * 
  * @since 2025-09-22
  */
+@Slf4j
 public enum ModuleType {
     GENERAL(1, "General"),
     SET(4, "SET"),
@@ -60,6 +63,7 @@ public enum ModuleType {
                 return type;
             }
         }
+        log.error("Unknown module type value: {}", value);
         throw new IllegalArgumentException("Unknown module type value: " + value);
     }
 }
