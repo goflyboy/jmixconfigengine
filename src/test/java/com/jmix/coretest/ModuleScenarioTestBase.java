@@ -113,53 +113,32 @@ public abstract class ModuleScenarioTestBase {
     }
 
     /**
-     * 初始化测试环境
+     * 初始化测试环境（打包模式）
+     * 
      */
     protected void init() {
         // 生成临时资源路径
         setTempResourcePath(CommHelper.createTempPath(getConstraintAlgClazz()));
+
         // 使用单例访问
         ConstraintConfig config = new ConstraintConfig();
         config.setAttachedDebug(true); // 测试环境直接使用当前classpath加载
-        config.setRootFilePath(getTempResourcePath());
+        // config.setRootFilePath(getTempResourcePath());
         config.setLogFilePath(getTempResourcePath());
         config.setLogModelProto(true);
         beforeInitConfig(config);
+        String rootFilePath = System.getProperty("user.dir") + File.separator + ".." + File.separator + "cproot";
+        config.setRootFilePath(rootFilePath);
         ModuleConstraintExecutor.INST.init(config);
         setCfg(config);
 
-        Module tempModule = buildModule(getConstraintAlgClazz());
-        ModuleConstraintExecutor.INST.addModule(tempModule.getId(), tempModule);
-        setModule(tempModule);
-    }
-
-    /**
-     * 初始化测试环境（打包模式）
-     * 
-     * @param isAttachedDebug 是否附加调试信息
-     */
-    protected void init(boolean isAttachedDebug) {
-        // 生成临时资源路径
-        setTempResourcePath(CommHelper.createTempPath(getConstraintAlgClazz()));
-
-        // 使用单例访问
-        ConstraintConfig config = new ConstraintConfig();
-        config.setAttachedDebug(isAttachedDebug);
-        config.setRootFilePath(getTempResourcePath());
-        config.setLogFilePath(getTempResourcePath());
-        config.setLogModelProto(true);
-        beforeInitConfig(config);
-        ModuleConstraintExecutor.INST.init(config);
-        setCfg(config);
-
-        if (isAttachedDebug) {
+        if (getCfg().isAttachedDebug()) {
             // 调试模式：直接加载class，和现有流程一样
             Module tempModule = buildModule(getConstraintAlgClazz());
             ModuleConstraintExecutor.INST.addModule(tempModule.getId(), tempModule);
             setModule(tempModule);
         } else {
             // 打包模式
-            String rootFilePath = System.getProperty("user.dir") + File.separator + ".." + File.separator + "cproot";
             Module tempModule = ModuleGenneratorByAnno.buildModule(getConstraintAlgClazz());
 
             // 调用ModulePacker.pack进行打包

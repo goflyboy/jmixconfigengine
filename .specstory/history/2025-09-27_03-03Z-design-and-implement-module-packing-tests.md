@@ -179,6 +179,1672 @@ Tool use: **write**
 
 ---
 
+Tool use: **todo_write**
+
+## Todo List
+
+- [x] 分析现有代码结构，了解ModuleGenneratorByAnno、ModuleAlgClassLoader等关键类
+- [x] 创建ModulePacker类，实现打包功能
+- [-] 优化ModuleAlgClassLoader，支持从jar包加载class
+- [ ] 优化ModuleScenarioTestBase，支持打包模式
+- [ ] 创建SingleFilePackerTest测试用例
+- [ ] 创建MultiFilePackerTest测试用例
+
+---
+
+现在优化ModuleAlgClassLoader，支持从jar包加载class：
+
+
+---
+
+Tool use: **search_replace**
+
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/ModuleAlgClassLoader.java</summary>
+
+**Chunk 1**
+Lines added: 12, lines removed: undefined
+
+```diff
+@@ -5,6 +5,18 @@
+  import com.jmix.executor.omodel.AlgLoaderException;
+  
++ import lombok.extern.slf4j.Slf4j;
++ 
++ import java.io.File;
++ import java.io.IOException;
++ import java.io.InputStream;
++ import java.net.URL;
++ import java.net.URLClassLoader;
++ import java.nio.file.Files;
++ import java.nio.file.Path;
++ import java.nio.file.Paths;
+  import java.util.HashMap;
+  import java.util.Map;
++ import java.util.jar.JarEntry;
++ import java.util.jar.JarFile;
+  
+  /**
+```
+
+**Chunk 2**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -14,4 +26,5 @@
+   * @since 2025-09-22
+   */
++ @Slf4j
+  public class ModuleAlgClassLoader extends ClassLoader {
+  
+```
+
+**Chunk 3**
+Lines added: 2, lines removed: undefined
+
+```diff
+@@ -25,4 +38,6 @@
+  
+      private ModuleAlgArtifact algArtifact;
++     
++     private URLClassLoader jarClassLoader;
+  
+      /**
+```
+
+</details>
+
+---
+
+Tool use: **search_replace**
+
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/ModuleAlgClassLoader.java</summary>
+
+**Chunk 1**
+Lines added: 80, lines removed: undefined
+
+```diff
+@@ -73,4 +73,84 @@
+              this.constraintRuleClassName = classNameBuilder.toString();
+          }
++         
++         // 如果isAttachedDebug=false，从rootFilePath读取class信息
++         if (!isAttachedDebug && rootFilePath != null && !rootFilePath.isEmpty()) {
++             initJarClassLoader(moduleCode);
++         }
++     }
++     
++     /**
++      * 初始化jar包类加载器
++      * 
++      * @param moduleCode 模块代码
++      */
++     private void initJarClassLoader(String moduleCode) {
++         try {
++             // 构建模块文件目录路径
++             String moduleFileDir = rootFilePath + File.separator + "cp-" + moduleCode + "-" + algArtifact.getId();
++             String classJarFile = moduleFileDir + File.separator + "cp-" + moduleCode + "-" + algArtifact.getId() + ".jar";
++             
++             log.info("Loading classes from jar: {}", classJarFile);
++             
++             // 检查jar文件是否存在
++             Path jarPath = Paths.get(classJarFile);
++             if (!Files.exists(jarPath)) {
++                 throw new AlgLoaderException("Jar file not found: " + classJarFile);
++             }
++             
++             // 创建URLClassLoader加载jar包
++             URL jarUrl = jarPath.toUri().toURL();
++             jarClassLoader = new URLClassLoader(new URL[]{jarUrl}, this.getClass().getClassLoader());
++             
++             // 预加载所有class文件
++             preloadClassesFromJar(classJarFile);
++             
++             log.info("Jar class loader initialized successfully");
++             
++         } catch (Exception e) {
++             log.error("Failed to initialize jar class loader", e);
++             throw new AlgLoaderException("Failed to initialize jar class loader: " + e.getMessage(), e);
++         }
++     }
++     
++     /**
++      * 从jar包预加载所有class文件
++      * 
++      * @param jarFilePath jar文件路径
++      */
++     private void preloadClassesFromJar(String jarFilePath) {
++         try (JarFile jarFile = new JarFile(jarFilePath)) {
++             jarFile.stream()
++                 .filter(entry -> entry.getName().endsWith(".class"))
++                 .forEach(entry -> {
++                     try {
++                         String className = entry.getName().replace("/", ".").replace(".class", "");
++                         loadClassFromJar(className, jarFile, entry);
++                     } catch (Exception e) {
++                         log.warn("Failed to preload class: {}", entry.getName(), e);
++                     }
++                 });
++         } catch (IOException e) {
++             log.error("Failed to read jar file: {}", jarFilePath, e);
++             throw new AlgLoaderException("Failed to read jar file: " + jarFilePath, e);
++         }
++     }
++     
++     /**
++      * 从jar包加载单个class文件
++      * 
++      * @param className 类名
++      * @param jarFile   jar文件
++      * @param entry     jar条目
++      */
++     private void loadClassFromJar(String className, JarFile jarFile, JarEntry entry) {
++         try (InputStream inputStream = jarFile.getInputStream(entry)) {
++             byte[] classBytes = inputStream.readAllBytes();
++             Class<?> clazz = defineClass(className, classBytes, 0, classBytes.length);
++             classMap.put(className, clazz);
++             log.debug("Loaded class from jar: {}", className);
++         } catch (IOException e) {
++             log.warn("Failed to load class from jar: {}", className, e);
++         }
+      }
+  
+```
+
+</details>
+
+---
+
+Tool use: **search_replace**
+
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/ModuleAlgClassLoader.java</summary>
+
+**Chunk 1**
+Lines added: 17, lines removed: 2
+
+```diff
+@@ -185,6 +185,21 @@
+      public Class<?> loadClass(String name) {
+          try {
+-             // : support jar loading by algArtifact and rootFilePath when not attached debug
+-             return super.loadClass(name);
++             if (isAttachedDebug) {
++                 // 调试模式：使用现有逻辑
++                 return super.loadClass(name);
++             } else {
++                 // 打包模式：从预加载的class信息加载
++                 Class<?> clazz = classMap.get(name);
++                 if (clazz != null) {
++                     return clazz;
++                 }
++                 
++                 // 如果classMap中没有，尝试使用jarClassLoader加载
++                 if (jarClassLoader != null) {
++                     return jarClassLoader.loadClass(name);
++                 }
++                 
++                 throw new ClassNotFoundException("Class not found: " + name);
++             }
+          } catch (ClassNotFoundException e) {
+              throw new AlgLoaderException("Class not found: " + name, e);
+```
+
+</details>
+
+---
+
+现在需要添加资源清理方法：
+
+
+---
+
+Tool use: **search_replace**
+
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/ModuleAlgClassLoader.java</summary>
+
+**Chunk 1**
+Lines added: 14, lines removed: undefined
+
+```diff
+@@ -206,4 +206,18 @@
+          }
+      }
++ 
++     /**
++      * 清理资源
++      */
++     public void cleanup() {
++         if (jarClassLoader != null) {
++             try {
++                 jarClassLoader.close();
++                 log.debug("Jar class loader closed");
++             } catch (IOException e) {
++                 log.warn("Failed to close jar class loader", e);
++             }
++         }
++     }
+  
+      @Override
+```
+
+</details>
+
+---
+
+Tool use: **todo_write**
+
+## Todo List
+
+- [x] 分析现有代码结构，了解ModuleGenneratorByAnno、ModuleAlgClassLoader等关键类
+- [x] 创建ModulePacker类，实现打包功能
+- [x] 优化ModuleAlgClassLoader，支持从jar包加载class
+- [-] 优化ModuleScenarioTestBase，支持打包模式
+- [ ] 创建SingleFilePackerTest测试用例
+- [ ] 创建MultiFilePackerTest测试用例
+
+---
+
+现在优化ModuleScenarioTestBase，支持打包模式：
+
+
+---
+
+Tool use: **search_replace**
+
+
+<details><summary>Edit file: src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -18,4 +18,5 @@
+  import com.jmix.executor.omodel.Result;
+  import com.jmix.tool.impl.ModuleGenneratorByAnno;
++ import com.jmix.tool.impl.ModulePacker;
+  
+  import lombok.Data;
+```
+
+</details>
+
+---
+
+Tool use: **search_replace**
+
+
+<details><summary>Edit file: src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java</summary>
+
+**Chunk 1**
+Lines added: 40, lines removed: 1
+
+```diff
+@@ -133,5 +133,44 @@
+          setModule(tempModule);
+      }
+- 
++     
++     /**
++      * 初始化测试环境（打包模式）
++      * 
++      * @param isAttachedDebug 是否附加调试信息
++      */
++     protected void init(boolean isAttachedDebug) {
++         // 生成临时资源路径
++         setTempResourcePath(CommHelper.createTempPath(getConstraintAlgClazz()));
++         
++         // 使用单例访问
++         ConstraintConfig config = new ConstraintConfig();
++         config.setAttachedDebug(isAttachedDebug);
++         config.setRootFilePath(getTempResourcePath());
++         config.setLogFilePath(getTempResourcePath());
++         config.setLogModelProto(true);
++         beforeInitConfig(config); 
++         ModuleConstraintExecutor.INST.init(config);
++         setCfg(config);
++ 
++         if (isAttachedDebug) {
++             // 调试模式：直接加载class，和现有流程一样
++             Module tempModule = buildModule(getConstraintAlgClazz());
++             ModuleConstraintExecutor.INST.addModule(tempModule.getId(), tempModule);
++             setModule(tempModule);
++         } else {
++             // 打包模式
++             String rootFilePath = System.getProperty("user.dir") + File.separator + ".." + File.separator + "cproot";
++             Module tempModule = ModuleGenneratorByAnno.buildModule(getConstraintAlgClazz());
++             
++             // 调用ModulePacker.pack进行打包
++             ModulePacker packer = new ModulePacker();
++             String packOutputDir = packer.pack(tempModule, getConstraintAlgClazz(), rootFilePath);
++             log.info("Module packed to: {}", packOutputDir);
++             
++             ModuleConstraintExecutor.INST.addModule(tempModule.getId(), tempModule);
++             setModule(tempModule);
++         }
++     }
++ 
+      /**
+       * 初始化配置
+```
+
+</details>
+
+---
+
+需要添加File导入：
+
+
+---
+
+Tool use: **search_replace**
+
+
+<details><summary>Edit file: src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -26,4 +26,5 @@
+  import org.junit.jupiter.api.BeforeEach;
+  
++ import java.io.File;
+  import java.util.ArrayList;
+  import java.util.HashMap;
+```
+
+</details>
+
+---
+
+Tool use: **todo_write**
+
+## Todo List
+
+- [x] 分析现有代码结构，了解ModuleGenneratorByAnno、ModuleAlgClassLoader等关键类
+- [x] 创建ModulePacker类，实现打包功能
+- [x] 优化ModuleAlgClassLoader，支持从jar包加载class
+- [x] 优化ModuleScenarioTestBase，支持打包模式
+- [-] 创建SingleFilePackerTest测试用例
+- [ ] 创建MultiFilePackerTest测试用例
+
+---
+
+现在创建SingleFilePackerTest测试用例：
+
+
+---
+
+Tool use: **write**
+
+---
+
+Tool use: **todo_write**
+
+## Todo List
+
+- [x] 分析现有代码结构，了解ModuleGenneratorByAnno、ModuleAlgClassLoader等关键类
+- [x] 创建ModulePacker类，实现打包功能
+- [x] 优化ModuleAlgClassLoader，支持从jar包加载class
+- [x] 优化ModuleScenarioTestBase，支持打包模式
+- [x] 创建SingleFilePackerTest测试用例
+- [-] 创建MultiFilePackerTest测试用例
+
+---
+
+现在创建MultiFilePackerTest测试用例：
+
+
+---
+
+Tool use: **write**
+
+---
+
+Tool use: **todo_write**
+
+## Todo List
+
+- [x] 分析现有代码结构，了解ModuleGenneratorByAnno、ModuleAlgClassLoader等关键类
+- [x] 创建ModulePacker类，实现打包功能
+- [x] 优化ModuleAlgClassLoader，支持从jar包加载class
+- [x] 优化ModuleScenarioTestBase，支持打包模式
+- [x] 创建SingleFilePackerTest测试用例
+- [x] 创建MultiFilePackerTest测试用例
+
+---
+
+现在检查代码中的linter错误：
+
+
+---
+
+Tool use: **read_lints**
+
+---
+
+让我修复这些错误：
+
+
+---
+
+Tool use: **codebase_search**
+
+<details>
+                <summary>Searched codebase "CommHelper getTestResource method" • **15** results</summary>
+            
+| File | Lines |
+|------|-------|
+| `src/main/java/com/jmix/executor/impl/util/CommHelper.java` | L61 |
+| `src/test/java/com/jmix/executor/util/CommHelperTest.java` | L61 |
+| `src/test/java/com/jmix/executor/util/CommHelperTest.java` | L54-94 |
+| `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java` | L110-151 |
+| `src/test/java/com/jmix/tool/ModelHelperTool.java` | L110-163 |
+| `src/main/java/com/jmix/tool/ModelHelper.java` | L105-159 |
+| `src/test/java/com/jmix/tool/autoruletest/AnnotationRuleIntegrationTest.java` | L68-127 |
+| `src/main/java/com/jmix/tool/ModelHelper.java` | L51-114 |
+| `src/test/java/com/jmix/tool/modeltool/LLMInvokerTest.java` | L54 |
+| `src/test/java/com/jmix/tool/ModelHelperTool.java` | L47 |
+| `src/main/java/com/jmix/tool/ModelHelper.java` | L35 |
+| `src/test/java/com/jmix/tool/ModelHelperTool.java` | L42-89 |
+| `src/main/java/com/jmix/tool/ModelHelper.java` | L171-215 |
+| `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java` | L30-116 |
+| `src/test/java/com/jmix/tool/autoruletest/AnnotationRuleIntegrationTest.java` | L122-142 |
+
+</details>
+
+---
+
+我看到CommHelper中有getResourcePath方法，但没有getTestResource方法。让我修复这个问题：
+
+
+---
+
+Tool use: **search_replace**
+
+
+<details><summary>Edit file: src/main/java/com/jmix/tool/impl/ModulePacker.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -55,5 +55,5 @@
+              // 根据packageName构建全路径名
+              String packageNamePath = cpClazz.getPackage().getName().replace(".", File.separator);
+-             String inputDir = CommHelper.getTestResource(cpClazz) + File.separator + packageNamePath;
++             String inputDir = CommHelper.getResourcePath(cpClazz) + File.separator + packageNamePath;
+              
+              // 根据module的code和id在outRootDir创建这个module的子文件夹
+```
+
+</details>
+
+---
+
+Tool use: **search_replace**
+
+
+<details><summary>Edit file: src/main/java/com/jmix/tool/impl/ModulePacker.java</summary>
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -113,6 +113,6 @@
+          // 例如：com.jmix.scenario.hello.HelloConstraint (HelloConstraint extends ConstraintAlgImpl)
+          // 否则就是单文件，com.jmix.scenario.ruletest.ParaIsHiddenTest (ParaIsHiddenTest extends ModuleScenarioTestBase)
+-         return ConstraintAlgImpl.class.isAssignableFrom(cpClassName) && 
+-                !cpClassName.getSimpleName().endsWith("Test");
++         return ConstraintAlgImpl.class.isAssignableFrom(cpClassName) 
++                 && !cpClassName.getSimpleName().endsWith("Test");
+      }
+  
+```
+
+</details>
+
+---
+
+现在修复ModuleAlgClassLoader中的readAllBytes问题：
+
+
+---
+
+Tool use: **search_replace**
+
+
+<details><summary>Edit file: src/main/java/com/jmix/executor/impl/ModuleAlgClassLoader.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -146,5 +146,5 @@
+      private void loadClassFromJar(String className, JarFile jarFile, JarEntry entry) {
+          try (InputStream inputStream = jarFile.getInputStream(entry)) {
+-             byte[] classBytes = inputStream.readAllBytes();
++             byte[] classBytes = readAllBytes(inputStream);
+              Class<?> clazz = defineClass(className, classBytes, 0, classBytes.length);
+              classMap.put(className, clazz);
+```
+
+**Chunk 2**
+Lines added: 19, lines removed: undefined
+
+```diff
+@@ -154,4 +154,23 @@
+          }
+      }
++     
++     /**
++      * 读取InputStream的所有字节
++      * 
++      * @param inputStream 输入流
++      * @return 字节数组
++      * @throws IOException IO异常
++      */
++     private byte[] readAllBytes(InputStream inputStream) throws IOException {
++         java.io.ByteArrayOutputStream buffer = new java.io.ByteArrayOutputStream();
++         int nRead;
++         byte[] data = new byte[1024];
++         
++         while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
++             buffer.write(data, 0, nRead);
++         }
++         
++         return buffer.toByteArray();
++     }
+  
+      /**
+```
+
+</details>
+
+---
+
+现在修复ModuleScenarioTestBase中的空行问题：
+
+
+---
+
+Tool use: **search_replace**
+
+
+<details><summary>Edit file: src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java</summary>
+
+**Chunk 1**
+Lines added: undefined, lines removed: 1
+
+```diff
+@@ -129,5 +129,4 @@
+          setCfg(config);
+  
+-         
+          Module tempModule = buildModule(getConstraintAlgClazz());
+          ModuleConstraintExecutor.INST.addModule(tempModule.getId(), tempModule);
+```
+
+</details>
+
+---
+
+现在修复MultiFilePackerTest中的getSolution方法问题：
+
+
+---
+
+Tool use: **codebase_search**
+
+<details>
+                <summary>Searched codebase "ProgammableInstAssert getSolution method" • **15** results</summary>
+            
+| File | Lines |
+|------|-------|
+| `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java` | L195-241 |
+| `src/test/java/com/jmix/coretest/ProgammableInstAssert.java` | L55 |
+| `src/main/java/com/jmix/executor/impl/ModuleInstSolutionCallBack.java` | L68-117 |
+| `src/test/java/com/jmix/coretest/ProgammableInstAssert.java` | L47-87 |
+| `doc/参数反推求解测试框架设计文档.md` | L189-257 |
+| `src/test/java/com/jmix/coretest/ResultAssert.java` | L57 |
+| `src/test/java/com/jmix/coretest/PartInstAssert.java` | L64 |
+| `src/test/java/com/jmix/coretest/ParaInstAssert.java` | L53 |
+| `doc/参数反推求解测试框架设计文档.md` | L55-139 |
+| `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java` | L364-417 |
+| `src/main/java/com/jmix/executor/impl/algmodel/Var.java` | L76 |
+| `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java` | L239-281 |
+| `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java` | L90-135 |
+| `src/main/java/com/jmix/executor/impl/ModuleInstSolutionCallBack.java` | L21-73 |
+| `doc/参数反推求解测试框架设计文档.md` | L254-299 |
+
+</details>
+
+---
+
+我看到ProgammableInstAssert类没有getSolution方法，但有actualModuleInst字段。让我修复这个问题：
+
+
+---
+
+Tool use: **search_replace**
+
+
+<details><summary>Edit file: src/test/java/com/jmix/tool/packtest/MultiFilePackerTest.java</summary>
+
+**Chunk 1**
+Lines added: 10, lines removed: 2
+
+```diff
+@@ -212,8 +212,16 @@
+          // 验证解决方案内容一致
+          if (debugSolutionCount > 0 && packedSolutionCount > 0) {
+-             String debugColor = solutions(0).getSolution().getParas().stream()
++             // 重新获取调试模式的解决方案
++             init(true);
++             inferParas("tShirt11", 1, "color", "Red", "size", "Small");
++             String debugColor = getSolutions().get(0).getParas().stream()
+                  .filter(p -> "color".equals(p.getCode()))
+                  .findFirst().map(p -> p.getValue()).orElse("");
+-             String packedColor = solutions(0).getSolution().getParas().stream()
++             
++             // 重新获取打包模式的解决方案
++             tearDown();
++             init(false);
++             inferParas("tShirt11", 1, "color", "Red", "size", "Small");
++             String packedColor = getSolutions().get(0).getParas().stream()
+                  .filter(p -> "color".equals(p.getCode()))
+                  .findFirst().map(p -> p.getValue()).orElse("");
+```
+
+</details>
+
+---
+
+现在再次检查linter错误：
+
+
+---
+
+Tool use: **read_lints**
+
+---
+
+很好！现在让我们运行测试来验证功能是否正常工作：
+
+
+---
+
+Tool use: **run_terminal_cmd**
+
+```bash
+cd D:\01.code\mygithub\jmixconfigengine && mvn test -Dtest=SingleFilePackerTest
+```
+
+```
+PS D:\01.code\mygithub\jmixconfigengine> cd D:\01.code\mygithub\jmixconfigengine && mvn test -Dtest=SingleFilePackerTest
+所在位置 行:1 字符: 41
++ cd D:\01.code\mygithub\jmixconfigengine && mvn test -Dtest=SingleFile ...
++                                         ~~
+标记“&&”不是此版本中的有效语句分隔符。
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordEx 
+   ception
+    + FullyQualifiedErrorId : InvalidEndOfLine
+ 
+PS D:\01.code\mygithub\jmixconfigengine>
+```
+
+---
+
+Tool use: **run_terminal_cmd**
+
+```bash
+mvn test -Dtest=SingleFilePackerTest
+```
+
+```
+        at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:85)
+        at org.junit.platform.launcher.core.DelegatingLauncher.execute(DelegatingLauncher.java:47)
+        at org.apache.maven.surefire.junitplatform.LazyLauncher.execute(LazyLauncher.java:56)
+        at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.execute(JUnitPlatformProvider.java:184)
+        at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invokeAllTests(JUnitPlatformProvider.java:148)
+        at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invoke(JUnitPlatformProvider.java:122)
+        at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)
+        at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+        at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+        at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+[main] INFO com.jmix.executor.impl.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.tool.packtest.SingleFilePackerTest - Testing p0=1, p1 should be hidden in packed mode
+[main] INFO com.jmix.executor.impl.ModuleConstraintExecutorImpl - Module constraint executor initialized
+[main] INFO com.jmix.tool.impl.ModuleGenneratorByAnno - Detected inner class: com.jmix.scenario.ruletest.ParaIsHiddenTest$ParaIsHiddenConstraint, parent class: 
+com.jmix.scenario.ruletest.ParaIsHiddenTest
+[main] INFO com.jmix.tool.impl.ModulePacker - Removing existing directory: D:\01.code\mygithub\jmixconfigengine\..\cproot\cp-ParaIsHidden-123
+[main] INFO com.jmix.tool.impl.ModulePacker - Created output directory: D:\01.code\mygithub\jmixconfigengine\..\cproot\cp-ParaIsHidden-123
+[main] INFO com.jmix.executor.impl.util.ModuleUtils - Serializing Module to JSON file: D:\01.code\mygithub\jmixconfigengine\..\cproot\cp-ParaIsHidden-123\cp-ParaIsHidden-123.base.json
+[main] INFO com.jmix.executor.impl.util.ModuleUtils - Successfully serialized Module to JSON file: D:\01.code\mygithub\jmixconfigengine\..\cproot\cp-ParaIsHidden-123\cp-ParaIsHidden-123.base.json
+[main] INFO com.jmix.tool.impl.ModulePacker - Module saved to: D:\01.code\mygithub\jmixconfigengine\..\cproot\cp-ParaIsHidden-123\cp-ParaIsHidden-123.base.json 
+[main] INFO com.jmix.tool.impl.ModulePacker - Pack mode: multifile
+[main] ERROR com.jmix.tool.impl.ModulePacker - Failed to pack class jar
+java.nio.file.InvalidPathException: Illegal char <:> at index 2: /D:/01.code/mygithub/jmixconfigengine\src\test\java\com\jmix\scenario\ruletest\com\jmix\scenario\ruletest\ParaIsHiddenConstraint.class
+        at sun.nio.fs.WindowsPathParser.normalize(WindowsPathParser.java:182)   
+        at sun.nio.fs.WindowsPathParser.parse(WindowsPathParser.java:153)       
+        at sun.nio.fs.WindowsPathParser.parse(WindowsPathParser.java:77)        
+        at sun.nio.fs.WindowsPath.parse(WindowsPath.java:94)
+        at sun.nio.fs.WindowsFileSystem.getPath(WindowsFileSystem.java:255)     
+        at java.nio.file.Paths.get(Paths.java:84)
+        at com.jmix.tool.impl.ModulePacker.findClassFiles(ModulePacker.java:232)        at com.jmix.tool.impl.ModulePacker.packClassJar(ModulePacker.java:142)  
+        at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:85)
+        at com.jmix.coretest.ModuleScenarioTestBase.init(ModuleScenarioTestBase.java:167)
+        at com.jmix.tool.packtest.SingleFilePackerTest.testp0Value1p1HiddenPacked(SingleFilePackerTest.java:64)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:498)
+        at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:728)
+        at org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:60)
+        at org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:131)
+        at org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:156)
+        at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestableMethod(TimeoutExtension.java:147)
+        at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestMethod(TimeoutExtension.java:86)
+        at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(InterceptingExecutableInvoker.java:103)
+        at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.lambda$invoke$0(InterceptingExecutableInvoker.java:93)
+        at org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:106)
+        at org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:64)
+        at org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:45)
+        at org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:37)
+        at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:92)
+        at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:86)
+        at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeTestMethod$7(TestMethodTestDescriptor.java:218)
+        at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+        at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeTestMethod(TestMethodTestDescriptor.java:214)
+        at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:139)
+        at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:69)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:151)
+        at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+        at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+        at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+        at java.util.ArrayList.forEach(ArrayList.java:1257)
+        at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+        at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+        at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+        at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+        at java.util.ArrayList.forEach(ArrayList.java:1257)
+        at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+        at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+        at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+        at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+        at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.submit(SameThreadHierarchicalTestExecutorService.java:35)   
+        at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:57)
+        at org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine.execute(HierarchicalTestEngine.java:54)
+        at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:198)
+        at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:169)
+        at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:93)
+        at org.junit.platform.launcher.core.EngineExecutionOrchestrator.lambda$execute$0(EngineExecutionOrchestrator.java:58)
+        at org.junit.platform.launcher.core.EngineExecutionOrchestrator.withInterceptedStreams(EngineExecutionOrchestrator.java:141)
+        at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:57)
+        at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:103)
+        at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:85)
+        at org.junit.platform.launcher.core.DelegatingLauncher.execute(DelegatingLauncher.java:47)
+        at org.apache.maven.surefire.junitplatform.LazyLauncher.execute(LazyLauncher.java:56)
+        at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.execute(JUnitPlatformProvider.java:184)
+        at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invokeAllTests(JUnitPlatformProvider.java:148)
+        at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invoke(JUnitPlatformProvider.java:122)
+        at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)
+        at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+        at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+        at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+[main] ERROR com.jmix.tool.impl.ModulePacker - Failed to pack module
+com.jmix.executor.omodel.AlgLoaderException: Failed to pack class jar
+        at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:87)
+        at com.jmix.coretest.ModuleScenarioTestBase.init(ModuleScenarioTestBase.java:167)
+        at com.jmix.tool.packtest.SingleFilePackerTest.testp0Value1p1HiddenPacked(SingleFilePackerTest.java:64)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:498)
+        at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:728)
+        at org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:60)
+        at org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:131)
+        at org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:156)
+        at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestableMethod(TimeoutExtension.java:147)
+        at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestMethod(TimeoutExtension.java:86)
+        at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(InterceptingExecutableInvoker.java:103)
+        at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.lambda$invoke$0(InterceptingExecutableInvoker.java:93)
+        at org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:106)
+        at org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:64)
+        at org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:45)
+        at org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:37)
+        at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:92)
+        at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:86)
+        at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeTestMethod$7(TestMethodTestDescriptor.java:218)
+        at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+        at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeTestMethod(TestMethodTestDescriptor.java:214)
+        at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:139)
+        at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:69)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:151)
+        at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+        at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+        at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+        at java.util.ArrayList.forEach(ArrayList.java:1257)
+        at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+        at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+        at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+        at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+        at java.util.ArrayList.forEach(ArrayList.java:1257)
+        at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+        at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+        at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+        at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+        at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.submit(SameThreadHierarchicalTestExecutorService.java:35)   
+        at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:57)
+        at org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine.execute(HierarchicalTestEngine.java:54)
+        at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:198)
+        at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:169)
+        at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:93)
+        at org.junit.platform.launcher.core.EngineExecutionOrchestrator.lambda$execute$0(EngineExecutionOrchestrator.java:58)
+        at org.junit.platform.launcher.core.EngineExecutionOrchestrator.withInterceptedStreams(EngineExecutionOrchestrator.java:141)
+        at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:57)
+        at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:103)
+        at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:85)
+        at org.junit.platform.launcher.core.DelegatingLauncher.execute(DelegatingLauncher.java:47)
+        at org.apache.maven.surefire.junitplatform.LazyLauncher.execute(LazyLauncher.java:56)
+        at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.execute(JUnitPlatformProvider.java:184)
+        at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invokeAllTests(JUnitPlatformProvider.java:148)
+        at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invoke(JUnitPlatformProvider.java:122)
+        at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)
+        at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+        at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+        at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+[main] INFO com.jmix.executor.impl.ModuleConstraintExecutorImpl - Module constraint executor finalized
+[main] INFO com.jmix.executor.impl.ModuleConstraintExecutorImpl - Module constraint executor initialized
+[main] INFO com.jmix.tool.impl.ModuleGenneratorByAnno - Detected inner class: com.jmix.scenario.ruletest.ParaIsHiddenTest$ParaIsHiddenConstraint, parent class: 
+com.jmix.scenario.ruletest.ParaIsHiddenTest
+[main] ERROR com.jmix.tool.impl.ModuleGenneratorByAnno - Failed to normalize path: /D:/01.code/mygithub/jmixconfigengine\src\test\java\com\jmix\scenario\ruletest\tempResource\ParaIsHidden.base.json, using original path
+[main] INFO com.jmix.executor.impl.util.ModuleUtils - Serializing Module to JSON file: /D:/01.code/mygithub/jmixconfigengine\src\test\java\com\jmix\scenario\ruletest\tempResource\ParaIsHidden.base.json
+[main] ERROR com.jmix.tool.impl.ModuleGenneratorByAnno - Failed to save Module  
+java.nio.file.InvalidPathException: Illegal char <:> at index 2: /D:/01.code/mygithub/jmixconfigengine\src\test\java\com\jmix\scenario\ruletest\tempResource\ParaIsHidden.base.json
+        at sun.nio.fs.WindowsPathParser.normalize(WindowsPathParser.java:182)   
+        at sun.nio.fs.WindowsPathParser.parse(WindowsPathParser.java:153)       
+        at sun.nio.fs.WindowsPathParser.parse(WindowsPathParser.java:77)        
+        at sun.nio.fs.WindowsPath.parse(WindowsPath.java:94)
+        at sun.nio.fs.WindowsFileSystem.getPath(WindowsFileSystem.java:255)     
+        at java.nio.file.Paths.get(Paths.java:84)
+        at com.jmix.executor.impl.util.ModuleUtils.toJsonFile(ModuleUtils.java:57)
+        at com.jmix.tool.impl.ModuleGenneratorByAnno.saveToFile(ModuleGenneratorByAnno.java:554)
+        at com.jmix.tool.impl.ModuleGenneratorByAnno.build(ModuleGenneratorByAnno.java:102)
+        at com.jmix.coretest.ModuleScenarioTestBase.buildModule(ModuleScenarioTestBase.java:111)
+        at com.jmix.coretest.ModuleScenarioTestBase.init(ModuleScenarioTestBase.java:131)
+        at com.jmix.coretest.ModuleScenarioTestBase.setUp(ModuleScenarioTestBase.java:92)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:498)
+        at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:728)
+        at org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:60)
+        at org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:131)
+        at org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:156)
+        at org.junit.jupiter.engine.extension.TimeoutExtension.interceptLifecycleMethod(TimeoutExtension.java:128)
+        at org.junit.jupiter.engine.extension.TimeoutExtension.interceptBeforeEachMethod(TimeoutExtension.java:78)
+        at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(InterceptingExecutableInvoker.java:103)
+        at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.lambda$invoke$0(InterceptingExecutableInvoker.java:93)
+        at org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:106)
+        at org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:64)
+        at org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:45)
+        at org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:37)
+        at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:92)
+        at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:86)
+        at org.junit.jupiter.engine.descriptor.ClassBasedTestDescriptor.invokeMethodInExtensionContext(ClassBasedTestDescriptor.java:521)
+        at org.junit.jupiter.engine.descriptor.ClassBasedTestDescriptor.lambda$synthesizeBeforeEachMethodAdapter$23(ClassBasedTestDescriptor.java:506)
+        at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeBeforeEachMethods$3(TestMethodTestDescriptor.java:175)
+        at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeBeforeMethodsOrCallbacksUntilExceptionOccurs$6(TestMethodTestDescriptor.java:203)
+        at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+        at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeBeforeMethodsOrCallbacksUntilExceptionOccurs(TestMethodTestDescriptor.java:203)   
+        at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeBeforeEachMethods(TestMethodTestDescriptor.java:172)
+        at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:135)
+        at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:69)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:151)
+        at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+        at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+        at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+        at java.util.ArrayList.forEach(ArrayList.java:1257)
+        at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+        at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+        at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+        at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+        at java.util.ArrayList.forEach(ArrayList.java:1257)
+        at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+        at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+        at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+        at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+        at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.submit(SameThreadHierarchicalTestExecutorService.java:35)   
+        at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:57)
+        at org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine.execute(HierarchicalTestEngine.java:54)
+        at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:198)
+        at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:169)
+        at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:93)
+        at org.junit.platform.launcher.core.EngineExecutionOrchestrator.lambda$execute$0(EngineExecutionOrchestrator.java:58)
+        at org.junit.platform.launcher.core.EngineExecutionOrchestrator.withInterceptedStreams(EngineExecutionOrchestrator.java:141)
+        at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:57)
+        at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:103)
+        at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:85)
+        at org.junit.platform.launcher.core.DelegatingLauncher.execute(DelegatingLauncher.java:47)
+        at org.apache.maven.surefire.junitplatform.LazyLauncher.execute(LazyLauncher.java:56)
+        at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.execute(JUnitPlatformProvider.java:184)
+        at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invokeAllTests(JUnitPlatformProvider.java:148)
+        at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invoke(JUnitPlatformProvider.java:122)
+        at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)
+        at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+        at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+        at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+[main] INFO com.jmix.executor.impl.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.tool.packtest.SingleFilePackerTest - Testing p0=2, p2 should be hidden in packed mode
+[main] INFO com.jmix.executor.impl.ModuleConstraintExecutorImpl - Module constraint executor initialized
+[main] INFO com.jmix.tool.impl.ModuleGenneratorByAnno - Detected inner class: com.jmix.scenario.ruletest.ParaIsHiddenTest$ParaIsHiddenConstraint, parent class: 
+com.jmix.scenario.ruletest.ParaIsHiddenTest
+[main] INFO com.jmix.tool.impl.ModulePacker - Removing existing directory: D:\01.code\mygithub\jmixconfigengine\..\cproot\cp-ParaIsHidden-123
+[main] INFO com.jmix.tool.impl.ModulePacker - Created output directory: D:\01.code\mygithub\jmixconfigengine\..\cproot\cp-ParaIsHidden-123
+[main] INFO com.jmix.executor.impl.util.ModuleUtils - Serializing Module to JSON file: D:\01.code\mygithub\jmixconfigengine\..\cproot\cp-ParaIsHidden-123\cp-ParaIsHidden-123.base.json
+[main] INFO com.jmix.executor.impl.util.ModuleUtils - Successfully serialized Module to JSON file: D:\01.code\mygithub\jmixconfigengine\..\cproot\cp-ParaIsHidden-123\cp-ParaIsHidden-123.base.json
+[main] INFO com.jmix.tool.impl.ModulePacker - Module saved to: D:\01.code\mygithub\jmixconfigengine\..\cproot\cp-ParaIsHidden-123\cp-ParaIsHidden-123.base.json 
+[main] INFO com.jmix.tool.impl.ModulePacker - Pack mode: multifile
+[main] ERROR com.jmix.tool.impl.ModulePacker - Failed to pack class jar
+java.nio.file.InvalidPathException: Illegal char <:> at index 2: /D:/01.code/mygithub/jmixconfigengine\src\test\java\com\jmix\scenario\ruletest\com\jmix\scenario\ruletest\ParaIsHiddenConstraint.class
+        at sun.nio.fs.WindowsPathParser.normalize(WindowsPathParser.java:182)   
+        at sun.nio.fs.WindowsPathParser.parse(WindowsPathParser.java:153)       
+        at sun.nio.fs.WindowsPathParser.parse(WindowsPathParser.java:77)        
+        at sun.nio.fs.WindowsPath.parse(WindowsPath.java:94)
+        at sun.nio.fs.WindowsFileSystem.getPath(WindowsFileSystem.java:255)     
+        at java.nio.file.Paths.get(Paths.java:84)
+        at com.jmix.tool.impl.ModulePacker.findClassFiles(ModulePacker.java:232)        at com.jmix.tool.impl.ModulePacker.packClassJar(ModulePacker.java:142)  
+        at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:85)
+        at com.jmix.coretest.ModuleScenarioTestBase.init(ModuleScenarioTestBase.java:167)
+        at com.jmix.tool.packtest.SingleFilePackerTest.testp0Value2p2HiddenPacked(SingleFilePackerTest.java:88)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:498)
+        at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:728)
+        at org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:60)
+        at org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:131)
+        at org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:156)
+        at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestableMethod(TimeoutExtension.java:147)
+        at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestMethod(TimeoutExtension.java:86)
+        at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(InterceptingExecutableInvoker.java:103)
+        at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.lambda$invoke$0(InterceptingExecutableInvoker.java:93)
+        at org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:106)
+        at org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:64)
+        at org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:45)
+        at org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:37)
+        at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:92)
+        at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:86)
+        at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeTestMethod$7(TestMethodTestDescriptor.java:218)
+        at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+        at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeTestMethod(TestMethodTestDescriptor.java:214)
+        at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:139)
+        at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:69)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:151)
+        at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+        at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+        at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+        at java.util.ArrayList.forEach(ArrayList.java:1257)
+        at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+        at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+        at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+        at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+        at java.util.ArrayList.forEach(ArrayList.java:1257)
+        at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+        at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+        at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+        at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+        at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.submit(SameThreadHierarchicalTestExecutorService.java:35)   
+        at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:57)
+        at org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine.execute(HierarchicalTestEngine.java:54)
+        at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:198)
+        at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:169)
+        at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:93)
+        at org.junit.platform.launcher.core.EngineExecutionOrchestrator.lambda$execute$0(EngineExecutionOrchestrator.java:58)
+        at org.junit.platform.launcher.core.EngineExecutionOrchestrator.withInterceptedStreams(EngineExecutionOrchestrator.java:141)
+        at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:57)
+        at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:103)
+        at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:85)
+        at org.junit.platform.launcher.core.DelegatingLauncher.execute(DelegatingLauncher.java:47)
+        at org.apache.maven.surefire.junitplatform.LazyLauncher.execute(LazyLauncher.java:56)
+        at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.execute(JUnitPlatformProvider.java:184)
+        at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invokeAllTests(JUnitPlatformProvider.java:148)
+        at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invoke(JUnitPlatformProvider.java:122)
+        at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)
+        at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+        at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+        at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+[main] ERROR com.jmix.tool.impl.ModulePacker - Failed to pack module
+com.jmix.executor.omodel.AlgLoaderException: Failed to pack class jar
+        at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:87)
+        at com.jmix.coretest.ModuleScenarioTestBase.init(ModuleScenarioTestBase.java:167)
+        at com.jmix.tool.packtest.SingleFilePackerTest.testp0Value2p2HiddenPacked(SingleFilePackerTest.java:88)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:498)
+        at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:728)
+        at org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:60)
+        at org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:131)
+        at org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:156)
+        at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestableMethod(TimeoutExtension.java:147)
+        at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestMethod(TimeoutExtension.java:86)
+        at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(InterceptingExecutableInvoker.java:103)
+        at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.lambda$invoke$0(InterceptingExecutableInvoker.java:93)
+        at org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:106)
+        at org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:64)
+        at org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:45)
+        at org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:37)
+        at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:92)
+        at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:86)
+        at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeTestMethod$7(TestMethodTestDescriptor.java:218)
+        at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+        at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeTestMethod(TestMethodTestDescriptor.java:214)
+        at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:139)
+        at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:69)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:151)
+        at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+        at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+        at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+        at java.util.ArrayList.forEach(ArrayList.java:1257)
+        at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+        at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+        at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+        at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+        at java.util.ArrayList.forEach(ArrayList.java:1257)
+        at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+        at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+        at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+        at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+        at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+        at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.submit(SameThreadHierarchicalTestExecutorService.java:35)   
+        at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:57)
+        at org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine.execute(HierarchicalTestEngine.java:54)
+        at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:198)
+        at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:169)
+        at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:93)
+        at org.junit.platform.launcher.core.EngineExecutionOrchestrator.lambda$execute$0(EngineExecutionOrchestrator.java:58)
+        at org.junit.platform.launcher.core.EngineExecutionOrchestrator.withInterceptedStreams(EngineExecutionOrchestrator.java:141)
+        at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:57)
+        at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:103)
+        at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:85)
+        at org.junit.platform.launcher.core.DelegatingLauncher.execute(DelegatingLauncher.java:47)
+        at org.apache.maven.surefire.junitplatform.LazyLauncher.execute(LazyLauncher.java:56)
+        at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.execute(JUnitPlatformProvider.java:184)
+        at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invokeAllTests(JUnitPlatformProvider.java:148)
+        at org.apache.maven.surefire.junitplatform.JUnitPlatformProvider.invoke(JUnitPlatformProvider.java:122)
+        at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)
+        at org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)
+        at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+        at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+[main] INFO com.jmix.executor.impl.ModuleConstraintExecutorImpl - Module constraint executor finalized
+[ERROR] Tests run: 7, Failures: 0, Errors: 7, Skipped: 0, Time elapsed: 1.316 s 
+<<< FAILURE! -- in com.jmix.tool.packtest.SingleFilePackerTest
+[ERROR] com.jmix.tool.packtest.SingleFilePackerTest.testDebugVsPackedMode -- Time elapsed: 1.199 s <<< ERROR!
+com.jmix.executor.omodel.AlgLoaderException: Failed to pack module: Failed to pack class jar
+        at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:101)
+        at com.jmix.coretest.ModuleScenarioTestBase.init(ModuleScenarioTestBase.java:167)
+        at com.jmix.tool.packtest.SingleFilePackerTest.testDebugVsPackedMode(SingleFilePackerTest.java:185)
+        at java.lang.reflect.Method.invoke(Method.java:498)
+        at java.util.ArrayList.forEach(ArrayList.java:1257)
+        at java.util.ArrayList.forEach(ArrayList.java:1257)
+Caused by: com.jmix.executor.omodel.AlgLoaderException: Failed to pack class jar        at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:87)
+        ... 5 more
+
+[ERROR] com.jmix.tool.packtest.SingleFilePackerTest.testp2Topart1Packed -- Time 
+elapsed: 0.033 s <<< ERROR!
+com.jmix.executor.omodel.AlgLoaderException: Failed to pack module: Failed to pack class jar
+        at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:101)
+        at com.jmix.coretest.ModuleScenarioTestBase.init(ModuleScenarioTestBase.java:167)
+        at com.jmix.tool.packtest.SingleFilePackerTest.testp2Topart1Packed(SingleFilePackerTest.java:112)
+        at java.lang.reflect.Method.invoke(Method.java:498)
+        at java.util.ArrayList.forEach(ArrayList.java:1257)
+        at java.util.ArrayList.forEach(ArrayList.java:1257)
+Caused by: com.jmix.executor.omodel.AlgLoaderException: Failed to pack class jar        at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:87)
+        ... 5 more
+
+[ERROR] com.jmix.tool.packtest.SingleFilePackerTest.testp0Value0p1HiddenPacked -- Time elapsed: 0.016 s <<< ERROR!
+com.jmix.executor.omodel.AlgLoaderException: Failed to pack module: Failed to pack class jar
+        at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:101)
+        at com.jmix.coretest.ModuleScenarioTestBase.init(ModuleScenarioTestBase.java:167)
+        at com.jmix.tool.packtest.SingleFilePackerTest.testp0Value0p1HiddenPacked(SingleFilePackerTest.java:40)
+        at java.lang.reflect.Method.invoke(Method.java:498)
+        at java.util.ArrayList.forEach(ArrayList.java:1257)
+        at java.util.ArrayList.forEach(ArrayList.java:1257)
+Caused by: com.jmix.executor.omodel.AlgLoaderException: Failed to pack class jar        at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:87)
+        ... 5 more
+
+[ERROR] com.jmix.tool.packtest.SingleFilePackerTest.testp1Topart1Packed -- Time 
+elapsed: 0.016 s <<< ERROR!
+com.jmix.executor.omodel.AlgLoaderException: Failed to pack module: Failed to pack class jar
+        at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:101)
+        at com.jmix.coretest.ModuleScenarioTestBase.init(ModuleScenarioTestBase.java:167)
+        at com.jmix.tool.packtest.SingleFilePackerTest.testp1Topart1Packed(SingleFilePackerTest.java:136)
+        at java.lang.reflect.Method.invoke(Method.java:498)
+        at java.util.ArrayList.forEach(ArrayList.java:1257)
+        at java.util.ArrayList.forEach(ArrayList.java:1257)
+Caused by: com.jmix.executor.omodel.AlgLoaderException: Failed to pack class jar        at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:87)
+        ... 5 more
+
+[ERROR] com.jmix.tool.packtest.SingleFilePackerTest.testp1Topart1InvalidInputPacked -- Time elapsed: 0 s <<< ERROR!
+com.jmix.executor.omodel.AlgLoaderException: Failed to pack module: Failed to pack class jar
+        at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:101)
+        at com.jmix.coretest.ModuleScenarioTestBase.init(ModuleScenarioTestBase.java:167)
+        at com.jmix.tool.packtest.SingleFilePackerTest.testp1Topart1InvalidInputPacked(SingleFilePackerTest.java:160)
+        at java.lang.reflect.Method.invoke(Method.java:498)
+        at java.util.ArrayList.forEach(ArrayList.java:1257)
+        at java.util.ArrayList.forEach(ArrayList.java:1257)
+Caused by: com.jmix.executor.omodel.AlgLoaderException: Failed to pack class jar        at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:87)
+        ... 5 more
+
+[ERROR] com.jmix.tool.packtest.SingleFilePackerTest.testp0Value1p1HiddenPacked -- Time elapsed: 0.019 s <<< ERROR!
+com.jmix.executor.omodel.AlgLoaderException: Failed to pack module: Failed to pack class jar
+        at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:101)
+        at com.jmix.coretest.ModuleScenarioTestBase.init(ModuleScenarioTestBase.java:167)
+        at com.jmix.tool.packtest.SingleFilePackerTest.testp0Value1p1HiddenPacked(SingleFilePackerTest.java:64)
+        at java.lang.reflect.Method.invoke(Method.java:498)
+        at java.util.ArrayList.forEach(ArrayList.java:1257)
+        at java.util.ArrayList.forEach(ArrayList.java:1257)
+Caused by: com.jmix.executor.omodel.AlgLoaderException: Failed to pack class jar        at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:87)
+        ... 5 more
+
+[ERROR] com.jmix.tool.packtest.SingleFilePackerTest.testp0Value2p2HiddenPacked -- Time elapsed: 0 s <<< ERROR!
+com.jmix.executor.omodel.AlgLoaderException: Failed to pack module: Failed to pack class jar
+        at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:101)
+        at com.jmix.coretest.ModuleScenarioTestBase.init(ModuleScenarioTestBase.java:167)
+        at com.jmix.tool.packtest.SingleFilePackerTest.testp0Value2p2HiddenPacked(SingleFilePackerTest.java:88)
+        at java.lang.reflect.Method.invoke(Method.java:498)
+        at java.util.ArrayList.forEach(ArrayList.java:1257)
+        at java.util.ArrayList.forEach(ArrayList.java:1257)
+Caused by: com.jmix.executor.omodel.AlgLoaderException: Failed to pack class jar        at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:87)
+        ... 5 more
+
+[INFO] 
+[INFO] Results:
+[INFO]
+[ERROR] Errors: 
+[ERROR]   SingleFilePackerTest.testDebugVsPackedMode:185->ModuleScenarioTestBase.init:167 ? AlgLoader Failed to pack module: Failed to pack class jar
+[ERROR]   SingleFilePackerTest.testp0Value0p1HiddenPacked:40->ModuleScenarioTestBase.init:167 ? AlgLoader Failed to pack module: Failed to pack class jar       
+[ERROR]   SingleFilePackerTest.testp0Value1p1HiddenPacked:64->ModuleScenarioTestBase.init:167 ? AlgLoader Failed to pack module: Failed to pack class jar       
+[ERROR]   SingleFilePackerTest.testp0Value2p2HiddenPacked:88->ModuleScenarioTestBase.init:167 ? AlgLoader Failed to pack module: Failed to pack class jar       
+[ERROR]   SingleFilePackerTest.testp1Topart1InvalidInputPacked:160->ModuleScenarioTestBase.init:167 ? AlgLoader Failed to pack module: Failed to pack class jar 
+[ERROR]   SingleFilePackerTest.testp1Topart1Packed:136->ModuleScenarioTestBase.init:167 ? AlgLoader Failed to pack module: Failed to pack class jar
+[ERROR]   SingleFilePackerTest.testp2Topart1Packed:112->ModuleScenarioTestBase.init:167 ? AlgLoader Failed to pack module: Failed to pack class jar
+[INFO]
+[ERROR] Tests run: 7, Failures: 0, Errors: 7, Skipped: 0
+[INFO]
+[INFO] ------------------------------------------------------------------------ 
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------ 
+[INFO] Total time:  9.213 s
+[INFO] Finished at: 2025-09-27T11:08:23+08:00
+[INFO] ------------------------------------------------------------------------ 
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.2.5:test (default-test) on project configengine: 
+[ERROR]
+[ERROR] Please refer to D:\01.code\mygithub\jmixconfigengine\target\surefire-reports for the individual test results.
+[ERROR] Please refer to dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.
+[ERROR] -> [Help 1]
+[ERROR]
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR]
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+PS D:\01.code\mygithub\jmixconfigengine> 
+```
+
+---
+
+我看到问题了。主要有两个问题：
+
+1. 路径问题：Windows路径混合了正斜杠和反斜杠
+2. 单文件/多文件判断逻辑有问题：ParaIsHiddenTest被错误地识别为多文件模式
+
+让我修复这些问题：
+
+
+---
+
+Tool use: **search_replace**
+
+
+<details><summary>Edit file: src/main/java/com/jmix/tool/impl/ModulePacker.java</summary>
+
+**Chunk 1**
+Lines added: 2, lines removed: 1
+
+```diff
+@@ -110,8 +110,9 @@
+       */
+      public boolean isMultifile(Class<? extends ConstraintAlgImpl> cpClassName) {
+-         // 如果cpClass继承了ConstraintAlgImpl则是多个文件
++         // 如果cpClass继承了ConstraintAlgImpl且不是内部类，则是多个文件
+          // 例如：com.jmix.scenario.hello.HelloConstraint (HelloConstraint extends ConstraintAlgImpl)
+          // 否则就是单文件，com.jmix.scenario.ruletest.ParaIsHiddenTest (ParaIsHiddenTest extends ModuleScenarioTestBase)
+          return ConstraintAlgImpl.class.isAssignableFrom(cpClassName) 
++                 && cpClassName.getEnclosingClass() == null
+                  && !cpClassName.getSimpleName().endsWith("Test");
+      }
+```
+
+</details>
+
+---
+
+现在修复路径问题：
+
+
+---
+
+Tool use: **search_replace**
+
+
+<details><summary>Edit file: src/main/java/com/jmix/tool/impl/ModulePacker.java</summary>
+
+**Chunk 1**
+Lines added: 3, lines removed: 1
+
+```diff
+@@ -231,5 +231,7 @@
+      private void findClassFiles(String inputDir, String className, List<String> classFiles) {
+          String classFileName = className + ".class";
+-         Path classFilePath = Paths.get(inputDir, classFileName);
++         // 标准化路径，解决Windows路径问题
++         String normalizedInputDir = inputDir.replace("\\", File.separator).replace("/", File.separator);
++         Path classFilePath = Paths.get(normalizedInputDir, classFileName);
+          
+          if (Files.exists(classFilePath)) {
+```
+
+</details>
+
+---
+
+Tool use: **search_replace**
+
+
+<details><summary>Edit file: src/main/java/com/jmix/tool/impl/ModulePacker.java</summary>
+
+**Chunk 1**
+Lines added: 3, lines removed: 1
+
+```diff
+@@ -252,5 +252,7 @@
+      private void findSourceFiles(String inputDir, String className, List<String> sourceFiles) {
+          String sourceFileName = className + ".java";
+-         Path sourceFilePath = Paths.get(inputDir, sourceFileName);
++         // 标准化路径，解决Windows路径问题
++         String normalizedInputDir = inputDir.replace("\\", File.separator).replace("/", File.separator);
++         Path sourceFilePath = Paths.get(normalizedInputDir, sourceFileName);
+          
+          if (Files.exists(sourceFilePath)) {
+```
+
+</details>
+
+---
+
+现在让我们再次运行测试：
+
+
+---
+
+Cancelled
+
+---
+
+_**User (2025-09-27 01:50Z)**_
+
+class文件需要再target/test-classes下查找
+
+---
+
+_**Assistant (default)**_
+
+我明白了，class文件应该在`target/test-classes`目录下查找。让我修复这个问题：
+
+
+---
+
+The string to replace was not found in the file.
+
+---
+
+让我先读取当前文件内容：
+
+
+---
+
+Tool use: **read_file**
+
+Read file: src/main/java/com/jmix/tool/impl/ModulePacker.java
+
+---
+
+Tool use: **read_file**
+
+Read file: src/main/java/com/jmix/tool/impl/ModulePacker.java
+
+---
+
+现在我需要修改`packClassJar`方法，让它在`target/test-classes`目录下查找class文件：
+
+
+---
+
+Tool use: **search_replace**
+
+
+<details><summary>Edit file: src/main/java/com/jmix/tool/impl/ModulePacker.java</summary>
+
+**Chunk 1**
+Lines added: 4, lines removed: undefined
+
+```diff
+@@ -131,4 +131,8 @@
+              String jarFileName = String.format("cp-%s-%s.jar", module.getCode(), module.getId());
+              String jarFilePath = outDir + File.separator + jarFileName;
++             
++             // 在target/test-classes目录下查找class文件
++             String testClassesDir = inputDir.replace("src/test/java", "target/test-classes");
++             log.info("Looking for class files in: {}", testClassesDir);
+              
+              List<String> classFiles = new ArrayList<>();
+```
+
+**Chunk 2**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -141,6 +145,6 @@
+                  
+                  // 查找对应的class文件
+-                 findClassFiles(inputDir, constraintClassName, classFiles);
+-                 findClassFiles(inputDir, testClassName, classFiles);
++                 findClassFiles(testClassesDir, constraintClassName, classFiles);
++                 findClassFiles(testClassesDir, testClassName, classFiles);
+              } else {
+                  // 单文件模式：需要将ConstraintAlg类和其父类对应的class文件打成jar包
+```
+
+**Chunk 3**
+Lines added: 4, lines removed: 4
+
+```diff
+@@ -150,15 +154,15 @@
+                  
+                  // 查找对应的class文件
+-                 findClassFiles(inputDir, testClassName, classFiles);
+-                 findClassFiles(inputDir, constraintClassName, classFiles);
++                 findClassFiles(testClassesDir, testClassName, classFiles);
++                 findClassFiles(testClassesDir, constraintClassName, classFiles);
+              }
+              
+              if (classFiles.isEmpty()) {
+-                 log.warn("No class files found for packing");
++                 log.warn("No class files found for packing in {}", testClassesDir);
+                  return false;
+              }
+              
+              // 创建jar文件
+-             createJarFile(jarFilePath, classFiles, inputDir);
++             createJarFile(jarFilePath, classFiles, testClassesDir);
+              log.info("Class jar created: {}", jarFilePath);
+              
+```
+
+</details>
+
+---
+
+现在让我们运行测试来验证修复：
+
+
+---
+
+Tool use: **run_terminal_cmd**
+
+```bash
+mvn test -Dtest=SingleFilePackerTest#testp2Topart1
+```
+
+---
+
+_**User (2025-09-27 01:50Z)**_
+
+ 请翻译为中文 ：\n  Converts a path string, or a sequence of strings that when joined form a path string, to a Path. If more does not specify any elements then the value of the first parameter is the path string to convert. If more specifies one or more elements then each non-empty string, including first, is considered to be a sequence of name elements (see Path) and is joined to form a path string. The details as to how the Strings are joined is provider specific but typically they will be joined using the name-separator as the separator. For example, if the name separator is "/" and getPath("/foo","bar","gus") is invoked, then the path string "/foo/bar/gus" is converted to a Path. A Path representing an empty path is returned if first is the empty string and more does not contain any non-empty strings.
+
+
+
+---
+
+_**Assistant (default)**_
+
+这段文字是关于Java中`Paths.get()`方法的文档说明，我来翻译为中文：
+
+**将路径字符串或形成路径字符串的字符串序列转换为Path对象。如果more参数没有指定任何元素，则第一个参数的值就是要转换的路径字符串。如果more参数指定了一个或多个元素，那么每个非空字符串（包括第一个）都被视为名称元素序列（参见Path），并连接起来形成路径字符串。字符串如何连接的细节是特定于提供者的，但通常它们会使用名称分隔符作为分隔符来连接。例如，如果名称分隔符是"/"并且调用getPath("/foo","bar","gus")，那么路径字符串"/foo/bar/gus"被转换为Path。如果first是空字符串且more不包含任何非空字符串，则返回表示空路径的Path。**
+
+简单来说，这个方法的作用是：
+- 将字符串路径转换为Path对象
+- 可以传入多个字符串参数，它们会被连接成完整路径
+- 使用系统默认的路径分隔符（如Windows的"\"或Unix的"/"）
+- 如果只传一个空字符串且没有其他参数，会返回空路径
+
+---
+
+_**User (2025-09-27 01:50Z)**_
+
+
+[main] INFO com.jmix.executor.impl.ModuleAlgClassLoader - Loading classes from jar: D:\01.code\mygithub\jmixconfigengine\..\cproot\cp-ParaIsHidden-123\cp-ParaIsHidden-123.jar
+[main] ERROR com.jmix.executor.impl.ModuleAlgClassLoader - Failed to load class from jar: ParaIsHiddenTest
+java.lang.NoClassDefFoundError: ParaIsHiddenTest (wrong name: com/jmix/scenario/ruletest/ParaIsHiddenTest)
+	at java.lang.ClassLoader.defineClass1(Native Method)
+	at java.lang.ClassLoader.defineClass(ClassLoader.java:763)
+	at java.lang.ClassLoader.defineClass(ClassLoader.java:642)
+	at com.jmix.executor.impl.ModuleAlgClassLoader.loadClassFromJar(ModuleAlgClassLoader.java:150)
+	at com.jmix.executor.impl.ModuleAlgClassLoader.lambda$1(ModuleAlgClassLoader.java:129)
+	at java.util.stream.ForEachOps$ForEachOp$OfRef.accept(ForEachOps.java:184)
+
+---
+
+_**Assistant (default)**_
+
+我看到问题了！错误信息显示类名不匹配：
+
+```
+java.lang.NoClassDefFoundError: ParaIsHiddenTest (wrong name: com/jmix/scenario/ruletest/ParaIsHiddenTest)
+```
+
+问题在于JAR文件中的类名是完整的包名 `com/jmix/scenario/ruletest/ParaIsHiddenTest`，但是代码中查找的是简单的类名 `ParaIsHiddenTest`。
+
+让我检查一下 `ModuleAlgClassLoader` 的代码：
+
+
+---
+
+Tool use: **read_file**
+
+Read file: src/main/java/com/jmix/executor/impl/ModuleAlgClassLoader.java
+
+---
+
+问题在于第128行，代码将JAR条目名称转换为类名时，使用了完整的包路径。但是当调用 `super.defineClass()` 时，传入的类名应该是完整的包名，而不是简单类名。
+
+让我检查一下 `ModulePacker` 中是如何查找和打包class文件的：
+
+
+---
+
+Tool use: **read_file**
+
+Read file: src/main/java/com/jmix/tool/impl/ModulePacker.java
+
+---
+
+让我查看 `findClassFiles` 方法：
+
+
+---
+
+Tool use: **read_file**
+
+Read file: src/main/java/com/jmix/tool/impl/ModulePacker.java
+
+---
+
+问题找到了！在 `findClassFiles` 方法中，代码只查找简单的类名（如 `ParaIsHiddenTest.class`），但是实际的class文件在JAR中是以完整包路径存储的（如 `com/jmix/scenario/ruletest/ParaIsHiddenTest.class`）。
+
+我需要修改 `findClassFiles` 方法，让它能够根据包名构建正确的路径来查找class文件。让我先检查一下如何获取包名：
+
+
+---
+
+Tool use: **codebase_search**
+
+<details>
+                <summary>Searched codebase "How to get package name from class in ModulePacker" • **15** results</summary>
+            
+| File | Lines |
+|------|-------|
+| `src/main/java/com/jmix/tool/impl/ModulePacker.java` | L20-77 |
+| `src/main/java/com/jmix/tool/impl/ModulePacker.java` | L118-142 |
+| `src/main/java/com/jmix/tool/impl/ModulePacker.java` | L227-280 |
+| `src/main/java/com/jmix/tool/impl/ModulePacker.java` | L75-129 |
+| `src/main/java/com/jmix/tool/impl/ModulePacker.java` | L137-187 |
+| `src/main/java/com/jmix/tool/impl/ModulePacker.java` | L176-236 |
+| `src/main/java/com/jmix/tool/impl/ModulePacker.java` | L38 |
+| `src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java` | L477-514 |
+| `src/main/java/com/jmix/tool/impl/ModulePacker.java` | L269-321 |
+| `src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java` | L504-567 |
+| `src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java` | L34-97 |
+| `src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java` | L44 |
+| `src/main/java/com/jmix/tool/impl/StructCodeInjector.java` | L249-308 |
+| `src/main/java/com/jmix/tool/impl/FilterExpressionExecutor.java` | L224-282 |
+| `src/main/java/com/jmix/tool/impl/StructCodeInjector.java` | L41 |
+
+</details>
+
+---
+
+我看到问题了。在 `packClassJar` 方法中，我们需要传递包名信息给 `findClassFiles` 方法，这样它就能在正确的包路径下查找class文件。
+
+让我修改 `findClassFiles` 方法，让它能够处理包路径：
+
+
+---
+
+Tool use: **search_replace**
+
+
+<details><summary>Edit file: src/main/java/com/jmix/tool/impl/ModulePacker.java</summary>
+
+**Chunk 1**
+Lines added: 19, lines removed: undefined
+
+```diff
+@@ -236,5 +236,24 @@
+       */
+      private void findClassFiles(String inputDir, String className, List<String> classFiles) {
++         findClassFiles(inputDir, className, classFiles, null);
++     }
++ 
++     /**
++      * 查找class文件（带包名）
++      * 
++      * @param inputDir   输入目录
++      * @param className  类名
++      * @param classFiles 结果列表
++      * @param packageName 包名
++      */
++     private void findClassFiles(String inputDir, String className, List<String> classFiles, String packageName) {
+          String classFileName = className + ".class";
++         
++         // 如果有包名，构建完整的包路径
++         if (packageName != null && !packageName.isEmpty()) {
++             String packagePath = packageName.replace(".", File.separator);
++             classFileName = packagePath + File.separator + classFileName;
++         }
++         
+          // 标准化路径，解决Windows路径问题
+          inputDir = inputDir.substring(1, inputDir.length());
+```
+
+</details>
+
+---
+
+现在我需要修改 `packClassJar` 方法，传递包名信息：
+
+
+---
+
+
+
+---
+
 
 
 ---

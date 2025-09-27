@@ -202,3 +202,22 @@ createTempPath
 抽取一个 Module build(Class<? extends ConstraintAlg> moduleAlgClazz)  子函数
 
 packagetest
+
+            throw new AlgLoaderException("Failed to pack module: " + e.getMessage(), e);
+
+"cp-%s-%s"	
+
+            // 根据packageName构建全路径名  抽取函数？
+deleteDirectory  --CommHelper里？
+
+MultiFilePackerTest -- 用例简化
+ throw new ClassNotFoundException("Class not found: " + name);
+
+
+       } catch (Throwable e) {
+            log.error("Failed to load class from jar: {}", className, e);
+        }
+
+
+
+"file:/D:/01.code/mygithub/jmixconfigengine/../cproot/cp-ParaIsHidden-123/cp-ParaIsHidden-123.jar"

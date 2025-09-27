@@ -126,9 +126,10 @@ public class ModuleAlgClassLoader extends ClassLoader {
                     .forEach(entry -> {
                         try {
                             String className = entry.getName().replace("/", ".").replace(".class", "");
+                            log.info("Processing jar entry: {} -> className: {}", entry.getName(), className);
                             loadClassFromJar(className, jarFile, entry);
-                        } catch (Exception e) {
-                            log.warn("Failed to preload class: {}", entry.getName(), e);
+                        } catch (Throwable e) {
+                            log.error("Failed to preload class: {}", entry.getName(), e);
                         }
                     });
         } catch (IOException e) {
@@ -147,11 +148,11 @@ public class ModuleAlgClassLoader extends ClassLoader {
     private void loadClassFromJar(String className, JarFile jarFile, JarEntry entry) {
         try (InputStream inputStream = jarFile.getInputStream(entry)) {
             byte[] classBytes = readAllBytes(inputStream);
-            Class<?> clazz = defineClass(className, classBytes, 0, classBytes.length);
+            Class<?> clazz = super.defineClass(className, classBytes, 0, classBytes.length);
             classMap.put(className, clazz);
-            log.debug("Loaded class from jar: {}", className);
-        } catch (IOException e) {
-            log.warn("Failed to load class from jar: {}", className, e);
+            log.info("Loaded class from jar: {}", className);
+        } catch (Throwable e) {
+            log.error("Failed to load class from jar: {}", className, e);
         }
     }
 
