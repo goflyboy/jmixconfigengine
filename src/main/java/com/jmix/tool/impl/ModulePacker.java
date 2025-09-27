@@ -52,13 +52,10 @@ public class ModulePacker {
      */
     public String pack(Module module, Class<? extends ConstraintAlgImpl> cpClazz, String outRootDir) {
         try {
-            // 根据packageName构建全路径名
-            String packageNamePath = cpClazz.getPackage().getName().replace(".", File.separator);
             String inputDir = CommHelper.getResourcePath(cpClazz);
 
             // 根据module的code和id在outRootDir创建这个module的子文件夹
-            String moduleDirName = String.format("cp-%s-%s", module.getCode(), module.getId());
-            String outDir = outRootDir + File.separator + moduleDirName;
+            String outDir = module.getAlg().getModuleDirPath(outRootDir);
 
             // 如果目录已存在则删除
             Path outDirPath = Paths.get(outDir);
@@ -72,8 +69,7 @@ public class ModulePacker {
             log.info("Created output directory: {}", outDir);
 
             // 保存Module到文件
-            String moduleFileName = String.format("cp-%s-%s.base.json", module.getCode(), module.getId());
-            String moduleFilePath = outDir + File.separator + moduleFileName;
+            String moduleFilePath = module.getAlg().getBaseJsonPath(outRootDir);
             ModuleUtils.toJsonFile(module, moduleFilePath);
             log.info("Module saved to: {}", moduleFilePath);
 
@@ -132,8 +128,8 @@ public class ModulePacker {
      */
     public boolean packClassJar(String inputDir, Module module, boolean isMultifile, String outDir) {
         try {
-            String jarFileName = String.format("cp-%s-%s.jar", module.getCode(), module.getId());
-            String jarFilePath = outDir + File.separator + jarFileName;
+            String jarFilePath = module.getAlg()
+                    .getRuntimeJarPath(outDir.substring(0, outDir.lastIndexOf(File.separator)));
 
             // 在target/test-classes目录下查找class文件
             String testClassesDir = inputDir.replace("src\\test\\java", "target\\test-classes");
@@ -189,8 +185,8 @@ public class ModulePacker {
      */
     public boolean packSourceJar(String inputDir, Module module, boolean isMultifile, String outDir) {
         try {
-            String jarFileName = String.format("cp-%s-%s-sources.jar", module.getCode(), module.getId());
-            String jarFilePath = outDir + File.separator + jarFileName;
+            String jarFilePath = module.getAlg()
+                    .getSourceJarPath(outDir.substring(0, outDir.lastIndexOf(File.separator)));
 
             List<String> sourceFiles = new ArrayList<>();
 

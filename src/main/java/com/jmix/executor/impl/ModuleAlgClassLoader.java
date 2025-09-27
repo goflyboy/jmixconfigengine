@@ -7,7 +7,6 @@ import com.jmix.executor.omodel.AlgLoaderException;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -94,12 +93,8 @@ public class ModuleAlgClassLoader extends ClassLoader {
      */
     private void loadClassFromJar() {
         try {
-            // 构建模块文件目录路径
-            String moduleFileDir = config.getRootFilePath() + File.separator + "cp-" + algArtifact.getModuleCode()
-                    + "-" + algArtifact.getId();
-            String classJarFile = moduleFileDir + File.separator + "cp-" + algArtifact.getModuleCode() + "-"
-                    + algArtifact.getId()
-                    + ".jar";
+            // 构建模块文件目录路径和jar文件路径
+            String classJarFile = algArtifact.getRuntimeJarPath(config.getRootFilePath());
 
             log.info("Loading classes from jar: {}", classJarFile);
 

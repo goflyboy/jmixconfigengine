@@ -198,10 +198,9 @@ createTempPath
 
 
 特性1: PartVar 
+ 
 
-抽取一个 Module build(Class<? extends ConstraintAlg> moduleAlgClazz)  子函数
-
-packagetest
+ 
 
             throw new AlgLoaderException("Failed to pack module: " + e.getMessage(), e);
 
@@ -236,3 +235,5 @@ import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
 import com.jmix.coretest.ConstraintAlgImplTestBase;
 
 搞一个例子--怎么package包？**
+  --完整的例子？ ***要写一个？
+    addModule，以hello来写？**
