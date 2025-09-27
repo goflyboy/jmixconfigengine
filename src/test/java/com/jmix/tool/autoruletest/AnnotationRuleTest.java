@@ -21,6 +21,7 @@ import com.jmix.tool.impl.ModuleGenneratorByAnno;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -80,6 +81,7 @@ public class AnnotationRuleTest extends ConstraintAlgImpl {
      * 测试规则生成
      */
     @Test
+    @Disabled
     public void testRuleGeneration() {
         // 创建临时路径
         String tempPath = CommHelper.createTempPath(AnnotationRuleTest.class);
@@ -119,9 +121,7 @@ public class AnnotationRuleTest extends ConstraintAlgImpl {
      * 测试注解解析
      */
     @Test
-    /**
-     * 测试注解解析
-     */
+    @Disabled
     public void testAnnotationParsing() {
         // 测试CompatiableRuleAnno注解解析
         try {

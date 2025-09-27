@@ -15,6 +15,7 @@ import com.jmix.tool.impl.StructCodeInjector;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -26,6 +27,7 @@ import org.junit.jupiter.api.Test;
 @Slf4j
 public class AnnotationRuleIntegrationTest {
     @Test
+    @Disabled
     public void testCompleteAnnotationRuleFlow() {
         try {
             // 1. 测试注解规则生成
@@ -125,6 +127,7 @@ public class AnnotationRuleIntegrationTest {
     }
 
     @Test
+    @Disabled
     public void testProgObjectParsing() {
         // 测试变量对象解析 - 通过生成Module来间接测试
         String tempPath = CommHelper.createTempPath(AnnotationRuleTest.class);

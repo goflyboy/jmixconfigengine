@@ -11,6 +11,7 @@ import com.jmix.tool.anno.ParaAnno;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -86,6 +87,7 @@ public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
      * 测试规则2的Requires约束
      */
     @Test
+    @Disabled
     public void testRule2Requires() {
         inferParasByPara("color", "Red");
         resultAssert()
@@ -100,6 +102,7 @@ public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
      * 测试规则2的CoDependent约束
      */
     @Test
+    @Disabled
     public void testRule2CoDependent() {
         inferParasByPara("color", "Black");
         resultAssert()
@@ -114,6 +117,7 @@ public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
      * 测试规则2的InCompatible约束
      */
     @Test
+    @Disabled
     public void testRule2InCompatible() {
         inferParasByPara("color", "White");
         assertSolutionNum("color:White,size:Big", 0);

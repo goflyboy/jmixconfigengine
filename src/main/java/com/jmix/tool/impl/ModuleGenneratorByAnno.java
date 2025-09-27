@@ -301,7 +301,7 @@ public final class ModuleGenneratorByAnno {
         schema.setRawCode(anno.code());
 
         // 解析左右两侧的引用编程对象
-        List<List<RefProgObjSchema>> leftRightRefProgObjs = parseLeftRightRefProgObjSchemas(anno.normalNaturalCode(),
+        List<List<RefProgObjSchema>> leftRightRefProgObjs = parseLeftRightRefProgObjSchemas(anno.code(),
                 module);
         schema.setLeftRefProgObjs(leftRightRefProgObjs.get(0));
         schema.setRightRefProgObjs(leftRightRefProgObjs.get(1));

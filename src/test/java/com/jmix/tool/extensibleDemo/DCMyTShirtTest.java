@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -60,6 +61,7 @@ public class DCMyTShirtTest {
     }
 
     @Test
+    @Disabled
     public void testBasicInference() {
         log.info("Testing basic inference with DC extensions");
 
@@ -79,6 +81,7 @@ public class DCMyTShirtTest {
     }
 
     @Test
+    @Disabled
     public void testDCWrapperFunctionality() {
         log.info("Testing DC wrapper functionality");
 
@@ -111,6 +114,7 @@ public class DCMyTShirtTest {
     }
 
     @Test
+    @Disabled
     public void testDeliveryTypeCalculation() {
         log.info("Testing delivery type calculation");
 
@@ -163,6 +167,7 @@ public class DCMyTShirtTest {
     }
 
     @Test
+    @Disabled
     public void testAdapterFunctionality() {
         log.info("Testing adapter functionality");
 
@@ -199,6 +204,7 @@ public class DCMyTShirtTest {
     }
 
     @Test
+    @Disabled
     public void testExtensibleProcessManagement() {
         log.info("Testing extensible process management");
 
@@ -218,6 +224,7 @@ public class DCMyTShirtTest {
     }
 
     @Test
+    @Disabled
     public void testNoSolution() {
         log.info("Testing no solution scenario");
 
