@@ -545,6 +545,9 @@ public final class ModuleGenneratorByAnno {
 
         // 标准化路径，解决Windows路径问题
         try {
+            if (filePath.startsWith("/")) {
+                filePath = filePath.substring(1, filePath.length());
+            }
             Path normalizedPath = Paths.get(filePath).normalize();
             filePath = normalizedPath.toString();
         } catch (Exception e) {
