@@ -18,8 +18,16 @@ public enum ParaType {
     MULTI_ENUM(8, "MultiEnum"),
     GROUP(10, "Group");
 
+    /**
+     * 参数类型的数值标识
+     * 用于在数据库中存储和序列化时使用
+     */
     private final int value;
 
+    /**
+     * 参数类型的显示名称
+     * 用于用户界面显示和日志输出
+     */
     private final String name;
 
     ParaType(int value, String name) {

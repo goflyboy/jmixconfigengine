@@ -12,7 +12,16 @@ public enum PartType {
     BUNDLE(3, "Bundle"),
     GROUP(10, "Group");
 
+    /**
+     * 部件类型的数值标识
+     * 用于在数据库中存储和序列化时使用
+     */
     private final int value;
+
+    /**
+     * 部件类型的显示名称
+     * 用于用户界面显示和日志输出
+     */
     private final String name;
 
     PartType(int value, String name) {

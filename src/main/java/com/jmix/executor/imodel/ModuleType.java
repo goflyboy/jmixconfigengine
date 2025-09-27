@@ -12,7 +12,16 @@ public enum ModuleType {
     TEMPLATE(8, "Template"),
     TOOL(16, "Tool");
 
+    /**
+     * 模块类型的数值标识
+     * 用于在数据库中存储和序列化时使用
+     */
     private final int value;
+
+    /**
+     * 模块类型的显示名称
+     * 用于用户界面显示和日志输出
+     */
     private final String name;
 
     ModuleType(int value, String name) {
