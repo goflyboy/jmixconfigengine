@@ -7,8 +7,6 @@ import lombok.extern.slf4j.Slf4j;
  * 扩展性处理基类
  * 为ModuleConstraintExecutor提供扩展能力，支持自定义业务处理逻辑
  * 
- * @author jmix
- * @version 1.0.0
  * @since 2025-09-22
  */
 @Slf4j

@@ -11,7 +11,6 @@ import com.jmix.executor.omodel.ParaInst;
 import com.jmix.executor.omodel.PartInst;
 
 import com.google.ortools.sat.CpSolverSolutionCallback;
-import com.google.ortools.sat.IntVar;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -134,7 +133,7 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
             }
         });
         pi.setOptions(options);
-        pi.setHidden((int) value((IntVar) pv.getIsHidden()) == 1);
+        pi.setHidden((int) value(pv.getIsHidden()) == 1);
 
         return pi;
     }
