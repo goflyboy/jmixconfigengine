@@ -38,5 +38,5 @@ public class ConstraintConfig {
     /**
      * 加载模式，全量加载模式-1，差量加载模式-0
      */
-    private int loadType = 0;
+    private int loadType = 1;
 }

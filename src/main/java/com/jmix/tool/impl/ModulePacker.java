@@ -52,7 +52,7 @@ public class ModulePacker {
      */
     public String pack(Module module, Class<? extends ConstraintAlgImpl> cpClazz, String outRootDir) {
         try {
-            String inputDir = CommHelper.getResourcePath(cpClazz);
+            String inputDir = CommHelper.getJavaFilePath(cpClazz);
 
             // 根据module的code和id在outRootDir创建这个module的子文件夹
             String outDir = module.getAlg().getModuleDirPath(outRootDir);

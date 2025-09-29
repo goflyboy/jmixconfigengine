@@ -262,7 +262,7 @@ public class StructCodeInjector {
             // 是内部类，设置父类名称
             fileName = enclosingClass.getSimpleName();
         }
-        String packagePath = CommHelper.getResourcePath(clazz);
+        String packagePath = CommHelper.getJavaFilePath(clazz);
         return packagePath + File.separator + fileName + ".java";
     }
 

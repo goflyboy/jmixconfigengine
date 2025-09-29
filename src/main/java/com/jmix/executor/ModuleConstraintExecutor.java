@@ -56,10 +56,15 @@ public interface ModuleConstraintExecutor {
     Result<Void> removeModule(Long moduleId);
 
     /**
-     * 推理参数
+     * 推理参数配置，根据部件的配置反推参数的配置 <br>
+     * 如果req.enumerateAllSolution=false，仅返回一个可行解，<br>
+     * 如果req.enumerateAllSolution=true，则返回所有的可选解 <br>
      * 
-     * @param req 推理请求
+     * @param req 根据主部件配置(实例）及前置参数和部件的配置反推参数配置的值
      * @return 推理结果
+     *         如果有解，则Result.SUCCESS，Result.data为详细的解数据<br>
+     *         如果没有解，则返回Result.NO_SOLUTION <br>
+     *         如果执行过程出错，则返回Result.FAILED <br>
      */
     Result<List<ModuleInst>> inferParas(InferParasReq req);
 

@@ -60,156 +60,14 @@ G.OTH.11 超大函数深度，单函数最大深度是4层
 
 
 	
-请对测试类中的 ParaVar、PartVar的变量及rule方法进行修改，满足checkstyle的要求
-每个测试类都要检查一下，改完后要测试一下是否通过，确保所有的测试类都要检查到。
-详细要求：
-PT*->pt*，例如： private PartVar PT005; --> private PartVar pt005;
-P*->pt(，例如： private ParaVar P018; --> private ParaVar p018;
- protected void Rule01() ->  private void rule01()
-checkstyle的要求：
-	
-- **Line 35:** 名称 'P001' 必须匹配表达式： '^[a-z][a-zA-Z0-9]*$' 。
-- **Code:** MemberNameCheck
-- **Source:** Checkstyle
-
-
-合入修改的代码：
-文件的命名格式
---cp-{moduleCode}-{moduleId}
-----cp-{moduleCode}-{moduleId}.jar   //运行jar包
-----cp-{moduleCode}-{moduleId}-sources.jar //对应的源码把，含测试用例
-----cp-{moduleCode}-{moduleId}.base.json //对应的基础数据，含算法包的描述
-
-
-
-
---cproot  //cp算法包根路径
----cp-m001-0001  //子文件夹1
-----cp-m001-0001.jar   //运行jar包
-----cp-m001-0001-sources.jar //对应的源码把，含测试用例
-----cp-m001-0001.base.json //对应的基础数据，含算法包的描述
----cp-m002-0001  //子文件夹1
-----cp-m002-0001.jar   //运行jar包
-----cp-m002-0001-sources.jar //对应的源码把，含测试用例
-----cp-m002-0001.base.json //对应的基础数据，含算法包的描述
----cp-m002-0002  //子文件夹1
-----cp-m002-0002.jar   //运行jar包
-----cp-m002-0002-sources.jar //对应的源码把，含测试用例
-----cp-m002-0002.base.json //对应的基础数据，含算法包的描述
-
-
-
---测试框架：
----当前路径的+ “../../" + "cproot"
-
-
-
---打包的逻辑
-void package(Class  cpClazz);  
-
-请按下列设计支持Module的打包和测试，请调通SingleFilePackerTest、MultiFilePackerTest
-
-一、新建一个ModulePacker类
-class ModulePacker {
-	 
-	
-	//对算法进行打包
-	String pack(Class cpClazz,String  outRootDir) {
-		module = ModuleGenneratorByAnno.build(moduleAlgClazz);
-		return pack(module, cpClazz, outRootDir);
-	}
-
-	String pack(Module module, Class cpClazz,String  outRootDir) {
-		//根据packageName构建全路径名
-		inputDir = CommHelper.getTestResource(cpClazz) + packageNamePath 
-		
-		
-		根据module的code和id在outRootDir创建这个module的子文件夹（已经存在要删除）outDir  cp-{moduleCode}-{moduleId}，如：cp-m001-0001
-
-		调用ModuleGenneratorByAnno.saveToFile(module,outDir + cp-{moduleCode}-{moduleId}.base.json),例如：cp-m001-0001.base.json
-		
-		isMultifile = isMultifile(cpClass)
-		//如果isMultifile = true，则 inputDir的文件都需要打包，有ConstraintAlg类和测试类两个文件
-		//如果isMultifile = false, 则inputDir的文件还包含其它工程， cpClazz既有ConstraintAlg类又有测试类 
-		
-		打运行的class包 packageClassJar 
-		打源码包 packageSourceJar 
-		return outDir;
-	}	
-		 
-		 
-	 
-	boolean isMultifile(Class cpClassName) {
-		如果cpClass继承了ConstraintAlgImpl则是多个文件，例如： com.jmix.scenario.hello.HelloConstraint (HelloConstraint extends ConstraintAlgImpl)
-		则是多文件
-		否则就是单文件， com.jmix.scenario.ruletest.ParaIntegerTest (ParaIntegerTest extends ModuleScenarioTestBase) 
-	}
-
-	boolean packClassJar(inputDir,module,isMultifile,outDir) { 
-		如果isMultifile = true， 需要将ConstraintAlg类及测试类对应的class打成jar包就可以（如：HelloConstraint.class、HelloConstraintTest.class）
-		如果isMultifile = false， 需要将ConstraintAlg类和其父类对应的class文件打成jar包就 （如：ParaIsHiddenTest.class、ParaIsHiddenTest$ParaIsHiddenConstraint.class）
-		jar保存的文件格式：cp-{moduleCode}-{moduleId}.jar, 如：cp-m001-0001.jar 
-
-	}
-
-
-	boolean packSourceJar(inputDir,module,isMultifile,outDir) { 
-		如果isMultifile = true， 需要将ConstraintAlg类及测试类就可以（如：HelloConstraint.java、HelloConstraintTest.java）
-		如果isMultifile = false， 需要将测试类（含ConstraintAlg类） 文件打成jar包就 （如：ParaIsHiddenTest.java，内部包含了ParaIsHiddenConstraint）
-		jar保存的文件格式：cp-{moduleCode}-{moduleId}-sources.jar, 如：cp-m001-0001-sources.jar
-	}
-	
-}
-二、优化ModuleAlgClassLoader
-public void init(String moduleCode, ModuleAlgArtifact algArtifact) {
-	如果isAttachedDebug=true，现有逻辑
-	如果isAttachedDebug=false,从rootFilePath读取class信息（新增）
-	 --moduleFileDir = rootFilePath +  cp-{moduleCode}-{moduleId}
-	 classJarFile = moduleFileDir + cp-{moduleCode}-{moduleId}.jar 
-	 从classJarFile中读取class信息（要支持如果isMultifile两种情况） 
-}
-public Class<?> loadClass(String name) {
-	如果isAttachedDebug=true，现有逻辑
-	如果isAttachedDebug=false,从读取的class信息加载（新增）
-}
-
-三、优化ModuleScenarioTestBase类
- protected void init() 
-	  //...
-	 setCfg(config);
-	 如果config.isAttachedDebug=true,直接加载class，和现有流程一样
-	 如果config.isAttachedDebug=false，打包方式，
-		 rootFilePath = user.dir + “../"  + "cproot"
-		调用ModulePacker.pack(  tempModule,   getConstraintAlgClazz(),   rootFilePath)
-	  ModuleConstraintExecutor.INST.addModule(tempModule.getId(), tempModule);
-	//...
-	
-}
-四、补充测试用例：
-1、com.jmix.tool.packtest.SingleFilePackerTest
-    对ParaIsHiddenTest进行打包加载，运行其中用例就可以
-2、com.jmix.tool.packtest.MultiFilePackerTest
- 对HelloConstraint进行打加载，运行其中用例就可以
-
+ 
 
 createTempPath
 --先支持
 怎么用例？
-
-
-特性1: PartVar 
  
-
  
-
-            throw new AlgLoaderException("Failed to pack module: " + e.getMessage(), e);
-
-"cp-%s-%s"	
-
-            // 根据packageName构建全路径名  抽取函数？
-deleteDirectory  --CommHelper里？
-
-MultiFilePackerTest -- 用例简化
+deleteDirectory  --CommHelper里？ 
  throw new ClassNotFoundException("Class not found: " + name);
 
 
@@ -217,23 +75,19 @@ MultiFilePackerTest -- 用例简化
             log.error("Failed to load class from jar: {}", className, e);
         }
 
-
-
-"file:/D:/01.code/mygithub/jmixconfigengine/../cproot/cp-ParaIsHidden-123/cp-ParaIsHidden-123.jar"
-
-
-        // 创建ParaVar
-        ParaVar paraVar = createParaVar(paraCode);
-
-        // 通过反射赋值给字段
-        field.set(this, paraVar);
-
+ 
 
  com.jmix.executor.impl.algmodel.ParaVar/Part 类似，但不是继承，而是内部类 --要替换？
-import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
-
-import com.jmix.coretest.ConstraintAlgImplTestBase;
-
+ 
 搞一个例子--怎么package包？**
   --完整的例子？ ***要写一个？
     addModule，以hello来写？**
+
+
+
+TODO：类加载的方式（和谢龙） ---写一个例子？ 
+TODO：合如修改的代码？
+TODO：prompt的调整
+TODO：本团队的事情？---怎么培养人？ ---**zhouhui没有意思
+TODO：全部运行的bug?**
+

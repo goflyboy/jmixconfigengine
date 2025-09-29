@@ -23,7 +23,7 @@ public class CommHelperTest {
     @Disabled
     public void testGetResourcePath() {
         // 测试获取资源路径
-        String path = CommHelper.getResourcePath(CommHelperTest.class);
+        String path = CommHelper.getJavaFilePath(CommHelperTest.class);
         assertNotNull(path, "Resource path should not be null");
         assertTrue(path.contains("src/test/java"), "Resource path should contain src/test/java");
         assertTrue(path.contains("com/jmix/configengine/scenario/base"), "Resource path should contain package path");

@@ -3,6 +3,7 @@ package com.jmix.executor.omodel;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ import java.util.Map;
  * @since 2025-9-21
  */
 @Data
+@NoArgsConstructor
 public class PartInst {
 
     /**
@@ -55,6 +57,11 @@ public class PartInst {
      */
     @JsonIgnore
     private String shortCode;
+
+    public PartInst(String code, int quantity) {
+        this.code = code;
+        this.quantity = quantity;
+    }
 
     /**
      * 生成短字符串表示

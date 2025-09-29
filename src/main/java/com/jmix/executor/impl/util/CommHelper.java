@@ -20,7 +20,7 @@ public class CommHelper {
      */
     public static String createTempPath(Class<?> constraintAlgClazz) {
         // 生成临时资源路径
-        String tempPath = getResourcePath(constraintAlgClazz) + File.separator + "tempResource";
+        String tempPath = getJavaFilePath(constraintAlgClazz) + File.separator + "tempResource";
         createDirectory(tempPath);
         return tempPath;
     }
@@ -31,7 +31,7 @@ public class CommHelper {
      * @param clazz 类
      * @return 资源路径
      */
-    public static String getResourcePath(Class<?> clazz) {
+    public static String getJavaFilePath(Class<?> clazz) {
         String currentDir = clazz.getResource(".").getPath();
         if (currentDir.startsWith(File.separator)) {
             currentDir = currentDir.substring(1);
@@ -68,5 +68,25 @@ public class CommHelper {
                 log.warn("Failed to create directory: {}", path);
             }
         }
+    }
+
+    /**
+     * 获取当前测试资源路径
+     * 
+     * @return 测试资源路径
+     */
+    public static String getTestResourcePath() {
+        return System.getProperty("user.dir") + File.separator + "src" + File.separator + "test" + File.separator
+                + "resources";
+    }
+
+    /**
+     * 获取当前代码的资源路径
+     * 
+     * @return 代码资源路径
+     */
+    public static String getCodeResourcePath() {
+        return System.getProperty("user.dir") + File.separator + "src" + File.separator + "main" + File.separator
+                + "resources";
     }
 }

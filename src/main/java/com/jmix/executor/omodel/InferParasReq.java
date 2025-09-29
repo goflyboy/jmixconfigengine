@@ -39,7 +39,7 @@ public class InferParasReq {
     private List<PartInst> prePartInsts;
 
     /**
-     * 是否枚举所有解
+     * 是否枚举所有解, false，仅返回一个可行解，true，则返回所有的可选解
      */
-    private boolean enumerateAllSolution;
+    private boolean enumerateAllSolution = false;
 }
