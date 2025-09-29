@@ -24,7 +24,7 @@ Read file: undefined
 
 ---
 
-<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
 
 undefined
 
@@ -479,7 +479,7 @@ _**Assistant**_
 
 ---
 
-<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
 
 undefined
 
@@ -611,7 +611,7 @@ Read file: undefined
 | `src/main/java/com/jmix/configengine/inf/ParaInst.java` | Lundefined-46 |
 | `src/main/java/com/jmix/configengine/inf/PartInst.java` | Lundefined-44 |
 | `src/main/java/com/jmix/configengine/executor/ModuleConstraintExecutorImpl.java` | L172-231 |
-| `src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java` | L312-360 |
+| `src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java` | L312-360 |
 | `src/test/java/com/jmix/configengine/extensibleDemo/DCModuleConstraintExecutorImpl.java` | L202-252 |
 | `src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java` | L113-171 |
 | `src/test/java/com/jmix/configengine/extensibleDemo/DCPartInstAdapter.java` | Lundefined-53 |

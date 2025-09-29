@@ -53,10 +53,10 @@ Read file: undefined
 ---
 
 我发现了问题！有两个文件名几乎相同的文件：
-1. `ModuleSecnarioTestBase.java` (拼写错误，缺少"n")
+1. `ModuleScenarioTestBase.java` (拼写错误，缺少"n")
 2. `ModuleScenarioTestBase.java` (正确的拼写)
 
-而且从git状态可以看到，`ModuleSecnarioTestBase.java` 是修改过的文件，而 `ModuleScenarioTestBase.java` 是未跟踪的新文件。这说明您正在重命名文件以修复拼写错误。
+而且从git状态可以看到，`ModuleScenarioTestBase.java` 是修改过的文件，而 `ModuleScenarioTestBase.java` 是未跟踪的新文件。这说明您正在重命名文件以修复拼写错误。
 
 让我检查一下其他相关文件，看看它们引用了哪个类名：
 
@@ -76,15 +76,15 @@ Read file: undefined
 
 ---
 
-现在我明白了问题所在。有些文件还在使用旧的拼写错误的类名 `ModuleSecnarioTestBase`，而有些已经更新为正确的 `ModuleScenarioTestBase`。我需要创建一个任务计划来修复这些编译错误：
+现在我明白了问题所在。有些文件还在使用旧的拼写错误的类名 `ModuleScenarioTestBase`，而有些已经更新为正确的 `ModuleScenarioTestBase`。我需要创建一个任务计划来修复这些编译错误：
 
 
 ---
 
 ## Todo List
 
-- [-] 更新所有测试类中的类名引用，从 ModuleSecnarioTestBase 改为 ModuleScenarioTestBase
-- [ ] 删除旧的拼写错误的文件 ModuleSecnarioTestBase.java
+- [-] 更新所有测试类中的类名引用，从 ModuleScenarioTestBase 改为 ModuleScenarioTestBase
+- [ ] 删除旧的拼写错误的文件 ModuleScenarioTestBase.java
 - [ ] 验证修复后的编译状态
 
 ---
@@ -105,7 +105,7 @@ Lines added: 1, lines removed: 1
 @@ -8,5 +8,5 @@
   import org.junit.*;
   @Slf4j
-- public class ParaIntegerTest extends ModuleSecnarioTestBase {
+- public class ParaIntegerTest extends ModuleScenarioTestBase {
 + public class ParaIntegerTest extends ModuleScenarioTestBase {
       
       //---------------ģ�͵Ķ���start----------------------------------------
@@ -126,7 +126,7 @@ Lines added: 1, lines removed: 1
 @@ -8,5 +8,5 @@
   import org.junit.*;
   @Slf4j
-- public class ParaIsHiddenTest extends ModuleSecnarioTestBase {
+- public class ParaIsHiddenTest extends ModuleScenarioTestBase {
 + public class ParaIsHiddenTest extends ModuleScenarioTestBase {
       
       //---------------ģ�͵Ķ���start----------------------------------------
@@ -147,7 +147,7 @@ Lines added: 1, lines removed: 1
 @@ -12,5 +12,5 @@
   
   @Slf4j
-- public class Perf20ParasTest extends ModuleSecnarioTestBase {
+- public class Perf20ParasTest extends ModuleScenarioTestBase {
 + public class Perf20ParasTest extends ModuleScenarioTestBase {
    
   
@@ -173,8 +173,8 @@ undefined
 
 ## Todo List
 
-- [x] 更新所有测试类中的类名引用，从 ModuleSecnarioTestBase 改为 ModuleScenarioTestBase
-- [x] 删除旧的拼写错误的文件 ModuleSecnarioTestBase.java
+- [x] 更新所有测试类中的类名引用，从 ModuleScenarioTestBase 改为 ModuleScenarioTestBase
+- [x] 删除旧的拼写错误的文件 ModuleScenarioTestBase.java
 - [-] 验证修复后的编译状态
 
 ---
@@ -342,7 +342,7 @@ Changes not staged for commit:
         modified:   src/test/java/com/jmix/configengine/perf/Perf20ParasTest.java
         modified:   src/test/java/com/jmix/configengine/scenario/autoruletest/InjectCompatibleRuleTest.java
         modified:   src/test/java/com/jmix/configengine/scenario/base/ModuleGenneratorByAnno.java
-        deleted:    src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java
+        deleted:    src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java
         modified:   src/test/java/com/jmix/configengine/scenario/ruletest/ParaIntegerTest.java
         modified:   src/test/java/com/jmix/configengine/scenario/ruletest/ParaIsHiddenTest.java
         modified:   src/test/java/com/jmix/configengine/util/ModuleUtilsTest.java
@@ -358,7 +358,7 @@ PS D:\01.code\mygithub\jmixconfigengine>
 ---
 
 很好！现在我可以看到：
-1. 旧的拼写错误的文件 `ModuleSecnarioTestBase.java` 已经被删除
+1. 旧的拼写错误的文件 `ModuleScenarioTestBase.java` 已经被删除
 2. 新的正确拼写的文件 `ModuleScenarioTestBase.java` 是未跟踪的文件
 3. 其他文件已经被修改以使用正确的类名
 
@@ -381,9 +381,9 @@ PS D:\01.code\mygithub\jmixconfigengine>
 ---
 
 ```bash
-git commit -m "修复编译错误：重命名ModuleSecnarioTestBase为ModuleScenarioTestBase
+git commit -m "修复编译错误：重命名ModuleScenarioTestBase为ModuleScenarioTestBase
 
-- 修复类名拼写错误：ModuleSecnarioTestBase -> ModuleScenarioTestBase
+- 修复类名拼写错误：ModuleScenarioTestBase -> ModuleScenarioTestBase
 - 更新所有测试类中的类名引用
 - 删除旧的拼写错误的文件
 - 确保所有测试类使用正确的基类名称"
@@ -392,13 +392,13 @@ git commit -m "修复编译错误：重命名ModuleSecnarioTestBase为ModuleScen
 ```
 leSecnarioTestBase为ModuleScenarioTestBase
 >> 
->> - 修复类名拼写错误：ModuleSecnarioTestBase -> ModuleScenarioTestBase
+>> - 修复类名拼写错误：ModuleScenarioTestBase -> ModuleScenarioTestBase
 >> - 更新所有测试类中的类名引用
 >> - 删除旧的拼写错误的文件
 >> - 确保所有测试类使用正确的基类名称"
-[main 18391ca] 修复编译错误：重命名ModuleSecnarioTestBase为ModuleScenarioTestBase
+[main 18391ca] 修复编译错误：重命名ModuleScenarioTestBase为ModuleScenarioTestBase
  8 files changed, 2593 insertions(+), 14 deletions(-)
- rename src/test/java/com/jmix/configengine/scenario/base/{ModuleSecnarioTestBase.java => ModuleScenarioTestBase.java} (99%)
+ rename src/test/java/com/jmix/configengine/scenario/base/{ModuleScenarioTestBase.java => ModuleScenarioTestBase.java} (99%)
 PS D:\01.code\mygithub\jmixconfigengine> 
 ```
 
@@ -411,8 +411,8 @@ PS D:\01.code\mygithub\jmixconfigengine>
 
 ## Todo List
 
-- [x] 更新所有测试类中的类名引用，从 ModuleSecnarioTestBase 改为 ModuleScenarioTestBase
-- [x] 删除旧的拼写错误的文件 ModuleSecnarioTestBase.java
+- [x] 更新所有测试类中的类名引用，从 ModuleScenarioTestBase 改为 ModuleScenarioTestBase
+- [x] 删除旧的拼写错误的文件 ModuleScenarioTestBase.java
 - [x] 验证修复后的编译状态
 
 ---
@@ -424,7 +424,7 @@ PS D:\01.code\mygithub\jmixconfigengine>
 ### 🔧 修复内容：
 
 1. **类名拼写错误修复**：
-   - 将 `ModuleSecnarioTestBase`（缺少"n"）重命名为 `ModuleScenarioTestBase`（正确拼写）
+   - 将 `ModuleScenarioTestBase`（缺少"n"）重命名为 `ModuleScenarioTestBase`（正确拼写）
 
 2. **更新所有引用**：
    - 修复了以下文件中的类名引用：
@@ -433,7 +433,7 @@ PS D:\01.code\mygithub\jmixconfigengine>
      - `Perf20ParasTest.java`
 
 3. **文件管理**：
-   - 删除了旧的拼写错误的文件 `ModuleSecnarioTestBase.java`
+   - 删除了旧的拼写错误的文件 `ModuleScenarioTestBase.java`
    - 保留了新的正确拼写的文件 `ModuleScenarioTestBase.java`
 
 4. **提交修复**：

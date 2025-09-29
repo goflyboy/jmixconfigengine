@@ -298,10 +298,10 @@ Lines added: 4, lines removed: 4
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/ParaIsHiddenTest.java` | L164 | `// Test when P0=0, P1 should be hidden and P1.var=0` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/ParaIntegerTest.java` | L38 | `model.addEquality((IntVar)Part1.var, LinearExpr.sum(new IntVar[]{(IntVar)P1.var, (IntVar)P2.var}));` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/MyTShirtTest.java` | L32 | `// if(colorVar.var == Red && sizeVar.var == Small) {` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/MyTShirtTest.java` | L33 | `//     TShirt11Var.var = 1;` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/MyTShirtTest.java` | L36 | `//     TShirt11Var.var = 3;` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/MyTShirtTest.java` | L51 | `model.addEquality((IntVar)TShirt11Var.var, 1).onlyEnforceIf(redAndSmall);` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/MyTShirtTest.java` | L52 | `model.addEquality((IntVar)TShirt11Var.var, 3).onlyEnforceIf(redAndSmall.not());` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/MyTShirtTest.java` | L33 | `//     tShirt11Var.var = 1;` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/MyTShirtTest.java` | L36 | `//     tShirt11Var.var = 3;` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/MyTShirtTest.java` | L51 | `model.addEquality((IntVar)tShirt11Var.var, 1).onlyEnforceIf(redAndSmall);` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/MyTShirtTest.java` | L52 | `model.addEquality((IntVar)tShirt11Var.var, 3).onlyEnforceIf(redAndSmall.not());` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/CompatiableRuleRequireTest.java` | L49 | `// 1.1 如果AVar.var=a1,则BVar.var=b1 或 b2 或 b3` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/CompatiableRuleRequireTest.java` | L50 | `// 1.2 如果AVar.var=a1,则BVar.var=b4，是不合法的` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/CompatiableRuleRequireTest.java` | L52 | `// 2.1 如果BVar.var=b1,则AVar.var=a1 或 a2 或 a3 或 a4` |
@@ -317,13 +317,13 @@ Lines added: 4, lines removed: 4
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/CalculateRuleIfThenTest.java` | L63 | `model.addEquality((IntVar)this.PT1Var.var, 1).onlyEnforceIf(rule2_op11Andop21);` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/CalculateRuleIfThenTest.java` | L66 | `model.addEquality((IntVar)this.PT1Var.var, 3).onlyEnforceIf(rule2_op11Andop21.not());` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/hello/HelloConstraintTest.java` | L38 | `// if(colorVar.var ==Red && sizeVar.var == Small  ) {` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/hello/HelloConstraintTest.java` | L39 | `//     TShirt11Var.var = 1;` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/hello/HelloConstraintTest.java` | L42 | `//     TShirt11Var.var = 3` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/hello/HelloConstraintTest.java` | L39 | `//     tShirt11Var.var = 1;` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/hello/HelloConstraintTest.java` | L42 | `//     tShirt11Var.var = 3` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/hello/HelloConstraint.java` | L50 | `// if(colorVar.var ==Red && sizeVar.var == Small  ) {` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/hello/HelloConstraint.java` | L51 | `//     TShirt11Var.var = 1;` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/hello/HelloConstraint.java` | L54 | `//     TShirt11Var.var = 3` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/hello/HelloConstraint.java` | L74 | `model.addEquality((IntVar)this.TShirt11Var.var, 1).onlyEnforceIf(redAndSmall);` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/hello/HelloConstraint.java` | L77 | `model.addEquality((IntVar)this.TShirt11Var.var, 3).onlyEnforceIf(redAndSmall.not());` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/hello/HelloConstraint.java` | L51 | `//     tShirt11Var.var = 1;` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/hello/HelloConstraint.java` | L54 | `//     tShirt11Var.var = 3` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/hello/HelloConstraint.java` | L74 | `model.addEquality((IntVar)this.tShirt11Var.var, 1).onlyEnforceIf(redAndSmall);` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/hello/HelloConstraint.java` | L77 | `model.addEquality((IntVar)this.tShirt11Var.var, 3).onlyEnforceIf(redAndSmall.not());` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/modeltool/ModelHelperTest.java` | L44 | `String userLogicByPseudocode = "if(P1Var.var == op11 && P2Var.var == op21) {\n" +` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/modeltool/ModelHelperTest.java` | L45 | `"                PT1Var.var = 1;\n" +` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/modeltool/ModelHelperTest.java` | L48 | `"                PT1Var.var = 3;\n" +` |
@@ -352,8 +352,8 @@ Lines added: 4, lines removed: 4
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java` | L302 | `model.addEquality((IntVar) partVar.var, partQuantity);` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java` | L309 | `model.addEquality((IntVar) paraVar.var, Integer.parseInt(paraValue));` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/hello/HelloConstraintTest.java` | L38 | `// if(colorVar.var ==Red && sizeVar.var == Small  ) {` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/hello/HelloConstraintTest.java` | L39 | `//     TShirt11Var.var = 1;` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/hello/HelloConstraintTest.java` | L42 | `//     TShirt11Var.var = 3` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/hello/HelloConstraintTest.java` | L39 | `//     tShirt11Var.var = 1;` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/hello/HelloConstraintTest.java` | L42 | `//     tShirt11Var.var = 3` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/ParaIsHiddenTest.java` | L43 | `// Logic1: P1.isHiddenVar and P2.isHiddenVar are incompatible` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/ParaIsHiddenTest.java` | L44 | `model.addBoolOr(new Literal[]{P1.isHiddenVar.not(), P2.isHiddenVar.not()});` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/ruletest/ParaIsHiddenTest.java` | L47 | `// Logic2: if P0.var in (0,1) then P1.isHiddenVar=1 else P2.isHiddenVar=1` |
@@ -745,13 +745,13 @@ Lines added: 3, lines removed: 3
               // "Red-10", "Black-20", "White-30"
               // "Small-10", "Medium-20", "Big-30"
 -             // if(colorVar.var == Red && sizeVar.var == Small) {
--             //     TShirt11Var.var = 1;
+-             //     tShirt11Var.var = 1;
 +             // if(colorVar.value == Red && sizeVar.value == Small) {
-+             //     TShirt11Var.qty = 1;
++             //     tShirt11Var.qty = 1;
               // }
               // else {
--             //     TShirt11Var.var = 3;
-+             //     TShirt11Var.qty = 3;
+-             //     tShirt11Var.var = 3;
++             //     tShirt11Var.qty = 3;
               // }
               
 ```
@@ -771,10 +771,10 @@ Lines added: 2, lines removed: 2
 @@ -49,6 +49,6 @@
               }).onlyEnforceIf(redAndSmall.not());
               
--             model.addEquality((IntVar)TShirt11Var.var, 1).onlyEnforceIf(redAndSmall);
--             model.addEquality((IntVar)TShirt11Var.var, 3).onlyEnforceIf(redAndSmall.not());
-+             model.addEquality((IntVar)TShirt11Var.qty, 1).onlyEnforceIf(redAndSmall);
-+             model.addEquality((IntVar)TShirt11Var.qty, 3).onlyEnforceIf(redAndSmall.not());
+-             model.addEquality((IntVar)tShirt11Var.var, 1).onlyEnforceIf(redAndSmall);
+-             model.addEquality((IntVar)tShirt11Var.var, 3).onlyEnforceIf(redAndSmall.not());
++             model.addEquality((IntVar)tShirt11Var.qty, 1).onlyEnforceIf(redAndSmall);
++             model.addEquality((IntVar)tShirt11Var.qty, 3).onlyEnforceIf(redAndSmall.not());
           }
       }
 ```
@@ -922,16 +922,16 @@ Lines added: 6, lines removed: 6
           // "Red-10", "Black-20", "White-30"
           // "Small-10", "Medium-20", "Big-30"
 -         // if(colorVar.var ==Red && sizeVar.var == Small  ) {
--         //     TShirt11Var.var = 1;
+-         //     tShirt11Var.var = 1;
 -         // }
 -         // else {
--         //     TShirt11Var.var = 3
+-         //     tShirt11Var.var = 3
 -         // }
 +                     // if(colorVar.value ==Red && sizeVar.value == Small  ) {
-+             //     TShirt11Var.qty = 1;
++             //     tShirt11Var.qty = 1;
 +             // }
 +             // else {
-+             //     TShirt11Var.qty = 3
++             //     tShirt11Var.qty = 3
 +             // }
           // 测试颜色参数推理
           inferParas("TShirt11", 3);
@@ -958,13 +958,13 @@ Lines added: 3, lines removed: 3
           // "Red-10", "Black-20", "White-30"
           // "Small-10", "Medium-20", "Big-30"
 -         // if(colorVar.var ==Red && sizeVar.var == Small  ) {
--         //     TShirt11Var.var = 1;
+-         //     tShirt11Var.var = 1;
 +                     // if(colorVar.value ==Red && sizeVar.value == Small  ) {
-+             //     TShirt11Var.qty = 1;
++             //     tShirt11Var.qty = 1;
               // }
               // else {
--         //     TShirt11Var.var = 3
-+             //     TShirt11Var.qty = 3
+-         //     tShirt11Var.var = 3
++             //     tShirt11Var.qty = 3
               // }
   
 ```
@@ -997,12 +997,12 @@ Lines added: 2, lines removed: 2
 @@ -72,8 +72,8 @@
           // 根据条件设置TShirt11的数量
           // 如果redAndSmall为true，则TShirt11数量为1
--         model.addEquality((IntVar)this.TShirt11Var.var, 1).onlyEnforceIf(redAndSmall);
-+         model.addEquality((IntVar)this.TShirt11Var.qty, 1).onlyEnforceIf(redAndSmall);
+-         model.addEquality((IntVar)this.tShirt11Var.var, 1).onlyEnforceIf(redAndSmall);
++         model.addEquality((IntVar)this.tShirt11Var.qty, 1).onlyEnforceIf(redAndSmall);
           
           // 如果redAndSmall为false，则TShirt11数量为3
--         model.addEquality((IntVar)this.TShirt11Var.var, 3).onlyEnforceIf(redAndSmall.not());
-+         model.addEquality((IntVar)this.TShirt11Var.qty, 3).onlyEnforceIf(redAndSmall.not());
+-         model.addEquality((IntVar)this.tShirt11Var.var, 3).onlyEnforceIf(redAndSmall.not());
++         model.addEquality((IntVar)this.tShirt11Var.qty, 3).onlyEnforceIf(redAndSmall.not());
       }
   } 
 ```
@@ -1216,13 +1216,13 @@ Lines added: 3, lines removed: 3
               // "Red-10", "Black-20", "White-30"
               // "Small-10", "Medium-20", "Big-30"
 -             // if(colorVar.var == Red && sizeVar.var == Small) {
--             //     TShirt11Var.var = 1;
+-             //     tShirt11Var.var = 1;
 +             // if(colorVar.value == Red && sizeVar.value == Small) {
-+             //     TShirt11Var.qty = 1;
++             //     tShirt11Var.qty = 1;
               // }
               // else {
--             //     TShirt11Var.var = 3;
-+             //     TShirt11Var.qty = 3;
+-             //     tShirt11Var.var = 3;
++             //     tShirt11Var.qty = 3;
               // }
   
 ```
@@ -1430,7 +1430,7 @@ t/java/com/jmix/configengine/scenario/ruletest/tempResource/ParaInteger.base.jso
 [main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
 m/jmix/configengine/scenario/ruletest/tempResource/ParaInteger.base.json
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@623e088f
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
 ialized
@@ -1455,7 +1455,7 @@ selected=1},ParaOption{code=Big, selected=0},}
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
 ndex:1-----------
  PartVar{code=TShirt11, qty=1, hidden=0}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@2fc6f97f
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
 ialized
@@ -1557,23 +1557,23 @@ selected=0},ParaOption{code=Big, selected=0},}
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
 ndex:8-----------
  PartVar{code=TShirt11, qty=3, hidden=0}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@6179e425
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: Colo
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: Colo
 r:Red,Size:Small，数量: 0
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: Colo
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: Colo
 r:Black,Size:Big，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: Colo
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: Colo
 r:White,Size:Medium，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: Colo
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: Colo
 r:Red,Size:Medium，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: Colo
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: Colo
 r:Black,Size:Medium，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: Colo
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: Colo
 r:White,Size:Big，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: Colo
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: Colo
 r:Red,Size:Big，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: Colo
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: Colo
 r:Black,Size:Small，数量: 1
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
 ialized
@@ -1587,7 +1587,7 @@ t/java/com/jmix/configengine/scenario/ruletest/tempResource/MyTShirt.base.json
 [main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
 m/jmix/configengine/scenario/ruletest/tempResource/MyTShirt.base.json
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@2d6764b2
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
 ialized
@@ -1612,11 +1612,11 @@ ted=1},ParaOption{code=op23, selected=0},}
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
 ndex:1-----------
  PartVar{code=PT1, qty=1, hidden=0}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@6fe1b4fb
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 找到 1 个解决方案:
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 找到 1 个解决方案:
 
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase -
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase -
 解决方案0: {"id":123,"code":"CalculateRule","instanceConfigId":"0","instanceId":0,"quantity":1,"paras":[{
 "code":"P1","value":"10","options":["op11"],"isHidden":false,"hidden":false},{"code":"P2","value":"10","o
 ptions":["op21"],"isHidden":false,"hidden":false}],"parts":[{"code":"PT1","quantity":1,"selectAttrValue":
@@ -1633,10 +1633,10 @@ t/java/com/jmix/configengine/scenario/ruletest/tempResource/CalculateRule.base.j
 [main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
 m/jmix/configengine/scenario/ruletest/tempResource/CalculateRule.base.json
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@5023bb8b
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 没有找到解决方案
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 没有找到解决方案
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 没有找到解决方案
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 没有找到解决方案
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
 ialized
 [main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - 检测到内部类: com.jmix.configeng
@@ -1737,11 +1737,11 @@ ted=0},ParaOption{code=op23, selected=0},}
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
 ndex:8-----------
  PartVar{code=PT1, qty=3, hidden=0}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@7642df8f
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 找到 8 个解决方案:
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 找到 8 个解决方案:
 
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase -
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase -
 解决方案0: {"id":123,"code":"CalculateRule","instanceConfigId":"0","instanceId":0,"quantity":1,"paras":[{
 "code":"P1","value":"20","options":["op12"],"isHidden":false,"hidden":false},{"code":"P2","value":"10","o
 ptions":["op21"],"isHidden":false,"hidden":false}],"parts":[{"code":"PT1","quantity":3,"selectAttrValue":
@@ -1774,13 +1774,13 @@ null,"isHidden":false,"hidden":false}]}
 "code":"P1","value":"10","options":["op11"],"isHidden":false,"hidden":false},{"code":"P2","value":"20","o
 ptions":["op22"],"isHidden":false,"hidden":false}],"parts":[{"code":"PT1","quantity":3,"selectAttrValue":
 null,"isHidden":false,"hidden":false}]}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: P1:o
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: P1:o
 p11,P2:op21，数量: 0
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: P1:o
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: P1:o
 p12,P2:op22，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 找到 8 个解决方案:
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 找到 8 个解决方案:
 
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase -
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase -
 解决方案0: {"id":123,"code":"CalculateRule","instanceConfigId":"0","instanceId":0,"quantity":1,"paras":[{
 "code":"P1","value":"20","options":["op12"],"isHidden":false,"hidden":false},{"code":"P2","value":"10","o
 ptions":["op21"],"isHidden":false,"hidden":false}],"parts":[{"code":"PT1","quantity":3,"selectAttrValue":
@@ -1839,22 +1839,22 @@ ted=0},ParaOption{code=op13, selected=0},}
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
 ndex:2-----------
  PartVar{code=PT1, qty=3, hidden=0}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@2cc44ad
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 找到 2 个解决方案:
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 找到 2 个解决方案:
 
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase -
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase -
 解决方案0: {"id":123,"code":"CalculateRule","instanceConfigId":"0","instanceId":0,"quantity":1,"paras":[{
 "code":"P1","value":"30","options":["op13"],"isHidden":false,"hidden":false}],"parts":[{"code":"PT1","qua
 ntity":3,"selectAttrValue":null,"isHidden":false,"hidden":false}]}
 解决方案1: {"id":123,"code":"CalculateRule","instanceConfigId":"0","instanceId":0,"quantity":1,"paras":[{
 "code":"P1","value":"20","options":["op12"],"isHidden":false,"hidden":false}],"parts":[{"code":"PT1","qua
 ntity":3,"selectAttrValue":null,"isHidden":false,"hidden":false}]}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: P1:o
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: P1:o
 p11，数量: 0
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 找到 2 个解决方案:
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 找到 2 个解决方案:
 
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase -
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase -
 解决方案0: {"id":123,"code":"CalculateRule","instanceConfigId":"0","instanceId":0,"quantity":1,"paras":[{
 "code":"P1","value":"30","options":["op13"],"isHidden":false,"hidden":false}],"parts":[{"code":"PT1","qua
 ntity":3,"selectAttrValue":null,"isHidden":false,"hidden":false}]}
@@ -1873,10 +1873,10 @@ t/java/com/jmix/configengine/scenario/ruletest/tempResource/CalculateRule.base.j
 [main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
 m/jmix/configengine/scenario/ruletest/tempResource/CalculateRule.base.json
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@4535b6d5
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 没有找到解决方案
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 没有找到解决方案
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 没有找到解决方案
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 没有找到解决方案
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
 ialized
 [main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - 检测到内部类: com.jmix.configeng
@@ -1896,11 +1896,11 @@ ted=1},ParaOption{code=op13, selected=0},}
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
 ndex:1-----------
  PartVar{code=PT1, qty=1, hidden=0}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@4372b9b6
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 找到 1 个解决方案:
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 找到 1 个解决方案:
 
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase -
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase -
 解决方案0: {"id":123,"code":"CalculateRule","instanceConfigId":"0","instanceId":0,"quantity":1,"paras":[{
 "code":"P1","value":"10","options":["op11"],"isHidden":false,"hidden":false}],"parts":[{"code":"PT1","qua
 ntity":1,"selectAttrValue":null,"isHidden":false,"hidden":false}]}
@@ -1940,9 +1940,9 @@ ndex:3-----------
 ndex:3-----------
  Para{code=B,value=10, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=0
 },ParaOption{code=b1, selected=1},ParaOption{code=b3, selected=0},}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@56113384
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: B:b4
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: B:b4
 ，数量: 0
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
 ialized
@@ -1988,15 +1988,15 @@ ndex:4-----------
 ndex:4-----------
  Para{code=B,value=10, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=0
 },ParaOption{code=b1, selected=1},ParaOption{code=b3, selected=0},}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@373ebf74
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a1
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: A:a1
 ，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a2
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: A:a2
 ，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a3
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: A:a3
 ，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a4
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: A:a4
 ，数量: 1
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
 ialized
@@ -2042,15 +2042,15 @@ ndex:4-----------
 ndex:4-----------
  Para{code=B,value=10, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=0
 },ParaOption{code=b1, selected=1},ParaOption{code=b3, selected=0},}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@c4ed84
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: B:b1
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: B:b1
 ，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: B:b2
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: B:b2
 ，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: B:b3
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: B:b3
 ，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: B:b4
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: B:b4
 ，数量: 1
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
 ndex:1-----------
@@ -2084,7 +2084,7 @@ ndex:4-----------
 ndex:4-----------
  Para{code=B,value=10, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=0
 },ParaOption{code=b1, selected=1},ParaOption{code=b3, selected=0},}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@189aa67a
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
 ialized
@@ -2122,9 +2122,9 @@ ndex:3-----------
 ndex:3-----------
  Para{code=B,value=10, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=0
 },ParaOption{code=b1, selected=1},ParaOption{code=b3, selected=0},}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@362045c0
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: B:b4
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: B:b4
 ，数量: 0
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
 ialized
@@ -2162,9 +2162,9 @@ ndex:3-----------
 ndex:3-----------
  Para{code=B,value=10, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=0
 },ParaOption{code=b1, selected=1},ParaOption{code=b3, selected=0},}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@5ccbeb64
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: B:b4
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: B:b4
 ，数量: 0
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
 ialized
@@ -2194,15 +2194,15 @@ ndex:2-----------
 ndex:2-----------
  Para{code=B,value=40, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=1
 },ParaOption{code=b1, selected=0},ParaOption{code=b3, selected=0},}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@59252cb6
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a2
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: A:a2
 ，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a4
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: A:a4
 ，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a1
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: A:a1
 ，数量: 0
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a3
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: A:a3
 ，数量: 0
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
 ialized
@@ -2228,11 +2228,11 @@ ndex:1-----------
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
 ndex:1-----------
  PartVar{code=Part1, qty=1, hidden=0}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@241e8ea6
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 找到 1 个解决方案:
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 找到 1 个解决方案:
 
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase -
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase -
 解决方案0: {"id":123,"code":"ParaIsHidden","instanceConfigId":"0","instanceId":0,"quantity":1,"paras":[{"
 code":"P0","value":"1","options":[],"isHidden":false,"hidden":false},{"code":"P1","value":"0","options":[
 ],"isHidden":true,"hidden":true},{"code":"P2","value":"1","options":[],"isHidden":false,"hidden":false}],
@@ -2261,11 +2261,11 @@ ndex:1-----------
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
 ndex:1-----------
  PartVar{code=Part1, qty=2, hidden=0}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@3bcbb589
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 找到 1 个解决方案:
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 找到 1 个解决方案:
 
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase -
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase -
 解决方案0: {"id":123,"code":"ParaIsHidden","instanceConfigId":"0","instanceId":0,"quantity":1,"paras":[{"
 code":"P0","value":"2","options":[],"isHidden":false,"hidden":false},{"code":"P1","value":"2","options":[
 ],"isHidden":false,"hidden":false},{"code":"P2","value":"0","options":[],"isHidden":true,"hidden":true}],
@@ -2294,11 +2294,11 @@ ndex:1-----------
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
 ndex:1-----------
  PartVar{code=Part1, qty=1, hidden=0}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@6c45ee6e
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 找到 1 个解决方案:
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 找到 1 个解决方案:
 
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase -
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase -
 解决方案0: {"id":123,"code":"ParaIsHidden","instanceConfigId":"0","instanceId":0,"quantity":1,"paras":[{"
 code":"P0","value":"0","options":[],"isHidden":false,"hidden":false},{"code":"P1","value":"0","options":[
 ],"isHidden":true,"hidden":true},{"code":"P2","value":"1","options":[],"isHidden":false,"hidden":false}],
@@ -2327,11 +2327,11 @@ ndex:1-----------
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
 ndex:1-----------
  PartVar{code=Part1, qty=2, hidden=0}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@59f63e24
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 找到 1 个解决方案:
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 找到 1 个解决方案:
 
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase -
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase -
 解决方案0: {"id":123,"code":"ParaIsHidden","instanceConfigId":"0","instanceId":0,"quantity":1,"paras":[{"
 code":"P0","value":"1","options":[],"isHidden":false,"hidden":false},{"code":"P1","value":"0","options":[
 ],"isHidden":true,"hidden":true},{"code":"P2","value":"2","options":[],"isHidden":false,"hidden":false}],
@@ -2348,9 +2348,9 @@ t/java/com/jmix/configengine/scenario/ruletest/tempResource/ParaIsHidden.base.js
 [main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
 m/jmix/configengine/scenario/ruletest/tempResource/ParaIsHidden.base.json
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@41dd05a
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 没有找到解决方案
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 没有找到解决方案
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
 ialized
 [main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - 检测到内部类: com.jmix.configeng
@@ -2375,11 +2375,11 @@ ndex:1-----------
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
 ndex:1-----------
  PartVar{code=Part1, qty=1, hidden=0}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@178213b
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 找到 1 个解决方案:
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 找到 1 个解决方案:
 
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase -
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase -
 解决方案0: {"id":123,"code":"ParaIsHidden","instanceConfigId":"0","instanceId":0,"quantity":1,"paras":[{"
 code":"P0","value":"2","options":[],"isHidden":false,"hidden":false},{"code":"P1","value":"1","options":[
 ],"isHidden":false,"hidden":false},{"code":"P2","value":"0","options":[],"isHidden":true,"hidden":true}],

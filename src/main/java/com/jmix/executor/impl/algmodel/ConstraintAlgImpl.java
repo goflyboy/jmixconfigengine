@@ -390,7 +390,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
     /**
      * 从字段名提取代码
-     * 例如: colorVar -> Color, TShirt11Var -> TShirt11
+     * 例如: colorVar -> Color, tShirt11Var -> TShirt11
      * 
      * @param fieldName 字段名
      * @return 提取的代码，如果字段名不以"Var"结尾则返回原字段名

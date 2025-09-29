@@ -1095,16 +1095,16 @@ Lines added: 4, lines removed: 39
 -         
 -         //部件创建
 -             //部件TShirt11创建
--             this.TShirt11Var = new PartVar();
--             this.TShirt11Var.code = "TShirt11";
--             this.TShirt11Var.var = model.newIntVar(0, 1000, "TShirt11");
+-             this.tShirt11Var = new PartVar();
+-             this.tShirt11Var.code = "TShirt11";
+-             this.tShirt11Var.var = model.newIntVar(0, 1000, "TShirt11");
 -             //部件TShirt12创建
 -             this.TShirt12Var = new PartVar();
 -             this.TShirt12Var.code = "TShirt12";
 -             this.TShirt12Var.var = model.newIntVar(0, 1000, "TShirt12");
 +         this.colorVar = createParaVar("Color");
 +         this.sizeVar = createParaVar("Size");
-+         this.TShirt11Var = createPartVar("TShirt11");
++         this.tShirt11Var = createPartVar("TShirt11");
 +         this.TShirt12Var = createPartVar("TShirt12");
       }
   
@@ -2361,7 +2361,7 @@ ion,com.google.ortools.sat.BoolVar)不适用
 [ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtC
 onstraint.java:[52,29] 找不到符号
   符号:   变量 code
-  位置: 类型为com.jmix.configengine.artifact.PartVar的变量 TShirt11Var
+  位置: 类型为com.jmix.configengine.artifact.PartVar的变量 tShirt11Var
 [ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtC
 onstraint.java:[56,29] 找不到符号
   符号:   变量 code
@@ -2453,7 +2453,7 @@ onstraint.java:[42,50] 对于ParaOptionVar(java.lang.String,int,com.google.ortoo
 [ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtC
 onstraint.java:[52,29] 找不到符号
 [ERROR]   符号:   变量 code
-[ERROR]   位置: 类型为com.jmix.configengine.artifact.PartVar的变量 TShirt11Var
+[ERROR]   位置: 类型为com.jmix.configengine.artifact.PartVar的变量 tShirt11Var
 [ERROR] /D:/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/tshirt/TShirtC
 onstraint.java:[56,29] 找不到符号
 [ERROR]   符号:   变量 code

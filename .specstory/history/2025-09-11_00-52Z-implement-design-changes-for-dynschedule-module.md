@@ -866,12 +866,12 @@ Lines added: 59, lines removed: undefined
 |------|-------|
 | `src/main/java/com/jmix/configengine/executor/ModuleConstraintExecutorImpl.java` | L75-124 |
 | `src/test/java/com/jmix/configengine/extensibleDemo/DCModuleConstraintExecutorImpl.java` | L76-122 |
-| `src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java` | L81-118 |
+| `src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java` | L81-118 |
 | `doc/约束规则生成设计.md` | L658-703 |
 | `src/test/java/com/jmix/configengine/extensibleDemo/DCModuleConstraintExecutor.java` | Lundefined-79 |
 | `src/main/java/com/jmix/configengine/ModuleConstraintExecutor.java` | L68-96 |
 | `doc/约束规则生成设计.md` | L602-662 |
-| `src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java` | L111-157 |
+| `src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java` | L111-157 |
 | `src/test/java/com/jmix/configengine/extensibleDemo/DCModuleConstraintExecutor.java` | L72-103 |
 | `src/main/java/com/jmix/configengine/executor/ModuleConstraintExecutorImpl.java` | Lundefined-27 |
 | `src/main/java/com/jmix/configengine/executor/ModuleConstraintExecutorImpl.java` | L121-148 |
@@ -2095,8 +2095,8 @@ java.lang.RuntimeException: Rule Rule21 must have exactly one right progObj, but
         at com.jmix.configengine.model.Module.init(Module.java:91)
         at com.jmix.configengine.executor.ModuleConstraintExecutorImpl.addModule(ModuleConstraintExecutorImpl.java:63)
         at com.jmix.configengine.ModuleConstraintExecutor.addModule(ModuleConstraintExecutor.java:59)    
-        at com.jmix.configengine.scenario.base.ModuleSecnarioTestBase.init(ModuleSecnarioTestBase.java:82)
-        at com.jmix.configengine.scenario.base.ModuleSecnarioTestBase.setUp(ModuleSecnarioTestBase.java:47)
+        at com.jmix.configengine.scenario.base.ModuleScenarioTestBase.init(ModuleScenarioTestBase.java:82)
+        at com.jmix.configengine.scenario.base.ModuleScenarioTestBase.setUp(ModuleScenarioTestBase.java:47)
         at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
         at java.base/java.lang.reflect.Method.invoke(Method.java:580)
         at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
@@ -2132,8 +2132,8 @@ java.lang.RuntimeException: Rule Rule21 must have exactly one right progObj, but
         at com.jmix.configengine.model.Module.init(Module.java:91)
         at com.jmix.configengine.executor.ModuleConstraintExecutorImpl.addModule(ModuleConstraintExecutorImpl.java:63)
         at com.jmix.configengine.ModuleConstraintExecutor.addModule(ModuleConstraintExecutor.java:59)    
-        at com.jmix.configengine.scenario.base.ModuleSecnarioTestBase.init(ModuleSecnarioTestBase.java:82)
-        at com.jmix.configengine.scenario.base.ModuleSecnarioTestBase.setUp(ModuleSecnarioTestBase.java:47)
+        at com.jmix.configengine.scenario.base.ModuleScenarioTestBase.init(ModuleScenarioTestBase.java:82)
+        at com.jmix.configengine.scenario.base.ModuleScenarioTestBase.setUp(ModuleScenarioTestBase.java:47)
         at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
         at java.base/java.lang.reflect.Method.invoke(Method.java:580)
         at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
@@ -2169,8 +2169,8 @@ java.lang.RuntimeException: Rule Rule21 must have exactly one right progObj, but
         at com.jmix.configengine.model.Module.init(Module.java:91)
         at com.jmix.configengine.executor.ModuleConstraintExecutorImpl.addModule(ModuleConstraintExecutorImpl.java:63)
         at com.jmix.configengine.ModuleConstraintExecutor.addModule(ModuleConstraintExecutor.java:59)    
-        at com.jmix.configengine.scenario.base.ModuleSecnarioTestBase.init(ModuleSecnarioTestBase.java:82)
-        at com.jmix.configengine.scenario.base.ModuleSecnarioTestBase.setUp(ModuleSecnarioTestBase.java:47)
+        at com.jmix.configengine.scenario.base.ModuleScenarioTestBase.init(ModuleScenarioTestBase.java:82)
+        at com.jmix.configengine.scenario.base.ModuleScenarioTestBase.setUp(ModuleScenarioTestBase.java:47)
         at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
         at java.base/java.lang.reflect.Method.invoke(Method.java:580)
         at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
@@ -2206,8 +2206,8 @@ java.lang.RuntimeException: Rule Rule21 must have exactly one right progObj, but
         at com.jmix.configengine.model.Module.init(Module.java:91)
         at com.jmix.configengine.executor.ModuleConstraintExecutorImpl.addModule(ModuleConstraintExecutorImpl.java:63)
         at com.jmix.configengine.ModuleConstraintExecutor.addModule(ModuleConstraintExecutor.java:59)    
-        at com.jmix.configengine.scenario.base.ModuleSecnarioTestBase.init(ModuleSecnarioTestBase.java:82)
-        at com.jmix.configengine.scenario.base.ModuleSecnarioTestBase.setUp(ModuleSecnarioTestBase.java:47)
+        at com.jmix.configengine.scenario.base.ModuleScenarioTestBase.init(ModuleScenarioTestBase.java:82)
+        at com.jmix.configengine.scenario.base.ModuleScenarioTestBase.setUp(ModuleScenarioTestBase.java:47)
         at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
         at java.base/java.lang.reflect.Method.invoke(Method.java:580)
         at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
@@ -2243,8 +2243,8 @@ java.lang.RuntimeException: Rule Rule21 must have exactly one right progObj, but
         at com.jmix.configengine.model.Module.init(Module.java:91)
         at com.jmix.configengine.executor.ModuleConstraintExecutorImpl.addModule(ModuleConstraintExecutorImpl.java:63)
         at com.jmix.configengine.ModuleConstraintExecutor.addModule(ModuleConstraintExecutor.java:59)    
-        at com.jmix.configengine.scenario.base.ModuleSecnarioTestBase.init(ModuleSecnarioTestBase.java:82)
-        at com.jmix.configengine.scenario.base.ModuleSecnarioTestBase.setUp(ModuleSecnarioTestBase.java:47)
+        at com.jmix.configengine.scenario.base.ModuleScenarioTestBase.init(ModuleScenarioTestBase.java:82)
+        at com.jmix.configengine.scenario.base.ModuleScenarioTestBase.setUp(ModuleScenarioTestBase.java:47)
         at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
         at java.base/java.lang.reflect.Method.invoke(Method.java:580)
         at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
@@ -2280,8 +2280,8 @@ java.lang.RuntimeException: Rule Rule21 must have exactly one right progObj, but
         at com.jmix.configengine.model.Module.init(Module.java:91)
         at com.jmix.configengine.executor.ModuleConstraintExecutorImpl.addModule(ModuleConstraintExecutorImpl.java:63)
         at com.jmix.configengine.ModuleConstraintExecutor.addModule(ModuleConstraintExecutor.java:59)    
-        at com.jmix.configengine.scenario.base.ModuleSecnarioTestBase.init(ModuleSecnarioTestBase.java:82)
-        at com.jmix.configengine.scenario.base.ModuleSecnarioTestBase.setUp(ModuleSecnarioTestBase.java:47)
+        at com.jmix.configengine.scenario.base.ModuleScenarioTestBase.init(ModuleScenarioTestBase.java:82)
+        at com.jmix.configengine.scenario.base.ModuleScenarioTestBase.setUp(ModuleScenarioTestBase.java:47)
         at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
         at java.base/java.lang.reflect.Method.invoke(Method.java:580)
         at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
@@ -2318,8 +2318,8 @@ java.lang.RuntimeException: Rule Rule21 must have exactly one right progObj, but
         at com.jmix.configengine.model.Module.init(Module.java:91)
         at com.jmix.configengine.executor.ModuleConstraintExecutorImpl.addModule(ModuleConstraintExecutorImpl.java:63)
         at com.jmix.configengine.ModuleConstraintExecutor.addModule(ModuleConstraintExecutor.java:59)    
-        at com.jmix.configengine.scenario.base.ModuleSecnarioTestBase.init(ModuleSecnarioTestBase.java:82)
-        at com.jmix.configengine.scenario.base.ModuleSecnarioTestBase.setUp(ModuleSecnarioTestBase.java:47)
+        at com.jmix.configengine.scenario.base.ModuleScenarioTestBase.init(ModuleScenarioTestBase.java:82)
+        at com.jmix.configengine.scenario.base.ModuleScenarioTestBase.setUp(ModuleScenarioTestBase.java:47)
         at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
         at java.base/java.lang.reflect.Method.invoke(Method.java:580)
         at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
@@ -2355,8 +2355,8 @@ java.lang.RuntimeException: Rule Rule21 must have exactly one right progObj, but
         at com.jmix.configengine.model.Module.init(Module.java:91)
         at com.jmix.configengine.executor.ModuleConstraintExecutorImpl.addModule(ModuleConstraintExecutorImpl.java:63)
         at com.jmix.configengine.ModuleConstraintExecutor.addModule(ModuleConstraintExecutor.java:59)    
-        at com.jmix.configengine.scenario.base.ModuleSecnarioTestBase.init(ModuleSecnarioTestBase.java:82)
-        at com.jmix.configengine.scenario.base.ModuleSecnarioTestBase.setUp(ModuleSecnarioTestBase.java:47)
+        at com.jmix.configengine.scenario.base.ModuleScenarioTestBase.init(ModuleScenarioTestBase.java:82)
+        at com.jmix.configengine.scenario.base.ModuleScenarioTestBase.setUp(ModuleScenarioTestBase.java:47)
         at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
         at java.base/java.lang.reflect.Method.invoke(Method.java:580)
         at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
@@ -2392,8 +2392,8 @@ java.lang.RuntimeException: Rule Rule21 must have exactly one right progObj, but
         at com.jmix.configengine.model.Module.init(Module.java:91)
         at com.jmix.configengine.executor.ModuleConstraintExecutorImpl.addModule(ModuleConstraintExecutorImpl.java:63)
         at com.jmix.configengine.ModuleConstraintExecutor.addModule(ModuleConstraintExecutor.java:59)    
-        at com.jmix.configengine.scenario.base.ModuleSecnarioTestBase.init(ModuleSecnarioTestBase.java:82)
-        at com.jmix.configengine.scenario.base.ModuleSecnarioTestBase.setUp(ModuleSecnarioTestBase.java:47)
+        at com.jmix.configengine.scenario.base.ModuleScenarioTestBase.init(ModuleScenarioTestBase.java:82)
+        at com.jmix.configengine.scenario.base.ModuleScenarioTestBase.setUp(ModuleScenarioTestBase.java:47)
         at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
         at java.base/java.lang.reflect.Method.invoke(Method.java:580)
         at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
@@ -2429,8 +2429,8 @@ java.lang.RuntimeException: Rule Rule21 must have exactly one right progObj, but
         at com.jmix.configengine.model.Module.init(Module.java:91)
         at com.jmix.configengine.executor.ModuleConstraintExecutorImpl.addModule(ModuleConstraintExecutorImpl.java:63)
         at com.jmix.configengine.ModuleConstraintExecutor.addModule(ModuleConstraintExecutor.java:59)    
-        at com.jmix.configengine.scenario.base.ModuleSecnarioTestBase.init(ModuleSecnarioTestBase.java:82)
-        at com.jmix.configengine.scenario.base.ModuleSecnarioTestBase.setUp(ModuleSecnarioTestBase.java:47)
+        at com.jmix.configengine.scenario.base.ModuleScenarioTestBase.init(ModuleScenarioTestBase.java:82)
+        at com.jmix.configengine.scenario.base.ModuleScenarioTestBase.setUp(ModuleScenarioTestBase.java:47)
         at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
         at java.base/java.lang.reflect.Method.invoke(Method.java:580)
         at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
@@ -2464,25 +2464,25 @@ java.lang.RuntimeException: Rule Rule21 must have exactly one right progObj, but
 [INFO] Results:
 [INFO]
 [ERROR] Errors: 
-[ERROR]   DynScheduleTest>ModuleSecnarioTestBase.setUp:47->ModuleSecnarioTestBase.init:82 » Runtime Rule 
+[ERROR]   DynScheduleTest>ModuleScenarioTestBase.setUp:47->ModuleScenarioTestBase.init:82 » Runtime Rule 
 Rule21 must have exactly one right progObj, but found 0
-[ERROR]   DynScheduleTest>ModuleSecnarioTestBase.setUp:47->ModuleSecnarioTestBase.init:82 » Runtime Rule 
+[ERROR]   DynScheduleTest>ModuleScenarioTestBase.setUp:47->ModuleScenarioTestBase.init:82 » Runtime Rule 
 Rule21 must have exactly one right progObj, but found 0
-[ERROR]   DynScheduleTest>ModuleSecnarioTestBase.setUp:47->ModuleSecnarioTestBase.init:82 » Runtime Rule 
+[ERROR]   DynScheduleTest>ModuleScenarioTestBase.setUp:47->ModuleScenarioTestBase.init:82 » Runtime Rule 
 Rule21 must have exactly one right progObj, but found 0
-[ERROR]   DynScheduleTest>ModuleSecnarioTestBase.setUp:47->ModuleSecnarioTestBase.init:82 » Runtime Rule 
+[ERROR]   DynScheduleTest>ModuleScenarioTestBase.setUp:47->ModuleScenarioTestBase.init:82 » Runtime Rule 
 Rule21 must have exactly one right progObj, but found 0
-[ERROR]   DynScheduleTest>ModuleSecnarioTestBase.setUp:47->ModuleSecnarioTestBase.init:82 » Runtime Rule 
+[ERROR]   DynScheduleTest>ModuleScenarioTestBase.setUp:47->ModuleScenarioTestBase.init:82 » Runtime Rule 
 Rule21 must have exactly one right progObj, but found 0
-[ERROR]   DynScheduleTest>ModuleSecnarioTestBase.setUp:47->ModuleSecnarioTestBase.init:82 » Runtime Rule 
+[ERROR]   DynScheduleTest>ModuleScenarioTestBase.setUp:47->ModuleScenarioTestBase.init:82 » Runtime Rule 
 Rule21 must have exactly one right progObj, but found 0
-[ERROR]   DynScheduleTest>ModuleSecnarioTestBase.setUp:47->ModuleSecnarioTestBase.init:82 » Runtime Rule 
+[ERROR]   DynScheduleTest>ModuleScenarioTestBase.setUp:47->ModuleScenarioTestBase.init:82 » Runtime Rule 
 Rule21 must have exactly one right progObj, but found 0
-[ERROR]   DynScheduleTest>ModuleSecnarioTestBase.setUp:47->ModuleSecnarioTestBase.init:82 » Runtime Rule 
+[ERROR]   DynScheduleTest>ModuleScenarioTestBase.setUp:47->ModuleScenarioTestBase.init:82 » Runtime Rule 
 Rule21 must have exactly one right progObj, but found 0
-[ERROR]   DynScheduleTest>ModuleSecnarioTestBase.setUp:47->ModuleSecnarioTestBase.init:82 » Runtime Rule 
+[ERROR]   DynScheduleTest>ModuleScenarioTestBase.setUp:47->ModuleScenarioTestBase.init:82 » Runtime Rule 
 Rule21 must have exactly one right progObj, but found 0
-[ERROR]   DynScheduleTest>ModuleSecnarioTestBase.setUp:47->ModuleSecnarioTestBase.init:82 » Runtime Rule 
+[ERROR]   DynScheduleTest>ModuleScenarioTestBase.setUp:47->ModuleScenarioTestBase.init:82 » Runtime Rule 
 Rule21 must have exactly one right progObj, but found 0
 [INFO]
 [ERROR] Tests run: 10, Failures: 0, Errors: 10, Skipped: 0
@@ -2605,8 +2605,8 @@ java.lang.RuntimeException: Rule Rule21 must have exactly one right progObj, but
         at com.jmix.configengine.model.Module.init(Module.java:91)
         at com.jmix.configengine.executor.ModuleConstraintExecutorImpl.addModule(ModuleConstraintExecutorImpl.java:63)
         at com.jmix.configengine.ModuleConstraintExecutor.addModule(ModuleConstraintExecutor.java:59)    
-        at com.jmix.configengine.scenario.base.ModuleSecnarioTestBase.init(ModuleSecnarioTestBase.java:82)
-        at com.jmix.configengine.scenario.base.ModuleSecnarioTestBase.setUp(ModuleSecnarioTestBase.java:47)
+        at com.jmix.configengine.scenario.base.ModuleScenarioTestBase.init(ModuleScenarioTestBase.java:82)
+        at com.jmix.configengine.scenario.base.ModuleScenarioTestBase.setUp(ModuleScenarioTestBase.java:47)
         at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
         at java.base/java.lang.reflect.Method.invoke(Method.java:580)
         at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
@@ -2640,7 +2640,7 @@ java.lang.RuntimeException: Rule Rule21 must have exactly one right progObj, but
 [INFO] Results:
 [INFO]
 [ERROR] Errors: 
-[ERROR]   DynScheduleTest>ModuleSecnarioTestBase.setUp:47->ModuleSecnarioTestBase.init:82 » Runtime Rule 
+[ERROR]   DynScheduleTest>ModuleScenarioTestBase.setUp:47->ModuleScenarioTestBase.init:82 » Runtime Rule 
 Rule21 must have exactly one right progObj, but found 0
 [INFO]
 [ERROR] Tests run: 1, Failures: 0, Errors: 1, Skipped: 0

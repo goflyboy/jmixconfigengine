@@ -131,7 +131,7 @@ class ConstraintAlgImpl {
 三、测试代码生成要求
 1、需要根据{{用户的规则-伪代码}}来生成测试用例，用例要求简洁、完备，需要包括做到代码逻辑的覆盖
 2、基于Junit4实现
-2、用例代码继承了ModuleSecnarioTestBase（测试框架），每个测试用例基于下列的流比较方法实现
+2、用例代码继承了ModuleScenarioTestBase（测试框架），每个测试用例基于下列的流比较方法实现
 2.1 
 inferParas(String partCode, Integer qty)->解的结果，执行参数推理，表示根据输入的Part的数量，运行约束求解来求解推理的参数
 2.2
@@ -156,7 +156,7 @@ void assertSolutionNum(String conditionExpr, int expectSolutionNum)//conditionEx
 
 测试代码
 @Slf4j
-public class {{modelScenarioName}}Test extends ModuleSecnarioTestBase {
+public class {{modelScenarioName}}Test extends ModuleScenarioTestBase {
     //---------------模型的定义start----------------------------------------
     @ModuleAnno(id = 123L)
     static public class {{modelScenarioName}}Constraint extends ConstraintAlgImpl {
@@ -195,15 +195,15 @@ public class {{modelScenarioName}}Test extends ModuleSecnarioTestBase {
     )
     private ParaVar sizeVar;
     @PartAnno()
-    private PartVar TShirt11Var;
+    private PartVar tShirt11Var;
 1.2 输入2：用户的规则-伪代码
 	//"Red-10", "Black-20", "White-30"
 	//"Small-10", "Medium-20", "Big-30"
 	if(colorVar.var ==Red && sizeVar.var == Small  ) {
-		TShirt11Var.var = 1;
+		tShirt11Var.var = 1;
 	}
 	else {
-		TShirt11Var.var = 3
+		tShirt11Var.var = 3
 	}
 1.3 输出：
 
@@ -214,7 +214,7 @@ import com.jmix.configengine.artifact.ConstraintAlgImpl;
 import com.jmix.configengine.artifact.ParaVar;
 import com.jmix.configengine.artifact.PartVar;
 import com.jmix.configengine.scenario.base.ModuleAnno;
-import com.jmix.configengine.scenario.base.ModuleSecnarioTestBase;
+import com.jmix.configengine.scenario.base.ModuleScenarioTestBase;
 import com.jmix.configengine.scenario.base.ParaAnno;
 import com.jmix.configengine.scenario.base.PartAnno;
 import lombok.extern.slf4j.Slf4j;
@@ -224,7 +224,7 @@ import org.junit.Test;
  * Hello约束算法测试类
  */
 @Slf4j
-public class HelloSampleTest extends ModuleSecnarioTestBase {
+public class HelloSampleTest extends ModuleScenarioTestBase {
     //---------------规则定义start----------------------------------------
     @ModuleAnno(id = 123L)
     static public class HelloSampleConstraint extends ConstraintAlgImpl {
@@ -238,7 +238,7 @@ public class HelloSampleTest extends ModuleSecnarioTestBase {
         )
         private ParaVar sizeVar;
         @PartAnno()
-        private PartVar TShirt11Var;
+        private PartVar tShirt11Var;
 
         @Override
         protected void initConstraint() {
@@ -246,10 +246,10 @@ public class HelloSampleTest extends ModuleSecnarioTestBase {
             // "Red-10", "Black-20", "White-30"
             // "Small-10", "Medium-20", "Big-30"
             // if(colorVar.var ==Red && sizeVar.var == Small  ) {
-            //     TShirt11Var.var = 1;
+            //     tShirt11Var.var = 1;
             // }
             // else {
-            //     TShirt11Var.var = 3
+            //     tShirt11Var.var = 3
             // }
 
             // 创建条件变量：颜色是红色且尺寸是小号
@@ -269,10 +269,10 @@ public class HelloSampleTest extends ModuleSecnarioTestBase {
 
             // 根据条件设置TShirt11的数量
             // 如果redAndSmall为true，则TShirt11数量为1
-            model.addEquality((IntVar)this.TShirt11Var.var, 1).onlyEnforceIf(redAndSmall);
+            model.addEquality((IntVar)this.tShirt11Var.var, 1).onlyEnforceIf(redAndSmall);
 
             // 如果redAndSmall为false，则TShirt11数量为3
-            model.addEquality((IntVar)this.TShirt11Var.var, 3).onlyEnforceIf(redAndSmall.not());
+            model.addEquality((IntVar)this.tShirt11Var.var, 3).onlyEnforceIf(redAndSmall.not());
         }
     }
    //---------------规则定义end----------------------------------------
@@ -662,7 +662,7 @@ Lines added: 170, lines removed: 117
 - 三、测试代码生成要求
 - 1、需要根据{{ ${userLogicByPseudocode}}}来生成测试用例，用例要求简洁、完备，需要包括做到代码逻辑的覆盖
 - 2、基于Junit4实现
-- 2、用例代码继承了ModuleSecnarioTestBase（测试框架），每个测试用例基于下列的流比较方法实现
+- 2、用例代码继承了ModuleScenarioTestBase（测试框架），每个测试用例基于下列的流比较方法实现
 - 2.1 
 - inferParas(String partCode, Integer qty)->解的结果，执行参数推理，表示根据输入的Part的数量，运行约束求解来求解推理的参数
 - 2.2
@@ -699,7 +699,7 @@ Lines added: 170, lines removed: 117
 + - 根据用户逻辑伪代码生成测试用例
 + - 用例要求简洁、完备，需要包括代码逻辑的覆盖
 + - 基于Junit4实现
-+ - 用例代码继承ModuleSecnarioTestBase（测试框架）
++ - 用例代码继承ModuleScenarioTestBase（测试框架）
 + 
 + ### 2. 测试方法实现
 + 每个测试用例基于下列的流比较方法实现：
@@ -749,8 +749,8 @@ Lines added: 170, lines removed: 117
 + ### 2. 代码模板
 + ```java
   @Slf4j
-- public class {{${modelName}}}Test extends ModuleSecnarioTestBase {
-+ public class ${modelName}Test extends ModuleSecnarioTestBase {
+- public class {{${modelName}}}Test extends ModuleScenarioTestBase {
++ public class ${modelName}Test extends ModuleScenarioTestBase {
 +     
       //---------------模型的定义start----------------------------------------
       @ModuleAnno(id = 123L)
@@ -819,15 +819,15 @@ Lines added: 170, lines removed: 117
 -     )
 -     private ParaVar sizeVar;
 -     @PartAnno()
--     private PartVar TShirt11Var;
+-     private PartVar tShirt11Var;
 - 1.3 输入3： ${userLogicByPseudocode}
 - 	//"Red-10", "Black-20", "White-30"
 - 	//"Small-10", "Medium-20", "Big-30"
 - 	if(colorVar.var ==Red && sizeVar.var == Small  ) {
-- 		TShirt11Var.var = 1;
+- 		tShirt11Var.var = 1;
 - 	}
 - 	else {
-- 		TShirt11Var.var = 3
+- 		tShirt11Var.var = 3
 - 	}
 - 1.3 输出：
 + @ParaAnno( 
@@ -836,7 +836,7 @@ Lines added: 170, lines removed: 117
 + private ParaVar sizeVar;
 + 
 + @PartAnno()
-+ private PartVar TShirt11Var;
++ private PartVar tShirt11Var;
 + ```
 + 
 + #### 输入3：用户逻辑伪代码
@@ -844,10 +844,10 @@ Lines added: 170, lines removed: 117
 + // "Red-10", "Black-20", "White-30"
 + // "Small-10", "Medium-20", "Big-30"
 + if(colorVar.var == Red && sizeVar.var == Small) {
-+     TShirt11Var.var = 1;
++     tShirt11Var.var = 1;
 + }
 + else {
-+     TShirt11Var.var = 3;
++     tShirt11Var.var = 3;
 + }
 + ```
   
@@ -863,7 +863,7 @@ Lines added: 1, lines removed: undefined
 ```diff
 @@ -154,4 +207,5 @@
   @Slf4j
-  public class HelloSampleTest extends ModuleSecnarioTestBase {
+  public class HelloSampleTest extends ModuleScenarioTestBase {
 +     
       //---------------规则定义start----------------------------------------
       @ModuleAnno(id = 123L)
@@ -878,7 +878,7 @@ Lines added: 4, lines removed: 3
           private ParaVar sizeVar;
 +         
           @PartAnno()
-          private PartVar TShirt11Var;
+          private PartVar tShirt11Var;
   
           @Override
           protected void initConstraint() {
@@ -888,11 +888,11 @@ Lines added: 4, lines removed: 3
               // "Small-10", "Medium-20", "Big-30"
 -             // if(colorVar.var ==Red && sizeVar.var == Small  ) {
 +             // if(colorVar.var == Red && sizeVar.var == Small) {
-              //     TShirt11Var.var = 1;
+              //     tShirt11Var.var = 1;
               // }
               // else {
--             //     TShirt11Var.var = 3
-+             //     TShirt11Var.var = 3;
+-             //     tShirt11Var.var = 3
++             //     tShirt11Var.var = 3;
               // }
   
 ```
@@ -3819,7 +3819,7 @@ private ParaVar colorVar;
 private ParaVar sizeVar;
 
 @PartAnno()
-private PartVar TShirt11Var;
+private PartVar tShirt11Var;
 ```
 
 ##userLogicByPseudocode
@@ -3827,10 +3827,10 @@ private PartVar TShirt11Var;
 // "Red-10", "Black-20", "White-30"
 // "Small-10", "Medium-20", "Big-30"
 if(colorVar.var == Red && sizeVar.var == Small) {
-    TShirt11Var.var = 1;
+    tShirt11Var.var = 1;
 }
 else {
-    TShirt11Var.var = 3;
+    tShirt11Var.var = 3;
 }
 ```
 
@@ -3869,7 +3869,7 @@ Lines added: 27, lines removed: 1
 + private ParaVar sizeVar;
 + 
 + @PartAnno()
-+ private PartVar TShirt11Var;
++ private PartVar tShirt11Var;
 + ```
 + 
 + ##userLogicByPseudocode
@@ -3877,10 +3877,10 @@ Lines added: 27, lines removed: 1
 + // "Red-10", "Black-20", "White-30"
 + // "Small-10", "Medium-20", "Big-30"
 + if(colorVar.var == Red && sizeVar.var == Small) {
-+     TShirt11Var.var = 1;
++     tShirt11Var.var = 1;
 + }
 + else {
-+     TShirt11Var.var = 3;
++     tShirt11Var.var = 3;
 + }
 + ``` 
 ```
@@ -4373,10 +4373,10 @@ private ParaVar colorVar;
 ##userLogicByPseudocode
 ```java
 if(colorVar.var == Red && sizeVar.var == Small) {
-    TShirt11Var.var = 1;
+    tShirt11Var.var = 1;
 }
 else {
-    TShirt11Var.var = 3;
+    tShirt11Var.var = 3;
 }
 ```
 ```
@@ -4780,7 +4780,7 @@ Lines added: 427, lines removed: 1
 + private ParaVar sizeVar;
 + 
 + @PartAnno()
-+ private PartVar TShirt11Var;
++ private PartVar tShirt11Var;
 + ```
 + 
 + ##userLogicByPseudocode
@@ -4788,10 +4788,10 @@ Lines added: 427, lines removed: 1
 + // "Red-10", "Black-20", "White-30"
 + // "Small-10", "Medium-20", "Big-30"
 + if(colorVar.var == Red && sizeVar.var == Small) {
-+     TShirt11Var.var = 1;
++     tShirt11Var.var = 1;
 + }
 + else {
-+     TShirt11Var.var = 3;
++     tShirt11Var.var = 3;
 + }
 + ```
 + ```
@@ -5411,7 +5411,7 @@ Lines added: 1, lines removed: 1
   
 - @PartAnno()
 + @PartAnno(maxQuantity = 100)
-  private PartVar TShirt11Var;
+  private PartVar tShirt11Var;
   ```
 ```
 
@@ -6261,11 +6261,11 @@ _**Assistant**_
 
 ---
 
-Read file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java
+Read file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java
 
 ---
 
-<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
 
 undefined
 
@@ -6393,7 +6393,7 @@ Lines added: 21, lines removed: undefined
 
 ---
 
-Read file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java
+Read file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java
 
 ---
 
@@ -6516,7 +6516,7 @@ _**Assistant**_
 
 ---
 
-<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
 
 undefined
 
@@ -6610,7 +6610,7 @@ Lines added: 5, lines removed: 16
 
 ---
 
-<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
 
 undefined
 
@@ -6910,7 +6910,7 @@ warning: in the working copy of 'src/test/java/com/jmix/configengine/scenario/ba
 se/ModuleGenneratorByAnno.java', LF will be replaced by CRLF the next time Git t
 ouches it
 warning: in the working copy of 'src/test/java/com/jmix/configengine/scenario/ba
-se/ModuleSecnarioTestBase.java', LF will be replaced by CRLF the next time Git t
+se/ModuleScenarioTestBase.java', LF will be replaced by CRLF the next time Git t
 ouches it
 warning: in the working copy of 'src/test/java/com/jmix/configengine/scenario/ba
 se/ParaAnno.java', LF will be replaced by CRLF the next time Git touches it     
@@ -6951,7 +6951,7 @@ Changes to be committed:
         modified:   src/main/java/com/jmix/configengine/model/Para.java
         modified:   src/main/java/com/jmix/configengine/model/Part.java
         modified:   src/test/java/com/jmix/configengine/scenario/base/ModuleGenneratorByAnno.java        
-        modified:   src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java        
+        modified:   src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java        
         modified:   src/test/java/com/jmix/configengine/scenario/base/ParaAnno.java
         modified:   src/test/java/com/jmix/configengine/scenario/base/ParaInstAssert.java
         modified:   src/test/java/com/jmix/configengine/scenario/base/PartAnno.java
@@ -7113,13 +7113,13 @@ _**Assistant**_
 | File | Line | Match |
 |------|------|-------|
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ParaInstAssert.java` | L28 | `switch (para.getType()) {` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java` | L123 | `switch (para.getType()) {` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java` | L262 | `switch (para.getType()) {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java` | L123 | `switch (para.getType()) {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java` | L262 | `switch (para.getType()) {` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java` | L157 | `switch (para.getType()) {` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/.specstory/history/2025-08-31_06-43Z-generate-modelhelper-and-llminvoker-classes.md` | L6303 | `-         switch (para.getType()) {` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/.specstory/history/2025-08-31_06-43Z-generate-modelhelper-and-llminvoker-classes.md` | L6333 | `+             switch (para.getType()) {` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java` | L123 | `switch (para.getType()) {` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java` | L262 | `switch (para.getType()) {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java` | L123 | `switch (para.getType()) {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java` | L262 | `switch (para.getType()) {` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ParaInstAssert.java` | L28 | `switch (para.getType()) {` |
 
 </details>
@@ -7132,13 +7132,13 @@ _**Assistant**_
 | File | Line | Match |
 |------|------|-------|
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ParaInstAssert.java` | L29 | `case INTEGER:` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java` | L124 | `case INTEGER:` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java` | L263 | `case INTEGER:` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java` | L124 | `case INTEGER:` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java` | L263 | `case INTEGER:` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java` | L158 | `case INTEGER:` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/.specstory/history/2025-08-31_06-43Z-generate-modelhelper-and-llminvoker-classes.md` | L6304 | `-             case INTEGER:` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/.specstory/history/2025-08-31_06-43Z-generate-modelhelper-and-llminvoker-classes.md` | L6334 | `+                 case INTEGER:` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java` | L124 | `case INTEGER:` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java` | L263 | `case INTEGER:` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java` | L124 | `case INTEGER:` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java` | L263 | `case INTEGER:` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ParaInstAssert.java` | L29 | `case INTEGER:` |
 
 </details>
@@ -7151,13 +7151,13 @@ _**Assistant**_
 | File | Line | Match |
 |------|------|-------|
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ParaInstAssert.java` | L35 | `case ENUM:` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java` | L127 | `case ENUM:` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java` | L266 | `case ENUM:` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java` | L127 | `case ENUM:` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java` | L266 | `case ENUM:` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/configengine/artifact/ConstraintAlgImpl.java` | L167 | `case ENUM:` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/.specstory/history/2025-08-31_06-43Z-generate-modelhelper-and-llminvoker-classes.md` | L6307 | `-             case ENUM:` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/.specstory/history/2025-08-31_06-43Z-generate-modelhelper-and-llminvoker-classes.md` | L6337 | `+                 case ENUM:` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java` | L127 | `case ENUM:` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java` | L266 | `case ENUM:` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java` | L127 | `case ENUM:` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java` | L266 | `case ENUM:` |
 | `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ParaInstAssert.java` | L35 | `case ENUM:` |
 
 </details>
@@ -7173,11 +7173,11 @@ Read file: src/test/java/com/jmix/configengine/scenario/base/ParaInstAssert.java
 
 ---
 
-Read file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java
+Read file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java
 
 ---
 
-Read file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java
+Read file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java
 
 ---
 
@@ -7384,12 +7384,12 @@ Lines added: 5, lines removed: 20
 
 ---
 
-现在重构`ModuleSecnarioTestBase.java`中的重复代码：
+现在重构`ModuleScenarioTestBase.java`中的重复代码：
 
 
 ---
 
-<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
 
 undefined
 
@@ -7409,7 +7409,7 @@ Lines added: 1, lines removed: undefined
 
 ---
 
-<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
 
 undefined
 
@@ -7443,7 +7443,7 @@ Lines added: 1, lines removed: 14
 
 ---
 
-<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
 
 undefined
 
@@ -7844,7 +7844,7 @@ ndex:1-----------
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
 ndex:1-----------
  PartVar{code=Part1, var=3}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@18f8cd79
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
 ialized
@@ -7894,15 +7894,15 @@ ndex:4-----------
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
 ndex:4-----------
  PartVar{code=Part1, var=3}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@7d9f158f
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: P1:0
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: P1:0
 ,P2:3，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: P1:1
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: P1:1
 ,P2:2，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: P1:2
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: P1:2
 ,P2:1，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: P1:3
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: P1:3
 ,P2:0，数量: 1
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
 ialized
@@ -7925,7 +7925,7 @@ ndex:1-----------
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
 ndex:1-----------
  PartVar{code=Part1, var=3}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@3214ee6
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
 ialized
@@ -7948,7 +7948,7 @@ ndex:1-----------
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
 ndex:1-----------
  PartVar{code=Part1, var=0}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@4a07d605
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
 ialized
@@ -7962,7 +7962,7 @@ t/java/com/jmix/configengine/scenario/ruletest/tempResource/ParaInteger.base.jso
 [main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
 m/jmix/configengine/scenario/ruletest/tempResource/ParaInteger.base.json
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@5f9edf14
 [INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.023 s -- in com.jmix.configengin
 e.scenario.ruletest.ParaIntegerTest
@@ -8011,7 +8011,7 @@ Lines added: 195, lines removed: 1
 + 在重构前，以下文件中存在相似的Para类型处理逻辑：
 + 
 + 1. **ParaInstAssert.java** - 参数断言类中的类型处理
-+ 2. **ModuleSecnarioTestBase.java** - 测试基类中的类型处理（2处）
++ 2. **ModuleScenarioTestBase.java** - 测试基类中的类型处理（2处）
 + 3. **ConstraintAlgImpl.java** - 约束算法基类中的类型处理
 + 
 + ### 重复逻辑内容
@@ -8084,7 +8084,7 @@ Lines added: 195, lines removed: 1
 + }
 + ```
 + 
-+ #### ModuleSecnarioTestBase.java
++ #### ModuleScenarioTestBase.java
 + ```java
 + // 重构前
 + switch (para.getType()) {
@@ -8207,7 +8207,7 @@ Lines added: 195, lines removed: 1
 
 在工程中发现多个文件中存在相似的Para类型处理逻辑：
 - `ParaInstAssert.java` - 参数断言类
-- `ModuleSecnarioTestBase.java` - 测试基类（2处）
+- `ModuleScenarioTestBase.java` - 测试基类（2处）
 - `ConstraintAlgImpl.java` - 约束算法基类
 
 ### 🛠️ 重构方案

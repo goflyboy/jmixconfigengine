@@ -592,23 +592,23 @@ selected=0},ParaOption{code=Big, selected=0},}
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
 ndex:8-----------
  PartVar{code=TShirt11, qty=3, hidden=0}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@33617539
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: Colo
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: Colo
 r:Red,Size:Small，数量: 0
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: Colo
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: Colo
 r:Black,Size:Big，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: Colo
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: Colo
 r:White,Size:Medium，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: Colo
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: Colo
 r:Red,Size:Medium，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: Colo
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: Colo
 r:Black,Size:Medium，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: Colo
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: Colo
 r:White,Size:Big，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: Colo
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: Colo
 r:Red,Size:Big，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: Colo
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: Colo
 r:Black,Size:Small，数量: 1
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
 ialized
@@ -622,7 +622,7 @@ t/java/com/jmix/configengine/scenario/ruletest/tempResource/MyTShirt.base.json
 [main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
 m/jmix/configengine/scenario/ruletest/tempResource/MyTShirt.base.json
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@5db4c359
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
 ialized
@@ -647,11 +647,11 @@ ted=1},ParaOption{code=op23, selected=0},}
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
 ndex:1-----------
  PartVar{code=PT1, qty=1, hidden=0}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@18e7143f
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 找到 1 个解决方案:
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 找到 1 个解决方案:
 
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase -
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase -
 解决方案0: {"id":123,"code":"CalculateRule","instanceConfigId":"0","instanceId":0,"quantity":1,"paras":[{
 "code":"P1","value":"10","options":["op11"],"isHidden":false,"hidden":false},{"code":"P2","value":"10","o
 ptions":["op21"],"isHidden":false,"hidden":false}],"parts":[{"code":"PT1","quantity":1,"selectAttrValue":
@@ -668,10 +668,10 @@ t/java/com/jmix/configengine/scenario/ruletest/tempResource/CalculateRule.base.j
 [main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
 m/jmix/configengine/scenario/ruletest/tempResource/CalculateRule.base.json
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@1bdf8190
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 没有找到解决方案
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 没有找到解决方案
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 没有找到解决方案
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 没有找到解决方案
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
 ialized
 [main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - 检测到内部类: com.jmix.configeng
@@ -772,11 +772,11 @@ ted=0},ParaOption{code=op23, selected=0},}
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
 ndex:8-----------
  PartVar{code=PT1, qty=3, hidden=0}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@8a589a2
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 找到 8 个解决方案:
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 找到 8 个解决方案:
 
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase -
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase -
 解决方案0: {"id":123,"code":"CalculateRule","instanceConfigId":"0","instanceId":0,"quantity":1,"paras":[{
 "code":"P1","value":"20","options":["op12"],"isHidden":false,"hidden":false},{"code":"P2","value":"10","o
 ptions":["op21"],"isHidden":false,"hidden":false}],"parts":[{"code":"PT1","quantity":3,"selectAttrValue":
@@ -809,13 +809,13 @@ null,"isHidden":false,"hidden":false}]}
 "code":"P1","value":"10","options":["op11"],"isHidden":false,"hidden":false},{"code":"P2","value":"20","o
 ptions":["op22"],"isHidden":false,"hidden":false}],"parts":[{"code":"PT1","quantity":3,"selectAttrValue":
 null,"isHidden":false,"hidden":false}]}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: P1:o
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: P1:o
 p11,P2:op21，数量: 0
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: P1:o
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: P1:o
 p12,P2:op22，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 找到 8 个解决方案:
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 找到 8 个解决方案:
 
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase -
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase -
 解决方案0: {"id":123,"code":"CalculateRule","instanceConfigId":"0","instanceId":0,"quantity":1,"paras":[{
 "code":"P1","value":"20","options":["op12"],"isHidden":false,"hidden":false},{"code":"P2","value":"10","o
 ptions":["op21"],"isHidden":false,"hidden":false}],"parts":[{"code":"PT1","quantity":3,"selectAttrValue":
@@ -874,22 +874,22 @@ ted=0},ParaOption{code=op13, selected=0},}
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
 ndex:2-----------
  PartVar{code=PT1, qty=3, hidden=0}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@21526f6c
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 找到 2 个解决方案:
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 找到 2 个解决方案:
 
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase -
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase -
 解决方案0: {"id":123,"code":"CalculateRule","instanceConfigId":"0","instanceId":0,"quantity":1,"paras":[{
 "code":"P1","value":"30","options":["op13"],"isHidden":false,"hidden":false}],"parts":[{"code":"PT1","qua
 ntity":3,"selectAttrValue":null,"isHidden":false,"hidden":false}]}
 解决方案1: {"id":123,"code":"CalculateRule","instanceConfigId":"0","instanceId":0,"quantity":1,"paras":[{
 "code":"P1","value":"20","options":["op12"],"isHidden":false,"hidden":false}],"parts":[{"code":"PT1","qua
 ntity":3,"selectAttrValue":null,"isHidden":false,"hidden":false}]}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: P1:o
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: P1:o
 p11，数量: 0
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 找到 2 个解决方案:
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 找到 2 个解决方案:
 
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase -
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase -
 解决方案0: {"id":123,"code":"CalculateRule","instanceConfigId":"0","instanceId":0,"quantity":1,"paras":[{
 "code":"P1","value":"30","options":["op13"],"isHidden":false,"hidden":false}],"parts":[{"code":"PT1","qua
 ntity":3,"selectAttrValue":null,"isHidden":false,"hidden":false}]}
@@ -908,10 +908,10 @@ t/java/com/jmix/configengine/scenario/ruletest/tempResource/CalculateRule.base.j
 [main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
 m/jmix/configengine/scenario/ruletest/tempResource/CalculateRule.base.json
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@35d6ca49
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 没有找到解决方案
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 没有找到解决方案
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 没有找到解决方案
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 没有找到解决方案
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
 ialized
 [main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - 检测到内部类: com.jmix.configeng
@@ -931,11 +931,11 @@ ted=1},ParaOption{code=op13, selected=0},}
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
 ndex:1-----------
  PartVar{code=PT1, qty=1, hidden=0}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@47289387
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 找到 1 个解决方案:
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 找到 1 个解决方案:
 
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase -
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase -
 解决方案0: {"id":123,"code":"CalculateRule","instanceConfigId":"0","instanceId":0,"quantity":1,"paras":[{
 "code":"P1","value":"10","options":["op11"],"isHidden":false,"hidden":false}],"parts":[{"code":"PT1","qua
 ntity":1,"selectAttrValue":null,"isHidden":false,"hidden":false}]}
@@ -975,9 +975,9 @@ ndex:3-----------
 ndex:3-----------
  Para{code=B,value=10, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=0
 },ParaOption{code=b1, selected=1},ParaOption{code=b3, selected=0},}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@724f138e
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: B:b4
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: B:b4
 ，数量: 0
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
 ialized
@@ -1023,15 +1023,15 @@ ndex:4-----------
 ndex:4-----------
  Para{code=B,value=10, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=0
 },ParaOption{code=b1, selected=1},ParaOption{code=b3, selected=0},}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@32fe9d0a
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a1
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: A:a1
 ，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a2
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: A:a2
 ，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a3
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: A:a3
 ，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a4
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: A:a4
 ，数量: 1
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
 ialized
@@ -1077,15 +1077,15 @@ ndex:4-----------
 ndex:4-----------
  Para{code=B,value=10, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=0
 },ParaOption{code=b1, selected=1},ParaOption{code=b3, selected=0},}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@64da2a7
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: B:b1
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: B:b1
 ，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: B:b2
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: B:b2
 ，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: B:b3
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: B:b3
 ，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: B:b4
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: B:b4
 ，数量: 1
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
 ndex:1-----------
@@ -1119,7 +1119,7 @@ ndex:4-----------
 ndex:4-----------
  Para{code=B,value=10, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=0
 },ParaOption{code=b1, selected=1},ParaOption{code=b3, selected=0},}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@46074492
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
 ialized
@@ -1157,9 +1157,9 @@ ndex:3-----------
 ndex:3-----------
  Para{code=B,value=10, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=0
 },ParaOption{code=b1, selected=1},ParaOption{code=b3, selected=0},}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@2c715e84
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: B:b4
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: B:b4
 ，数量: 0
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
 ialized
@@ -1197,9 +1197,9 @@ ndex:3-----------
 ndex:3-----------
  Para{code=B,value=10, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=0
 },ParaOption{code=b1, selected=1},ParaOption{code=b3, selected=0},}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@3b9d6699
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: B:b4
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: B:b4
 ，数量: 0
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
 ialized
@@ -1229,15 +1229,15 @@ ndex:2-----------
 ndex:2-----------
  Para{code=B,value=40, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=1
 },ParaOption{code=b1, selected=0},ParaOption{code=b3, selected=0},}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@21694e53
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a2
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: A:a2
 ，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a4
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: A:a4
 ，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a1
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: A:a1
 ，数量: 0
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a3
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: A:a3
 ，数量: 0
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
 ialized
@@ -1263,11 +1263,11 @@ ndex:1-----------
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
 ndex:1-----------
  PartVar{code=Part1, qty=1, hidden=0}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@22c86919
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 找到 1 个解决方案:
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 找到 1 个解决方案:
 
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase -
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase -
 解决方案0: {"id":123,"code":"ParaIsHidden","instanceConfigId":"0","instanceId":0,"quantity":1,"paras":[{"
 code":"P0","value":"1","options":[],"isHidden":false,"hidden":false},{"code":"P1","value":"0","options":[
 ],"isHidden":true,"hidden":true},{"code":"P2","value":"1","options":[],"isHidden":false,"hidden":false}],
@@ -1296,11 +1296,11 @@ ndex:1-----------
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
 ndex:1-----------
  PartVar{code=Part1, qty=2, hidden=0}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@26be6ca7
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 找到 1 个解决方案:
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 找到 1 个解决方案:
 
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase -
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase -
 解决方案0: {"id":123,"code":"ParaIsHidden","instanceConfigId":"0","instanceId":0,"quantity":1,"paras":[{"
 code":"P0","value":"2","options":[],"isHidden":false,"hidden":false},{"code":"P1","value":"2","options":[
 ],"isHidden":false,"hidden":false},{"code":"P2","value":"0","options":[],"isHidden":true,"hidden":true}],
@@ -1329,11 +1329,11 @@ ndex:1-----------
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
 ndex:1-----------
  PartVar{code=Part1, qty=1, hidden=0}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@30ed9c6c
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 找到 1 个解决方案:
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 找到 1 个解决方案:
 
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase -
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase -
 解决方案0: {"id":123,"code":"ParaIsHidden","instanceConfigId":"0","instanceId":0,"quantity":1,"paras":[{"
 code":"P0","value":"0","options":[],"isHidden":false,"hidden":false},{"code":"P1","value":"0","options":[
 ],"isHidden":true,"hidden":true},{"code":"P2","value":"1","options":[],"isHidden":false,"hidden":false}],
@@ -1362,11 +1362,11 @@ ndex:1-----------
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
 ndex:1-----------
  PartVar{code=Part1, qty=2, hidden=0}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@2fd1731c
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 找到 1 个解决方案:
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 找到 1 个解决方案:
 
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase -
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase -
 解决方案0: {"id":123,"code":"ParaIsHidden","instanceConfigId":"0","instanceId":0,"quantity":1,"paras":[{"
 code":"P0","value":"1","options":[],"isHidden":false,"hidden":false},{"code":"P1","value":"0","options":[
 ],"isHidden":true,"hidden":true},{"code":"P2","value":"2","options":[],"isHidden":false,"hidden":false}],
@@ -1383,9 +1383,9 @@ t/java/com/jmix/configengine/scenario/ruletest/tempResource/ParaIsHidden.base.js
 [main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - Module已保存到: src/test/java/co
 m/jmix/configengine/scenario/ruletest/tempResource/ParaIsHidden.base.json
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Added modules: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@54709809
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 没有找到解决方案
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 没有找到解决方案
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
 ialized
 [main] INFO com.jmix.configengine.scenario.base.ModuleGenneratorByAnno - 检测到内部类: com.jmix.configeng
@@ -1410,11 +1410,11 @@ ndex:1-----------
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
 ndex:1-----------
  PartVar{code=Part1, qty=1, hidden=0}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@24f360b2
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 找到 1 个解决方案:
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 找到 1 个解决方案:
 
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase -
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase -
 解决方案0: {"id":123,"code":"ParaIsHidden","instanceConfigId":"0","instanceId":0,"quantity":1,"paras":[{"
 code":"P0","value":"2","options":[],"isHidden":false,"hidden":false},{"code":"P1","value":"1","options":[
 ],"isHidden":false,"hidden":false},{"code":"P2","value":"0","options":[],"isHidden":true,"hidden":true}],
@@ -1722,12 +1722,12 @@ _**User (2025-09-04 22:37Z)**_
 
 _**Assistant**_
 
-我来帮您将 `createTempPath` 方法提取到 `base` 包下的 `CommHelper` 类中。首先让我查看一下当前的 `ModuleSecnarioTestBase` 类：
+我来帮您将 `createTempPath` 方法提取到 `base` 包下的 `CommHelper` 类中。首先让我查看一下当前的 `ModuleScenarioTestBase` 类：
 
 
 ---
 
-Read file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java
+Read file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java
 
 ---
 
@@ -1741,10 +1741,10 @@ Read file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestB
         
 | File | Line | Match |
 |------|------|-------|
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java` | L60 | `String tempPath = getResourcePath(constraintAlgClazz) + "/tempResource";` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java` | L373 | `private static  String getResourcePath(Class<?> clazz) {` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java` | L60 | `String tempPath = getResourcePath(constraintAlgClazz) + "/tempResource";` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java` | L373 | `private static  String getResourcePath(Class<?> clazz) {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java` | L60 | `String tempPath = getResourcePath(constraintAlgClazz) + "/tempResource";` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java` | L373 | `private static  String getResourcePath(Class<?> clazz) {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java` | L60 | `String tempPath = getResourcePath(constraintAlgClazz) + "/tempResource";` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java` | L373 | `private static  String getResourcePath(Class<?> clazz) {` |
 
 </details>
 
@@ -1755,10 +1755,10 @@ Read file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestB
         
 | File | Line | Match |
 |------|------|-------|
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java` | L61 | `createDirectory(tempPath);` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java` | L381 | `private static void createDirectory(String path) {` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java` | L61 | `createDirectory(tempPath);` |
-| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java` | L381 | `private static void createDirectory(String path) {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java` | L61 | `createDirectory(tempPath);` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java` | L381 | `private static void createDirectory(String path) {` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java` | L61 | `createDirectory(tempPath);` |
+| `file:///d%3A/01.code/mygithub/jmixconfigengine/src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java` | L381 | `private static void createDirectory(String path) {` |
 
 </details>
 
@@ -1769,7 +1769,7 @@ Read file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestB
 
 ---
 
-Read file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java
+Read file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java
 
 ---
 
@@ -1862,12 +1862,12 @@ Lines added: 51, lines removed: 1
 
 ---
 
-现在我需要更新 `ModuleSecnarioTestBase` 类，移除这些方法并改为使用 `CommHelper`：
+现在我需要更新 `ModuleScenarioTestBase` 类，移除这些方法并改为使用 `CommHelper`：
 
 
 ---
 
-<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
 
 undefined
 
@@ -1898,7 +1898,7 @@ Lines added: 1, lines removed: 6
 
 ---
 
-<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
 
 undefined
 
@@ -1919,12 +1919,12 @@ Lines added: 1, lines removed: 1
 
 ---
 
-现在我需要移除 `ModuleSecnarioTestBase` 中的 `getResourcePath` 和 `createDirectory` 方法：
+现在我需要移除 `ModuleScenarioTestBase` 中的 `getResourcePath` 和 `createDirectory` 方法：
 
 
 ---
 
-<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
 
 undefined
 
@@ -2257,7 +2257,7 @@ D:\01.code\mygithub\jmixconfigengine>
         
 | Name |
 |-------|
-| 📄 `ModuleSecnarioTestBase.java` |
+| 📄 `ModuleScenarioTestBase.java` |
 | 📄 `CommHelper.java` |
 | 📄 `StructCodeInjector.java` |
 | 📄 `ModuleGenneratorByAnno.java` |
@@ -2445,11 +2445,11 @@ D:\01.code\mygithub\jmixconfigengine>
 ---
 
 ```bash
-mvn test -Dtest=ModuleSecnarioTestBase
+mvn test -Dtest=ModuleScenarioTestBase
 ```
 
 ```
-D:\01.code\mygithub\jmixconfigengine>mvn test -Dtest=ModuleSecnarioTestBase
+D:\01.code\mygithub\jmixconfigengine>mvn test -Dtest=ModuleScenarioTestBase
 [INFO] Scanning for projects...
 [INFO] 
 [INFO] -----------------------< com.jmix:configengine >------------------------
@@ -2563,9 +2563,9 @@ ndex:3-----------
 ndex:3-----------
  Para{code=B,value=10, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=0
 },ParaOption{code=b1, selected=1},ParaOption{code=b3, selected=0},}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@4b8729ff
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: B:b4
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: B:b4
 ，数量: 0
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
 ialized
@@ -2611,15 +2611,15 @@ ndex:4-----------
 ndex:4-----------
  Para{code=B,value=10, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=0
 },ParaOption{code=b1, selected=1},ParaOption{code=b3, selected=0},}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@7ac296f6
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a1
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: A:a1
 ，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a2
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: A:a2
 ，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a3
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: A:a3
 ，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a4
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: A:a4
 ，数量: 1
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
 ialized
@@ -2665,15 +2665,15 @@ ndex:4-----------
 ndex:4-----------
  Para{code=B,value=10, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=0
 },ParaOption{code=b1, selected=1},ParaOption{code=b3, selected=0},}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@22f59fa
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: B:b1
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: B:b1
 ，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: B:b2
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: B:b2
 ，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: B:b3
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: B:b3
 ，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: B:b4
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: B:b4
 ，数量: 1
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - -------------varInfos-solutionI
 ndex:1-----------
@@ -2707,7 +2707,7 @@ ndex:4-----------
 ndex:4-----------
  Para{code=B,value=10, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=0
 },ParaOption{code=b1, selected=1},ParaOption{code=b3, selected=0},}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@78fa769e
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
 ialized
@@ -2745,9 +2745,9 @@ ndex:3-----------
 ndex:3-----------
  Para{code=B,value=10, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=0
 },ParaOption{code=b1, selected=1},ParaOption{code=b3, selected=0},}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@54e041a4
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: B:b4
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: B:b4
 ，数量: 0
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
 ialized
@@ -2785,9 +2785,9 @@ ndex:3-----------
 ndex:3-----------
  Para{code=B,value=10, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=0
 },ParaOption{code=b1, selected=1},ParaOption{code=b3, selected=0},}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@79defdc
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: B:b4
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: B:b4
 ，数量: 0
 [main] INFO com.jmix.configengine.executor.ModuleConstraintExecutorImpl - Module constraint executor init
 ialized
@@ -2817,15 +2817,15 @@ ndex:2-----------
 ndex:2-----------
  Para{code=B,value=40, isHidden=0, options=ParaOption{code=b2, selected=0},ParaOption{code=b4, selected=1
 },ParaOption{code=b1, selected=0},ParaOption{code=b3, selected=0},}
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 推理结果: com.jmix.configengine.
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 推理结果: com.jmix.configengine.
 ModuleConstraintExecutor$Result@4e0ae11f
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a2
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: A:a2
 ，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a4
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: A:a4
 ，数量: 1
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a1
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: A:a1
 ，数量: 0
-[main] INFO com.jmix.configengine.scenario.base.ModuleSecnarioTestBase - 解决方案数量验证通过，条件: A:a3
+[main] INFO com.jmix.configengine.scenario.base.ModuleScenarioTestBase - 解决方案数量验证通过，条件: A:a3
 ，数量: 0
 [INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.645 s -- in com.jmix.configengin
 e.scenario.ruletest.CompatiableRuleRequireTest
@@ -2850,7 +2850,7 @@ D:\01.code\mygithub\jmixconfigengine>
 
 ## 重构完成总结
 
-我已经成功将 `createTempPath` 方法从 `ModuleSecnarioTestBase` 提取到 `base` 包下的 `CommHelper` 类中，具体完成的工作包括：
+我已经成功将 `createTempPath` 方法从 `ModuleScenarioTestBase` 提取到 `base` 包下的 `CommHelper` 类中，具体完成的工作包括：
 
 ### 1. 创建了 `CommHelper` 工具类
 - **位置**: `src/test/java/com/jmix/configengine/scenario/base/CommHelper.java`
@@ -2860,7 +2860,7 @@ D:\01.code\mygithub\jmixconfigengine>
   - `getResourcePath(Class<?> clazz)`: 获取资源路径
   - `createDirectory(String path)`: 创建目录
 
-### 2. 更新了 `ModuleSecnarioTestBase` 类
+### 2. 更新了 `ModuleScenarioTestBase` 类
 - 移除了 `createTempPath`、`getResourcePath` 和 `createDirectory` 方法
 - 更新了 `init()` 方法中的调用，改为使用 `CommHelper.createTempPath(constraintAlgClazz)`
 - 添加了注释说明方法已移动到 `CommHelper` 类中
@@ -2881,7 +2881,7 @@ D:\01.code\mygithub\jmixconfigengine>
 ### 主要优势
 
 1. **代码复用**: 将通用工具方法提取到独立的工具类中，便于其他测试类使用
-2. **职责分离**: `ModuleSecnarioTestBase` 专注于测试基类功能，`CommHelper` 专注于工具方法
+2. **职责分离**: `ModuleScenarioTestBase` 专注于测试基类功能，`CommHelper` 专注于工具方法
 3. **维护性**: 工具方法集中管理，便于维护和扩展
 4. **测试覆盖**: 为新的工具类提供了完整的测试覆盖
 
@@ -4022,7 +4022,7 @@ Lines added: 129, lines removed: 1
 + import com.jmix.configengine.artifact.ConstraintAlg;
 + import com.jmix.configengine.artifact.ConstraintAlgImpl;
 + import com.jmix.configengine.scenario.base.*;
-+ import com.jmix.configengine.scenario.base.ModuleSecnarioTestBase;
++ import com.jmix.configengine.scenario.base.ModuleScenarioTestBase;
 + import com.jmix.configengine.model.ParaVar;
 + import com.jmix.configengine.model.PartVar;
 + 
@@ -4038,7 +4038,7 @@ Lines added: 129, lines removed: 1
 +     description = "注解规则测试模块",
 +     sortNo = 1
 + )
-+ public class AnnotationRuleTest extends ModuleSecnarioTestBase {
++ public class AnnotationRuleTest extends ModuleScenarioTestBase {
 +     
 +     @ParaAnno(
 +         code = "Color",
@@ -4191,7 +4191,7 @@ Lines added: 4, lines removed: 2
 ```diff
 @@ -5,6 +5,8 @@
   import com.jmix.configengine.scenario.base.*;
-  import com.jmix.configengine.scenario.base.ModuleSecnarioTestBase;
+  import com.jmix.configengine.scenario.base.ModuleScenarioTestBase;
 - import com.jmix.configengine.model.ParaVar;
 - import com.jmix.configengine.model.PartVar;
 + import com.jmix.configengine.artifact.ParaVar;
@@ -4221,7 +4221,7 @@ Lines added: 4, lines removed: undefined
 ```diff
 @@ -23,4 +23,8 @@
   )
-  public class AnnotationRuleTest extends ModuleSecnarioTestBase {
+  public class AnnotationRuleTest extends ModuleScenarioTestBase {
 +     
 +     public AnnotationRuleTest() {
 +         super(AnnotationRuleTest.class);
@@ -4234,16 +4234,16 @@ Lines added: 4, lines removed: undefined
 
 ---
 
-让我查看 `ModuleSecnarioTestBase` 的构造函数：
+让我查看 `ModuleScenarioTestBase` 的构造函数：
 
 
 ---
 
-Read file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java
+Read file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java
 
 ---
 
-我看到 `ModuleSecnarioTestBase` 需要一个 `ConstraintAlgImpl` 的子类。让我修正构造函数：
+我看到 `ModuleScenarioTestBase` 需要一个 `ConstraintAlgImpl` 的子类。让我修正构造函数：
 
 
 ---
@@ -4482,11 +4482,11 @@ va:103)
 [ERROR] com.jmix.configengine.scenario.ruletest.AnnotationRuleTest.testCompatiableRule -- Time elapsed: 0
 .005 s <<< ERROR!
 java.lang.RuntimeException: 参数 Color 不存在
-        at com.jmix.configengine.scenario.base.ModuleSecnarioTestBase.buildParaInstsFromPairs(ModuleSecna
+        at com.jmix.configengine.scenario.base.ModuleScenarioTestBase.buildParaInstsFromPairs(ModuleSecna
 rioTestBase.java:341)
-        at com.jmix.configengine.scenario.base.ModuleSecnarioTestBase.inferParasByPara(ModuleSecnarioTest
+        at com.jmix.configengine.scenario.base.ModuleScenarioTestBase.inferParasByPara(ModuleSecnarioTest
 Base.java:117)
-        at com.jmix.configengine.scenario.base.ModuleSecnarioTestBase.inferParasByPara(ModuleSecnarioTest
+        at com.jmix.configengine.scenario.base.ModuleScenarioTestBase.inferParasByPara(ModuleSecnarioTest
 Base.java:133)
         at com.jmix.configengine.scenario.ruletest.AnnotationRuleTest.testCompatiableRule(AnnotationRuleT
 est.java:109)
@@ -4522,9 +4522,9 @@ va:103)
 [ERROR] com.jmix.configengine.scenario.ruletest.AnnotationRuleTest.testCodeRule -- Time elapsed: 0.004 s 
 <<< ERROR!
 java.lang.RuntimeException: 参数 Color 不存在
-        at com.jmix.configengine.scenario.base.ModuleSecnarioTestBase.buildParaInstsFromPairs(ModuleSecna
+        at com.jmix.configengine.scenario.base.ModuleScenarioTestBase.buildParaInstsFromPairs(ModuleSecna
 rioTestBase.java:341)
-        at com.jmix.configengine.scenario.base.ModuleSecnarioTestBase.inferParasByPara(ModuleSecnarioTest
+        at com.jmix.configengine.scenario.base.ModuleScenarioTestBase.inferParasByPara(ModuleSecnarioTest
 Base.java:117)
         at com.jmix.configengine.scenario.ruletest.AnnotationRuleTest.testCodeRule(AnnotationRuleTest.jav
 a:129)
@@ -4563,10 +4563,10 @@ va:103)
 [ERROR] Failures: 
 [ERROR]   AnnotationRuleTest.testRuleGeneration:147 Should have 2 rules expected:<2> but was:<0>
 [ERROR] Errors: 
-[ERROR]   AnnotationRuleTest.testCodeRule:129->ModuleSecnarioTestBase.inferParasByPara:117->ModuleSecnari
+[ERROR]   AnnotationRuleTest.testCodeRule:129->ModuleScenarioTestBase.inferParasByPara:117->ModuleSecnari
 oTestBase.buildParaInstsFromPairs:341 ? Runtime 参数 Color 不存在
-[ERROR]   AnnotationRuleTest.testCompatiableRule:109->ModuleSecnarioTestBase.inferParasByPara:133->Module
-SecnarioTestBase.inferParasByPara:117->ModuleSecnarioTestBase.buildParaInstsFromPairs:341 ? Runtime 参数 
+[ERROR]   AnnotationRuleTest.testCompatiableRule:109->ModuleScenarioTestBase.inferParasByPara:133->Module
+SecnarioTestBase.inferParasByPara:117->ModuleScenarioTestBase.buildParaInstsFromPairs:341 ? Runtime 参数 
 Color 不存在
 [INFO]
 [ERROR] Tests run: 3, Failures: 1, Errors: 2, Skipped: 0
@@ -4655,7 +4655,7 @@ Lines added: 10, lines removed: 1
 @@ -23,5 +23,14 @@
       sortNo = 1
   )
-- public class AnnotationRuleTest extends ModuleSecnarioTestBase {
+- public class AnnotationRuleTest extends ModuleScenarioTestBase {
 + public class AnnotationRuleTest extends ConstraintAlgImpl {
 +     
 +     public AnnotationRuleTest() {
@@ -4690,7 +4690,7 @@ Lines added: 2, lines removed: 3
 @@ -4,9 +4,8 @@
   import com.jmix.configengine.artifact.ConstraintAlgImpl;
   import com.jmix.configengine.scenario.base.*;
-- import com.jmix.configengine.scenario.base.ModuleSecnarioTestBase;
+- import com.jmix.configengine.scenario.base.ModuleScenarioTestBase;
   import com.jmix.configengine.artifact.ParaVar;
   import com.jmix.configengine.artifact.PartVar;
 - import com.jmix.configengine.ModuleConstraintExecutor;

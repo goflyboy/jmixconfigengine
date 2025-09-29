@@ -81,16 +81,16 @@ private ParaVar colorVar;
 private ParaVar sizeVar;
 
 @PartAnno()
-private PartVar TShirt11Var;
+private PartVar tShirt11Var;
 ```
 
 ##userLogicByPseudocode
 ```java
 if(colorVar.value == Red && sizeVar.value == Small) {
-    TShirt11Var.qty = 1;
+    tShirt11Var.qty = 1;
 }
 else {
-    TShirt11Var.qty = 3;
+    tShirt11Var.qty = 3;
 }
 ```
 

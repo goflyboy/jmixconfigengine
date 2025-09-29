@@ -91,3 +91,12 @@ TODO：prompt的调整
 TODO：本团队的事情？---怎么培养人？ ---**zhouhui没有意思
 TODO：全部运行的bug?**
 
+
+实现思路
+1、类的替代
+import com.jmix.coretest.*; 
+import com.jmix.executor.imodel.*;
+import com.jmix.executor.imodel.anno.*; 
+import com.google.ortools.sat.*; 
+import lombok.extern.slf4j.Slf4j; 
+import org.junit.jupiter.api.Test;

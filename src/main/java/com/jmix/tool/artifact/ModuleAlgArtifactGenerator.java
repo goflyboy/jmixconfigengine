@@ -381,8 +381,8 @@ public class ModuleAlgArtifactGenerator {
                 // 例如：sizeVar.value == Small --> sizeVar.code == Small(本质是对option的code进行搜索)
                 parsedRawCode = replaceToOptionCode(exprSchema.getRawCode(), "value", "code");
             }
-        } else if (RefProgObjSchema.PROG_OBJ_TYPE_PART.equals(progObjType)) { // 根据exprSchema.refProgObjs.progObjType =
-                                                                              // Part
+        } else if (RefProgObjSchema.PROG_OBJ_TYPE_PART.equals(progObjType)) {
+            // 根据exprSchema.refProgObjs.progObjType = Part
             PartVarInfo part = moduleVarInfo.getPart(progObjCode);
             if (part != null) {
                 targetObj = part;

@@ -147,7 +147,7 @@ constraint_generate_prompt.jtl (提示词模板)
 - 提供约束逻辑的标准化转换规则
 
 #### 3.4.4 测试代码规范
-- 基于ModuleSecnarioTestBase测试框架
+- 基于ModuleScenarioTestBase测试框架
 - 支持参数推理和结果验证
 - 提供链式断言API简化测试编写
 

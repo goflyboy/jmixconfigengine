@@ -46,7 +46,9 @@ public class CommHelper {
         if (targetIndex != -1) {
             currentDir = currentDir.substring(0, targetIndex);
         }
-
+        if (currentDir.startsWith("/")) {
+            currentDir = currentDir.substring(1, currentDir.length());
+        }
         String packagePath = clazz.getPackage().getName().replace('.', File.separatorChar);
         if (!currentDir.endsWith(File.separator)) {
             currentDir = currentDir + File.separator;

@@ -103,7 +103,8 @@ public class ModelHelper {
             }
 
         } catch (Exception e) {
-            throw new AlgLoaderException("Failed to generate model file: " + e.getMessage(), e);
+            throw new com.jmix.tool.impl.ModelGenneratorException("Failed to generate model file: " + e.getMessage(),
+                    e);
         }
     }
 
@@ -169,7 +170,8 @@ public class ModelHelper {
             runTestFile(packageName, modelScenarioName);
 
         } catch (Exception e) {
-            throw new AlgLoaderException("Failed to generate and run model file: " + e.getMessage(), e);
+            throw new com.jmix.tool.impl.ModelGenneratorException(
+                    "Failed to generate and run model file: " + e.getMessage(), e);
         }
     }
 

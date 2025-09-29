@@ -919,7 +919,7 @@ Lines added: undefined, lines removed: 1
   import com.jmix.configengine.ModuleConstraintExecutor;
 - import com.jmix.configengine.ModuleConstraintExecutorImpl;
   import com.jmix.configengine.executor.ModuleConstraintExecutorImpl;
-  import com.jmix.configengine.scenario.base.ModuleSecnarioTestBase;
+  import com.jmix.configengine.scenario.base.ModuleScenarioTestBase;
 ```
 
 </details>
@@ -1208,7 +1208,7 @@ Lines added: 1, lines removed: 1
 @@ -15,5 +15,5 @@
    */
   @Slf4j
-- public class DCMyTShirtTest extends ModuleSecnarioTestBase {
+- public class DCMyTShirtTest extends ModuleScenarioTestBase {
 + public class DCMyTShirtTest {
       
       private ModuleConstraintExecutor executor;
@@ -1377,7 +1377,7 @@ Lines added: undefined, lines removed: 1
 @@ -3,5 +3,4 @@
   import com.jmix.configengine.ModuleConstraintExecutor;
   import com.jmix.configengine.executor.ModuleConstraintExecutorImpl;
-- import com.jmix.configengine.scenario.base.ModuleSecnarioTestBase;
+- import com.jmix.configengine.scenario.base.ModuleScenarioTestBase;
   import lombok.extern.slf4j.Slf4j;
   import org.junit.Before;
 ```
@@ -3952,7 +3952,7 @@ class ModuleConstraintExecutor{
   ModuleConstraintExecutorImpl ins = new ModuleConstraintExecutorImpl();
 ...
 
-2.2 类似访问端，如：ModuleSecnarioTestBase 
+2.2 类似访问端，如：ModuleScenarioTestBase 
 原来：
  protected ModuleConstraintExecutorImpl exec;
  .....
@@ -3977,7 +3977,7 @@ _**Assistant**_
 
 - [-] 将ModuleConstraintExecutor内部类拆分到独立文件
 - [ ] 将ModuleConstraintExecutor改为单例模式
-- [ ] 更新ModuleSecnarioTestBase使用单例访问
+- [ ] 更新ModuleScenarioTestBase使用单例访问
 - [ ] 更新测试用例添加fini调用
 
 ---
@@ -4389,7 +4389,7 @@ Lines added: undefined, lines removed: 1
 
 ---
 
-现在更新ModuleSecnarioTestBase使用单例访问：
+现在更新ModuleScenarioTestBase使用单例访问：
 
 
 ---
@@ -4398,7 +4398,7 @@ Lines added: undefined, lines removed: 1
 
 - [x] 将ModuleConstraintExecutor内部类拆分到独立文件
 - [x] 将ModuleConstraintExecutor改为单例模式
-- [-] 更新ModuleSecnarioTestBase使用单例访问
+- [-] 更新ModuleScenarioTestBase使用单例访问
 - [ ] 更新测试用例添加fini调用
 
 ---
@@ -4407,7 +4407,7 @@ Read file: undefined
 
 ---
 
-<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
 
 undefined
 
@@ -4432,7 +4432,7 @@ Lines added: 2, lines removed: 3
 
 ---
 
-<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
 
 undefined
 
@@ -4463,7 +4463,7 @@ Lines added: 3, lines removed: 4
 
 ---
 
-<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
 
 undefined
 
@@ -4484,7 +4484,7 @@ Lines added: 1, lines removed: 1
 
 ---
 
-<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
 
 undefined
 
@@ -4505,7 +4505,7 @@ Lines added: 1, lines removed: 1
 
 ---
 
-<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
 
 undefined
 
@@ -4526,7 +4526,7 @@ Lines added: 1, lines removed: 1
 
 ---
 
-<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
 
 undefined
 
@@ -4556,7 +4556,7 @@ Lines added: 1, lines removed: 1
 
 ---
 
-<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
 
 undefined
 
@@ -4608,7 +4608,7 @@ Lines added: 1, lines removed: 1
 
 ---
 
-<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
 
 undefined
 
@@ -4716,7 +4716,7 @@ Lines added: 1, lines removed: 1
 
 ---
 
-<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
 
 undefined
 
@@ -4737,7 +4737,7 @@ Lines added: 1, lines removed: 1
 
 ---
 
-<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
 
 undefined
 
@@ -4780,7 +4780,7 @@ Lines added: 3, lines removed: 3
 
 ---
 
-<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
 
 undefined
 
@@ -4819,7 +4819,7 @@ Lines added: 1, lines removed: 1
 
 ---
 
-<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
 
 undefined
 
@@ -4839,7 +4839,7 @@ Lines added: 1, lines removed: undefined
 
 ---
 
-<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java</summary>
+<details><summary>Edit file: src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java</summary>
 
 undefined
 
@@ -4875,7 +4875,7 @@ Lines added: 8, lines removed: undefined
 
 - [x] 将ModuleConstraintExecutor内部类拆分到独立文件
 - [x] 将ModuleConstraintExecutor改为单例模式
-- [x] 更新ModuleSecnarioTestBase使用单例访问
+- [x] 更新ModuleScenarioTestBase使用单例访问
 - [-] 更新测试用例添加fini调用
 
 ---

@@ -49,3 +49,17 @@ ParaIsHiddenStand
 // Rule6:   if P2.isHidden=0  才可以对P2.var手工修改（也就是作为inferParasByPara的入参)
  
 ``` 
+
+
+# 示例文档
+
+这是一个Java代码示例：
+
+```java
+public class HelloWorld {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+    }
+}
+ 
+``` 

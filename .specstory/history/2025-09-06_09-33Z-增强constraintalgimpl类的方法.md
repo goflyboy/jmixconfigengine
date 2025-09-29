@@ -76,7 +76,7 @@ Read file: src/main/java/com/jmix/configengine/model/Rule.java
 | `src/test/java/com/jmix/configengine/scenario/hello/HelloConstraint.java` | Lundefined-47 |
 | `src/test/java/com/jmix/configengine/artifact/ModuleAlgArtifactGeneratorTest.java` | L495-518 |
 | `src/test/java/com/jmix/configengine/scenario/ruletest/CompatiableRuleIncompatibleTest.java` | Lundefined-25 |
-| `src/test/java/com/jmix/configengine/scenario/base/ModuleSecnarioTestBase.java` | Lundefined-62 |
+| `src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java` | Lundefined-62 |
 
 </details>
 

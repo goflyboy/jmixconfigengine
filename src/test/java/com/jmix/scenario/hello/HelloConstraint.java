@@ -23,7 +23,7 @@ public class HelloConstraint extends ConstraintAlgImplTestBase {
     @ParaAnno(defaultValue = "Small", options = { "Small", "Medium", "Big" })
     private ParaVar sizeVar;
 
-    @PartAnno(price = 100L, attrs = { "weight:180g", "size:M" }, extAttrs = { "material:cotton", "brand:Hello" })
+    @PartAnno(price = 100L)
     private PartVar tShirt11Var;
 
     /**
@@ -36,10 +36,10 @@ public class HelloConstraint extends ConstraintAlgImplTestBase {
         // "Red-10", "Black-20", "White-30"
         // "Small-10", "Medium-20", "Big-30"
         // if(colorVar.value ==Red && sizeVar.value == Small ) {
-        // TShirt11Var.qty = 1;
+        // tShirt11Var.qty = 1;
         // }
         // else {
-        // TShirt11Var.qty = 3
+        // tShirt11Var.qty = 3
         // }
 
         // 创建条件变量：颜色是红色且尺寸是小号
