@@ -1,7 +1,7 @@
 
 ##packageName
 ```java 
-com.jmix.configengine.perf
+com.jmix.scenario.perf20
 ```
 
 ##modelName

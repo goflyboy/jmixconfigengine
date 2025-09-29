@@ -1,4 +1,4 @@
-package com.jmix.scenario;
+package com.jmix.scenario.perf20;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
