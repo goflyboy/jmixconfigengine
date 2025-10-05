@@ -120,9 +120,7 @@
     "@type" : "Part",
     "extSchema" : "",
     "extAttrs" : {
-      "@class" : "java.util.HashMap",
-      "material" : "cotton",
-      "brand" : "Hello"
+      "@class" : "java.util.HashMap"
     },
     "code" : "tShirt11",
     "fatherCode" : "",
@@ -133,9 +131,7 @@
     "price" : 100,
     "maxQuantity" : 20,
     "attrs" : {
-      "@class" : "java.util.HashMap",
-      "size" : "M",
-      "weight" : "180g"
+      "@class" : "java.util.HashMap"
     },
     "attrSchemas" : [ "java.util.ArrayList", [ ] ]
   } ] ],
