@@ -132,20 +132,15 @@ public class ParaVar extends Var<Para> {
     public String getVarString(CpSolverSolutionCallback solutionCallback) {
         StringBuilder sb = new StringBuilder();
         sb.append("Para{code=").append(getCode());
-        if (value != null) {
-            sb.append(",value=").append(solutionCallback.value(this.value));
+        sb.append(",value=").append(this.value == null ? "null" : solutionCallback.value(this.value));
+        sb.append(", isHidden=").append(this.isHidden == null ? "null" : solutionCallback.value(this.isHidden));
 
+        // 打印每个option的getVarString
+        sb.append(", options=");
+        for (ParaOptionVar option : optionSelectVars.values()) {
+            sb.append(option.getVarString(solutionCallback)).append(",");
         }
-        if (isHidden != null) {
-            sb.append(", isHidden=").append(solutionCallback.value(this.isHidden));
-        }
-        if (!optionSelectVars.isEmpty()) {
-            // 打印每个option的getVarString
-            sb.append(", options=");
-            for (ParaOptionVar option : optionSelectVars.values()) {
-                sb.append(option.getVarString(solutionCallback)).append(",");
-            }
-        }
+
         sb.append("}");
         return sb.toString();
     }
@@ -154,6 +149,7 @@ public class ParaVar extends Var<Para> {
     public String getShortString(CpSolverSolutionCallback solutionCallback) {
         // P1(V:1,H:0)
         return String.format("%s(%s:%s,%s:%s)", getCode(), VALUE_SHORT_NAME,
-                solutionCallback.value(this.value), HIDDEN_SHORT_NAME, solutionCallback.value(this.isHidden));
+                this.value == null ? "null" : solutionCallback.value(this.value),
+                this.isHidden == null ? "null" : HIDDEN_SHORT_NAME, solutionCallback.value(this.isHidden));
     }
 }

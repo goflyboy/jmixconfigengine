@@ -8,6 +8,7 @@ import com.jmix.executor.omodel.AlgLoaderException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 /**
  * Para类型处理工具类
@@ -71,10 +72,9 @@ public class ParaTypeHandler {
                 return codeIdValue;
             case ENUM:
                 // 根据codeId查找对应的选项
-                for (ParaOption option : para.getOptions()) {
-                    if (String.valueOf(option.getCodeId()).equals(codeIdValue)) {
-                        return option.getCode();
-                    }
+                Optional<ParaOption> option = para.getOption(Integer.parseInt(codeIdValue));
+                if (option.isPresent()) {
+                    return option.get().getCode();
                 }
                 log.error("Option with codeId {} not found in parameter {}", codeIdValue, para.getCode());
                 throw new AlgLoaderException(String.format(

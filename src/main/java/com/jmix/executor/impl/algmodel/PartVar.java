@@ -71,15 +71,9 @@ public class PartVar extends Var<Part> {
     public String getVarString(CpSolverSolutionCallback solutionCallback) {
         StringBuilder sb = new StringBuilder();
         sb.append("PartVar{code=").append(getCode());
-        if (getQty() != null) {
-            sb.append(", qty=").append(solutionCallback.value(this.getQty()));
-        }
-        if (getIsHidden() != null) {
-            sb.append(", hidden=").append(solutionCallback.value(this.getIsHidden()));
-        }
-        if (!getSubPartSelectedVars().isEmpty()) {
-            sb.append(", subParts=").append(getSubPartSelectedVars().size());
-        }
+        sb.append(", qty=").append(this.qty == null ? "null" : solutionCallback.value(this.getQty()));
+        sb.append(", hidden=").append(this.isHidden == null ? "null" : solutionCallback.value(this.getIsHidden()));
+        sb.append(", subParts=").append(getSubPartSelectedVars().size());
         sb.append("}");
         return sb.toString();
     }
@@ -94,6 +88,8 @@ public class PartVar extends Var<Part> {
     public String getShortString(CpSolverSolutionCallback solutionCallback) {
         // P1(Q:1,H:0)
         return String.format("%s(%s:%s,%s:%s)", getCode(), QTY_SHORT_NAME,
-                solutionCallback.value(this.getQty()), HIDDEN_SHORT_NAME, solutionCallback.value(this.getIsHidden()));
+                this.qty == null ? "null" : solutionCallback.value(this.qty),
+                HIDDEN_SHORT_NAME,
+                this.isHidden == null ? "null" : solutionCallback.value(this.isHidden));
     }
 }
