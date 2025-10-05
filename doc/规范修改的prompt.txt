@@ -102,9 +102,4 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 2025-10-5
-LLMInvoker，替换是替换函数？**
-增加常量
- ALG_PACKAGE = "com.jmix.coretest.";
- ALG_BASE_CLASS= "ConstraintAlgImplTestBase";
- ALG_PART_CLASS= "ConstraintAlgImplTestBase$PartVar";
- ALG_PARA_CLASS= "ConstraintAlgImplTestBase$ParaVar";
+LLMInvoker，替换是替换函数？**   q

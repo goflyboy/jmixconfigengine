@@ -23,11 +23,6 @@ public class PartInst {
     private String code;
 
     /**
-     * 部件值，空表示没有赋值
-     */
-    private String value;
-
-    /**
      * 部件选项列表，空表示没有赋值
      */
     private List<String> options;

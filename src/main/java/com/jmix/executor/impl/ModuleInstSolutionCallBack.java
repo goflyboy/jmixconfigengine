@@ -71,15 +71,13 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
 
     @Override
     public void onSolutionCallback() {
+        // 后续考虑多线程，需要解决对相同解重复遍历（如：通过校验), this.stopSearch()
         solutionIndex++;
+        log.info("-------------varInfos-solutionIndex:{}----------- \n {}", solutionIndex);
         // 创建ModuleInst实例，instanceId从0开始
-        ModuleInst moduleInst = createModuleInst(module, 0);
+        ModuleInst moduleInst = createModuleInst(module, solutionIndex);
 
         for (Var<?> v : vars) {
-            // 打印var.getVarString
-            log.info("-------------varInfos-solutionIndex:{}----------- \n {}", solutionIndex,
-                    v.getVarString(this));
-            // 如果不是debug模式，则不打印Var的值
             if (v instanceof ParaVar) {
                 ParaVar pv = (ParaVar) v;
                 ParaInst pi = toParaInst(pv);
@@ -186,11 +184,7 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
         moduleInst.setCode(module.getCode());
         // 设置ModuleInst的shortCode
         moduleInst.setShortCode(module.getShortCode());
-        moduleInst.setInstanceConfigId("0");
         moduleInst.setInstanceId(instanceId);
-        moduleInst.setQuantity(1);
-        moduleInst.setParas(new ArrayList<>());
-        moduleInst.setParts(new ArrayList<>());
         return moduleInst;
     }
 }

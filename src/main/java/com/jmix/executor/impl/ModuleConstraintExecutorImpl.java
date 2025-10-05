@@ -116,9 +116,9 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
                 model.exportToFile(config.getLogFilePath() + File.separator + module.getCode() + ".proto.txt");
             }
             CpSolver solver = new CpSolver();
-            if (req.isEnumerateAllSolution()) {
-                solver.getParameters().setEnumerateAllSolutions(true);
-            }
+            solver.getParameters().setEnumerateAllSolutions(req.isEnumerateAllSolution());
+            solver.getParameters().setNumSearchWorkers(1); // 单线程搜索，防止有重复解
+            log.info("solver parameters:\n" + solver.getParameters().toString());
             // 可按需设置更多参数
             ModuleInstSolutionCallBack cb = new ModuleInstSolutionCallBack(module, alg.getVars(), alg.getOtherVarMap());
             CpSolverStatus status = solver.solve(model, cb);
@@ -198,11 +198,11 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
      * @param module 模块对象
      * @param req    参数反推请求
      * @return 初始化完成的约束算法实现
-     * @throws AlgLoaderException 当算法加载器未找到时抛出
-     * @throws AlgLoaderException 当创建算法实例时抛出
+     * @throws AlgLoaderException   当算法加载器未找到时抛出
+     * @throws AlgExecutorException 当创建算法执行时抛出
      */
     private ConstraintAlgImpl initConstraintModel(Module module, InferParasReq req)
-            throws AlgLoaderException, AlgLoaderException {
+            throws AlgLoaderException, AlgExecutorException {
         // 加载算法类
         ModuleAlgClassLoader loader = getModuleClassLoader(module.getId());
         if (loader == null) {
@@ -215,7 +215,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
         CpModel model = new CpModel();
 
         // 根据loadType决定是否使用差量加载模型
-        if (config != null && config.getLoadType() == 0) {
+        if (config.getLoadType() == ConstraintConfig.LOAD_TYPE_INCREMENTAL) {
             // 差量加载模型
             List<String> inputProgObjs = buildInputProgObjs(req);
 
