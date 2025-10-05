@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,21 @@ public class ModuleInst {
     public static final String OTHER_VARIABLES_MEMO_KEY = "OTHER_VARIABLES_MEMO";
 
     /**
+     * 默认实例配置ID常量
+     */
+    public static final String DEAULT_INSTANCE_CONFIG_ID = "0";
+
+    /**
+     * 默认实例ID常量
+     */
+    public static final int DEAULT_INSTANCE_ID = 0;
+
+    /**
+     * 默认数量常量
+     */
+    public static final int DEAULT_QUANTITY = 1;
+
+    /**
      * 模块ID
      */
     private Long id;
@@ -42,27 +58,27 @@ public class ModuleInst {
     /**
      * 实例配置ID
      */
-    private String instanceConfigId;
+    private String instanceConfigId = DEAULT_INSTANCE_CONFIG_ID;
 
     /**
      * 实例ID，默认为0，多个实例从0开始，如：0，1,2，....
      */
-    private int instanceId;
+    private int instanceId = DEAULT_INSTANCE_ID;
 
     /**
      * 数量
      */
-    private Integer quantity;
+    private Integer quantity = DEAULT_QUANTITY;
 
     /**
      * 参数实例列表
      */
-    private List<ParaInst> paras;
+    private List<ParaInst> paras = new ArrayList<>();
 
     /**
      * 部件实例列表
      */
-    private List<PartInst> parts;
+    private List<PartInst> parts = new ArrayList<>();
 
     /**
      * 扩展属性
@@ -102,23 +118,19 @@ public class ModuleInst {
         StringBuilder sb = new StringBuilder();
 
         // 添加参数信息
-        if (paras != null) {
-            for (ParaInst para : paras) {
-                if (sb.length() > 0) {
-                    sb.append(",");
-                }
-                sb.append(para.toShortString());
+        for (ParaInst para : paras) {
+            if (sb.length() > 0) {
+                sb.append(",");
             }
+            sb.append(para.toShortString());
         }
 
         // 添加部件信息
-        if (parts != null) {
-            for (PartInst part : parts) {
-                if (sb.length() > 0) {
-                    sb.append(",");
-                }
-                sb.append(part.toShortString());
+        for (PartInst part : parts) {
+            if (sb.length() > 0) {
+                sb.append(",");
             }
+            sb.append(part.toShortString());
         }
 
         // 添加其他变量信息

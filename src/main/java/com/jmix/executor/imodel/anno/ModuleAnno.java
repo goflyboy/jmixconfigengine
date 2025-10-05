@@ -1,5 +1,7 @@
 package com.jmix.executor.imodel.anno;
 
+import com.jmix.executor.imodel.Module;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -31,7 +33,7 @@ public @interface ModuleAnno {
     /**
      * 版本号
      */
-    String version() default "1.0.0";
+    String version() default Module.DEFAULT_VERSION;
 
     /**
      * 描述信息

@@ -15,7 +15,7 @@ public class OtherVar {
     /**
      * 变量命名模式前缀
      */
-    public static final String VAR_PATTEN_PREFIX = "v";
+    public static final String VAR_PATTERN_PREFIX = "v";
 
     /**
      * 定义的code

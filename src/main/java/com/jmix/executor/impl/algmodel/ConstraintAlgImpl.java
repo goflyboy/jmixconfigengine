@@ -590,14 +590,14 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         switch (para.getType()) {
             case INTEGER:
                 paraVar.setValue(newIntVar(Integer.parseInt(para.getMinValue()), Integer.parseInt(para.getMaxValue()),
-                        f(ParaVar.VALUE_PATTEN, code)));
+                        f(ParaVar.VALUE_PATTERN, code)));
                 break;
             case ENUM:
                 if (para.getOptions() == null) {
                     log.error("Para options not found for code: {}", code);
                     throw new AlgLoaderException("Para options not found for code: " + code);
                 }
-                paraVar.setValue(newIntVarFromDomain(para.getOptionIds(), f(ParaVar.VALUE_PATTEN, code)));
+                paraVar.setValue(newIntVarFromDomain(para.getOptionIds(), f(ParaVar.VALUE_PATTERN, code)));
 
                 for (ParaOption option : para.getOptions()) {
                     ParaOptionVar optionVar = createParaOptionVar(para.getCode(), option.getCode());
@@ -613,7 +613,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
                 log.error("Para type not supported: {}", para.getType());
                 throw new AlgLoaderException("Para type not supported: " + para.getType());
         }
-        paraVar.setIsHidden(newBoolVar(f(ParaVar.HIDDEN_PATTEN, code)));
+        paraVar.setIsHidden(newBoolVar(f(ParaVar.HIDDEN_PATTERN, code)));
         registerVar(code, paraVar);
         return paraVar;
     }
@@ -635,8 +635,8 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         PartVar partVar = new PartVar();
         partVar.setBase(part);
         // partVar.qty = model.newIntVar(0, 1, code);
-        partVar.setQty(newIntVar(0, part.getMaxQuantity(), f(PartVar.QTY_PATTEN, code)));
-        partVar.setIsHidden(newBoolVar(f(PartVar.HIDDEN_PATTEN, code)));
+        partVar.setQty(newIntVar(0, part.getMaxQuantity(), f(PartVar.QTY_PATTERN, code)));
+        partVar.setIsHidden(newBoolVar(f(PartVar.HIDDEN_PATTERN, code)));
         registerVar(code, partVar);
         return partVar;
     }
@@ -662,7 +662,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         }
         ParaOption option = optionOpt.get();
         ParaOptionVar optionVar = new ParaOptionVar(option);
-        optionVar.setIsSelectedVar(newBoolVar(f(ParaVar.OPTIONS_PATTEN, paraCode, option.getCode())));
+        optionVar.setIsSelectedVar(newBoolVar(f(ParaVar.OPTIONS_PATTERN, paraCode, option.getCode())));
         return optionVar;
     }
 

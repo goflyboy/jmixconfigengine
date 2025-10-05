@@ -617,8 +617,8 @@ Lines added: 1, lines removed: 1
 @@ -581,5 +581,5 @@
           }
           ParaOptionVar optionVar = new ParaOptionVar(option);
--         optionVar.isSelectedVar = newBoolVar(f(ParaVar.OPTIONS_PATTEN, paraCode, option.getCode()));
-+         optionVar.setIsSelectedVar(newBoolVar(f(ParaVar.OPTIONS_PATTEN, paraCode, option.getCode())));
+-         optionVar.isSelectedVar = newBoolVar(f(ParaVar.OPTIONS_PATTERN, paraCode, option.getCode()));
++         optionVar.setIsSelectedVar(newBoolVar(f(ParaVar.OPTIONS_PATTERN, paraCode, option.getCode())));
           return optionVar;
       }
 ```
@@ -973,7 +973,7 @@ Lines added: 3, lines removed: 3
 
 ```diff
 @@ -154,7 +154,7 @@
-          if (!name.startsWith(ParaVar.VAR_PATTEN_PREFIX) && !name.startsWith(PartVar.VAR_PATTEN_PREFIX)) {
+          if (!name.startsWith(ParaVar.VAR_PATTERN_PREFIX) && !name.startsWith(PartVar.VAR_PATTERN_PREFIX)) {
               OtherVar otherVar = new OtherVar();
 -             otherVar.code = name;
 -             otherVar.var = tv;
@@ -1535,9 +1535,9 @@ Lines added: 2, lines removed: 2
           switch (para.getType()) {
               case INTEGER:
 -                 paraVar.value = newIntVar(Integer.parseInt(para.getMinValue()), Integer.parseInt(para.getMaxValue()),
--                         f(ParaVar.VALUE_PATTEN, code));
+-                         f(ParaVar.VALUE_PATTERN, code));
 +                 paraVar.setValue(newIntVar(Integer.parseInt(para.getMinValue()), Integer.parseInt(para.getMaxValue()),
-+                         f(ParaVar.VALUE_PATTEN, code)));
++                         f(ParaVar.VALUE_PATTERN, code)));
                   break;
               case ENUM:
 ```
@@ -1557,8 +1557,8 @@ Lines added: 1, lines removed: 1
 @@ -524,5 +524,5 @@
                       throw new AlgLoaderException("Para options not found for code: " + code);
                   }
--                 paraVar.value = newIntVarFromDomain(para.getOptionIds(), f(ParaVar.VALUE_PATTEN, code));
-+                 paraVar.setValue(newIntVarFromDomain(para.getOptionIds(), f(ParaVar.VALUE_PATTEN, code)));
+-                 paraVar.value = newIntVarFromDomain(para.getOptionIds(), f(ParaVar.VALUE_PATTERN, code));
++                 paraVar.setValue(newIntVarFromDomain(para.getOptionIds(), f(ParaVar.VALUE_PATTERN, code)));
   
                   for (ParaOption option : para.getOptions()) {
 ```
@@ -1624,8 +1624,8 @@ Lines added: 1, lines removed: 1
 @@ -539,5 +539,5 @@
                   throw new AlgLoaderException("Para type not supported: " + para.getType());
           }
--         paraVar.isHidden = newBoolVar(f(ParaVar.HIDDEN_PATTEN, code));
-+         paraVar.setIsHidden(newBoolVar(f(ParaVar.HIDDEN_PATTEN, code)));
+-         paraVar.isHidden = newBoolVar(f(ParaVar.HIDDEN_PATTERN, code));
++         paraVar.setIsHidden(newBoolVar(f(ParaVar.HIDDEN_PATTERN, code)));
           registerVar(code, paraVar);
           return paraVar;
 ```
@@ -1651,10 +1651,10 @@ Lines added: 2, lines removed: 2
           PartVar partVar = new PartVar();
           partVar.setBase(part);
 -         // partVar.qty = model.newIntVar(0, 1, code);
--         partVar.qty = newIntVar(0, part.getMaxQuantity(), f(PartVar.QTY_PATTEN, code));
+-         partVar.qty = newIntVar(0, part.getMaxQuantity(), f(PartVar.QTY_PATTERN, code));
 +         // partVar.setQty(model.newIntVar(0, 1, code));
-+         partVar.setQty(newIntVar(0, part.getMaxQuantity(), f(PartVar.QTY_PATTEN, code)));
-          partVar.isHidden = newBoolVar(f(PartVar.HIDDEN_PATTEN, code));
++         partVar.setQty(newIntVar(0, part.getMaxQuantity(), f(PartVar.QTY_PATTERN, code)));
+          partVar.isHidden = newBoolVar(f(PartVar.HIDDEN_PATTERN, code));
           registerVar(code, partVar);
 ```
 
@@ -1672,9 +1672,9 @@ Lines added: 1, lines removed: 1
 ```diff
 @@ -559,5 +559,5 @@
           // partVar.setQty(model.newIntVar(0, 1, code));
-          partVar.setQty(newIntVar(0, part.getMaxQuantity(), f(PartVar.QTY_PATTEN, code)));
--         partVar.isHidden = newBoolVar(f(PartVar.HIDDEN_PATTEN, code));
-+         partVar.setIsHidden(newBoolVar(f(PartVar.HIDDEN_PATTEN, code)));
+          partVar.setQty(newIntVar(0, part.getMaxQuantity(), f(PartVar.QTY_PATTERN, code)));
+-         partVar.isHidden = newBoolVar(f(PartVar.HIDDEN_PATTERN, code));
++         partVar.setIsHidden(newBoolVar(f(PartVar.HIDDEN_PATTERN, code)));
           registerVar(code, partVar);
           return partVar;
 ```

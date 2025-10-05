@@ -6,7 +6,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -55,6 +57,18 @@ public class Para extends ProgrammableObject<String> {
     private String maxValue = DEFAULT_MAX_VALUE;
 
     /**
+     * <codeId, ParaOption> Map
+     */
+    @JsonIgnore
+    private Map<Integer, ParaOption> optionCodeIdMap = new HashMap<>();
+
+    /**
+     * <code, ParaOption> Map
+     */
+    @JsonIgnore
+    private Map<String, ParaOption> optionCodeMap = new HashMap<>();
+
+    /**
      * 根据选项编码获取参数选项
      * 
      * @param optionCode 选项编码
@@ -62,15 +76,28 @@ public class Para extends ProgrammableObject<String> {
      */
     @JsonIgnore
     public Optional<ParaOption> getOption(String optionCode) {
-        if (options == null || optionCode == null) {
-            return Optional.empty();
+        if (optionCodeMap.size() != options.size()) {
+            optionCodeMap.clear();
+            options.forEach(option -> optionCodeMap.put(option.getCode(), option));
         }
-        for (ParaOption opt : options) {
-            if (optionCode.equals(opt.getCode())) {
-                return Optional.of(opt);
-            }
+        ParaOption option = optionCodeMap.get(optionCode);
+        return option == null ? Optional.empty() : Optional.of(option);
+    }
+
+    /**
+     * 根据选项编码id获取参数选项
+     * 
+     * @param optionCodeId 选项编码Id
+     * @return 参数选项对象，如果不存在则返回Optional.empty()
+     */
+    @JsonIgnore
+    public Optional<ParaOption> getOption(Integer optionCodeId) {
+        if (optionCodeIdMap.size() != options.size()) {
+            optionCodeIdMap.clear();
+            options.forEach(option -> optionCodeIdMap.put(option.getCodeId(), option));
         }
-        return Optional.empty();
+        ParaOption option = optionCodeIdMap.get(optionCodeId);
+        return option == null ? Optional.empty() : Optional.of(option);
     }
 
     /**

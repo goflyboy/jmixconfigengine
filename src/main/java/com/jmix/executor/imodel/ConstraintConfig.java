@@ -11,14 +11,24 @@ import lombok.Data;
 @Data
 public class ConstraintConfig {
     /**
-     * 是否附加调试信息
+     * 差量加载
      */
-    private boolean isAttachedDebug;
+    public static final int LOAD_TYPE_INCREMENTAL = 0;
+
+    /**
+     * 全量加载
+     */
+    public static final int LOAD_TYPE_FULL = 1;
+
+    /**
+     * 是否Attach方式调试，true-工程内class加载，可直接调试算， false-jar什邡市加载，不可以调试
+     */
+    private boolean isAttachedDebug = false;
 
     /**
      * 根文件路径
      */
-    private String rootFilePath;
+    private String rootFilePath = ".";
 
     /**
      * 日志文件路径
@@ -36,7 +46,7 @@ public class ConstraintConfig {
     private boolean isLogVariables = true;
 
     /**
-     * 加载模式，全量加载模式-1，差量加载模式-0
+     * 加载模式：全量(1) 或 差量(0)
      */
-    private int loadType = 1;
+    private int loadType = LOAD_TYPE_FULL;
 }

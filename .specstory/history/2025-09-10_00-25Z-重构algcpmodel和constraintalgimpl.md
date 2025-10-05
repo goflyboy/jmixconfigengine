@@ -1414,7 +1414,7 @@ Lines added: 2, lines removed: 4
 
 ### 4. 变量注册逻辑
 - 只有通过 `AlgCPModel` 的封装方法创建的变量才会被注册
-- 注册逻辑会检查变量名是否以 `ParaVar.VAR_PATTEN_PREFIX` 或 `PartVar.VAR_PATTEN_PREFIX` 开头
+- 注册逻辑会检查变量名是否以 `ParaVar.VAR_PATTERN_PREFIX` 或 `PartVar.VAR_PATTERN_PREFIX` 开头
 - 如果不是，则添加到 `otherVarMap` 中，并分配短代码
 
 ### 5. 编译状态
@@ -1751,8 +1751,8 @@ Lines added: undefined, lines removed: 20
 - 			throw new RuntimeException("Variable already exists: " + name);
 - 		}
 - 		
-- 		// name不是以ParaVar.VAR_PATTEN_PREFIX 且 PartVar.VAR_PATTEN_PREFIX开头，则添加到otherVarMap
-- 		if (!name.startsWith(ParaVar.VAR_PATTEN_PREFIX) && !name.startsWith(PartVar.VAR_PATTEN_PREFIX)) {
+- 		// name不是以ParaVar.VAR_PATTERN_PREFIX 且 PartVar.VAR_PATTERN_PREFIX开头，则添加到otherVarMap
+- 		if (!name.startsWith(ParaVar.VAR_PATTERN_PREFIX) && !name.startsWith(PartVar.VAR_PATTERN_PREFIX)) {
 - 			OtherVar otherVar = new OtherVar();
 - 			otherVar.code = name;
 - 			otherVar.var = tv;

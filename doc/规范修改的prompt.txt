@@ -100,3 +100,6 @@ import com.jmix.executor.imodel.anno.*;
 import com.google.ortools.sat.*; 
 import lombok.extern.slf4j.Slf4j; 
 import org.junit.jupiter.api.Test;
+
+2025-10-5
+LLMInvoker，替换是替换函数？**

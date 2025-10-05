@@ -29,22 +29,22 @@ public class ParaVar extends Var<Para> {
     /**
      * 参数变量命名模式常量
      */
-    public static final String VAR_PATTEN_PREFIX = "##Para.";
+    public static final String VAR_PATTERN_PREFIX = "##Para.";
 
     /**
      * 参数值Var的命名模式
      */
-    public static final String VALUE_PATTEN = VAR_PATTEN_PREFIX + "value.%s";
+    public static final String VALUE_PATTERN = VAR_PATTERN_PREFIX + "value.%s";
 
     /**
      * 显示隐藏Var的命名模式
      */
-    public static final String HIDDEN_PATTEN = VAR_PATTEN_PREFIX + "isHidden.%s";
+    public static final String HIDDEN_PATTERN = VAR_PATTERN_PREFIX + "isHidden.%s";
 
     /**
      * 参数选项Var的命名模式
      */
-    public static final String OPTIONS_PATTEN = VAR_PATTEN_PREFIX + "options.%s.%s";
+    public static final String OPTIONS_PATTERN = VAR_PATTERN_PREFIX + "options.%s.%s";
 
     /**
      * 参数值Var的短名称

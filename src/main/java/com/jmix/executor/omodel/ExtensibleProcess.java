@@ -14,6 +14,11 @@ import lombok.extern.slf4j.Slf4j;
 public abstract class ExtensibleProcess {
 
     /**
+     * 默认版本号
+     */
+    public static final String VERSION_DEFAULT = "1.0.0";
+
+    /**
      * 扩展处理名称
      */
     private String processName;
@@ -21,7 +26,7 @@ public abstract class ExtensibleProcess {
     /**
      * 扩展处理版本
      */
-    private String version = "1.0.0";
+    private String version = VERSION_DEFAULT;
 
     /**
      * 是否启用

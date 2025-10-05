@@ -25,6 +25,12 @@ import java.util.Optional;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class Module extends ProgrammableObject<Integer> {
+
+    /**
+     * 默认版本号常量
+     */
+    public static final String DEFAULT_VERSION = "1.0.0";
+
     /**
      * 版本信息
      */
@@ -33,7 +39,7 @@ public class Module extends ProgrammableObject<Integer> {
     /**
      * 版本号
      */
-    private String version = "1.0.0";
+    private String version = DEFAULT_VERSION;
 
     /**
      * 包名
