@@ -515,6 +515,6 @@ public class Perf20ParasTest extends ModuleScenarioTestBase {
 
     @Override
     protected void beforeInitConfig(ConstraintConfig cfg) {
-        cfg.setLoadType(1); // 全量加载
+        cfg.setLoadType(ConstraintConfig.LOAD_TYPE_FULL); // 全量加载
     }
 }

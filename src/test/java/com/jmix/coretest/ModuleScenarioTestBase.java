@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * 模块场景测试基类
@@ -169,6 +170,21 @@ public abstract class ModuleScenarioTestBase {
      * @return 推理结果
      */
     protected List<ModuleInst> inferParas(String partCode, Integer qty, String... paraCodeValuePairs) {
+        return inferParas(partCode, qty, toPreParas(paraCodeValuePairs), new ArrayList<>());
+    }
+
+    /**
+     * 执行参数推理
+     * s
+     * 
+     * @param partCode 部件代码
+     * @param qty      数量
+     * @param preParas 前置参数列表
+     * @param preParts 前置部件列表
+     * @return 推理结果
+     */
+    protected List<ModuleInst> inferParas(String partCode, Integer qty, List<ParaInst> preParas,
+            List<PartInst> preParts) {
         InferParasReq req = new InferParasReq();
         req.setModuleId(getModule().getId());
         req.setEnumerateAllSolution(isEnumerateAllSolution());
@@ -180,9 +196,8 @@ public abstract class ModuleScenarioTestBase {
         req.setMainPartInst(mainPartInst);
 
         // 处理预定义参数（复用公共方法）
-        if (paraCodeValuePairs.length > 0) {
-            req.setPreParaInsts(buildParaInstsFromPairs(paraCodeValuePairs));
-        }
+        req.setPreParaInsts(preParas);
+        req.setPrePartInsts(preParts);
 
         Result<List<ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(req);
         log.info("Inference result: {}", result);
@@ -201,10 +216,10 @@ public abstract class ModuleScenarioTestBase {
     protected List<ModuleInst> inferParasByPara(String... paraCodeValuePairs) {
         InferParasReq req = new InferParasReq();
         req.setModuleId(getModule().getId());
-        req.setEnumerateAllSolution(true);
+        req.setEnumerateAllSolution(isEnumerateAllSolution());
 
         // 复用公共方法处理参数
-        req.setPreParaInsts(buildParaInstsFromPairs(paraCodeValuePairs));
+        req.setPreParaInsts(toPreParas(paraCodeValuePairs));
 
         Result<List<ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(req);
         log.info("Inference result: {}", result);
@@ -458,7 +473,7 @@ public abstract class ModuleScenarioTestBase {
      * @param paraCodeValuePairs 参数代码和值的交替数组
      * @return ParaInst列表
      */
-    private List<ParaInst> buildParaInstsFromPairs(String... paraCodeValuePairs) {
+    protected List<ParaInst> toPreParas(String... paraCodeValuePairs) {
         if (paraCodeValuePairs.length % 2 != 0) {
             throw new IllegalArgumentException(
                     "Parameters must be in even numbers, format: paraCode1, value1, paraCode2, value2, ...");
@@ -474,7 +489,7 @@ public abstract class ModuleScenarioTestBase {
             paraInst.setCode(paraCode);
 
             // 根据module.paras中的para.options，找到value对应的option
-            java.util.Optional<Para> paraOpt = getModule().getPara(paraCode);
+            Optional<Para> paraOpt = getModule().getPara(paraCode);
             if (!paraOpt.isPresent()) {
                 throw new AlgLoaderException(String.format("Parameter %s does not exist", paraCode));
             }
@@ -484,6 +499,39 @@ public abstract class ModuleScenarioTestBase {
         }
 
         return paraInsts;
+    }
+
+    /**
+     * 根据Part代码值对构建PartInst列表（公共方法）
+     * 
+     * @param partCodeValuePairs Part代码和值的交替数组
+     * @return ParaInst列表
+     */
+    protected List<PartInst> toPreParts(String... partCodeValuePairs) {
+        if (partCodeValuePairs.length % 2 != 0) {
+            throw new IllegalArgumentException(
+                    "Parts must be in even numbers, format: partCode1, value1, partCode2, value2, ...");
+        }
+
+        List<PartInst> partInsts = new ArrayList<>();
+
+        for (int i = 0; i < partCodeValuePairs.length; i += 2) {
+            String partCode = partCodeValuePairs[i];
+            String value = partCodeValuePairs[i + 1];
+
+            PartInst partInst = new PartInst();
+            partInst.setCode(partCode);
+
+            // 根据module.parts中
+            Optional<Part> partOpt = getModule().getPart(partCode);
+            if (!partOpt.isPresent()) {
+                throw new AlgLoaderException(String.format("Part %s does not exist", partCode));
+            }
+            partInst.setQuantity(Integer.parseInt(value));
+            partInsts.add(partInst);
+        }
+
+        return partInsts;
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.jmix.tool.impl;
 
 import com.jmix.executor.imodel.Module;
+import com.jmix.executor.imodel.ModuleAlgArtifact;
 import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
 import com.jmix.executor.impl.util.CommHelper;
 import com.jmix.executor.impl.util.ModuleUtils;
@@ -135,7 +136,13 @@ public class ModulePacker {
             String testClassesDir = inputDir.replace("src\\test\\java", "target\\test-classes");
             log.info("Looking for class files in: {}", testClassesDir);
 
-            List<String> classFiles = new ArrayList<>();
+            List<File> classFiles = new ArrayList<>();
+
+            String baseClassRootDir = testClassesDir.substring(0, testClassesDir.lastIndexOf("\\com"));
+            baseClassRootDir = baseClassRootDir + File.separator + ModuleAlgArtifact.ALG_PACKAGE.replace(".", "\\");
+            findClassFiles(baseClassRootDir, ModuleAlgArtifact.ALG_BASE_CLASS, classFiles);
+            findClassFiles(baseClassRootDir, ModuleAlgArtifact.ALG_PART_CLASS, classFiles);
+            findClassFiles(baseClassRootDir, ModuleAlgArtifact.ALG_PARA_CLASS, classFiles);
 
             if (isMultifile) {
                 // 多文件模式：需要将ConstraintAlg类及测试类对应的class打成jar包
@@ -188,7 +195,7 @@ public class ModulePacker {
             String jarFilePath = module.getAlg()
                     .getSourceJarPath(outDir.substring(0, outDir.lastIndexOf(File.separator)));
 
-            List<String> sourceFiles = new ArrayList<>();
+            List<File> sourceFiles = new ArrayList<>();
 
             if (isMultifile) {
                 // 多文件模式：需要将ConstraintAlg类及测试类源码
@@ -232,15 +239,17 @@ public class ModulePacker {
      * @param className  类名
      * @param classFiles 结果列表
      */
-    private void findClassFiles(String inputDir, String className, List<String> classFiles) {
+    private void findClassFiles(String inputDir, String className, List<File> classFiles) {
         String classFileName = className + ".class";
         // 标准化路径，解决Windows路径问题
-        inputDir = inputDir.substring(1, inputDir.length());
+        if (inputDir.startsWith("/")) {
+            inputDir = inputDir.substring(1, inputDir.length());
+        }
         String normalizedInputDir = inputDir.replace("\\", File.separator).replace("/", File.separator);
         Path classFilePath = Paths.get(normalizedInputDir, classFileName);
 
         if (Files.exists(classFilePath)) {
-            classFiles.add(classFileName);
+            classFiles.add(classFilePath.toFile());
             log.info("Found class file: {}", classFileName);
         } else {
             log.info("Class file not found: {}", classFileName);
@@ -254,15 +263,17 @@ public class ModulePacker {
      * @param className   类名
      * @param sourceFiles 结果列表
      */
-    private void findSourceFiles(String inputDir, String className, List<String> sourceFiles) {
+    private void findSourceFiles(String inputDir, String className, List<File> sourceFiles) {
         String sourceFileName = className + ".java";
         // 标准化路径，解决Windows路径问题
-        inputDir = inputDir.substring(1, inputDir.length());
+        if (inputDir.startsWith("/")) {
+            inputDir = inputDir.substring(1, inputDir.length());
+        }
         String normalizedInputDir = inputDir.replace("\\", File.separator).replace("/", File.separator);
         Path sourceFilePath = Paths.get(normalizedInputDir, sourceFileName);
 
         if (Files.exists(sourceFilePath)) {
-            sourceFiles.add(sourceFileName);
+            sourceFiles.add(sourceFilePath.toFile());
             log.info("Found source file: {}", sourceFileName);
         } else {
             log.info("Source file not found: {}", sourceFileName);
@@ -273,28 +284,23 @@ public class ModulePacker {
      * 创建jar文件
      * 
      * @param jarFilePath jar文件路径
-     * @param fileNames   要打包的文件名列表
+     * @param files       要打包的文件列表
      * @param baseDir     基础目录
      */
-    private void createJarFile(String jarFilePath, List<String> fileNames, String baseDir) throws IOException {
+    private void createJarFile(String jarFilePath, List<File> files, String baseDir) throws IOException {
         try (JarOutputStream jarOut = new JarOutputStream(new FileOutputStream(jarFilePath), new Manifest())) {
-            for (String fileName : fileNames) {
-                File file = new File(baseDir, fileName);
-                if (file.exists()) {
-                    JarEntry jarEntry = new JarEntry(fileName);
-                    jarOut.putNextEntry(jarEntry);
-
-                    try (FileInputStream fis = new FileInputStream(file)) {
-                        byte[] buffer = new byte[1024];
-                        int bytesRead;
-                        while ((bytesRead = fis.read(buffer)) != -1) {
-                            jarOut.write(buffer, 0, bytesRead);
-                        }
+            for (File file : files) {
+                JarEntry jarEntry = new JarEntry(file.getName());
+                jarOut.putNextEntry(jarEntry);
+                try (FileInputStream fis = new FileInputStream(file)) {
+                    byte[] buffer = new byte[1024];
+                    int bytesRead;
+                    while ((bytesRead = fis.read(buffer)) != -1) {
+                        jarOut.write(buffer, 0, bytesRead);
                     }
-
-                    jarOut.closeEntry();
-                    log.info("Added to jar: {}", fileName);
                 }
+                jarOut.closeEntry();
+                log.info("Added to jar: {}", file.getName());
             }
         }
     }

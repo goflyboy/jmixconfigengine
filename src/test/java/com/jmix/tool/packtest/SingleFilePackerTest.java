@@ -26,7 +26,7 @@ public class SingleFilePackerTest extends ModuleScenarioTestBase {
 
     @Override
     protected void beforeInitConfig(ConstraintConfig cfg) {
-        cfg.setLoadType(1);
+        cfg.setLoadType(ConstraintConfig.LOAD_TYPE_FULL);
         cfg.setAttachedDebug(false); // 打包模式
     }
 

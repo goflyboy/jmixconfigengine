@@ -8,12 +8,18 @@ import com.jmix.executor.omodel.AlgLoaderException;
 import com.jmix.tool.artifact.ModuleAlgArtifactGenerator;
 import com.jmix.tool.artifact.ModuleVarInfo;
 import com.jmix.tool.impl.LLMInvoker;
+import com.jmix.tool.impl.ModelGenneratorException;
 import com.jmix.tool.impl.ModuleGenneratorByAnno;
 import com.jmix.tool.impl.StructCodeInjector;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -86,8 +92,8 @@ public class ModelHelper {
             }
 
             // 写入文件，使用UTF-8编码
-            try (java.io.OutputStreamWriter writer = new java.io.OutputStreamWriter(
-                    new java.io.FileOutputStream(fullPath.toFile()), "UTF-8")) {
+            try (OutputStreamWriter writer = new OutputStreamWriter(
+                    new FileOutputStream(fullPath.toFile()), "UTF-8")) {
                 writer.write(code);
             }
 
@@ -103,7 +109,7 @@ public class ModelHelper {
             }
 
         } catch (Exception e) {
-            throw new com.jmix.tool.impl.ModelGenneratorException("Failed to generate model file: " + e.getMessage(),
+            throw new ModelGenneratorException("Failed to generate model file: " + e.getMessage(),
                     e);
         }
     }
@@ -170,7 +176,7 @@ public class ModelHelper {
             runTestFile(packageName, modelScenarioName);
 
         } catch (Exception e) {
-            throw new com.jmix.tool.impl.ModelGenneratorException(
+            throw new ModelGenneratorException(
                     "Failed to generate and run model file: " + e.getMessage(), e);
         }
     }
@@ -193,7 +199,7 @@ public class ModelHelper {
 
             // 检查是否有main方法
             try {
-                java.lang.reflect.Method mainMethod = testClass.getMethod("main", String[].class);
+                Method mainMethod = testClass.getMethod("main", String[].class);
                 log.info("Found main method, executing...");
                 mainMethod.invoke(null, (Object) new String[0]);
             } catch (NoSuchMethodException e) {
@@ -233,14 +239,14 @@ public class ModelHelper {
                     javaFilePath.toString());
 
             // 设置工作目录
-            pb.directory(new java.io.File(projectRoot));
+            pb.directory(new File(projectRoot));
 
             // 执行编译
             Process process = pb.start();
 
             // 读取编译输出
-            try (java.io.BufferedReader reader = new java.io.BufferedReader(
-                    new java.io.InputStreamReader(process.getInputStream()))) {
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream()))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     log.info("Compilation output: {}", line);
@@ -248,8 +254,8 @@ public class ModelHelper {
             }
 
             // 读取编译错误
-            try (java.io.BufferedReader errorReader = new java.io.BufferedReader(
-                    new java.io.InputStreamReader(process.getErrorStream()))) {
+            try (BufferedReader errorReader = new BufferedReader(
+                    new InputStreamReader(process.getErrorStream()))) {
                 String line;
                 while ((line = errorReader.readLine()) != null) {
                     log.error("Compilation error: {}", line);
