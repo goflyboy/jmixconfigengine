@@ -21,6 +21,46 @@ import java.io.File;
 })
 public class ModuleAlgArtifact {
     /**
+     * 测试用算法包前缀
+     */
+    public static final String ALG_PACKAGE = "com.jmix.coretest.";
+
+    /**
+     * 测试用基础算法类名
+     */
+    public static final String ALG_BASE_CLASS = "ConstraintAlgImplTestBase";
+
+    /**
+     * 测试用部件变量内部类名
+     */
+    public static final String ALG_PART_CLASS = "ConstraintAlgImplTestBase$PartVar";
+
+    /**
+     * 测试用参数变量内部类名
+     */
+    public static final String ALG_PARA_CLASS = "ConstraintAlgImplTestBase$ParaVar";
+
+    /**
+     * 模块目录命名模式：cp-{moduleCode}-{moduleId}
+     */
+    public static final String MODULE_DIR_PATTERN = "cp-%s-%s";
+
+    /**
+     * 运行jar包命名模式：cp-{moduleCode}-{moduleId}.jar
+     */
+    public static final String RUNTIME_JAR_PATTERN = "cp-%s-%s.jar";
+
+    /**
+     * 源码jar包命名模式：cp-{moduleCode}-{moduleId}-sources.jar
+     */
+    public static final String SOURCE_JAR_PATTERN = "cp-%s-%s-sources.jar";
+
+    /**
+     * 基础数据文件命名模式：cp-{moduleCode}-{moduleId}.base.json
+     */
+    public static final String BASE_JSON_PATTERN = "cp-%s-%s.base.json";
+
+    /**
      * 算法制品ID
      */
     private Long id;
@@ -45,30 +85,6 @@ public class ModuleAlgArtifact {
      * 如果有父类，加载时需要拼接父类名称
      */
     private String parentClassName = "";
-
-    // ==================== 文件命名模式常量 ====================
-
-    /**
-     * 模块目录命名模式：cp-{moduleCode}-{moduleId}
-     */
-    public static final String MODULE_DIR_PATTERN = "cp-%s-%s";
-
-    /**
-     * 运行jar包命名模式：cp-{moduleCode}-{moduleId}.jar
-     */
-    public static final String RUNTIME_JAR_PATTERN = "cp-%s-%s.jar";
-
-    /**
-     * 源码jar包命名模式：cp-{moduleCode}-{moduleId}-sources.jar
-     */
-    public static final String SOURCE_JAR_PATTERN = "cp-%s-%s-sources.jar";
-
-    /**
-     * 基础数据文件命名模式：cp-{moduleCode}-{moduleId}.base.json
-     */
-    public static final String BASE_JSON_PATTERN = "cp-%s-%s.base.json";
-
-    // ==================== 文件命名方法 ====================
 
     /**
      * 获取模块目录名称

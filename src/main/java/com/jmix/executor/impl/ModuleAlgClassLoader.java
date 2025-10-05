@@ -1,5 +1,10 @@
 package com.jmix.executor.impl;
 
+import static com.jmix.executor.imodel.ModuleAlgArtifact.ALG_BASE_CLASS;
+import static com.jmix.executor.imodel.ModuleAlgArtifact.ALG_PACKAGE;
+import static com.jmix.executor.imodel.ModuleAlgArtifact.ALG_PARA_CLASS;
+import static com.jmix.executor.imodel.ModuleAlgArtifact.ALG_PART_CLASS;
+
 import com.jmix.executor.imodel.ConstraintConfig;
 import com.jmix.executor.imodel.ModuleAlgArtifact;
 import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
@@ -10,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
@@ -31,23 +37,31 @@ import java.util.jar.JarFile;
  */
 @Slf4j
 public class ModuleAlgClassLoader extends ClassLoader {
-
+    /**
+     * 约束执行配置，决定调试模式与根目录等加载行为
+     */
     private ConstraintConfig config;
 
+    /**
+     * 约束规则类的完整限定名（可能包含内部类分隔符 $）
+     */
     private String constraintRuleClassName;
 
+    /**
+     * 已加载的类缓存映射（类名 -> Class 对象）
+     */
     private final Map<String, Class<?>> classMap = new HashMap<>();
 
+    /**
+     * 模块算法制品描述（包含包名、模块码、父类名等）
+     */
     private ModuleAlgArtifact algArtifact;
 
+    /**
+     * 用于加载 jar 中类的 URLClassLoader 实例
+     */
     private URLClassLoader jarClassLoader;
 
-    /**
-     * 构造函数
-     * 
-     * @param isAttachedDebug 是否附加调试信息
-     * @param rootFilePath    根文件路径
-     */
     public ModuleAlgClassLoader(ConstraintConfig config, ModuleAlgArtifact algArtifact) {
         this.config = config;
         this.algArtifact = algArtifact;
@@ -91,31 +105,34 @@ public class ModuleAlgClassLoader extends ClassLoader {
     /**
      * 从jar包中加载class信息
      */
-    private void loadClassFromJar() {
+    private void loadClassFromJar() throws AlgLoaderException {
+
+        // 构建模块文件目录路径和jar文件路径
+        String classJarFile = algArtifact.getRuntimeJarPath(config.getRootFilePath());
+
+        log.info("Loading classes from jar: {}", classJarFile);
+
+        // 检查jar文件是否存在
+        Path jarPath = Paths.get(classJarFile);
+        if (!Files.exists(jarPath)) {
+            log.error("Jar file not found: {}", classJarFile);
+            throw new AlgLoaderException("Jar file not found: " + classJarFile);
+        }
+
+        // 创建URLClassLoader加载jar包
+        URL jarUrl = null;
         try {
-            // 构建模块文件目录路径和jar文件路径
-            String classJarFile = algArtifact.getRuntimeJarPath(config.getRootFilePath());
-
-            log.info("Loading classes from jar: {}", classJarFile);
-
-            // 检查jar文件是否存在
-            Path jarPath = Paths.get(classJarFile);
-            if (!Files.exists(jarPath)) {
-                log.error("Jar file not found: {}", classJarFile);
-                throw new AlgLoaderException("Jar file not found: " + classJarFile);
-            }
-
-            // 创建URLClassLoader加载jar包
-            URL jarUrl = jarPath.toUri().toURL();
-            jarClassLoader = new URLClassLoader(new URL[] { jarUrl }, this.getClass().getClassLoader());
-
-            // 预加载所有class文件
-            preloadClassesFromJar(classJarFile);
-            log.info("Jar class loader initialized successfully");
-        } catch (Exception e) {
+            jarUrl = jarPath.toUri().toURL();
+        } catch (MalformedURLException e) {
             log.error("Failed to initialize jar class loader", e);
             throw new AlgLoaderException("Failed to initialize jar class loader: " + e.getMessage(), e);
         }
+        jarClassLoader = new URLClassLoader(new URL[] { jarUrl }, this.getClass().getClassLoader());
+
+        // 预加载所有class文件
+        preloadClassesFromJar(classJarFile);
+        log.info("Jar class loader initialized successfully");
+
     }
 
     private String toFullConstraintClassName(ModuleAlgArtifact algArtifact) {
@@ -142,37 +159,49 @@ public class ModuleAlgClassLoader extends ClassLoader {
      */
     private void preloadClassesFromJar(String jarFilePath) {
         String simpleConstraintRuleClassName = toSimpleConstraintClassName(algArtifact);
+        JarEntry constraintJarEntry = null;
+        JarEntry algBaseJarEntry = null;
+        JarEntry algPartJarEntry = null;
+        JarEntry algParaJarEntry = null;
         try (JarFile jarFile = new JarFile(jarFilePath)) {
             Enumeration<JarEntry> entries = jarFile.entries();
             while (entries.hasMoreElements()) {
                 JarEntry entry = entries.nextElement();
                 String entryClassName = entry.getName().replace("/", ".").replace(".class", "");
                 if (entryClassName.equals(simpleConstraintRuleClassName)) {
-                    loadClassFromJar(this.constraintRuleClassName, jarFile, entry);
+                    constraintJarEntry = entry;
+                } else if (entryClassName.equals(ALG_BASE_CLASS)) {
+                    algBaseJarEntry = entry;
+                } else if (entryClassName.equals(ALG_PART_CLASS)) {
+                    algPartJarEntry = entry;
+                } else if (entryClassName.equals(ALG_PARA_CLASS)) {
+                    algParaJarEntry = entry;
+                } else {
+                    continue;
                 }
             }
-        } catch (Throwable e) {
+            loadClassFromJar(ALG_PACKAGE + ALG_PART_CLASS, jarFile, algPartJarEntry);
+            loadClassFromJar(ALG_PACKAGE + ALG_PARA_CLASS, jarFile, algParaJarEntry);
+            loadClassFromJar(ALG_PACKAGE + ALG_BASE_CLASS, jarFile, algBaseJarEntry);
+            loadClassFromJar(this.constraintRuleClassName, jarFile, constraintJarEntry);
+        } catch (ClassFormatError | IOException e) {
             log.error("Failed to read jar file: {}", jarFilePath, e);
             throw new AlgLoaderException("Failed to read jar file: " + jarFilePath, e);
         }
     }
 
-    /**
-     * 从jar包加载单个class文件
-     * 
-     * @param className 类名
-     * @param jarFile   jar文件
-     * @param entry     jar条目
-     */
-    private void loadClassFromJar(String className, JarFile jarFile, JarEntry entry) {
-        try (InputStream inputStream = jarFile.getInputStream(entry)) {
-            byte[] classBytes = readAllBytes(inputStream);
-            Class<?> clazz = super.defineClass(className, classBytes, 0, classBytes.length);
-            classMap.put(className, clazz);
-            log.info("Loaded class from jar: {}", className);
-        } catch (Throwable e) {
-            log.error("Failed to load class from jar: {}", className, e);
+    private Class<?> loadClassFromJar(String className, JarFile jarFile, JarEntry entry)
+            throws ClassFormatError, IOException {
+        if (classMap.containsKey(className)) {
+            log.warn(className + "has loaed!, skipped");
+            return classMap.get(className);
         }
+        InputStream inputStream = jarFile.getInputStream(entry);
+        byte[] classBytes = readAllBytes(inputStream);
+        Class<?> clazz = super.defineClass(className, classBytes, 0, classBytes.length);
+        classMap.put(className, clazz);
+        log.info("Loaded class from jar: {}", className);
+        return clazz;
     }
 
     /**
@@ -199,7 +228,7 @@ public class ModuleAlgClassLoader extends ClassLoader {
      * 
      * @param moduleCode 模块代码
      * @return 约束算法实现实例
-     * @throws Exception 创建过程中的异常
+     * @throws AlgLoaderException 创建过程中的异常
      */
     public ConstraintAlgImpl newConstraintAlg(String moduleCode) {
         String className = this.constraintRuleClassName;

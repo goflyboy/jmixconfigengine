@@ -21,7 +21,7 @@ import java.nio.file.Paths;
  * @since 2025-09-22
  */
 @Slf4j
-final public class ModuleUtils {
+public final class ModuleUtils {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     static {
