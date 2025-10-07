@@ -80,12 +80,7 @@ Thumbs.db
 *.temp
 *.swp
 *.swo
-*~
-
-# Application specific
-*.properties
-!src/main/resources/*.properties
-!src/test/resources/*.properties
+*~ 
 
 # Temporary resource directories
 **/tempResource/
