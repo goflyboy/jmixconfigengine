@@ -103,6 +103,7 @@ public class ModelHelper {
 
             ModuleCompiler compiler = new ModuleCompiler();
             compiler.compile(projectRoot, fullPath.toString());
+            log.info("Successfully compiled test file: {}", fullPath.toAbsolutePath());
 
             // // 新增代码：自动注入约束代码
             // boolean isNeedInject = autoInjectConstraintCode(className, packageName);
@@ -177,7 +178,7 @@ public class ModelHelper {
             // 使用 ModuleRunner 运行这个文件（运行这个测试类）
             ModuleRunner moduleRunner = new ModuleRunner();
             moduleRunner.runTestFile(packageName, modelScenarioName);
-
+            log.info("Successfully run test file: {}", packageName + "." + modelScenarioName);
         } catch (Exception e) {
             throw new ModelGenneratorException(
                     "Failed to generate and run model file: " + e.getMessage(), e);

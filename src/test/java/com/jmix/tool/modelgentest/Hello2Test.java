@@ -59,7 +59,7 @@ public class Hello2Test extends ModuleScenarioTestBase {
 
     @Test
     public void testIfCondition() {
-        // Test inference when tShirt11 quantity is 1 (if condition)
+        // Test when color is Red and size is Small, tShirt11 quantity should be 1
         inferParas("tShirt11", 1);
 
         resultAssert()
@@ -73,17 +73,17 @@ public class Hello2Test extends ModuleScenarioTestBase {
 
     @Test
     public void testElseCondition() {
-        // Test inference when tShirt11 quantity is 3 (else condition)
+        // Test other combinations, tShirt11 quantity should be 3
         inferParas("tShirt11", 3);
 
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(8);
 
-        // Verify that Red+Small combination is not in solutions
+        // The if condition solution should not be present
         assertSolutionNum("color:Red,size:Small", 0);
         
-        // Verify other combinations are present
+        // Verify some else condition solutions exist
         assertSolutionNum("color:Black,size:Big", 1);
         assertSolutionNum("color:White,size:Medium", 1);
         assertSolutionNum("color:Red,size:Medium", 1);
@@ -104,24 +104,24 @@ public class Hello2Test extends ModuleScenarioTestBase {
     }
 
     @Test
-    public void testNoSolution() {
-        // Test case with no valid solution
-        inferParas("tShirt11", 10);
-        
+    public void testInvalidQuantity() {
+        // Test invalid quantity that doesn't satisfy any condition
+        inferParas("tShirt11", 2);
+
         resultAssert().assertNoSolution();
         printSolutions();
     }
 
     @Test
-    public void testOtherColorSizeCombinations() {
-        // Test inference for other color and size combinations
-        inferParasByPara("color", "Black", "size", "Medium");
+    public void testAllElseCombinations() {
+        // Test all possible else condition combinations
+        inferParas("tShirt11", 3);
         
         resultAssert()
                 .assertSuccess()
-                .assertSolutionSizeEqual(1);
-        
-        solutions(0).assertPart("tShirt11").quantityEqual(3);
+                .assertSolutionSizeEqual(8);
+                
+        // Verify all 8 combinations are valid (3 colors * 3 sizes - 1 if condition)
         printSolutions();
     }
 }

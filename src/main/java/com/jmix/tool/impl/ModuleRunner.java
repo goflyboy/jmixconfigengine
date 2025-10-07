@@ -6,9 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
 import org.junit.platform.launcher.Launcher;
 import org.junit.platform.launcher.LauncherDiscoveryRequest;
-import org.junit.platform.launcher.TestExecutionListener;
-import org.junit.platform.launcher.TestIdentifier;
-import org.junit.platform.launcher.TestPlan;
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
 import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
@@ -102,24 +99,7 @@ public class ModuleRunner {
 
             // 创建结果监听器
             SummaryGeneratingListener summaryListener = new SummaryGeneratingListener();
-
-            // 创建自定义测试执行监听器
-            TestExecutionListener customListener = new TestExecutionListener() {
-                @Override
-                public void testPlanExecutionStarted(TestPlan testPlan) {
-                    log.info("=== Individual Test Cases ===");
-                }
-
-                @Override
-                public void executionStarted(TestIdentifier testIdentifier) {
-                    if (testIdentifier.isTest()) {
-                        log.info("Starting test: {}", testIdentifier.getDisplayName());
-                    }
-                }
-            };
-
-            // 注册监听器
-            launcher.registerTestExecutionListeners(summaryListener, customListener);
+            launcher.registerTestExecutionListeners(summaryListener);
 
             // 执行测试
             launcher.execute(request);
