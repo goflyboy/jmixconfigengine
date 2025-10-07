@@ -100,8 +100,16 @@ public class LLMInvokerImpl implements LLMInvoker {
      * @return DeepSeek模型实例
      */
     private ChatLanguageModel createDeepSeekModel(Properties config) {
-        String apiKey = config.getProperty("llm.deepseek.apiKey", "your-deepseek-api-key");
-        String baseUrl = config.getProperty("llm.deepseek.baseUrl", "https://api.deepseek.com/v1");
+        // 优先从环境变量读取，然后从配置文件读取
+        String apiKey = System.getenv("DEEPSEEK_API_KEY");
+        if (apiKey == null || apiKey.trim().isEmpty()) {
+            apiKey = config.getProperty("deepseek.api.key");
+        }
+
+        String baseUrl = System.getenv("DEEPSEEK_API_BASE_URL");
+        if (baseUrl == null || baseUrl.trim().isEmpty()) {
+            baseUrl = config.getProperty("deepseek.api.base.url");
+        }
         String modelName = config.getProperty("llm.deepseek.modelName", "deepseek-chat");
         double temperature = Double.parseDouble(config.getProperty("llm.deepseek.temperature", "0.7"));
         int maxTokens = Integer.parseInt(config.getProperty("llm.deepseek.maxTokens", "4000"));
@@ -127,8 +135,16 @@ public class LLMInvokerImpl implements LLMInvoker {
      * @return QWen模型实例
      */
     private ChatLanguageModel createQWenModel(Properties config) {
-        String apiKey = config.getProperty("llm.qwen.apiKey", "your-qwen-api-key");
-        String baseUrl = config.getProperty("llm.qwen.baseUrl", "https://dashscope.aliyuncs.com/compatible-mode/v1");
+        // 优先从环境变量读取，然后从配置文件读取
+        String apiKey = System.getenv("QWEN_API_KEY");
+        if (apiKey == null || apiKey.trim().isEmpty()) {
+            apiKey = config.getProperty("qwen.api.key");
+        }
+
+        String baseUrl = System.getenv("QWEN_API_BASE_URL");
+        if (baseUrl == null || baseUrl.trim().isEmpty()) {
+            baseUrl = config.getProperty("qwen.api.base.url");
+        }
         String modelName = config.getProperty("llm.qwen.modelName", "qwen-plus");
         double temperature = Double.parseDouble(config.getProperty("llm.qwen.temperature", "0.7"));
         int maxTokens = Integer.parseInt(config.getProperty("llm.qwen.maxTokens", "4000"));
