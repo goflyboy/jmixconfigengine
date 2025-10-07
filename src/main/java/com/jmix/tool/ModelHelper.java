@@ -8,8 +8,10 @@ import com.jmix.executor.omodel.AlgLoaderException;
 import com.jmix.tool.artifact.ModuleAlgArtifactGenerator;
 import com.jmix.tool.artifact.ModuleVarInfo;
 import com.jmix.tool.impl.ModelGenneratorException;
+import com.jmix.tool.impl.ModuleCompiler;
 import com.jmix.tool.impl.ModuleGenerator;
 import com.jmix.tool.impl.ModuleGenneratorByAnno;
+import com.jmix.tool.impl.ModuleRunner;
 import com.jmix.tool.impl.StructCodeInjector;
 
 import lombok.extern.slf4j.Slf4j;
@@ -17,14 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 模型文件生成器
@@ -103,7 +100,9 @@ public class ModelHelper {
 
             // 尝试编译生成的Java文件
             String projectRoot = System.getProperty("user.dir");
-            new com.jmix.tool.impl.ModuleCompiler().compile(projectRoot, fullPath.toString());
+
+            ModuleCompiler compiler = new ModuleCompiler();
+            compiler.compile(projectRoot, fullPath.toString());
 
             // // 新增代码：自动注入约束代码
             // boolean isNeedInject = autoInjectConstraintCode(className, packageName);
@@ -175,85 +174,15 @@ public class ModelHelper {
             generatorModelFile(packageName, modelScenarioName, userVariableModel, userLogicByPseudocode,
                     userTestCaseSpec);
 
-            // 运行这个文件（运行这个测试类）
-            runTestFile(packageName, modelScenarioName);
+            // 使用 ModuleRunner 运行这个文件（运行这个测试类）
+            ModuleRunner moduleRunner = new ModuleRunner();
+            moduleRunner.runTestFile(packageName, modelScenarioName);
 
         } catch (Exception e) {
             throw new ModelGenneratorException(
                     "Failed to generate and run model file: " + e.getMessage(), e);
         }
     }
-
-    /**
-     * 运行测试文件
-     * 
-     * @param packageName       包名
-     * @param modelScenarioName 模型场景名称
-     */
-    private void runTestFile(String packageName, String modelScenarioName) {
-        try {
-            String className = modelScenarioName + "Test";
-            String fullClassName = packageName + "." + className;
-
-            log.info("Running test class: {}", fullClassName);
-
-            // Prepare runtime classpath using URLClassLoader (target dirs + lib jars)
-            String projectRoot = System.getProperty("user.dir");
-            List<URL> runtimeUrls = new ArrayList<>();
-            try {
-                File mainClasses = new File(projectRoot + File.separator + "target" + File.separator + "classes");
-                if (mainClasses.exists()) {
-                    runtimeUrls.add(mainClasses.toURI().toURL());
-                }
-                File testClasses = new File(projectRoot + File.separator + "target" + File.separator + "test-classes");
-                if (testClasses.exists()) {
-                    runtimeUrls.add(testClasses.toURI().toURL());
-                }
-                File libDir = new File(projectRoot + File.separator + "lib");
-                if (libDir.exists() && libDir.isDirectory()) {
-                    File[] jarFiles = libDir.listFiles((dir, name) -> name.toLowerCase().endsWith(".jar"));
-                    if (jarFiles != null) {
-                        for (File jar : jarFiles) {
-                            runtimeUrls.add(jar.toURI().toURL());
-                        }
-                    }
-                }
-            } catch (Exception urlEx) {
-                log.warn("Failed to prepare runtime URLs: {}", urlEx.getMessage());
-            }
-
-            ClassLoader parent = Thread.currentThread().getContextClassLoader();
-            URLClassLoader urlClassLoader = new URLClassLoader(runtimeUrls.toArray(new URL[0]), parent);
-            Thread.currentThread().setContextClassLoader(urlClassLoader);
-
-            // 使用反射加载测试类
-            Class<?> testClass = Class.forName(fullClassName, true, urlClassLoader);
-
-            // 检查是否有main方法
-            try {
-                Method mainMethod = testClass.getMethod("main", String[].class);
-                log.info("Found main method, executing...");
-                mainMethod.invoke(null, (Object) new String[0]);
-            } catch (NoSuchMethodException e) {
-                log.info("No main method found, using JUnit to run test cases...");
-                // runWithJUnit(testClass);
-            }
-
-        } catch (ClassNotFoundException e) {
-            log.error("Test class not found: {}", e.getMessage());
-            log.error("Please ensure the class has been generated and compiled correctly");
-        } catch (Exception e) {
-            log.error("Failed to run test file: {}", e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * 编译Java文件
-     * 
-     * @param javaFilePath Java文件路径
-     */
-    // compile(javaDir, classDir, javaFilePath) 已迁移至 ModuleCompiler
 
     /**
      * 自动注入约束代码

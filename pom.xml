@@ -100,6 +100,14 @@
             <scope>test</scope>
         </dependency>
         
+        <!-- JUnit Platform Launcher -->
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <version>1.10.1</version>
+            <scope>compile</scope>
+        </dependency>
+        
         <!-- SLF4J API -->
         <dependency>
             <groupId>org.slf4j</groupId>
