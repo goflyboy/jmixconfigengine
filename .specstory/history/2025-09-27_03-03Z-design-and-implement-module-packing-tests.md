@@ -177,6 +177,328 @@ Tool use: **todo_write**
 
 Tool use: **write**
 
+
+<details><summary>Edit file: src/main/java/com/jmix/tool/impl/ModulePacker.java</summary>
+
+**Chunk 1**
+Lines added: 309, lines removed: 1
+
+```diff
+@@ -1,1 +1,309 @@
+- 
++ package com.jmix.tool.impl;
++ 
++ import com.jmix.executor.imodel.Module;
++ import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
++ import com.jmix.executor.impl.util.CommHelper;
++ import com.jmix.executor.impl.util.ModuleUtils;
++ import com.jmix.executor.omodel.AlgLoaderException;
++ 
++ import lombok.extern.slf4j.Slf4j;
++ 
++ import java.io.File;
++ import java.io.FileInputStream;
++ import java.io.FileOutputStream;
++ import java.io.IOException;
++ import java.nio.file.Files;
++ import java.nio.file.Path;
++ import java.nio.file.Paths;
++ import java.util.ArrayList;
++ import java.util.List;
++ import java.util.jar.JarEntry;
++ import java.util.jar.JarOutputStream;
++ import java.util.jar.Manifest;
++ 
++ /**
++  * 模块打包器
++  * 负责将约束算法类打包成jar文件，支持单文件和多文件模式
++  * 
++  * @since 2025-09-27
++  */
++ @Slf4j
++ public class ModulePacker {
++ 
++     /**
++      * 对算法进行打包
++      * 
++      * @param cpClazz     约束算法类
++      * @param outRootDir  输出根目录
++      * @return 输出目录路径
++      */
++     public String pack(Class<? extends ConstraintAlgImpl> cpClazz, String outRootDir) {
++         Module module = ModuleGenneratorByAnno.buildModule(cpClazz);
++         return pack(module, cpClazz, outRootDir);
++     }
++ 
++     /**
++      * 对模块进行打包
++      * 
++      * @param module      模块对象
++      * @param cpClazz     约束算法类
++      * @param outRootDir  输出根目录
++      * @return 输出目录路径
++      */
++     public String pack(Module module, Class<? extends ConstraintAlgImpl> cpClazz, String outRootDir) {
++         try {
++             // 根据packageName构建全路径名
++             String packageNamePath = cpClazz.getPackage().getName().replace(".", File.separator);
++             String inputDir = CommHelper.getTestResource(cpClazz) + File.separator + packageNamePath;
++             
++             // 根据module的code和id在outRootDir创建这个module的子文件夹
++             String moduleDirName = String.format("cp-%s-%s", module.getCode(), module.getId());
++             String outDir = outRootDir + File.separator + moduleDirName;
++             
++             // 如果目录已存在则删除
++             Path outDirPath = Paths.get(outDir);
++             if (Files.exists(outDirPath)) {
++                 log.info("Removing existing directory: {}", outDir);
++                 deleteDirectory(outDirPath);
++             }
++             
++             // 创建输出目录
++             Files.createDirectories(outDirPath);
++             log.info("Created output directory: {}", outDir);
++             
++             // 保存Module到文件
++             String moduleFileName = String.format("cp-%s-%s.base.json", module.getCode(), module.getId());
++             String moduleFilePath = outDir + File.separator + moduleFileName;
++             ModuleUtils.toJsonFile(module, moduleFilePath);
++             log.info("Module saved to: {}", moduleFilePath);
++             
++             // 判断是否为多文件模式
++             boolean isMultifile = isMultifile(cpClazz);
++             log.info("Pack mode: {}", isMultifile ? "multifile" : "singlefile");
++             
++             // 打包class文件
++             boolean classJarSuccess = packClassJar(inputDir, module, isMultifile, outDir);
++             if (!classJarSuccess) {
++                 throw new AlgLoaderException("Failed to pack class jar");
++             }
++             
++             // 打包源码文件
++             boolean sourceJarSuccess = packSourceJar(inputDir, module, isMultifile, outDir);
++             if (!sourceJarSuccess) {
++                 throw new AlgLoaderException("Failed to pack source jar");
++             }
++             
++             log.info("Module packed successfully to: {}", outDir);
++             return outDir;
++             
++         } catch (Exception e) {
++             log.error("Failed to pack module", e);
++             throw new AlgLoaderException("Failed to pack module: " + e.getMessage(), e);
++         }
++     }
++ 
++     /**
++      * 判断是否为多文件模式
++      * 
++      * @param cpClassName 约束算法类
++      * @return true表示多文件模式，false表示单文件模式
++      */
++     public boolean isMultifile(Class<? extends ConstraintAlgImpl> cpClassName) {
++         // 如果cpClass继承了ConstraintAlgImpl则是多个文件
++         // 例如：com.jmix.scenario.hello.HelloConstraint (HelloConstraint extends ConstraintAlgImpl)
++         // 否则就是单文件，com.jmix.scenario.ruletest.ParaIsHiddenTest (ParaIsHiddenTest extends ModuleScenarioTestBase)
++         return ConstraintAlgImpl.class.isAssignableFrom(cpClassName) && 
++                !cpClassName.getSimpleName().endsWith("Test");
++     }
++ 
++     /**
++      * 打包class文件为jar
++      * 
++      * @param inputDir    输入目录
++      * @param module      模块对象
++      * @param isMultifile 是否为多文件模式
++      * @param outDir      输出目录
++      * @return 是否成功
++      */
++     public boolean packClassJar(String inputDir, Module module, boolean isMultifile, String outDir) {
++         try {
++             String jarFileName = String.format("cp-%s-%s.jar", module.getCode(), module.getId());
++             String jarFilePath = outDir + File.separator + jarFileName;
++             
++             List<String> classFiles = new ArrayList<>();
++             
++             if (isMultifile) {
++                 // 多文件模式：需要将ConstraintAlg类及测试类对应的class打成jar包
++                 // 例如：HelloConstraint.class、HelloConstraintTest.class
++                 String constraintClassName = module.getCode() + "Constraint";
++                 String testClassName = module.getCode() + "ConstraintTest";
++                 
++                 // 查找对应的class文件
++                 findClassFiles(inputDir, constraintClassName, classFiles);
++                 findClassFiles(inputDir, testClassName, classFiles);
++             } else {
++                 // 单文件模式：需要将ConstraintAlg类和其父类对应的class文件打成jar包
++                 // 例如：ParaIsHiddenTest.class、ParaIsHiddenTest$ParaIsHiddenConstraint.class
++                 String testClassName = module.getCode() + "Test";
++                 String constraintClassName = testClassName + "$" + module.getCode() + "Constraint";
++                 
++                 // 查找对应的class文件
++                 findClassFiles(inputDir, testClassName, classFiles);
++                 findClassFiles(inputDir, constraintClassName, classFiles);
++             }
++             
++             if (classFiles.isEmpty()) {
++                 log.warn("No class files found for packing");
++                 return false;
++             }
++             
++             // 创建jar文件
++             createJarFile(jarFilePath, classFiles, inputDir);
++             log.info("Class jar created: {}", jarFilePath);
++             
++             return true;
++             
++         } catch (Exception e) {
++             log.error("Failed to pack class jar", e);
++             return false;
++         }
++     }
++ 
++     /**
++      * 打包源码文件为jar
++      * 
++      * @param inputDir    输入目录
++      * @param module      模块对象
++      * @param isMultifile 是否为多文件模式
++      * @param outDir      输出目录
++      * @return 是否成功
++      */
++     public boolean packSourceJar(String inputDir, Module module, boolean isMultifile, String outDir) {
++         try {
++             String jarFileName = String.format("cp-%s-%s-sources.jar", module.getCode(), module.getId());
++             String jarFilePath = outDir + File.separator + jarFileName;
++             
++             List<String> sourceFiles = new ArrayList<>();
++             
++             if (isMultifile) {
++                 // 多文件模式：需要将ConstraintAlg类及测试类源码
++                 // 例如：HelloConstraint.java、HelloConstraintTest.java
++                 String constraintClassName = module.getCode() + "Constraint";
++                 String testClassName = module.getCode() + "ConstraintTest";
++                 
++                 // 查找对应的java文件
++                 findSourceFiles(inputDir, constraintClassName, sourceFiles);
++                 findSourceFiles(inputDir, testClassName, sourceFiles);
++             } else {
++                 // 单文件模式：需要将测试类（含ConstraintAlg类）源码
++                 // 例如：ParaIsHiddenTest.java，内部包含了ParaIsHiddenConstraint
++                 String testClassName = module.getCode() + "Test";
++                 
++                 // 查找对应的java文件
++                 findSourceFiles(inputDir, testClassName, sourceFiles);
++             }
++             
++             if (sourceFiles.isEmpty()) {
++                 log.warn("No source files found for packing");
++                 return false;
++             }
++             
++             // 创建jar文件
++             createJarFile(jarFilePath, sourceFiles, inputDir);
++             log.info("Source jar created: {}", jarFilePath);
++             
++             return true;
++             
++         } catch (Exception e) {
++             log.error("Failed to pack source jar", e);
++             return false;
++         }
++     }
++ 
++     /**
++      * 查找class文件
++      * 
++      * @param inputDir    输入目录
++      * @param className   类名
++      * @param classFiles  结果列表
++      */
++     private void findClassFiles(String inputDir, String className, List<String> classFiles) {
++         String classFileName = className + ".class";
++         Path classFilePath = Paths.get(inputDir, classFileName);
++         
++         if (Files.exists(classFilePath)) {
++             classFiles.add(classFileName);
++             log.debug("Found class file: {}", classFileName);
++         } else {
++             log.debug("Class file not found: {}", classFileName);
++         }
++     }
++ 
++     /**
++      * 查找源码文件
++      * 
++      * @param inputDir     输入目录
++      * @param className    类名
++      * @param sourceFiles  结果列表
++      */
++     private void findSourceFiles(String inputDir, String className, List<String> sourceFiles) {
++         String sourceFileName = className + ".java";
++         Path sourceFilePath = Paths.get(inputDir, sourceFileName);
++         
++         if (Files.exists(sourceFilePath)) {
++             sourceFiles.add(sourceFileName);
++             log.debug("Found source file: {}", sourceFileName);
++         } else {
++             log.debug("Source file not found: {}", sourceFileName);
++         }
++     }
++ 
++     /**
++      * 创建jar文件
++      * 
++      * @param jarFilePath  jar文件路径
++      * @param fileNames    要打包的文件名列表
++      * @param baseDir      基础目录
++      */
++     private void createJarFile(String jarFilePath, List<String> fileNames, String baseDir) throws IOException {
++         try (JarOutputStream jarOut = new JarOutputStream(new FileOutputStream(jarFilePath), new Manifest())) {
++             for (String fileName : fileNames) {
++                 File file = new File(baseDir, fileName);
++                 if (file.exists()) {
++                     JarEntry jarEntry = new JarEntry(fileName);
++                     jarOut.putNextEntry(jarEntry);
++                     
++                     try (FileInputStream fis = new FileInputStream(file)) {
++                         byte[] buffer = new byte[1024];
++                         int bytesRead;
++                         while ((bytesRead = fis.read(buffer)) != -1) {
++                             jarOut.write(buffer, 0, bytesRead);
++                         }
++                     }
++                     
++                     jarOut.closeEntry();
++                     log.debug("Added to jar: {}", fileName);
++                 }
++             }
++         }
++     }
++ 
++     /**
++      * 递归删除目录
++      * 
++      * @param dir 目录路径
++      */
++     private void deleteDirectory(Path dir) throws IOException {
++         if (Files.exists(dir)) {
++             Files.walk(dir)
++                 .sorted((a, b) -> b.compareTo(a)) // 反向排序，先删除文件再删除目录
++                 .forEach(path -> {
++                     try {
++                         Files.delete(path);
++                     } catch (IOException e) {
++                         log.warn("Failed to delete: {}", path, e);
++                     }
++                 });
++         }
++     }
++ }
+```
+
+</details>
+
 ---
 
 Tool use: **todo_write**
@@ -580,6 +902,218 @@ Tool use: **todo_write**
 
 Tool use: **write**
 
+
+<details><summary>Edit file: src/test/java/com/jmix/tool/packtest/SingleFilePackerTest.java</summary>
+
+**Chunk 1**
+Lines added: 199, lines removed: 1
+
+```diff
+@@ -1,1 +1,199 @@
+- 
++ package com.jmix.tool.packtest;
++ 
++ import com.jmix.coretest.ModuleScenarioTestBase;
++ import com.jmix.executor.imodel.ConstraintConfig;
++ import com.jmix.scenario.ruletest.ParaIsHiddenTest;
++ 
++ import lombok.extern.slf4j.Slf4j;
++ 
++ import org.junit.jupiter.api.Test;
++ 
++ /**
++  * 单文件打包测试
++  * 对ParaIsHiddenTest进行打包加载，运行其中用例
++  * 
++  * @since 2025-09-27
++  */
++ @Slf4j
++ public class SingleFilePackerTest extends ModuleScenarioTestBase {
++ 
++     /**
++      * 构造SingleFilePackerTest测试类
++      */
++     public SingleFilePackerTest() {
++         super(ParaIsHiddenTest.ParaIsHiddenConstraint.class);
++     }
++ 
++     @Override
++     protected void beforeInitConfig(ConstraintConfig cfg) {
++         cfg.setLoadType(1);
++     }
++ 
++     /**
++      * 测试p0值为0时p1隐藏（打包模式）
++      */
++     @Test
++     public void testp0Value0p1HiddenPacked() {
++         log.info("Testing p0=0, p1 should be hidden in packed mode");
++         
++         // 使用打包模式初始化
++         init(false);
++         
++         // Test when p0=0, p1 should be hidden and p1.var=0
++         inferParas("part1", 1, "p0", "0");
++         printSolutions();
++         resultAssert()
++                 .assertSuccess()
++                 .assertSolutionSizeEqual(1);
++ 
++         solutions(0)
++                 .assertPara("p0").valueEqual(0).hiddenEqual(false)
++                 .assertPara("p1").valueEqual(0).hiddenEqual(true)
++                 .assertPara("p2").valueEqual(1).hiddenEqual(false)
++                 .assertPart("part1").quantityEqual(1).hiddenEqual(false);
++     }
++ 
++     /**
++      * 测试p0值为1时p1隐藏（打包模式）
++      */
++     @Test
++     public void testp0Value1p1HiddenPacked() {
++         log.info("Testing p0=1, p1 should be hidden in packed mode");
++         
++         // 使用打包模式初始化
++         init(false);
++         
++         // Test when p0=1, p1 should be hidden and p1.var=0
++         inferParas("part1", 1, "p0", "1");
++         printSolutions();
++         resultAssert()
++                 .assertSuccess()
++                 .assertSolutionSizeEqual(1);
++ 
++         solutions(0)
++                 .assertPara("p0").valueEqual(1).hiddenEqual(false)
++                 .assertPara("p1").valueEqual(0).hiddenEqual(true)
++                 .assertPara("p2").valueEqual(1).hiddenEqual(false)
++                 .assertPart("part1").quantityEqual(1).hiddenEqual(false);
++     }
++ 
++     /**
++      * 测试p0值为2时p2隐藏（打包模式）
++      */
++     @Test
++     public void testp0Value2p2HiddenPacked() {
++         log.info("Testing p0=2, p2 should be hidden in packed mode");
++         
++         // 使用打包模式初始化
++         init(false);
++         
++         // Test when p0=2, p2 should be hidden and p2.var=0
++         inferParas("part1", 1, "p0", "2");
++         printSolutions();
++         resultAssert()
++                 .assertSuccess()
++                 .assertSolutionSizeEqual(1);
++ 
++         solutions(0)
++                 .assertPara("p0").valueEqual(2).hiddenEqual(false)
++                 .assertPara("p1").valueEqual(1).hiddenEqual(false)
++                 .assertPara("p2").valueEqual(0).hiddenEqual(true)
++                 .assertPart("part1").quantityEqual(1).hiddenEqual(false);
++     }
++ 
++     /**
++      * 测试p2到part1的推理（打包模式）
++      */
++     @Test
++     public void testp2Topart1Packed() {
++         log.info("Testing p2 to part1 inference in packed mode");
++         
++         // 使用打包模式初始化
++         init(false);
++         
++         // Test when p0=1, p1 should be hidden and p1.var=0
++         inferParasByPara("p0", "1", "p2", "2");
++         printSolutions();
++         resultAssert()
++                 .assertSuccess()
++                 .assertSolutionSizeEqual(1);
++ 
++         solutions(0)
++                 .assertPara("p0").valueEqual(1).hiddenEqual(false)
++                 .assertPara("p1").valueEqual(0).hiddenEqual(true)
++                 .assertPara("p2").valueEqual(2).hiddenEqual(false)
++                 .assertPart("part1").quantityEqual(2).hiddenEqual(false);
++     }
++ 
++     /**
++      * 测试p1到part1的推理（打包模式）
++      */
++     @Test
++     public void testp1Topart1Packed() {
++         log.info("Testing p1 to part1 inference in packed mode");
++         
++         // 使用打包模式初始化
++         init(false);
++         
++         // Test when p0=2, p1 should be hidden and p1.var=0
++         inferParasByPara("p0", "2", "p1", "2");
++         printSolutions();
++         resultAssert()
++                 .assertSuccess()
++                 .assertSolutionSizeEqual(1);
++ 
++         solutions(0)
++                 .assertPara("p0").valueEqual(2).hiddenEqual(false)
++                 .assertPara("p1").valueEqual(2).hiddenEqual(false)
++                 .assertPara("p2").valueEqual(0).hiddenEqual(true)
++                 .assertPart("part1").quantityEqual(2).hiddenEqual(false);
++     }
++ 
++     /**
++      * 测试p1到part1的无效输入（打包模式）
++      */
++     @Test
++     public void testp1Topart1InvalidInputPacked() {
++         log.info("Testing p1 to part1 invalid input in packed mode");
++         
++         // 使用打包模式初始化
++         init(false);
++         
++         // Test when p0=2, p1 should be hidden and p1.var=0
++         inferParasByPara("p0", "2", "p1", "3"); // 超出p1值域
++         printSolutions();
++         resultAssert().assertNoSolution();
++     }
++ 
++     /**
++      * 对比测试：调试模式 vs 打包模式
++      */
++     @Test
++     public void testDebugVsPackedMode() {
++         log.info("Comparing debug mode vs packed mode");
++         
++         // 测试调试模式
++         init(true);
++         inferParas("part1", 1, "p0", "0");
++         int debugSolutionCount = getSolutions() != null ? getSolutions().size() : 0;
++         log.info("Debug mode solution count: {}", debugSolutionCount);
++         
++         // 清理
++         tearDown();
++         
++         // 测试打包模式
++         init(false);
++         inferParas("part1", 1, "p0", "0");
++         int packedSolutionCount = getSolutions() != null ? getSolutions().size() : 0;
++         log.info("Packed mode solution count: {}", packedSolutionCount);
++         
++         // 验证两种模式的结果一致
++         if (debugSolutionCount != packedSolutionCount) {
++             throw new AssertionError(String.format(
++                 "Solution count mismatch: debug=%d, packed=%d", 
++                 debugSolutionCount, packedSolutionCount));
++         }
++         
++         log.info("Debug and packed modes produce consistent results");
++     }
++ }
+```
+
+</details>
+
 ---
 
 Tool use: **todo_write**
@@ -602,6 +1136,276 @@ Tool use: **todo_write**
 
 Tool use: **write**
 
+
+<details><summary>Edit file: src/test/java/com/jmix/tool/packtest/MultiFilePackerTest.java</summary>
+
+**Chunk 1**
+Lines added: 257, lines removed: 1
+
+```diff
+@@ -1,1 +1,257 @@
+- 
++ package com.jmix.tool.packtest;
++ 
++ import com.jmix.coretest.ModuleScenarioTestBase;
++ import com.jmix.executor.imodel.ConstraintConfig;
++ import com.jmix.scenario.hello.HelloConstraint;
++ 
++ import lombok.extern.slf4j.Slf4j;
++ 
++ import org.junit.jupiter.api.Test;
++ 
++ /**
++  * 多文件打包测试
++  * 对HelloConstraint进行打包加载，运行其中用例
++  * 
++  * @since 2025-09-27
++  */
++ @Slf4j
++ public class MultiFilePackerTest extends ModuleScenarioTestBase {
++ 
++     /**
++      * 构造MultiFilePackerTest测试类
++      */
++     public MultiFilePackerTest() {
++         super(HelloConstraint.class);
++     }
++ 
++     @Override
++     protected void beforeInitConfig(ConstraintConfig cfg) {
++         cfg.setLoadType(1);
++     }
++ 
++     /**
++      * 测试红色小号T恤（打包模式）
++      */
++     @Test
++     public void testRedSmallTShirtPacked() {
++         log.info("Testing red small T-shirt in packed mode");
++         
++         // 使用打包模式初始化
++         init(false);
++         
++         // 测试红色小号组合，应该得到1件T恤
++         inferParas("tShirt11", 1, "color", "Red", "size", "Small");
++         printSolutions();
++         resultAssert()
++                 .assertSuccess()
++                 .assertSolutionSizeEqual(1);
++ 
++         solutions(0)
++                 .assertPara("color").valueEqual("Red").hiddenEqual(false)
++                 .assertPara("size").valueEqual("Small").hiddenEqual(false)
++                 .assertPart("tShirt11").quantityEqual(1).hiddenEqual(false);
++     }
++ 
++     /**
++      * 测试红色中号T恤（打包模式）
++      */
++     @Test
++     public void testRedMediumTShirtPacked() {
++         log.info("Testing red medium T-shirt in packed mode");
++         
++         // 使用打包模式初始化
++         init(false);
++         
++         // 测试红色中号组合，应该得到3件T恤
++         inferParas("tShirt11", 3, "color", "Red", "size", "Medium");
++         printSolutions();
++         resultAssert()
++                 .assertSuccess()
++                 .assertSolutionSizeEqual(1);
++ 
++         solutions(0)
++                 .assertPara("color").valueEqual("Red").hiddenEqual(false)
++                 .assertPara("size").valueEqual("Medium").hiddenEqual(false)
++                 .assertPart("tShirt11").quantityEqual(3).hiddenEqual(false);
++     }
++ 
++     /**
++      * 测试黑色小号T恤（打包模式）
++      */
++     @Test
++     public void testBlackSmallTShirtPacked() {
++         log.info("Testing black small T-shirt in packed mode");
++         
++         // 使用打包模式初始化
++         init(false);
++         
++         // 测试黑色小号组合，应该得到3件T恤
++         inferParas("tShirt11", 3, "color", "Black", "size", "Small");
++         printSolutions();
++         resultAssert()
++                 .assertSuccess()
++                 .assertSolutionSizeEqual(1);
++ 
++         solutions(0)
++                 .assertPara("color").valueEqual("Black").hiddenEqual(false)
++                 .assertPara("size").valueEqual("Small").hiddenEqual(false)
++                 .assertPart("tShirt11").quantityEqual(3).hiddenEqual(false);
++     }
++ 
++     /**
++      * 测试白色大号T恤（打包模式）
++      */
++     @Test
++     public void testWhiteBigTShirtPacked() {
++         log.info("Testing white big T-shirt in packed mode");
++         
++         // 使用打包模式初始化
++         init(false);
++         
++         // 测试白色大号组合，应该得到3件T恤
++         inferParas("tShirt11", 3, "color", "White", "size", "Big");
++         printSolutions();
++         resultAssert()
++                 .assertSuccess()
++                 .assertSolutionSizeEqual(1);
++ 
++         solutions(0)
++                 .assertPara("color").valueEqual("White").hiddenEqual(false)
++                 .assertPara("size").valueEqual("Big").hiddenEqual(false)
++                 .assertPart("tShirt11").quantityEqual(3).hiddenEqual(false);
++     }
++ 
++     /**
++      * 测试所有颜色尺寸组合（打包模式）
++      */
++     @Test
++     public void testAllColorSizeCombinationsPacked() {
++         log.info("Testing all color-size combinations in packed mode");
++         
++         // 使用打包模式初始化
++         init(false);
++         
++         String[] colors = {"Red", "Black", "White"};
++         String[] sizes = {"Small", "Medium", "Big"};
++         
++         for (String color : colors) {
++             for (String size : sizes) {
++                 log.info("Testing combination: {} - {}", color, size);
++                 
++                 // 根据规则，只有红色小号组合得到1件，其他都是3件
++                 int expectedQuantity = ("Red".equals(color) && "Small".equals(size)) ? 1 : 3;
++                 
++                 inferParas("tShirt11", expectedQuantity, "color", color, "size", size);
++                 resultAssert()
++                         .assertSuccess()
++                         .assertSolutionSizeEqual(1);
++ 
++                 solutions(0)
++                         .assertPara("color").valueEqual(color).hiddenEqual(false)
++                         .assertPara("size").valueEqual(size).hiddenEqual(false)
++                         .assertPart("tShirt11").quantityEqual(expectedQuantity).hiddenEqual(false);
++                 
++                 log.info("Combination {} - {} passed: quantity={}", color, size, expectedQuantity);
++             }
++         }
++     }
++ 
++     /**
++      * 测试参数推理（打包模式）
++      */
++     @Test
++     public void testParameterInferencePacked() {
++         log.info("Testing parameter inference in packed mode");
++         
++         // 使用打包模式初始化
++         init(false);
++         
++         // 测试通过部件数量推理参数
++         inferParas("tShirt11", 1);
++         printSolutions();
++         resultAssert()
++                 .assertSuccess()
++                 .assertSolutionSizeEqual(1);
++ 
++         // 验证推理结果：只有红色小号组合才能得到1件T恤
++         solutions(0)
++                 .assertPara("color").valueEqual("Red").hiddenEqual(false)
++                 .assertPara("size").valueEqual("Small").hiddenEqual(false)
++                 .assertPart("tShirt11").quantityEqual(1).hiddenEqual(false);
++     }
++ 
++     /**
++      * 对比测试：调试模式 vs 打包模式
++      */
++     @Test
++     public void testDebugVsPackedMode() {
++         log.info("Comparing debug mode vs packed mode for HelloConstraint");
++         
++         // 测试调试模式
++         init(true);
++         inferParas("tShirt11", 1, "color", "Red", "size", "Small");
++         int debugSolutionCount = getSolutions() != null ? getSolutions().size() : 0;
++         log.info("Debug mode solution count: {}", debugSolutionCount);
++         
++         // 清理
++         tearDown();
++         
++         // 测试打包模式
++         init(false);
++         inferParas("tShirt11", 1, "color", "Red", "size", "Small");
++         int packedSolutionCount = getSolutions() != null ? getSolutions().size() : 0;
++         log.info("Packed mode solution count: {}", packedSolutionCount);
++         
++         // 验证两种模式的结果一致
++         if (debugSolutionCount != packedSolutionCount) {
++             throw new AssertionError(String.format(
++                 "Solution count mismatch: debug=%d, packed=%d", 
++                 debugSolutionCount, packedSolutionCount));
++         }
++         
++         // 验证解决方案内容一致
++         if (debugSolutionCount > 0 && packedSolutionCount > 0) {
++             String debugColor = solutions(0).getSolution().getParas().stream()
++                 .filter(p -> "color".equals(p.getCode()))
++                 .findFirst().map(p -> p.getValue()).orElse("");
++             String packedColor = solutions(0).getSolution().getParas().stream()
++                 .filter(p -> "color".equals(p.getCode()))
++                 .findFirst().map(p -> p.getValue()).orElse("");
++             
++             if (!debugColor.equals(packedColor)) {
++                 throw new AssertionError(String.format(
++                     "Solution content mismatch: debug color=%s, packed color=%s", 
++                     debugColor, packedColor));
++             }
++         }
++         
++         log.info("Debug and packed modes produce consistent results for HelloConstraint");
++     }
++ 
++     /**
++      * 测试模块打包功能
++      */
++     @Test
++     public void testModulePacking() {
++         log.info("Testing module packing functionality");
++         
++         // 使用打包模式初始化，这会触发打包过程
++         init(false);
++         
++         // 验证模块已正确加载
++         if (getModule() == null) {
++             throw new AssertionError("Module not loaded after packing");
++         }
++         
++         // 验证模块基本信息
++         if (!"Hello".equals(getModule().getCode())) {
++             throw new AssertionError("Module code mismatch: expected=Hello, actual=" + getModule().getCode());
++         }
++         
++         if (getModule().getId() == null || getModule().getId() != 123L) {
++             throw new AssertionError("Module ID mismatch: expected=123, actual=" + getModule().getId());
++         }
++         
++         log.info("Module packing test passed: code={}, id={}", getModule().getCode(), getModule().getId());
++     }
++ }
+```
+
+</details>
+
 ---
 
 Tool use: **todo_write**
@@ -623,6 +1427,55 @@ Tool use: **todo_write**
 ---
 
 Tool use: **read_lints**
+
+<details>
+          <summary>Read lints for 5 files</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/tool/impl/ModulePacker.java`
+- `src/main/java/com/jmix/executor/impl/ModuleAlgClassLoader.java`
+- `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java`
+- `src/test/java/com/jmix/tool/packtest/SingleFilePackerTest.java`
+- `src/test/java/com/jmix/tool/packtest/MultiFilePackerTest.java`
+
+Lint results
+
+Lint errors for `src/main/java/com/jmix/tool/impl/ModulePacker.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| The method getTestResource(Class<capture#4-of ? extends ConstraintAlgImpl>) is undefined for the type CommHelper | 57:42-57:57 | DIAGNOSTIC_SEVERITY_ERROR |
+| '&&' 应另起一行。 | 115:70-116:1 | DIAGNOSTIC_SEVERITY_WARNING |
+
+
+Lint errors for `src/main/java/com/jmix/executor/impl/ModuleAlgClassLoader.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| The method readAllBytes() is undefined for the type InputStream | 148:45-148:57 | DIAGNOSTIC_SEVERITY_ERROR |
+
+
+Lint errors for `src/test/java/com/jmix/tool/packtest/MultiFilePackerTest.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| The method getSolution() is undefined for the type ProgammableInstAssert | 214:46-214:57 | DIAGNOSTIC_SEVERITY_ERROR |
+| The method getSolution() is undefined for the type ProgammableInstAssert | 217:47-217:58 | DIAGNOSTIC_SEVERITY_ERROR |
+
+
+Lint errors for `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| 该行之后有多于1个空行。 | 129:23-130:1 | DIAGNOSTIC_SEVERITY_WARNING |
+
+
+</details>
 
 ---
 
@@ -869,6 +1722,23 @@ Lines added: 10, lines removed: 2
 ---
 
 Tool use: **read_lints**
+
+<details>
+          <summary>Read lints for 5 files</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/tool/impl/ModulePacker.java`
+- `src/main/java/com/jmix/executor/impl/ModuleAlgClassLoader.java`
+- `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java`
+- `src/test/java/com/jmix/tool/packtest/SingleFilePackerTest.java`
+- `src/test/java/com/jmix/tool/packtest/MultiFilePackerTest.java`
+
+Lint results
+
+
+**No lint errors found**
+</details>
 
 ---
 
@@ -1841,11 +2711,66 @@ Lines added: 19, lines removed: undefined
 
 ---
 
+Tool use: **search_replace**
+
+
+<details><summary>Edit file: src/main/java/com/jmix/tool/impl/ModulePacker.java</summary>
+
+**Chunk 1**
+Lines added: 4, lines removed: undefined
+
+```diff
+@@ -137,4 +137,8 @@
+              String testClassesDir = inputDir.replace("src\\test\\java", "target\\test-classes");
+              log.info("Looking for class files in: {}", testClassesDir);
++ 
++             // 获取包名
++             String packageName = module.getPackageName();
++             log.info("Package name: {}", packageName);
+  
+              List<String> classFiles = new ArrayList<>();
+```
+
+**Chunk 2**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -147,6 +151,6 @@
+  
+                  // 查找对应的class文件
+-                 findClassFiles(testClassesDir, constraintClassName, classFiles);
+-                 findClassFiles(testClassesDir, testClassName, classFiles);
++                 findClassFiles(testClassesDir, constraintClassName, classFiles, packageName);
++                 findClassFiles(testClassesDir, testClassName, classFiles, packageName);
+              } else {
+                  // 单文件模式：需要将ConstraintAlg类和其父类对应的class文件打成jar包
+```
+
+**Chunk 3**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -156,6 +160,6 @@
+  
+                  // 查找对应的class文件
+-                 findClassFiles(testClassesDir, testClassName, classFiles);
+-                 findClassFiles(testClassesDir, constraintClassName, classFiles);
++                 findClassFiles(testClassesDir, testClassName, classFiles, packageName);
++                 findClassFiles(testClassesDir, constraintClassName, classFiles, packageName);
+              }
+  
+```
+
+</details>
+
+---
+
+现在让我们运行测试来验证修复：
 
 
 ---
 
-
+Cancelled
 
 ---
 

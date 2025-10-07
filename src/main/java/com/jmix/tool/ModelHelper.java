@@ -7,8 +7,8 @@ import com.jmix.executor.impl.util.CommHelper;
 import com.jmix.executor.omodel.AlgLoaderException;
 import com.jmix.tool.artifact.ModuleAlgArtifactGenerator;
 import com.jmix.tool.artifact.ModuleVarInfo;
-import com.jmix.tool.impl.LLMInvoker;
 import com.jmix.tool.impl.ModelGenneratorException;
+import com.jmix.tool.impl.ModuleGenerator;
 import com.jmix.tool.impl.ModuleGenneratorByAnno;
 import com.jmix.tool.impl.StructCodeInjector;
 
@@ -71,8 +71,8 @@ public class ModelHelper {
             String userLogicByPseudocode, String userTestCaseSpec) {
         try {
             // 调用大模型（如:deepseek,Qwen）的深度思考模式
-            LLMInvoker llmInvoker = new LLMInvoker();
-            String code = llmInvoker.generatorModelCode(packageName, modelScenarioName, userVariableModel,
+            ModuleGenerator moduleGenerator = new ModuleGenerator();
+            String code = moduleGenerator.generatorModelCode(packageName, modelScenarioName, userVariableModel,
                     userLogicByPseudocode, userTestCaseSpec);
 
             // 根据code生成类 {modelScenarioName}Test.java

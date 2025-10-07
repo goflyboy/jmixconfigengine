@@ -1,7 +1,7 @@
 package com.jmix.tool.modeltool;
 
 import com.jmix.tool.ModelHelper;
-import com.jmix.tool.impl.LLMInvoker;
+import com.jmix.tool.impl.ModuleGenerator;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,7 +25,7 @@ public final class LLMInvokerTest {
             log.info("=== LLM Invocation Framework Test ===\n");
 
             // 创建LLM调用器
-            LLMInvoker invoker = new LLMInvoker();
+            ModuleGenerator invoker = new ModuleGenerator();
             ModelHelper modelHelper = new ModelHelper();
             // 显示配置信息
             log.info("{}", invoker.getConfigInfo());

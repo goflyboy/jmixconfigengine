@@ -55,9 +55,40 @@ Tool use: **codebase_search**
 
 Tool use: **grep**
 
+<details>
+<summary>Grep for "public\s+\w+.*\([^)]*\)\s*\{" in "src/test" • 4 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `public void addCompatibleConstraintIncompatibleNote() \{` | L64 |
+| `public CompatibleRuleIncompatibleTest() \{` | L132 |
+| `public void testInCARequiresNotInCB() \{` | L145 |
+| `public void testInCARequiresNotInCBA3() \{` | L169 |
+
+
+</details>
+
 ---
 
 Tool use: **grep**
+
+<details>
+<summary>Grep for "protected\s+\w+.*\([^)]*\)\s*\{" in "src/test" • 3 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `protected void initConstraint() \{` | L35 |
+| `protected void beforeInitConfig(ConstraintConfig cfg) \{` | L137 |
+| `protected Module buildModule(Class<? extends ConstraintAlgImpl> moduleAlgClazz) \{` | L105 |
+
+
+</details>
 
 ---
 
@@ -91,9 +122,127 @@ Tool use: **todo_write**
 
 Tool use: **grep**
 
+<details>
+<summary>Grep for "private\s+\w+.*\([^)]*\)\s*\{" in "src/test" • 4 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private Map<String, String> parseConditionExpr(String conditionExpr) \{` | L281 |
+| `private List<ConditionElement> buildConditionElements(Map<String, String> kvMap) \{` | L300 |
+| `private int countMatchingSolutions(List<ConditionElement> conditionElements) \{` | L337 |
+| `private ParaInst findParaInstByCode(ModuleInst solution, String code) \{` | L372 |
+
+
+</details>
+
 ---
 
 Tool use: **grep**
+
+<details>
+<summary>Grep for "private\s+\w+.*\([^)]*\)\s*\{" in "src/test" • 90 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private Map<String, String> parseConditionExpr(String conditionExpr) \{` | L281 |
+| `private List<ConditionElement> buildConditionElements(Map<String, String> kvMap) \{` | L300 |
+| `private int countMatchingSolutions(List<ConditionElement> conditionElements) \{` | L337 |
+| `private ParaInst findParaInstByCode(ModuleInst solution, String code) \{` | L372 |
+| `private PartInst findPartInstByCode(ModuleInst solution, String code) \{` | L385 |
+| `private List<ParaInst> buildParaInstsFromPairs(String... paraCodeValuePairs) \{` | L401 |
+| `private void printOthers(List<ModuleInst> solutions, StringBuilder sb) \{` | L499 |
+| `private void addCompatibleConstraintCoDependentNote() \{` | L58 |
+| `private void rule01() \{` | L175 |
+| `private void rule02() \{` | L183 |
+| `private void rule03() \{` | L191 |
+| `private void rule04() \{` | L199 |
+| `private void rule05() \{` | L207 |
+| `private void rule06() \{` | L215 |
+| `private void rule07() \{` | L223 |
+| `private void rule08() \{` | L231 |
+| `private void rule09() \{` | L239 |
+| `private void rule10() \{` | L247 |
+| `private void rule11() \{` | L255 |
+| `private void rule12() \{` | L263 |
+| `private void rule13() \{` | L271 |
+| `private void rule14() \{` | L279 |
+| `private void rule15() \{` | L287 |
+| `private void rule16() \{` | L295 |
+| `private void rule17() \{` | L303 |
+| `private void rule18() \{` | L311 |
+| `private void rule19() \{` | L319 |
+| `private void rule20() \{` | L327 |
+| `private void rule21() \{` | L336 |
+| `private void rule22() \{` | L365 |
+| `private void rule23() \{` | L394 |
+| `private void rule24() \{` | L423 |
+| `private void rule25() \{` | L454 |
+| `private void executeTest(String testCaseName, boolean tmpEnumerateAllSolution) \{` | L496 |
+| `private void rule1() \{` | L43 |
+| `private void rule2() \{` | L48 |
+| `private void rule3() \{` | L57 |
+| `private void rule4() \{` | L66 |
+| `private String getCurrentPackagePath() \{` | L152 |
+| `private Module createTestModule() \{` | L207 |
+| `private void rule01() \{` | L57 |
+| `private void rule02() \{` | L73 |
+| `private void rule11() \{` | L101 |
+| `private void rule21() \{` | L107 |
+| `private RefProgObjSchema createRefProgObjSchema(String type, String code) \{` | L50 |
+| `private boolean containsProgObjCode(List<RefProgObjSchema> progObjs, String code) \{` | L429 |
+| `private LLMInvokerTest() \{` | L14 |
+| `private ModelHelperTool() \{` | L18 |
+| `private static String readFromMarkdown(String section) \{` | L131 |
+| `private static String parseMarkdownSection(String content, String section) \{` | L176 |
+| `private static String getDefaultPackageName() \{` | L213 |
+| `private static String getDefaultModelName() \{` | L222 |
+| `private static String getDefaultVariableModel() \{` | L231 |
+| `private static String getDefaultLogicPseudocode() \{` | L250 |
+| `private static String getDefaultTestCaseSpec() \{` | L264 |
+| `private boolean validateModuleData(JsonNode rootNode) \{` | L55 |
+| `private boolean validateRequiredFields(JsonNode rootNode) \{` | L82 |
+| `private boolean validateParas(JsonNode parasNode) \{` | L108 |
+| `private boolean validatePara(JsonNode paraNode, int index) \{` | L126 |
+| `private boolean validateParaOption(JsonNode optionNode, int paraIndex, int optionIndex) \{` | L163 |
+| `private boolean validateParts(JsonNode partsNode) \{` | L180 |
+| `private boolean validatePart(JsonNode partNode, int index) \{` | L198 |
+| `private boolean validateRules(JsonNode rulesNode) \{` | L225 |
+| `private boolean validateRule(JsonNode ruleNode, int index) \{` | L243 |
+| `private boolean isValidModuleType(String type) \{` | L278 |
+| `private boolean isValidParaType(String type) \{` | L291 |
+| `private boolean isValidPartType(String type) \{` | L305 |
+| `private boolean isValidRuleSchemaTypeFullName(String schema) \{` | L318 |
+| `private void addError(String error) \{` | L327 |
+| `private void addWarning(String warning) \{` | L335 |
+| `private void testAnnotationRuleGeneration() \{` | L52 |
+| `private void testCodeInjection() \{` | L82 |
+| `private Rule createInvalidRule() \{` | L394 |
+| `private Rule createUnknownRuleType() \{` | L410 |
+| `private Module createTestModule() \{` | L423 |
+| `private Module createTestModuleWithHierarchy() \{` | L477 |
+| `private ParaInst findParaByCode(String code) \{` | L66 |
+| `private PartInst findPartByCode(String code) \{` | L76 |
+| `private ModuleInst processSolution(Module module, ModuleInst solution) \{` | L53 |
+| `private String calculateDeliveryType(Module module, ModuleInst solution, ParaInst paraInst) \{` | L88 |
+| `private PartInst findPartInstByCode(ModuleInst solution, String code) \{` | L125 |
+| `private ParaInst convertFromDCParaInst(DCParaInst dcParaInst) \{` | L143 |
+| `private DCPartInst createDCPartInst(String code, Integer quantity) \{` | L247 |
+| `private DCModule getDCModule() \{` | L258 |
+| `private Module getModule() \{` | L273 |
+| `private Module convertFromDCModule(DCModule dcModule) \{` | L136 |
+| `private InferParasReq convertToStandardReq(DCModuleConstraintExecutor.DCInferParasReq dcReq) \{` | L160 |
+| `private PartInst convertToStandardPartInst(DCPartInst dcPartInst) \{` | L195 |
+| `private ParaInst convertToStandardParaInst(DCParaInst dcParaInst) \{` | L212 |
+| `private DCModuleInst convertToDCModuleInst(ModuleInst solution) \{` | L229 |
+
+
+</details>
 
 ---
 
@@ -548,9 +697,53 @@ Tool use: **todo_write**
 
 Tool use: **grep**
 
+<details>
+<summary>Grep for "else\s+if" • 32 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `\} else if ("part".equals(element.type)) \{` | L360 |
+| `G.CTL.02 含else if分支的条件判断应在最后加一个else分支` | L40 |
+| `\} else if (v instanceof PartVar) \{` | L157 |
+| `\} else if (field.equals("Part")) \{` | L273 |
+| `\} else if (PartVar.class.isAssignableFrom(field.getType())) \{` | L325 |
+| `"else if(p011.value==op01102 && p012.value==op01202) then pt001.qty=2 else pt001.qty=3")` | L335 |
+| `"else if(p013.value==op01302 && p014.value==op01402) then pt002.qty=2 else pt002.qty=3")` | L364 |
+| `"else if(p015.value==op01502 && p016.value==op01602) then pt003.qty=2 else pt003.qty=3")` | L393 |
+| `"else if(p017.value==op01702 && p018.value==op01802) then pt004.qty=2 else pt004.qty=3")` | L422 |
+| `"else if(p019.value==op01902 && p020.value==op02002) then pt005.qty=2 else pt005.qty=3")` | L453 |
+| `\} else if (RuleTypeConstants.isCalculateRule(rule.getRuleSchemaTypeFullName())) \{` | L201 |
+| `\} else if (RuleTypeConstants.isSelectRule(rule.getRuleSchemaTypeFullName())) \{` | L203 |
+| `\} else if ("Part".equals(progObjType)) \{ // 根据exprSchema.refProgObjs.progObjType = Part` | L338 |
+| `else if(colorVar.value == Blue && sizeVar.value == Medium) \{` | L267 |
+| `else if(colorVar.value == Green && sizeVar.value == Large) \{` | L270 |
+| `\} else if (field.getType().getSimpleName().equals("PartVar")) \{` | L117 |
+| `\} else if (!left.isEmpty() && left.chars().allMatch(Character::isDigit)) \{` | L196 |
+| `\} else if (currentModule.getPart(progObject.getObjCode()).isPresent()) \{` | L390 |
+| `\} else if (normalNaturalCode.contains(" = ")) \{ // 范式2：赋值语句 A=B，通过=识别，是返过来，右边决定左边` | L467 |
+| `\} else if (v instanceof PartVar) \{` | L88 |
+| `\} else if (moduleCode != null) \{` | L322 |
+| `\} else if ("modelName".equals(section)) \{` | L155 |
+| `\} else if ("userVariableModel".equals(section)) \{` | L157 |
+| `\} else if ("userLogicByPseudocode".equals(section)) \{` | L159 |
+| `\} else if ("userTestCaseSpec".equals(section)) \{` | L161 |
+| `G.CTL.02 含else if分支的条件判断应在最后加一个else分支` | L118 |
+| `\} else if (c == '\}') \{` | L117 |
+| `\} else if (isCalculateRule(ruleSchemaTypeFullName)) \{` | L128 |
+| `\} else if (isSelectRule(ruleSchemaTypeFullName)) \{` | L130 |
+| `\} else if (part.getType() == PartType.CATEGORY \|\| part.getType() == PartType.BUNDLE) \{` | L115 |
+| `//          else if(P011.value== op01102 && P012.value== op01202) \{PT001.qty=2\}` | L39 |
+| `//          else if(P011.value== op01102 && P012.value== op01202) \{PT001.qty=2\}` | L39 |
+
+
+</details>
+
 ---
 
-Tool use: **grep**
+invalid regex
 
 ---
 
@@ -880,6 +1073,37 @@ Lines added: 2, lines removed: undefined
 
 Tool use: **read_lints**
 
+<details>
+          <summary>Read lints for 5 files</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/tool/artifact/ModuleAlgArtifactGenerator.java`
+- `src/main/java/com/jmix/tool/model/ModuleGenneratorByAnno.java`
+- `src/main/java/com/jmix/executor/impl/algmodel/ConstraintAlgImpl.java`
+- `src/main/java/com/jmix/executor/impl/ModuleInstSolutionCallBack.java`
+- `src/test/java/com/jmix/configengine/extensibleDemo/DCDeliveryTypePostProcess.java`
+
+Lint results
+
+Lint errors for `src/main/java/com/jmix/executor/impl/ModuleInstSolutionCallBack.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| AlgLoaderException cannot be resolved to a type | 93:27-93:45 | DIAGNOSTIC_SEVERITY_ERROR |
+
+
+Lint errors for `src/test/java/com/jmix/configengine/extensibleDemo/DCDeliveryTypePostProcess.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| AlgLoaderException cannot be resolved to a type | 118:23-118:41 | DIAGNOSTIC_SEVERITY_ERROR |
+
+
+</details>
+
 ---
 
 补充缺失的 import 语句。
@@ -943,6 +1167,36 @@ Lines added: 1, lines removed: undefined
 
 Tool use: **read_lints**
 
+<details>
+          <summary>Read lints for 2 files</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/executor/impl/ModuleInstSolutionCallBack.java`
+- `src/test/java/com/jmix/configengine/extensibleDemo/DCDeliveryTypePostProcess.java`
+
+Lint results
+
+Lint errors for `src/main/java/com/jmix/executor/impl/ModuleInstSolutionCallBack.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| The import com.jmix.executor.exception cannot be resolved | 11:8-11:35 | DIAGNOSTIC_SEVERITY_ERROR |
+| AlgLoaderException cannot be resolved to a type | 94:27-94:45 | DIAGNOSTIC_SEVERITY_ERROR |
+
+
+Lint errors for `src/test/java/com/jmix/configengine/extensibleDemo/DCDeliveryTypePostProcess.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| The import com.jmix.executor.exception cannot be resolved | 12:8-12:35 | DIAGNOSTIC_SEVERITY_ERROR |
+| AlgLoaderException cannot be resolved to a type | 119:23-119:41 | DIAGNOSTIC_SEVERITY_ERROR |
+
+
+</details>
+
 ---
 
 查找 AlgLoaderException 的正确包路径。
@@ -951,6 +1205,19 @@ Tool use: **read_lints**
 ---
 
 Tool use: **grep**
+
+<details>
+<summary>Grep for "class AlgLoaderException" • 1 match</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `public class AlgLoaderException extends RuntimeException \{` | L9 |
+
+
+</details>
 
 ---
 
@@ -999,6 +1266,20 @@ Lines added: 1, lines removed: 1
 ---
 
 Tool use: **read_lints**
+
+<details>
+          <summary>Read lints for 2 files</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/executor/impl/ModuleInstSolutionCallBack.java`
+- `src/test/java/com/jmix/configengine/extensibleDemo/DCDeliveryTypePostProcess.java`
+
+Lint results
+
+
+**No lint errors found**
+</details>
 
 ---
 
@@ -1087,6 +1368,71 @@ Read file: src/test/java/com/jmix/configengine/scenario/base/modeltool/ModelHelp
 ---
 
 Tool use: **grep**
+
+<details>
+<summary>Grep for "[\u4e00-\u9fff]" in "src/test/java/com/jmix/configengine/scenario/base/modeltool/ModelHelperTool.java" • 53 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `* ModelHelper测试类` | L12 |
+| `* 测试生成并运行模型文件的功能` | L13 |
+| `// 工具类私有构造器` | L19 |
+| `* 主方法` | L23 |
+| `* @param args 命令行参数` | L25 |
+| `* 主方法` | L28 |
+| `* @param args 命令行参数` | L30 |
+| `* 注入约束代码` | L39 |
+| `* 注入约束代码` | L42 |
+| `* 调用大模型生成模型文件和测试文件` | L55 |
+| `* 生成模型文件` | L58 |
+| `// 创建ModelHelper实例` | L64 |
+| `// 方式1：从Markdown文件读取（推荐）` | L67 |
+| `// 方式2：直接使用字符串（保留原有方式）` | L77 |
+| `System.out.println("正在生成并运行测试文件...");` | L102 |
+| `// 测试生成并运行功能` | L104 |
+| `System.out.println("测试完成！");` | L108 |
+| `System.out.println("测试失败: " + e.getMessage());` | L111 |
+| `System.out.println("可能的原因：");` | L112 |
+| `System.out.println("1. LLM API配置问题");` | L113 |
+| `System.out.println("2. 网络连接问题");` | L114 |
+| `System.out.println("3. 代码生成或编译问题");` | L115 |
+| `System.err.println("测试过程中发生错误: " + e.getMessage());` | L120 |
+| `* 从Markdown文件读取指定部分的内容` | L126 |
+| `* @param section 要读取的部分名称（如"userVariableModel"或"userLogicByPseudocode"）` | L128 |
+| `* @return 该部分的内容` | L129 |
+| `// 获取当前类文件所在目录` | L133 |
+| `// 构建Markdown文件路径` | L139 |
+| `// 读取Markdown文件内容` | L142 |
+| `// 解析指定部分的内容` | L145 |
+| `System.err.println("读取Markdown文件失败: " + e.getMessage());` | L149 |
+| `System.err.println("将使用默认内容");` | L150 |
+| `// 返回默认内容` | L152 |
+| `* 解析Markdown文件中的指定部分` | L170 |
+| `* @param content Markdown文件内容` | L172 |
+| `* @param section 部分名称` | L173 |
+| `* @return 解析后的内容` | L174 |
+| `// 查找部分开始标记` | L178 |
+| `// 查找代码块开始` | L185 |
+| `// 查找代码块结束` | L191 |
+| `// 提取代码内容` | L197 |
+| `System.out.println("成功从Markdown文件读取 " + section + " 部分");` | L200 |
+| `* 获取默认的包名` | L209 |
+| `* @return 默认包名` | L211 |
+| `* 获取默认的模型名` | L218 |
+| `* @return 默认模型名` | L220 |
+| `* 获取默认的变量模型` | L227 |
+| `* @return 默认变量模型` | L229 |
+| `* 获取默认的逻辑伪代码` | L246 |
+| `* @return 默认逻辑伪代码` | L248 |
+| `* 获取默认的测试用例特殊规格` | L260 |
+| `* @return 默认测试用例特殊规格` | L262 |
+| `return ""; // 默认为空，表示不指定特殊规格` | L265 |
+
+
+</details>
 
 ---
 
@@ -1254,6 +1600,19 @@ Tool use: **grep**
 ---
 
 Tool use: **read_lints**
+
+<details>
+          <summary>Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/test/java/com/jmix/configengine/scenario/base/modeltool/ModelHelperTool.java`
+
+Lint results
+
+
+**No lint errors found**
+</details>
 
 ---
 
@@ -1478,6 +1837,21 @@ Tool use: **grep**
 
 Tool use: **grep**
 
+<details>
+<summary>Grep for "System\.(out|err)\.println\([^)]*[\u4e00-\u9fff]" in "src" • 3 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `System.out.println("添加兼容性约束: $\{rule.name\}");` | L133 |
+| `System.out.println("未知规则类型: $\{rule.name\}");` | L143 |
+| `System.out.println("约束规则执行完成");` | L160 |
+
+
+</details>
+
 ---
 
 检查模板文件中的中文内容。
@@ -1559,6 +1933,144 @@ Lines added: 1, lines removed: 1
 
 Tool use: **grep**
 
+<details>
+<summary>Grep for "[\u4e00-\u9fff]" in "src" • 126 matches</summary>
+
+Output mode: files_with_matches
+
+
+| File |
+|------|
+| `src\main\resources\template\ModuleConstraintTemplate.ftl` |
+| `src\test\java\com\jmix\configengine\scenario\base\ModuleScenarioTestBase.java` |
+| `src\test\java\com\jmix\configengine\scenario\base\modeltool\ModelHelperTool.java` |
+| `src\test\java\com\jmix\configengine\artifact\ModuleAlgArtifactGeneratorTest.java` |
+| `src\test\java\com\jmix\configengine\scenario\hello\HelloConstraint.java` |
+| `src\main\java\com\jmix\tool\model\ModuleGenneratorByAnno.java` |
+| `src\test\java\com\jmix\configengine\scenario\hello\HelloConstraintTest.java` |
+| `src\test\java\com\jmix\configengine\extensibleDemo\DCDeliveryTypePostProcess.java` |
+| `src\main\java\com\jmix\executor\impl\algmodel\ConstraintAlgImpl.java` |
+| `src\main\java\com\jmix\executor\impl\ModuleInstSolutionCallBack.java` |
+| `src\main\java\com\jmix\tool\artifact\ModuleAlgArtifactGenerator.java` |
+| `src\test\java\com\jmix\configengine\scenario\autoruletest\InjectCompatibleRuleTest.java` |
+| `src\test\java\com\jmix\configengine\util\ModuleUtilsTest.java` |
+| `src\test\java\com\jmix\configengine\scenario\ruletest\CompatibleRuleCodependentTest.java` |
+| `src\test\java\com\jmix\configengine\scenario\tshirt\ModuleAlgArtifactGeneratorBaseTest.java` |
+| `src\test\java\com\jmix\configengine\other\SimpleDataValidator.java` |
+| `src\main\java\com\jmix\executor\impl\util\FilterExpressionExecutor.java` |
+| `src\test\java\com\jmix\configengine\scenario\ruletest\CompatibleRuleIncompatibleTest.java` |
+| `src\test\java\com\jmix\configengine\scenario\ruletest\CalculateRuleIfThenTest.java` |
+| `src\test\java\com\jmix\configengine\perf\Perf20ParasTest.java` |
+| `src\test\java\com\jmix\configengine\scenario\ruletest\ParaIsHiddenTest.java` |
+| `src\main\resources\constraint_generate_prompt.jtl` |
+| `src\test\java\com\jmix\configengine\scenario\autoruletest\AnnotationRuleTest.java` |
+| `src\main\java\com\jmix\tool\artifact\RuleInfo.java` |
+| `src\test\java\com\jmix\configengine\scenario\ruletest\MyTShirtTest.java` |
+| `src\test\java\com\jmix\configengine\scenario\ruletest\CalculateRuleSimpleTest.java` |
+| `src\test\java\com\jmix\configengine\scenario\ruletest\CompatibleRuleRequireTest.java` |
+| `src\test\java\com\jmix\configengine\scenario\ruletest\ParaIntegerTest.java` |
+| `src\test\java\com\jmix\configengine\scenario\ruletest\DynScheduleTest.java` |
+| `src\test\java\com\jmix\configengine\ModuleConstraintExecutorTest.java` |
+| `src\test\java\com\jmix\configengine\util\ParaTypeHandlerTest.java` |
+| `src\test\java\com\jmix\configengine\model\ModuleRefRelationGraphTest.java` |
+| `src\main\java\com\jmix\executor\omodel\ModuleInst.java` |
+| `src\main\java\com\jmix\executor\imodel\ParaType.java` |
+| `src\main\java\com\jmix\executor\imodel\rule\SelectRuleSchema.java` |
+| `src\main\java\com\jmix\tool\artifact\ParaOptionVarInfo.java` |
+| `src\main\java\com\jmix\tool\model\LLMInvoker.java` |
+| `src\main\java\com\jmix\tool\artifact\ModuleVarInfo.java` |
+| `src\main\java\com\jmix\tool\artifact\ParaVarInfo.java` |
+| `src\main\java\com\jmix\executor\impl\algmodel\Var.java` |
+| `src\main\java\com\jmix\executor\impl\ModuleAlgClassLoader.java` |
+| `src\test\java\com\jmix\configengine\artifact\FilterExpressionExecutorTest.java` |
+| `src\main\java\com\jmix\executor\imodel\PartType.java` |
+| `src\main\java\com\jmix\executor\imodel\ModuleType.java` |
+| `src\main\java\com\jmix\executor\imodel\Programmable.java` |
+| `src\main\java\com\jmix\executor\omodel\Result.java` |
+| `src\main\java\com\jmix\executor\imodel\Part.java` |
+| `src\main\java\com\jmix\executor\imodel\Para.java` |
+| `src\main\java\com\jmix\executor\imodel\rule\CodeRuleSchema.java` |
+| `src\main\java\com\jmix\executor\impl\algmodel\AlgCPModel.java` |
+| `src\main\java\com\jmix\executor\impl\ModuleConstraintExecutorImpl.java` |
+| `src\test\java\com\jmix\configengine\scenario\base\modeltool\LLMInvokerTest.java` |
+| `src\test\java\com\jmix\configengine\scenario\autoruletest\AnnotationRuleIntegrationTest.java` |
+| `src\test\java\com\jmix\configengine\extensibleDemo\TestEditorFormater.java` |
+| `src\test\java\com\jmix\configengine\scenario\base\CommHelperTest.java` |
+| `src\test\java\com\jmix\configengine\scenario\base\ParaInstAssert.java` |
+| `src\test\java\com\jmix\configengine\schema\CodeRuleSchemaTest.java` |
+| `src\test\java\com\jmix\configengine\scenario\base\ResultAssert.java` |
+| `src\main\java\com\jmix\executor\impl\ModuleBuilder.java` |
+| `src\main\java\com\jmix\executor\imodel\Extensible.java` |
+| `src\test\java\com\jmix\configengine\scenario\base\PartInstAssert.java` |
+| `src\test\java\com\jmix\configengine\scenario\base\ProgammableInstAssert.java` |
+| `src\main\java\com\jmix\tool\artifact\PartVarInfo.java` |
+| `src\main\java\com\jmix\executor\impl\algmodel\ParaVar.java` |
+| `src\main\java\com\jmix\executor\impl\algmodel\PartVar.java` |
+| `src\main\java\com\jmix\tool\model\StructCodeInjector.java` |
+| `src\main\java\com\jmix\tool\model\CommHelper.java` |
+| `src\main\java\com\jmix\tool\model\ModelHelper.java` |
+| `src\main\java\com\jmix\executor\impl\util\ParaTypeHandler.java` |
+| `src\main\java\com\jmix\executor\imodel\Module.java` |
+| `src\main\java\com\jmix\executor\imodel\rule\RuleTypeConstants.java` |
+| `src\test\java\com\jmix\configengine\extensibleDemo\DCMyTShirtTest.java` |
+| `src\test\java\com\jmix\configengine\extensibleDemo\DCModuleConstraintExecutorImpl.java` |
+| `src\test\java\com\jmix\configengine\extensibleDemo\DCModuleConstraintExecutor.java` |
+| `src\main\java\com\jmix\tool\artifact\VarInfo.java` |
+| `src\main\java\com\jmix\executor\impl\ModuleRefRelationGraph.java` |
+| `src\main\java\com\jmix\executor\impl\algmodel\OtherVar.java` |
+| `src\main\java\com\jmix\tool\model\ProgObject.java` |
+| `src\main\java\com\jmix\executor\impl\algmodel\ParaOptionVar.java` |
+| `src\main\java\com\jmix\executor\imodel\rule\CalculateRuleSchema.java` |
+| `src\main\java\com\jmix\executor\imodel\ProgrammableObject.java` |
+| `src\main\java\com\jmix\executor\imodel\rule\ExprSchema.java` |
+| `src\main\java\com\jmix\executor\imodel\rule\RefProgObjSchema.java` |
+| `src\main\java\com\jmix\executor\imodel\ParaOption.java` |
+| `src\main\java\com\jmix\executor\omodel\InferParasPostProcess.java` |
+| `src\main\java\com\jmix\executor\omodel\ExtensibleProcess.java` |
+| `src\main\java\com\jmix\executor\imodel\rule\RuleSchema.java` |
+| `src\main\java\com\jmix\executor\omodel\InferParasReq.java` |
+| `src\main\java\com\jmix\executor\imodel\rule\CompatiableRuleSchema.java` |
+| `src\main\java\com\jmix\executor\imodel\ModuleAlgArtifact.java` |
+| `src\main\java\com\jmix\executor\imodel\AttrSchema.java` |
+| `src\main\java\com\jmix\tool\model\CompatiableRuleAnno.java` |
+| `src\main\java\com\jmix\executor\imodel\ConstraintConfig.java` |
+| `src\main\java\com\jmix\tool\model\ParaAnno.java` |
+| `src\main\java\com\jmix\tool\ModuleUtils.java` |
+| `src\main\java\com\jmix\tool\model\CodeRuleAnno.java` |
+| `src\main\java\com\jmix\tool\model\PromptTemplateLoader.java` |
+| `src\main\java\com\jmix\tool\model\ModuleAnno.java` |
+| `src\main\java\com\jmix\executor\imodel\Rule.java` |
+| `src\main\java\com\jmix\executor\omodel\ParaInst.java` |
+| `src\main\java\com\jmix\tool\model\PartAnno.java` |
+| `src\main\java\com\jmix\executor\impl\algmodel\ConstraintAlg.java` |
+| `src\main\java\com\jmix\executor\ModuleConstraintExecutor.java` |
+| `src\main\java\com\jmix\executor\impl\util\Pair.java` |
+| `src\test\java\com\jmix\configengine\model\ParaOptionBuilderTest.java` |
+| `src\main\java\com\jmix\executor\omodel\PartInst.java` |
+| `src\test\java\com\jmix\configengine\extensibleDemo\DCPara.java` |
+| `src\test\java\com\jmix\configengine\schema\CompatiableRuleSchemaTest.java` |
+| `src\test\java\com\jmix\configengine\extensibleDemo\DCModule.java` |
+| `src\test\java\com\jmix\configengine\extensibleDemo\DCModuleAdapter.java` |
+| `src\test\java\com\jmix\configengine\extensibleDemo\DCPart.java` |
+| `src\test\java\com\jmix\configengine\extensibleDemo\DCParaInst.java` |
+| `src\test\java\com\jmix\configengine\extensibleDemo\DCModuleInst.java` |
+| `src\test\java\com\jmix\configengine\extensibleDemo\DCPartInstAdapter.java` |
+| `src\test\java\com\jmix\configengine\extensibleDemo\DCPartInst.java` |
+| `src\test\java\com\jmix\configengine\extensibleDemo\DCResult.java` |
+| `src\test\java\com\jmix\configengine\extensibleDemo\DCParaInstAdapter.java` |
+| `src\main\java\com\jmix\executor\omodel\AlgLoaderException.java` |
+| `src\main\java\com\jmix\executor\omodel\AlgExecutorException.java` |
+| `src\test\java\com\jmix\configengine\TestSuite.java` |
+| `src\test\java\com\jmix\configengine\scenario\base\modeltool\ModelHelperToolBlockInput.md` |
+| `src\test\java\com\jmix\configengine\scenario\base\modeltool\ModelHelperToolBlockInput-perf20.md` |
+| `src\test\java\com\jmix\configengine\scenario\base\modeltool\ModelHelperToolBlockInput-isHidden.md` |
+| `src\test\java\com\jmix\configengine\scenario\base\modeltool\ModelHelperToolBlockInput-Dyn.md` |
+| `src\test\java\com\jmix\configengine\extensibleDemo\AdapterInfo.java` |
+| `src\test\java\com\jmix\configengine\scenario\tshirt\tshirtdata.json` |
+
+
+</details>
+
 ---
 
 Tool use: **grep**
@@ -1574,6 +2086,26 @@ Tool use: **grep**
 ---
 
 Tool use: **read_lints**
+
+<details>
+          <summary>Read lints for 2 files</summary>
+      
+Lint paths:
+
+- `src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java`
+- `src/main/resources/template/ModuleConstraintTemplate.ftl`
+
+Lint results
+
+Lint errors for `src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| The value of the local variable part is not used | 326:22-326:26 | DIAGNOSTIC_SEVERITY_WARNING |
+
+
+</details>
 
 ---
 
@@ -1646,13 +2178,87 @@ Tool use: **todo_write**
 
 Tool use: **grep**
 
+<details>
+<summary>Grep for "throw new [^)]*[\u4e00-\u9fff]" in "src" • 19 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `throw new IndexOutOfBoundsException("解决方案索引超出范围: " + index);` | L211 |
+| `throw new IllegalStateException("尚未执行推理，无法获取结果断言");` | L240 |
+| `throw new AssertionError("没有解决方案可供验证");` | L257 |
+| `throw new IllegalArgumentException("条件表达式格式错误: " + pair);` | L294 |
+| `throw new IllegalArgumentException("参数必须是偶数个，格式：paraCode1, value1, paraCode2, value2, ...");` | L421 |
+| `throw new IllegalStateException("请配置有效的DeepSeek API密钥，可通过环境变量DEEPSEEK_API_KEY或配置文件设置");` | L237 |
+| `throw new IllegalStateException("请配置有效的Qwen API密钥，可通过环境变量QWEN_API_KEY或配置文件设置");` | L271 |
+| `throw new AssertionError("参数选项为空");` | L102 |
+| `throw new AssertionError("结果数据不是集合类型，无法获取数量");` | L45 |
+| `throw new AssertionError("结果数据不是集合类型，无法获取数量");` | L69 |
+| `throw new AssertionError("结果数据不是集合类型，无法获取数量");` | L93 |
+| `throw new AssertionError("结果数据不是集合类型，无法获取数量");` | L117 |
+| `throw new AssertionError("结果数据不是集合类型，无法获取数量");` | L141 |
+| `throw new AssertionError("结果数据不应为空");` | L270 |
+| `throw new AssertionError("结果数据应为空");` | L282 |
+| `throw new AssertionError("未找到参数 in moduleInst: " + code);` | L37 |
+| `throw new AssertionError("未找到参数 in module: " + code);` | L41 |
+| `throw new AssertionError("未找到部件: " + code);` | L56 |
+| `throw new AssertionError("未找到部件 in module: " + code);` | L60 |
+
+
+</details>
+
 ---
 
 Tool use: **grep**
 
+<details>
+<summary>Grep for "new [A-Za-z]*Exception\([^)]*[\u4e00-\u9fff]" in "src" • 6 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `throw new IndexOutOfBoundsException("解决方案索引超出范围: " + index);` | L211 |
+| `throw new IllegalStateException("尚未执行推理，无法获取结果断言");` | L240 |
+| `throw new IllegalArgumentException("条件表达式格式错误: " + pair);` | L294 |
+| `throw new IllegalArgumentException("参数必须是偶数个，格式：paraCode1, value1, paraCode2, value2, ...");` | L421 |
+| `throw new IllegalStateException("请配置有效的DeepSeek API密钥，可通过环境变量DEEPSEEK_API_KEY或配置文件设置");` | L237 |
+| `throw new IllegalStateException("请配置有效的Qwen API密钥，可通过环境变量QWEN_API_KEY或配置文件设置");` | L271 |
+
+
+</details>
+
 ---
 
 Tool use: **grep**
+
+<details>
+<summary>Grep for "new AssertionError\([^)]*[\u4e00-\u9fff]" in "src" • 13 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `throw new AssertionError("没有解决方案可供验证");` | L257 |
+| `throw new AssertionError("参数选项为空");` | L102 |
+| `throw new AssertionError("结果数据不是集合类型，无法获取数量");` | L45 |
+| `throw new AssertionError("结果数据不是集合类型，无法获取数量");` | L69 |
+| `throw new AssertionError("结果数据不是集合类型，无法获取数量");` | L93 |
+| `throw new AssertionError("结果数据不是集合类型，无法获取数量");` | L117 |
+| `throw new AssertionError("结果数据不是集合类型，无法获取数量");` | L141 |
+| `throw new AssertionError("结果数据不应为空");` | L270 |
+| `throw new AssertionError("结果数据应为空");` | L282 |
+| `throw new AssertionError("未找到参数 in moduleInst: " + code);` | L37 |
+| `throw new AssertionError("未找到参数 in module: " + code);` | L41 |
+| `throw new AssertionError("未找到部件: " + code);` | L56 |
+| `throw new AssertionError("未找到部件 in module: " + code);` | L60 |
+
+
+</details>
 
 ---
 
@@ -2044,6 +2650,45 @@ Tool use: **grep**
 
 Tool use: **read_lints**
 
+<details>
+          <summary>Read lints for 5 files</summary>
+      
+Lint paths:
+
+- `src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java`
+- `src/main/java/com/jmix/tool/model/LLMInvoker.java`
+- `src/test/java/com/jmix/configengine/scenario/base/ParaInstAssert.java`
+- `src/test/java/com/jmix/configengine/scenario/base/ResultAssert.java`
+- `src/test/java/com/jmix/configengine/scenario/base/ProgammableInstAssert.java`
+
+Lint results
+
+Lint errors for `src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| The value of the local variable part is not used | 327:22-327:26 | DIAGNOSTIC_SEVERITY_WARNING |
+
+
+Lint errors for `src/test/java/com/jmix/configengine/scenario/base/ParaInstAssert.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| “VARIABLE_DEF”之前应该有一个空白行。 | 20:5-21:1 | DIAGNOSTIC_SEVERITY_WARNING |
+
+
+Lint errors for `src/test/java/com/jmix/configengine/scenario/base/ProgammableInstAssert.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| “VARIABLE_DEF”之前应该有一个空白行。 | 15:5-16:1 | DIAGNOSTIC_SEVERITY_WARNING |
+
+
+</details>
+
 ---
 
 Tool use: **todo_write**
@@ -2210,6 +2855,19 @@ Lines added: 19, lines removed: undefined
 
 Tool use: **read_lints**
 
+<details>
+          <summary>Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/tool/model/ModuleGenneratorByAnno.java`
+
+Lint results
+
+
+**No lint errors found**
+</details>
+
 ---
 
 ## 扩展属性处理逻辑已抽取
@@ -2307,6 +2965,19 @@ Tool use: **grep**
 ---
 
 Tool use: **grep**
+
+<details>
+<summary>Grep for "class.*Pair" in "src" • 1 match</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `public class Pair<L, R> \{` | L13 |
+
+
+</details>
 
 ---
 
@@ -2440,6 +3111,19 @@ Lines added: 29, lines removed: undefined
 ---
 
 Tool use: **read_lints**
+
+<details>
+          <summary>Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/tool/model/ModuleGenneratorByAnno.java`
+
+Lint results
+
+
+**No lint errors found**
+</details>
 
 ---
 
@@ -2632,6 +3316,19 @@ Lines added: 28, lines removed: undefined
 
 Tool use: **read_lints**
 
+<details>
+          <summary>Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/tool/model/ModuleGenneratorByAnno.java`
+
+Lint results
+
+
+**No lint errors found**
+</details>
+
 ---
 
 已将 `ModuleAlgArtifact` 的创建与配置逻辑抽取为 `buildAlg` 函数。
@@ -2822,6 +3519,19 @@ Lines added: 27, lines removed: undefined
 
 Tool use: **read_lints**
 
+<details>
+          <summary>Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/tool/model/ModuleGenneratorByAnno.java`
+
+Lint results
+
+
+**No lint errors found**
+</details>
+
 ---
 
 _**User (2025-09-23 09:54Z)**_
@@ -2905,6 +3615,19 @@ Lines added: 18, lines removed: undefined
 ---
 
 Tool use: **read_lints**
+
+<details>
+          <summary>Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/tool/model/ModuleGenneratorByAnno.java`
+
+Lint results
+
+
+**No lint errors found**
+</details>
 
 ---
 
@@ -3090,6 +3813,19 @@ Lines added: 36, lines removed: undefined
 ---
 
 Tool use: **read_lints**
+
+<details>
+          <summary>Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/tool/model/ModuleGenneratorByAnno.java`
+
+Lint results
+
+
+**No lint errors found**
+</details>
 
 ---
 
@@ -3289,6 +4025,19 @@ Lines added: 17, lines removed: undefined
 
 Tool use: **read_lints**
 
+<details>
+          <summary>Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/tool/model/ModuleGenneratorByAnno.java`
+
+Lint results
+
+
+**No lint errors found**
+</details>
+
 ---
 
 已将重复的属性解析逻辑抽取为公共方法 `parseAttributes`。
@@ -3424,6 +4173,38 @@ Tool use: **codebase_search**
 ---
 
 Tool use: **grep**
+
+<details>
+<summary>Grep for "extends ConstraintAlgImpl" • 20 matches</summary>
+
+Output mode: files_with_matches
+
+
+| File |
+|------|
+| `.\src\test\java\com\jmix\configengine\scenario\ruletest\CompatibleRuleCodependentTest.java` |
+| `.\src\test\java\com\jmix\configengine\scenario\base\ModuleScenarioTestBase.java` |
+| `.\src\main\resources\template\ModuleConstraintTemplate.ftl` |
+| `.\src\test\java\com\jmix\configengine\scenario\hello\HelloConstraint.java` |
+| `.\src\test\java\com\jmix\configengine\scenario\autoruletest\InjectCompatibleRuleTest.java` |
+| `.\src\test\java\com\jmix\configengine\scenario\tshirt\ModuleAlgArtifactGeneratorBaseTest.java` |
+| `.\src\test\java\com\jmix\configengine\scenario\ruletest\CompatibleRuleIncompatibleTest.java` |
+| `.\src\test\java\com\jmix\configengine\scenario\ruletest\CalculateRuleIfThenTest.java` |
+| `.\src\test\java\com\jmix\configengine\perf\Perf20ParasTest.java` |
+| `.\src\test\java\com\jmix\configengine\scenario\ruletest\ParaIsHiddenTest.java` |
+| `.\src\main\resources\constraint_generate_prompt.jtl` |
+| `.\src\test\java\com\jmix\configengine\scenario\autoruletest\AnnotationRuleTest.java` |
+| `.\doc\约束规则生成设计.md` |
+| `.\doc\参数反推求解测试框架设计文档.md` |
+| `.\doc\基于约束求解的反推参数的设计文档.md` |
+| `.\src\test\java\com\jmix\configengine\scenario\ruletest\MyTShirtTest.java` |
+| `.\src\test\java\com\jmix\configengine\scenario\ruletest\CalculateRuleSimpleTest.java` |
+| `.\src\test\java\com\jmix\configengine\scenario\ruletest\CompatibleRuleRequireTest.java` |
+| `.\src\test\java\com\jmix\configengine\scenario\ruletest\ParaIntegerTest.java` |
+| `.\src\test\java\com\jmix\configengine\scenario\ruletest\DynScheduleTest.java` |
+
+
+</details>
 
 ---
 
@@ -4003,6 +4784,47 @@ Tool use: **todo_write**
 
 Tool use: **read_lints**
 
+<details>
+          <summary>Read lints for 11 files</summary>
+      
+Lint paths:
+
+- `src/test/java/com/jmix/configengine/scenario/ruletest/CompatibleRuleIncompatibleTest.java`
+- `src/test/java/com/jmix/configengine/scenario/ruletest/CalculateRuleIfThenTest.java`
+- `src/test/java/com/jmix/configengine/scenario/ruletest/ParaIsHiddenTest.java`
+- `src/test/java/com/jmix/configengine/scenario/ruletest/MyTShirtTest.java`
+- `src/test/java/com/jmix/configengine/scenario/ruletest/CalculateRuleSimpleTest.java`
+- `src/test/java/com/jmix/configengine/scenario/ruletest/CompatibleRuleRequireTest.java`
+- `src/test/java/com/jmix/configengine/scenario/ruletest/ParaIntegerTest.java`
+- `src/test/java/com/jmix/configengine/scenario/ruletest/DynScheduleTest.java`
+- `src/test/java/com/jmix/configengine/scenario/autoruletest/InjectCompatibleRuleTest.java`
+- `src/test/java/com/jmix/configengine/scenario/autoruletest/AnnotationRuleTest.java`
+- `src/test/java/com/jmix/configengine/perf/Perf20ParasTest.java`
+
+Lint results
+
+Lint errors for `src/test/java/com/jmix/configengine/scenario/ruletest/ParaIsHiddenTest.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| ';' 后应有空格。 | 202:47-203:1 | DIAGNOSTIC_SEVERITY_WARNING |
+
+
+Lint errors for `src/test/java/com/jmix/configengine/perf/Perf20ParasTest.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| '+' 应另起一行。 | 339:110-340:1 | DIAGNOSTIC_SEVERITY_WARNING |
+| '+' 应另起一行。 | 368:110-369:1 | DIAGNOSTIC_SEVERITY_WARNING |
+| '+' 应另起一行。 | 397:110-398:1 | DIAGNOSTIC_SEVERITY_WARNING |
+| '+' 应另起一行。 | 426:110-427:1 | DIAGNOSTIC_SEVERITY_WARNING |
+| '+' 应另起一行。 | 457:110-458:1 | DIAGNOSTIC_SEVERITY_WARNING |
+
+
+</details>
+
 ---
 
 修复 linter 错误。
@@ -4154,6 +4976,20 @@ Lines added: 2, lines removed: 2
 
 Tool use: **read_lints**
 
+<details>
+          <summary>Read lints for 2 files</summary>
+      
+Lint paths:
+
+- `src/test/java/com/jmix/configengine/scenario/ruletest/ParaIsHiddenTest.java`
+- `src/test/java/com/jmix/configengine/perf/Perf20ParasTest.java`
+
+Lint results
+
+
+**No lint errors found**
+</details>
+
 ---
 
 已为所有 `ConstraintAlgImpl` 子类补充 Javadoc。
@@ -4224,9 +5060,165 @@ Read file: src/main/java/com/jmix/executor/imodel/rule/CalculateRuleSchema.java
 
 Tool use: **grep**
 
+<details>
+<summary>Grep for "^\s*/\*\*[\s\S]*?\*/\s*$" in "src/main/java" • 68 matches</summary>
+
+Output mode: files_with_matches
+
+
+| File |
+|------|
+| `src/main/java\com\jmix\executor\impl\algmodel\Var.java` |
+| `src/main/java\com\jmix\tool\model\ModuleGenneratorByAnno.java` |
+| `src/main/java\com\jmix\tool\model\LLMInvoker.java` |
+| `src/main/java\com\jmix\executor\impl\algmodel\ConstraintAlgImpl.java` |
+| `src/main/java\com\jmix\executor\impl\ModuleInstSolutionCallBack.java` |
+| `src/main/java\com\jmix\tool\artifact\ModuleAlgArtifactGenerator.java` |
+| `src/main/java\com\jmix\executor\impl\util\FilterExpressionExecutor.java` |
+| `src/main/java\com\jmix\tool\artifact\RuleInfo.java` |
+| `src/main/java\com\jmix\executor\omodel\ModuleInst.java` |
+| `src/main/java\com\jmix\executor\imodel\ParaType.java` |
+| `src/main/java\com\jmix\executor\imodel\rule\SelectRuleSchema.java` |
+| `src/main/java\com\jmix\tool\artifact\ParaOptionVarInfo.java` |
+| `src/main/java\com\jmix\tool\artifact\ModuleVarInfo.java` |
+| `src/main/java\com\jmix\tool\artifact\ParaVarInfo.java` |
+| `src/main/java\com\jmix\executor\impl\ModuleAlgClassLoader.java` |
+| `src/main/java\com\jmix\executor\imodel\PartType.java` |
+| `src/main/java\com\jmix\executor\imodel\ModuleType.java` |
+| `src/main/java\com\jmix\executor\imodel\Programmable.java` |
+| `src/main/java\com\jmix\executor\omodel\Result.java` |
+| `src/main/java\com\jmix\executor\imodel\Part.java` |
+| `src/main/java\com\jmix\executor\imodel\Para.java` |
+| `src/main/java\com\jmix\executor\imodel\rule\CodeRuleSchema.java` |
+| `src/main/java\com\jmix\executor\impl\algmodel\AlgCPModel.java` |
+| `src/main/java\com\jmix\executor\impl\ModuleConstraintExecutorImpl.java` |
+| `src/main/java\com\jmix\executor\impl\ModuleBuilder.java` |
+| `src/main/java\com\jmix\executor\imodel\Extensible.java` |
+| `src/main/java\com\jmix\tool\artifact\PartVarInfo.java` |
+| `src/main/java\com\jmix\executor\impl\algmodel\ParaVar.java` |
+| `src/main/java\com\jmix\executor\impl\algmodel\PartVar.java` |
+| `src/main/java\com\jmix\tool\model\StructCodeInjector.java` |
+| `src/main/java\com\jmix\tool\model\CommHelper.java` |
+| `src/main/java\com\jmix\tool\model\ModelHelper.java` |
+| `src/main/java\com\jmix\executor\impl\util\ParaTypeHandler.java` |
+| `src/main/java\com\jmix\executor\imodel\Module.java` |
+| `src/main/java\com\jmix\executor\imodel\rule\RuleTypeConstants.java` |
+| `src/main/java\com\jmix\tool\artifact\VarInfo.java` |
+| `src/main/java\com\jmix\executor\impl\ModuleRefRelationGraph.java` |
+| `src/main/java\com\jmix\executor\impl\algmodel\OtherVar.java` |
+| `src/main/java\com\jmix\tool\model\ProgObject.java` |
+| `src/main/java\com\jmix\executor\impl\algmodel\ParaOptionVar.java` |
+| `src/main/java\com\jmix\executor\imodel\rule\CalculateRuleSchema.java` |
+| `src/main/java\com\jmix\executor\imodel\ProgrammableObject.java` |
+| `src/main/java\com\jmix\executor\imodel\rule\ExprSchema.java` |
+| `src/main/java\com\jmix\executor\imodel\rule\RefProgObjSchema.java` |
+| `src/main/java\com\jmix\executor\imodel\ParaOption.java` |
+| `src/main/java\com\jmix\executor\omodel\InferParasPostProcess.java` |
+| `src/main/java\com\jmix\executor\omodel\ExtensibleProcess.java` |
+| `src/main/java\com\jmix\executor\imodel\rule\RuleSchema.java` |
+| `src/main/java\com\jmix\executor\omodel\InferParasReq.java` |
+| `src/main/java\com\jmix\executor\imodel\rule\CompatiableRuleSchema.java` |
+| `src/main/java\com\jmix\executor\imodel\ModuleAlgArtifact.java` |
+| `src/main/java\com\jmix\executor\imodel\AttrSchema.java` |
+| `src/main/java\com\jmix\tool\model\CompatiableRuleAnno.java` |
+| `src/main/java\com\jmix\executor\imodel\ConstraintConfig.java` |
+| `src/main/java\com\jmix\tool\model\ParaAnno.java` |
+| `src/main/java\com\jmix\tool\ModuleUtils.java` |
+| `src/main/java\com\jmix\tool\model\CodeRuleAnno.java` |
+| `src/main/java\com\jmix\tool\model\PromptTemplateLoader.java` |
+| `src/main/java\com\jmix\tool\model\ModuleAnno.java` |
+| `src/main/java\com\jmix\executor\imodel\Rule.java` |
+| `src/main/java\com\jmix\executor\omodel\ParaInst.java` |
+| `src/main/java\com\jmix\tool\model\PartAnno.java` |
+| `src/main/java\com\jmix\executor\impl\algmodel\ConstraintAlg.java` |
+| `src/main/java\com\jmix\executor\ModuleConstraintExecutor.java` |
+| `src/main/java\com\jmix\executor\impl\util\Pair.java` |
+| `src/main/java\com\jmix\executor\omodel\PartInst.java` |
+| `src/main/java\com\jmix\executor\omodel\AlgLoaderException.java` |
+| `src/main/java\com\jmix\executor\omodel\AlgExecutorException.java` |
+
+
+</details>
+
 ---
 
 Tool use: **grep**
+
+<details>
+<summary>Grep for "@since" in "src/main/java" • 64 matches</summary>
+
+Output mode: files_with_matches
+
+
+| File |
+|------|
+| `src/main/java\com\jmix\executor\impl\algmodel\Var.java` |
+| `src/main/java\com\jmix\tool\model\ModuleGenneratorByAnno.java` |
+| `src/main/java\com\jmix\tool\model\LLMInvoker.java` |
+| `src/main/java\com\jmix\executor\impl\algmodel\ConstraintAlgImpl.java` |
+| `src/main/java\com\jmix\executor\impl\ModuleInstSolutionCallBack.java` |
+| `src/main/java\com\jmix\executor\impl\util\FilterExpressionExecutor.java` |
+| `src/main/java\com\jmix\tool\artifact\RuleInfo.java` |
+| `src/main/java\com\jmix\executor\omodel\ModuleInst.java` |
+| `src/main/java\com\jmix\executor\imodel\ParaType.java` |
+| `src/main/java\com\jmix\tool\artifact\ParaOptionVarInfo.java` |
+| `src/main/java\com\jmix\tool\artifact\ModuleVarInfo.java` |
+| `src/main/java\com\jmix\tool\artifact\ParaVarInfo.java` |
+| `src/main/java\com\jmix\executor\impl\ModuleAlgClassLoader.java` |
+| `src/main/java\com\jmix\executor\imodel\PartType.java` |
+| `src/main/java\com\jmix\executor\imodel\ModuleType.java` |
+| `src/main/java\com\jmix\executor\imodel\Programmable.java` |
+| `src/main/java\com\jmix\executor\omodel\Result.java` |
+| `src/main/java\com\jmix\executor\imodel\Part.java` |
+| `src/main/java\com\jmix\executor\imodel\Para.java` |
+| `src/main/java\com\jmix\executor\impl\algmodel\AlgCPModel.java` |
+| `src/main/java\com\jmix\executor\impl\ModuleConstraintExecutorImpl.java` |
+| `src/main/java\com\jmix\executor\impl\ModuleBuilder.java` |
+| `src/main/java\com\jmix\executor\imodel\Extensible.java` |
+| `src/main/java\com\jmix\tool\artifact\PartVarInfo.java` |
+| `src/main/java\com\jmix\executor\impl\algmodel\ParaVar.java` |
+| `src/main/java\com\jmix\executor\impl\algmodel\PartVar.java` |
+| `src/main/java\com\jmix\tool\model\StructCodeInjector.java` |
+| `src/main/java\com\jmix\tool\model\CommHelper.java` |
+| `src/main/java\com\jmix\tool\model\ModelHelper.java` |
+| `src/main/java\com\jmix\executor\impl\util\ParaTypeHandler.java` |
+| `src/main/java\com\jmix\executor\imodel\Module.java` |
+| `src/main/java\com\jmix\executor\imodel\rule\RuleTypeConstants.java` |
+| `src/main/java\com\jmix\tool\artifact\VarInfo.java` |
+| `src/main/java\com\jmix\executor\impl\ModuleRefRelationGraph.java` |
+| `src/main/java\com\jmix\executor\impl\algmodel\OtherVar.java` |
+| `src/main/java\com\jmix\tool\model\ProgObject.java` |
+| `src/main/java\com\jmix\executor\impl\algmodel\ParaOptionVar.java` |
+| `src/main/java\com\jmix\executor\imodel\ProgrammableObject.java` |
+| `src/main/java\com\jmix\executor\imodel\rule\ExprSchema.java` |
+| `src/main/java\com\jmix\executor\imodel\rule\RefProgObjSchema.java` |
+| `src/main/java\com\jmix\executor\imodel\ParaOption.java` |
+| `src/main/java\com\jmix\executor\omodel\InferParasPostProcess.java` |
+| `src/main/java\com\jmix\executor\omodel\ExtensibleProcess.java` |
+| `src/main/java\com\jmix\executor\imodel\rule\RuleSchema.java` |
+| `src/main/java\com\jmix\executor\omodel\InferParasReq.java` |
+| `src/main/java\com\jmix\executor\imodel\rule\CompatiableRuleSchema.java` |
+| `src/main/java\com\jmix\executor\imodel\ModuleAlgArtifact.java` |
+| `src/main/java\com\jmix\executor\imodel\AttrSchema.java` |
+| `src/main/java\com\jmix\tool\model\CompatiableRuleAnno.java` |
+| `src/main/java\com\jmix\executor\imodel\ConstraintConfig.java` |
+| `src/main/java\com\jmix\tool\model\ParaAnno.java` |
+| `src/main/java\com\jmix\tool\ModuleUtils.java` |
+| `src/main/java\com\jmix\tool\model\CodeRuleAnno.java` |
+| `src/main/java\com\jmix\tool\model\PromptTemplateLoader.java` |
+| `src/main/java\com\jmix\tool\model\ModuleAnno.java` |
+| `src/main/java\com\jmix\executor\imodel\Rule.java` |
+| `src/main/java\com\jmix\executor\omodel\ParaInst.java` |
+| `src/main/java\com\jmix\tool\model\PartAnno.java` |
+| `src/main/java\com\jmix\executor\impl\algmodel\ConstraintAlg.java` |
+| `src/main/java\com\jmix\executor\ModuleConstraintExecutor.java` |
+| `src/main/java\com\jmix\executor\impl\util\Pair.java` |
+| `src/main/java\com\jmix\executor\omodel\PartInst.java` |
+| `src/main/java\com\jmix\executor\omodel\AlgExecutorException.java` |
+| `src/main/java\com\jmix\executor\omodel\AlgLoaderException.java` |
+
+
+</details>
 
 ---
 
@@ -4464,9 +5456,44 @@ Tool use: **grep**
 
 Tool use: **grep**
 
+<details>
+<summary>Grep for "\*/\s*$" in "src/main/java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `*/` | L13 |
+| `*/` | L19 |
+| `*/` | L26 |
+| `*/` | L39 |
+| `*/` | L13 |
+
+
+</details>
+
 ---
 
 Tool use: **grep**
+
+<details>
+<summary>Grep for "class\s+\w+" in "src/main/java" • 6 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `public class CalculateRuleSchema extends RuleSchema \{` | L16 |
+| `public abstract class Var<T extends Programmable> implements Programmable \{` | L14 |
+| `public final class ModuleGenneratorByAnno \{` | L38 |
+| `throw new UnsupportedOperationException("Utility class cannot be instantiated");` | L43 |
+| `public class LLMInvoker \{` | L26 |
+| `public abstract class ConstraintAlgImpl implements ConstraintAlg \{` | L40 |
+
+
+</details>
 
 ---
 
@@ -4499,9 +5526,44 @@ Tool use: **codebase_search**
 
 Tool use: **grep**
 
+<details>
+<summary>Grep for "^public\s+(class|interface|enum)\s+\w+" in "src/main/java" • 2 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `public class CalculateRuleSchema extends RuleSchema \{` | L16 |
+| `public class LLMInvoker \{` | L26 |
+
+
+</details>
+
 ---
 
 Tool use: **grep**
+
+<details>
+<summary>Grep for "^/\*\*$" in "src/main/java" • 9 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `/**` | L9 |
+| `/**` | L7 |
+| `/**` | L33 |
+| `/**` | L20 |
+| `/**` | L10 |
+| `/**` | L11 |
+| `/**` | L9 |
+| `/**` | L3 |
+| `/**` | L8 |
+
+
+</details>
 
 ---
 
@@ -4522,6 +5584,84 @@ Read file: src/main/java/com/jmix/tool/artifact/ModuleAlgArtifactGenerator.java
 ---
 
 Tool use: **glob_file_search**
+
+<details>
+<summary>Searched codebase "**/*.java" • **68** results in **1** directory</summary>
+
+Directory: **d:\01.code\mygithub\jmixconfigengine\src\main\java** (68 files)
+
+| File |
+|------|
+| `com\jmix\executor\imodel\rule\CalculateRuleSchema.java` |
+| `com\jmix\executor\impl\algmodel\Var.java` |
+| `com\jmix\tool\model\ModuleGenneratorByAnno.java` |
+| `com\jmix\tool\model\LLMInvoker.java` |
+| `com\jmix\executor\impl\algmodel\ConstraintAlgImpl.java` |
+| `com\jmix\executor\impl\ModuleInstSolutionCallBack.java` |
+| `com\jmix\tool\artifact\ModuleAlgArtifactGenerator.java` |
+| `com\jmix\executor\impl\util\FilterExpressionExecutor.java` |
+| `com\jmix\tool\artifact\RuleInfo.java` |
+| `com\jmix\executor\omodel\ModuleInst.java` |
+| `com\jmix\executor\imodel\rule\SelectRuleSchema.java` |
+| `com\jmix\executor\imodel\ParaType.java` |
+| `com\jmix\tool\artifact\ParaOptionVarInfo.java` |
+| `com\jmix\tool\artifact\ModuleVarInfo.java` |
+| `com\jmix\tool\artifact\ParaVarInfo.java` |
+| `com\jmix\executor\impl\ModuleAlgClassLoader.java` |
+| `com\jmix\executor\imodel\PartType.java` |
+| `com\jmix\executor\imodel\ModuleType.java` |
+| `com\jmix\executor\imodel\Programmable.java` |
+| `com\jmix\executor\omodel\Result.java` |
+| `com\jmix\executor\imodel\Part.java` |
+| `com\jmix\executor\imodel\Para.java` |
+| `com\jmix\executor\imodel\rule\CodeRuleSchema.java` |
+| `com\jmix\executor\impl\algmodel\AlgCPModel.java` |
+| `com\jmix\executor\impl\ModuleConstraintExecutorImpl.java` |
+| `com\jmix\executor\impl\ModuleBuilder.java` |
+| `com\jmix\executor\imodel\Extensible.java` |
+| `com\jmix\tool\artifact\PartVarInfo.java` |
+| `com\jmix\executor\impl\algmodel\ParaVar.java` |
+| `com\jmix\executor\impl\algmodel\PartVar.java` |
+| `com\jmix\tool\model\StructCodeInjector.java` |
+| `com\jmix\tool\model\CommHelper.java` |
+| `com\jmix\tool\model\ModelHelper.java` |
+| `com\jmix\executor\impl\util\ParaTypeHandler.java` |
+| `com\jmix\executor\imodel\Module.java` |
+| `com\jmix\executor\imodel\rule\RuleTypeConstants.java` |
+| `com\jmix\tool\artifact\VarInfo.java` |
+| `com\jmix\executor\impl\ModuleRefRelationGraph.java` |
+| `com\jmix\executor\impl\algmodel\OtherVar.java` |
+| `com\jmix\tool\model\ProgObject.java` |
+| `com\jmix\executor\impl\algmodel\ParaOptionVar.java` |
+| `com\jmix\executor\imodel\ProgrammableObject.java` |
+| `com\jmix\executor\imodel\rule\ExprSchema.java` |
+| `com\jmix\executor\imodel\rule\RefProgObjSchema.java` |
+| `com\jmix\executor\imodel\ParaOption.java` |
+| `com\jmix\executor\omodel\InferParasPostProcess.java` |
+| `com\jmix\executor\omodel\ExtensibleProcess.java` |
+| `com\jmix\executor\imodel\rule\RuleSchema.java` |
+| `com\jmix\executor\omodel\InferParasReq.java` |
+| `com\jmix\executor\imodel\rule\CompatiableRuleSchema.java` |
+| `com\jmix\executor\imodel\ModuleAlgArtifact.java` |
+| `com\jmix\executor\imodel\AttrSchema.java` |
+| `com\jmix\tool\model\CompatiableRuleAnno.java` |
+| `com\jmix\executor\imodel\ConstraintConfig.java` |
+| `com\jmix\tool\model\ParaAnno.java` |
+| `com\jmix\tool\ModuleUtils.java` |
+| `com\jmix\tool\model\CodeRuleAnno.java` |
+| `com\jmix\tool\model\PromptTemplateLoader.java` |
+| `com\jmix\tool\model\ModuleAnno.java` |
+| `com\jmix\executor\imodel\Rule.java` |
+| `com\jmix\executor\omodel\ParaInst.java` |
+| `com\jmix\tool\model\PartAnno.java` |
+| `com\jmix\executor\impl\algmodel\ConstraintAlg.java` |
+| `com\jmix\executor\ModuleConstraintExecutor.java` |
+| `com\jmix\executor\impl\util\Pair.java` |
+| `com\jmix\executor\omodel\PartInst.java` |
+| `com\jmix\executor\omodel\AlgLoaderException.java` |
+| `com\jmix\executor\omodel\AlgExecutorException.java` |
+
+</details>
 
 ---
 
@@ -4581,6 +5721,506 @@ Lines added: 2, lines removed: undefined
 
 Tool use: **grep**
 
+<details>
+<summary>Grep for "/\*\*[\s\S]*?\*/.*?(public\s+(class|interface|enum))" in "src/main/java" • 488 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `/**` | L33 |
+| `* 模块算法制品生成器` | L34 |
+| `* 每个Module都需要新建一个实例来处理` | L35 |
+| `*` | L36 |
+| `* generator.buildConstraintRule(module, "output/constraint.java");` | L37 |
+| `* </pre>` | L38 |
+| `*` | L39 |
+| `* 主要特性：` | L40 |
+| `* 1. 每个Module都需要新建一个实例，避免状态混乱` | L41 |
+| `* 2. 提供paraMaps和partMaps映射表，简化内部处理` | L42 |
+| `* 3. 支持快速查找参数和部件` | L43 |
+| `* 4. 提供便利的getter方法访问内部状态` | L44 |
+| `*` | L45 |
+| `* @since 2025-09-23` | L46 |
+| `*/` | L47 |
+| `@Slf4j` | L48 |
+| `public class ModuleAlgArtifactGenerator \{` | L49 |
+| `/**` | L9 |
+| `* 选择规则Schema` | L10 |
+| `*` | L11 |
+| `* @since 2025-09-23` | L12 |
+| `*/` | L13 |
+| `@Data` | L14 |
+| `@EqualsAndHashCode(callSuper = true)` | L15 |
+| `public class SelectRuleSchema extends RuleSchema \{` | L16 |
+| `/**` | L9 |
+| `* 计算规则Schema` | L10 |
+| `*` | L11 |
+| `* @since 2025-09-23` | L12 |
+| `*/` | L13 |
+| `@Data` | L14 |
+| `@EqualsAndHashCode(callSuper = true)` | L15 |
+| `public class CalculateRuleSchema extends RuleSchema \{` | L16 |
+| `/**` | L19 |
+| `* LLM调用框架` | L20 |
+| `* 支持DeepSeek和Qwen两种模型，提供统一的LLM调用接口` | L21 |
+| `* 兼容langchain4j 1.3.0` | L22 |
+| `*` | L23 |
+| `* @since 2025-09-22` | L24 |
+| `*/` | L25 |
+| `public class LLMInvoker \{` | L26 |
+| `/**` | L24 |
+| `* 模块实例解决方案回调类` | L25 |
+| `* 继承CpSolverSolutionCallback，用于处理约束求解过程中的解决方案回调` | L26 |
+| `*` | L27 |
+| `* @since 2025-09-22` | L28 |
+| `*/` | L29 |
+| `@Slf4j` | L30 |
+| `public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback \{` | L31 |
+| `/**` | L10 |
+| `* 规则信息` | L11 |
+| `* 包含规则的变量信息，用于代码生成` | L12 |
+| `*` | L13 |
+| `* @since 2025-09-22` | L14 |
+| `*/` | L15 |
+| `@Data` | L16 |
+| `public class RuleInfo \{` | L17 |
+| `/**` | L11 |
+| `* 模块实例类` | L12 |
+| `* 表示模块的一个具体实例，包含参数实例和部件实例` | L13 |
+| `*` | L14 |
+| `* @since 2025-09-22` | L15 |
+| `*/` | L16 |
+| `@Data` | L17 |
+| `public class ModuleInst \{` | L18 |
+| `/**` | L3 |
+| `* 参数类型枚举` | L4 |
+| `* 定义参数支持的数据类型` | L5 |
+| `*` | L6 |
+| `* @since 2025-09-22` | L7 |
+| `*/` | L8 |
+| `public enum ParaType \{` | L9 |
+| `/**` | L8 |
+| `* 参数选项信息` | L9 |
+| `* 包含参数选项的变量信息，用于代码生成` | L10 |
+| `*` | L11 |
+| `* @since 2025-09-22` | L12 |
+| `*/` | L13 |
+| `@Data` | L14 |
+| `@EqualsAndHashCode(callSuper = true)` | L15 |
+| `public class ParaOptionVarInfo extends VarInfo<ParaOption> \{` | L16 |
+| `/**` | L14 |
+| `* 模块变量信息类` | L15 |
+| `* 包含模块的所有变量信息，用于代码生成` | L16 |
+| `*` | L17 |
+| `* @since 2025-09-22` | L18 |
+| `*/` | L19 |
+| `@Data` | L20 |
+| `@EqualsAndHashCode(callSuper = true)` | L21 |
+| `public class ModuleVarInfo extends VarInfo<Module> \{` | L22 |
+| `/**` | L11 |
+| `* 参数变量信息类` | L12 |
+| `* 包含参数的变量信息，用于代码生成` | L13 |
+| `*` | L14 |
+| `* @since 2025-09-22` | L15 |
+| `*/` | L16 |
+| `@Data` | L17 |
+| `@EqualsAndHashCode(callSuper = true)` | L18 |
+| `public class ParaVarInfo extends VarInfo<Para> \{` | L19 |
+| `/**` | L10 |
+| `* 模块算法类加载器` | L11 |
+| `* 负责动态加载和实例化约束算法类` | L12 |
+| `*` | L13 |
+| `* @since 2025-09-22` | L14 |
+| `*/` | L15 |
+| `public class ModuleAlgClassLoader extends ClassLoader \{` | L16 |
+| `/**` | L3 |
+| `* 部件类型枚举` | L4 |
+| `* 定义部件支持的类型` | L5 |
+| `*` | L6 |
+| `* @since 2025-09-22` | L7 |
+| `*/` | L8 |
+| `public enum PartType \{` | L9 |
+| `/**` | L3 |
+| `* 模块类型枚举` | L4 |
+| `* 定义模块支持的类型` | L5 |
+| `*` | L6 |
+| `* @since 2025-09-22` | L7 |
+| `*/` | L8 |
+| `public enum ModuleType \{` | L9 |
+| `/**` | L3 |
+| `* 可编程对象接口` | L4 |
+| `* 定义可编程对象的基本行为` | L5 |
+| `*` | L6 |
+| `* @since 2025-09-22` | L7 |
+| `*/` | L8 |
+| `public interface Programmable \{` | L9 |
+| `/**` | L9 |
+| `* 结果类` | L10 |
+| `* 用于封装操作结果，包含状态码、数据和消息` | L11 |
+| `*` | L12 |
+| `* @since 2025-09-22` | L13 |
+| `*/` | L14 |
+| `@Data` | L15 |
+| `@AllArgsConstructor` | L16 |
+| `@NoArgsConstructor` | L17 |
+| `public class Result<T> \{` | L18 |
+| `/**` | L13 |
+| `* 部件定义` | L14 |
+| `* 表示模块中的部件，支持原子部件和复合部件` | L15 |
+| `*` | L16 |
+| `* @since 2025-09-22` | L17 |
+| `*/` | L18 |
+| `@Data` | L19 |
+| `@EqualsAndHashCode(callSuper = true)` | L20 |
+| `public class Part extends ProgrammableObject<Integer> \{` | L21 |
+| `/**` | L12 |
+| `* 参数定义` | L13 |
+| `* 表示模块中的参数，支持多种类型（枚举、整数、字符串等）` | L14 |
+| `*` | L15 |
+| `* @since 2025-09-22` | L16 |
+| `*/` | L17 |
+| `@Data` | L18 |
+| `@EqualsAndHashCode(callSuper = true)` | L19 |
+| `public class Para extends ProgrammableObject<String> \{` | L20 |
+| `/**` | L9 |
+| `* 代码规则Schema` | L10 |
+| `* 用于表示没有结构化的规则，代码是Code（需要手工转化为约束规则）` | L11 |
+| `*/` | L12 |
+| `@Data` | L13 |
+| `@EqualsAndHashCode(callSuper = true)` | L14 |
+| `public class CodeRuleSchema extends RuleSchema \{` | L15 |
+| `/**` | L21 |
+| `* 对CpModel接口的封装，实现变量注册等封装` | L22 |
+| `* 实现对CpModel接口封装，类似测试代码调用model的代码都不需要修改（如：model.addBoolAnd)` | L23 |
+| `*` | L24 |
+| `* @since 2025-09-22` | L25 |
+| `*/` | L26 |
+| `@Slf4j` | L27 |
+| `@Data` | L28 |
+| `public class AlgCPModel \{` | L29 |
+| `/**` | L34 |
+| `* 模块约束执行器实现类` | L35 |
+| `* 实现ModuleConstraintExecutor接口，提供约束求解的核心功能` | L36 |
+| `*` | L37 |
+| `* @since 2025-09-22` | L38 |
+| `*/` | L39 |
+| `@Slf4j` | L40 |
+| `public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor \{` | L41 |
+| `/**` | L12 |
+| `* 统一模块构建器，支持流式创建各种模型对象` | L13 |
+| `* 减少类的数量，提供统一的构建接口` | L14 |
+| `*` | L15 |
+| `* @author JMix Config Engine` | L16 |
+| `* @since 2025-09-22` | L17 |
+| `*/` | L18 |
+| `public class ModuleBuilder \{` | L19 |
+| `/**` | L10 |
+| `* 可扩展对象基类` | L11 |
+| `* 提供扩展属性的基础功能` | L12 |
+| `*` | L13 |
+| `* @since 2025-09-22` | L14 |
+| `*/` | L15 |
+| `@Data` | L16 |
+| `public class Extensible \{` | L17 |
+| `/**` | L8 |
+| `* 部件变量信息类` | L9 |
+| `* 包含部件的变量信息，用于代码生成` | L10 |
+| `*` | L11 |
+| `* @since 2025-09-22` | L12 |
+| `*/` | L13 |
+| `@Data` | L14 |
+| `@EqualsAndHashCode(callSuper = true)` | L15 |
+| `public class PartVarInfo extends VarInfo<Part> \{` | L16 |
+| `/**` | L18 |
+| `* 参数变量` | L19 |
+| `* 表示约束求解中的参数变量，包含值、选项和隐藏状态` | L20 |
+| `*` | L21 |
+| `* @since 2025-09-22` | L22 |
+| `*/` | L23 |
+| `@Data` | L24 |
+| `@EqualsAndHashCode(callSuper = true)` | L25 |
+| `public class ParaVar extends Var<Para> \{` | L26 |
+| `/**` | L15 |
+| `* 部件变量` | L16 |
+| `* 表示约束求解中的部件变量，包含数量和隐藏状态` | L17 |
+| `*` | L18 |
+| `* @since 2025-09-22` | L19 |
+| `*/` | L20 |
+| `@Data` | L21 |
+| `@EqualsAndHashCode(callSuper = true)` | L22 |
+| `public class PartVar extends Var<Part> \{` | L23 |
+| `/**` | L18 |
+| `* 结构化代码注入器` | L19 |
+| `* 生成方法体片段并写回源文件，通过文本方式定位方法体，使用标记进行幂等替换` | L20 |
+| `*` | L21 |
+| `* @since 2025-09-22` | L22 |
+| `*/` | L23 |
+| `@Slf4j` | L24 |
+| `public class StructCodeInjector \{` | L25 |
+| `/**` | L7 |
+| `* 通用工具类` | L8 |
+| `* 提供测试场景中常用的工具方法` | L9 |
+| `*` | L10 |
+| `* @since 2025-09-22` | L11 |
+| `*/` | L12 |
+| `@Slf4j` | L13 |
+| `public class CommHelper \{` | L14 |
+| `/**` | L17 |
+| `* 模型文件生成器` | L18 |
+| `* 用于根据用户输入生成测试代码文件` | L19 |
+| `*` | L20 |
+| `* @since 2025-09-22` | L21 |
+| `*/` | L22 |
+| `@Slf4j` | L23 |
+| `public class ModelHelper \{` | L24 |
+| `/**` | L10 |
+| `* Para类型处理工具类` | L11 |
+| `* 用于处理Para类型相关的逻辑，避免代码重复` | L12 |
+| `*` | L13 |
+| `* @since 2025-09-22` | L14 |
+| `*/` | L15 |
+| `public class ParaTypeHandler \{` | L16 |
+| `/**` | L19 |
+| `* 模块定义` | L20 |
+| `* 表示一个完整的约束模块，包含参数、部件和规则` | L21 |
+| `*` | L22 |
+| `* @since 2025-09-22` | L23 |
+| `*/` | L24 |
+| `@Data` | L25 |
+| `@EqualsAndHashCode(callSuper = true)` | L26 |
+| `public class Module extends ProgrammableObject<Integer> \{` | L27 |
+| `/**` | L7 |
+| `* 变量信息基类` | L8 |
+| `* 所有变量信息类的基类，提供通用的变量信息结构` | L9 |
+| `*` | L10 |
+| `* @param <T> 扩展对象类型` | L11 |
+| `* @since 2025-09-22` | L12 |
+| `*/` | L13 |
+| `@Data` | L14 |
+| `public class VarInfo<T extends Extensible> \{` | L15 |
+| `/**` | L18 |
+| `* 模块引用关系图` | L19 |
+| `* 用于管理模块中规则之间的依赖关系` | L20 |
+| `*` | L21 |
+| `* 设计说明：` | L22 |
+| `* - 每个编程对象(progObjCode)是一个节点(Node)` | L23 |
+| `* - 每个规则(edgeRuleCode)是边上的信息` | L24 |
+| `* - 支持一个规则对应多个左侧节点的情况` | L25 |
+| `*` | L26 |
+| `* @since 2025-09-22` | L27 |
+| `*/` | L28 |
+| `@Slf4j` | L29 |
+| `public class ModuleRefRelationGraph \{` | L30 |
+| `/**` | L7 |
+| `* 其他变量类，用于记录非ParaVar和PartVar的变量` | L8 |
+| `* 用于存储约束求解过程中的辅助变量` | L9 |
+| `*` | L10 |
+| `* @since 2025-09-22` | L11 |
+| `*/` | L12 |
+| `@Data` | L13 |
+| `public class OtherVar \{` | L14 |
+| `/**` | L3 |
+| `* 编程对象，用于解析代码中的对象引用` | L4 |
+| `*` | L5 |
+| `* @since 2025-09-22` | L6 |
+| `*/` | L7 |
+| `public class ProgObject \{` | L8 |
+| `/**` | L11 |
+| `* 参数选项变量` | L12 |
+| `* 用于表示参数选项的选中状态和相关信息` | L13 |
+| `*` | L14 |
+| `* @since 2025-09-22` | L15 |
+| `*/` | L16 |
+| `@Data` | L17 |
+| `@EqualsAndHashCode(callSuper = true)` | L18 |
+| `public class ParaOptionVar extends Var<ParaOption> \{` | L19 |
+| `/**` | L10 |
+| `* 可编程对象基类（兼容命名：ProgramableObject → ProgrammableObject）` | L11 |
+| `* 提供可编程对象的基础功能` | L12 |
+| `*` | L13 |
+| `* @param <T> 值类型` | L14 |
+| `* @since 2025-09-22` | L15 |
+| `*/` | L16 |
+| `@Data` | L17 |
+| `@EqualsAndHashCode(callSuper = true)` | L18 |
+| `@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@type")` | L19 |
+| `@JsonSubTypes(\{` | L20 |
+| `@JsonSubTypes.Type(value = Module.class, name = "Module"),` | L21 |
+| `@JsonSubTypes.Type(value = Para.class, name = "Para"),` | L22 |
+| `@JsonSubTypes.Type(value = Part.class, name = "Part"),` | L23 |
+| `@JsonSubTypes.Type(value = ParaOption.class, name = "ParaOption")` | L24 |
+| `\})` | L25 |
+| `public class ProgrammableObject<T> extends Extensible implements Programmable \{` | L26 |
+| `/**` | L10 |
+| `* 表达式Schema` | L11 |
+| `* 定义规则中的表达式结构` | L12 |
+| `*` | L13 |
+| `* @since 2025-09-22` | L14 |
+| `*/` | L15 |
+| `@Data` | L16 |
+| `@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@type")` | L17 |
+| `@JsonSubTypes(\{` | L18 |
+| `@JsonSubTypes.Type(value = ExprSchema.class, name = "ExprSchema")` | L19 |
+| `\})` | L20 |
+| `public class ExprSchema \{` | L21 |
+| `/**` | L8 |
+| `* 编程对象引用Schema` | L9 |
+| `* 定义规则中对编程对象的引用` | L10 |
+| `*` | L11 |
+| `* @since 2025-09-22` | L12 |
+| `*/` | L13 |
+| `@Data` | L14 |
+| `@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@type")` | L15 |
+| `@JsonSubTypes(\{` | L16 |
+| `@JsonSubTypes.Type(value = RefProgObjSchema.class, name = "RefProgObjSchema")` | L17 |
+| `\})` | L18 |
+| `public class RefProgObjSchema \{` | L19 |
+| `/**` | L6 |
+| `* 参数选项` | L7 |
+| `* 表示参数的一个可选值` | L8 |
+| `*` | L9 |
+| `* @since 2025-09-22` | L10 |
+| `*/` | L11 |
+| `@Data` | L12 |
+| `@EqualsAndHashCode(callSuper = true)` | L13 |
+| `public class ParaOption extends ProgrammableObject<String> \{` | L14 |
+| `/**` | L7 |
+| `* 参数推理后处理接口` | L8 |
+| `* 在ModuleConstraintExecutor.inferParas执行完成后，对结果进行后处理` | L9 |
+| `*` | L10 |
+| `* @since 2025-09-22` | L11 |
+| `*/` | L12 |
+| `public interface InferParasPostProcess \{` | L13 |
+| `/**` | L7 |
+| `* 推理参数请求类` | L8 |
+| `* 包含参数推理所需的所有输入信息` | L9 |
+| `*` | L10 |
+| `* @since 2025-09-22` | L11 |
+| `*/` | L12 |
+| `@Data` | L13 |
+| `public class InferParasReq \{` | L14 |
+| `/**` | L9 |
+| `* 兼容规则Schema` | L10 |
+| `* 定义参数或部件之间的兼容性关系` | L11 |
+| `*` | L12 |
+| `* @since 2025-09-22` | L13 |
+| `*/` | L14 |
+| `@Data` | L15 |
+| `@EqualsAndHashCode(callSuper = true)` | L16 |
+| `@SuppressWarnings("checkstyle:DesignForExtensionCheck")` | L17 |
+| `public class CompatiableRuleSchema extends RuleSchema \{` | L18 |
+| `/**` | L8 |
+| `* 算法制品元数据` | L9 |
+| `* 包含算法制品的元数据信息` | L10 |
+| `*` | L11 |
+| `* @since 2025-09-22` | L12 |
+| `*/` | L13 |
+| `@Data` | L14 |
+| `@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@type")` | L15 |
+| `@JsonSubTypes(\{` | L16 |
+| `@JsonSubTypes.Type(value = ModuleAlgArtifact.class, name = "ModuleAlgArtifact")` | L17 |
+| `\})` | L18 |
+| `public class ModuleAlgArtifact \{` | L19 |
+| `/**` | L5 |
+| `* 属性Schema` | L6 |
+| `* 定义属性的结构和约束` | L7 |
+| `*` | L8 |
+| `* @since 2025-09-22` | L9 |
+| `*/` | L10 |
+| `@Data` | L11 |
+| `public class AttrSchema \{` | L12 |
+| `/**` | L5 |
+| `* 约束配置类` | L6 |
+| `* 包含约束求解器的配置信息` | L7 |
+| `*` | L8 |
+| `* @since 2025-09-22` | L9 |
+| `*/` | L10 |
+| `@Data` | L11 |
+| `public class ConstraintConfig \{` | L12 |
+| `/**` | L17 |
+| `* Module工具类` | L18 |
+| `* 提供Module对象的JSON序列化和反序列化功能` | L19 |
+| `*` | L20 |
+| `* @since 2025-09-22` | L21 |
+| `*/` | L22 |
+| `@Slf4j` | L23 |
+| `final public class ModuleUtils \{` | L24 |
+| `/**` | L13 |
+| `* Prompt模板加载器` | L14 |
+| `* 支持JTL格式的模板文件，使用$\{variable\}语法进行变量替换` | L15 |
+| `*` | L16 |
+| `* @since 2025-09-22` | L17 |
+| `*/` | L18 |
+| `public class PromptTemplateLoader \{` | L19 |
+| `/**` | L16 |
+| `* 规则定义` | L17 |
+| `* 表示模块中的约束规则，支持多种规则类型` | L18 |
+| `*` | L19 |
+| `* @since 2025-09-22` | L20 |
+| `*/` | L21 |
+| `@Data` | L22 |
+| `@EqualsAndHashCode(callSuper = true)` | L23 |
+| `@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@type")` | L24 |
+| `@JsonSubTypes(\{` | L25 |
+| `@JsonSubTypes.Type(value = Rule.class, name = "Rule")` | L26 |
+| `\})` | L27 |
+| `public class Rule extends Extensible \{` | L28 |
+| `/**` | L10 |
+| `* 参数实例类` | L11 |
+| `* 表示参数的一个具体实例，包含参数值和选项` | L12 |
+| `*` | L13 |
+| `* @since 2025-09-22` | L14 |
+| `*/` | L15 |
+| `@Data` | L16 |
+| `public class ParaInst \{` | L17 |
+| `/**` | L3 |
+| `* 约束算法接口` | L4 |
+| `*` | L5 |
+| `* @since 2025-09-22` | L6 |
+| `*/` | L7 |
+| `public interface ConstraintAlg \{` | L8 |
+| `/**` | L13 |
+| `* 模块约束执行器单例类` | L14 |
+| `* 提供全局访问点，外部只能通过此接口访问功能` | L15 |
+| `*` | L16 |
+| `* @since 2025-9-21` | L17 |
+| `*/` | L18 |
+| `public interface ModuleConstraintExecutor \{` | L19 |
+| `/**` | L6 |
+| `* 简单的Pair类，用于替代Apache Commons的Pair` | L7 |
+| `*` | L8 |
+| `* @since 2025-09-22` | L9 |
+| `*/` | L10 |
+| `@Data` | L11 |
+| `@AllArgsConstructor` | L12 |
+| `public class Pair<L, R> \{` | L13 |
+| `/**` | L10 |
+| `* 部件实例类` | L11 |
+| `*` | L12 |
+| `* @since 2025-9-21` | L13 |
+| `*/` | L14 |
+| `@Data` | L15 |
+| `public class PartInst \{` | L16 |
+| `/**` | L3 |
+| `* 算法加载器异常` | L4 |
+| `* 当算法加载过程中发生错误时抛出此异常` | L5 |
+| `*` | L6 |
+| `* @since 1.0` | L7 |
+| `*/` | L8 |
+| `public class AlgLoaderException extends RuntimeException \{` | L9 |
+| `/**` | L3 |
+| `* 算法执行器异常` | L4 |
+| `* 当算法执行过程中发生错误时抛出此异常` | L5 |
+| `*` | L6 |
+| `* @since 1.0` | L7 |
+| `*/` | L8 |
+| `public class AlgExecutorException extends RuntimeException \{` | L9 |
+
+
+</details>
+
 ---
 
 通过搜索发现很多类都缺少 `@since` 标签。让我创建一个更有针对性的搜索来快速找到所有缺少 `@since` 标签的类。
@@ -4588,6 +6228,506 @@ Tool use: **grep**
 ---
 
 Tool use: **grep**
+
+<details>
+<summary>Grep for "/\*\*[\s\S]*?\*/.*?(public\s+(class|interface|enum))" in "src/main/java" • 488 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `/**` | L33 |
+| `* 模块算法制品生成器` | L34 |
+| `* 每个Module都需要新建一个实例来处理` | L35 |
+| `*` | L36 |
+| `* generator.buildConstraintRule(module, "output/constraint.java");` | L37 |
+| `* </pre>` | L38 |
+| `*` | L39 |
+| `* 主要特性：` | L40 |
+| `* 1. 每个Module都需要新建一个实例，避免状态混乱` | L41 |
+| `* 2. 提供paraMaps和partMaps映射表，简化内部处理` | L42 |
+| `* 3. 支持快速查找参数和部件` | L43 |
+| `* 4. 提供便利的getter方法访问内部状态` | L44 |
+| `*` | L45 |
+| `* @since 2025-09-23` | L46 |
+| `*/` | L47 |
+| `@Slf4j` | L48 |
+| `public class ModuleAlgArtifactGenerator \{` | L49 |
+| `/**` | L9 |
+| `* 选择规则Schema` | L10 |
+| `*` | L11 |
+| `* @since 2025-09-23` | L12 |
+| `*/` | L13 |
+| `@Data` | L14 |
+| `@EqualsAndHashCode(callSuper = true)` | L15 |
+| `public class SelectRuleSchema extends RuleSchema \{` | L16 |
+| `/**` | L9 |
+| `* 计算规则Schema` | L10 |
+| `*` | L11 |
+| `* @since 2025-09-23` | L12 |
+| `*/` | L13 |
+| `@Data` | L14 |
+| `@EqualsAndHashCode(callSuper = true)` | L15 |
+| `public class CalculateRuleSchema extends RuleSchema \{` | L16 |
+| `/**` | L19 |
+| `* LLM调用框架` | L20 |
+| `* 支持DeepSeek和Qwen两种模型，提供统一的LLM调用接口` | L21 |
+| `* 兼容langchain4j 1.3.0` | L22 |
+| `*` | L23 |
+| `* @since 2025-09-22` | L24 |
+| `*/` | L25 |
+| `public class LLMInvoker \{` | L26 |
+| `/**` | L24 |
+| `* 模块实例解决方案回调类` | L25 |
+| `* 继承CpSolverSolutionCallback，用于处理约束求解过程中的解决方案回调` | L26 |
+| `*` | L27 |
+| `* @since 2025-09-22` | L28 |
+| `*/` | L29 |
+| `@Slf4j` | L30 |
+| `public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback \{` | L31 |
+| `/**` | L10 |
+| `* 规则信息` | L11 |
+| `* 包含规则的变量信息，用于代码生成` | L12 |
+| `*` | L13 |
+| `* @since 2025-09-22` | L14 |
+| `*/` | L15 |
+| `@Data` | L16 |
+| `public class RuleInfo \{` | L17 |
+| `/**` | L11 |
+| `* 模块实例类` | L12 |
+| `* 表示模块的一个具体实例，包含参数实例和部件实例` | L13 |
+| `*` | L14 |
+| `* @since 2025-09-22` | L15 |
+| `*/` | L16 |
+| `@Data` | L17 |
+| `public class ModuleInst \{` | L18 |
+| `/**` | L3 |
+| `* 参数类型枚举` | L4 |
+| `* 定义参数支持的数据类型` | L5 |
+| `*` | L6 |
+| `* @since 2025-09-22` | L7 |
+| `*/` | L8 |
+| `public enum ParaType \{` | L9 |
+| `/**` | L8 |
+| `* 参数选项信息` | L9 |
+| `* 包含参数选项的变量信息，用于代码生成` | L10 |
+| `*` | L11 |
+| `* @since 2025-09-22` | L12 |
+| `*/` | L13 |
+| `@Data` | L14 |
+| `@EqualsAndHashCode(callSuper = true)` | L15 |
+| `public class ParaOptionVarInfo extends VarInfo<ParaOption> \{` | L16 |
+| `/**` | L14 |
+| `* 模块变量信息类` | L15 |
+| `* 包含模块的所有变量信息，用于代码生成` | L16 |
+| `*` | L17 |
+| `* @since 2025-09-22` | L18 |
+| `*/` | L19 |
+| `@Data` | L20 |
+| `@EqualsAndHashCode(callSuper = true)` | L21 |
+| `public class ModuleVarInfo extends VarInfo<Module> \{` | L22 |
+| `/**` | L11 |
+| `* 参数变量信息类` | L12 |
+| `* 包含参数的变量信息，用于代码生成` | L13 |
+| `*` | L14 |
+| `* @since 2025-09-22` | L15 |
+| `*/` | L16 |
+| `@Data` | L17 |
+| `@EqualsAndHashCode(callSuper = true)` | L18 |
+| `public class ParaVarInfo extends VarInfo<Para> \{` | L19 |
+| `/**` | L10 |
+| `* 模块算法类加载器` | L11 |
+| `* 负责动态加载和实例化约束算法类` | L12 |
+| `*` | L13 |
+| `* @since 2025-09-22` | L14 |
+| `*/` | L15 |
+| `public class ModuleAlgClassLoader extends ClassLoader \{` | L16 |
+| `/**` | L3 |
+| `* 部件类型枚举` | L4 |
+| `* 定义部件支持的类型` | L5 |
+| `*` | L6 |
+| `* @since 2025-09-22` | L7 |
+| `*/` | L8 |
+| `public enum PartType \{` | L9 |
+| `/**` | L3 |
+| `* 模块类型枚举` | L4 |
+| `* 定义模块支持的类型` | L5 |
+| `*` | L6 |
+| `* @since 2025-09-22` | L7 |
+| `*/` | L8 |
+| `public enum ModuleType \{` | L9 |
+| `/**` | L3 |
+| `* 可编程对象接口` | L4 |
+| `* 定义可编程对象的基本行为` | L5 |
+| `*` | L6 |
+| `* @since 2025-09-22` | L7 |
+| `*/` | L8 |
+| `public interface Programmable \{` | L9 |
+| `/**` | L9 |
+| `* 结果类` | L10 |
+| `* 用于封装操作结果，包含状态码、数据和消息` | L11 |
+| `*` | L12 |
+| `* @since 2025-09-22` | L13 |
+| `*/` | L14 |
+| `@Data` | L15 |
+| `@AllArgsConstructor` | L16 |
+| `@NoArgsConstructor` | L17 |
+| `public class Result<T> \{` | L18 |
+| `/**` | L13 |
+| `* 部件定义` | L14 |
+| `* 表示模块中的部件，支持原子部件和复合部件` | L15 |
+| `*` | L16 |
+| `* @since 2025-09-22` | L17 |
+| `*/` | L18 |
+| `@Data` | L19 |
+| `@EqualsAndHashCode(callSuper = true)` | L20 |
+| `public class Part extends ProgrammableObject<Integer> \{` | L21 |
+| `/**` | L12 |
+| `* 参数定义` | L13 |
+| `* 表示模块中的参数，支持多种类型（枚举、整数、字符串等）` | L14 |
+| `*` | L15 |
+| `* @since 2025-09-22` | L16 |
+| `*/` | L17 |
+| `@Data` | L18 |
+| `@EqualsAndHashCode(callSuper = true)` | L19 |
+| `public class Para extends ProgrammableObject<String> \{` | L20 |
+| `/**` | L9 |
+| `* 代码规则Schema` | L10 |
+| `* 用于表示没有结构化的规则，代码是Code（需要手工转化为约束规则）` | L11 |
+| `*/` | L12 |
+| `@Data` | L13 |
+| `@EqualsAndHashCode(callSuper = true)` | L14 |
+| `public class CodeRuleSchema extends RuleSchema \{` | L15 |
+| `/**` | L21 |
+| `* 对CpModel接口的封装，实现变量注册等封装` | L22 |
+| `* 实现对CpModel接口封装，类似测试代码调用model的代码都不需要修改（如：model.addBoolAnd)` | L23 |
+| `*` | L24 |
+| `* @since 2025-09-22` | L25 |
+| `*/` | L26 |
+| `@Slf4j` | L27 |
+| `@Data` | L28 |
+| `public class AlgCPModel \{` | L29 |
+| `/**` | L34 |
+| `* 模块约束执行器实现类` | L35 |
+| `* 实现ModuleConstraintExecutor接口，提供约束求解的核心功能` | L36 |
+| `*` | L37 |
+| `* @since 2025-09-22` | L38 |
+| `*/` | L39 |
+| `@Slf4j` | L40 |
+| `public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor \{` | L41 |
+| `/**` | L12 |
+| `* 统一模块构建器，支持流式创建各种模型对象` | L13 |
+| `* 减少类的数量，提供统一的构建接口` | L14 |
+| `*` | L15 |
+| `* @author JMix Config Engine` | L16 |
+| `* @since 2025-09-22` | L17 |
+| `*/` | L18 |
+| `public class ModuleBuilder \{` | L19 |
+| `/**` | L10 |
+| `* 可扩展对象基类` | L11 |
+| `* 提供扩展属性的基础功能` | L12 |
+| `*` | L13 |
+| `* @since 2025-09-22` | L14 |
+| `*/` | L15 |
+| `@Data` | L16 |
+| `public class Extensible \{` | L17 |
+| `/**` | L8 |
+| `* 部件变量信息类` | L9 |
+| `* 包含部件的变量信息，用于代码生成` | L10 |
+| `*` | L11 |
+| `* @since 2025-09-22` | L12 |
+| `*/` | L13 |
+| `@Data` | L14 |
+| `@EqualsAndHashCode(callSuper = true)` | L15 |
+| `public class PartVarInfo extends VarInfo<Part> \{` | L16 |
+| `/**` | L18 |
+| `* 参数变量` | L19 |
+| `* 表示约束求解中的参数变量，包含值、选项和隐藏状态` | L20 |
+| `*` | L21 |
+| `* @since 2025-09-22` | L22 |
+| `*/` | L23 |
+| `@Data` | L24 |
+| `@EqualsAndHashCode(callSuper = true)` | L25 |
+| `public class ParaVar extends Var<Para> \{` | L26 |
+| `/**` | L15 |
+| `* 部件变量` | L16 |
+| `* 表示约束求解中的部件变量，包含数量和隐藏状态` | L17 |
+| `*` | L18 |
+| `* @since 2025-09-22` | L19 |
+| `*/` | L20 |
+| `@Data` | L21 |
+| `@EqualsAndHashCode(callSuper = true)` | L22 |
+| `public class PartVar extends Var<Part> \{` | L23 |
+| `/**` | L18 |
+| `* 结构化代码注入器` | L19 |
+| `* 生成方法体片段并写回源文件，通过文本方式定位方法体，使用标记进行幂等替换` | L20 |
+| `*` | L21 |
+| `* @since 2025-09-22` | L22 |
+| `*/` | L23 |
+| `@Slf4j` | L24 |
+| `public class StructCodeInjector \{` | L25 |
+| `/**` | L7 |
+| `* 通用工具类` | L8 |
+| `* 提供测试场景中常用的工具方法` | L9 |
+| `*` | L10 |
+| `* @since 2025-09-22` | L11 |
+| `*/` | L12 |
+| `@Slf4j` | L13 |
+| `public class CommHelper \{` | L14 |
+| `/**` | L17 |
+| `* 模型文件生成器` | L18 |
+| `* 用于根据用户输入生成测试代码文件` | L19 |
+| `*` | L20 |
+| `* @since 2025-09-22` | L21 |
+| `*/` | L22 |
+| `@Slf4j` | L23 |
+| `public class ModelHelper \{` | L24 |
+| `/**` | L10 |
+| `* Para类型处理工具类` | L11 |
+| `* 用于处理Para类型相关的逻辑，避免代码重复` | L12 |
+| `*` | L13 |
+| `* @since 2025-09-22` | L14 |
+| `*/` | L15 |
+| `public class ParaTypeHandler \{` | L16 |
+| `/**` | L19 |
+| `* 模块定义` | L20 |
+| `* 表示一个完整的约束模块，包含参数、部件和规则` | L21 |
+| `*` | L22 |
+| `* @since 2025-09-22` | L23 |
+| `*/` | L24 |
+| `@Data` | L25 |
+| `@EqualsAndHashCode(callSuper = true)` | L26 |
+| `public class Module extends ProgrammableObject<Integer> \{` | L27 |
+| `/**` | L7 |
+| `* 变量信息基类` | L8 |
+| `* 所有变量信息类的基类，提供通用的变量信息结构` | L9 |
+| `*` | L10 |
+| `* @param <T> 扩展对象类型` | L11 |
+| `* @since 2025-09-22` | L12 |
+| `*/` | L13 |
+| `@Data` | L14 |
+| `public class VarInfo<T extends Extensible> \{` | L15 |
+| `/**` | L18 |
+| `* 模块引用关系图` | L19 |
+| `* 用于管理模块中规则之间的依赖关系` | L20 |
+| `*` | L21 |
+| `* 设计说明：` | L22 |
+| `* - 每个编程对象(progObjCode)是一个节点(Node)` | L23 |
+| `* - 每个规则(edgeRuleCode)是边上的信息` | L24 |
+| `* - 支持一个规则对应多个左侧节点的情况` | L25 |
+| `*` | L26 |
+| `* @since 2025-09-22` | L27 |
+| `*/` | L28 |
+| `@Slf4j` | L29 |
+| `public class ModuleRefRelationGraph \{` | L30 |
+| `/**` | L7 |
+| `* 其他变量类，用于记录非ParaVar和PartVar的变量` | L8 |
+| `* 用于存储约束求解过程中的辅助变量` | L9 |
+| `*` | L10 |
+| `* @since 2025-09-22` | L11 |
+| `*/` | L12 |
+| `@Data` | L13 |
+| `public class OtherVar \{` | L14 |
+| `/**` | L3 |
+| `* 编程对象，用于解析代码中的对象引用` | L4 |
+| `*` | L5 |
+| `* @since 2025-09-22` | L6 |
+| `*/` | L7 |
+| `public class ProgObject \{` | L8 |
+| `/**` | L11 |
+| `* 参数选项变量` | L12 |
+| `* 用于表示参数选项的选中状态和相关信息` | L13 |
+| `*` | L14 |
+| `* @since 2025-09-22` | L15 |
+| `*/` | L16 |
+| `@Data` | L17 |
+| `@EqualsAndHashCode(callSuper = true)` | L18 |
+| `public class ParaOptionVar extends Var<ParaOption> \{` | L19 |
+| `/**` | L10 |
+| `* 可编程对象基类（兼容命名：ProgramableObject → ProgrammableObject）` | L11 |
+| `* 提供可编程对象的基础功能` | L12 |
+| `*` | L13 |
+| `* @param <T> 值类型` | L14 |
+| `* @since 2025-09-22` | L15 |
+| `*/` | L16 |
+| `@Data` | L17 |
+| `@EqualsAndHashCode(callSuper = true)` | L18 |
+| `@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@type")` | L19 |
+| `@JsonSubTypes(\{` | L20 |
+| `@JsonSubTypes.Type(value = Module.class, name = "Module"),` | L21 |
+| `@JsonSubTypes.Type(value = Para.class, name = "Para"),` | L22 |
+| `@JsonSubTypes.Type(value = Part.class, name = "Part"),` | L23 |
+| `@JsonSubTypes.Type(value = ParaOption.class, name = "ParaOption")` | L24 |
+| `\})` | L25 |
+| `public class ProgrammableObject<T> extends Extensible implements Programmable \{` | L26 |
+| `/**` | L10 |
+| `* 表达式Schema` | L11 |
+| `* 定义规则中的表达式结构` | L12 |
+| `*` | L13 |
+| `* @since 2025-09-22` | L14 |
+| `*/` | L15 |
+| `@Data` | L16 |
+| `@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@type")` | L17 |
+| `@JsonSubTypes(\{` | L18 |
+| `@JsonSubTypes.Type(value = ExprSchema.class, name = "ExprSchema")` | L19 |
+| `\})` | L20 |
+| `public class ExprSchema \{` | L21 |
+| `/**` | L8 |
+| `* 编程对象引用Schema` | L9 |
+| `* 定义规则中对编程对象的引用` | L10 |
+| `*` | L11 |
+| `* @since 2025-09-22` | L12 |
+| `*/` | L13 |
+| `@Data` | L14 |
+| `@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@type")` | L15 |
+| `@JsonSubTypes(\{` | L16 |
+| `@JsonSubTypes.Type(value = RefProgObjSchema.class, name = "RefProgObjSchema")` | L17 |
+| `\})` | L18 |
+| `public class RefProgObjSchema \{` | L19 |
+| `/**` | L6 |
+| `* 参数选项` | L7 |
+| `* 表示参数的一个可选值` | L8 |
+| `*` | L9 |
+| `* @since 2025-09-22` | L10 |
+| `*/` | L11 |
+| `@Data` | L12 |
+| `@EqualsAndHashCode(callSuper = true)` | L13 |
+| `public class ParaOption extends ProgrammableObject<String> \{` | L14 |
+| `/**` | L7 |
+| `* 参数推理后处理接口` | L8 |
+| `* 在ModuleConstraintExecutor.inferParas执行完成后，对结果进行后处理` | L9 |
+| `*` | L10 |
+| `* @since 2025-09-22` | L11 |
+| `*/` | L12 |
+| `public interface InferParasPostProcess \{` | L13 |
+| `/**` | L7 |
+| `* 推理参数请求类` | L8 |
+| `* 包含参数推理所需的所有输入信息` | L9 |
+| `*` | L10 |
+| `* @since 2025-09-22` | L11 |
+| `*/` | L12 |
+| `@Data` | L13 |
+| `public class InferParasReq \{` | L14 |
+| `/**` | L9 |
+| `* 兼容规则Schema` | L10 |
+| `* 定义参数或部件之间的兼容性关系` | L11 |
+| `*` | L12 |
+| `* @since 2025-09-22` | L13 |
+| `*/` | L14 |
+| `@Data` | L15 |
+| `@EqualsAndHashCode(callSuper = true)` | L16 |
+| `@SuppressWarnings("checkstyle:DesignForExtensionCheck")` | L17 |
+| `public class CompatiableRuleSchema extends RuleSchema \{` | L18 |
+| `/**` | L8 |
+| `* 算法制品元数据` | L9 |
+| `* 包含算法制品的元数据信息` | L10 |
+| `*` | L11 |
+| `* @since 2025-09-22` | L12 |
+| `*/` | L13 |
+| `@Data` | L14 |
+| `@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@type")` | L15 |
+| `@JsonSubTypes(\{` | L16 |
+| `@JsonSubTypes.Type(value = ModuleAlgArtifact.class, name = "ModuleAlgArtifact")` | L17 |
+| `\})` | L18 |
+| `public class ModuleAlgArtifact \{` | L19 |
+| `/**` | L5 |
+| `* 属性Schema` | L6 |
+| `* 定义属性的结构和约束` | L7 |
+| `*` | L8 |
+| `* @since 2025-09-22` | L9 |
+| `*/` | L10 |
+| `@Data` | L11 |
+| `public class AttrSchema \{` | L12 |
+| `/**` | L5 |
+| `* 约束配置类` | L6 |
+| `* 包含约束求解器的配置信息` | L7 |
+| `*` | L8 |
+| `* @since 2025-09-22` | L9 |
+| `*/` | L10 |
+| `@Data` | L11 |
+| `public class ConstraintConfig \{` | L12 |
+| `/**` | L17 |
+| `* Module工具类` | L18 |
+| `* 提供Module对象的JSON序列化和反序列化功能` | L19 |
+| `*` | L20 |
+| `* @since 2025-09-22` | L21 |
+| `*/` | L22 |
+| `@Slf4j` | L23 |
+| `final public class ModuleUtils \{` | L24 |
+| `/**` | L13 |
+| `* Prompt模板加载器` | L14 |
+| `* 支持JTL格式的模板文件，使用$\{variable\}语法进行变量替换` | L15 |
+| `*` | L16 |
+| `* @since 2025-09-22` | L17 |
+| `*/` | L18 |
+| `public class PromptTemplateLoader \{` | L19 |
+| `/**` | L16 |
+| `* 规则定义` | L17 |
+| `* 表示模块中的约束规则，支持多种规则类型` | L18 |
+| `*` | L19 |
+| `* @since 2025-09-22` | L20 |
+| `*/` | L21 |
+| `@Data` | L22 |
+| `@EqualsAndHashCode(callSuper = true)` | L23 |
+| `@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@type")` | L24 |
+| `@JsonSubTypes(\{` | L25 |
+| `@JsonSubTypes.Type(value = Rule.class, name = "Rule")` | L26 |
+| `\})` | L27 |
+| `public class Rule extends Extensible \{` | L28 |
+| `/**` | L10 |
+| `* 参数实例类` | L11 |
+| `* 表示参数的一个具体实例，包含参数值和选项` | L12 |
+| `*` | L13 |
+| `* @since 2025-09-22` | L14 |
+| `*/` | L15 |
+| `@Data` | L16 |
+| `public class ParaInst \{` | L17 |
+| `/**` | L3 |
+| `* 约束算法接口` | L4 |
+| `*` | L5 |
+| `* @since 2025-09-22` | L6 |
+| `*/` | L7 |
+| `public interface ConstraintAlg \{` | L8 |
+| `/**` | L13 |
+| `* 模块约束执行器单例类` | L14 |
+| `* 提供全局访问点，外部只能通过此接口访问功能` | L15 |
+| `*` | L16 |
+| `* @since 2025-9-21` | L17 |
+| `*/` | L18 |
+| `public interface ModuleConstraintExecutor \{` | L19 |
+| `/**` | L6 |
+| `* 简单的Pair类，用于替代Apache Commons的Pair` | L7 |
+| `*` | L8 |
+| `* @since 2025-09-22` | L9 |
+| `*/` | L10 |
+| `@Data` | L11 |
+| `@AllArgsConstructor` | L12 |
+| `public class Pair<L, R> \{` | L13 |
+| `/**` | L10 |
+| `* 部件实例类` | L11 |
+| `*` | L12 |
+| `* @since 2025-9-21` | L13 |
+| `*/` | L14 |
+| `@Data` | L15 |
+| `public class PartInst \{` | L16 |
+| `/**` | L3 |
+| `* 算法执行器异常` | L4 |
+| `* 当算法执行过程中发生错误时抛出此异常` | L5 |
+| `*` | L6 |
+| `* @since 1.0` | L7 |
+| `*/` | L8 |
+| `public class AlgExecutorException extends RuntimeException \{` | L9 |
+| `/**` | L3 |
+| `* 算法加载器异常` | L4 |
+| `* 当算法加载过程中发生错误时抛出此异常` | L5 |
+| `*` | L6 |
+| `* @since 1.0` | L7 |
+| `*/` | L8 |
+| `public class AlgLoaderException extends RuntimeException \{` | L9 |
+
+
+</details>
 
 ---
 
@@ -5268,6 +7408,28 @@ Tool use: **todo_write**
 
 Tool use: **grep**
 
+<details>
+<summary>Grep for "^\s*private\s+.*\s+\w+\s*\([^)]*\)\s*\{" in "src/main/java/com/jmix/executor/impl/algmodel/ConstraintAlgImpl.java" • 10 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private void initAlgCPModel() \{` | L135 |
+| `private void setDefaultVisibilityConstraints() \{` | L145 |
+| `private void buildRuleMethods() \{` | L172 |
+| `private void initRules() \{` | L205 |
+| `private void initRules(List<String> exeRules) \{` | L220 |
+| `private void executeRuleMethod(String ruleCode, Method method) \{` | L246 |
+| `private void initVariables(List<RefProgObjSchema> exeProgObjs) \{` | L267 |
+| `private void autoInitVariables() \{` | L316 |
+| `private String extractCodeFromFieldName(String fieldName) \{` | L388 |
+| `private String f(String fstr, String... values) \{` | L876 |
+
+
+</details>
+
 ---
 
 Tool use: **grep**
@@ -5436,6 +7598,23 @@ Tool use: **todo_write**
 ---
 
 Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\s+\w+\s*\([^)]*\)\s*\{" in "src/main/java/com/jmix/tool/artifact/ModuleAlgArtifactGenerator.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private ParaVarInfo buildParaInfo(Para para) \{` | L137 |
+| `private ParaOptionVarInfo buildParaOptionInfo(ParaOption option) \{` | L157 |
+| `private PartVarInfo buildPartInfo(Part part) \{` | L168 |
+| `private List<RuleInfo> buildRules(ModuleVarInfo moduleInfo) \{` | L179 |
+| `private String replaceToOptionCode(String rawCode, String from, String to) \{` | L374 |
+
+
+</details>
 
 ---
 
@@ -5721,197 +7900,996 @@ Tool use: **grep**
 
 Tool use: **grep**
 
----
+<details>
+<summary>Grep for "^\s*private\s+\w+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
 
-Tool use: **grep**
+Output mode: content
 
----
 
-Tool use: **grep**
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
 
----
 
-Tool use: **grep**
-
----
-
-Tool use: **grep**
-
----
-
-Tool use: **grep**
+</details>
 
 ---
 
 Tool use: **grep**
 
----
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
 
-Tool use: **grep**
+Output mode: content
 
----
 
-Tool use: **grep**
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
 
----
 
-Tool use: **grep**
-
----
-
-Tool use: **grep**
-
----
-
-Tool use: **grep**
+</details>
 
 ---
 
 Tool use: **grep**
 
----
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
 
-Tool use: **grep**
+Output mode: content
 
----
 
-Tool use: **grep**
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
 
----
 
-Tool use: **grep**
-
----
-
-Tool use: **grep**
-
----
-
-Tool use: **grep**
+</details>
 
 ---
 
 Tool use: **grep**
 
----
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
 
-Tool use: **grep**
+Output mode: content
 
----
 
-Tool use: **grep**
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
 
----
 
-Tool use: **grep**
-
----
-
-Tool use: **grep**
-
----
-
-Tool use: **grep**
+</details>
 
 ---
 
 Tool use: **grep**
 
----
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
 
-Tool use: **grep**
+Output mode: content
 
----
 
-Tool use: **grep**
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
 
----
 
-Tool use: **grep**
-
----
-
-Tool use: **grep**
-
----
-
-Tool use: **grep**
+</details>
 
 ---
 
 Tool use: **grep**
 
----
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
 
-Tool use: **grep**
+Output mode: content
 
----
 
-Tool use: **grep**
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
 
----
 
-Tool use: **grep**
-
----
-
-Tool use: **grep**
-
----
-
-Tool use: **grep**
+</details>
 
 ---
 
 Tool use: **grep**
 
----
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
 
-Tool use: **grep**
+Output mode: content
 
----
 
-Tool use: **grep**
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
 
----
 
-Tool use: **grep**
-
----
-
-Tool use: **grep**
-
----
-
-Tool use: **grep**
+</details>
 
 ---
 
 Tool use: **grep**
 
----
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
 
-Tool use: **grep**
-
----
-
-Tool use: **grep**
-
----
+Output mode: content
 
 
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
 
----
 
-Tool use: **grep**
-
----
-
-
+</details>
 
 ---
 
 Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
+
+---
+
+
+
+---
+
+Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String cleanGeneratedCode(String rawCode) \{` | L168 |
+| `private String ensureProperEncoding(String code) \{` | L194 |
+| `private ChatLanguageModel createDeepSeekModel() \{` | L219 |
+| `private ChatLanguageModel createQwenModel() \{` | L254 |
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
 
 ---
 
@@ -5930,6 +8908,19 @@ Tool use: **grep**
 ---
 
 Tool use: **grep**
+
+<details>
+<summary>Grep for "private Properties loadConfig\(\)" in "src/main/java/com/jmix/tool/model/LLMInvoker.java" • 1 match</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private Properties loadConfig() \{` | L289 |
+
+
+</details>
 
 ---
 
@@ -6015,7 +9006,7 @@ Lines added: 3, lines removed: undefined
 
 ---
 
-Tool use: **read_lints**
+Tool call timed out after 10s (read lints)
 
 ---
 
@@ -6103,6 +9094,19 @@ Tool use: **grep**
 
 Tool use: **grep**
 
+<details>
+<summary>Grep for "@since" in "src/main/java/com/jmix/tool/model/ModuleGenneratorByAnno.java" • 1 match</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `* @since 2025-09-22` | L35 |
+
+
+</details>
+
 ---
 
 Tool use: **grep**
@@ -6125,17 +9129,111 @@ Tool use: **grep**
 
 Tool use: **grep**
 
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/ModuleGenneratorByAnno.java" • 15 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private ModuleGenneratorByAnno() \{` | L42 |
+| `private static Optional<Para> createParaFromField(Field field) \{` | L87 |
+| `private static Optional<Part> createPartFromField(Field field) \{` | L136 |
+| `private static List<Rule> createRulesFromMethods(Class<?> moduleAlgClazz, Module module) \{` | L177 |
+| `private static Rule createCompatibleRule(java.lang.reflect.Method method, CompatiableRuleAnno anno, Module module) \{` | L207 |
+| `private static Rule createCodeRule(java.lang.reflect.Method method, CodeRuleAnno anno, Module module) \{` | L251 |
+| `private static List<RefProgObjSchema> generateRefProgObjSchemas(String code, Module currentModule) \{` | L283 |
+| `private static List<ProgObject> parseVariableObjects(String code) \{` | L310 |
+| `private static void buildExtAttr(ModuleAnno moduleAnno, Module module) \{` | L398 |
+| `private static Pair<List<Para>, List<Part>> buildParaParts(Class<?> moduleAlgClazz) \{` | L417 |
+| `private static ModuleAlgArtifact buildAlg(Module module, Class<?> moduleAlgClazz) \{` | L447 |
+| `private static void buildModuleBase(Module module, ModuleAnno moduleAnno, Class<?> moduleAlgClazz) \{` | L475 |
+| `private static void saveToFile(Module module, String resourcePath) \{` | L501 |
+| `private static ParaOption createParaOption(String raw, int index) \{` | L520 |
+| `private static Map<String, String> parseAttributes(String[] attributes) \{` | L555 |
+
+
+</details>
+
 ---
 
 Tool use: **grep**
 
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/main/java/com/jmix/tool/model/StructCodeInjector.java" • 9 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private String injectIntoMethod(String source, String methodName, String injectedCode) \{` | L40 |
+| `private Optional<String> detectIndentForBody(String body) \{` | L86 |
+| `private String defaultIndentFromMatcher(Matcher m) \{` | L102 |
+| `private int findMatchingBrace(String s, int openIndex) \{` | L111 |
+| `private String escapeForComment(String s) \{` | L176 |
+| `private String getSourceFile(Class<?> clazz) \{` | L225 |
+| `private String generatorInjectorCode(RuleInfo ruleInfo) \{` | L239 |
+| `private String generatorInjectorCode4Compatible(RuleInfo ruleInfo) \{` | L246 |
+| `private String toArgumentString(List<String> filterCodes) \{` | L261 |
+
+
+</details>
+
 ---
 
 Tool use: **grep**
 
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/test/java/com/jmix/configengine/other/SimpleDataValidator.java" • 15 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private boolean validateModuleData(JsonNode rootNode) \{` | L60 |
+| `private boolean validateRequiredFields(JsonNode rootNode) \{` | L90 |
+| `private boolean validateParas(JsonNode parasNode) \{` | L119 |
+| `private boolean validatePara(JsonNode paraNode, int index) \{` | L137 |
+| `private boolean validateParaOption(JsonNode optionNode, int paraIndex, int optionIndex) \{` | L174 |
+| `private boolean validateParts(JsonNode partsNode) \{` | L191 |
+| `private boolean validatePart(JsonNode partNode, int index) \{` | L209 |
+| `private boolean validateRules(JsonNode rulesNode) \{` | L236 |
+| `private boolean validateRule(JsonNode ruleNode, int index) \{` | L254 |
+| `private boolean isValidModuleType(String type) \{` | L289 |
+| `private boolean isValidParaType(String type) \{` | L302 |
+| `private boolean isValidPartType(String type) \{` | L316 |
+| `private boolean isValidRuleSchemaTypeFullName(String schema) \{` | L329 |
+| `private void addError(String error) \{` | L338 |
+| `private void addWarning(String warning) \{` | L346 |
+
+
+</details>
+
 ---
 
 Tool use: **grep**
+
+<details>
+<summary>Grep for "^\s*private\s+.*\(.*\)\s*\{" in "src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java" • 7 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private Map<String, String> parseConditionExpr(String conditionExpr) \{` | L285 |
+| `private List<ConditionElement> buildConditionElements(Map<String, String> kvMap) \{` | L307 |
+| `private int countMatchingSolutions(List<ConditionElement> conditionElements) \{` | L347 |
+| `private ParaInst findParaInstByCode(ModuleInst solution, String code) \{` | L386 |
+| `private PartInst findPartInstByCode(ModuleInst solution, String code) \{` | L403 |
+| `private List<ParaInst> buildParaInstsFromPairs(String... paraCodeValuePairs) \{` | L419 |
+| `private void printOthers(List<ModuleInst> solutions, StringBuilder sb) \{` | L518 |
+
+
+</details>
 
 ---
 
@@ -6609,6 +9707,36 @@ Lines added: 2, lines removed: undefined
 
 Tool use: **read_lints**
 
+<details>
+          <summary>Read lints for 4 files</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/tool/model/ModuleGenneratorByAnno.java`
+- `src/main/java/com/jmix/tool/model/StructCodeInjector.java`
+- `src/test/java/com/jmix/configengine/other/SimpleDataValidator.java`
+- `src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java`
+
+Lint results
+
+Lint errors for `src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| The value of the local variable part is not used | 329:22-329:26 | DIAGNOSTIC_SEVERITY_WARNING |
+
+
+Lint errors for `src/main/java/com/jmix/tool/model/StructCodeInjector.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| “VARIABLE_DEF”之前应该有一个空白行。 | 28:5-29:1 | DIAGNOSTIC_SEVERITY_WARNING |
+
+
+</details>
+
 ---
 
 修复 linter 错误。
@@ -6823,6 +9951,19 @@ Lines added: 1, lines removed: 1
 ---
 
 Tool use: **read_lints**
+
+<details>
+          <summary>Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/test/java/com/jmix/configengine/scenario/base/modeltool/ModelHelperTool.java`
+
+Lint results
+
+
+**No lint errors found**
+</details>
 
 ---
 
@@ -7112,6 +10253,25 @@ Lines added: 2, lines removed: 1
 ---
 
 Tool use: **read_lints**
+
+<details>
+          <summary>Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/test/java/com/jmix/configengine/scenario/ruletest/CompatibleRuleCodependentTest.java`
+
+Lint results
+
+Lint errors for `src/test/java/com/jmix/configengine/scenario/ruletest/CompatibleRuleCodependentTest.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| The method addCompatibleConstraintCoDependentNote() from the type CompatibleRuleCodependentTest.CompatibleRuleCodependentConstraint is never used locally | 68:22-68:62 | DIAGNOSTIC_SEVERITY_WARNING |
+
+
+</details>
 
 ---
 
@@ -7619,6 +10779,20 @@ Lines added: 2, lines removed: 1
 
 Tool use: **read_lints**
 
+<details>
+          <summary>Read lints for 2 files</summary>
+      
+Lint paths:
+
+- `src/test/java/com/jmix/configengine/scenario/ruletest/CompatibleRuleIncompatibleTest.java`
+- `src/test/java/com/jmix/configengine/scenario/ruletest/CompatibleRuleRequireTest.java`
+
+Lint results
+
+
+**No lint errors found**
+</details>
+
 ---
 
 Tool use: **todo_write**
@@ -8026,6 +11200,25 @@ Lines added: 2, lines removed: 12
 
 Tool use: **read_lints**
 
+<details>
+          <summary>Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/test/java/com/jmix/configengine/util/ModuleUtilsTest.java`
+
+Lint results
+
+Lint errors for `src/test/java/com/jmix/configengine/util/ModuleUtilsTest.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| '&&' 应另起一行。 | 195:63-196:1 | DIAGNOSTIC_SEVERITY_WARNING |
+
+
+</details>
+
 ---
 
 Tool use: **search_replace**
@@ -8053,6 +11246,19 @@ Lines added: 2, lines removed: 2
 ---
 
 Tool use: **read_lints**
+
+<details>
+          <summary>Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/test/java/com/jmix/configengine/util/ModuleUtilsTest.java`
+
+Lint results
+
+
+**No lint errors found**
+</details>
 
 ---
 
@@ -8325,6 +11531,19 @@ Lines added: 75, lines removed: 46
 
 Tool use: **read_lints**
 
+<details>
+          <summary>Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/tool/artifact/ModuleAlgArtifactGenerator.java`
+
+Lint results
+
+
+**No lint errors found**
+</details>
+
 ---
 
 Tool use: **todo_write**
@@ -8548,6 +11767,19 @@ Lines added: 37, lines removed: undefined
 ---
 
 Tool use: **read_lints**
+
+<details>
+          <summary>Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/tool/model/ModelHelper.java`
+
+Lint results
+
+
+**No lint errors found**
+</details>
 
 ---
 
@@ -8786,6 +12018,19 @@ Lines added: 52, lines removed: 21
 
 Tool use: **read_lints**
 
+<details>
+          <summary>Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/test/java/com/jmix/configengine/scenario/base/ModuleScenarioTestBase.java`
+
+Lint results
+
+
+**No lint errors found**
+</details>
+
 ---
 
 Tool use: **todo_write**
@@ -9019,6 +12264,27 @@ Lines added: 29, lines removed: 14
 
 Tool use: **read_lints**
 
+<details>
+          <summary>Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java`
+
+Lint results
+
+Lint errors for `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| The method getProcessName() is undefined for the type InferParasPostProcess | 367:37-367:51 | DIAGNOSTIC_SEVERITY_ERROR |
+| The method getProcessName() is undefined for the type InferParasPostProcess | 371:76-371:90 | DIAGNOSTIC_SEVERITY_ERROR |
+| The method getProcessName() is undefined for the type InferParasPostProcess | 375:68-375:82 | DIAGNOSTIC_SEVERITY_ERROR |
+
+
+</details>
+
 ---
 
 我需要检查 `InferParasPostProcess` 类的结构，看看它是否有 `getProcessName()` 方法：
@@ -9031,6 +12297,22 @@ Tool use: **grep**
 ---
 
 Tool use: **grep**
+
+<details>
+<summary>Grep for "InferParasPostProcess" • 4 matches</summary>
+
+Output mode: files_with_matches
+
+
+| File |
+|------|
+| `.\src\main\java\com\jmix\executor\impl\ModuleConstraintExecutorImpl.java` |
+| `.\src\test\java\com\jmix\configengine\extensibleDemo\DCDeliveryTypePostProcess.java` |
+| `.\src\main\java\com\jmix\executor\omodel\InferParasPostProcess.java` |
+| `.\doc\扩展性功能实现总结.md` |
+
+
+</details>
 
 ---
 
@@ -9050,6 +12332,28 @@ Tool use: **grep**
 ---
 
 Tool use: **grep**
+
+<details>
+<summary>Grep for "ExtensibleProcess" • 10 matches</summary>
+
+Output mode: files_with_matches
+
+
+| File |
+|------|
+| `.\src\main\java\com\jmix\executor\impl\ModuleConstraintExecutorImpl.java` |
+| `.\src\test\java\com\jmix\configengine\extensibleDemo\DCDeliveryTypePostProcess.java` |
+| `.\doc\基于约束求解的反推参数的设计文档.md` |
+| `.\src\test\java\com\jmix\configengine\extensibleDemo\DCMyTShirtTest.java` |
+| `.\src\test\java\com\jmix\configengine\extensibleDemo\DCModuleConstraintExecutorImpl.java` |
+| `.\src\test\java\com\jmix\configengine\extensibleDemo\DCModuleConstraintExecutor.java` |
+| `.\src\main\java\com\jmix\executor\omodel\ExtensibleProcess.java` |
+| `.\src\main\java\com\jmix\executor\ModuleConstraintExecutor.java` |
+| `.\doc\MyTODO.md` |
+| `.\doc\扩展性功能实现总结.md` |
+
+
+</details>
 
 ---
 
@@ -9097,6 +12401,19 @@ Lines added: 3, lines removed: 3
 ---
 
 Tool use: **read_lints**
+
+<details>
+          <summary>Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java`
+
+Lint results
+
+
+**No lint errors found**
+</details>
 
 ---
 
@@ -9218,9 +12535,154 @@ Read file: src/test/java/com/jmix/configengine/model/ModuleRefRelationGraphTest.
 
 Tool use: **grep**
 
+<details>
+<summary>Grep for "private.*,.*;" in "src/test/java/com/jmix/configengine/model/ModuleRefRelationGraphTest.java" • 1 match</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private RefProgObjSchema p0, p11, p21, p22, pt1, pt2;` | L29 |
+
+
+</details>
+
 ---
 
 Tool use: **grep**
+
+<details>
+<summary>Grep for ".*,.*;" in "src/test/java/com/jmix/configengine/model/ModuleRefRelationGraphTest.java" • 120 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `private RefProgObjSchema p0, p11, p21, p22, pt1, pt2;` | L29 |
+| `p0 = createRefProgObjSchema("Para", "P0");` | L39 |
+| `p11 = createRefProgObjSchema("Para", "P11");` | L40 |
+| `p21 = createRefProgObjSchema("Para", "P21");` | L41 |
+| `p22 = createRefProgObjSchema("Para", "P22");` | L42 |
+| `pt1 = createRefProgObjSchema("Part", "PT1");` | L43 |
+| `pt2 = createRefProgObjSchema("Part", "PT2");` | L44 |
+| `graph.add("Rule01", p0, p11);` | L63 |
+| `assertEquals(2, graph.getAllNodes().size());` | L68 |
+| `Map<String, String> outEdges = graph.getOutEdges("P0");` | L70 |
+| `assertEquals(1, outEdges.size());` | L71 |
+| `assertEquals("Rule01", outEdges.get("P11"));` | L72 |
+| `Map<String, String> inEdges = graph.getInEdges("P11");` | L74 |
+| `assertEquals(1, inEdges.size());` | L75 |
+| `assertEquals("Rule01", inEdges.get("P0"));` | L76 |
+| `graph.add("Rule21", Arrays.asList(p21, p22), Arrays.asList(pt2));` | L85 |
+| `assertEquals(3, graph.getAllNodes().size());` | L91 |
+| `Map<String, String> p21OutEdges = graph.getOutEdges("P21");` | L94 |
+| `assertEquals(1, p21OutEdges.size());` | L95 |
+| `assertEquals("Rule21", p21OutEdges.get("PT2"));` | L96 |
+| `Map<String, String> p22OutEdges = graph.getOutEdges("P22");` | L99 |
+| `assertEquals(1, p22OutEdges.size());` | L100 |
+| `assertEquals("Rule21", p22OutEdges.get("PT2"));` | L101 |
+| `Map<String, String> pt2InEdges = graph.getInEdges("PT2");` | L104 |
+| `assertEquals(2, pt2InEdges.size());` | L105 |
+| `assertEquals("Rule21", pt2InEdges.get("P21"));` | L106 |
+| `assertEquals("Rule21", pt2InEdges.get("P22"));` | L107 |
+| `graph.add("Rule01", (RefProgObjSchema) null, p11);` | L116 |
+| `graph.add("Rule02", p0, (RefProgObjSchema) null);` | L119 |
+| `graph.add("Rule03", (List<RefProgObjSchema>) null, Arrays.asList(pt1));` | L122 |
+| `graph.add("Rule04", Arrays.asList(), Arrays.asList(pt1));` | L125 |
+| `graph.add("Rule01", p0, p11);` | L137 |
+| `graph.add("Rule01", p0, p11);` | L138 |
+| `assertEquals(2, graph.getAllNodes().size());` | L141 |
+| `Map<String, String> outEdges = graph.getOutEdges("P0");` | L142 |
+| `assertEquals(1, outEdges.size());` | L143 |
+| `assertEquals("Rule01", outEdges.get("P11"));` | L144 |
+| `graph.add("Rule01", p0, p11);` | L155 |
+| `graph.add("Rule11", p11, pt1);` | L156 |
+| `Pair<List<String>, List<RefProgObjSchema>> result = graph.querySubGraph("PT1");` | L159 |
+| `assertEquals(2, ruleCodes.size());` | L165 |
+| `assertTrue(containsProgObjCode(progObjs, "PT1"));` | L169 |
+| `assertTrue(containsProgObjCode(progObjs, "P11"));` | L170 |
+| `assertTrue(containsProgObjCode(progObjs, "P0"));` | L171 |
+| `assertEquals(3, progObjs.size());` | L172 |
+| `graph.add("Rule01", p0, p11);` | L185 |
+| `graph.add("Rule02", p0, p21);` | L186 |
+| `graph.add("Rule11", p11, pt1);` | L187 |
+| `graph.add("Rule21", Arrays.asList(p21, p22), Arrays.asList(pt2));` | L188 |
+| `Pair<List<String>, List<RefProgObjSchema>> result = graph.querySubGraph("PT2");` | L191 |
+| `assertEquals(2, ruleCodes.size());` | L197 |
+| `assertTrue(containsProgObjCode(progObjs, "PT2"));` | L201 |
+| `assertTrue(containsProgObjCode(progObjs, "P21"));` | L202 |
+| `assertTrue(containsProgObjCode(progObjs, "P22"));` | L203 |
+| `assertTrue(containsProgObjCode(progObjs, "P0"));` | L204 |
+| `assertEquals(4, progObjs.size());` | L205 |
+| `graph.add("Rule01", p0, p11);` | L214 |
+| `graph.add("Rule02", p0, p21);` | L215 |
+| `graph.add("Rule11", p11, pt1);` | L216 |
+| `graph.add("Rule21", Arrays.asList(p21, p22), Arrays.asList(pt2));` | L217 |
+| `Pair<List<String>, List<RefProgObjSchema>> result = graph.querySubGraph("PT1", "P0");` | L220 |
+| `assertEquals(2, ruleCodes.size());` | L226 |
+| `assertTrue(containsProgObjCode(progObjs, "PT1"));` | L230 |
+| `assertTrue(containsProgObjCode(progObjs, "P0"));` | L231 |
+| `assertTrue(containsProgObjCode(progObjs, "P11"));` | L232 |
+| `assertEquals(3, progObjs.size());` | L233 |
+| `graph.add("Rule01", p0, p11);` | L242 |
+| `Pair<List<String>, List<RefProgObjSchema>> result = graph.querySubGraph("NonExistent");` | L245 |
+| `Pair<List<String>, List<RefProgObjSchema>> result = graph.querySubGraph();` | L261 |
+| `RefProgObjSchema a = createRefProgObjSchema("Para", "A");` | L274 |
+| `RefProgObjSchema b = createRefProgObjSchema("Para", "B");` | L275 |
+| `graph.add("RuleA", a, b);` | L277 |
+| `graph.add("RuleB", b, a);` | L278 |
+| `Pair<List<String>, List<RefProgObjSchema>> result = graph.querySubGraph("A");` | L282 |
+| `assertTrue(containsProgObjCode(result.getSecond(), "A"));` | L285 |
+| `graph.add("Rule01", p0, p11);` | L301 |
+| `graph.add("Rule02", p0, p21);` | L302 |
+| `graph.add("Rule03", p0, p22);` | L303 |
+| `graph.add("Rule11", p11, pt1);` | L304 |
+| `graph.add("Rule21", Arrays.asList(p21, p22), Arrays.asList(pt2));` | L305 |
+| `Pair<List<String>, List<RefProgObjSchema>> result1 = graph.querySubGraph("PT1");` | L308 |
+| `assertEquals(2, result1.getFirst().size());` | L309 |
+| `assertEquals(3, result1.getSecond().size());` | L312 |
+| `Pair<List<String>, List<RefProgObjSchema>> result2 = graph.querySubGraph("PT2");` | L315 |
+| `assertEquals(3, result2.getFirst().size());` | L316 |
+| `assertEquals(4, result2.getSecond().size());` | L320 |
+| `RefProgObjSchema a = createRefProgObjSchema("Para", "A");` | L329 |
+| `RefProgObjSchema b = createRefProgObjSchema("Para", "B");` | L330 |
+| `RefProgObjSchema c = createRefProgObjSchema("Para", "C");` | L331 |
+| `RefProgObjSchema d = createRefProgObjSchema("Part", "D");` | L332 |
+| `graph.add("Rule1", a, b);` | L334 |
+| `graph.add("Rule2", a, c);` | L335 |
+| `graph.add("Rule3", b, d);` | L336 |
+| `graph.add("Rule4", c, d);` | L337 |
+| `Pair<List<String>, List<RefProgObjSchema>> result = graph.querySubGraph("D");` | L340 |
+| `assertEquals(4, result.getFirst().size());` | L343 |
+| `assertEquals(4, result.getSecond().size());` | L349 |
+| `assertTrue(containsProgObjCode(result.getSecond(), "A"));` | L350 |
+| `assertTrue(containsProgObjCode(result.getSecond(), "B"));` | L351 |
+| `assertTrue(containsProgObjCode(result.getSecond(), "C"));` | L352 |
+| `assertTrue(containsProgObjCode(result.getSecond(), "D"));` | L353 |
+| `RefProgObjSchema from = createRefProgObjSchema("Para", "P" + i);` | L363 |
+| `RefProgObjSchema to = createRefProgObjSchema("Para", "P" + (i + 1));` | L364 |
+| `graph.add("Rule" + i, from, to);` | L365 |
+| `Pair<List<String>, List<RefProgObjSchema>> result = graph.querySubGraph("P100");` | L369 |
+| `assertEquals(100, result.getFirst().size());` | L372 |
+| `assertEquals(101, result.getSecond().size()); // 包含P0到P100` | L373 |
+| `graph.add("Rule01", p0, p11);` | L382 |
+| `graph.add("Rule02", p0, p21);` | L383 |
+| `graph.add("Rule21", Arrays.asList(p21, p22), Arrays.asList(pt2));` | L384 |
+| `graph.add("Rule01", p0, p11);` | L402 |
+| `graph.add("Rule21", Arrays.asList(p21, p22), Arrays.asList(pt2));` | L403 |
+| `assertEquals(5, allNodes.size());` | L407 |
+| `Map<String, String> p0OutEdges = graph.getOutEdges("P0");` | L415 |
+| `assertEquals(1, p0OutEdges.size());` | L416 |
+| `assertEquals("Rule01", p0OutEdges.get("P11"));` | L417 |
+| `Map<String, String> pt2InEdges = graph.getInEdges("PT2");` | L420 |
+| `assertEquals(2, pt2InEdges.size());` | L421 |
+| `assertEquals("Rule21", pt2InEdges.get("P21"));` | L422 |
+| `assertEquals("Rule21", pt2InEdges.get("P22"));` | L423 |
+
+
+</details>
 
 ---
 
@@ -9257,6 +12719,29 @@ Lines added: 6, lines removed: 1
 ---
 
 Tool use: **read_lints**
+
+<details>
+          <summary>Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/test/java/com/jmix/configengine/model/ModuleRefRelationGraphTest.java`
+
+Lint results
+
+Lint errors for `src/test/java/com/jmix/configengine/model/ModuleRefRelationGraphTest.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| “VARIABLE_DEF”之前应该有一个空白行。 | 30:5-31:1 | DIAGNOSTIC_SEVERITY_WARNING |
+| “VARIABLE_DEF”之前应该有一个空白行。 | 31:5-32:1 | DIAGNOSTIC_SEVERITY_WARNING |
+| “VARIABLE_DEF”之前应该有一个空白行。 | 32:5-33:1 | DIAGNOSTIC_SEVERITY_WARNING |
+| “VARIABLE_DEF”之前应该有一个空白行。 | 33:5-34:1 | DIAGNOSTIC_SEVERITY_WARNING |
+| “VARIABLE_DEF”之前应该有一个空白行。 | 34:5-35:1 | DIAGNOSTIC_SEVERITY_WARNING |
+
+
+</details>
 
 ---
 
@@ -9295,6 +12780,19 @@ Lines added: 5, lines removed: undefined
 ---
 
 Tool use: **read_lints**
+
+<details>
+          <summary>Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/test/java/com/jmix/configengine/model/ModuleRefRelationGraphTest.java`
+
+Lint results
+
+
+**No lint errors found**
+</details>
 
 ---
 
@@ -9378,9 +12876,48 @@ Tool use: **grep**
 
 Tool use: **grep**
 
+<details>
+<summary>Grep for "addError\(.*[\u4e00-\u9fff]" in "src/test/java/com/jmix/configengine/other/SimpleDataValidator.java" • 14 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `addError("文件不存在: " + filePath);` | L41 |
+| `addError("读取JSON文件失败: " + e.getMessage());` | L49 |
+| `addError("缺少必需字段: " + field);` | L96 |
+| `addError("无效的模块类型: " + type);` | L105 |
+| `addError("paras字段必须是数组");` | L121 |
+| `addError("参数[" + index + "]缺少必需字段: " + field);` | L148 |
+| `addError("参数[" + index + "]无效的类型: " + type);` | L157 |
+| `addError("参数[" + paraIndex + "]选项[" + optionIndex + "]缺少必需字段: " + field);` | L189 |
+| `addError("parts字段必须是数组");` | L205 |
+| `addError("部件[" + index + "]缺少必需字段: " + field);` | L232 |
+| `addError("部件[" + index + "]无效的类型: " + type);` | L241 |
+| `addError("rules字段必须是数组");` | L257 |
+| `addError("规则[" + index + "]缺少必需字段: " + field);` | L284 |
+| `addError("规则[" + index + "]无效的Schema: " + schema);` | L293 |
+
+
+</details>
+
 ---
 
 Tool use: **grep**
+
+<details>
+<summary>Grep for "addWarning\(.*[\u4e00-\u9fff]" in "src/test/java/com/jmix/configengine/other/SimpleDataValidator.java" • 1 match</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `addWarning("规则[" + index + "]rawCode应该是对象格式");` | L302 |
+
+
+</details>
 
 ---
 
@@ -9641,6 +13178,19 @@ Tool use: **grep**
 
 Tool use: **read_lints**
 
+<details>
+          <summary>Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/test/java/com/jmix/configengine/other/SimpleDataValidator.java`
+
+Lint results
+
+
+**No lint errors found**
+</details>
+
 ---
 
 Tool use: **todo_write**
@@ -9793,6 +13343,25 @@ Lines added: 1, lines removed: 1
 
 Tool use: **read_lints**
 
+<details>
+          <summary>Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/executor/omodel/ExtensibleProcess.java`
+
+Lint results
+
+Lint errors for `src/main/java/com/jmix/executor/omodel/ExtensibleProcess.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| Cannot refer to 'this' nor 'super' while explicitly invoking a constructor | 39:14-39:18 | DIAGNOSTIC_SEVERITY_ERROR |
+
+
+</details>
+
 ---
 
 看起来在构造方法中使用 `this()` 调用时出现了问题。让我检查一下是否有其他问题，并修复这个错误：
@@ -9849,6 +13418,19 @@ Lines added: 1, lines removed: undefined
 ---
 
 Tool use: **read_lints**
+
+<details>
+          <summary>Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/executor/omodel/ExtensibleProcess.java`
+
+Lint results
+
+
+**No lint errors found**
+</details>
 
 ---
 
@@ -9991,6 +13573,19 @@ Lines added: 1, lines removed: 1
 ---
 
 Tool use: **read_lints**
+
+<details>
+          <summary>Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/executor/impl/algmodel/AlgCPModel.java`
+
+Lint results
+
+
+**No lint errors found**
+</details>
 
 ---
 
@@ -10147,6 +13742,19 @@ Lines added: 1, lines removed: 2
 
 Tool use: **read_lints**
 
+<details>
+          <summary>Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/executor/impl/ModuleInstSolutionCallBack.java`
+
+Lint results
+
+
+**No lint errors found**
+</details>
+
 ---
 
 Tool use: **todo_write**
@@ -10252,6 +13860,79 @@ Read file: src/test/java/com/jmix/configengine/scenario/base/ResultAssert.java
 ---
 
 Tool use: **grep**
+
+<details>
+<summary>Grep for "[\u4e00-\u9fff]" in "src/test/java/com/jmix/configengine/scenario/base/ResultAssert.java" • 61 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `* 结果断言类，提供链式API验证执行结果` | L10 |
+| `* 构造ResultAssert实例` | L20 |
+| `* @param actualResult 实际执行结果` | L22 |
+| `* 断言解决方案数量` | L29 |
+| `* @param expectedSize 期望的解决方案数量` | L31 |
+| `* @return 当前ResultAssert实例，支持链式调用` | L32 |
+| `"解决方案数量不匹配，期望: %d，实际: null", expectedSize));` | L37 |
+| `"解决方案数量不匹配，期望: %d，实际: %d", expectedSize, actualSize));` | L44 |
+| `* 断言解决方案数量大于指定值` | L53 |
+| `* @param minSize 最小解决方案数量` | L55 |
+| `* @return 当前ResultAssert实例，支持链式调用` | L56 |
+| `"解决方案数量应大于: %d，实际: null", minSize));` | L61 |
+| `"解决方案数量应大于: %d，实际: %d", minSize, actualSize));` | L68 |
+| `* 断言解决方案数量大于等于指定值` | L77 |
+| `* @param minSize 最小解决方案数量` | L79 |
+| `* @return 当前ResultAssert实例，支持链式调用` | L80 |
+| `"解决方案数量应大于等于: %d，实际: null", minSize));` | L85 |
+| `"解决方案数量应大于等于: %d，实际: %d", minSize, actualSize));` | L92 |
+| `* 断言解决方案数量小于指定值` | L101 |
+| `* @param maxSize 最大解决方案数量` | L103 |
+| `* @return 当前ResultAssert实例，支持链式调用` | L104 |
+| `"解决方案数量应小于: %d，实际: null", maxSize));` | L109 |
+| `"解决方案数量应小于: %d，实际: %d", maxSize, actualSize));` | L116 |
+| `* 断言解决方案数量小于等于指定值` | L125 |
+| `* @param maxSize 最大解决方案数量` | L127 |
+| `* @return 当前ResultAssert实例，支持链式调用` | L128 |
+| `"解决方案数量应小于等于: %d，实际: null", maxSize));` | L133 |
+| `"解决方案数量应小于等于: %d，实际: %d", maxSize, actualSize));` | L140 |
+| `* 断言结果代码` | L149 |
+| `* @param expectedCode 期望的结果代码` | L151 |
+| `* @return 当前ResultAssert实例，支持链式调用` | L152 |
+| `"结果代码不匹配，期望: %d，实际: %d", expectedCode, actualResult.getCode()));` | L157 |
+| `* 断言结果代码不等于指定值` | L163 |
+| `* @param unexpectedCode 不期望的结果代码` | L165 |
+| `* @return 当前ResultAssert实例，支持链式调用` | L166 |
+| `"结果代码不应等于: %d", unexpectedCode));` | L171 |
+| `* 断言结果消息` | L177 |
+| `* @param expectedMessage 期望的结果消息` | L179 |
+| `* @return 当前ResultAssert实例，支持链式调用` | L180 |
+| `"结果消息不匹配，期望: %s，实际: %s", expectedMessage, actualResult.getMessage()));` | L185 |
+| `* 断言结果消息包含指定内容` | L191 |
+| `* @param expectedContent 期望包含的内容` | L193 |
+| `* @return 当前ResultAssert实例，支持链式调用` | L194 |
+| `"结果消息应包含: %s，实际: %s", expectedContent, actualResult.getMessage()));` | L199 |
+| `* 断言结果消息不包含指定内容` | L205 |
+| `* @param unexpectedContent 不期望包含的内容` | L207 |
+| `* @return 当前ResultAssert实例，支持链式调用` | L208 |
+| `"结果消息不应包含: %s，实际: %s", unexpectedContent, actualResult.getMessage()));` | L213 |
+| `* 断言执行成功` | L219 |
+| `* @return 当前ResultAssert实例，支持链式调用` | L221 |
+| `"期望执行成功，实际结果代码: %d，消息: %s",` | L226 |
+| `* 断言执行失败` | L233 |
+| `* @return 当前ResultAssert实例，支持链式调用` | L235 |
+| `"期望执行失败，实际结果代码: %d，消息: %s",` | L240 |
+| `* 断言无解` | L247 |
+| `* @return 当前ResultAssert实例，支持链式调用` | L249 |
+| `"期望无解，实际结果代码: %d，解数量: %s",` | L256 |
+| `* 断言结果数据不为空` | L266 |
+| `* @return 当前ResultAssert实例，支持链式调用` | L268 |
+| `* 断言结果数据为空` | L278 |
+| `* @return 当前ResultAssert实例，支持链式调用` | L280 |
+
+
+</details>
 
 ---
 
@@ -10701,6 +14382,19 @@ Lines added: 1, lines removed: 1
 
 Tool use: **read_lints**
 
+<details>
+          <summary>Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/test/java/com/jmix/configengine/scenario/base/ResultAssert.java`
+
+Lint results
+
+
+**No lint errors found**
+</details>
+
 ---
 
 Tool use: **todo_write**
@@ -10988,6 +14682,19 @@ Lines added: 1, lines removed: 1
 
 Tool use: **read_lints**
 
+<details>
+          <summary>Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `pom.xml`
+
+Lint results
+
+
+**No lint errors found**
+</details>
+
 ---
 
 Tool use: **todo_write**
@@ -11224,6 +14931,43 @@ Read file: src/test/java/com/jmix/configengine/scenario/tshirt/ModuleAlgArtifact
 ---
 
 Tool use: **glob_file_search**
+
+<details>
+<summary>Searched codebase "**/*Test.java" • **27** results in **1** directory</summary>
+
+Directory: **d:\01.code\mygithub\jmixconfigengine\src\test** (27 files)
+
+| File |
+|------|
+| `java\com\jmix\configengine\scenario\tshirt\ModuleAlgArtifactGeneratorBaseTest.java` |
+| `java\com\jmix\configengine\model\ModuleRefRelationGraphTest.java` |
+| `java\com\jmix\configengine\perf\Perf20ParasTest.java` |
+| `java\com\jmix\configengine\scenario\ruletest\CompatibleRuleCodependentTest.java` |
+| `java\com\jmix\configengine\scenario\ruletest\MyTShirtTest.java` |
+| `java\com\jmix\configengine\util\ModuleUtilsTest.java` |
+| `java\com\jmix\configengine\scenario\autoruletest\AnnotationRuleIntegrationTest.java` |
+| `java\com\jmix\configengine\artifact\ModuleAlgArtifactGeneratorTest.java` |
+| `java\com\jmix\configengine\scenario\ruletest\CompatibleRuleRequireTest.java` |
+| `java\com\jmix\configengine\scenario\ruletest\CompatibleRuleIncompatibleTest.java` |
+| `java\com\jmix\configengine\scenario\ruletest\CalculateRuleIfThenTest.java` |
+| `java\com\jmix\configengine\scenario\autoruletest\AnnotationRuleTest.java` |
+| `java\com\jmix\configengine\scenario\hello\HelloConstraintTest.java` |
+| `java\com\jmix\configengine\util\ParaTypeHandlerTest.java` |
+| `java\com\jmix\configengine\artifact\FilterExpressionExecutorTest.java` |
+| `java\com\jmix\configengine\scenario\ruletest\CalculateRuleSimpleTest.java` |
+| `java\com\jmix\configengine\scenario\ruletest\ParaIsHiddenTest.java` |
+| `java\com\jmix\configengine\scenario\ruletest\ParaIntegerTest.java` |
+| `java\com\jmix\configengine\scenario\autoruletest\InjectCompatibleRuleTest.java` |
+| `java\com\jmix\configengine\scenario\ruletest\DynScheduleTest.java` |
+| `java\com\jmix\configengine\ModuleConstraintExecutorTest.java` |
+| `java\com\jmix\configengine\scenario\base\modeltool\LLMInvokerTest.java` |
+| `java\com\jmix\configengine\scenario\base\CommHelperTest.java` |
+| `java\com\jmix\configengine\schema\CodeRuleSchemaTest.java` |
+| `java\com\jmix\configengine\extensibleDemo\DCMyTShirtTest.java` |
+| `java\com\jmix\configengine\model\ParaOptionBuilderTest.java` |
+| `java\com\jmix\configengine\schema\CompatiableRuleSchemaTest.java` |
+
+</details>
 
 ---
 
@@ -11593,6 +15337,45 @@ Lines added: 1, lines removed: 1
 
 Tool use: **grep**
 
+<details>
+<summary>Grep for "import org\.junit\." in "src/test" • 27 matches</summary>
+
+Output mode: files_with_matches
+
+
+| File |
+|------|
+| `src/test\java\com\jmix\configengine\scenario\hello\HelloConstraintTest.java` |
+| `src/test\java\com\jmix\configengine\scenario\ruletest\ParaIntegerTest.java` |
+| `src/test\java\com\jmix\configengine\util\ModuleUtilsTest.java` |
+| `src/test\java\com\jmix\configengine\scenario\tshirt\ModuleAlgArtifactGeneratorBaseTest.java` |
+| `src/test\java\com\jmix\configengine\TestSuite.java` |
+| `src/test\java\com\jmix\configengine\model\ModuleRefRelationGraphTest.java` |
+| `src/test\java\com\jmix\configengine\scenario\base\ModuleScenarioTestBase.java` |
+| `src/test\java\com\jmix\configengine\perf\Perf20ParasTest.java` |
+| `src/test\java\com\jmix\configengine\scenario\ruletest\CompatibleRuleCodependentTest.java` |
+| `src/test\java\com\jmix\configengine\scenario\ruletest\MyTShirtTest.java` |
+| `src/test\java\com\jmix\configengine\scenario\autoruletest\AnnotationRuleIntegrationTest.java` |
+| `src/test\java\com\jmix\configengine\artifact\ModuleAlgArtifactGeneratorTest.java` |
+| `src/test\java\com\jmix\configengine\scenario\ruletest\CompatibleRuleRequireTest.java` |
+| `src/test\java\com\jmix\configengine\scenario\ruletest\CompatibleRuleIncompatibleTest.java` |
+| `src/test\java\com\jmix\configengine\scenario\ruletest\CalculateRuleIfThenTest.java` |
+| `src/test\java\com\jmix\configengine\util\ParaTypeHandlerTest.java` |
+| `src/test\java\com\jmix\configengine\artifact\FilterExpressionExecutorTest.java` |
+| `src/test\java\com\jmix\configengine\scenario\ruletest\CalculateRuleSimpleTest.java` |
+| `src/test\java\com\jmix\configengine\scenario\ruletest\ParaIsHiddenTest.java` |
+| `src/test\java\com\jmix\configengine\scenario\autoruletest\InjectCompatibleRuleTest.java` |
+| `src/test\java\com\jmix\configengine\scenario\ruletest\DynScheduleTest.java` |
+| `src/test\java\com\jmix\configengine\ModuleConstraintExecutorTest.java` |
+| `src/test\java\com\jmix\configengine\scenario\base\CommHelperTest.java` |
+| `src/test\java\com\jmix\configengine\schema\CodeRuleSchemaTest.java` |
+| `src/test\java\com\jmix\configengine\extensibleDemo\DCMyTShirtTest.java` |
+| `src/test\java\com\jmix\configengine\model\ParaOptionBuilderTest.java` |
+| `src/test\java\com\jmix\configengine\schema\CompatiableRuleSchemaTest.java` |
+
+
+</details>
+
 ---
 
 让我先查看几个重要的基类文件：
@@ -11773,6 +15556,15 @@ PS D:\01.code\mygithub\jmixconfigengine>
 
 Tool use: **grep**
 
+<details>
+<summary>Grep for "import org\.junit\." in "src/test" • 0 matches</summary>
+
+Output mode: count
+
+
+
+</details>
+
 ---
 
 看起来还有一些 JUnit 4 的导入没有完全替换。让我检查一下具体的情况：
@@ -11781,6 +15573,23 @@ Tool use: **grep**
 ---
 
 Tool use: **grep**
+
+<details>
+<summary>Grep for "import org\.junit\." in "src/test" • 5 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `import org.junit.jupiter.api.Test;` | L12 |
+| `import org.junit.jupiter.api.AfterEach;` | L23 |
+| `import org.junit.jupiter.api.BeforeEach;` | L24 |
+| `import org.junit.jupiter.api.Test;` | L25 |
+| `import org.junit.jupiter.api.Test;` | L10 |
+
+
+</details>
 
 ---
 
@@ -12703,6 +16512,21 @@ Lines added: 4, lines removed: 4
 
 Tool use: **grep**
 
+<details>
+<summary>Grep for "@(Before|After|Ignore)" in "src/test/java/com/jmix/configengine/scenario/tshirt/ModuleAlgArtifactGeneratorBaseTest.java" • 3 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `@Before` | L51 |
+| `@Ignore` | L75 |
+| `@After` | L177 |
+
+
+</details>
+
 ---
 
 让我更新这些注解：
@@ -12872,6 +16696,24 @@ Read file: src/main/java/com/jmix/executor/omodel/ExtensibleProcess.java
 ---
 
 Tool use: **grep**
+
+<details>
+<summary>Grep for "catch.*Exception" in "src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java" • 6 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `\} catch (Exception e) \{` | L64 |
+| `\} catch (Exception ex) \{` | L146 |
+| `\} catch (Exception e) \{` | L176 |
+| `\} catch (Exception e) \{` | L198 |
+| `\} catch (Exception e) \{` | L375 |
+| `\} catch (Exception e) \{` | L392 |
+
+
+</details>
 
 ---
 
@@ -13094,6 +16936,25 @@ Lines added: 8, lines removed: 2
 
 Tool use: **grep**
 
+<details>
+<summary>Grep for "catch.*Exception" in "src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java" • 7 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `\} catch (AlgLoaderException ex) \{` | L146 |
+| `\} catch (RuntimeException ex) \{` | L149 |
+| `\} catch (Exception ex) \{` | L152 |
+| `\} catch (RuntimeException e) \{` | L182 |
+| `\} catch (RuntimeException e) \{` | L208 |
+| `\} catch (Exception e) \{` | L385 |
+| `\} catch (Exception e) \{` | L402 |
+
+
+</details>
+
 ---
 
 让我查看剩余的两个异常处理：
@@ -13188,6 +17049,43 @@ Tool use: **todo_write**
 
 Tool use: **grep**
 
+<details>
+<summary>Grep for "catch.*Exception" in "src" • 25 matches</summary>
+
+Output mode: files_with_matches
+
+
+| File |
+|------|
+| `src\main\java\com\jmix\executor\impl\ModuleConstraintExecutorImpl.java` |
+| `src\test\java\com\jmix\executor\impl\ModuleConstraintExecutorTest.java` |
+| `src\test\java\com\jmix\executor\model\SimpleDataValidator.java` |
+| `src\test\java\com\jmix\tool\modeltool\LLMInvokerTest.java` |
+| `src\test\java\com\jmix\scenario\tshirt\ModuleAlgArtifactGeneratorBaseTest.java` |
+| `src\main\java\com\jmix\tool\ModelHelper.java` |
+| `src\test\java\com\jmix\tool\extensibleDemo\DCPartInstAdapter.java` |
+| `src\test\java\com\jmix\executor\model\ModuleRefRelationGraphTest.java` |
+| `src\test\java\com\jmix\tool\artifact\ModuleAlgArtifactGeneratorTest.java` |
+| `src\test\java\com\jmix\tool\extensibleDemo\DCModuleAdapter.java` |
+| `src\test\java\com\jmix\tool\extensibleDemo\DCParaInstAdapter.java` |
+| `src\test\java\com\jmix\tool\autoruletest\AnnotationRuleIntegrationTest.java` |
+| `src\test\java\com\jmix\tool\autoruletest\AnnotationRuleTest.java` |
+| `src\test\java\com\jmix\executor\util\ModuleUtilsTest.java` |
+| `src\main\java\com\jmix\tool\impl\ModuleGenneratorByAnno.java` |
+| `src\test\java\com\jmix\coretest\ParaInstAssert.java` |
+| `src\main\java\com\jmix\tool\impl\StructCodeInjector.java` |
+| `src\main\java\com\jmix\tool\impl\LLMInvoker.java` |
+| `src\test\java\com\jmix\tool\ModelHelperTool.java` |
+| `src\main\java\com\jmix\tool\impl\PromptTemplateLoader.java` |
+| `src\main\java\com\jmix\executor\impl\util\ModuleUtils.java` |
+| `src\main\java\com\jmix\tool\artifact\ModuleAlgArtifactGenerator.java` |
+| `src\main\java\com\jmix\tool\impl\FilterExpressionExecutor.java` |
+| `src\main\java\com\jmix\executor\impl\algmodel\ConstraintAlgImpl.java` |
+| `src\main\java\com\jmix\executor\impl\ModuleAlgClassLoader.java` |
+
+
+</details>
+
 ---
 
 让我检查一下主要的源代码文件中的异常处理违规：
@@ -13197,6 +17095,25 @@ Tool use: **grep**
 
 Tool use: **grep**
 
+<details>
+<summary>Grep for "catch.*Exception" in "src/main/java" • 7 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `\} catch (AlgLoaderException ex) \{` | L146 |
+| `\} catch (RuntimeException ex) \{` | L149 |
+| `\} catch (Exception ex) \{` | L152 |
+| `\} catch (RuntimeException e) \{` | L182 |
+| `\} catch (RuntimeException e) \{` | L208 |
+| `\} catch (RuntimeException e) \{` | L385 |
+| `\} catch (JsonProcessingException e) \{` | L402 |
+
+
+</details>
+
 ---
 
 很好！现在让我检查其他主要的源代码文件：
@@ -13205,6 +17122,22 @@ Tool use: **grep**
 ---
 
 Tool use: **grep**
+
+<details>
+<summary>Grep for "catch.*Exception" in "src/main/java/com/jmix/tool" • 4 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `\} catch (Exception e) \{` | L105 |
+| `\} catch (Exception e) \{` | L171 |
+| `\} catch (NoSuchMethodException e) \{` | L197 |
+| `\} catch (ClassNotFoundException e) \{` | L202 |
+
+
+</details>
 
 ---
 
@@ -13232,6 +17165,22 @@ Read file: src/main/java/com/jmix/tool/ModelHelper.java
 
 Tool use: **grep**
 
+<details>
+<summary>Grep for "catch.*Exception" in "src/main/java/com/jmix/executor" • 4 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `\} catch (AlgLoaderException ex) \{` | L146 |
+| `\} catch (RuntimeException ex) \{` | L149 |
+| `\} catch (Exception ex) \{` | L152 |
+| `\} catch (RuntimeException e) \{` | L182 |
+
+
+</details>
+
 ---
 
 现在让我运行 linter 检查，确保我们的修改没有引入新的错误：
@@ -13240,6 +17189,25 @@ Tool use: **grep**
 ---
 
 Tool use: **read_lints**
+
+<details>
+          <summary>Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java`
+
+Lint results
+
+Lint errors for `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| JsonProcessingException cannot be resolved to a type | 402:18-402:41 | DIAGNOSTIC_SEVERITY_ERROR |
+
+
+</details>
 
 ---
 
@@ -13281,6 +17249,19 @@ Lines added: 1, lines removed: undefined
 ---
 
 Tool use: **read_lints**
+
+<details>
+          <summary>Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java`
+
+Lint results
+
+
+**No lint errors found**
+</details>
 
 ---
 
@@ -13457,6 +17438,90 @@ Tool use: **codebase_search**
 ---
 
 Tool use: **grep**
+
+<details>
+<summary>Grep for "private\s+\w+\s+\w+;" in "src" • 72 matches</summary>
+
+Output mode: files_with_matches
+
+
+| File |
+|------|
+| `src\main\java\com\jmix\executor\imodel\ConstraintConfig.java` |
+| `src\main\java\com\jmix\executor\impl\ModuleConstraintExecutorImpl.java` |
+| `src\test\java\com\jmix\scenario\hello\HelloConstraint2.java` |
+| `src\test\java\com\jmix\scenario\hello\HelloConstraint.java` |
+| `src\test\java\com\jmix\scenario\ruletest\CompatibleRuleRequireTest.java` |
+| `src\test\java\com\jmix\tool\modeltool\LLMInvokerTest.java` |
+| `src\test\java\com\jmix\scenario\ruletest\ParaIsHiddenTest.java` |
+| `src\test\java\com\jmix\scenario\ruletest\CalculateRuleSimpleTest.java` |
+| `src\test\java\com\jmix\scenario\tshirt\ModuleAlgArtifactGeneratorBaseTest.java` |
+| `src\test\java\com\jmix\scenario\ruletest\CompatibleRuleCodependentTest.java` |
+| `src\test\java\com\jmix\scenario\ruletest\CalculateRuleIfThenTest.java` |
+| `src\test\java\com\jmix\scenario\ruletest\MyTShirtTest.java` |
+| `src\test\java\com\jmix\scenario\ruletest\CompatibleRuleIncompatibleTest.java` |
+| `src\test\java\com\jmix\scenario\ruletest\DynScheduleTest.java` |
+| `src\test\java\com\jmix\scenario\ruletest\ParaIntegerTest.java` |
+| `src\test\java\com\jmix\tool\extensibleDemo\DCModule.java` |
+| `src\test\java\com\jmix\tool\extensibleDemo\DCMyTShirtTest.java` |
+| `src\test\java\com\jmix\executor\model\ModuleRefRelationGraphTest.java` |
+| `src\test\java\com\jmix\tool\extensibleDemo\DCModuleConstraintExecutor.java` |
+| `src\test\java\com\jmix\scenario\Perf20ParasTest.java` |
+| `src\test\java\com\jmix\tool\extensibleDemo\DCPara.java` |
+| `src\test\java\com\jmix\tool\extensibleDemo\DCPart.java` |
+| `src\test\java\com\jmix\tool\extensibleDemo\DCParaInst.java` |
+| `src\test\java\com\jmix\tool\FilterExpressionExecutorTest.java` |
+| `src\test\java\com\jmix\tool\extensibleDemo\DCModuleInst.java` |
+| `src\test\java\com\jmix\tool\autoruletest\AnnotationRuleTest.java` |
+| `src\test\java\com\jmix\executor\util\ModuleUtilsTest.java` |
+| `src\test\java\com\jmix\tool\extensibleDemo\DCPartInst.java` |
+| `src\test\java\com\jmix\tool\extensibleDemo\DCResult.java` |
+| `src\test\java\com\jmix\tool\autoruletest\InjectCompatibleRuleTest.java` |
+| `src\test\java\com\jmix\coretest\ModuleScenarioTestBase.java` |
+| `src\test\java\com\jmix\coretest\ParaInstAssert.java` |
+| `src\test\java\com\jmix\coretest\ProgammableInstAssert.java` |
+| `src\test\java\com\jmix\coretest\PartInstAssert.java` |
+| `src\test\java\com\jmix\tool\ModelHelperTool.java` |
+| `src\main\java\com\jmix\tool\impl\ProgObject.java` |
+| `src\main\java\com\jmix\tool\artifact\ModuleAlgArtifactGenerator.java` |
+| `src\main\java\com\jmix\executor\impl\algmodel\AlgCPModel.java` |
+| `src\main\java\com\jmix\executor\omodel\ExtensibleProcess.java` |
+| `src\main\java\com\jmix\executor\impl\algmodel\ParaOptionVar.java` |
+| `src\main\java\com\jmix\executor\imodel\rule\CompatiableRuleSchema.java` |
+| `src\main\java\com\jmix\executor\omodel\ModuleInst.java` |
+| `src\main\resources\constraint_generate_prompt.jtl` |
+| `src\main\java\com\jmix\tool\artifact\VarInfo.java` |
+| `src\main\java\com\jmix\executor\impl\ModuleAlgClassLoader.java` |
+| `src\main\java\com\jmix\executor\imodel\rule\CalculateRuleSchema.java` |
+| `src\main\java\com\jmix\executor\imodel\rule\SelectRuleSchema.java` |
+| `src\main\java\com\jmix\executor\imodel\rule\CodeRuleSchema.java` |
+| `src\main\java\com\jmix\tool\artifact\RuleInfo.java` |
+| `src\main\java\com\jmix\tool\artifact\ParaOptionVarInfo.java` |
+| `src\main\java\com\jmix\tool\artifact\ModuleVarInfo.java` |
+| `src\main\java\com\jmix\tool\artifact\ParaVarInfo.java` |
+| `src\main\java\com\jmix\executor\omodel\Result.java` |
+| `src\main\java\com\jmix\executor\imodel\Extensible.java` |
+| `src\main\java\com\jmix\tool\artifact\PartVarInfo.java` |
+| `src\main\java\com\jmix\executor\imodel\Module.java` |
+| `src\main\java\com\jmix\executor\impl\algmodel\OtherVar.java` |
+| `src\main\java\com\jmix\executor\imodel\ProgrammableObject.java` |
+| `src\main\java\com\jmix\executor\imodel\rule\ExprSchema.java` |
+| `src\main\java\com\jmix\executor\imodel\rule\RefProgObjSchema.java` |
+| `src\main\java\com\jmix\executor\imodel\ParaOption.java` |
+| `src\main\java\com\jmix\executor\imodel\rule\RuleSchema.java` |
+| `src\main\java\com\jmix\executor\omodel\InferParasReq.java` |
+| `src\main\java\com\jmix\executor\imodel\ModuleAlgArtifact.java` |
+| `src\main\java\com\jmix\executor\imodel\AttrSchema.java` |
+| `src\main\java\com\jmix\executor\imodel\Rule.java` |
+| `src\main\java\com\jmix\executor\omodel\ParaInst.java` |
+| `src\main\java\com\jmix\executor\omodel\PartInst.java` |
+| `src\test\java\com\jmix\tool\modeltool\ModelHelperToolBlockInput.md` |
+| `src\test\java\com\jmix\tool\modeltool\ModelHelperToolBlockInput-perf20.md` |
+| `src\test\java\com\jmix\tool\modeltool\ModelHelperToolBlockInput-isHidden.md` |
+| `src\test\java\com\jmix\tool\modeltool\ModelHelperToolBlockInput-Dyn.md` |
+
+
+</details>
 
 ---
 
@@ -13998,6 +18063,28 @@ Tool use: **todo_write**
 
 Tool use: **grep**
 
+<details>
+<summary>Grep for "private\s+\w+\s+\w+;" in "src/main/java" • 10 matches</summary>
+
+Output mode: files_with_matches
+
+
+| File |
+|------|
+| `src/main/java\com\jmix\executor\imodel\rule\SelectRuleSchema.java` |
+| `src/main/java\com\jmix\tool\artifact\ModuleVarInfo.java` |
+| `src/main/java\com\jmix\tool\artifact\PartVarInfo.java` |
+| `src/main/java\com\jmix\tool\artifact\ParaVarInfo.java` |
+| `src/main/java\com\jmix\executor\omodel\InferParasReq.java` |
+| `src/main/java\com\jmix\executor\omodel\PartInst.java` |
+| `src/main/java\com\jmix\executor\omodel\ParaInst.java` |
+| `src/main/java\com\jmix\executor\omodel\ModuleInst.java` |
+| `src/main/java\com\jmix\executor\omodel\Result.java` |
+| `src/main/java\com\jmix\executor\imodel\ConstraintConfig.java` |
+
+
+</details>
+
 ---
 
 让我检查 `SelectRuleSchema.java`：
@@ -14017,6 +18104,27 @@ Read file: src/main/java/com/jmix/executor/imodel/rule/SelectRuleSchema.java
 ---
 
 Tool use: **read_lints**
+
+<details>
+          <summary>Read lints for 9 files</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/executor/imodel/ConstraintConfig.java`
+- `src/main/java/com/jmix/executor/omodel/Result.java`
+- `src/main/java/com/jmix/executor/omodel/ModuleInst.java`
+- `src/main/java/com/jmix/executor/omodel/ParaInst.java`
+- `src/main/java/com/jmix/executor/omodel/PartInst.java`
+- `src/main/java/com/jmix/executor/omodel/InferParasReq.java`
+- `src/main/java/com/jmix/tool/artifact/ParaVarInfo.java`
+- `src/main/java/com/jmix/tool/artifact/PartVarInfo.java`
+- `src/main/java/com/jmix/tool/artifact/ModuleVarInfo.java`
+
+Lint results
+
+
+**No lint errors found**
+</details>
 
 ---
 
@@ -14162,6 +18270,19 @@ Lines added: 14, lines removed: 1
 ---
 
 Tool use: **read_lints**
+
+<details>
+          <summary>Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java`
+
+Lint results
+
+
+**No lint errors found**
+</details>
 
 ---
 

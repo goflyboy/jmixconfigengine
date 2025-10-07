@@ -43,6 +43,35 @@ I should position the constant near the top of the class, right after the class 
 
 Tool use: **apply_patch**
 
+<details>
+        <summary>Apply patch for src/main/java/com/jmix/executor/omodel/ExtensibleProcess.java</summary>
+      
+
+```diff
+*** Begin Patch
+*** Update File: src/main/java/com/jmix/executor/omodel/ExtensibleProcess.java
+@@
+ @Data
+ public abstract class ExtensibleProcess {
+ 
++    /**
++     * 默认版本号
++     */
++    public static final String VERSION_DEFAULT = "1.0.0";
++
+     /**
+      * 扩展处理名称
+      */
+     private String processName;
+@@
+     /**
+      * 扩展处理版本
+      */
+-    private String version = "1.0.0";
++    private String version = VERSION_DEFAULT;
+*** End Patch
+```
+
 ---
 
 
