@@ -42,8 +42,19 @@ public class ModuleCompiler {
             String normalizedPath = sourcePath.toString().replace('\\', '/');
             String outDir = normalizedPath.contains("/src/test/java/") ? testClassesDir : classesDir;
 
+            // 使用 JAVA_HOME 中的 javac，确保与项目 Java 版本一致
+            String javaHome = System.getenv("JAVA_HOME");
+            String javacPath = "javac";
+            if (javaHome != null && !javaHome.isEmpty()) {
+                javacPath = javaHome + fileSep + "bin" + fileSep + "javac";
+                log.debug("Using javac from JAVA_HOME: {}", javacPath);
+            } else {
+                log.warn("JAVA_HOME not set, using system javac");
+            }
+
             ProcessBuilder pb = new ProcessBuilder(
-                    "javac",
+                    javacPath,
+                    "-encoding", "UTF-8",
                     "-cp", classpath,
                     "-d", outDir,
                     sourcePath.toString());
