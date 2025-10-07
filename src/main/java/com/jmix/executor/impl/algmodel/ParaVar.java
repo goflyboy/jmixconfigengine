@@ -149,7 +149,7 @@ public class ParaVar extends Var<Para> {
     public String getShortString(CpSolverSolutionCallback solutionCallback) {
         // P1(V:1,H:0)
         return String.format("%s(%s:%s,%s:%s)", getCode(), VALUE_SHORT_NAME,
-                this.value == null ? "null" : solutionCallback.value(this.value),
-                this.isHidden == null ? "null" : HIDDEN_SHORT_NAME, solutionCallback.value(this.isHidden));
+                this.value == null ? "null" : solutionCallback.value(this.value), HIDDEN_SHORT_NAME,
+                this.isHidden == null ? "null" : solutionCallback.value(this.isHidden));
     }
 }
