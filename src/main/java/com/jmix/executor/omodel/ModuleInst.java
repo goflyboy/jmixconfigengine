@@ -33,17 +33,17 @@ public class ModuleInst {
     /**
      * 默认实例配置ID常量
      */
-    public static final String DEAULT_INSTANCE_CONFIG_ID = "0";
+    public static final String DEFAULT_INSTANCE_CONFIG_ID = "0";
 
     /**
      * 默认实例ID常量
      */
-    public static final int DEAULT_INSTANCE_ID = 0;
+    public static final int DEFAULT_INSTANCE_ID = 0;
 
     /**
      * 默认数量常量
      */
-    public static final int DEAULT_QUANTITY = 1;
+    public static final int DEFAULT_QUANTITY = 1;
 
     /**
      * 模块ID
@@ -58,17 +58,17 @@ public class ModuleInst {
     /**
      * 实例配置ID
      */
-    private String instanceConfigId = DEAULT_INSTANCE_CONFIG_ID;
+    private String instanceConfigId = DEFAULT_INSTANCE_CONFIG_ID;
 
     /**
      * 实例ID，默认为0，多个实例从0开始，如：0，1,2，....
      */
-    private int instanceId = DEAULT_INSTANCE_ID;
+    private int instanceId = DEFAULT_INSTANCE_ID;
 
     /**
      * 数量
      */
-    private Integer quantity = DEAULT_QUANTITY;
+    private Integer quantity = DEFAULT_QUANTITY;
 
     /**
      * 参数实例列表
