@@ -1462,10 +1462,6 @@ Lines added: 65, lines removed: 73
 
 ---
 
-
-
----
-
 _**User (2025-10-07 03:58Z)**_
 
 还有ensureProperEncoding，cleanGeneratedCode也应该放到ModuleGennerator中
@@ -1853,6 +1849,867 @@ Tool use: **todo_write**
 - **代码质量**：通过后处理确保生成的代码质量更高
 
 现在 `ModuleGenerator` 成为了一个完整的代码生成器，不仅负责调用 LLM 生成代码，还负责代码的后处理和质量优化。这样的设计更加清晰和模块化！
+
+---
+
+_**User (2025-10-07 04:18Z)**_
+
+提取一个LLMInvokerBase类，含选择的方法，含字段config
+
+---
+
+_**Assistant (default)**_
+
+<think><details><summary>Thought Process</summary>**Planning class extraction**
+
+I need to implement the extraction of the LLMInvokerBase class, including selection methods and field configuration. This likely means modifying the code in src/main/java/com/jmix/tool/impl/LLMInvokerImpl.java to extend the base. I should check if the LLMInvoker interface exists too. I’ll conduct a codebase search to inspect the necessary files, specifically by using parallel tools to read both LLMInvokerImpl.java and LLMInvoker.java.</details></think>
+
+---
+
+我将先查看 `LLMInvoker` 接口与 `LLMInvokerImpl` 当前实现，确认需要抽取到 `LLMInvokerBase` 的通用字段与方法，然后创建新基类并改造实现类继承它。
+
+---
+
+Tool use: **read_file**
+
+Read file: src/main/java/com/jmix/tool/LLMInvoker.java
+
+---
+
+Tool use: **read_file**
+
+Read file: src/main/java/com/jmix/tool/impl/LLMInvokerImpl.java
+
+---
+
+<think><details><summary>Thought Process</summary>**Planning code refactoring**
+
+I’m thinking through how to handle the selection and configuration within the implementation. I’ll keep the selection and configuration in the implementation while calling `loadLLMConfig` from the base and using create methods from there. The user wants field configuration, so I'll set up the properties in the base class and modify the model selection method. 
+
+Before I edit, I’ll create a detailed todo list since this involves multiple steps, and then I’ll implement the changes while updating status along the way. Let's get started!</details></think>
+
+---
+
+我将创建 `LLMInvokerBase`（含 `config` 字段与模型选择方法），并改造 `LLMInvokerImpl` 继承它，然后检查编译/静态检查。
+
+---
+
+Tool use: **todo_write**
+
+## Todo List
+
+- [-] 创建 LLMInvokerBase，包含 config 字段与选择模型方法
+- [ ] 将 LLM 配置加载与默认配置方法移动到基类
+- [ ] 让 LLMInvokerImpl 继承 LLMInvokerBase 并使用其方法
+
+---
+
+我先创建基类文件并把共有逻辑抽到其中，然后更新实现类继承它。
+
+---
+
+Tool use: **apply_patch**
+
+<details>
+        <summary>Apply patch for src/main/java/com/jmix/tool/impl/LLMInvokerBase.java</summary>
+      
+
+```diff
+*** Begin Patch
+*** Add File: src/main/java/com/jmix/tool/impl/LLMInvokerBase.java
++package com.jmix.tool.impl;
++
++import java.io.IOException;
++import java.io.InputStream;
++import java.util.Properties;
++
++import dev.langchain4j.model.chat.ChatLanguageModel;
++import lombok.extern.slf4j.Slf4j;
++
++/**
++ * LLM调用器基类
++ * 承载通用的配置加载与模型选择逻辑
++ */
++@Slf4j
++public abstract class LLMInvokerBase {
++
++    protected final String modelName;
++    protected final Properties config;
++
++    protected LLMInvokerBase(String modelName) {
++        this.modelName = modelName;
++        this.config = loadLLMConfig();
++    }
++
++    /**
++     * 子类需要实现：根据 {@link #modelName} 与 {@link #config} 创建模型
++     */
++    protected abstract ChatLanguageModel createLLMModel();
++
++    /**
++     * 根据模型名选择具体实现
++     */
++    protected ChatLanguageModel chooseModel() {
++        if ("qwen".equalsIgnoreCase(modelName)) {
++            return createQWenModel(config);
++        } else {
++            return createDeepSeekModel(config);
++        }
++    }
++
++    /**
++     * 供子类实现：创建 DeepSeek 模型
++     */
++    protected abstract ChatLanguageModel createDeepSeekModel(Properties config);
++
++    /**
++     * 供子类实现：创建 QWen 模型
++     */
++    protected abstract ChatLanguageModel createQWenModel(Properties config);
++
++    /**
++     * 加载 LLM 相关配置
++     */
++    protected Properties loadLLMConfig() {
++        Properties cfg = new Properties();
++        try (InputStream input = getClass().getClassLoader().getResourceAsStream("llmmodel.properties")) {
++            if (input == null) {
++                log.warn("LLM configuration file 'llmmodel.properties' not found, using default values");
++                return getDefaultLLMConfig();
++            }
++            cfg.load(input);
++            log.info("LLM configuration loaded successfully");
++        } catch (IOException e) {
++            log.error("Failed to load LLM configuration file: {}", e.getMessage());
++            return getDefaultLLMConfig();
++        }
++        return cfg;
++    }
++
++    /**
++     * 默认配置
++     */
++    protected Properties getDefaultLLMConfig() {
++        Properties defaultConfig = new Properties();
++        defaultConfig.setProperty("llm.deepseek.apiKey", "your-deepseek-api-key");
++        defaultConfig.setProperty("llm.deepseek.baseUrl", "https://api.deepseek.com/v1");
++        defaultConfig.setProperty("llm.deepseek.modelName", "deepseek-chat");
++        defaultConfig.setProperty("llm.deepseek.temperature", "0.7");
++        defaultConfig.setProperty("llm.deepseek.maxTokens", "4000");
++        defaultConfig.setProperty("llm.qwen.apiKey", "your-qwen-api-key");
++        defaultConfig.setProperty("llm.qwen.baseUrl", "https://dashscope.aliyuncs.com/compatible-mode/v1");
++        defaultConfig.setProperty("llm.qwen.modelName", "qwen-plus");
++        defaultConfig.setProperty("llm.qwen.temperature", "0.7");
++        defaultConfig.setProperty("llm.qwen.maxTokens", "4000");
++        return defaultConfig;
++    }
++}
++
+*** End Patch
+```
+
+---
+
+Tool use: **apply_patch**
+
+<details>
+        <summary>Apply patch for src/main/java/com/jmix/tool/impl/LLMInvokerImpl.java</summary>
+      
+
+```diff
+*** Begin Patch
+*** Update File: src/main/java/com/jmix/tool/impl/LLMInvokerImpl.java
+@@
+-package com.jmix.tool.impl;
+-
+-import com.jmix.tool.LLMInvoker;
+-
+-import lombok.extern.slf4j.Slf4j;
+-
+-import java.io.IOException;
+-import java.io.InputStream;
+-import java.time.Duration;
+-import java.util.Arrays;
+-import java.util.Properties;
+-
+-import dev.langchain4j.data.message.AiMessage;
+-import dev.langchain4j.data.message.SystemMessage;
+-import dev.langchain4j.data.message.UserMessage;
+-import dev.langchain4j.model.chat.ChatLanguageModel;
+-import dev.langchain4j.model.openai.OpenAiChatModel;
+-import dev.langchain4j.model.output.Response;
++package com.jmix.tool.impl;
++
++import com.jmix.tool.LLMInvoker;
++
++import lombok.extern.slf4j.Slf4j;
++
++import java.time.Duration;
++import java.util.Arrays;
++import java.util.Properties;
++
++import dev.langchain4j.data.message.AiMessage;
++import dev.langchain4j.data.message.SystemMessage;
++import dev.langchain4j.data.message.UserMessage;
++import dev.langchain4j.model.chat.ChatLanguageModel;
++import dev.langchain4j.model.openai.OpenAiChatModel;
++import dev.langchain4j.model.output.Response;
+@@
+-@Slf4j
+-public class LLMInvokerImpl implements LLMInvoker {
++@Slf4j
++public class LLMInvokerImpl extends LLMInvokerBase implements LLMInvoker {
+ 
+-    private final ChatLanguageModel llmModel;
+-    private final String modelName;
++    private final ChatLanguageModel llmModel;
+@@
+-    public LLMInvokerImpl() {
+-        this("deepseek");
+-    }
++    public LLMInvokerImpl() {
++        this("deepseek");
++    }
+@@
+-    public LLMInvokerImpl(String modelName) {
+-        this.modelName = modelName;
+-        this.llmModel = createLLMModel();
+-    }
++    public LLMInvokerImpl(String modelName) {
++        super(modelName);
++        this.llmModel = createLLMModel();
++    }
+@@
+-    private ChatLanguageModel createLLMModel() {
+-        Properties config = loadLLMConfig();
+-
+-        if ("qwen".equalsIgnoreCase(modelName)) {
+-            return createQWenModel(config);
+-        } else {
+-            return createDeepSeekModel(config);
+-        }
+-    }
++    @Override
++    protected ChatLanguageModel createLLMModel() {
++        return chooseModel();
++    }
+@@
+-    private ChatLanguageModel createDeepSeekModel(Properties config) {
++    @Override
++    protected ChatLanguageModel createDeepSeekModel(Properties config) {
+         // 优先从环境变量读取，然后从配置文件读取
+         String apiKey = System.getenv("DEEPSEEK_API_KEY");
+         if (apiKey == null || apiKey.trim().isEmpty()) {
+             apiKey = config.getProperty("deepseek.api.key");
+         }
+@@
+-    private ChatLanguageModel createQWenModel(Properties config) {
++    @Override
++    protected ChatLanguageModel createQWenModel(Properties config) {
+         // 优先从环境变量读取，然后从配置文件读取
+         String apiKey = System.getenv("QWEN_API_KEY");
+         if (apiKey == null || apiKey.trim().isEmpty()) {
+             apiKey = config.getProperty("qwen.api.key");
+         }
+@@
+-    private Properties loadLLMConfig() {
+-        Properties config = new Properties();
+-        try (InputStream input = getClass().getClassLoader().getResourceAsStream("llmmodel.properties")) {
+-            if (input == null) {
+-                log.warn("LLM configuration file 'llmmodel.properties' not found, using default values");
+-                return getDefaultLLMConfig();
+-            }
+-            config.load(input);
+-            log.info("LLM configuration loaded successfully");
+-        } catch (IOException e) {
+-            log.error("Failed to load LLM configuration file: {}", e.getMessage());
+-            return getDefaultLLMConfig();
+-        }
+-        return config;
+-    }
+-
+-    /**
+-     * 获取默认LLM配置
+-     * 
+-     * @return 默认LLM配置属性
+-     */
+-    private Properties getDefaultLLMConfig() {
+-        Properties defaultConfig = new Properties();
+-        defaultConfig.setProperty("llm.deepseek.apiKey", "your-deepseek-api-key");
+-        defaultConfig.setProperty("llm.deepseek.baseUrl", "https://api.deepseek.com/v1");
+-        defaultConfig.setProperty("llm.deepseek.modelName", "deepseek-chat");
+-        defaultConfig.setProperty("llm.deepseek.temperature", "0.7");
+-        defaultConfig.setProperty("llm.deepseek.maxTokens", "4000");
+-        defaultConfig.setProperty("llm.qwen.apiKey", "your-qwen-api-key");
+-        defaultConfig.setProperty("llm.qwen.baseUrl", "https://dashscope.aliyuncs.com/compatible-mode/v1");
+-        defaultConfig.setProperty("llm.qwen.modelName", "qwen-plus");
+-        defaultConfig.setProperty("llm.qwen.temperature", "0.7");
+-        defaultConfig.setProperty("llm.qwen.maxTokens", "4000");
+-        return defaultConfig;
+-    }
++    // 配置加载逻辑已上移至基类
+ }
+*** End Patch
+```
+
+---
+
+我刚完成了基类创建和实现类改造。现在我会运行静态检查，若有问题将立即修复。
+
+---
+
+Tool use: **read_lints**
+
+<details>
+          <summary>Read lints for 2 files</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/tool/impl/LLMInvokerBase.java`
+- `src/main/java/com/jmix/tool/impl/LLMInvokerImpl.java`
+
+Lint results
+
+Lint errors for `src/main/java/com/jmix/tool/impl/LLMInvokerBase.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| “VARIABLE_DEF”之前应该有一个空白行。 | 18:5-19:1 | DIAGNOSTIC_SEVERITY_WARNING |
+
+
+</details>
+
+---
+
+Tool use: **apply_patch**
+
+<details>
+        <summary>Apply patch for src/main/java/com/jmix/tool/impl/LLMInvokerBase.java</summary>
+      
+
+```diff
+*** Begin Patch
+*** Update File: src/main/java/com/jmix/tool/impl/LLMInvokerBase.java
+@@
+ @Slf4j
+ public abstract class LLMInvokerBase {
+ 
+     protected final String modelName;
+     protected final Properties config;
+*** End Patch
+```
+
+---
+
+Tool use: **read_lints**
+
+<details>
+          <summary>Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/tool/impl/LLMInvokerBase.java`
+
+Lint results
+
+Lint errors for `src/main/java/com/jmix/tool/impl/LLMInvokerBase.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| “VARIABLE_DEF”之前应该有一个空白行。 | 18:5-19:1 | DIAGNOSTIC_SEVERITY_WARNING |
+
+
+</details>
+
+---
+
+<think><details><summary>Thought Process</summary>**Checking code formatting**
+
+I’m wondering if we need to add a blank line before defining a variable. Does the style guide suggest we should leave an empty line after the class opening too? Right now, it looks like there's a blank line after the class declaration. I think it might be a good idea to open the file and check on the exact formatting to ensure everything aligns with the style requirements. That will help me see what’s needed!</details></think>
+
+---
+
+Tool use: **read_file**
+
+Read file: src/main/java/com/jmix/tool/impl/LLMInvokerBase.java
+
+---
+
+
+
+---
+
+_**User (2025-10-07 04:18Z)**_
+
+base类中不要引用ChatLanguageModel
+
+---
+
+_**Assistant (default)**_
+
+<think><details><summary>Thought Process</summary>**Refactoring code structure**
+
+I'm working on updating `LLMInvokerImpl.java` to extend from `LLMInvokerBase<ChatLanguageModel>`, which involves matching method signatures to ensure everything aligns properly. I need to check for any lingering imports of `ChatLanguageModel` and address any linter issues. This is a small but multi-step refactor affecting two files, so I'll create two to-dos: one for genericizing the base class and another for adjusting the implementation class. After each edit, I'll mark the tasks complete and run the appropriate lints to finalize. Let's get to it!</details></think>
+
+---
+
+我将把基类改为泛型，移除对 `ChatLanguageModel` 的所有引用；随后更新 `LLMInvokerImpl` 继承泛型基类。完成后我会检查静态问题。
+
+---
+
+Tool use: **todo_write**
+
+## Todo List
+
+- [-] 将 LLMInvokerBase 改为泛型以移除 ChatLanguageModel 依赖
+- [ ] 更新 LLMInvokerImpl 以继承新的泛型基类
+
+---
+
+我先修改 `LLMInvokerBase` 去除 `ChatLanguageModel` 依赖并引入泛型，然后并行更新 `LLMInvokerImpl` 的继承与方法签名。接着我会运行一次静态检查。
+
+---
+
+Tool use: **read_file**
+
+Read file: src/main/java/com/jmix/tool/impl/LLMInvokerBase.java
+
+---
+
+Tool use: **read_file**
+
+Read file: src/main/java/com/jmix/tool/impl/LLMInvokerImpl.java
+
+---
+
+
+
+---
+
+我将把 `LLMInvokerBase` 改造成泛型，移除 `ChatLanguageModel` 的引用；并同步更新 `LLMInvokerImpl` 继承 `LLMInvokerBase<ChatLanguageModel>` 以及相应方法签名。接着我会运行静态检查。
+
+---
+
+Tool use: **apply_patch**
+
+<details>
+        <summary>Apply patch for src/main/java/com/jmix/tool/impl/LLMInvokerBase.java</summary>
+      
+
+```diff
+*** Begin Patch
+*** Update File: src/main/java/com/jmix/tool/impl/LLMInvokerBase.java
+@@
+-package com.jmix.tool.impl;
+-
+-import lombok.extern.slf4j.Slf4j;
+-
+-import java.io.IOException;
+-import java.io.InputStream;
+-import java.util.Properties;
+-
+-import dev.langchain4j.model.chat.ChatLanguageModel;
++package com.jmix.tool.impl;
++
++import lombok.extern.slf4j.Slf4j;
++
++import java.io.IOException;
++import java.io.InputStream;
++import java.util.Properties;
+@@
+-@Slf4j
+-public abstract class LLMInvokerBase {
++@Slf4j
++public abstract class LLMInvokerBase<M> {
+@@
+-    protected LLMInvokerBase(String modelName) {
++    protected LLMInvokerBase(String modelName) {
+         this.modelName = modelName;
+         this.config = loadLLMConfig();
+     }
+@@
+-    protected abstract ChatLanguageModel createLLMModel();
++    protected abstract M createLLMModel();
+@@
+-    protected ChatLanguageModel chooseModel() {
++    protected M chooseModel() {
+         if ("qwen".equalsIgnoreCase(modelName)) {
+             return createQWenModel(config);
+         } else {
+             return createDeepSeekModel(config);
+         }
+     }
+@@
+-    protected abstract ChatLanguageModel createDeepSeekModel(Properties config);
++    protected abstract M createDeepSeekModel(Properties config);
+@@
+-    protected abstract ChatLanguageModel createQWenModel(Properties config);
++    protected abstract M createQWenModel(Properties config);
+*** End Patch
+```
+
+---
+
+Tool use: **apply_patch**
+
+<details>
+        <summary>Apply patch for src/main/java/com/jmix/tool/impl/LLMInvokerImpl.java</summary>
+      
+
+```diff
+*** Begin Patch
+*** Update File: src/main/java/com/jmix/tool/impl/LLMInvokerImpl.java
+@@
+-@Slf4j
+-public class LLMInvokerImpl extends LLMInvokerBase implements LLMInvoker {
++@Slf4j
++public class LLMInvokerImpl extends LLMInvokerBase<ChatLanguageModel> implements LLMInvoker {
+@@
+-    protected ChatLanguageModel createLLMModel() {
++    protected ChatLanguageModel createLLMModel() {
+         return chooseModel();
+     }
+@@
+-    protected ChatLanguageModel createDeepSeekModel(Properties config) {
++    protected ChatLanguageModel createDeepSeekModel(Properties config) {
+         // 优先从环境变量读取，然后从配置文件读取
+         String apiKey = System.getenv("DEEPSEEK_API_KEY");
+@@
+-    protected ChatLanguageModel createQWenModel(Properties config) {
++    protected ChatLanguageModel createQWenModel(Properties config) {
+         // 优先从环境变量读取，然后从配置文件读取
+         String apiKey = System.getenv("QWEN_API_KEY");
+*** End Patch
+```
+
+---
+
+Tool use: **read_lints**
+
+<details>
+          <summary>Read lints for 2 files</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/tool/impl/LLMInvokerBase.java`
+- `src/main/java/com/jmix/tool/impl/LLMInvokerImpl.java`
+
+Lint results
+
+Lint errors for `src/main/java/com/jmix/tool/impl/LLMInvokerBase.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| “VARIABLE_DEF”之前应该有一个空白行。 | 17:5-18:1 | DIAGNOSTIC_SEVERITY_WARNING |
+
+
+</details>
+
+---
+
+Tool use: **todo_write**
+
+## Todo List
+
+- [x] 将 LLMInvokerBase 改为泛型以移除 ChatLanguageModel 依赖
+- [-] 更新 LLMInvokerImpl 以继承新的泛型基类
+
+---
+
+- 我已将 `LLMInvokerBase` 改为泛型 `LLMInvokerBase<M>`，完全移除了对 `ChatLanguageModel` 的引用；`chooseModel/createDeepSeekModel/createQWenModel/createLLMModel` 等方法均改为返回泛型 `M`。
+- 同步更新了 `LLMInvokerImpl` 使其继承 `LLMInvokerBase<ChatLanguageModel>`，实现签名保持一致，无需改动业务逻辑。
+- 目前仅余一个格式化 warning（空白行）不影响编译；如需我可按你项目的 Checkstyle/Spotless 规则进一步格式化。
+
+小结
+- 基类已不依赖 `ChatLanguageModel`，实现类类型安全继承。
+
+---
+
+_**User (2025-10-07 04:18Z)**_
+
+base类中不要引用ChatLanguageModel，base仅含config就可以
+
+---
+
+_**Assistant (default)**_
+
+<think><details><summary>Thought Process</summary>**Adjusting class structure**
+
+I need to adjust based on the user's request. They reversed our previous change by restoring a non-generic base while reintroducing the ChatLanguageModel import and signatures. The user specifically wants the base to no longer reference ChatLanguageModel and only include configuration details. So, I should modify LLMInvokerBase by not importing ChatLanguageModel and possibly removing model selection and creation methods. They indicated that the base should only contain config, suggesting removing modelName too, but LLMInvokerImpl relies on it.
+**Planning code modifications**
+
+This suggests I need to make edits to LLMInvokerImpl to define its own modelName field and logic for choosing models. First, I need to edit LLMInvokerBase.java by removing the ChatLanguageModel import and potentially the model name field, since the user specified it should only contain the config. I'll keep a constructor that loads the config without any parameters and provide methods for loading properties. Then, in LLMInvokerImpl.java, I'll shift the logic for choosing models to this implementation, creating any necessary private methods without overriding the base.
+**Implementing update tasks**
+
+I also need to update the super() constructor call to not include arguments. Next, I’ll ensure that all logging strings are in English and take care of any lint issues. 
+
+I'll review the current todo list, which has "update impl" in progress and needs a new entry for "refactor base to config only." Since the user wants to undo our previous changes, I'll mark the generic base as complete and create a new todo for moving model creation logic to the implementation, starting with it in progress and marking it complete once done. First, I should read the files again for any recent changes.</details></think>
+
+---
+
+我将把 `LLMInvokerBase` 精简为仅负责加载/提供 `Properties config`，移除对 `ChatLanguageModel` 的所有引用与模型相关方法；随后把模型选择与构建逻辑全部下移到 `LLMInvokerImpl`，并修正构造与字段。接着我会运行一次静态检查。
+
+---
+
+Tool use: **read_file**
+
+Read file: src/main/java/com/jmix/tool/impl/LLMInvokerBase.java
+
+---
+
+Tool use: **read_file**
+
+Read file: src/main/java/com/jmix/tool/impl/LLMInvokerImpl.java
+
+---
+
+
+
+---
+
+我要先把 `LLMInvokerBase` 精简为仅保留 `Properties config` 与配置加载方法，然后把模型选择与构建逻辑完全下移到 `LLMInvokerImpl` 中，更新其构造与私有方法来创建模型。随后我会运行静态检查。
+
+---
+
+The model made no changes to the file.
+
+---
+
+
+
+---
+
+我将把 `LLMInvokerBase` 简化为只保留 `Properties config` 和无参构造，删除与模型相关的字段、导入和抽象方法；随后调整 `LLMInvokerImpl` 以在实现类内私有化模型创建逻辑，并添加本地 `modelName` 字段，更新构造和移除不再适用的 `@Override`。我现在进行这些编辑并随后检查静态问题。
+
+---
+
+The model made no changes to the file.
+
+---
+
+
+
+---
+
+我准备精简 `LLMInvokerBase`：移除 `ChatLanguageModel` 相关的导入、字段与抽象方法，仅保留配置加载；随后更新 `LLMInvokerImpl`：新增本地 `modelName` 字段，`super()` 无参构造，移除不再存在的 `@Override`，并在实现类内实现模型选择与创建逻辑。接着我会检查代码风格警告。
+
+---
+
+The model made no changes to the file.
+
+---
+
+Tool use: **edit_file**
+
+
+<details><summary>Edit file: src/main/java/com/jmix/tool/impl/LLMInvokerBase.java</summary>
+
+**Chunk 1**
+Lines added: 2, lines removed: 32
+
+```diff
+@@ -6,47 +6,17 @@
+  import java.io.InputStream;
+  import java.util.Properties;
+- 
+- import dev.langchain4j.model.chat.ChatLanguageModel;
+  
+  /**
+   * LLM调用器基类
+-  * 承载通用的配置加载与模型选择逻辑
++  * 承载通用的配置加载逻辑
+   */
+  @Slf4j
+  public abstract class LLMInvokerBase {
+  
+-     protected final String modelName;
+      protected final Properties config;
+  
+-     protected LLMInvokerBase(String modelName) {
+-         this.modelName = modelName;
++     protected LLMInvokerBase() {
+          this.config = loadLLMConfig();
+      }
+- 
+-     /**
+-      * 子类需要实现：根据 {@link #modelName} 与 {@link #config} 创建模型
+-      */
+-     protected abstract ChatLanguageModel createLLMModel();
+- 
+-     /**
+-      * 根据模型名选择具体实现
+-      */
+-     protected ChatLanguageModel chooseModel() {
+-         if ("qwen".equalsIgnoreCase(modelName)) {
+-             return createQWenModel(config);
+-         } else {
+-             return createDeepSeekModel(config);
+-         }
+-     }
+- 
+-     /**
+-      * 供子类实现：创建 DeepSeek 模型
+-      */
+-     protected abstract ChatLanguageModel createDeepSeekModel(Properties config);
+- 
+-     /**
+-      * 供子类实现：创建 QWen 模型
+-      */
+-     protected abstract ChatLanguageModel createQWenModel(Properties config);
+  
+      /**
+```
+
+</details>
+
+---
+
+Tool use: **apply_patch**
+
+<details>
+        <summary>Apply patch for src/main/java/com/jmix/tool/impl/LLMInvokerImpl.java</summary>
+      
+
+```diff
+*** Begin Patch
+*** Update File: src/main/java/com/jmix/tool/impl/LLMInvokerImpl.java
+@@
+ @Slf4j
+-public class LLMInvokerImpl extends LLMInvokerBase implements LLMInvoker {
++public class LLMInvokerImpl extends LLMInvokerBase implements LLMInvoker {
+ 
+-    private final ChatLanguageModel llmModel;
++    private final String modelName;
++    private final ChatLanguageModel llmModel;
+@@
+-    public LLMInvokerImpl() {
+-        this("deepseek");
++    public LLMInvokerImpl() {
++        this("deepseek");
+     }
+@@
+-    public LLMInvokerImpl(String modelName) {
+-        super(modelName);
+-        this.llmModel = createLLMModel();
++    public LLMInvokerImpl(String modelName) {
++        super();
++        this.modelName = modelName;
++        this.llmModel = createLLMModel();
+     }
+@@
+-    @Override
+-    protected ChatLanguageModel createLLMModel() {
+-        return chooseModel();
+-    }
++    private ChatLanguageModel createLLMModel() {
++        return chooseModel();
++    }
+@@
+-    @Override
+-    protected ChatLanguageModel createDeepSeekModel(Properties config) {
++    private ChatLanguageModel createDeepSeekModel(Properties config) {
+@@
+-    @Override
+-    protected ChatLanguageModel createQWenModel(Properties config) {
++    private ChatLanguageModel createQWenModel(Properties config) {
+@@
+-    /**
+-     * 加载LLM相关配置
+-     * 
+-     * @return LLM配置属性
+-     */
+-    // 配置加载逻辑已上移至基类
++    private ChatLanguageModel chooseModel() {
++        if ("qwen".equalsIgnoreCase(modelName)) {
++            return createQWenModel(config);
++        } else {
++            return createDeepSeekModel(config);
++        }
++    }
+ }
+*** End Patch
+```
+
+---
+
+Tool use: **read_lints**
+
+<details>
+          <summary>Read lints for 2 files</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/tool/impl/LLMInvokerBase.java`
+- `src/main/java/com/jmix/tool/impl/LLMInvokerImpl.java`
+
+Lint results
+
+Lint errors for `src/main/java/com/jmix/tool/impl/LLMInvokerImpl.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| “VARIABLE_DEF”之前应该有一个空白行。 | 28:5-29:1 | DIAGNOSTIC_SEVERITY_WARNING |
+
+
+</details>
+
+---
+
+Tool use: **todo_write**
+
+## Todo List
+
+- [x] 将 LLMInvokerBase 改为泛型以移除 ChatLanguageModel 依赖
+- [x] 更新 LLMInvokerImpl 以继承新的泛型基类
+
+---
+
+已完成以下调整并通过静态检查（仅有轻微格式 warning，不影响编译）：
+- 精简 `LLMInvokerBase`：删除 `ChatLanguageModel` 导入、`modelName` 字段及所有与模型相关的抽象方法；改为无参构造，仅负责加载并提供 `Properties config`。
+- 下移模型逻辑到 `LLMInvokerImpl`：新增本地 `modelName` 字段；`super()` 无参；在实现类内实现 `createLLMModel/chooseModel/createDeepSeekModel/createQWenModel` 为私有方法，保持业务逻辑不变。
+
+你现在可以在实现类中自由扩展模型策略，基类不再依赖任何具体 LLM 类型。
+
+---
+
+_**User (2025-10-07 08:53Z)**_
+
+配置文件调整到resource\cengine目录下，当前获取的input为null，请修改
+
+---
+
+_**Assistant (default)**_
+
+<think><details><summary>Thought Process</summary>**Modifying code for properties loading**
+
+I need to adjust the code so it loads properties from the resource cengine directory. The current method, getResourceAsStream("llmmodel.properties"), is returning null, so I suspect the new path should be "cengine/llmmodel.properties." It seems like using Thread.currentThread().getContextClassLoader().getResourceAsStream could be a broader way to handle it. I’ll need to ensure that the modelName field in the base class still works and add logs in English for clarity. Lastly, I should read the necessary files for precise editing.
+**Updating file reads and edits**
+
+I’m considering whether to use multi_tool_use.parallel for reading files. It seems I only need to do a read_file for the base class, but I might also want to adjust tests by changing the resource path. My plan is to concurrently read_file for both LLMInvokerBase and LLMInvokerImpl, then apply any edits using apply_patch. I’ll need to ensure there are no Chinese logs. A to-do list might not be necessary, but I’ll include a status update for clarity, keeping it brief. Let's go ahead with the parallel reads.</details></think>
+
+---
+
+我先查看 `LLMInvokerBase` 与 `LLMInvokerImpl`，确认当前资源加载实现与需要修改的位置，然后把配置加载路径改为 `cengine/llmmodel.properties`，并加上回退策略。随后会应用编辑。
+
+---
+
+Tool use: **read_file**
+
+Read file: src/main/java/com/jmix/tool/impl/LLMInvokerBase.java
+
+---
+
+Tool use: **read_file**
+
+Read file: src/main/java/com/jmix/tool/impl/LLMInvokerImpl.java
+
+---
+
+
 
 ---
 

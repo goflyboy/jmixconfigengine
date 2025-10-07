@@ -124,6 +124,6 @@ public class PromptTemplateLoader {
         variables.put("userLogicByPseudocode", userLogicByPseudocode);
         variables.put("userTestCaseSpec", userTestCaseSpec != null ? userTestCaseSpec : "");
 
-        return loadAndRenderTemplate("constraint_generate_prompt.jtl", variables);
+        return loadAndRenderTemplate("cengine/constraint_generate_prompt.jtl", variables);
     }
 }
