@@ -14,15 +14,17 @@ import com.jmix.tool.impl.StructCodeInjector;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 模型文件生成器
@@ -100,13 +102,14 @@ public class ModelHelper {
             log.info("Successfully generated test file: {}", fullPath.toAbsolutePath());
 
             // 尝试编译生成的Java文件
-            compileJavaFile(fullPath);
+            String projectRoot = System.getProperty("user.dir");
+            new com.jmix.tool.impl.ModuleCompiler().compile(projectRoot, fullPath.toString());
 
-            // 新增代码：自动注入约束代码
-            boolean isNeedInject = autoInjectConstraintCode(className, packageName);
-            if (isNeedInject) {
-                compileJavaFile(fullPath); // 再次编译这个文件
-            }
+            // // 新增代码：自动注入约束代码
+            // boolean isNeedInject = autoInjectConstraintCode(className, packageName);
+            // if (isNeedInject) {
+            // compileJavaFile(fullPath); // 再次编译这个文件
+            // }
 
         } catch (Exception e) {
             throw new ModelGenneratorException("Failed to generate model file: " + e.getMessage(),
@@ -194,8 +197,37 @@ public class ModelHelper {
 
             log.info("Running test class: {}", fullClassName);
 
+            // Prepare runtime classpath using URLClassLoader (target dirs + lib jars)
+            String projectRoot = System.getProperty("user.dir");
+            List<URL> runtimeUrls = new ArrayList<>();
+            try {
+                File mainClasses = new File(projectRoot + File.separator + "target" + File.separator + "classes");
+                if (mainClasses.exists()) {
+                    runtimeUrls.add(mainClasses.toURI().toURL());
+                }
+                File testClasses = new File(projectRoot + File.separator + "target" + File.separator + "test-classes");
+                if (testClasses.exists()) {
+                    runtimeUrls.add(testClasses.toURI().toURL());
+                }
+                File libDir = new File(projectRoot + File.separator + "lib");
+                if (libDir.exists() && libDir.isDirectory()) {
+                    File[] jarFiles = libDir.listFiles((dir, name) -> name.toLowerCase().endsWith(".jar"));
+                    if (jarFiles != null) {
+                        for (File jar : jarFiles) {
+                            runtimeUrls.add(jar.toURI().toURL());
+                        }
+                    }
+                }
+            } catch (Exception urlEx) {
+                log.warn("Failed to prepare runtime URLs: {}", urlEx.getMessage());
+            }
+
+            ClassLoader parent = Thread.currentThread().getContextClassLoader();
+            URLClassLoader urlClassLoader = new URLClassLoader(runtimeUrls.toArray(new URL[0]), parent);
+            Thread.currentThread().setContextClassLoader(urlClassLoader);
+
             // 使用反射加载测试类
-            Class<?> testClass = Class.forName(fullClassName);
+            Class<?> testClass = Class.forName(fullClassName, true, urlClassLoader);
 
             // 检查是否有main方法
             try {
@@ -221,61 +253,7 @@ public class ModelHelper {
      * 
      * @param javaFilePath Java文件路径
      */
-    private void compileJavaFile(Path javaFilePath) {
-        try {
-            log.info("Compiling Java file: {}", javaFilePath.getFileName());
-
-            // 获取项目根目录
-            String projectRoot = System.getProperty("user.dir");
-            String classpath = projectRoot + "/target/classes;"
-                    + projectRoot + "/target/test-classes;"
-                    + projectRoot + "/lib/*";
-
-            // 构建编译命令
-            ProcessBuilder pb = new ProcessBuilder(
-                    "javac",
-                    "-cp", classpath,
-                    "-d", projectRoot + "/target/test-classes",
-                    javaFilePath.toString());
-
-            // 设置工作目录
-            pb.directory(new File(projectRoot));
-
-            // 执行编译
-            Process process = pb.start();
-
-            // 读取编译输出
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(process.getInputStream()))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    log.info("Compilation output: {}", line);
-                }
-            }
-
-            // 读取编译错误
-            try (BufferedReader errorReader = new BufferedReader(
-                    new InputStreamReader(process.getErrorStream()))) {
-                String line;
-                while ((line = errorReader.readLine()) != null) {
-                    log.error("Compilation error: {}", line);
-                }
-            }
-
-            // 等待编译完成
-            int exitCode = process.waitFor();
-
-            if (exitCode == 0) {
-                log.info("✓ Java file compiled successfully");
-            } else {
-                log.error("✗ Java file compilation failed, exit code: {}", exitCode);
-            }
-
-        } catch (Exception e) {
-            log.error("Failed to compile Java file: {}", e.getMessage());
-            log.error("Please ensure Java compiler (javac) is installed");
-        }
-    }
+    // compile(javaDir, classDir, javaFilePath) 已迁移至 ModuleCompiler
 
     /**
      * 自动注入约束代码

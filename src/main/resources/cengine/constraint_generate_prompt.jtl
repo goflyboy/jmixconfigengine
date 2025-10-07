@@ -54,7 +54,7 @@ public class PartVar {
 --如果约束代码里使用了isHidden,则该变量需要调用addVarAboutHiddenConstraints(在“约束关联的变量设置地方”)
 -----例如： 有约束 P1.isHidden = P2.isHidden,则需要增加： addVarAboutHiddenConstraints(P1,P2);
 ```java
-class ConstraintAlgImpl {
+class ConstraintAlgImplTestBase {
     protected CpModel model; 
     protected Module module;
     protected void initConstraint() {
@@ -171,6 +171,7 @@ assertSolutionNum("P1:op11,P2:op21", 0);
 ### 2. 代码模板
 ```java
 package ${packageName};
+
 import com.jmix.coretest.*; 
 import com.jmix.executor.imodel.*;
 import com.jmix.executor.imodel.anno.*; 
@@ -186,7 +187,7 @@ public class ${modelName}Test extends ModuleScenarioTestBase {
     static public class ${modelName}Constraint extends ConstraintAlgImplTestBase {
         ${userVariableModel}
         
-        ${生成的约束代码}//每个rule一个rule方法
+        ${生成的约束代码}// 每个rule一个rule方法
     }
     //---------------模型的定义end----------------------------------------
 
@@ -198,16 +199,20 @@ public class ${modelName}Test extends ModuleScenarioTestBase {
 }
 ```
 
-## 五、案例示例
+## 五、案例示例 
 
 ### 案例1：T恤衫配置
+#### 输入1：包名packageName
+```
+com.jmix.scenario
+```
 
-#### 输入1：模型名称
+#### 输入2：模型名称modelName
 ```
 HelloSample
 ```
 
-#### 输入2：用户变量建模
+#### 输入3：用户变量建模userVariableModel
 ```java
 @ParaAnno( 
     options = {"Red", "Black", "White"}
@@ -223,7 +228,7 @@ private ParaVar sizeVar;
 private PartVar tShirt11Var;
 ```
 
-#### 输入3：用户逻辑伪代码
+#### 输入4：用户逻辑伪代码userLogicByPseudocode
 ```java
 
 //rule1:
@@ -241,12 +246,15 @@ else {
 
 #### 输出：完整的测试代码
 ```java
+package com.jmix.scenario
+
 import com.jmix.coretest.*; 
 import com.jmix.executor.imodel.*;
 import com.jmix.executor.imodel.anno.*; 
 import com.google.ortools.sat.*; 
 import lombok.extern.slf4j.Slf4j; 
 import org.junit.jupiter.api.Test;
+
 /**
  * Hello模块约束算法测试
  *
@@ -279,6 +287,7 @@ public class HelloSampleTest extends ModuleScenarioTestBase {
         @PartAnno()
         private PartVar tShirt11Var;
 
+        //rule1
         @CodeRuleAnno(normalNaturalCode = "if(colorVar.value == Red && sizeVar.value == Small) {\n tShirt11Var.qty = 1;\n  } else {\n tShirt11Var.qty = 3; }")
         private void rule1() {
             // 创建条件变量：颜色是红色且尺寸是小号
@@ -303,6 +312,8 @@ public class HelloSampleTest extends ModuleScenarioTestBase {
             // 如果redAndSmall为false，则tShirt11数量为3
             model.addEquality(this.tShirt11Var.value, 3).onlyEnforceIf(redAndSmall.not());
         }
+
+        //rule2:
         @CodeRuleAnno(normalNaturalCode = "colorVar.isHidden and sizeVar.isHidden 是兼容的)
         private void rule2() {
             addVarAboutHiddenConstraints(colorVar, sizeVar);

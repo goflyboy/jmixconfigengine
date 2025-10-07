@@ -249,19 +249,20 @@ public class ModuleGenerator {
      * @return 处理后的代码
      */
     public String postProcessCode(String code) {
-        if (code == null || code.trim().isEmpty()) {
-            return code;
-        }
+        return code;
+        // if (code == null || code.trim().isEmpty()) {
+        // return code;
+        // }
 
-        log.debug("Post-processing generated code");
+        // log.debug("Post-processing generated code");
 
-        // 1. 确保编码正确
-        String encodedCode = ensureProperEncoding(code);
+        // // 1. 确保编码正确
+        // String encodedCode = ensureProperEncoding(code);
 
-        // 2. 清理代码
-        String cleanedCode = cleanGeneratedCode(encodedCode);
+        // // 2. 清理代码
+        // String cleanedCode = cleanGeneratedCode(encodedCode);
 
-        log.debug("Code post-processing completed");
-        return cleanedCode;
+        // log.debug("Code post-processing completed");
+        // return cleanedCode;
     }
 }
