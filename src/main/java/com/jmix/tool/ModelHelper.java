@@ -125,8 +125,10 @@ public class ModelHelper {
      */
     private String getTestSourcePath(String packageName) {
         // 获取当前工作目录
-        String currentDir = System.getProperty("user.dir");
-
+        String currentDir = ""; // System.getProperty("user.dir"); 多Module的情况下，路径取的是跟project的地址
+        String classPath = Thread.currentThread().getContextClassLoader().getResource("").getPath();
+        currentDir = classPath.substring(1, classPath.indexOf("/target"));
+        currentDir = currentDir.replace('/', File.separatorChar);
         // 构建测试源码路径
         String packagePath = packageName.replace('.', File.separatorChar);
         return currentDir + File.separator + "src" + File.separator + "test" + File.separator + "java" + File.separator
