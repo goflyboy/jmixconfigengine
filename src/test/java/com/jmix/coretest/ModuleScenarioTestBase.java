@@ -576,22 +576,20 @@ public abstract class ModuleScenarioTestBase {
         sb.append(System.lineSeparator()).append("******************************************")
                 .append(System.lineSeparator());
         // 打印缩语解释
-        sb.append("Abbreviation explanation:").append(System.lineSeparator());
+        sb.append("1.Abbreviation explanation:").append(System.lineSeparator());
 
         // 1. shortCodes(P1:Size, P2:Color,PT1:part1)
-        sb.append("1.").append(module.getProgObjShortCodeMemo()).append(System.lineSeparator());
+        sb.append("1.1. ").append(module.getProgObjShortCodeMemo()).append(System.lineSeparator());
         // 2. Attrs(V:value, H:isHidden, Q:qty)
-        sb.append("2. Attrs(V:value, H:isHidden, Q:qty)").append(System.lineSeparator());
+        sb.append("1.2. Attrs(V:value, H:isHidden, Q:qty)").append(System.lineSeparator());
         // 3. Other Variable shortName
-        sb.append("3. Other Variable shortName:").append(System.lineSeparator());
+        sb.append("1.3. Other Variable shortName:").append(System.lineSeparator());
         printOthers(solutions, sb);
 
-        sb.append("Solutions:").append(System.lineSeparator());
-
-        sb.append(System.lineSeparator());
+        sb.append("2.Solutions:").append(System.lineSeparator());
         // 打印解
         for (int i = 0; i < solutions.size(); i++) {
-            sb.append("S_").append(i + 1).append(": ").append(solutions.get(i).toShortString())
+            sb.append(" S_").append(i + 1).append(": ").append(solutions.get(i).toShortString())
                     .append(System.lineSeparator());
         }
         sb.append(System.lineSeparator()).append("******************************************")

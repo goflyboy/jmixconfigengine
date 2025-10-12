@@ -170,8 +170,8 @@ public class ModuleInst {
             }
             sb.append(entry.getKey()).append(":").append(entry.getValue());
             first = false;
-            sb.append(")");
         }
+        sb.append(")");
     }
 
 }

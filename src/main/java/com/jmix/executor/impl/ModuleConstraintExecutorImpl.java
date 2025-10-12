@@ -318,6 +318,8 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
         // 根据请求初始化约束模型
         initModelByReq(req, alg);
 
+        // 添加松弛目标函数, 方便调试
+        alg.addRelaxObjectFunction();
         return alg;
     }
 

@@ -181,7 +181,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @throws AlgLoaderException 异常
      */
     private void setDefaultVisibilityConstraints() {
-        this.model.setCurrentRelaxationVarName("Framework_setDefaultVisibilityConstraints");
+        boolean isFirst = true;
         for (Map.Entry<String, Var<?>> entry : varMap.entrySet()) {
             String code = entry.getKey();
             if (codesOfHiddenConstraint.contains(code)) {
@@ -189,11 +189,19 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             }
             Var<?> v = entry.getValue();
             if (v instanceof ParaVar) {
+                if (isFirst) {
+                    this.model.setCurrentRelaxationVarName("hiddensrule");
+                    isFirst = false;
+                }
                 ParaVar pv = (ParaVar) v;
                 // 暂时没有添加到松弛变量里
                 model.addEquality(pv.getIsHidden(), 0);
 
             } else if (v instanceof PartVar) {
+                if (isFirst) {
+                    this.model.setCurrentRelaxationVarName("hiddensrule");
+                    isFirst = false;
+                }
                 PartVar pt = (PartVar) v;
                 model.addEquality(pt.getIsHidden(), 0);
             } else {
@@ -261,16 +269,13 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             executeRuleMethod(ruleCode, method);
         }
         log.info("Executed  {} requested rules", exeRules.size());
-
-        // 目标函数：最小化需要松弛的约束数量
-        addRelaxObjectFunction();
     }
 
     /**
      * 添加松弛目标函数
      * 目标函数：最小化需要松弛的约束数量
      */
-    private void addRelaxObjectFunction() {
+    public void addRelaxObjectFunction() {
         if (!model.isIsAttachRelax()) {
             return;
         }

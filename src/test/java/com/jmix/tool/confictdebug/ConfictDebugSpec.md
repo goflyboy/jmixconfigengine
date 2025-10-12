@@ -28,9 +28,9 @@ private PartVar y;
 ##userTestCaseSpec
 ```java
 //testcase1: 
- debugByRelaxationVar设置为false,     inferParas("y", 3); 预期结果为：success, assertSolutionNum为0
+ debugByRelaxationVar设置为false,     inferParasByPara(); 预期结果为：success, assertSolutionNum为0
  
 //testcase2:
- debugByRelaxationVar设置为true,      inferParas("y", 3); 预期结果为：no_solution, message的冲突规则为rule3
+ debugByRelaxationVar设置为true,      inferParasByPara(); 预期结果为：no_solution, message的冲突规则为rule3
 
 ```  

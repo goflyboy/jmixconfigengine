@@ -99,12 +99,12 @@ public class AlgCPModel {
             return;
         }
         log.info("relax:{} -----setCurrentRelaxationVarName", relaxationVarName);
-        this.currentRelaxationVarName = relaxationVarName;
+        this.currentRelaxationVarName = "relax_" + relaxationVarName;
         this.currentRelaxationVar = newBoolVar(this.currentRelaxationVarName);
-        if (relaxationVarMap.containsKey(relaxationVarName)) {
+        if (relaxationVarMap.containsKey(this.currentRelaxationVarName)) {
             throw new AlgLoaderException("Relaxation variable already exists: " + relaxationVarName);
         }
-        relaxationVarMap.put(relaxationVarName, this.currentRelaxationVar);
+        relaxationVarMap.put(this.currentRelaxationVarName, this.currentRelaxationVar);
     }
 
     /**

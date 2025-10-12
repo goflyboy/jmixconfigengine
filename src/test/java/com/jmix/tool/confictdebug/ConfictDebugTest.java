@@ -71,7 +71,7 @@ public class ConfictDebugTest extends ModuleScenarioTestBase {
         // result: success, assertSolutionNum is 0
         cfg.setDebugByRelaxationVar(false);
         inferParasByPara();
-
+        printSolutions();
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(0);
@@ -79,13 +79,12 @@ public class ConfictDebugTest extends ModuleScenarioTestBase {
 
     @Test
     public void testCase2() {
-        // Test case 2: debugByRelaxationVar set to true, inferParas("y", 3); expected
+        // Test case 2: debugByRelaxationVar set to true, inferParas(); expected
         // result: no_solution, conflict rule is rule3
         cfg.setDebugByRelaxationVar(true);
         inferParasByPara();
         printSolutions();
         resultAssert()
                 .assertNoSolution().assertMessageContains("rule3");
-        // Note: Conflict rule detection would be handled by the framework
     }
 }
