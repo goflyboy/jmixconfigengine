@@ -19,6 +19,7 @@ import com.jmix.executor.omodel.Result;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.CpModel;
 import com.google.ortools.sat.CpSolver;
 import com.google.ortools.sat.CpSolverStatus;
@@ -107,24 +108,15 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
             Module module = getModule(req.getModuleId(), req.getModuleCode());
             module.init();
 
-            // 初始化约束模型
-            ConstraintAlgImpl alg = initConstraintModel(module, req);
-            CpModel model = alg.getModel().getCpModel();
-
-            if (config.isLogModelProto()) {
-                // 将module的CpModelProto信息输出到文件config.logFilePath/module.proto.txt
-                model.exportToFile(config.getLogFilePath() + File.separator + module.getCode() + ".proto.txt");
-            }
-            CpSolver solver = new CpSolver();
-            solver.getParameters().setEnumerateAllSolutions(req.isEnumerateAllSolution());
-            solver.getParameters().setNumSearchWorkers(1); // 单线程搜索，防止有重复解
-            log.info("solver parameters:\n" + solver.getParameters().toString());
-            // 可按需设置更多参数
-            ModuleInstSolutionCallBack cb = new ModuleInstSolutionCallBack(module, alg.getVars(), alg.getOtherVarMap());
-            CpSolverStatus status = solver.solve(model, cb);
-
+            // 执行约束推理
+            Pair<CpSolverStatus, ModuleInstSolutionCallBack> result = runInferParas(module, req, false);
+            CpSolverStatus status = result.getFirst();
+            ModuleInstSolutionCallBack cb = result.getSecond();
             // 如果模型无效，调用ValidateCpModel获取详细错误信息
             if (status == CpSolverStatus.MODEL_INVALID) {
+                // 重新获取模型进行验证
+                ConstraintAlgImpl alg = initConstraintModel(module, req, false);
+                CpModel model = alg.getModel().getCpModel();
                 String validationError = model.validate();
                 log.error("Model validation failed: {}", validationError);
                 return Result.failed("Model validation failed: " + validationError);
@@ -134,7 +126,36 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
                     && status != CpSolverStatus.INFEASIBLE) {
                 return Result.failed("solver status: " + status);
             }
+            if (status == CpSolverStatus.INFEASIBLE && config.isDebugByRelaxationVar()) {
+                // 没有可行解，如果 debugByRelaxationVar= true，则使用松弛变量检测冲突规则
+                result = runInferParas(module, req, true);
+                CpSolverStatus relaxStatus = result.getFirst();
 
+                if (relaxStatus == CpSolverStatus.OPTIMAL || relaxStatus == CpSolverStatus.FEASIBLE) {
+                    // 获取冲突规则信息
+                    StringBuilder conflictMessage = new StringBuilder("conflict rules: ");
+                    ConstraintAlgImpl alg = initConstraintModel(module, req, true);
+                    Map<String, BoolVar> relaxVarMap = alg.getModel().getRelaxationVarMap();
+
+                    // 重新创建求解器来获取松弛变量的值
+                    CpSolver relaxSolver = new CpSolver();
+                    CpModel relaxModel = alg.getModel().getCpModel();
+                    relaxSolver.solve(relaxModel);
+
+                    for (Map.Entry<String, BoolVar> entry : relaxVarMap.entrySet()) {
+                        String ruleCode = entry.getKey();
+                        BoolVar relaxVar = entry.getValue();
+                        if (relaxSolver.booleanValue(relaxVar)) {
+                            conflictMessage.append(ruleCode).append(",");
+                        }
+                    }
+
+                    return Result.noSolution(conflictMessage.toString());
+                }
+            } else if (status == CpSolverStatus.INFEASIBLE) {
+                // 没有可行解，debugByRelaxationVar= false，直接返回无解
+                return Result.noSolution("No feasible solution found");
+            }
             // 执行后处理
             List<ModuleInst> solutions = cb.getAllSolutions();
             solutions = executePostProcess(module, solutions);
@@ -193,15 +214,37 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
     }
 
     /**
-     * 初始化约束模型
+     * 执行约束推理
      * 
      * @param module 模块对象
      * @param req    参数反推请求
-     * @return 初始化完成的约束算法实现
+     * @return 包含求解器状态和回调对象的Pair
      * @throws AlgLoaderException   当算法加载器未找到时抛出
      * @throws AlgExecutorException 当创建算法执行时抛出
      */
-    private ConstraintAlgImpl initConstraintModel(Module module, InferParasReq req)
+    private Pair<CpSolverStatus, ModuleInstSolutionCallBack> runInferParas(Module module, InferParasReq req,
+            boolean isAttachRelax)
+            throws AlgLoaderException, AlgExecutorException {
+        // 初始化约束模型
+        ConstraintAlgImpl alg = initConstraintModel(module, req, isAttachRelax);
+        CpModel model = alg.getModel().getCpModel();
+
+        if (config.isLogModelProto()) {
+            // 将module的CpModelProto信息输出到文件config.logFilePath/module.proto.txt
+            model.exportToFile(config.getLogFilePath() + File.separator + module.getCode() + ".proto.txt");
+        }
+        CpSolver solver = new CpSolver();
+        solver.getParameters().setEnumerateAllSolutions(req.isEnumerateAllSolution());
+        solver.getParameters().setNumSearchWorkers(1); // 单线程搜索，防止有重复解
+        log.info("solver parameters:\n" + solver.getParameters().toString());
+        // 可按需设置更多参数
+        ModuleInstSolutionCallBack cb = new ModuleInstSolutionCallBack(module, alg.getVars(), alg.getOtherVarMap());
+        CpSolverStatus status = solver.solve(model, cb);
+
+        return new Pair<>(status, cb);
+    }
+
+    private ConstraintAlgImpl initConstraintModel(Module module, InferParasReq req, boolean isAttachRelax)
             throws AlgLoaderException, AlgExecutorException {
         // 加载算法类
         ModuleAlgClassLoader loader = getModuleClassLoader(module.getId());

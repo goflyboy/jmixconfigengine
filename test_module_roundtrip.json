@@ -15,7 +15,7 @@
   "version" : "1.0.0",
   "packageName" : "com.jmix.executor.util",
   "type" : "GENERAL",
-  "paras" : [ "java.util.Arrays$ArrayList", [ {
+  "paras" : [ "java.util.ArrayList", [ {
     "@type" : "Para",
     "extSchema" : "TestParaSchema",
     "extAttrs" : {
@@ -28,7 +28,7 @@
     "description" : "测试参数",
     "sortNo" : 1,
     "type" : "ENUM",
-    "options" : [ "java.util.Arrays$ArrayList", [ {
+    "options" : [ "java.util.ArrayList", [ {
       "@type" : "ParaOption",
       "extSchema" : null,
       "extAttrs" : {
@@ -45,7 +45,7 @@
     "minValue" : "-1000",
     "maxValue" : "1000"
   } ] ],
-  "parts" : [ "java.util.Arrays$ArrayList", [ {
+  "parts" : [ "java.util.ArrayList", [ {
     "@type" : "Part",
     "extSchema" : "TestPartSchema",
     "extAttrs" : {
@@ -66,7 +66,7 @@
     },
     "attrSchemas" : [ "java.util.ArrayList", [ ] ]
   } ] ],
-  "rules" : [ "java.util.Arrays$ArrayList", [ {
+  "rules" : [ "java.util.ArrayList", [ {
     "@type" : "Rule",
     "extSchema" : "TestRuleSchema",
     "extAttrs" : {
@@ -86,7 +86,7 @@
       "leftExpr" : {
         "@type" : "ExprSchema",
         "rawCode" : "TestPara=\"TestOption\"",
-        "refProgObjs" : [ "java.util.Arrays$ArrayList", [ {
+        "refProgObjs" : [ "java.util.ArrayList", [ {
           "@type" : "RefProgObjSchema",
           "progObjType" : "Para",
           "progObjCode" : "TestPara",
@@ -97,7 +97,7 @@
       "rightExpr" : {
         "@type" : "ExprSchema",
         "rawCode" : "TestPara=\"TestOption\"",
-        "refProgObjs" : [ "java.util.Arrays$ArrayList", [ {
+        "refProgObjs" : [ "java.util.ArrayList", [ {
           "@type" : "RefProgObjSchema",
           "progObjType" : "Para",
           "progObjCode" : "TestPara",

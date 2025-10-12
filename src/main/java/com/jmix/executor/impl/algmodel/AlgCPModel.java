@@ -36,6 +36,15 @@ public class AlgCPModel {
     // other variable index counter
     private int otherVarIndex = 0;
 
+    // 松弛变量相关字段
+    private boolean isAttachRelax = false;
+
+    private Map<String, BoolVar> relaxationVarMap = new HashMap<>(); // <ruleName, relaxationVar>
+
+    private BoolVar currentRelaxationVar = null; // 当前正在使用的松弛变量
+
+    private String currentRelaxationVarName = ""; // 当前松弛变量的名称
+
     /**
      * 默认构造函数，创建新的CpModel实例
      */
@@ -59,6 +68,65 @@ public class AlgCPModel {
      */
     public CpModel getCpModel() {
         return cpModel;
+    }
+
+    /**
+     * 设置当前松弛变量名称
+     * 
+     * @param relaxationVarName 松弛变量名称
+     * @throws AlgLoaderException 当松弛变量名称已存在时抛出
+     */
+    public void setCurrentRelaxationVarName(String relaxationVarName) {
+        if (!isAttachRelax) {
+            log.info("relax:{} -----No need,setCurrentRelaxationVarName", relaxationVarName);
+            return;
+        }
+        log.info("relax:{} -----setCurrentRelaxationVarName", relaxationVarName);
+        this.currentRelaxationVarName = relaxationVarName;
+        this.currentRelaxationVar = newBoolVar(this.currentRelaxationVarName);
+        if (relaxationVarMap.containsKey(relaxationVarName)) {
+            throw new AlgLoaderException("Relaxation variable already exists: " + relaxationVarName);
+        }
+        relaxationVarMap.put(relaxationVarName, this.currentRelaxationVar);
+    }
+
+    /**
+     * 获取松弛变量映射
+     * 
+     * @return 松弛变量映射
+     */
+    public Map<String, BoolVar> getRelaxationVarMap() {
+        return relaxationVarMap;
+    }
+
+    /**
+     * 设置是否附加松弛变量
+     * 
+     * @param isAttachRelax 是否附加松弛变量
+     */
+    public void setIsAttachRelax(boolean isAttachRelax) {
+        this.isAttachRelax = isAttachRelax;
+    }
+
+    /**
+     * 获取是否附加松弛变量
+     * 
+     * @return 是否附加松弛变量
+     */
+    public boolean isIsAttachRelax() {
+        return isAttachRelax;
+    }
+
+    /**
+     * 附加松弛变量到约束
+     * 
+     * @param ct      约束
+     * @param funName 函数名称
+     * @return 带松弛变量的约束包装
+     */
+    private AlgCPConstraint attachRelax(Constraint ct, String funName) {
+        log.info("relax:{} -----{}", currentRelaxationVarName, funName);
+        return new AlgCPConstraint(ct, this.currentRelaxationVar, this.currentRelaxationVarName);
     }
 
     /**
@@ -182,8 +250,9 @@ public class AlgCPModel {
      * @param literals 字面量数组
      * @return 添加的约束
      */
-    public Constraint addBoolOr(final Literal[] literals) {
-        return cpModel.addBoolOr(literals);
+    public AlgCPConstraint addBoolOr(final Literal[] literals) {
+        Constraint ct = cpModel.addBoolOr(literals);
+        return attachRelax(ct, "addBoolOr");
     }
 
     /**
@@ -192,8 +261,9 @@ public class AlgCPModel {
      * @param literals 字面量集合
      * @return 添加的约束
      */
-    public Constraint addBoolOr(final Iterable<Literal> literals) {
-        return cpModel.addBoolOr(literals);
+    public AlgCPConstraint addBoolOr(final Iterable<Literal> literals) {
+        Constraint ct = cpModel.addBoolOr(literals);
+        return attachRelax(ct, "addBoolOr");
     }
 
     /**
@@ -202,8 +272,9 @@ public class AlgCPModel {
      * @param literals 字面量数组
      * @return 添加的约束
      */
-    public Constraint addAtLeastOne(final Literal[] literals) {
-        return cpModel.addAtLeastOne(literals);
+    public AlgCPConstraint addAtLeastOne(final Literal[] literals) {
+        Constraint ct = cpModel.addAtLeastOne(literals);
+        return attachRelax(ct, "addAtLeastOne");
     }
 
     /**
@@ -212,8 +283,9 @@ public class AlgCPModel {
      * @param literals 字面量集合
      * @return 添加的约束
      */
-    public Constraint addAtLeastOne(final Iterable<Literal> literals) {
-        return cpModel.addAtLeastOne(literals);
+    public AlgCPConstraint addAtLeastOne(final Iterable<Literal> literals) {
+        Constraint ct = cpModel.addAtLeastOne(literals);
+        return attachRelax(ct, "addAtLeastOne");
     }
 
     /**
@@ -222,8 +294,9 @@ public class AlgCPModel {
      * @param literals 字面量数组
      * @return 添加的约束
      */
-    public Constraint addAtMostOne(final Literal[] literals) {
-        return cpModel.addAtMostOne(literals);
+    public AlgCPConstraint addAtMostOne(final Literal[] literals) {
+        Constraint ct = cpModel.addAtMostOne(literals);
+        return attachRelax(ct, "addAtMostOne");
     }
 
     /**
@@ -232,8 +305,9 @@ public class AlgCPModel {
      * @param literals 字面量集合
      * @return 添加的约束
      */
-    public Constraint addAtMostOne(final Iterable<Literal> literals) {
-        return cpModel.addAtMostOne(literals);
+    public AlgCPConstraint addAtMostOne(final Iterable<Literal> literals) {
+        Constraint ct = cpModel.addAtMostOne(literals);
+        return attachRelax(ct, "addAtMostOne");
     }
 
     /**
@@ -242,8 +316,9 @@ public class AlgCPModel {
      * @param literals 字面量数组
      * @return 添加的约束
      */
-    public Constraint addExactlyOne(final Literal[] literals) {
-        return cpModel.addExactlyOne(literals);
+    public AlgCPConstraint addExactlyOne(final Literal[] literals) {
+        Constraint ct = cpModel.addExactlyOne(literals);
+        return attachRelax(ct, "addExactlyOne");
     }
 
     /**
@@ -252,8 +327,9 @@ public class AlgCPModel {
      * @param literals 字面量集合
      * @return 添加的约束
      */
-    public Constraint addExactlyOne(final Iterable<Literal> literals) {
-        return cpModel.addExactlyOne(literals);
+    public AlgCPConstraint addExactlyOne(final Iterable<Literal> literals) {
+        Constraint ct = cpModel.addExactlyOne(literals);
+        return attachRelax(ct, "addExactlyOne");
     }
 
     /**
@@ -262,8 +338,9 @@ public class AlgCPModel {
      * @param literals 字面量数组
      * @return 添加的约束
      */
-    public Constraint addBoolAnd(final Literal[] literals) {
-        return cpModel.addBoolAnd(literals);
+    public AlgCPConstraint addBoolAnd(final Literal[] literals) {
+        Constraint ct = cpModel.addBoolAnd(literals);
+        return attachRelax(ct, "addBoolAnd");
     }
 
     /**
@@ -272,8 +349,9 @@ public class AlgCPModel {
      * @param literals 字面量集合
      * @return 添加的约束
      */
-    public Constraint addBoolAnd(final Iterable<Literal> literals) {
-        return cpModel.addBoolAnd(literals);
+    public AlgCPConstraint addBoolAnd(final Iterable<Literal> literals) {
+        Constraint ct = cpModel.addBoolAnd(literals);
+        return attachRelax(ct, "addBoolAnd");
     }
 
     /**
@@ -282,8 +360,9 @@ public class AlgCPModel {
      * @param literals 字面量数组
      * @return 添加的约束
      */
-    public Constraint addBoolXor(final Literal[] literals) {
-        return cpModel.addBoolXor(literals);
+    public AlgCPConstraint addBoolXor(final Literal[] literals) {
+        Constraint ct = cpModel.addBoolXor(literals);
+        return attachRelax(ct, "addBoolXor");
     }
 
     /**
@@ -292,8 +371,9 @@ public class AlgCPModel {
      * @param literals 字面量集合
      * @return 添加的约束
      */
-    public Constraint addBoolXor(final Iterable<Literal> literals) {
-        return cpModel.addBoolXor(literals);
+    public AlgCPConstraint addBoolXor(final Iterable<Literal> literals) {
+        Constraint ct = cpModel.addBoolXor(literals);
+        return attachRelax(ct, "addBoolXor");
     }
 
     /**
@@ -303,8 +383,9 @@ public class AlgCPModel {
      * @param b 结论字面量
      * @return 添加的约束
      */
-    public Constraint addImplication(final Literal a, final Literal b) {
-        return cpModel.addImplication(a, b);
+    public AlgCPConstraint addImplication(final Literal a, final Literal b) {
+        Constraint ct = cpModel.addImplication(a, b);
+        return attachRelax(ct, "addImplication");
     }
 
     // Linear constraints
@@ -316,8 +397,9 @@ public class AlgCPModel {
      * @param value 目标值
      * @return 添加的约束
      */
-    public Constraint addEquality(final LinearArgument expr, final long value) {
-        return cpModel.addEquality(expr, value);
+    public AlgCPConstraint addEquality(final LinearArgument expr, final long value) {
+        Constraint ct = cpModel.addEquality(expr, value);
+        return attachRelax(ct, "addEquality");
     }
 
     /**
@@ -327,8 +409,9 @@ public class AlgCPModel {
      * @param right 右侧表达式
      * @return 添加的约束
      */
-    public Constraint addEquality(final LinearArgument left, final LinearArgument right) {
-        return cpModel.addEquality(left, right);
+    public AlgCPConstraint addEquality(final LinearArgument left, final LinearArgument right) {
+        Constraint ct = cpModel.addEquality(left, right);
+        return attachRelax(ct, "addEquality");
     }
 
     /**
@@ -338,8 +421,9 @@ public class AlgCPModel {
      * @param value 目标值
      * @return 添加的约束
      */
-    public Constraint addLessOrEqual(final LinearArgument expr, final long value) {
-        return cpModel.addLessOrEqual(expr, value);
+    public AlgCPConstraint addLessOrEqual(final LinearArgument expr, final long value) {
+        Constraint ct = cpModel.addLessOrEqual(expr, value);
+        return attachRelax(ct, "addLessOrEqual");
     }
 
     /**
@@ -349,8 +433,9 @@ public class AlgCPModel {
      * @param right 右侧表达式
      * @return 添加的约束
      */
-    public Constraint addLessOrEqual(final LinearArgument left, final LinearArgument right) {
-        return cpModel.addLessOrEqual(left, right);
+    public AlgCPConstraint addLessOrEqual(final LinearArgument left, final LinearArgument right) {
+        Constraint ct = cpModel.addLessOrEqual(left, right);
+        return attachRelax(ct, "addLessOrEqual");
     }
 
     /**
@@ -360,8 +445,9 @@ public class AlgCPModel {
      * @param value 目标值
      * @return 添加的约束
      */
-    public Constraint addLessThan(final LinearArgument expr, final long value) {
-        return cpModel.addLessThan(expr, value);
+    public AlgCPConstraint addLessThan(final LinearArgument expr, final long value) {
+        Constraint ct = cpModel.addLessThan(expr, value);
+        return attachRelax(ct, "addLessThan");
     }
 
     /**
@@ -371,8 +457,9 @@ public class AlgCPModel {
      * @param right 右侧表达式
      * @return 添加的约束
      */
-    public Constraint addLessThan(final LinearArgument left, final LinearArgument right) {
-        return cpModel.addLessThan(left, right);
+    public AlgCPConstraint addLessThan(final LinearArgument left, final LinearArgument right) {
+        Constraint ct = cpModel.addLessThan(left, right);
+        return attachRelax(ct, "addLessThan");
     }
 
     /**
@@ -382,8 +469,9 @@ public class AlgCPModel {
      * @param value 目标值
      * @return 添加的约束
      */
-    public Constraint addGreaterOrEqual(final LinearArgument expr, final long value) {
-        return cpModel.addGreaterOrEqual(expr, value);
+    public AlgCPConstraint addGreaterOrEqual(final LinearArgument expr, final long value) {
+        Constraint ct = cpModel.addGreaterOrEqual(expr, value);
+        return attachRelax(ct, "addGreaterOrEqual");
     }
 
     /**
@@ -393,8 +481,9 @@ public class AlgCPModel {
      * @param right 右侧表达式
      * @return 添加的约束
      */
-    public Constraint addGreaterOrEqual(final LinearArgument left, final LinearArgument right) {
-        return cpModel.addGreaterOrEqual(left, right);
+    public AlgCPConstraint addGreaterOrEqual(final LinearArgument left, final LinearArgument right) {
+        Constraint ct = cpModel.addGreaterOrEqual(left, right);
+        return attachRelax(ct, "addGreaterOrEqual");
     }
 
     /**
@@ -404,8 +493,9 @@ public class AlgCPModel {
      * @param value 目标值
      * @return 添加的约束
      */
-    public Constraint addGreaterThan(final LinearArgument expr, final long value) {
-        return cpModel.addGreaterThan(expr, value);
+    public AlgCPConstraint addGreaterThan(final LinearArgument expr, final long value) {
+        Constraint ct = cpModel.addGreaterThan(expr, value);
+        return attachRelax(ct, "addGreaterThan");
     }
 
     /**
@@ -415,8 +505,9 @@ public class AlgCPModel {
      * @param right 右侧表达式
      * @return 添加的约束
      */
-    public Constraint addGreaterThan(final LinearArgument left, final LinearArgument right) {
-        return cpModel.addGreaterThan(left, right);
+    public AlgCPConstraint addGreaterThan(final LinearArgument left, final LinearArgument right) {
+        Constraint ct = cpModel.addGreaterThan(left, right);
+        return attachRelax(ct, "addGreaterThan");
     }
 
     /**
@@ -426,8 +517,9 @@ public class AlgCPModel {
      * @param value 目标值
      * @return 添加的约束
      */
-    public Constraint addDifferent(final LinearArgument expr, final long value) {
-        return cpModel.addDifferent(expr, value);
+    public AlgCPConstraint addDifferent(final LinearArgument expr, final long value) {
+        Constraint ct = cpModel.addDifferent(expr, value);
+        return attachRelax(ct, "addDifferent");
     }
 
     /**
@@ -437,8 +529,9 @@ public class AlgCPModel {
      * @param right 右侧表达式
      * @return 添加的约束
      */
-    public Constraint addDifferent(final LinearArgument left, final LinearArgument right) {
-        return cpModel.addDifferent(left, right);
+    public AlgCPConstraint addDifferent(final LinearArgument left, final LinearArgument right) {
+        Constraint ct = cpModel.addDifferent(left, right);
+        return attachRelax(ct, "addDifferent");
     }
 
     // Integer constraints
@@ -449,8 +542,9 @@ public class AlgCPModel {
      * @param expressions 表达式数组
      * @return 添加的约束
      */
-    public Constraint addAllDifferent(final LinearArgument[] expressions) {
-        return cpModel.addAllDifferent(expressions);
+    public AlgCPConstraint addAllDifferent(final LinearArgument[] expressions) {
+        Constraint ct = cpModel.addAllDifferent(expressions);
+        return attachRelax(ct, "addAllDifferent");
     }
 
     /**
@@ -459,8 +553,9 @@ public class AlgCPModel {
      * @param expressions 表达式集合
      * @return 添加的约束
      */
-    public Constraint addAllDifferent(final Iterable<? extends LinearArgument> expressions) {
-        return cpModel.addAllDifferent(expressions);
+    public AlgCPConstraint addAllDifferent(final Iterable<? extends LinearArgument> expressions) {
+        Constraint ct = cpModel.addAllDifferent(expressions);
+        return attachRelax(ct, "addAllDifferent");
     }
 
     // Variable creation methods (delegated without registration)

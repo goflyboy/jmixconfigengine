@@ -86,8 +86,20 @@ public class Result<T> {
      * @return 无解结果对象
      */
     public static <X> Result<X> noSolution() {
+        return noSolution("");
+    }
+
+    /**
+     * 创建无解结果,待描述信息的
+     * 
+     * @param msg 无解消息
+     * @param <X> 数据类型
+     * @return 无解结果对象
+     */
+    public static <X> Result<X> noSolution(String msg) {
         Result<X> r = new Result<>();
         r.setCode(NO_SOLUTION);
+        r.setMessage(msg);
         return r;
     }
 }

@@ -12,6 +12,8 @@ import com.google.ortools.Loader;
 import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.CpModel;
 import com.google.ortools.sat.IntVar;
+import com.google.ortools.sat.LinearArgument;
+import com.google.ortools.sat.LinearExpr;
 import com.google.ortools.sat.Literal;
 import com.google.ortools.util.Domain;
 
@@ -88,7 +90,20 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     public void initModel(CpModel model, Module module) {
         List<String> fullRules = toFullRules(module);
         List<RefProgObjSchema> fullProgObjs = toFullProgObjs(module);
-        initModel(model, module, fullRules, fullProgObjs);
+        initModel(model, module, fullRules, fullProgObjs, false);
+    }
+
+    /**
+     * 初始化约束模型（带松弛变量支持）
+     * 
+     * @param model         CP模型实例
+     * @param module        模块对象
+     * @param isAttachRelax 是否附加松弛变量
+     */
+    public void initModel(CpModel model, Module module, boolean isAttachRelax) {
+        List<String> fullRules = toFullRules(module);
+        List<RefProgObjSchema> fullProgObjs = toFullProgObjs(module);
+        initModel(model, module, fullRules, fullProgObjs, isAttachRelax);
     }
 
     private List<String> toFullRules(Module tempModule) {
@@ -126,7 +141,25 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             Module module,
             List<String> exeRules,
             List<RefProgObjSchema> exeProgObjs) {
+        initModel(model, module, exeRules, exeProgObjs, false);
+    }
+
+    /**
+     * 初始化模型（差量加载版本，带松弛变量支持）
+     * 
+     * @param model         CP模型
+     * @param module        模块
+     * @param exeRules      本次要加载的rules
+     * @param exeProgObjs   本次要初始化的变量
+     * @param isAttachRelax 是否附加松弛变量
+     */
+    public void initModel(CpModel model,
+            Module module,
+            List<String> exeRules,
+            List<RefProgObjSchema> exeProgObjs,
+            boolean isAttachRelax) {
         this.model = new AlgCPModel(model);
+        this.model.setIsAttachRelax(isAttachRelax);
         this.module = module;
         initModelAfter(model);
 
@@ -238,6 +271,26 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             executeRuleMethod(ruleCode, method);
         }
         log.info("Executed  {} requested rules", exeRules.size());
+
+        // 目标函数：最小化需要松弛的约束数量
+        addRelaxObjectFunction();
+    }
+
+    /**
+     * 添加松弛目标函数
+     * 目标函数：最小化需要松弛的约束数量
+     */
+    private void addRelaxObjectFunction() {
+        if (!model.isIsAttachRelax()) {
+            return;
+        }
+
+        // 目标函数：最小化需要松弛的约束数量
+        LinearArgument[] relaxVars = model.getRelaxationVarMap().values().toArray(new LinearArgument[0]);
+        if (relaxVars.length > 0) {
+            model.minimize(LinearExpr.sum(relaxVars));
+            log.info("Added relaxation objective function with {} relaxation variables", relaxVars.length);
+        }
     }
 
     /**
@@ -253,6 +306,9 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             throw new AlgLoaderException("Rule method not found for execution: " + ruleCode);
         }
         try {
+            // 设置当前松弛变量名称
+            this.model.setCurrentRelaxationVarName(ruleCode);
+
             // 执行规则方法
             method.setAccessible(true);
             method.invoke(this);

@@ -49,4 +49,9 @@ public class ConstraintConfig {
      * 加载模式：全量(1) 或 差量(0)
      */
     private int loadType = LOAD_TYPE_FULL;
+
+    /**
+     * 是否通过增加松弛变量来调试冲突规则
+     */
+    private boolean debugByRelaxationVar = false;
 }
