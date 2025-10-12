@@ -4,6 +4,7 @@ import com.google.ortools.sat.Constraint;
 import com.google.ortools.sat.ConstraintProto;
 import com.google.ortools.sat.Literal;
 
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -13,18 +14,33 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2025-01-27
  */
 @Slf4j
+@Data
 public class AlgCPConstraint {
-    private Constraint cpConstraint = null;
-    private Literal relaxationVar = null;
-    private String relaxationVarName = null;
+    /**
+     * 原始CP-SAT约束对象
+     */
+    private Constraint cpConstraint;
 
     /**
-     * 构造函数
+     * 松弛变量，用于约束冲突调试
      * 
-     * @param cpConstraint      原始约束
-     * @param relaxationVar     松弛变量
-     * @param relaxationVarName 松弛变量名称
+     * <p>
+     * 当松弛变量为false时，约束将被"放松"（不强制执行），
+     * 从而帮助识别导致无解的约束组合。这是约束冲突调试的核心机制。
+     * </p>
      */
+    private Literal relaxationVar;
+
+    /**
+     * 松弛变量名称，用于调试和日志记录
+     * 
+     * <p>
+     * 松弛变量名称通常包含约束的标识信息，便于在冲突分析时
+     * 快速定位问题约束。例如："relax_constraint_rule_001"。
+     * </p>
+     */
+    private String relaxationVarName = "";
+
     public AlgCPConstraint(Constraint cpConstraint, Literal relaxationVar, String relaxationVarName) {
         this.cpConstraint = cpConstraint;
         this.relaxationVar = relaxationVar;
@@ -79,32 +95,5 @@ public class AlgCPConstraint {
      */
     public ConstraintProto.Builder getBuilder() {
         throw new UnsupportedOperationException("AlgCPConstraint does not support getBuilder method");
-    }
-
-    /**
-     * 获取原始约束
-     * 
-     * @return 原始约束
-     */
-    public Constraint getCpConstraint() {
-        return cpConstraint;
-    }
-
-    /**
-     * 获取松弛变量
-     * 
-     * @return 松弛变量
-     */
-    public Literal getRelaxationVar() {
-        return relaxationVar;
-    }
-
-    /**
-     * 获取松弛变量名称
-     * 
-     * @return 松弛变量名称
-     */
-    public String getRelaxationVarName() {
-        return relaxationVarName;
     }
 }

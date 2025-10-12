@@ -27,23 +27,40 @@ import java.util.Map;
 @Slf4j
 @Data
 public class AlgCPModel {
-    // 底层的CpModel实例
+    /**
+     * 底层的CpModel实例
+     */
     private CpModel cpModel;
 
-    // other variables map
+    /**
+     * 其他变量映射表
+     */
     private Map<String, OtherVar> otherVarMap = new HashMap<>();
 
-    // other variable index counter
+    /**
+     * 其他变量索引计数器
+     */
     private int otherVarIndex = 0;
 
-    // 松弛变量相关字段
+    /**
+     * 是否启用松弛变量调试模式
+     */
     private boolean isAttachRelax = false;
 
-    private Map<String, BoolVar> relaxationVarMap = new HashMap<>(); // <ruleName, relaxationVar>
+    /**
+     * 松弛变量映射表，键为规则名称，值为松弛变量
+     */
+    private Map<String, BoolVar> relaxationVarMap = new HashMap<>();
 
-    private BoolVar currentRelaxationVar = null; // 当前正在使用的松弛变量
+    /**
+     * 当前正在使用的松弛变量
+     */
+    private BoolVar currentRelaxationVar = null;
 
-    private String currentRelaxationVarName = ""; // 当前松弛变量的名称
+    /**
+     * 当前松弛变量的名称
+     */
+    private String currentRelaxationVarName = "";
 
     /**
      * 默认构造函数，创建新的CpModel实例
