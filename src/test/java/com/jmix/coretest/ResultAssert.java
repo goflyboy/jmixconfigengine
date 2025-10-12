@@ -193,10 +193,15 @@ public class ResultAssert {
      * @param expectedContent 期望包含的内容
      * @return 当前ResultAssert实例，支持链式调用
      */
-    public ResultAssert assertMessageContains(String expectedContent) {
-        if (actualResult.getMessage() == null || !actualResult.getMessage().contains(expectedContent)) {
-            throw new AssertionError(String.format(
-                    "Result message should contain: %s, actual: %s", expectedContent, actualResult.getMessage()));
+    public ResultAssert assertMessageContains(String... expectedContents) {
+        if (actualResult.getMessage() == null) {
+            throw new AssertionError("Result message should not be null");
+        }
+        for (String expectedContent : expectedContents) {
+            if (!actualResult.getMessage().contains(expectedContent)) {
+                throw new AssertionError(String.format(
+                        "Result message should contain: %s, actual: %s", expectedContent, actualResult.getMessage()));
+            }
         }
         return this;
     }

@@ -145,7 +145,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
             // 如果模型无效，调用ValidateCpModel获取详细错误信息
             if (status == CpSolverStatus.MODEL_INVALID) {
                 // 重新获取模型进行验证
-                ConstraintAlgImpl alg = initConstraintModel(module, req, false);
+                ConstraintAlgImpl alg = initConstraintModel(module, req, false, new ArrayList<>());
                 CpModel model = alg.getModel().getCpModel();
                 String validationError = model.validate();
                 log.error("Model validation failed: {}", validationError);
@@ -267,32 +267,19 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
         return conflictMessage.toString();
     }
 
-    /**
-     * 运行计算冲突规则
-     *
-     * @param module          模块对象
-     * @param req             参数反推请求
-     * @param isAttachRelax   是否附加松弛变量
-     * @param confictedRelaxs 冲突松弛变量列表
-     * @return 包含冲突松弛变量列表和运行结果的Pair
-     * @throws AlgExecutorException 当算法执行失败时抛出
-     */
     private Pair<List<RelaxVar>, RunInferParasRsp> runCalcConfictRules(Module module,
             InferParasReq req,
             boolean isAttachRelax,
             List<RelaxVar> confictedRelaxs) throws AlgExecutorException {
-        try {
-            RunInferParasRsp result = runInferParas(module, req, isAttachRelax, confictedRelaxs);
-            CpSolverStatus status = result.getStatus();
-            if (isFailed(status)) {
-                throw new AlgExecutorException("Solver failed with status: " + status);
-            }
-            List<RelaxVar> newConfictedRelaxs = calcConfictRules(result);
 
-            return new Pair<>(newConfictedRelaxs, result);
-        } catch (AlgLoaderException e) {
-            throw new AlgExecutorException("Algorithm loader error", e);
+        RunInferParasRsp result = runInferParas(module, req, isAttachRelax, confictedRelaxs);
+        CpSolverStatus status = result.getStatus();
+        if (isFailed(status)) {
+            throw new AlgExecutorException("Solver failed with status: " + status);
         }
+        List<RelaxVar> newConfictedRelaxs = calcConfictRules(result);
+        return new Pair<>(newConfictedRelaxs, result);
+
     }
 
     /**
@@ -324,8 +311,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
             List<RelaxVar> confictedRelaxs)
             throws AlgLoaderException, AlgExecutorException {
         // 初始化约束模型
-        ConstraintAlgImpl alg = initConstraintModel(module, req, isAttachRelax);
-        alg.getModel().setConfictedRelaxVars(confictedRelaxs);
+        ConstraintAlgImpl alg = initConstraintModel(module, req, isAttachRelax, confictedRelaxs);
         CpModel model = alg.getModel().getCpModel();
 
         if (config.isLogModelProto()) {
@@ -343,7 +329,8 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
         return new RunInferParasRsp(status, cb, alg.getModel(), solver);
     }
 
-    private ConstraintAlgImpl initConstraintModel(Module module, InferParasReq req, boolean isAttachRelax)
+    private ConstraintAlgImpl initConstraintModel(Module module, InferParasReq req,
+            boolean isAttachRelax, List<RelaxVar> confictedRelaxs)
             throws AlgLoaderException, AlgExecutorException {
         // 加载算法类
         ModuleAlgClassLoader loader = getModuleClassLoader(module.getId());
@@ -372,10 +359,11 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
                             .collect(java.util.stream.Collectors.toList()));
 
             // 调用新的initModel方法
-            alg.initModel(model, module, relativePair.getFirst(), relativePair.getSecond(), isAttachRelax);
+            alg.initModel(model, module, relativePair.getFirst(), relativePair.getSecond(), isAttachRelax,
+                    confictedRelaxs);
         } else {
             // 全量加载模型
-            alg.initModel(model, module, isAttachRelax);
+            alg.initModel(model, module, isAttachRelax, confictedRelaxs);
         }
 
         // 根据请求初始化约束模型

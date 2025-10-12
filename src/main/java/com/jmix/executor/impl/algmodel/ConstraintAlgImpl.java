@@ -84,14 +84,15 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     /**
      * 初始化约束模型（带松弛变量支持）
      * 
-     * @param model         CP模型实例
-     * @param module        模块对象
-     * @param isAttachRelax 是否附加松弛变量
+     * @param model           CP模型实例
+     * @param module          模块对象
+     * @param isAttachRelax   是否附加松弛变量
+     * @param confictedRelaxs 冲突松弛变量列表
      */
-    public void initModel(CpModel model, Module module, boolean isAttachRelax) {
+    public void initModel(CpModel model, Module module, boolean isAttachRelax, List<RelaxVar> confictedRelaxs) {
         List<String> fullRules = toFullRules(module);
         List<RefProgObjSchema> fullProgObjs = toFullProgObjs(module);
-        initModel(model, module, fullRules, fullProgObjs, isAttachRelax);
+        initModel(model, module, fullRules, fullProgObjs, isAttachRelax, confictedRelaxs);
     }
 
     private List<String> toFullRules(Module tempModule) {
@@ -120,34 +121,39 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     /**
      * 初始化模型（差量加载版本）
      * 
-     * @param model       CP模型
-     * @param module      模块
-     * @param exeRules    本次要加载的rules
-     * @param exeProgObjs 本次要初始化的变量
-     */
-    public void initModel(CpModel model,
-            Module module,
-            List<String> exeRules,
-            List<RefProgObjSchema> exeProgObjs) {
-        initModel(model, module, exeRules, exeProgObjs, false);
-    }
-
-    /**
-     * 初始化模型（差量加载版本，带松弛变量支持）
-     * 
-     * @param model         CP模型
-     * @param module        模块
-     * @param exeRules      本次要加载的rules
-     * @param exeProgObjs   本次要初始化的变量
-     * @param isAttachRelax 是否附加松弛变量
+     * @param model           CP模型
+     * @param module          模块
+     * @param exeRules        本次要加载的rules
+     * @param exeProgObjs     本次要初始化的变量
+     * @param confictedRelaxs 冲突松弛变量列表
      */
     public void initModel(CpModel model,
             Module module,
             List<String> exeRules,
             List<RefProgObjSchema> exeProgObjs,
-            boolean isAttachRelax) {
+            List<RelaxVar> confictedRelaxs) {
+        initModel(model, module, exeRules, exeProgObjs, false, confictedRelaxs);
+    }
+
+    /**
+     * 初始化模型（差量加载版本，带松弛变量支持）
+     * 
+     * @param model           CP模型
+     * @param module          模块
+     * @param exeRules        本次要加载的rules
+     * @param exeProgObjs     本次要初始化的变量
+     * @param isAttachRelax   是否附加松弛变量
+     * @param confictedRelaxs 冲突松弛变量列表
+     */
+    public void initModel(CpModel model,
+            Module module,
+            List<String> exeRules,
+            List<RefProgObjSchema> exeProgObjs,
+            boolean isAttachRelax,
+            List<RelaxVar> confictedRelaxs) {
         this.model = new AlgCPModel(model);
         this.model.setIsAttachRelax(isAttachRelax);
+        this.model.setConfictedRelaxVars(confictedRelaxs);
         this.module = module;
         initModelAfter(model);
 
@@ -190,7 +196,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             Var<?> v = entry.getValue();
             if (v instanceof ParaVar) {
                 if (isFirst) {
-                    this.model.setCurrentRelaxVarName("hiddensrule");
+                    this.model.setRelax4SysRule("hiddensrule");
                     isFirst = false;
                 }
                 ParaVar pv = (ParaVar) v;
@@ -199,7 +205,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
             } else if (v instanceof PartVar) {
                 if (isFirst) {
-                    this.model.setCurrentRelaxVarName("hiddensrule");
+                    this.model.setRelax4SysRule("hiddensrule");
                     isFirst = false;
                 }
                 PartVar pt = (PartVar) v;
@@ -291,7 +297,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
                 weightedTerms[i] = LinearExpr.term(relaxVar.getValue(), relaxVar.getWeight());
             }
             model.minimize(LinearExpr.sum(weightedTerms));
-            log.info("Added weighted relaxation objective function with {} relaxation variables", relaxVars.size());
+            log.info("relax: -----relaxation objective function with {} relaxation variables", relaxVars.size());
         }
     }
 
@@ -309,7 +315,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         }
         try {
             // 设置当前松弛变量名称
-            this.model.setCurrentRelaxVarName(ruleCode);
+            this.model.setRelax4CustomRule(ruleCode);
 
             // 执行规则方法
             method.setAccessible(true);
@@ -762,7 +768,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      */
     public void addPartEquality(String partCode, int partQuantity) {
         // 设置当前松弛变量名称
-        this.model.setCurrentRelaxVarName("addPartEquality_" + partCode + "_" + partQuantity);
+        this.model.setRelax4SysRule("addPartEquality_" + partCode + "_" + partQuantity);
         // 1. 根据partCode找到对应的partVar
         Var<?> var = varMap.get(partCode);
         if (!(var instanceof PartVar)) {
@@ -784,7 +790,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      */
     public void addParaEquality(String paraCode, String paraValue) {
         // 设置当前松弛变量名称
-        this.model.setCurrentRelaxVarName("addParaEquality_" + paraCode + "_" + paraValue);
+        this.model.setRelax4SysRule("addParaEquality_" + paraCode + "_" + paraValue);
         Var<?> var = varMap.get(paraCode);
         if (!(var instanceof ParaVar)) {
             log.error("ParaVar not found for code: {}", paraCode);

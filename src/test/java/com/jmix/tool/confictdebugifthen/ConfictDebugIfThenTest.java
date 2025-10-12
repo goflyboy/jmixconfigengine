@@ -127,12 +127,12 @@ public class ConfictDebugIfThenTest extends ModuleScenarioTestBase {
 
     @Test
     public void testCase2() {
-        // result: no_solution, conflict rule is rule5
+        // result: no_solution, conflict rule is rule51,rule52,rule31,rule32
         cfg.setDebugByRelaxVar(true);
         inferParasByPara();
         printSolutions();
         resultAssert()
-                .assertNoSolution().assertMessageContains("rule3");
+                .assertNoSolution().assertMessageContains("rule3", "rule5");
     }
 
 }

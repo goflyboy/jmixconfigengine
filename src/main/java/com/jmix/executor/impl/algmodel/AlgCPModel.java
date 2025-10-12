@@ -93,14 +93,7 @@ public class AlgCPModel {
         return cpModel;
     }
 
-    /**
-     * 设置当前松弛变量名称
-     * 
-     * @param ruleCode 规则代码
-     * @param weight   权重
-     * @throws AlgLoaderException 当松弛变量名称已存在时抛出
-     */
-    public void setCurrentRelaxVarName(String ruleCode, int weight) {
+    private void setCurrentRelaxVarName(String ruleCode, int weight) {
         if (!isAttachRelax) {
             log.info("relax:{} -----No need,setCurrentRelaxVarName", ruleCode);
             return;
@@ -156,7 +149,7 @@ public class AlgCPModel {
     public void setConfictedRelaxVars(List<RelaxVar> confictedRelaxs) {
         confictedRelaxVarMap.clear();
         for (RelaxVar relaxVar : confictedRelaxs) {
-            confictedRelaxVarMap.put(relaxVar.getRuleCode(), relaxVar);
+            confictedRelaxVarMap.put(relaxVar.getName(), relaxVar);
         }
     }
 
