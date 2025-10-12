@@ -6,6 +6,7 @@ import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.rule.RefProgObjSchema;
 import com.jmix.executor.impl.algmodel.AlgCPModel;
 import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
+import com.jmix.executor.impl.algmodel.RelaxVar;
 import com.jmix.executor.impl.util.Pair;
 import com.jmix.executor.omodel.AlgExecutorException;
 import com.jmix.executor.omodel.AlgLoaderException;
@@ -20,7 +21,6 @@ import com.jmix.executor.omodel.Result;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.CpModel;
 import com.google.ortools.sat.CpSolver;
 import com.google.ortools.sat.CpSolverStatus;
@@ -139,7 +139,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
             module.init();
 
             // 执行约束推理
-            RunInferParasRsp result = runInferParas(module, req, false);
+            RunInferParasRsp result = runInferParas(module, req, false, new ArrayList<>());
             CpSolverStatus status = result.getStatus();
             ModuleInstSolutionCallBack cb = result.getSolutionCallBack();
             // 如果模型无效，调用ValidateCpModel获取详细错误信息
@@ -158,15 +158,21 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
             }
             if (status == CpSolverStatus.INFEASIBLE && config.isDebugByRelaxVar()) {
                 // 没有可行解，如果 debugByRelaxVar= true，则使用松弛变量检测冲突规则
-                result = runInferParas(module, req, true);
-                status = result.getStatus();
-                if (status != CpSolverStatus.OPTIMAL && status != CpSolverStatus.FEASIBLE
-                        && status != CpSolverStatus.INFEASIBLE) {
-                    return Result.failed("solver status: " + status);
-                }
-                List<ModuleInst> solutions = result.getSolutionCallBack().getAllSolutions();
-                String conflictRules = calcConfictRules(result);
-                Result<List<ModuleInst>> r = Result.noSolution(conflictRules);
+                Pair<List<RelaxVar>, RunInferParasRsp> rcResult = null;
+                List<RelaxVar> confictedRelaxs = new ArrayList<>();
+
+                // 第一次运行
+                rcResult = runCalcConfictRules(module, req, true, confictedRelaxs);
+                confictedRelaxs.addAll(rcResult.getFirst());
+
+                // 第二次运行，使用第一次的冲突结果
+                rcResult = runCalcConfictRules(module, req, true, confictedRelaxs);
+                confictedRelaxs.addAll(rcResult.getFirst());
+
+                Result<List<ModuleInst>> r = Result.noSolution(toConfictMessage(confictedRelaxs));
+
+                // 最后一次solution的解
+                List<ModuleInst> solutions = rcResult.getSecond().getSolutionCallBack().getAllSolutions();
                 r.setData(solutions);
                 return r;
             }
@@ -231,38 +237,95 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
      * 计算冲突规则
      *
      * @param result 运行推理参数响应
-     * @return 冲突规则字符串
+     * @return 冲突松弛变量列表
      */
-    private String calcConfictRules(RunInferParasRsp result) {
+    private List<RelaxVar> calcConfictRules(RunInferParasRsp result) {
         AlgCPModel relaxModel = result.getAlgCPModel();
         // 获取冲突规则信息
-        StringBuilder conflictMessage = new StringBuilder("conflict rules: ");
-        Map<String, BoolVar> relaxVarMap = relaxModel.getRelaxVarMap();
-        for (Map.Entry<String, BoolVar> entry : relaxVarMap.entrySet()) {
-            String ruleCode = entry.getKey();
-            BoolVar relaxVar = entry.getValue();
-            if (result.getSolver().booleanValue(relaxVar)) {
-                conflictMessage.append(ruleCode).append(",");
+        List<RelaxVar> confictedRelaxs = new ArrayList<>();
+        Map<String, RelaxVar> relaxVarMap = relaxModel.getRelaxVarMap();
+        for (Map.Entry<String, RelaxVar> entry : relaxVarMap.entrySet()) {
+            RelaxVar relaxVar = entry.getValue();
+            if (result.getSolver().booleanValue(relaxVar.getValue())) {
+                confictedRelaxs.add(relaxVar);
             }
+        }
+        return confictedRelaxs;
+    }
+
+    /**
+     * 将冲突松弛变量列表转换为冲突消息字符串
+     *
+     * @param confictedRelaxs 冲突松弛变量列表
+     * @return 冲突消息字符串
+     */
+    private String toConfictMessage(List<RelaxVar> confictedRelaxs) {
+        StringBuilder conflictMessage = new StringBuilder("conflict rules: ");
+        for (RelaxVar confictedRelax : confictedRelaxs) {
+            conflictMessage.append(confictedRelax.getRuleCode()).append(",");
         }
         return conflictMessage.toString();
     }
 
     /**
+     * 运行计算冲突规则
+     *
+     * @param module          模块对象
+     * @param req             参数反推请求
+     * @param isAttachRelax   是否附加松弛变量
+     * @param confictedRelaxs 冲突松弛变量列表
+     * @return 包含冲突松弛变量列表和运行结果的Pair
+     * @throws AlgExecutorException 当算法执行失败时抛出
+     */
+    private Pair<List<RelaxVar>, RunInferParasRsp> runCalcConfictRules(Module module,
+            InferParasReq req,
+            boolean isAttachRelax,
+            List<RelaxVar> confictedRelaxs) throws AlgExecutorException {
+        try {
+            RunInferParasRsp result = runInferParas(module, req, isAttachRelax, confictedRelaxs);
+            CpSolverStatus status = result.getStatus();
+            if (isFailed(status)) {
+                throw new AlgExecutorException("Solver failed with status: " + status);
+            }
+            List<RelaxVar> newConfictedRelaxs = calcConfictRules(result);
+
+            return new Pair<>(newConfictedRelaxs, result);
+        } catch (AlgLoaderException e) {
+            throw new AlgExecutorException("Algorithm loader error", e);
+        }
+    }
+
+    /**
+     * 检查求解器状态是否失败
+     *
+     * @param status 求解器状态
+     * @return 是否失败
+     */
+    private boolean isFailed(CpSolverStatus status) {
+        return status != CpSolverStatus.OPTIMAL
+                && status != CpSolverStatus.FEASIBLE
+                && status != CpSolverStatus.INFEASIBLE;
+    }
+
+    /**
      * 执行约束推理
      * 
-     * @param module 模块对象
-     * @param req    参数反推请求
+     * @param module          模块对象
+     * @param req             参数反推请求
+     * @param isAttachRelax   是否附加松弛变量
+     * @param confictedRelaxs 冲突松弛变量列表
      * @return 包含求解器状态和回调对象的RunInferParasRsp
      * @throws AlgLoaderException   当算法加载器未找到时抛出
      * @throws AlgExecutorException 当创建算法执行时抛出
      */
     private RunInferParasRsp runInferParas(Module module,
             InferParasReq req,
-            boolean isAttachRelax)
+            boolean isAttachRelax,
+            List<RelaxVar> confictedRelaxs)
             throws AlgLoaderException, AlgExecutorException {
         // 初始化约束模型
         ConstraintAlgImpl alg = initConstraintModel(module, req, isAttachRelax);
+        alg.getModel().setConfictedRelaxVars(confictedRelaxs);
         CpModel model = alg.getModel().getCpModel();
 
         if (config.isLogModelProto()) {

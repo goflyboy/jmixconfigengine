@@ -273,18 +273,25 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
     /**
      * 添加松弛目标函数
-     * 目标函数：最小化需要松弛的约束数量
+     * 目标函数：最小化需要松弛的约束数量（带权重）
      */
     public void addRelaxObjectFunction() {
         if (!model.isIsAttachRelax()) {
             return;
         }
 
-        // 目标函数：最小化需要松弛的约束数量
-        LinearArgument[] relaxVars = model.getRelaxVarMap().values().toArray(new LinearArgument[0]);
-        if (relaxVars.length > 0) {
-            model.minimize(LinearExpr.sum(relaxVars));
-            log.info("Added relaxation objective function with {} relaxation variables", relaxVars.length);
+        // 目标函数：最小化需要松弛的约束数量（带权重）
+        List<RelaxVar> relaxVars = new ArrayList<>(model.getRelaxVarMap().values());
+        if (!relaxVars.isEmpty()) {
+            // 构建加权目标函数：min(relaxVar[0].value * relaxVar[0].weight + relaxVar[1].value *
+            // relaxVar[1].weight + ...)
+            LinearArgument[] weightedTerms = new LinearArgument[relaxVars.size()];
+            for (int i = 0; i < relaxVars.size(); i++) {
+                RelaxVar relaxVar = relaxVars.get(i);
+                weightedTerms[i] = LinearExpr.term(relaxVar.getValue(), relaxVar.getWeight());
+            }
+            model.minimize(LinearExpr.sum(weightedTerms));
+            log.info("Added weighted relaxation objective function with {} relaxation variables", relaxVars.size());
         }
     }
 

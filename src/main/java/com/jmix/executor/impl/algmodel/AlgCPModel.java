@@ -16,6 +16,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -50,7 +51,12 @@ public class AlgCPModel {
     /**
      * 松弛变量映射表，键为规则名称，值为松弛变量
      */
-    private Map<String, BoolVar> relaxationVarMap = new HashMap<>();
+    private Map<String, RelaxVar> relaxationVarMap = new HashMap<>();
+
+    /**
+     * 冲突松弛变量映射
+     */
+    private Map<String, RelaxVar> confictedRelaxVarMap = new HashMap<>();
 
     /**
      * 当前正在使用的松弛变量
@@ -90,21 +96,47 @@ public class AlgCPModel {
     /**
      * 设置当前松弛变量名称
      * 
-     * @param relaxationVarName 松弛变量名称
+     * @param ruleCode 规则代码
+     * @param weight   权重
      * @throws AlgLoaderException 当松弛变量名称已存在时抛出
      */
-    public void setCurrentRelaxVarName(String relaxationVarName) {
+    public void setCurrentRelaxVarName(String ruleCode, int weight) {
         if (!isAttachRelax) {
-            log.info("relax:{} -----No need,setCurrentRelaxVarName", relaxationVarName);
+            log.info("relax:{} -----No need,setCurrentRelaxVarName", ruleCode);
             return;
         }
-        log.info("relax:{} -----setCurrentRelaxVarName", relaxationVarName);
-        this.currentRelaxVarName = "relax_" + relaxationVarName;
+        log.info("relax:{} -----setCurrentRelaxVarName", ruleCode);
+        this.currentRelaxVarName = "relax_" + ruleCode;
         this.currentRelaxVar = newBoolVar(this.currentRelaxVarName);
-        if (relaxationVarMap.containsKey(this.currentRelaxVarName)) {
-            throw new AlgLoaderException("Relaxation variable already exists: " + relaxationVarName);
+
+        int tempWeight = weight;
+        if (confictedRelaxVarMap.containsKey(this.currentRelaxVarName)) {
+            tempWeight = tempWeight + RelaxVar.WEIGHT_ADDER;
         }
-        relaxationVarMap.put(this.currentRelaxVarName, this.currentRelaxVar);
+
+        RelaxVar relaxVar = new RelaxVar(this.currentRelaxVarName, ruleCode, this.currentRelaxVar, tempWeight);
+        if (relaxationVarMap.containsKey(this.currentRelaxVarName)) {
+            throw new AlgLoaderException("Relaxation variable already exists: " + ruleCode);
+        }
+        relaxationVarMap.put(this.currentRelaxVarName, relaxVar);
+    }
+
+    /**
+     * 为系统规则设置松弛变量
+     * 
+     * @param ruleCode 规则代码
+     */
+    public void setRelax4SysRule(String ruleCode) {
+        setCurrentRelaxVarName(ruleCode, RelaxVar.WEIGHT_SMALL);
+    }
+
+    /**
+     * 为自定义规则设置松弛变量
+     * 
+     * @param ruleCode 规则代码
+     */
+    public void setRelax4CustomRule(String ruleCode) {
+        setCurrentRelaxVarName(ruleCode, RelaxVar.WEIGHT_MEDIUM);
     }
 
     /**
@@ -112,8 +144,20 @@ public class AlgCPModel {
      * 
      * @return 松弛变量映射
      */
-    public Map<String, BoolVar> getRelaxVarMap() {
+    public Map<String, RelaxVar> getRelaxVarMap() {
         return relaxationVarMap;
+    }
+
+    /**
+     * 设置冲突松弛变量
+     * 
+     * @param confictedRelaxs 冲突松弛变量列表
+     */
+    public void setConfictedRelaxVars(List<RelaxVar> confictedRelaxs) {
+        confictedRelaxVarMap.clear();
+        for (RelaxVar relaxVar : confictedRelaxs) {
+            confictedRelaxVarMap.put(relaxVar.getRuleCode(), relaxVar);
+        }
     }
 
     /**
