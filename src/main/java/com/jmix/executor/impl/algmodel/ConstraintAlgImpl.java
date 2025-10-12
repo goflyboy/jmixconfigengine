@@ -82,18 +82,6 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     }
 
     /**
-     * 初始化约束模型
-     * 
-     * @param model  CP模型实例
-     * @param module 模块对象
-     */
-    public void initModel(CpModel model, Module module) {
-        List<String> fullRules = toFullRules(module);
-        List<RefProgObjSchema> fullProgObjs = toFullProgObjs(module);
-        initModel(model, module, fullRules, fullProgObjs, false);
-    }
-
-    /**
      * 初始化约束模型（带松弛变量支持）
      * 
      * @param model         CP模型实例
@@ -193,6 +181,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @throws AlgLoaderException 异常
      */
     private void setDefaultVisibilityConstraints() {
+        this.model.setCurrentRelaxationVarName("Framework_setDefaultVisibilityConstraints");
         for (Map.Entry<String, Var<?>> entry : varMap.entrySet()) {
             String code = entry.getKey();
             if (codesOfHiddenConstraint.contains(code)) {
@@ -201,6 +190,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             Var<?> v = entry.getValue();
             if (v instanceof ParaVar) {
                 ParaVar pv = (ParaVar) v;
+                // 暂时没有添加到松弛变量里
                 model.addEquality(pv.getIsHidden(), 0);
 
             } else if (v instanceof PartVar) {
@@ -759,6 +749,8 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @throws AlgLoaderException 异常
      */
     public void addPartEquality(String partCode, int partQuantity) {
+        // 设置当前松弛变量名称
+        this.model.setCurrentRelaxationVarName("addPartEquality_" + partCode + "_" + partQuantity);
         // 1. 根据partCode找到对应的partVar
         Var<?> var = varMap.get(partCode);
         if (!(var instanceof PartVar)) {
@@ -779,6 +771,8 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @throws AlgLoaderException 异常
      */
     public void addParaEquality(String paraCode, String paraValue) {
+        // 设置当前松弛变量名称
+        this.model.setCurrentRelaxationVarName("addParaEquality_" + paraCode + "_" + paraValue);
         Var<?> var = varMap.get(paraCode);
         if (!(var instanceof ParaVar)) {
             log.error("ParaVar not found for code: {}", paraCode);

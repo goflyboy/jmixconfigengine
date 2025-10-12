@@ -4,6 +4,7 @@ import com.jmix.executor.ModuleConstraintExecutor;
 import com.jmix.executor.imodel.ConstraintConfig;
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.rule.RefProgObjSchema;
+import com.jmix.executor.impl.algmodel.AlgCPModel;
 import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
 import com.jmix.executor.impl.util.Pair;
 import com.jmix.executor.omodel.AlgExecutorException;
@@ -24,6 +25,8 @@ import com.google.ortools.sat.CpModel;
 import com.google.ortools.sat.CpSolver;
 import com.google.ortools.sat.CpSolverStatus;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -42,6 +45,33 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 @Slf4j
 public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
+
+    /**
+     * 运行推理参数响应数据类
+     */
+    @Data
+    @AllArgsConstructor
+    private static class RunInferParasRsp {
+        /**
+         * 求解器状态
+         */
+        private final CpSolverStatus status;
+
+        /**
+         * 模块实例解决方案回调
+         */
+        private final ModuleInstSolutionCallBack solutionCallBack;
+
+        /**
+         * 算法CP模型
+         */
+        private final AlgCPModel algCPModel;
+
+        /**
+         * CP求解器
+         */
+        private final CpSolver solver;
+    }
 
     private final Map<Long, Module> moduleMap = new HashMap<>();
 
@@ -109,9 +139,9 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
             module.init();
 
             // 执行约束推理
-            Pair<CpSolverStatus, ModuleInstSolutionCallBack> result = runInferParas(module, req, false);
-            CpSolverStatus status = result.getFirst();
-            ModuleInstSolutionCallBack cb = result.getSecond();
+            RunInferParasRsp result = runInferParas(module, req, false);
+            CpSolverStatus status = result.getStatus();
+            ModuleInstSolutionCallBack cb = result.getSolutionCallBack();
             // 如果模型无效，调用ValidateCpModel获取详细错误信息
             if (status == CpSolverStatus.MODEL_INVALID) {
                 // 重新获取模型进行验证
@@ -129,32 +159,16 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
             if (status == CpSolverStatus.INFEASIBLE && config.isDebugByRelaxationVar()) {
                 // 没有可行解，如果 debugByRelaxationVar= true，则使用松弛变量检测冲突规则
                 result = runInferParas(module, req, true);
-                CpSolverStatus relaxStatus = result.getFirst();
-
-                if (relaxStatus == CpSolverStatus.OPTIMAL || relaxStatus == CpSolverStatus.FEASIBLE) {
-                    // 获取冲突规则信息
-                    StringBuilder conflictMessage = new StringBuilder("conflict rules: ");
-                    ConstraintAlgImpl alg = initConstraintModel(module, req, true);
-                    Map<String, BoolVar> relaxVarMap = alg.getModel().getRelaxationVarMap();
-
-                    // 重新创建求解器来获取松弛变量的值
-                    CpSolver relaxSolver = new CpSolver();
-                    CpModel relaxModel = alg.getModel().getCpModel();
-                    relaxSolver.solve(relaxModel);
-
-                    for (Map.Entry<String, BoolVar> entry : relaxVarMap.entrySet()) {
-                        String ruleCode = entry.getKey();
-                        BoolVar relaxVar = entry.getValue();
-                        if (relaxSolver.booleanValue(relaxVar)) {
-                            conflictMessage.append(ruleCode).append(",");
-                        }
-                    }
-
-                    return Result.noSolution(conflictMessage.toString());
+                status = result.getStatus();
+                if (status != CpSolverStatus.OPTIMAL && status != CpSolverStatus.FEASIBLE
+                        && status != CpSolverStatus.INFEASIBLE) {
+                    return Result.failed("solver status: " + status);
                 }
-            } else if (status == CpSolverStatus.INFEASIBLE) {
-                // 没有可行解，debugByRelaxationVar= false，直接返回无解
-                return Result.noSolution("No feasible solution found");
+                List<ModuleInst> solutions = result.getSolutionCallBack().getAllSolutions();
+                String conflictRules = calcConfictRules(result);
+                Result<List<ModuleInst>> r = Result.noSolution(conflictRules);
+                r.setData(solutions);
+                return r;
             }
             // 执行后处理
             List<ModuleInst> solutions = cb.getAllSolutions();
@@ -214,15 +228,37 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
     }
 
     /**
+     * 计算冲突规则
+     *
+     * @param result 运行推理参数响应
+     * @return 冲突规则字符串
+     */
+    private String calcConfictRules(RunInferParasRsp result) {
+        AlgCPModel relaxModel = result.getAlgCPModel();
+        // 获取冲突规则信息
+        StringBuilder conflictMessage = new StringBuilder("conflict rules: ");
+        Map<String, BoolVar> relaxVarMap = relaxModel.getRelaxationVarMap();
+        for (Map.Entry<String, BoolVar> entry : relaxVarMap.entrySet()) {
+            String ruleCode = entry.getKey();
+            BoolVar relaxVar = entry.getValue();
+            if (result.getSolver().booleanValue(relaxVar)) {
+                conflictMessage.append(ruleCode).append(",");
+            }
+        }
+        return conflictMessage.toString();
+    }
+
+    /**
      * 执行约束推理
      * 
      * @param module 模块对象
      * @param req    参数反推请求
-     * @return 包含求解器状态和回调对象的Pair
+     * @return 包含求解器状态和回调对象的RunInferParasRsp
      * @throws AlgLoaderException   当算法加载器未找到时抛出
      * @throws AlgExecutorException 当创建算法执行时抛出
      */
-    private Pair<CpSolverStatus, ModuleInstSolutionCallBack> runInferParas(Module module, InferParasReq req,
+    private RunInferParasRsp runInferParas(Module module,
+            InferParasReq req,
             boolean isAttachRelax)
             throws AlgLoaderException, AlgExecutorException {
         // 初始化约束模型
@@ -241,7 +277,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
         ModuleInstSolutionCallBack cb = new ModuleInstSolutionCallBack(module, alg.getVars(), alg.getOtherVarMap());
         CpSolverStatus status = solver.solve(model, cb);
 
-        return new Pair<>(status, cb);
+        return new RunInferParasRsp(status, cb, alg.getModel(), solver);
     }
 
     private ConstraintAlgImpl initConstraintModel(Module module, InferParasReq req, boolean isAttachRelax)
@@ -273,10 +309,10 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
                             .collect(java.util.stream.Collectors.toList()));
 
             // 调用新的initModel方法
-            alg.initModel(model, module, relativePair.getFirst(), relativePair.getSecond());
+            alg.initModel(model, module, relativePair.getFirst(), relativePair.getSecond(), isAttachRelax);
         } else {
             // 全量加载模型
-            alg.initModel(model, module);
+            alg.initModel(model, module, isAttachRelax);
         }
 
         // 根据请求初始化约束模型

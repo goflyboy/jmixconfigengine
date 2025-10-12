@@ -58,7 +58,7 @@ public abstract class ModuleScenarioTestBase {
     /**
      * 配置
      */
-    private ConstraintConfig cfg;
+    protected ConstraintConfig cfg;
 
     /**
      * 解决方案列表

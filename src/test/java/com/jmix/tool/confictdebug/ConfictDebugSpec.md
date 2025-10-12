@@ -24,3 +24,13 @@ private PartVar y;
  x.qty+ 2y.qty > 10
 
 ```  
+
+##userTestCaseSpec
+```java
+//testcase1: 
+ debugByRelaxationVar设置为false,     inferParas("y", 3); 预期结果为：success, assertSolutionNum为0
+ 
+//testcase2:
+ debugByRelaxationVar设置为true,      inferParas("y", 3); 预期结果为：no_solution, message的冲突规则为rule3
+
+```  

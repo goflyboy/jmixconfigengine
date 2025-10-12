@@ -249,15 +249,10 @@ public class ResultAssert {
      * @return 当前ResultAssert实例，支持链式调用
      */
     public ResultAssert assertNoSolution() {
-        if (actualResult.getCode() != Result.SUCCESS
-                || (actualResult.getData() instanceof Collection
-                        && ((Collection<?>) actualResult.getData()).size() > 0)) {
+        if (actualResult.getCode() != Result.NO_SOLUTION) {
             throw new AssertionError(String.format(
-                    "Expected no solution, actual result code: %d, solution count: %s",
-                    actualResult.getCode(),
-                    actualResult.getData() instanceof Collection
-                            ? String.valueOf(((Collection<?>) actualResult.getData()).size())
-                            : "N/A"));
+                    "Expected no solution, actual result code: %d",
+                    actualResult.getCode()));
         }
         return this;
     }
