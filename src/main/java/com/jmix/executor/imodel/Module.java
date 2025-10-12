@@ -109,13 +109,21 @@ public class Module extends ProgrammableObject<Integer> {
     private void initShortCode() {
         int index = 0;
         for (Para para : paras) {
-            para.setShortCode(Para.SHORT_CODE_PREFIX + index);
-            index++;
+            if (para.getCode().length() <= 3) { // 如果编码长度小于等于3，则直接使用编码
+                para.setShortCode(para.getCode());
+            } else {
+                para.setShortCode(Para.SHORT_CODE_PREFIX + index);
+                index++;
+            }
         }
         index = 0;
         for (Part part : parts) {
-            part.setShortCode(Part.SHORT_CODE_PREFIX + index);
-            index++;
+            if (part.getCode().length() <= 3) { // 如果编码长度小于等于3，则直接使用编码
+                part.setShortCode(part.getCode());
+            } else {
+                part.setShortCode(Part.SHORT_CODE_PREFIX + index);
+                index++;
+            }
         }
     }
 

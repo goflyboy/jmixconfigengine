@@ -190,7 +190,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             Var<?> v = entry.getValue();
             if (v instanceof ParaVar) {
                 if (isFirst) {
-                    this.model.setCurrentRelaxationVarName("hiddensrule");
+                    this.model.setCurrentRelaxVarName("hiddensrule");
                     isFirst = false;
                 }
                 ParaVar pv = (ParaVar) v;
@@ -199,7 +199,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
             } else if (v instanceof PartVar) {
                 if (isFirst) {
-                    this.model.setCurrentRelaxationVarName("hiddensrule");
+                    this.model.setCurrentRelaxVarName("hiddensrule");
                     isFirst = false;
                 }
                 PartVar pt = (PartVar) v;
@@ -281,7 +281,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         }
 
         // 目标函数：最小化需要松弛的约束数量
-        LinearArgument[] relaxVars = model.getRelaxationVarMap().values().toArray(new LinearArgument[0]);
+        LinearArgument[] relaxVars = model.getRelaxVarMap().values().toArray(new LinearArgument[0]);
         if (relaxVars.length > 0) {
             model.minimize(LinearExpr.sum(relaxVars));
             log.info("Added relaxation objective function with {} relaxation variables", relaxVars.length);
@@ -302,7 +302,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         }
         try {
             // 设置当前松弛变量名称
-            this.model.setCurrentRelaxationVarName(ruleCode);
+            this.model.setCurrentRelaxVarName(ruleCode);
 
             // 执行规则方法
             method.setAccessible(true);
@@ -755,7 +755,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      */
     public void addPartEquality(String partCode, int partQuantity) {
         // 设置当前松弛变量名称
-        this.model.setCurrentRelaxationVarName("addPartEquality_" + partCode + "_" + partQuantity);
+        this.model.setCurrentRelaxVarName("addPartEquality_" + partCode + "_" + partQuantity);
         // 1. 根据partCode找到对应的partVar
         Var<?> var = varMap.get(partCode);
         if (!(var instanceof PartVar)) {
@@ -777,7 +777,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      */
     public void addParaEquality(String paraCode, String paraValue) {
         // 设置当前松弛变量名称
-        this.model.setCurrentRelaxationVarName("addParaEquality_" + paraCode + "_" + paraValue);
+        this.model.setCurrentRelaxVarName("addParaEquality_" + paraCode + "_" + paraValue);
         Var<?> var = varMap.get(paraCode);
         if (!(var instanceof ParaVar)) {
             log.error("ParaVar not found for code: {}", paraCode);

@@ -53,5 +53,5 @@ public class ConstraintConfig {
     /**
      * 是否通过增加松弛变量来调试冲突规则
      */
-    private boolean debugByRelaxationVar = false;
+    private boolean debugByRelaxVar = false;
 }

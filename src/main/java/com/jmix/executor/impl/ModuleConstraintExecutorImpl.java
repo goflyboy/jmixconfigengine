@@ -156,8 +156,8 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
                     && status != CpSolverStatus.INFEASIBLE) {
                 return Result.failed("solver status: " + status);
             }
-            if (status == CpSolverStatus.INFEASIBLE && config.isDebugByRelaxationVar()) {
-                // 没有可行解，如果 debugByRelaxationVar= true，则使用松弛变量检测冲突规则
+            if (status == CpSolverStatus.INFEASIBLE && config.isDebugByRelaxVar()) {
+                // 没有可行解，如果 debugByRelaxVar= true，则使用松弛变量检测冲突规则
                 result = runInferParas(module, req, true);
                 status = result.getStatus();
                 if (status != CpSolverStatus.OPTIMAL && status != CpSolverStatus.FEASIBLE
@@ -237,7 +237,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
         AlgCPModel relaxModel = result.getAlgCPModel();
         // 获取冲突规则信息
         StringBuilder conflictMessage = new StringBuilder("conflict rules: ");
-        Map<String, BoolVar> relaxVarMap = relaxModel.getRelaxationVarMap();
+        Map<String, BoolVar> relaxVarMap = relaxModel.getRelaxVarMap();
         for (Map.Entry<String, BoolVar> entry : relaxVarMap.entrySet()) {
             String ruleCode = entry.getKey();
             BoolVar relaxVar = entry.getValue();

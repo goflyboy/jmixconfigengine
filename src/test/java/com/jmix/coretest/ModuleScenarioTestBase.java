@@ -222,7 +222,6 @@ public abstract class ModuleScenarioTestBase {
         req.setPreParaInsts(toPreParas(paraCodeValuePairs));
 
         Result<List<ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(req);
-        log.info("Inference result: {}", result);
         setResult(result);
         setSolutions(result.getData());
         return getSolutions();
@@ -594,6 +593,8 @@ public abstract class ModuleScenarioTestBase {
         }
         sb.append(System.lineSeparator()).append("******************************************")
                 .append(System.lineSeparator());
+        sb.append("3.Messages:").append(System.lineSeparator());
+        sb.append(result.getMessage()).append(System.lineSeparator());
         log.info(sb.toString());
     }
 

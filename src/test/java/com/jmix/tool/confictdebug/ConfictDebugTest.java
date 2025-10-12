@@ -67,9 +67,9 @@ public class ConfictDebugTest extends ModuleScenarioTestBase {
 
     @Test
     public void testCase1() {
-        // Test case 1: debugByRelaxationVar set to false, inferParas("y", 3); expected
+        // Test case 1: debugByRelaxVar set to false, inferParas("y", 3); expected
         // result: success, assertSolutionNum is 0
-        cfg.setDebugByRelaxationVar(false);
+        cfg.setDebugByRelaxVar(false);
         inferParasByPara();
         printSolutions();
         resultAssert()
@@ -79,9 +79,9 @@ public class ConfictDebugTest extends ModuleScenarioTestBase {
 
     @Test
     public void testCase2() {
-        // Test case 2: debugByRelaxationVar set to true, inferParas(); expected
+        // Test case 2: debugByRelaxVar set to true, inferParas(); expected
         // result: no_solution, conflict rule is rule3
-        cfg.setDebugByRelaxationVar(true);
+        cfg.setDebugByRelaxVar(true);
         inferParasByPara();
         printSolutions();
         resultAssert()

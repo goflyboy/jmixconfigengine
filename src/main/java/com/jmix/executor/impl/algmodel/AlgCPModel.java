@@ -55,12 +55,12 @@ public class AlgCPModel {
     /**
      * 当前正在使用的松弛变量
      */
-    private BoolVar currentRelaxationVar = null;
+    private BoolVar currentRelaxVar = null;
 
     /**
      * 当前松弛变量的名称
      */
-    private String currentRelaxationVarName = "";
+    private String currentRelaxVarName = "";
 
     /**
      * 默认构造函数，创建新的CpModel实例
@@ -93,18 +93,18 @@ public class AlgCPModel {
      * @param relaxationVarName 松弛变量名称
      * @throws AlgLoaderException 当松弛变量名称已存在时抛出
      */
-    public void setCurrentRelaxationVarName(String relaxationVarName) {
+    public void setCurrentRelaxVarName(String relaxationVarName) {
         if (!isAttachRelax) {
-            log.info("relax:{} -----No need,setCurrentRelaxationVarName", relaxationVarName);
+            log.info("relax:{} -----No need,setCurrentRelaxVarName", relaxationVarName);
             return;
         }
-        log.info("relax:{} -----setCurrentRelaxationVarName", relaxationVarName);
-        this.currentRelaxationVarName = "relax_" + relaxationVarName;
-        this.currentRelaxationVar = newBoolVar(this.currentRelaxationVarName);
-        if (relaxationVarMap.containsKey(this.currentRelaxationVarName)) {
+        log.info("relax:{} -----setCurrentRelaxVarName", relaxationVarName);
+        this.currentRelaxVarName = "relax_" + relaxationVarName;
+        this.currentRelaxVar = newBoolVar(this.currentRelaxVarName);
+        if (relaxationVarMap.containsKey(this.currentRelaxVarName)) {
             throw new AlgLoaderException("Relaxation variable already exists: " + relaxationVarName);
         }
-        relaxationVarMap.put(this.currentRelaxationVarName, this.currentRelaxationVar);
+        relaxationVarMap.put(this.currentRelaxVarName, this.currentRelaxVar);
     }
 
     /**
@@ -112,7 +112,7 @@ public class AlgCPModel {
      * 
      * @return 松弛变量映射
      */
-    public Map<String, BoolVar> getRelaxationVarMap() {
+    public Map<String, BoolVar> getRelaxVarMap() {
         return relaxationVarMap;
     }
 
@@ -142,8 +142,8 @@ public class AlgCPModel {
      * @return 带松弛变量的约束包装
      */
     private AlgCPConstraint attachRelax(Constraint ct, String funName) {
-        log.info("relax:{} -----{}", currentRelaxationVarName, funName);
-        return new AlgCPConstraint(ct, this.currentRelaxationVar, this.currentRelaxationVarName);
+        log.info("relax:{} -----{}", currentRelaxVarName, funName);
+        return new AlgCPConstraint(ct, this.currentRelaxVar, this.currentRelaxVarName);
     }
 
     /**
