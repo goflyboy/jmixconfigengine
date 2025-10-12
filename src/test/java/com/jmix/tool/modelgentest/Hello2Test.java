@@ -1,44 +1,47 @@
 package com.jmix.tool.modelgentest;
 
-import com.jmix.coretest.*; 
-import com.jmix.executor.imodel.*;
-import com.jmix.executor.imodel.anno.*; 
-import com.google.ortools.sat.*; 
-import lombok.extern.slf4j.Slf4j; 
+import com.jmix.coretest.ConstraintAlgImplTestBase;
+import com.jmix.coretest.ModuleScenarioTestBase;
+import com.jmix.executor.imodel.anno.CodeRuleAnno;
+import com.jmix.executor.imodel.anno.ModuleAnno;
+import com.jmix.executor.imodel.anno.ParaAnno;
+import com.jmix.executor.imodel.anno.PartAnno;
+
+import com.google.ortools.sat.BoolVar;
+import com.google.ortools.sat.Literal;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.jupiter.api.Test;
 
 @Slf4j
 public class Hello2Test extends ModuleScenarioTestBase {
-    
-    //---------------模型的定义start----------------------------------------
+
+    // ---------------模型的定义start----------------------------------------
     @ModuleAnno(id = 123L)
     static public class Hello2Constraint extends ConstraintAlgImplTestBase {
-        @ParaAnno( 
-            options = {"Red", "Black", "White"}
-        )
+        @ParaAnno(options = { "Red", "Black", "White" })
         private ParaVar colorVar;
 
-        @ParaAnno( 
-            options = {"Small", "Medium", "Big"}
-        )
+        @ParaAnno(options = { "Small", "Medium", "Big" })
         private ParaVar sizeVar;
 
         @PartAnno()
         private PartVar tShirt11Var;
-        
+
         @CodeRuleAnno(normalNaturalCode = "if(colorVar.value == Red && sizeVar.value == Small) { tShirt11Var.qty = 1; } else { tShirt11Var.qty = 3; }")
         private void rule1() {
             // Create condition variable: color is Red and size is Small
             BoolVar redAndSmall = model.newBoolVar("rule1_redAndSmall");
 
             // Implement condition logic: redAndSmall = (color == Red) AND (size == Small)
-            model.addBoolAnd(new Literal[]{
+            model.addBoolAnd(new Literal[] {
                     this.colorVar.getParaOptionByCode("Red").getIsSelectedVar(),
                     this.sizeVar.getParaOptionByCode("Small").getIsSelectedVar()
             }).onlyEnforceIf(redAndSmall);
 
             // If not Red and Small combination, set redAndSmall to false
-            model.addBoolOr(new Literal[]{
+            model.addBoolOr(new Literal[] {
                     this.colorVar.getParaOptionByCode("Red").getIsSelectedVar().not(),
                     this.sizeVar.getParaOptionByCode("Small").getIsSelectedVar().not()
             }).onlyEnforceIf(redAndSmall.not());
@@ -51,7 +54,7 @@ public class Hello2Test extends ModuleScenarioTestBase {
             model.addEquality(this.tShirt11Var.qty, 3).onlyEnforceIf(redAndSmall.not());
         }
     }
-    //---------------模型的定义end----------------------------------------
+    // ---------------模型的定义end----------------------------------------
 
     public Hello2Test() {
         super(Hello2Constraint.class);
@@ -82,7 +85,7 @@ public class Hello2Test extends ModuleScenarioTestBase {
 
         // The if condition solution should not be present
         assertSolutionNum("color:Red,size:Small", 0);
-        
+
         // Verify some else condition solutions exist
         assertSolutionNum("color:Black,size:Big", 1);
         assertSolutionNum("color:White,size:Medium", 1);
@@ -94,11 +97,11 @@ public class Hello2Test extends ModuleScenarioTestBase {
     public void testMultipleParaInference() {
         // Test inference with multiple parameters specified
         inferParasByPara("color", "Red", "size", "Small");
-        
+
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(1);
-        
+
         solutions(0).assertPart("tShirt11").quantityEqual(1);
         printSolutions();
     }
@@ -108,7 +111,8 @@ public class Hello2Test extends ModuleScenarioTestBase {
         // Test invalid quantity that doesn't satisfy any condition
         inferParas("tShirt11", 2);
 
-        resultAssert().assertNoSolution();
+        resultAssert().assertSuccess()
+                .assertSolutionSizeEqual(0);
         printSolutions();
     }
 
@@ -116,11 +120,11 @@ public class Hello2Test extends ModuleScenarioTestBase {
     public void testAllElseCombinations() {
         // Test all possible else condition combinations
         inferParas("tShirt11", 3);
-        
+
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(8);
-                
+
         // Verify all 8 combinations are valid (3 colors * 3 sizes - 1 if condition)
         printSolutions();
     }

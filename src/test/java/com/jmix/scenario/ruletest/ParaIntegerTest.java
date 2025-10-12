@@ -84,7 +84,8 @@ public class ParaIntegerTest extends ModuleScenarioTestBase {
     @Test
     public void testNoSolution() {
         inferParas("part1", 4);
-        resultAssert().assertNoSolution();
+        resultAssert().assertSuccess()
+                .assertSolutionSizeEqual(0);
     }
 
     /**

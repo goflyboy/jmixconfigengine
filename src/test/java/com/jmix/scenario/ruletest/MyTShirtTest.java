@@ -126,6 +126,7 @@ public class MyTShirtTest extends ModuleScenarioTestBase {
     @Test
     public void testNoSolution() {
         inferParas("pt1", 5);
-        resultAssert().assertNoSolution();
+        resultAssert().assertSuccess()
+                .assertSolutionSizeEqual(0);
     }
 }

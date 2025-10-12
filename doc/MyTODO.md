@@ -121,3 +121,24 @@ tool
   ParaVar的名字不能随便修改
   
 	TODO：怎么加屏蔽逻辑？ --**
+
+
+2025-10-13：
+1、
+  No_Solution是不是要重新定义一下？
+
+      @Test
+    public void testp1Topart1InvalidInput() {
+        // Test when p0=0, p1 should be hidden and p1.var=0
+        inferParasByPara("p0", "2", "p1", "3"); // 超出p1值域
+        printSolutions();
+        resultAssert().assertSuccess()
+                .assertSolutionSizeEqual(0);
+
+    }
+
+2、版本的事情：不一致，要有版本介绍？
+接口要兼容的问题**
+HelloConstraintTest
+---怎么建？
+
