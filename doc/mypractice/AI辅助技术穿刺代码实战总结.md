@@ -10,17 +10,13 @@
 - 基于约束模型的产品配置求解器（仅参数反向推理）的开发
 
 
-约束满足问题（Constraint Satisfaction Problems,CSP）定义一组对象（变量），其状态必须满足许多约束或限制，广泛应用于规划调度、CAD等领域，其核心包括约束的表示（约束编程）和约束求解器，是学术界研究的热点之一（2021年理论计算机最高荣誉“哥德尔奖”就是研究改领域的）
+约束满足问题（Constraint Satisfaction Problems,CSP）定义一组对象（变量），其状态必须满足许多约束或限制，广泛应用于规划调度、CAD等领域，其核心包括约束的表示（[约束编程](https://en.wikipedia.org/wiki/Constraint_programming)）和约束求解器，是学术界研究的热点之一（[2021年理论计算机最高荣誉“哥德尔奖”](https://eatcs.org/index.php/component/content/article/1-news/2885-2021-05-07-21-20-13)就是研究该领域的获得）
 
-https://eatcs.org/index.php/component/content/article/1-news/2885-2021-05-07-21-20-13
 
-https://en.wikipedia.org/wiki/Constraint_programming
 
 约束编程一种编程范式（思维方式），它让你描述问题是什么，而不是规定计算机如何一步步解决问题，让熟悉面向对象编程的（如：java）学习他，跨度大（难度远大于从Java到Python），另外，加上求解器这个黑盒，涉及到复杂的算法，遇到问题，定位复杂。
 
 团队没有个有这方面基础，仅有的2名有Java背景开发背景，项目时间大概2个月，需要完成准商用版本，时间紧，难度大。
-
-
  
 ## 二、项目成果
 
