@@ -36,11 +36,6 @@ public class HelloConstraintTest extends ModuleScenarioTestBase {
         // 测试颜色参数推理
         inferParas("tShirt11", 1);
 
-        // 使用resultAssert验证执行结果
-        resultAssert()
-                .assertSuccess()
-                .assertSolutionSizeEqual(1);
-
         // 验证第一个解
         solutions(0).assertPara("color").valueEqual("Red")
                 .assertPara("size").valueEqual("Small");

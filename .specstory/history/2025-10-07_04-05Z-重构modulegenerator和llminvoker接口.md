@@ -6,7 +6,8 @@
 
 _**User (2025-10-07 03:58Z)**_
 
-对ModuleGenerator进行重构，把对LLM访问的部分抽取为一个接口LLMInvoker（不引用其它第三方接口），把和langchain4j相关调用单独抽取为一个实现类LLMInvokerImpl 
+对ModuleGenerator进行重构，把对LLM访问的部分抽取为一个接口LLMInvoker（不引用其它第三方接口），
+把和langchain4j相关调用单独抽取为一个实现类LLMInvokerImpl 
 
 ---
 

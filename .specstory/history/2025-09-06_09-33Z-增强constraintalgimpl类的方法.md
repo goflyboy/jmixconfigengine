@@ -14,7 +14,7 @@ void autoAddConstraints(Module module) {
 }
 2、在ConstraintAlgImpl.initConstraint调用autoAddConstraints
 
----
+---1
 
 _**Assistant**_
 
