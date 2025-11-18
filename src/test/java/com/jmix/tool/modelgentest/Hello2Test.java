@@ -29,7 +29,7 @@ public class Hello2Test extends ModuleScenarioTestBase {
         @PartAnno()
         private PartVar tShirt11Var;
 
-        @CodeRuleAnno(normalNaturalCode = "if(colorVar.value == Red && sizeVar.value == Small) { tShirt11Var.qty = 1; } else { tShirt11Var.qty = 3; }")
+        @CodeRuleAnno(normalNaturalCode = "如果的颜色是红色且大小是小号是，则tShirt11的数量为1，否者为3 ")
         private void rule1() {
             // Create condition variable: color is Red and size is Small
             BoolVar redAndSmall = model.newBoolVar("rule1_redAndSmall");
