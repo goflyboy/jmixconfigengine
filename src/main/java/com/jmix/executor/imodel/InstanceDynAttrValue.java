@@ -24,7 +24,8 @@ public class InstanceDynAttrValue {
 
     /**
      * 根据条件查询实例属性值
-     * 例如：whereCondition="Speed like %5400%"，表示查询 attrs["speed"] like %5400%的InstanceDynAttrValueItem
+     * 支持精确匹配：fieldName = value，例如：Capacity =8T
+     * 支持模糊匹配：fieldName like %value%，例如：Speed like %5400%
      *
      * @param whereCondition 查询条件表达式
      * @return 匹配的实例属性值列表
@@ -34,26 +35,41 @@ public class InstanceDynAttrValue {
             return new ArrayList<>(instsValues);
         }
 
-        // 解析查询条件，目前支持简单的 like 查询
-        // 格式：fieldName like %value%
-        String[] parts = whereCondition.split("\\s+like\\s+", 2);
-        if (parts.length != 2) {
-            // 如果不是 like 查询，返回所有
-            return new ArrayList<>(instsValues);
+        String trimmedCondition = whereCondition.trim();
+
+        // 检查是否是精确匹配查询：fieldName = value
+        String[] equalParts = trimmedCondition.split("\\s*=\\s*", 2);
+        if (equalParts.length == 2) {
+            String fieldName = equalParts[0].trim();
+            String searchValue = equalParts[1].trim();
+
+            return instsValues.stream()
+                    .filter(item -> {
+                        String attrValue = item.getInstAttr().get(fieldName);
+                        return attrValue != null && attrValue.equals(searchValue);
+                    })
+                    .collect(Collectors.toList());
         }
 
-        String fieldName = parts[0].trim();
-        String pattern = parts[1].trim();
+        // 检查是否是模糊匹配查询：fieldName like %value%
+        String[] likeParts = trimmedCondition.split("\\s+like\\s+", 2);
+        if (likeParts.length == 2) {
+            String fieldName = likeParts[0].trim();
+            String pattern = likeParts[1].trim();
 
-        // 移除 % 通配符
-        String searchValue = pattern.replaceAll("^%+|%+$", "");
+            // 移除 % 通配符
+            String searchValue = pattern.replaceAll("^%+|%+$", "");
 
-        return instsValues.stream()
-                .filter(item -> {
-                    String attrValue = item.getInstAttr().get(fieldName);
-                    return attrValue != null && attrValue.contains(searchValue);
-                })
-                .collect(Collectors.toList());
+            return instsValues.stream()
+                    .filter(item -> {
+                        String attrValue = item.getInstAttr().get(fieldName);
+                        return attrValue != null && attrValue.contains(searchValue);
+                    })
+                    .collect(Collectors.toList());
+        }
+
+        // 如果不是支持的查询格式，返回所有
+        return new ArrayList<>(instsValues);
     }
 
     /**

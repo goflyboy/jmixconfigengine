@@ -214,4 +214,80 @@ public class InstanceDynAttrValueTest {
         assertTrue(result.contains(item2), "Should contain item2");
         assertTrue(result.contains(item3), "Should contain item3");
     }
+
+    /**
+     * 测试Capacity字段的精确匹配查询
+     */
+    @Test
+    public void testQueryCapacityEqual8T() {
+        List<InstanceDynAttrValueItem> result = instanceDynAttrValue.query("Capacity =8T");
+
+        assertEquals(1, result.size(), "Should find 1 item with Capacity exactly equal to 8T");
+        assertTrue(result.contains(item1), "Should contain item1 (8T)");
+        assertFalse(result.contains(item2), "Should not contain item2 (16T)");
+        assertFalse(result.contains(item3), "Should not contain item3 (4T)");
+    }
+
+    /**
+     * 测试Speed字段的精确匹配查询
+     */
+    @Test
+    public void testQuerySpeedEqual5400() {
+        List<InstanceDynAttrValueItem> result = instanceDynAttrValue.query("Speed =5400");
+
+        assertEquals(1, result.size(), "Should find 1 item with Speed exactly equal to 5400");
+        assertTrue(result.contains(item1), "Should contain item1 (5400)");
+        assertFalse(result.contains(item2), "Should not contain item2 (7200/5400)");
+        assertFalse(result.contains(item3), "Should not contain item3 (9000)");
+    }
+
+    /**
+     * 测试BrandWidth字段的精确匹配查询
+     */
+    @Test
+    public void testQueryBrandWidthEqual8GBS() {
+        List<InstanceDynAttrValueItem> result = instanceDynAttrValue.query("BrandWidth =8GB/S");
+
+        assertEquals(2, result.size(), "Should find 2 items with BrandWidth exactly equal to 8GB/S");
+        assertTrue(result.contains(item1), "Should contain item1");
+        assertFalse(result.contains(item2), "Should not contain item2 (16GB/S)");
+        assertTrue(result.contains(item3), "Should contain item3");
+    }
+
+    /**
+     * 测试精确匹配不存在的值
+     */
+    @Test
+    public void testQueryEqualNonExistentValue() {
+        List<InstanceDynAttrValueItem> result = instanceDynAttrValue.query("Capacity =32T");
+
+        assertEquals(0, result.size(), "Should find no items with Capacity equal to 32T");
+    }
+
+    /**
+     * 测试精确匹配不存在的字段
+     */
+    @Test
+    public void testQueryEqualNonExistentField() {
+        List<InstanceDynAttrValueItem> result = instanceDynAttrValue.query("NonExistentField =value");
+
+        assertEquals(0, result.size(), "Should find no items for non-existent field");
+    }
+
+    /**
+     * 测试精确匹配查询与like查询的对比
+     */
+    @Test
+    public void testQueryEqualVsLikeComparison() {
+        // 精确匹配
+        List<InstanceDynAttrValueItem> equalResult = instanceDynAttrValue.query("Speed =5400");
+        assertEquals(1, equalResult.size(), "Equal query should find exactly 1 item");
+
+        // 模糊匹配
+        List<InstanceDynAttrValueItem> likeResult = instanceDynAttrValue.query("Speed like %5400%");
+        assertEquals(2, likeResult.size(), "Like query should find 2 items containing 5400");
+
+        // 验证结果差异
+        assertTrue(equalResult.size() < likeResult.size(), "Equal should return fewer results than like");
+    }
 }
