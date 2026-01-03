@@ -44,7 +44,7 @@ public @interface ParaAnno {
     /**
      * 参数类型
      */
-    ParaType type() default ParaType.ATOMIC;
+    ParaType type() default ParaType.ENUM;
 
     /**
      * 枚举选项代码列表

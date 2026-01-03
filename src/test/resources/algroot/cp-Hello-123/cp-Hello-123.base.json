@@ -22,11 +22,11 @@
     "code" : "color",
     "fatherCode" : "",
     "defaultValue" : "Red",
-    "description" : "",
+    "description" : null,
     "sortNo" : 0,
-    "type" : "ENUM",
+    "name" : "",
     "options" : [ "java.util.ArrayList", [ {
-      "@type" : "ParaOption",
+      "@type" : "DynamicAttributerOption",
       "extSchema" : null,
       "extAttrs" : {
         "@class" : "java.util.HashMap"
@@ -34,11 +34,11 @@
       "code" : "Red",
       "fatherCode" : null,
       "defaultValue" : "Red",
-      "description" : "",
+      "description" : null,
       "sortNo" : 1,
       "codeId" : 1
     }, {
-      "@type" : "ParaOption",
+      "@type" : "DynamicAttributerOption",
       "extSchema" : null,
       "extAttrs" : {
         "@class" : "java.util.HashMap"
@@ -46,11 +46,11 @@
       "code" : "Black",
       "fatherCode" : null,
       "defaultValue" : "Black",
-      "description" : "",
+      "description" : null,
       "sortNo" : 2,
       "codeId" : 2
     }, {
-      "@type" : "ParaOption",
+      "@type" : "DynamicAttributerOption",
       "extSchema" : null,
       "extAttrs" : {
         "@class" : "java.util.HashMap"
@@ -58,12 +58,17 @@
       "code" : "White",
       "fatherCode" : null,
       "defaultValue" : "White",
-      "description" : "",
+      "description" : null,
       "sortNo" : 3,
       "codeId" : 3
     } ] ],
+    "dynAttrType" : "Integer",
+    "value" : null,
+    "valueLogics" : null,
+    "paraType" : "ENUM",
     "minValue" : "-1000",
-    "maxValue" : "1000"
+    "maxValue" : "1000",
+    "refSpecCode" : null
   }, {
     "@type" : "Para",
     "extSchema" : "",
@@ -73,11 +78,11 @@
     "code" : "size",
     "fatherCode" : "",
     "defaultValue" : "Small",
-    "description" : "",
+    "description" : null,
     "sortNo" : 0,
-    "type" : "ENUM",
+    "name" : "",
     "options" : [ "java.util.ArrayList", [ {
-      "@type" : "ParaOption",
+      "@type" : "DynamicAttributerOption",
       "extSchema" : null,
       "extAttrs" : {
         "@class" : "java.util.HashMap"
@@ -85,11 +90,11 @@
       "code" : "Small",
       "fatherCode" : null,
       "defaultValue" : "Small",
-      "description" : "",
+      "description" : null,
       "sortNo" : 1,
       "codeId" : 10
     }, {
-      "@type" : "ParaOption",
+      "@type" : "DynamicAttributerOption",
       "extSchema" : null,
       "extAttrs" : {
         "@class" : "java.util.HashMap"
@@ -97,11 +102,11 @@
       "code" : "Medium",
       "fatherCode" : null,
       "defaultValue" : "Medium",
-      "description" : "",
+      "description" : null,
       "sortNo" : 2,
       "codeId" : 20
     }, {
-      "@type" : "ParaOption",
+      "@type" : "DynamicAttributerOption",
       "extSchema" : null,
       "extAttrs" : {
         "@class" : "java.util.HashMap"
@@ -109,12 +114,17 @@
       "code" : "Big",
       "fatherCode" : null,
       "defaultValue" : "Big",
-      "description" : "",
+      "description" : null,
       "sortNo" : 3,
       "codeId" : 30
     } ] ],
+    "dynAttrType" : "Integer",
+    "value" : null,
+    "valueLogics" : null,
+    "paraType" : "ENUM",
     "minValue" : "-1000",
-    "maxValue" : "1000"
+    "maxValue" : "1000",
+    "refSpecCode" : null
   } ] ],
   "parts" : [ "java.util.ArrayList", [ {
     "@type" : "Part",
@@ -127,13 +137,14 @@
     "defaultValue" : 0,
     "description" : "",
     "sortNo" : 0,
-    "type" : "ATOMIC",
+    "partType" : "ATOMIC",
     "price" : 100,
     "maxQuantity" : 20,
-    "attrs" : {
+    "dynAttr" : {
       "@class" : "java.util.HashMap"
     },
-    "attrSchemas" : [ "java.util.ArrayList", [ ] ]
+    "dynAttrSchemas" : [ "java.util.ArrayList", [ ] ],
+    "dynAttrSchema" : null
   } ] ],
   "rules" : [ "java.util.ArrayList", [ {
     "@type" : "Rule",

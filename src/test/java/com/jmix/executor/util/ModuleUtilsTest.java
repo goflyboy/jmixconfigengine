@@ -254,8 +254,9 @@ public class ModuleUtilsTest {
         Para testPara = new Para();
         testPara.setCode("TestPara");
         testPara.setFatherCode("TestModule");
-        testPara.setParaType(ParaType.GROUP);
+        testPara.setParaType(ParaType.ENUM);
         testPara.setDefaultValue("Default");
+        testPara.setDescription("测试参数");
         testPara.setSortNo(1);
         testPara.setExtSchema("TestParaSchema");
         testPara.setExtAttr("testAttr", "testValue");

@@ -3,8 +3,8 @@ package com.jmix.tool;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.jmix.executor.imodel.DynamicAttributerOption;
 import com.jmix.executor.imodel.Extensible;
-import com.jmix.executor.imodel.ParaOption;
 import com.jmix.executor.imodel.Part;
 import com.jmix.executor.impl.ModuleBuilder;
 import com.jmix.tool.impl.FilterExpressionExecutor;
@@ -85,18 +85,18 @@ public class FilterExpressionExecutorTest {
         assertEquals(1, result.size());
     }
 
-    // ========== ParaOption 过滤测试用例 ==========
+    // ========== DynamicAttributerOption 过滤测试用例 ==========
 
     @Test
     public void testDoSelectParaOptionWithCodeFilter() {
         // 准备测试数据 - 基于样例数据中的颜色选项
-        List<ParaOption> colorOptions = Arrays.asList(
+        List<DynamicAttributerOption> colorOptions = Arrays.asList(
                 createColorOption(10, "Red", "红色T恤衫", 1, "#FF0000", "high"),
                 createColorOption(20, "Black", "黑色T恤衫", 2, "#000000", "veryHigh"),
                 createColorOption(30, "White", "白色T恤衫", 3, "#FFFFFF", "high"));
 
         // 测试code="Red"的过滤
-        List<ParaOption> result = FilterExpressionExecutor.doSelect(colorOptions, "code=\"Red\"");
+        List<DynamicAttributerOption> result = FilterExpressionExecutor.doSelect(colorOptions, "code=\"Red\"");
 
         assertEquals(1, result.size());
         assertEquals("Red", result.get(0).getCode());
@@ -106,13 +106,13 @@ public class FilterExpressionExecutorTest {
     @Test
     public void testDoSelectParaOptionWithCodeIdFilter() {
         // 准备测试数据 - 基于样例数据中的尺寸选项
-        List<ParaOption> sizeOptions = Arrays.asList(
+        List<DynamicAttributerOption> sizeOptions = Arrays.asList(
                 createSizeOption(1, "Big", "大号尺寸", 1, "110-120cm", "70-75cm"),
                 createSizeOption(2, "Medium", "中号尺寸", 2, "100-110cm", "65-70cm"),
                 createSizeOption(3, "Small", "小号尺寸", 3, "90-100cm", "60-65cm"));
 
         // 测试codeId=2的过滤
-        List<ParaOption> result = FilterExpressionExecutor.doSelect(sizeOptions, "codeId=2");
+        List<DynamicAttributerOption> result = FilterExpressionExecutor.doSelect(sizeOptions, "codeId=2");
 
         assertEquals(1, result.size());
         assertEquals("Medium", result.get(0).getCode());
@@ -122,13 +122,14 @@ public class FilterExpressionExecutorTest {
     @Test
     public void testDoSelectParaOptionWithExtAttrFilter() {
         // 准备测试数据 - 基于样例数据中的颜色选项
-        List<ParaOption> colorOptions = Arrays.asList(
+        List<DynamicAttributerOption> colorOptions = Arrays.asList(
                 createColorOption(10, "Red", "红色T恤衫", 1, "#FF0000", "high"),
                 createColorOption(20, "Black", "黑色T恤衫", 2, "#000000", "veryHigh"),
                 createColorOption(30, "White", "白色T恤衫", 3, "#FFFFFF", "high"));
 
         // 测试popularity="veryHigh"的过滤
-        List<ParaOption> result = FilterExpressionExecutor.doSelect(colorOptions, "popularity=\"veryHigh\"");
+        List<DynamicAttributerOption> result = FilterExpressionExecutor.doSelect(colorOptions,
+                "popularity=\"veryHigh\"");
 
         assertEquals(1, result.size());
         assertEquals("Black", result.get(0).getCode());
@@ -138,13 +139,13 @@ public class FilterExpressionExecutorTest {
     @Test
     public void testDoSelectParaOptionWithSortNoFilter() {
         // 准备测试数据
-        List<ParaOption> colorOptions = Arrays.asList(
+        List<DynamicAttributerOption> colorOptions = Arrays.asList(
                 createColorOption(10, "Red", "红色T恤衫", 1, "#FF0000", "high"),
                 createColorOption(20, "Black", "黑色T恤衫", 2, "#000000", "veryHigh"),
                 createColorOption(30, "White", "白色T恤衫", 3, "#FFFFFF", "high"));
 
         // 测试sortNo>1的过滤
-        List<ParaOption> result = FilterExpressionExecutor.doSelect(colorOptions, "sortNo>1");
+        List<DynamicAttributerOption> result = FilterExpressionExecutor.doSelect(colorOptions, "sortNo>1");
 
         assertEquals(2, result.size());
         assertTrue(result.stream().allMatch(option -> option.getSortNo() > 1));
@@ -277,7 +278,8 @@ public class FilterExpressionExecutorTest {
     /**
      * 创建颜色选项测试对象
      */
-    private ParaOption createColorOption(int codeId, String code, String description, int sortNo, String hexCode,
+    private DynamicAttributerOption createColorOption(int codeId, String code, String description, int sortNo,
+            String hexCode,
             String popularity) {
         return ModuleBuilder.ParaOptionBuilder.create()
                 .asOption(codeId, code, description)
@@ -290,7 +292,8 @@ public class FilterExpressionExecutorTest {
     /**
      * 创建尺寸选项测试对象
      */
-    private ParaOption createSizeOption(int codeId, String code, String description, int sortNo, String chest,
+    private DynamicAttributerOption createSizeOption(int codeId, String code, String description, int sortNo,
+            String chest,
             String length) {
         return ModuleBuilder.ParaOptionBuilder.create()
                 .asOption(codeId, code, description)

@@ -547,3 +547,351 @@ _**Agent (model default, mode Agent)**_
 
 ---
 
+_**User (2026-01-03 04:01Z)**_
+
+运行这个用例，出现下列错误，java.lang.annotation.IncompleteAnnotationException: com.jmix.executor.imodel.anno.ParaAnno missing element fatherCode
+ at jdk.proxy2/jdk.proxy2.$Proxy12.fatherCode(Unknown Source)
+ at com.jmix.tool.impl.ModuleGenneratorByAnno.createParaFromField(ModuleGenneratorByAnno.java:120)
+ at com.jmix.tool.impl.ModuleGenneratorByAnno.buildParaParts(ModuleGenneratorByAnno.java:462)
+ at com.jmix.tool.impl.ModuleGenneratorByAnno.buildModule(ModuleGenneratorByAnno.java:80)
+ at com.jmix.tool.impl.ModuleGenneratorByAnno.build(ModuleGenneratorByAnno.java:99)
+ at com.jmix.scenario.hello.HelloConstraintSimpleTest.setUp(HelloConstraintSimpleTest.java:62)
+ at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+ at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+---
+
+_**Agent (model default, mode Agent)**_
+
+<think><details><summary>Thought Process</summary>
+用户遇到了一个Java注解异常：`java.lang.annotation.IncompleteAnnotationException: com.jmix.executor.imodel.anno.ParaAnno missing element fatherCode`。
+</details></think>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\imodel\anno\ParaAnno.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+现在我看到`ParaAnno`注解定义，`fatherCode`确实有默认值`default ""`，所以不应该是必需的。但错误提示说missing element fatherCode。
+</details></think>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: d:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\scenario\hello\HelloConstraintSimpleTest.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+现在我看到测试用例在第62行调用了`ModuleGenneratorByAnno.build(HelloConstraint.class, tempResourcePath)`。让我查看`ModuleGenneratorByAnno.java`中的相关代码，特别是第120行的`createParaFromField`方法。</details></think>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\tool\impl\ModuleGenneratorByAnno.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+我看到问题了。在第120行，代码调用了`paraAnno.fatherCode()`，但错误提示是`IncompleteAnnotationException`，这通常意味着注解的某个必需元素没有被提供。
+</details></think>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: d:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\scenario\hello\HelloConstraint.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+现在我明白问题所在了。在`ParaAnno.java`的第47行，默认值是`ParaType.ATOMIC`，但是我们之前重构时移除了`ATOMIC`枚举值，所以注解现在无法正确解析。
+</details></think>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\imodel\anno\ParaAnno.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -45,5 +45,5 @@
+       * 参数类型
+       */
+-     ParaType type() default ParaType.ATOMIC;
++     ParaType type() default ParaType.STRING;
+  
+      /**
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+现在我修复了`ParaAnno`中的默认值，让我验证一下是否还有其他地方使用了旧的`ParaType.ATOMIC`。</details></think>
+
+---
+
+<tool-use data-tool-type="search" data-tool-name="grep">
+<details>
+<summary>Tool use: **grep** • Grep for "ParaType\.ATOMIC" in "d:\01.code\mygithub\jmixconfigengine\src" • 1 match</summary>
+
+Output mode: content
+
+
+| File | Content | Line |
+|------|------|------|
+| `src\main\java\com\jmix\executor\impl\util\ParaTypeHandler.java` | `paraType != ParaType.ATOMIC && paraType != ParaType.GROUP) \{` | L110 |
+
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+看起来`ParaTypeHandler.java`中还有对`ParaType.ATOMIC`的引用。让我查看这个文件，看看是否需要更新。</details></think>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\impl\util\ParaTypeHandler.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+我看到在`ParaTypeHandler.java`中，代码仍然在检查`ParaType.ATOMIC`。由于我们已经移除了`ATOMIC`枚举值，这个检查可能不再需要，或者需要更新。
+</details></think>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\impl\util\ParaTypeHandler.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+从注释"支持所有ParaType类型"来看，这个方法似乎是在说所有类型都支持，但实际上是在排除某些类型。让我看看方法的逻辑。
+</details></think>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\impl\util\ParaTypeHandler.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -108,5 +108,5 @@
+          ParaType paraType = para.getParaType();
+          if (paraType != ParaType.INTEGER &amp;&amp; paraType != ParaType.ENUM &amp;&amp;
+-             paraType != ParaType.ATOMIC &amp;&amp; paraType != ParaType.GROUP) {
++             paraType != ParaType.GROUP) {
+              log.error("Parameter {} type not supported: {}", para.getCode(), para.getParaType());
+              throw new AlgLoaderException(String.format(
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+现在让我检查是否还有其他地方引用了ParaType.ATOMIC。</details></think>
+
+---
+
+<tool-use data-tool-type="search" data-tool-name="grep">
+<details>
+<summary>Tool use: **grep** • Grep for "ATOMIC" in "d:\01.code\mygithub\jmixconfigengine\src" • 20 matches</summary>
+
+Output mode: content
+
+
+| File | Content | Line |
+|------|------|------|
+| `src\main\java\com\jmix\executor\impl\util\ParaTypeHandler.java` | `case ATOMIC:` | L38 |
+| `src\main\java\com\jmix\executor\impl\util\ParaTypeHandler.java` | `// INTEGER/ATOMIC类型直接返回value作为codeId` | L39 |
+| `src\main\java\com\jmix\executor\impl\util\ParaTypeHandler.java` | `case ATOMIC:` | L76 |
+| `src\main\java\com\jmix\executor\imodel\ParaType.java` | `ATOMIC(0, "AtomicPara"), //原子para,默认是原子Para` | L87 |
+| `src\test\java\com\jmix\executor\util\ModuleUtilsTest.java` | `testPart.setPartType(PartType.ATOMIC);` | L296 |
+| `src\main\java\com\jmix\executor\impl\algmodel\ConstraintAlgImpl.java` | `case ATOMIC:` | L658 |
+| `src\main\java\com\jmix\executor\impl\algmodel\ConstraintAlgImpl.java` | `// INTEGER/ATOMIC类型使用默认值范围，暂时使用固定范围` | L659 |
+| `src\test\java\com\jmix\tool\extensibleDemo\DCDeliveryTypePostProcess.java` | `// 1. 如果是ATOMIC类型的Part，使用"Express"交付` | L93 |
+| `src\test\java\com\jmix\tool\extensibleDemo\DCDeliveryTypePostProcess.java` | `if (part.getPartType() == PartType.ATOMIC) \{` | L113 |
+| `src\main\java\com\jmix\executor\impl\ModuleBuilder.java` | `.type(PartType.ATOMIC)` | L357 |
+| `src\main\java\com\jmix\executor\impl\ModuleBuilder.java` | `part.setPartType(PartType.ATOMIC);` | L383 |
+| `src\main\java\com\jmix\executor\imodel\Part.java` | `private PartType partType = PartType.ATOMIC;` | L40 |
+| `src\test\java\com\jmix\temp\ComputerConfigurationModelV2.java` | `ATOMIC, CATEGORY, BUNDLE, GROUP` | L44 |
+| `src\test\java\com\jmix\temp\ComputerConfigurationModelV2.java` | `ssd.partType = PartType.ATOMIC;` | L127 |
+| `src\test\java\com\jmix\temp\ComputerConfigurationModelV2.java` | `hdd.partType = PartType.ATOMIC;` | L138 |
+| `src\test\resources\algroot\cp-Hello-123\cp-Hello-123.base.json` | `"type" : "ATOMIC",` | L130 |
+| `src\main\java\com\jmix\executor\imodel\PartType.java` | `ATOMIC(0, "AtomicPart"),` | L13 |
+| `src\main\java\com\jmix\executor\imodel\anno\PartAnno.java` | `PartType type() default PartType.ATOMIC;` | L47 |
+| `src\test\java\com\jmix\scenario\tshirt\tshirtdata.json` | `"type": "ATOMIC",` | L139 |
+| `src\test\java\com\jmix\scenario\tshirt\tshirtdata.json` | `"type": "ATOMIC",` | L159 |
+
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+我看到在`ParaType.java`中还有`ATOMIC(0, "AtomicPara")`，这是我们新添加的内部枚举`ParaMainType`中的ATOMIC。让我确认一下这个文件的内容。
+</details></think>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\imodel\ParaType.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+好的，这里的ATOMIC是`ParaMainType`内部枚举中的，这是正确的。现在让我检查ParaTypeHandler.java中对ATOMIC的引用：</details></think>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\impl\util\ParaTypeHandler.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+现在我明白了。ParaTypeHandler.java中仍然在引用ParaType.ATOMIC，但我们已经从外部枚举中移除了它。这需要更新。
+</details></think>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\impl\util\ParaTypeHandler.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+我看到这个方法在处理不同类型的参数。对于INTEGER和ATOMIC类型，它直接返回value作为codeId。但现在ATOMIC已经被移除，我们需要决定如何处理这种情况。
+</details></think>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\impl\util\ParaTypeHandler.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+我看到第二个方法中也有对ATOMIC的引用。现在我们已经移除了ATOMIC枚举值，这些引用都会导致编译错误。
+</details></think>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\impl\util\ParaTypeHandler.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: 2
+
+```diff
+@@ -36,6 +36,5 @@
+          switch (para.getParaType()) {
+              case INTEGER:
+-             case ATOMIC:
+-                 // INTEGER/ATOMIC类型直接返回value作为codeId
++                 // INTEGER类型直接返回value作为codeId
+                  return value;
+              case ENUM:
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+现在让我修复第二个方法中的ATOMIC引用：</details></think>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\impl\util\ParaTypeHandler.java</summary>
+
+**Chunk 1**
+Lines added: undefined, lines removed: 1
+
+```diff
+@@ -73,5 +73,4 @@
+          switch (para.getParaType()) {
+              case INTEGER:
+-             case ATOMIC:
+                  return codeIdValue;
+              case ENUM:
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+现在让我检查ConstraintAlgImpl.java中的ATOMIC引用：</details></think>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\impl\algmodel\ConstraintAlgImpl.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+

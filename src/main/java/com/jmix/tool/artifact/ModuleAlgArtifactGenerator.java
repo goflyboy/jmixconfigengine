@@ -162,15 +162,7 @@ public class ModuleAlgArtifactGenerator {
      * @return 构建的参数选项变量信息
      */
     private ParaOptionVarInfo buildParaOptionInfo(DynamicAttributerOption option) {
-        // 创建兼容的ParaOption对象用于ParaOptionVarInfo
-        ParaOption paraOption = new ParaOption();
-        paraOption.setCode(option.getCode());
-        paraOption.setCodeId(option.getCodeId());
-        paraOption.setDefaultValue(option.getDefaultValue());
-        paraOption.setFatherCode(option.getFatherCode());
-        paraOption.setSortNo(option.getSortNo());
-
-        ParaOptionVarInfo optionInfo = new ParaOptionVarInfo(paraOption);
+        ParaOptionVarInfo optionInfo = new ParaOptionVarInfo(option);
         optionInfo.setCodeId(option.getCodeId());
         optionInfo.setCode(option.getCode());
         optionInfo.setVarName(option.getCode() + "_" + option.getCodeId() + "_selectVar");

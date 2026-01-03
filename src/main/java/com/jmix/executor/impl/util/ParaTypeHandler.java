@@ -1,7 +1,7 @@
 package com.jmix.executor.impl.util;
 
-import com.jmix.executor.imodel.Para;
 import com.jmix.executor.imodel.DynamicAttributerOption;
+import com.jmix.executor.imodel.Para;
 import com.jmix.executor.imodel.ParaType;
 import com.jmix.executor.omodel.AlgLoaderException;
 
@@ -35,8 +35,7 @@ public class ParaTypeHandler {
 
         switch (para.getParaType()) {
             case INTEGER:
-            case ATOMIC:
-                // INTEGER/ATOMIC类型直接返回value作为codeId
+                // INTEGER类型直接返回value作为codeId
                 return value;
             case ENUM:
             case GROUP:
@@ -73,10 +72,8 @@ public class ParaTypeHandler {
 
         switch (para.getParaType()) {
             case INTEGER:
-            case ATOMIC:
                 return codeIdValue;
             case ENUM:
-            case GROUP:
                 // 根据codeId查找对应的选项
                 Optional<DynamicAttributerOption> option = para.getOption(Integer.parseInt(codeIdValue));
                 if (option.isPresent()) {
@@ -107,7 +104,7 @@ public class ParaTypeHandler {
         // 支持所有ParaType类型
         ParaType paraType = para.getParaType();
         if (paraType != ParaType.INTEGER && paraType != ParaType.ENUM &&
-            paraType != ParaType.ATOMIC && paraType != ParaType.GROUP) {
+                paraType != ParaType.GROUP) {
             log.error("Parameter {} type not supported: {}", para.getCode(), para.getParaType());
             throw new AlgLoaderException(String.format(
                     "Parameter %s type not supported: %s", para.getCode(), para.getParaType()));

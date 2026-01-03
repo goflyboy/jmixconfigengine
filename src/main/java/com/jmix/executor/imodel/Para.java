@@ -5,7 +5,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -33,13 +35,32 @@ public class Para extends DynamicAttribute {
      */
     public static final String SHORT_CODE_PREFIX = "P";
 
-    private ParaType paraType = ParaType.STRING;
+    private ParaType paraType = ParaType.ENUM;
 
-    // 默认值
-    private String defaultValue;
+    /**
+     * Range类型的最小值
+     */
+    private String minValue = DEFAULT_MIN_VALUE;
+
+    /**
+     * Range类型的最大值
+     */
+    private String maxValue = DEFAULT_MAX_VALUE;
 
     // 引用的规格Code
     private String refSpecCode;
+
+    /**
+     * <codeId, ParaOption> Map
+     */
+    @JsonIgnore
+    private Map<Integer, DynamicAttributerOption> optionCodeIdMap = new HashMap<>();
+
+    /**
+     * <code, ParaOption> Map
+     */
+    @JsonIgnore
+    private Map<String, DynamicAttributerOption> optionCodeMap = new HashMap<>();
 
     /**
      * 根据选项编码获取参数选项
@@ -49,13 +70,12 @@ public class Para extends DynamicAttribute {
      */
     @JsonIgnore
     public Optional<DynamicAttributerOption> getOption(String optionCode) {
-        List<DynamicAttributerOption> options = super.getOptions();
-        if (options == null || options.isEmpty()) {
-            return Optional.empty();
+        if (optionCodeMap.size() != super.getOptions().size()) {
+            optionCodeMap.clear();
+            super.getOptions().forEach(option -> optionCodeMap.put(option.getCode(), option));
         }
-        return options.stream()
-                .filter(option -> optionCode.equals(option.getCode()))
-                .findFirst();
+        DynamicAttributerOption option = optionCodeMap.get(optionCode);
+        return option == null ? Optional.empty() : Optional.of(option);
     }
 
     /**
@@ -66,13 +86,12 @@ public class Para extends DynamicAttribute {
      */
     @JsonIgnore
     public Optional<DynamicAttributerOption> getOption(Integer optionCodeId) {
-        List<DynamicAttributerOption> options = super.getOptions();
-        if (options == null || options.isEmpty()) {
-            return Optional.empty();
+        if (optionCodeIdMap.size() != super.getOptions().size()) {
+            optionCodeIdMap.clear();
+            super.getOptions().forEach(option -> optionCodeIdMap.put(option.getCodeId(), option));
         }
-        return options.stream()
-                .filter(option -> optionCodeId.equals(option.getCodeId()))
-                .findFirst();
+        DynamicAttributerOption option = optionCodeIdMap.get(optionCodeId);
+        return option == null ? Optional.empty() : Optional.of(option);
     }
 
     /**

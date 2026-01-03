@@ -1,6 +1,6 @@
 package com.jmix.executor.impl.algmodel;
 
-import com.jmix.executor.imodel.ParaOption;
+import com.jmix.executor.imodel.DynamicAttributerOption;
 
 import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.CpSolverSolutionCallback;
@@ -16,7 +16,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class ParaOptionVar extends Var<ParaOption> {
+public class ParaOptionVar extends Var<DynamicAttributerOption> {
     /**
      * 参数选项的选中状态（布尔变量）
      */
@@ -30,7 +30,7 @@ public class ParaOptionVar extends Var<ParaOption> {
      * 
      * @param base 参数选项基础对象
      */
-    public ParaOptionVar(ParaOption base) {
+    public ParaOptionVar(DynamicAttributerOption base) {
         this.base = base;
     }
 
@@ -40,7 +40,7 @@ public class ParaOptionVar extends Var<ParaOption> {
      * @param base          参数选项基础对象
      * @param isSelectedVar 选中状态变量
      */
-    public ParaOptionVar(ParaOption base, BoolVar isSelectedVar) {
+    public ParaOptionVar(DynamicAttributerOption base, BoolVar isSelectedVar) {
         this.base = base;
         setIsSelectedVar(isSelectedVar);
     }

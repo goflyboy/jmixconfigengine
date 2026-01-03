@@ -123,6 +123,8 @@ public final class ModuleGenneratorByAnno {
         // 设置参数类型，直接使用注解中的类型
         para.setParaType(paraAnno.type());
         para.setExtSchema(paraAnno.extSchema());
+        para.setMinValue(paraAnno.minValue());
+        para.setMaxValue(paraAnno.maxValue());
 
         // 处理扩展属性
         if (paraAnno.extAttrs().length > 0) {

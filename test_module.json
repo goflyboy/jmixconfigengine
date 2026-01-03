@@ -25,7 +25,7 @@
     "code" : "TestPara",
     "fatherCode" : "TestModule",
     "defaultValue" : "Default",
-    "description" : null,
+    "description" : "测试参数",
     "sortNo" : 1,
     "name" : "",
     "options" : [ "java.util.Arrays$ArrayList", [ {
@@ -45,7 +45,9 @@
     "dynAttrType" : "Integer",
     "value" : null,
     "valueLogics" : null,
-    "paraType" : "GROUP",
+    "paraType" : "ENUM",
+    "minValue" : "-1000",
+    "maxValue" : "1000",
     "refSpecCode" : null
   } ] ],
   "parts" : [ "java.util.Arrays$ArrayList", [ {

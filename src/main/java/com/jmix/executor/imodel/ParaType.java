@@ -58,11 +58,11 @@ public enum ParaType { //YXX --XX是subType,mainType
         return name;
     }
 
-    int getSubType() {
+    public int getSubType() {
         return this.value % BASE_TYPE;
     }
 
-    ParaMainType getMainType() {
+    public ParaMainType getMainType() {
         return ParaMainType.fromValue(this.value / BASE_TYPE);
     }
 

@@ -1,6 +1,6 @@
 package com.jmix.tool.artifact;
 
-import com.jmix.executor.imodel.ParaOption;
+import com.jmix.executor.imodel.DynamicAttributerOption;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,7 +13,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class ParaOptionVarInfo extends VarInfo<ParaOption> {
+public class ParaOptionVarInfo extends VarInfo<DynamicAttributerOption> {
     /**
      * 选项编码ID
      */
@@ -36,7 +36,7 @@ public class ParaOptionVarInfo extends VarInfo<ParaOption> {
      * 
      * @param option 参数选项对象
      */
-    public ParaOptionVarInfo(ParaOption option) {
+    public ParaOptionVarInfo(DynamicAttributerOption option) {
         super(option); // 调用VarInfo的构造函数，传入ParaOption（因为ParaOption继承自Extensible）
     }
 }

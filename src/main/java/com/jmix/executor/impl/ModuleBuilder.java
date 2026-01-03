@@ -2,7 +2,6 @@ package com.jmix.executor.impl;
 
 import com.jmix.executor.imodel.DynamicAttributerOption;
 import com.jmix.executor.imodel.Para;
-import com.jmix.executor.imodel.ParaOption;
 import com.jmix.executor.imodel.ParaType;
 import com.jmix.executor.imodel.Part;
 import com.jmix.executor.imodel.PartType;
@@ -24,10 +23,10 @@ public class ModuleBuilder {
      */
     public static final class ParaOptionBuilder {
 
-        private final ParaOption paraOption;
+        private final DynamicAttributerOption paraOption;
 
         private ParaOptionBuilder() {
-            this.paraOption = new ParaOption();
+            this.paraOption = new DynamicAttributerOption();
         }
 
         /**
@@ -160,7 +159,7 @@ public class ModuleBuilder {
          * 
          * @return 构建的ParaOption对象
          */
-        public ParaOption build() {
+        public DynamicAttributerOption build() {
             return paraOption;
         }
 
@@ -169,7 +168,7 @@ public class ModuleBuilder {
          * 
          * @return 构建的ParaOption对象
          */
-        public ParaOption buildWithDefaults() {
+        public DynamicAttributerOption buildWithDefaults() {
             if (paraOption.getDefaultValue() == null && paraOption.getCode() != null) {
                 paraOption.setDefaultValue(paraOption.getCode());
             }
@@ -516,20 +515,8 @@ public class ModuleBuilder {
          * @param options 选项列表
          * @return 当前构建器实例
          */
-        public ParaBuilder options(java.util.List<ParaOption> options) {
-            // 类型转换：ParaOption -> DynamicAttributerOption
-            List<DynamicAttributerOption> dynOptions = options.stream()
-                    .map(option -> {
-                        DynamicAttributerOption dynOption = new DynamicAttributerOption();
-                        dynOption.setCode(option.getCode());
-                        dynOption.setCodeId(option.getCodeId());
-                        dynOption.setDefaultValue(option.getDefaultValue());
-                        dynOption.setFatherCode(option.getFatherCode());
-                        dynOption.setSortNo(option.getSortNo());
-                        return dynOption;
-                    })
-                    .collect(java.util.stream.Collectors.toList());
-            para.setOptions(dynOptions);
+        public ParaBuilder options(java.util.List<DynamicAttributerOption> options) {
+            para.setOptions(options);
             return this;
         }
 
@@ -545,7 +532,7 @@ public class ModuleBuilder {
             return this.code(code)
                     .description(description)
                     .sortNo(sortNo)
-                    .type(ParaType.GROUP);
+                    .type(ParaType.ENUM);
         }
 
         /**
@@ -560,7 +547,7 @@ public class ModuleBuilder {
             return this.code(code)
                     .description(description)
                     .sortNo(sortNo)
-                    .type(ParaType.GROUP);
+                    .type(ParaType.ENUM);
         }
 
         /**

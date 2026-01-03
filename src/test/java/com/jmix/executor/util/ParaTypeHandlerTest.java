@@ -35,7 +35,7 @@ public class ParaTypeHandlerTest {
     public void testGetCodeIdValueEnum() {
         Para para = new Para();
         para.setCode("TestPara");
-        para.setParaType(ParaType.GROUP);
+        para.setParaType(ParaType.ENUM);
 
         DynamicAttributerOption option1 = new DynamicAttributerOption();
         option1.setCode("Red");
@@ -55,7 +55,7 @@ public class ParaTypeHandlerTest {
     public void testGetCodeIdValueEnumOptionNotFound() {
         Para para = new Para();
         para.setCode("TestPara");
-        para.setParaType(ParaType.GROUP);
+        para.setParaType(ParaType.ENUM);
 
         DynamicAttributerOption option1 = new DynamicAttributerOption();
         option1.setCode("Red");
@@ -82,7 +82,7 @@ public class ParaTypeHandlerTest {
     public void testGetDisplayValueEnum() {
         Para para = new Para();
         para.setCode("TestPara");
-        para.setParaType(ParaType.GROUP);
+        para.setParaType(ParaType.ENUM);
 
         DynamicAttributerOption option1 = new DynamicAttributerOption();
         option1.setCode("Red");
@@ -102,7 +102,7 @@ public class ParaTypeHandlerTest {
     public void testGetDisplayValueEnumCodeIdNotFound() {
         Para para = new Para();
         para.setCode("TestPara");
-        para.setParaType(ParaType.GROUP);
+        para.setParaType(ParaType.ENUM);
 
         DynamicAttributerOption option1 = new DynamicAttributerOption();
         option1.setCode("Red");
@@ -136,7 +136,7 @@ public class ParaTypeHandlerTest {
     public void testHasOptionTrue() {
         Para para = new Para();
         para.setCode("TestPara");
-        para.setParaType(ParaType.GROUP);
+        para.setParaType(ParaType.ENUM);
 
         DynamicAttributerOption option1 = new DynamicAttributerOption();
         option1.setCode("Red");
@@ -151,7 +151,7 @@ public class ParaTypeHandlerTest {
     public void testHasOptionFalse() {
         Para para = new Para();
         para.setCode("TestPara");
-        para.setParaType(ParaType.GROUP);
+        para.setParaType(ParaType.ENUM);
 
         DynamicAttributerOption option1 = new DynamicAttributerOption();
         option1.setCode("Red");

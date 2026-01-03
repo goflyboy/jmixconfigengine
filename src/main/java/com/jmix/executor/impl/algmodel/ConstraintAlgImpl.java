@@ -1,11 +1,10 @@
 package com.jmix.executor.impl.algmodel;
 
+import com.jmix.executor.imodel.DynamicAttributerOption;
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.Para;
-import com.jmix.executor.imodel.DynamicAttributerOption;
 import com.jmix.executor.imodel.ParaOption;
 import com.jmix.executor.imodel.Part;
-import com.jmix.executor.imodel.ParaType;
 import com.jmix.executor.imodel.Rule;
 import com.jmix.executor.imodel.rule.RefProgObjSchema;
 import com.jmix.executor.omodel.AlgLoaderException;
@@ -655,12 +654,10 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         paraVar.setBase(para);
         switch (para.getParaType()) {
             case INTEGER:
-            case ATOMIC:
-                // INTEGER/ATOMIC类型使用默认值范围，暂时使用固定范围
-                paraVar.setValue(newIntVar(0, 1000, f(ParaVar.VALUE_PATTERN, code)));
+                paraVar.setValue(newIntVar(Integer.parseInt(para.getMinValue()), Integer.parseInt(para.getMaxValue()),
+                        f(ParaVar.VALUE_PATTERN, code)));
                 break;
             case ENUM:
-            case GROUP:
                 List<DynamicAttributerOption> options = para.getOptions();
                 if (options == null || options.isEmpty()) {
                     log.error("Para options not found for code: {}", code);
@@ -729,14 +726,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             throw new AlgLoaderException("ParaOption not found for code: " + optionCode);
         }
         DynamicAttributerOption option = optionOpt.get();
-        // 创建兼容的ParaOption对象用于ParaOptionVar
-        ParaOption paraOption = new ParaOption();
-        paraOption.setCode(option.getCode());
-        paraOption.setCodeId(option.getCodeId());
-        paraOption.setDefaultValue(option.getDefaultValue());
-        paraOption.setFatherCode(option.getFatherCode());
-        paraOption.setSortNo(option.getSortNo());
-        ParaOptionVar optionVar = new ParaOptionVar(paraOption);
+        ParaOptionVar optionVar = new ParaOptionVar(option);
         optionVar.setIsSelectedVar(newBoolVar(f(ParaVar.OPTIONS_PATTERN, paraCode, option.getCode())));
         return optionVar;
     }
