@@ -61,8 +61,9 @@ TODO:   --这个有问题？
   // 选项编码ID
     private int codeId;  ---》codeValue是不是更合适一点
 
+请按下列设计的实现，完成对于测试用例设计，并调通，并远程提交
 
-
+##详细实现
 1、增加类
 class ExtSchema {
 	public final String IntegerUnit = "IntegerUnit";////带单位的整数值,单位，codeValue是Integer 如GB/S如: Speed_5400 
@@ -70,32 +71,98 @@ class ExtSchema {
 	public final String StringUnit = "StringUnit";//单位,codeValue是String 
 	 
 }
+@Data
+class  InstanceDynAttrValue {//多实例类型属性值 
+	int instId; 
+    private Map<String, String> instAttr = new HashMap<>(); //
+
+	toJsonString (InstanceDynAttrValue iValue)-->String {....}
+	fromJsonString(String strValue) -->InstanceDynAttrValue{....}
+}
 
 
 2、新增类PartCategory
-class PartCategory extends Part {
-
+class PartCategory extends Part { 
 }
 
 
 2、DynamicAttribute增加属性 String optionExtSchema  
 
-3、参考ParaAnno定义动态属性的注解 DAttrAnno1、DAttrAnno2、DAttrAnno3、DAttrAnno4、DAttrAnno5
  
- 参考案例：
+
+3、参考ParaAnno定义动态属性的注解 DAttrAnno1、DAttrAnno2、DAttrAnno3、DAttrAnno4、DAttrAnno5、DAttrAnno11、DAttrAnno12、DAttrAnno13
+ 根据DAttrAnno*给PartCategory.dynAttrSchemas生成数据 
+
+ 参考案例：表示给 drive这个 PartCatagory生成3条dynAttrSchema
 @DAttrAnno1(code="BrandWidth",optionExtSchema=ExtSchema.IntegerUnit, options = { "BW_8GB:8:GB/S", "BW_16GB:16:GB/S"}    
 @DAttrAnno2(code="Speed",optionExtSchema=ExtSchema.StringUnit,options = { "Speed_5400:5400:转", "Speed_9000:9000:转", "Speed_7200a5400:7200/5400:转",instType=0}   
 @DAttrAnno3(code="Capacity",optionExtSchema=Attr.;,options = { "Capacity_8T,8:T", "Capacity_16T,16:T", Capacity_32T,32:T",instType=0}   
     private PartCategoryVar driveVar;
 
-4、新增
-
-@DAttrInherit(fatherCode="driveVar",overrideAttrs={"Speed:instType=1","Capacity:instType=1"});
  
+4、新增DAttrInherit注解类
+案例如下：
+下列案例表示  solid PartCategory的dynAttrSchema属性，继承（先复制方式实现） drive PartCatagory属性，并对Speed及Capacity的instType属性进行了重写
+
+@DAttrInherit(fatherCode="driveVar",overrideAttrs={"Speed:instType=1","Capacity:instType=1"});	//继承 driveVar的属性定义，同时对Speed和Capacity进行重写
+@DAttrAnno11(code="maxCapacity", optionExtSchema=Attr.IntegerUnit, options = { "MaxCapacity_8T:8:T", "MaxCapacity_16T:16:T"}   
+    private PartCategoryVar solidDrive;
+
+5、新增DAttrAnno*
+ 根据DAttrAnno*给PartCategory.attrs
+
+
+5、新增PartCategoryVar类
+class  PartCategoryVar  extends PartVar {}
+
+6、PartAnno新增
+ 
+    /**
+     * 实例1规格属性
+     */
+    String[] attrsInst1() default {};
+    /**
+     * 实例2规格属性
+     */
+    String[] attrsInst2() default {};
+    /**
+     * 实例3规格属性
+     */
+    String[] attrsInst3() default {};
+    /**
+     * 实例4规格属性
+     */
+    String[] attrsInst34() default {};
+
+7、在ModuleScenarioTestBase增加对应的生成逻辑
+7.1 根据DAttrAnno*给PartCategory.dynAttrSchemas生成数据 
+7.2 根据DAttrInherit复制和修改设计，详细参考4
+7.3 根据ParatAnno新增的attrsInst*生成对应的InstanceDynAttrValue，然后toJSONString存入到 attrs中
+
+8、参考 com.jmix.scenario.hello.HelloConstraint生成一个ComputerConstraint类（主要是生成数据的，不需要生成规则）
+  增加com.jmix.scenario.partcatgorypackage
+  需要生成一个简单的测试用例
+##样例数据
+####样例数据案例： 
+--电脑  --产品
+---硬盘  --PartCategory1
+------固态硬盘			数量			接口带宽	 	支持转速容量分组  --PartCategory11
+-----------固态硬盘1					8GB/S	    [{”实例分组“：1，“转速”：“5400”，“容量”：“2T”}，{”实例分组“：2，“转速”：“7200/5400”，“容量”：“1T”}]
+-----------固态硬盘2					8GB/S	    [{”实例分组“：1，“转速”：“7200/5400”，“容量”：“4T”}]
+-----------固态硬盘3					8GB/S	    [{”实例分组“：1，“转速”：“9000”，“容量”：“4T”}]
+------机械硬盘			数量			支持转速容量分组 --PartCategory12
+-----------机械硬盘1					 { “转速”：“5400”，“容量”：“2T”} 
+-----------机械硬盘2					 { “转速”：“7200”，“容量”：“2T”} 
+-----------机械硬盘3					 [ “转速”：“9000”，“容量”：“2T”} 
+####样例数据对应的注解表现形式
+@DAttrInherit(fatherCode="driveVar",overrideAttrs={"Speed:instType=1","Capacity:instType=1"});	//继承 driveVar的属性定义，同时对Speed和Capacity进行重写
+@DAttrAnno11(code="maxCapacity", optionExtSchema=Attr.IntegerUnit, options = { "MaxCapacity_8T:8:T", "MaxCapacity_16T:16:T"}   
+    private PartCategoryVar solidDrive;
+
 
 @DAttrAnno1(code="BrandWidth",optionExtSchema=ExtSchema.IntegerUnit, options = { "BW_8GB:8:GB/S", "BW_16GB:16:GB/S"}    
 @DAttrAnno2(code="Speed",optionExtSchema=ExtSchema.StringUnit,options = { "Speed_5400:5400:转", "Speed_9000:9000:转", "Speed_7200a5400:7200/5400:转",instType=0}   
-@DAttrAnno3(code="Capacity",optionExtSchema=Attr.;,options = { "Capacity_8T,8:T", "Capacity_16T,16:T", Capacity_32T,32:T",instType=0}   
+@DAttrAnno3(code="Capacity",optionExtSchema=ExtSchema.IntegerUnit;,options = { "Capacity_8T,8:T", "Capacity_16T,16:T", Capacity_32T,32:T",instType=0}   
     private PartCategoryVar driveVar;
 
 @DAttrInherit(fatherCode="driveVar",overrideAttrs={"Speed:instType=1","Capacity:instType=1"});	//继承 driveVar的属性定义，同时对Speed和Capacity进行重写
@@ -104,28 +171,57 @@ class PartCategory extends Part {
  
 
 
-@VAttrAnno(fatherCode="solidDrive", attrs={"BW_8GB","MaxCapacity_8T"}
+@PartAnno(fatherCode="solidDrive", attrs={"BW_8GB","MaxCapacity_8T"}
 	,attrsInst1={"Speed_5400","Capacity_8T"},
 	,attrsInst2= {"Speed_7200a5400","Capacity_8T"})  
     private PartVar solidDrive1;
  
-@VAttrAnno(fatherCode="solidDrive", attrs={"BW_16GB","MaxCapacity_16T"}
+@PartAnno(fatherCode="solidDrive", attrs={"BW_16GB","MaxCapacity_16T"}
 	,attrsInst1={"Speed_9000","Capacity_16T"},
 	,attrsInst2= {"Speed_7200a5400","Capacity_16T"})  
     private PartVar solidDrive2;  
 
 @DAttrInherit(fatherCode="driveVar");	  
     private PartCategoryVar mechDrive;
-@VAttrAnno(fatherCode="mechDrive", attrs={"BW_8GB","Speed_5400","Capacity_8T"}
+@PartAnno(fatherCode="mechDrive", attrs={"BW_8GB","Speed_5400","Capacity_8T"}
     private PartVar mechDrive1;
-@VAttrAnno(fatherCode="mechDrive", attrs={"BW_16GB","Speed_7200a5400","Capacity_16T"}
+@PartAnno(fatherCode="mechDrive", attrs={"BW_16GB","Speed_7200a5400","Capacity_16T"}
     private PartVar mechDrive2;
 
+ 
 
-增加属性？***
 
 
----> @VAttrAnno(field=solidDrive, attrs={"BrandWidth:BW_16GB","Speed:MaxCapacity_16T"}) @VAttrAnno(field=solidDrive, dynAttrs=v"1:BW_16GB","2:MaxCapacity_16T"})
+设计2：
+
+
+
+
+输入：
+要求5400速率的固态硬盘2块，要求5400速率的硬盘容量>=5T， 
+
+Capacity>5
+
+
+attrCode="Capacity"
+comparator=">="
+attrValue="5" 
+attrWhereCondition="=5400"
+
+PartCatagory 
+
+List<
+
+将原来InstanceDynAttrValue改成 InstanceDynAttrValueItem
+
+@Data
+class  InstanceDynAttrValue {//多实例类型属性值 
+	List<InstanceDynAttrValueItems>  instsValues;
+	List<InstanceDynAttrValueItems>> query(String whereCondition);
+}
+
+
+ 
 
 MechDrive
 请参考下列模型来基于ortools-java来构建约束模型。
@@ -139,9 +235,9 @@ MechDrive
 -----------固态硬盘2					8GB/S	    [{”实例分组“：1，“转速”：“7200/5400”，“容量”：“4T”}]
 -----------固态硬盘3					8GB/S	    [{”实例分组“：1，“转速”：“9000”，“容量”：“4T”}]
 ------机械硬盘			数量			支持转速容量分组 --PartCategory12
------------机械硬盘1					[{”实例分组“：1，“转速”：“5400”，“容量”：“2T”}]
------------机械硬盘2					[{”实例分组“：4，“转速”：“7200”，“容量”：“2T”}]
------------机械硬盘3					[{”实例分组“：1，“转速”：“9000”，“容量”：“2T”}]
+-----------机械硬盘1					 { “转速”：“5400”，“容量”：“2T”} 
+-----------机械硬盘2					 { “转速”：“7200”，“容量”：“2T”} 
+-----------机械硬盘3					 [ “转速”：“9000”，“容量”：“2T”} 
 
 PartCategory1的详细定义
 部件编码	扩展属性	扩展属性类型	扩展属性值				实例分组
@@ -162,9 +258,7 @@ PartCategory1的详细定义
 输入：
 要求5400速率的固态硬盘2块，要求5400速率的硬盘容量>=5T， 
 
-求出可行解
-
-
+ 
 ##数据模型
 
 // 可编程接口
@@ -345,4 +439,11 @@ public class Para extends DynamicAttribute {
 
 TODO:
   PartCategory也是一种Module   --Module? PC
+
+TODO: 规则需要单独生成
+
+TODO: 提供查询能力等？
+
+TODO: 优化 
+---> @PartAnno(field=solidDrive, attrs={"BrandWidth:BW_16GB","Speed:MaxCapacity_16T"}) @VAttrAnno(field=solidDrive, dynAttrs=v"1:BW_16GB","2:MaxCapacity_16T"})
 

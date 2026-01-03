@@ -22,6 +22,8 @@ public class DynamicAttribute extends ProgrammableObject<String> {
     private DynamicAttributeType dynAttrType = DynamicAttributeType.Integer;
     // 动态属性的值，拥有计算实例化的值，存在算法
     private String value;
+    // 扩展模式
+    private String optionExtSchema;
     // 动态属性的Logic
     private List<Rule> valueLogics;
 }

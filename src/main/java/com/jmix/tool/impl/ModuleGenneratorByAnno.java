@@ -1,13 +1,26 @@
 package com.jmix.tool.impl;
 
 import com.jmix.executor.imodel.DynamicAttributerOption;
+import com.jmix.executor.imodel.DynamicAttribute;
+import com.jmix.executor.imodel.DynamicAttributeType;
+import com.jmix.executor.imodel.InstanceDynAttrValue;
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.ModuleAlgArtifact;
 import com.jmix.executor.imodel.Para;
 import com.jmix.executor.imodel.Part;
+import com.jmix.executor.imodel.PartCategory;
 import com.jmix.executor.imodel.Rule;
 import com.jmix.executor.imodel.anno.CodeRuleAnno;
 import com.jmix.executor.imodel.anno.CompatiableRuleAnno;
+import com.jmix.executor.imodel.anno.DAttrAnno1;
+import com.jmix.executor.imodel.anno.DAttrAnno11;
+import com.jmix.executor.imodel.anno.DAttrAnno12;
+import com.jmix.executor.imodel.anno.DAttrAnno13;
+import com.jmix.executor.imodel.anno.DAttrAnno2;
+import com.jmix.executor.imodel.anno.DAttrAnno3;
+import com.jmix.executor.imodel.anno.DAttrAnno4;
+import com.jmix.executor.imodel.anno.DAttrAnno5;
+import com.jmix.executor.imodel.anno.DAttrInherit;
 import com.jmix.executor.imodel.anno.ModuleAnno;
 import com.jmix.executor.imodel.anno.ParaAnno;
 import com.jmix.executor.imodel.anno.PartAnno;
@@ -158,7 +171,7 @@ public final class ModuleGenneratorByAnno {
             return Optional.empty();
         }
 
-        Part part = new Part();
+        Part part = new PartCategory();
 
         // 生成Part.code
         String fieldName = field.getName();
@@ -185,6 +198,15 @@ public final class ModuleGenneratorByAnno {
         if (partAnno.extAttrs().length > 0) {
             Map<String, String> extAttrs = parseAttributes(partAnno.extAttrs());
             part.setExtAttrs(extAttrs);
+        }
+
+        // 处理实例规格属性
+        processInstanceAttrs(part, partAnno);
+
+        // 处理动态属性注解（如果有的话）
+        if (part instanceof PartCategory) {
+            processDynamicAttributeAnnotations(field, (PartCategory) part);
+            processInheritAnnotation(field, (PartCategory) part);
         }
 
         return Optional.of(part);
@@ -470,6 +492,11 @@ public final class ModuleGenneratorByAnno {
                 if (partOpt.isPresent()) {
                     parts.add(partOpt.get());
                 }
+            } else if (field.getType().getSimpleName().equals("PartCategoryVar")) {
+                Optional<Part> partOpt = createPartCategoryFromField(field);
+                if (partOpt.isPresent()) {
+                    parts.add(partOpt.get());
+                }
             } else {
                 log.info("ignore field type: " + field.getType().getSimpleName());
             }
@@ -600,7 +627,7 @@ public final class ModuleGenneratorByAnno {
 
     /**
      * 解析属性字符串数组为Map
-     * 
+     *
      * @param attributes 属性字符串数组，格式为 "key:value"
      * @return 解析后的属性Map
      */
@@ -613,5 +640,240 @@ public final class ModuleGenneratorByAnno {
             }
         }
         return attrs;
+    }
+
+    /**
+     * 从字段创建部件分类
+     *
+     * @param field 字段对象
+     * @return 创建的部件分类对象
+     */
+    private static Optional<Part> createPartCategoryFromField(Field field) {
+        PartCategory partCategory = new PartCategory();
+
+        // 生成PartCategory.code
+        String fieldName = field.getName();
+        String code = fieldName.replace("Var", "");
+        partCategory.setCode(code);
+
+        // 处理动态属性注解
+        processDynamicAttributeAnnotations(field, partCategory);
+
+        // 处理继承注解
+        processInheritAnnotation(field, partCategory);
+
+        return Optional.of(partCategory);
+    }
+
+    /**
+     * 处理动态属性注解
+     *
+     * @param field 字段对象
+     * @param partCategory 部件分类对象
+     */
+    private static void processDynamicAttributeAnnotations(Field field, PartCategory partCategory) {
+        // 处理DAttrAnno1
+        DAttrAnno1 dAttrAnno1 = field.getAnnotation(DAttrAnno1.class);
+        if (dAttrAnno1 != null) {
+            addDynamicAttribute(partCategory, dAttrAnno1.code(), dAttrAnno1.optionExtSchema(),
+                    dAttrAnno1.options(), dAttrAnno1.instType());
+        }
+
+        // 处理DAttrAnno2
+        DAttrAnno2 dAttrAnno2 = field.getAnnotation(DAttrAnno2.class);
+        if (dAttrAnno2 != null) {
+            addDynamicAttribute(partCategory, dAttrAnno2.code(), dAttrAnno2.optionExtSchema(),
+                    dAttrAnno2.options(), dAttrAnno2.instType());
+        }
+
+        // 处理DAttrAnno3
+        DAttrAnno3 dAttrAnno3 = field.getAnnotation(DAttrAnno3.class);
+        if (dAttrAnno3 != null) {
+            addDynamicAttribute(partCategory, dAttrAnno3.code(), dAttrAnno3.optionExtSchema(),
+                    dAttrAnno3.options(), dAttrAnno3.instType());
+        }
+
+        // 处理DAttrAnno4
+        DAttrAnno4 dAttrAnno4 = field.getAnnotation(DAttrAnno4.class);
+        if (dAttrAnno4 != null) {
+            addDynamicAttribute(partCategory, dAttrAnno4.code(), dAttrAnno4.optionExtSchema(),
+                    dAttrAnno4.options(), dAttrAnno4.instType());
+        }
+
+        // 处理DAttrAnno5
+        DAttrAnno5 dAttrAnno5 = field.getAnnotation(DAttrAnno5.class);
+        if (dAttrAnno5 != null) {
+            addDynamicAttribute(partCategory, dAttrAnno5.code(), dAttrAnno5.optionExtSchema(),
+                    dAttrAnno5.options(), dAttrAnno5.instType());
+        }
+
+        // 处理DAttrAnno11
+        DAttrAnno11 dAttrAnno11 = field.getAnnotation(DAttrAnno11.class);
+        if (dAttrAnno11 != null) {
+            addDynamicAttribute(partCategory, dAttrAnno11.code(), dAttrAnno11.optionExtSchema(),
+                    dAttrAnno11.options(), dAttrAnno11.instType());
+        }
+
+        // 处理DAttrAnno12
+        DAttrAnno12 dAttrAnno12 = field.getAnnotation(DAttrAnno12.class);
+        if (dAttrAnno12 != null) {
+            addDynamicAttribute(partCategory, dAttrAnno12.code(), dAttrAnno12.optionExtSchema(),
+                    dAttrAnno12.options(), dAttrAnno12.instType());
+        }
+
+        // 处理DAttrAnno13
+        DAttrAnno13 dAttrAnno13 = field.getAnnotation(DAttrAnno13.class);
+        if (dAttrAnno13 != null) {
+            addDynamicAttribute(partCategory, dAttrAnno13.code(), dAttrAnno13.optionExtSchema(),
+                    dAttrAnno13.options(), dAttrAnno13.instType());
+        }
+    }
+
+    /**
+     * 添加动态属性
+     *
+     * @param partCategory 部件分类对象
+     * @param code 属性编码
+     * @param optionExtSchema 扩展模式
+     * @param options 可选值列表
+     * @param instType 实例类型
+     */
+    private static void addDynamicAttribute(PartCategory partCategory, String code, String optionExtSchema,
+            String[] options, int instType) {
+        DynamicAttribute dynAttr = new DynamicAttribute();
+        dynAttr.setCode(code);
+        dynAttr.setName(code);
+        dynAttr.setOptionExtSchema(optionExtSchema);
+        dynAttr.setDynAttrType(DynamicAttributeType.String); // 默认类型
+
+        // 解析选项
+        List<DynamicAttributerOption> dynOptions = new ArrayList<>();
+        for (int i = 0; i < options.length; i++) {
+            String optionStr = options[i];
+            String[] parts = optionStr.split(":");
+            if (parts.length >= 3) {
+                DynamicAttributerOption option = new DynamicAttributerOption();
+                option.setCode(parts[0]);
+                option.setCodeId((i + 1) * 10);
+                option.setDefaultValue(parts[1]); // 值
+                option.setDescription(parts[2]); // 单位或描述
+                option.setSortNo(i + 1);
+                dynOptions.add(option);
+            }
+        }
+        dynAttr.setOptions(dynOptions);
+
+        // 设置实例类型（通过扩展属性存储）
+        Map<String, String> extAttrs = partCategory.getExtAttrs();
+        if (extAttrs == null) {
+            extAttrs = new HashMap<>();
+            partCategory.setExtAttrs(extAttrs);
+        }
+        extAttrs.put("instType_" + code, String.valueOf(instType));
+
+        partCategory.getDynAttrSchemas().add(dynAttr);
+    }
+
+    /**
+     * 处理继承注解
+     *
+     * @param field 字段对象
+     * @param partCategory 部件分类对象
+     */
+    private static void processInheritAnnotation(Field field, PartCategory partCategory) {
+        DAttrInherit inheritAnno = field.getAnnotation(DAttrInherit.class);
+        if (inheritAnno != null) {
+            // 设置父对象编码
+            partCategory.setFatherCode(inheritAnno.fatherCode());
+
+            // 处理重写属性
+            String[] overrideAttrs = inheritAnno.overrideAttrs();
+            Map<String, String> extAttrs = partCategory.getExtAttrs();
+            if (extAttrs == null) {
+                extAttrs = new HashMap<>();
+                partCategory.setExtAttrs(extAttrs);
+            }
+
+            for (String override : overrideAttrs) {
+                String[] parts = override.split(":");
+                if (parts.length == 2) {
+                    extAttrs.put("override_" + parts[0], parts[1]);
+                }
+            }
+        }
+    }
+
+    /**
+     * 处理实例规格属性
+     *
+     * @param part 部件对象
+     * @param partAnno 部件注解
+     */
+    private static void processInstanceAttrs(Part part, PartAnno partAnno) {
+        Map<String, String> extAttrs = part.getExtAttrs();
+        if (extAttrs == null) {
+            extAttrs = new HashMap<>();
+            part.setExtAttrs(extAttrs);
+        }
+
+        // 处理实例1规格属性
+        if (partAnno.attrsInst1().length > 0) {
+            InstanceDynAttrValue instValue = new InstanceDynAttrValue();
+            instValue.setInstId(1);
+            Map<String, String> instAttr = new HashMap<>();
+            for (String attr : partAnno.attrsInst1()) {
+                String[] parts = attr.split(":");
+                if (parts.length == 2) {
+                    instAttr.put(parts[0], parts[1]);
+                }
+            }
+            instValue.setInstAttr(instAttr);
+            extAttrs.put("inst1", InstanceDynAttrValue.toJsonString(instValue));
+        }
+
+        // 处理实例2规格属性
+        if (partAnno.attrsInst2().length > 0) {
+            InstanceDynAttrValue instValue = new InstanceDynAttrValue();
+            instValue.setInstId(2);
+            Map<String, String> instAttr = new HashMap<>();
+            for (String attr : partAnno.attrsInst2()) {
+                String[] parts = attr.split(":");
+                if (parts.length == 2) {
+                    instAttr.put(parts[0], parts[1]);
+                }
+            }
+            instValue.setInstAttr(instAttr);
+            extAttrs.put("inst2", InstanceDynAttrValue.toJsonString(instValue));
+        }
+
+        // 处理实例3规格属性
+        if (partAnno.attrsInst3().length > 0) {
+            InstanceDynAttrValue instValue = new InstanceDynAttrValue();
+            instValue.setInstId(3);
+            Map<String, String> instAttr = new HashMap<>();
+            for (String attr : partAnno.attrsInst3()) {
+                String[] parts = attr.split(":");
+                if (parts.length == 2) {
+                    instAttr.put(parts[0], parts[1]);
+                }
+            }
+            instValue.setInstAttr(instAttr);
+            extAttrs.put("inst3", InstanceDynAttrValue.toJsonString(instValue));
+        }
+
+        // 处理实例4规格属性
+        if (partAnno.attrsInst4().length > 0) {
+            InstanceDynAttrValue instValue = new InstanceDynAttrValue();
+            instValue.setInstId(4);
+            Map<String, String> instAttr = new HashMap<>();
+            for (String attr : partAnno.attrsInst4()) {
+                String[] parts = attr.split(":");
+                if (parts.length == 2) {
+                    instAttr.put(parts[0], parts[1]);
+                }
+            }
+            instValue.setInstAttr(instAttr);
+            extAttrs.put("inst4", InstanceDynAttrValue.toJsonString(instValue));
+        }
     }
 }
