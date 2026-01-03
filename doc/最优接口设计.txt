@@ -190,9 +190,12 @@ Capacity>5
 
 
 attrCode="Capacity"
-comparator=">="
+attrComparator=">="
 attrValue="5" 
-attrWhereCondition="=5400"
+attrWhereCondition="Speed=5400"
+
+
+
 
 
 先过滤：

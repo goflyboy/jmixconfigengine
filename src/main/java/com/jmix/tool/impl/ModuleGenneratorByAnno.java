@@ -816,64 +816,34 @@ public final class ModuleGenneratorByAnno {
             part.setExtAttrs(extAttrs);
         }
 
-        // 处理实例1规格属性
-        if (partAnno.attrsInst1().length > 0) {
-            InstanceDynAttrValueItem instValue = new InstanceDynAttrValueItem();
-            instValue.setInstId(1);
-            Map<String, String> instAttr = new HashMap<>();
-            for (String attr : partAnno.attrsInst1()) {
-                String[] parts = attr.split(":");
-                if (parts.length == 2) {
-                    instAttr.put(parts[0], parts[1]);
-                }
-            }
-            instValue.setInstAttr(instAttr);
-            extAttrs.put("inst1", InstanceDynAttrValueItem.toJsonString(instValue));
-        }
+        // 处理实例规格属性
+        processInstanceAttr(partAnno.attrsInst1(), 1, "inst1", extAttrs);
+        processInstanceAttr(partAnno.attrsInst2(), 2, "inst2", extAttrs);
+        processInstanceAttr(partAnno.attrsInst3(), 3, "inst3", extAttrs);
+        processInstanceAttr(partAnno.attrsInst4(), 4, "inst4", extAttrs);
+    }
 
-        // 处理实例2规格属性
-        if (partAnno.attrsInst2().length > 0) {
+    /**
+     * 处理单个实例的规格属性
+     *
+     * @param attrs 属性数组
+     * @param instId 实例ID
+     * @param attrKey 属性键
+     * @param extAttrs 扩展属性映射
+     */
+    private static void processInstanceAttr(String[] attrs, int instId, String attrKey, Map<String, String> extAttrs) {
+        if (attrs.length > 0) {
             InstanceDynAttrValueItem instValue = new InstanceDynAttrValueItem();
-            instValue.setInstId(2);
+            instValue.setInstId(instId);
             Map<String, String> instAttr = new HashMap<>();
-            for (String attr : partAnno.attrsInst2()) {
+            for (String attr : attrs) {
                 String[] parts = attr.split(":");
                 if (parts.length == 2) {
                     instAttr.put(parts[0], parts[1]);
                 }
             }
             instValue.setInstAttr(instAttr);
-            extAttrs.put("inst2", InstanceDynAttrValueItem.toJsonString(instValue));
-        }
-
-        // 处理实例3规格属性
-        if (partAnno.attrsInst3().length > 0) {
-            InstanceDynAttrValueItem instValue = new InstanceDynAttrValueItem();
-            instValue.setInstId(3);
-            Map<String, String> instAttr = new HashMap<>();
-            for (String attr : partAnno.attrsInst3()) {
-                String[] parts = attr.split(":");
-                if (parts.length == 2) {
-                    instAttr.put(parts[0], parts[1]);
-                }
-            }
-            instValue.setInstAttr(instAttr);
-            extAttrs.put("inst3", InstanceDynAttrValueItem.toJsonString(instValue));
-        }
-
-        // 处理实例4规格属性
-        if (partAnno.attrsInst4().length > 0) {
-            InstanceDynAttrValueItem instValue = new InstanceDynAttrValueItem();
-            instValue.setInstId(4);
-            Map<String, String> instAttr = new HashMap<>();
-            for (String attr : partAnno.attrsInst4()) {
-                String[] parts = attr.split(":");
-                if (parts.length == 2) {
-                    instAttr.put(parts[0], parts[1]);
-                }
-            }
-            instValue.setInstAttr(instAttr);
-            extAttrs.put("inst4", InstanceDynAttrValueItem.toJsonString(instValue));
+            extAttrs.put(attrKey, InstanceDynAttrValueItem.toJsonString(instValue));
         }
     }
 }
