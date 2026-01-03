@@ -1,0 +1,332 @@
+前后端接口采用x、
+
+2026-1-2:
+1、分阶段生成的方案思路，prompt的拆分
+2、
+1、代码要合在一起？ 
+2、基于本体的logic的逻辑？
+3、
+
+4、怎么让claude生成的代码的OK的
+5、基于本体
+4、洪利总的skills的学习？***
+
+6、多维求解的功能
+7、混合求解的功能？**
+8、把我开发的代码，然后合入到这个分支上去，可以包统一（代码结构基本一致），这样比较方便--使用claude的功能，搞一个skill
+
+
+
+更长远的未来
+1、基于本体的IT系统架构？****
+ 
+实例属性定义  --单个，多个
+
+
+54000
+实例1、实例2
+
+select sum(容量) where 容量 contains("5400“） 单位相加
+
+
+关键配置逻辑：
+1、固态硬盘必须配置同一种，并且最多配置2块  
+2、优先使用固态硬盘，固态硬盘满配后还不满足要求的用机械硬盘补充
+3、用户提了固态硬盘数量的，使用固态硬盘数量，否则需要计算固态硬盘数量
+4、固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量
+5、不能使用完全不包含用户需要的速率的固态硬盘做配置
+
+
+TODO：这种能否独立测试？--独立搞？ 看一下? 
+
+
+参考ParaAnno
+增加PartCategoryAnno
+public @interface PartAnno {
+    /**
+     * 部件编码
+     */
+    String code() default "";
+
+    /**
+     * 父对象编码
+     */
+    String fatherCode() default "";
+
+Drive
+SolidDrive
+MechDrive
+TODO:   --这个有问题？
+  // 选项编码ID
+    private int codeId;  ---》codeValue是不是更合适一点
+
+
+
+1、增加类
+class ExtSchema {
+	public final String IntegerUnit = "IntegerUnit";////带单位的整数值,单位，codeValue是Integer 如GB/S如: Speed_5400 
+		public final String UNIT = "unit";  
+	public final String StringUnit = "StringUnit";//单位,codeValue是String 
+	 
+}
+
+2、DynamicAttribute增加属性 String optionExtSchema  
+
+3、参考ParaAnno定义动态属性的注解 DAttrAnno1、DAttrAnno2、DAttrAnno3、DAttrAnno4、DAttrAnno5
+  
+
+ 
+
+@DAttrAnno1(code="BrandWidth",optionExtSchema=ExtSchema.IntegerUnit, options = { "BW_8GB:8:GB/S", "BW_16GB:16:GB/S"}    
+@DAttrAnno2(code="Speed",optionExtSchema=ExtSchema.StringUnit,options = { "Speed_5400:5400:转", "Speed_9000:9000:转", "Speed_7200a5400:7200/5400:转",instType=0}   
+@DAttrAnno3(code="Capacity",optionExtSchema=Attr.;,options = { "Capacity_8T,8:T", "Capacity_16T,16:T", Capacity_32T,32:T",instType=0}   
+    private PartCategoryVar driveVar;
+
+@DAttrInherit(fatherCode="driveVar",overrideAttrs={"Speed:instType=1","Capacity:instType=1"});	//继承 driveVar的属性定义，同时对Speed和Capacity进行重写
+@DAttrAnno11(code="maxCapacity", optionExtSchema=Attr.IntegerUnit, options = { "MaxCapacity_8T:8:T", "MaxCapacity_16T:16:T"}   
+    private PartCategoryVar solidDrive;
+ 
+
+
+@VAttrAnno(fatherCode="solidDrive", attrs={"BW_8GB","MaxCapacity_8T"}
+	,attrsInst1={"Speed_5400","Capacity_8T"},
+	,attrsInst2= {"Speed_7200a5400","Capacity_8T"})  
+    private PartVar solidDrive1;
+ 
+@VAttrAnno(fatherCode="solidDrive", attrs={"BW_16GB","MaxCapacity_16T"}
+	,attrsInst1={"Speed_9000","Capacity_16T"},
+	,attrsInst2= {"Speed_7200a5400","Capacity_16T"})  
+    private PartVar solidDrive2;  
+
+@DAttrInherit(fatherCode="driveVar");	  
+    private PartCategoryVar mechDrive;
+@VAttrAnno(fatherCode="mechDrive", attrs={"BW_8GB","Speed_5400","Capacity_8T"}
+    private PartVar mechDrive1;
+@VAttrAnno(fatherCode="mechDrive", attrs={"BW_16GB","Speed_7200a5400","Capacity_16T"}
+    private PartVar mechDrive2;
+
+
+增加属性？***
+
+
+---> @VAttrAnno(field=solidDrive, attrs={"BrandWidth:BW_16GB","Speed:MaxCapacity_16T"}) @VAttrAnno(field=solidDrive, dynAttrs=v"1:BW_16GB","2:MaxCapacity_16T"})
+
+MechDrive
+请参考下列模型来基于ortools-java来构建约束模型。
+
+样例数据： 
+
+--电脑  --产品
+---硬盘  --PartCategory1
+------固态硬盘			数量			接口带宽	 	支持转速容量分组  --PartCategory11
+-----------固态硬盘1					8GB/S	    [{”实例分组“：1，“转速”：“5400”，“容量”：“2T”}，{”实例分组“：2，“转速”：“7200/5400”，“容量”：“1T”}]
+-----------固态硬盘2					8GB/S	    [{”实例分组“：1，“转速”：“7200/5400”，“容量”：“4T”}]
+-----------固态硬盘3					8GB/S	    [{”实例分组“：1，“转速”：“9000”，“容量”：“4T”}]
+------机械硬盘			数量			支持转速容量分组 --PartCategory12
+-----------机械硬盘1					[{”实例分组“：1，“转速”：“5400”，“容量”：“2T”}]
+-----------机械硬盘2					[{”实例分组“：4，“转速”：“7200”，“容量”：“2T”}]
+-----------机械硬盘3					[{”实例分组“：1，“转速”：“9000”，“容量”：“2T”}]
+
+PartCategory1的详细定义
+部件编码	扩展属性	扩展属性类型	扩展属性值				实例分组
+硬盘		转速		规格			5400|7200/5400|9000	1
+硬盘		容量		规格									1
+硬盘		接口带宽	规格			8GB/S					-1
+
+
+关键配置逻辑：
+1、固态硬盘必须配置同一种，并且最多配置2块
+2、优先使用固态硬盘，固态硬盘满配后还不满足要求的用机械硬盘补充
+3、用户提了固态硬盘数量的，使用固态硬盘数量，否则需要计算固态硬盘数量
+4、固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量
+5、不能使用完全不包含用户需要的速率的固态硬盘做配置
+
+
+
+输入：
+要求5400速率的固态硬盘2块，要求5400速率的硬盘容量>=5T， 
+
+求出可行解
+
+
+##数据模型
+
+// 可编程接口
+public interface Programmable {
+/**
+
+获取编码
+@return 编码
+*/
+String getCode();
+}
+// 可扩展对象
+public class Extensible {
+/**
+* 扩展属性schema
+*/
+private String extSchema;
+
+/**
+ * 扩展属性，方便扩展
+ */
+private Map<String, String> extAttrs = new HashMap<>();
+}
+
+// 可编程对象
+public class ProgrammableObject<T> extends Extensible implements Programmable {
+/**
+* 对象编码
+*/
+private String code;
+
+/**
+ * 父对象编码
+ */
+private String fatherCode;
+
+/**
+ * 默认值
+ */
+private T defaultValue;
+ 
+/**
+ * 排序号
+ */
+private Integer sortNo;
+}
+
+// 动态属性
+public DynamicAttribute extends ProgrammableObject<String> {
+private String code;
+private String name = ""; // 名称
+// 动态属性可选值列表
+private List<DynamicAttributerOption> options = new ArrayList<>();
+// 动态属性类型
+private DynamicAttributeType dynAttrType = DynamicAttributeType.Integer;
+// 动态属性的值，拥有计算实例化的值，存在算法
+private String value;
+// 动态属性的Logic
+private List<Logic> valueLogics;
+}
+
+// 动态属性可选值
+public class DynamicAttributerOption extends ProgrammableObject<String> {
+// 选项编码ID
+private int codeId;
+}
+
+// Para调整为：
+public class Para extends DynamicAttribute{
+private ParaType paraType = ParaType.ATOMIC;
+// 默认值
+private String defaultValue;
+// 引用的规格Code
+private String refSpecCode;
+}
+
+// 参数类型调整为：
+public enum ParaType{
+ATOMIC(0, "AtomicPara"),
+GROUP(10, "Group");//类似中间件层
+}
+
+// Part调整为
+public class Part extends ProgrammableObject<Integer> {
+/**
+* 部件类型
+*/
+private PartType partType = PartType.ATOMIC;
+
+/**
+ * 原子Part的目录价
+ */
+private Long price = 0L;
+
+/**
+ * 原子Part的最大数量
+ */
+private Integer maxQuantity = MAX_QUANTITY;
+
+/**
+ * 原子Part的规格属性(动态属性值）
+ */
+private Map<String, String> dynAttr = new HashMap<>();
+
+/**
+ * Part分类的规格描述(动态属性定义,partCategoryAttrValues)
+ */
+private List<DynamicAttribute> dynAttrSchemas= new ArrayList<>();
+
+/**
+ * Part分类的schema (partCategoryAttrSchema?)
+ */
+private String dynAttrSchema;
+ 
+}
+
+// Part类型
+public enum PartType {
+ATOMIC(0, "AtomicPart"),
+CATEGORY(2, "PartCategory"),
+BUNDLE(3, "Bundle"),
+GROUP(10, "Group");//类似中间件层
+}
+
+TODO:
+固态硬盘数量-->硬盘数量private List<Logic> logics;
+}
+
+ 
+1、Para.java
+public class Para extends DynamicAttribute { 
+    private ParaType paraType = ParaType.ATOMIC;
+....
+
+}
+
+改成：
+public class Para extends DynamicAttribute { 
+    private ParaType paraType = ParaType.STRING;
+....
+
+}
+
+
+2、ParaType调整为：
+
++ public enum ParaType { //YXX --XX是subType,mainType
++     ENUM(0, "EnumType"),//Y=0, XX=0
++     BOOLEAN(1, "Boolean"),//Y=0, XX=0
++     INTEGER(2, "Integer"),//Y=0, XX=0
++     FLOAT(3, "Float"),//Y=0, XX=0
++     DOUBLE(4, "Double"),//Y=0, XX=0
++     STRING(5, "String"),//Y=0, XX=0
++     RANGE(6, "Range"),//Y=0, XX=0
++     DATE(7, "Date"),//Y=0, XX=0
++     MULTI_ENUM(8, "MultiEnum"),//Y=0, XX=0
++     GROUP(100, "Group");//Y=1, XX=00(STRING)
++     
++     private final int value;
++     private final String name;
+	
+	  public static int BASE_TYPE = 100; 
+	  int getSubType() {
+			return this.value % BASE_TYPE;
+	  }
+	  ParaMainType getMainType() {
+		   return this.value / BASE_TYPE;
+	  }
+	public enum ParaMainType{
+		ATOMIC(0, "AtomicPara"), //原子para,默认是原子Para 
+		GROUP(1, "Group");//类似中间件层
+	} 
+}
+
+
+
+
+
+TODO:
+  PartCategory也是一种Module   --Module? PC
+

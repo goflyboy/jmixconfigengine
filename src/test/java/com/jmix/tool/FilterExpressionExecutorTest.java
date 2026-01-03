@@ -281,7 +281,7 @@ public class FilterExpressionExecutorTest {
     private DynamicAttributerOption createColorOption(int codeId, String code, String description, int sortNo,
             String hexCode,
             String popularity) {
-        return ModuleBuilder.ParaOptionBuilder.create()
+        return ModuleBuilder.DynamicAttributerOptionBuilder.create()
                 .asOption(codeId, code, description)
                 .sortNo(sortNo)
                 .extAttr("hexCode", hexCode)
@@ -295,7 +295,7 @@ public class FilterExpressionExecutorTest {
     private DynamicAttributerOption createSizeOption(int codeId, String code, String description, int sortNo,
             String chest,
             String length) {
-        return ModuleBuilder.ParaOptionBuilder.create()
+        return ModuleBuilder.DynamicAttributerOptionBuilder.create()
                 .asOption(codeId, code, description)
                 .sortNo(sortNo)
                 .extAttr("chest", chest)

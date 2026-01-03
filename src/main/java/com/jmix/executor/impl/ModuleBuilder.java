@@ -19,23 +19,23 @@ import java.util.Map;
  */
 public class ModuleBuilder {
     /**
-     * ParaOption构建器
+     * DynamicAttributerOption构建器
      */
-    public static final class ParaOptionBuilder {
+    public static final class DynamicAttributerOptionBuilder {
 
         private final DynamicAttributerOption paraOption;
 
-        private ParaOptionBuilder() {
+        private DynamicAttributerOptionBuilder() {
             this.paraOption = new DynamicAttributerOption();
         }
 
         /**
          * 创建新的构建器实例
-         * 
-         * @return ParaOptionBuilder实例
+         *
+         * @return DynamicAttributerOptionBuilder实例
          */
-        public static ParaOptionBuilder create() {
-            return new ParaOptionBuilder();
+        public static DynamicAttributerOptionBuilder create() {
+            return new DynamicAttributerOptionBuilder();
         }
 
         /**
@@ -44,7 +44,7 @@ public class ModuleBuilder {
          * @param codeId 选项编码ID
          * @return 当前构建器实例
          */
-        public ParaOptionBuilder codeId(int codeId) {
+        public DynamicAttributerOptionBuilder codeId(int codeId) {
             paraOption.setCodeId(codeId);
             return this;
         }
@@ -55,7 +55,7 @@ public class ModuleBuilder {
          * @param code 对象编码
          * @return 当前构建器实例
          */
-        public ParaOptionBuilder code(String code) {
+        public DynamicAttributerOptionBuilder code(String code) {
             paraOption.setCode(code);
             return this;
         }
@@ -66,7 +66,7 @@ public class ModuleBuilder {
          * @param fatherCode 父对象编码
          * @return 当前构建器实例
          */
-        public ParaOptionBuilder fatherCode(String fatherCode) {
+        public DynamicAttributerOptionBuilder fatherCode(String fatherCode) {
             paraOption.setFatherCode(fatherCode);
             return this;
         }
@@ -77,7 +77,7 @@ public class ModuleBuilder {
          * @param defaultValue 默认值
          * @return 当前构建器实例
          */
-        public ParaOptionBuilder defaultValue(String defaultValue) {
+        public DynamicAttributerOptionBuilder defaultValue(String defaultValue) {
             paraOption.setDefaultValue(defaultValue);
             return this;
         }
@@ -88,7 +88,7 @@ public class ModuleBuilder {
          * @param description 描述信息
          * @return 当前构建器实例
          */
-        public ParaOptionBuilder description(String description) {
+        public DynamicAttributerOptionBuilder description(String description) {
             paraOption.setDescription(description);
             return this;
         }
@@ -99,7 +99,7 @@ public class ModuleBuilder {
          * @param sortNo 排序号
          * @return 当前构建器实例
          */
-        public ParaOptionBuilder sortNo(int sortNo) {
+        public DynamicAttributerOptionBuilder sortNo(int sortNo) {
             paraOption.setSortNo(sortNo);
             return this;
         }
@@ -110,7 +110,7 @@ public class ModuleBuilder {
          * @param extSchema 扩展属性Schema
          * @return 当前构建器实例
          */
-        public ParaOptionBuilder extSchema(String extSchema) {
+        public DynamicAttributerOptionBuilder extSchema(String extSchema) {
             paraOption.setExtSchema(extSchema);
             return this;
         }
@@ -122,7 +122,7 @@ public class ModuleBuilder {
          * @param value 属性值
          * @return 当前构建器实例
          */
-        public ParaOptionBuilder extAttr(String key, String value) {
+        public DynamicAttributerOptionBuilder extAttr(String key, String value) {
             paraOption.setExtAttr(key, value);
             return this;
         }
@@ -133,7 +133,7 @@ public class ModuleBuilder {
          * @param extAttrs 扩展属性映射
          * @return 当前构建器实例
          */
-        public ParaOptionBuilder extAttrs(Map<String, String> extAttrs) {
+        public DynamicAttributerOptionBuilder extAttrs(Map<String, String> extAttrs) {
             if (extAttrs != null) {
                 extAttrs.forEach(paraOption::setExtAttr);
             }
@@ -148,7 +148,7 @@ public class ModuleBuilder {
          * @param description 描述信息
          * @return 当前构建器实例
          */
-        public ParaOptionBuilder asOption(int codeId, String code, String description) {
+        public DynamicAttributerOptionBuilder asOption(int codeId, String code, String description) {
             return this.codeId(codeId)
                     .code(code)
                     .description(description);

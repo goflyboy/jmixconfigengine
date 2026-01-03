@@ -51,13 +51,13 @@ public class Para extends DynamicAttribute {
     private String refSpecCode;
 
     /**
-     * <codeId, ParaOption> Map
+     * <codeId, DynamicAttributerOption> Map
      */
     @JsonIgnore
     private Map<Integer, DynamicAttributerOption> optionCodeIdMap = new HashMap<>();
 
     /**
-     * <code, ParaOption> Map
+     * <code, DynamicAttributerOption> Map
      */
     @JsonIgnore
     private Map<String, DynamicAttributerOption> optionCodeMap = new HashMap<>();
