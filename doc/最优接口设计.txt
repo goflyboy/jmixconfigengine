@@ -70,11 +70,26 @@ class ExtSchema {
 	 
 }
 
+
+2、新增类PartCategory
+class PartCategory extends Part {
+
+}
+
+
 2、DynamicAttribute增加属性 String optionExtSchema  
 
 3、参考ParaAnno定义动态属性的注解 DAttrAnno1、DAttrAnno2、DAttrAnno3、DAttrAnno4、DAttrAnno5
-  
+ 
+ 参考案例：
+@DAttrAnno1(code="BrandWidth",optionExtSchema=ExtSchema.IntegerUnit, options = { "BW_8GB:8:GB/S", "BW_16GB:16:GB/S"}    
+@DAttrAnno2(code="Speed",optionExtSchema=ExtSchema.StringUnit,options = { "Speed_5400:5400:转", "Speed_9000:9000:转", "Speed_7200a5400:7200/5400:转",instType=0}   
+@DAttrAnno3(code="Capacity",optionExtSchema=Attr.;,options = { "Capacity_8T,8:T", "Capacity_16T,16:T", Capacity_32T,32:T",instType=0}   
+    private PartCategoryVar driveVar;
 
+4、新增
+
+@DAttrInherit(fatherCode="driveVar",overrideAttrs={"Speed:instType=1","Capacity:instType=1"});
  
 
 @DAttrAnno1(code="BrandWidth",optionExtSchema=ExtSchema.IntegerUnit, options = { "BW_8GB:8:GB/S", "BW_16GB:16:GB/S"}    

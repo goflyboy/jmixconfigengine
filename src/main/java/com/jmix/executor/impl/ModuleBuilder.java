@@ -7,7 +7,6 @@ import com.jmix.executor.imodel.Part;
 import com.jmix.executor.imodel.PartType;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**

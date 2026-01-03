@@ -17,9 +17,10 @@ import java.nio.file.Paths;
  */
 @Slf4j
 public class ModelHelperTestBase {
+
     /**
      * 主方法
-     * 
+     *
      * @param args 命令行参数
      */
     public static void main(String[] args) {

@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 /**
  * 注入兼容性规则测试类
  * 测试通过注解注入兼容性规则的功能
- * 
+ *
  * @since 2025-09-22
  */
 @Slf4j
