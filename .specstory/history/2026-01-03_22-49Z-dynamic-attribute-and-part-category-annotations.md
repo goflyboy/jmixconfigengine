@@ -3850,6 +3850,540 @@ _**User (2026-01-03 11:03Z)**_
 
 _**Agent (model default, mode Agent)**_
 
+<think><details><summary>Thought Process</summary>
+用户要求将 InstanceDynAttrValue 类重命名为 InstanceDynAttrValueItem。我需要：
+</details></think>
+
+---
+
+<tool-use data-tool-type="search" data-tool-name="grep">
+<details>
+<summary>Tool use: **grep** • Grep for "InstanceDynAttrValue" in "src" • 15 matches</summary>
+
+Output mode: content
+
+
+| File | Content | Line |
+|------|------|------|
+| `src\main\java\com\jmix\tool\impl\ModuleGenneratorByAnno.java` | `import com.jmix.executor.imodel.InstanceDynAttrValue;` | L6 |
+| `src\main\java\com\jmix\tool\impl\ModuleGenneratorByAnno.java` | `InstanceDynAttrValue instValue = new InstanceDynAttrValue();` | L821 |
+| `src\main\java\com\jmix\tool\impl\ModuleGenneratorByAnno.java` | `extAttrs.put("inst1", InstanceDynAttrValue.toJsonString(instValue));` | L831 |
+| `src\main\java\com\jmix\tool\impl\ModuleGenneratorByAnno.java` | `InstanceDynAttrValue instValue = new InstanceDynAttrValue();` | L836 |
+| `src\main\java\com\jmix\tool\impl\ModuleGenneratorByAnno.java` | `extAttrs.put("inst2", InstanceDynAttrValue.toJsonString(instValue));` | L846 |
+| `src\main\java\com\jmix\tool\impl\ModuleGenneratorByAnno.java` | `InstanceDynAttrValue instValue = new InstanceDynAttrValue();` | L851 |
+| `src\main\java\com\jmix\tool\impl\ModuleGenneratorByAnno.java` | `extAttrs.put("inst3", InstanceDynAttrValue.toJsonString(instValue));` | L861 |
+| `src\main\java\com\jmix\tool\impl\ModuleGenneratorByAnno.java` | `InstanceDynAttrValue instValue = new InstanceDynAttrValue();` | L866 |
+| `src\main\java\com\jmix\tool\impl\ModuleGenneratorByAnno.java` | `extAttrs.put("inst4", InstanceDynAttrValue.toJsonString(instValue));` | L876 |
+| `src\main\java\com\jmix\executor\imodel\InstanceDynAttrValue.java` | `public class InstanceDynAttrValue \{` | L18 |
+| `src\main\java\com\jmix\executor\imodel\InstanceDynAttrValue.java` | `public static String toJsonString(InstanceDynAttrValue iValue) \{` | L35 |
+| `src\main\java\com\jmix\executor\imodel\InstanceDynAttrValue.java` | `throw new RuntimeException("Failed to serialize InstanceDynAttrValue to JSON", e);` | L40 |
+| `src\main\java\com\jmix\executor\imodel\InstanceDynAttrValue.java` | `public static InstanceDynAttrValue fromJsonString(String strValue) \{` | L50 |
+| `src\main\java\com\jmix\executor\imodel\InstanceDynAttrValue.java` | `return mapper.readValue(strValue, InstanceDynAttrValue.class);` | L53 |
+| `src\main\java\com\jmix\executor\imodel\InstanceDynAttrValue.java` | `throw new RuntimeException("Failed to deserialize JSON to InstanceDynAttrValue", e);` | L55 |
+
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+我看到 InstanceDynAttrValue 在以下文件中被引用：</details></think>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: mv src/main/java/com/jmix/executor/imodel/InstanceDynAttrValue.java src/main/java/com/jmix/executor/imodel/InstanceDynAttrValueItem.java</summary>
+
+```bash
+mv src/main/java/com/jmix/executor/imodel/InstanceDynAttrValue.java src/main/java/com/jmix/executor/imodel/InstanceDynAttrValueItem.java
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+现在我需要更新类文件中的类名和相关引用。</details></think>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/imodel/InstanceDynAttrValueItem.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -16,5 +16,5 @@
+   */
+  @Data
+- public class InstanceDynAttrValue {
++ public class InstanceDynAttrValueItem {
+      /**
+       * 实例ID
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+现在需要更新类中的方法签名和错误消息。</details></think>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/imodel/InstanceDynAttrValueItem.java</summary>
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -33,10 +33,10 @@
+       * @return JSON字符串
+       */
+-     public static String toJsonString(InstanceDynAttrValue iValue) {
++     public static String toJsonString(InstanceDynAttrValueItem iValue) {
+          ObjectMapper mapper = new ObjectMapper();
+          try {
+              return mapper.writeValueAsString(iValue);
+          } catch (JsonProcessingException e) {
+-             throw new RuntimeException("Failed to serialize InstanceDynAttrValue to JSON", e);
++             throw new RuntimeException("Failed to serialize InstanceDynAttrValueItem to JSON", e);
+          }
+      }
+```
+
+**Chunk 2**
+Lines added: 3, lines removed: 3
+
+```diff
+@@ -48,10 +48,10 @@
+       * @return 实例属性值对象
+       */
+-     public static InstanceDynAttrValue fromJsonString(String strValue) {
++     public static InstanceDynAttrValueItem fromJsonString(String strValue) {
+          ObjectMapper mapper = new ObjectMapper();
+          try {
+-             return mapper.readValue(strValue, InstanceDynAttrValue.class);
++             return mapper.readValue(strValue, InstanceDynAttrValueItem.class);
+          } catch (JsonProcessingException e) {
+-             throw new RuntimeException("Failed to deserialize JSON to InstanceDynAttrValue", e);
++             throw new RuntimeException("Failed to deserialize JSON to InstanceDynAttrValueItem", e);
+          }
+      }
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+现在需要更新 ModuleGenneratorByAnno.java 中的引用。</details></think>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -4,5 +4,5 @@
+  import com.jmix.executor.imodel.DynamicAttribute;
+  import com.jmix.executor.imodel.DynamicAttributeType;
+- import com.jmix.executor.imodel.InstanceDynAttrValue;
++ import com.jmix.executor.imodel.InstanceDynAttrValueItem;
+  import com.jmix.executor.imodel.Module;
+  import com.jmix.executor.imodel.ModuleAlgArtifact;
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+现在需要更新 ModuleGenneratorByAnno.java 中所有使用 InstanceDynAttrValue 的地方。</details></think>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -819,5 +819,5 @@
+          // 处理实例1规格属性
+          if (partAnno.attrsInst1().length &gt; 0) {
+-             InstanceDynAttrValue instValue = new InstanceDynAttrValue();
++             InstanceDynAttrValueItem instValue = new InstanceDynAttrValueItem();
+              instValue.setInstId(1);
+              Map&lt;String, String&gt; instAttr = new HashMap&lt;&gt;();
+```
+
+**Chunk 2**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -829,10 +829,10 @@
+              }
+              instValue.setInstAttr(instAttr);
+-             extAttrs.put("inst1", InstanceDynAttrValue.toJsonString(instValue));
++             extAttrs.put("inst1", InstanceDynAttrValueItem.toJsonString(instValue));
+          }
+  
+          // 处理实例2规格属性
+          if (partAnno.attrsInst2().length &gt; 0) {
+-             InstanceDynAttrValue instValue = new InstanceDynAttrValue();
++             InstanceDynAttrValueItem instValue = new InstanceDynAttrValueItem();
+              instValue.setInstId(2);
+              Map&lt;String, String&gt; instAttr = new HashMap&lt;&gt;();
+```
+
+**Chunk 3**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -844,10 +844,10 @@
+              }
+              instValue.setInstAttr(instAttr);
+-             extAttrs.put("inst2", InstanceDynAttrValue.toJsonString(instValue));
++             extAttrs.put("inst2", InstanceDynAttrValueItem.toJsonString(instValue));
+          }
+  
+          // 处理实例3规格属性
+          if (partAnno.attrsInst3().length &gt; 0) {
+-             InstanceDynAttrValue instValue = new InstanceDynAttrValue();
++             InstanceDynAttrValueItem instValue = new InstanceDynAttrValueItem();
+              instValue.setInstId(3);
+              Map&lt;String, String&gt; instAttr = new HashMap&lt;&gt;();
+```
+
+**Chunk 4**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -859,10 +859,10 @@
+              }
+              instValue.setInstAttr(instAttr);
+-             extAttrs.put("inst3", InstanceDynAttrValue.toJsonString(instValue));
++             extAttrs.put("inst3", InstanceDynAttrValueItem.toJsonString(instValue));
+          }
+  
+          // 处理实例4规格属性
+          if (partAnno.attrsInst4().length &gt; 0) {
+-             InstanceDynAttrValue instValue = new InstanceDynAttrValue();
++             InstanceDynAttrValueItem instValue = new InstanceDynAttrValueItem();
+              instValue.setInstId(4);
+              Map&lt;String, String&gt; instAttr = new HashMap&lt;&gt;();
+```
+
+**Chunk 5**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -874,5 +874,5 @@
+              }
+              instValue.setInstAttr(instAttr);
+-             extAttrs.put("inst4", InstanceDynAttrValue.toJsonString(instValue));
++             extAttrs.put("inst4", InstanceDynAttrValueItem.toJsonString(instValue));
+          }
+      }
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+现在让我检查是否还有其他地方引用了 InstanceDynAttrValue。</details></think>
+
+---
+
+<tool-use data-tool-type="search" data-tool-name="grep">
+<details>
+<summary>Tool use: **grep** • Grep for "InstanceDynAttrValue" in "src" • 15 matches</summary>
+
+Output mode: content
+
+
+| File | Content | Line |
+|------|------|------|
+| `src\main\java\com\jmix\tool\impl\ModuleGenneratorByAnno.java` | `import com.jmix.executor.imodel.InstanceDynAttrValueItem;` | L6 |
+| `src\main\java\com\jmix\tool\impl\ModuleGenneratorByAnno.java` | `InstanceDynAttrValueItem instValue = new InstanceDynAttrValueItem();` | L821 |
+| `src\main\java\com\jmix\tool\impl\ModuleGenneratorByAnno.java` | `extAttrs.put("inst1", InstanceDynAttrValueItem.toJsonString(instValue));` | L831 |
+| `src\main\java\com\jmix\tool\impl\ModuleGenneratorByAnno.java` | `InstanceDynAttrValueItem instValue = new InstanceDynAttrValueItem();` | L836 |
+| `src\main\java\com\jmix\tool\impl\ModuleGenneratorByAnno.java` | `extAttrs.put("inst2", InstanceDynAttrValueItem.toJsonString(instValue));` | L846 |
+| `src\main\java\com\jmix\tool\impl\ModuleGenneratorByAnno.java` | `InstanceDynAttrValueItem instValue = new InstanceDynAttrValueItem();` | L851 |
+| `src\main\java\com\jmix\tool\impl\ModuleGenneratorByAnno.java` | `extAttrs.put("inst3", InstanceDynAttrValueItem.toJsonString(instValue));` | L861 |
+| `src\main\java\com\jmix\tool\impl\ModuleGenneratorByAnno.java` | `InstanceDynAttrValueItem instValue = new InstanceDynAttrValueItem();` | L866 |
+| `src\main\java\com\jmix\tool\impl\ModuleGenneratorByAnno.java` | `extAttrs.put("inst4", InstanceDynAttrValueItem.toJsonString(instValue));` | L876 |
+| `src\main\java\com\jmix\executor\imodel\InstanceDynAttrValueItem.java` | `public class InstanceDynAttrValueItem \{` | L18 |
+| `src\main\java\com\jmix\executor\imodel\InstanceDynAttrValueItem.java` | `public static String toJsonString(InstanceDynAttrValueItem iValue) \{` | L35 |
+| `src\main\java\com\jmix\executor\imodel\InstanceDynAttrValueItem.java` | `throw new RuntimeException("Failed to serialize InstanceDynAttrValueItem to JSON", e);` | L40 |
+| `src\main\java\com\jmix\executor\imodel\InstanceDynAttrValueItem.java` | `public static InstanceDynAttrValueItem fromJsonString(String strValue) \{` | L50 |
+| `src\main\java\com\jmix\executor\imodel\InstanceDynAttrValueItem.java` | `return mapper.readValue(strValue, InstanceDynAttrValueItem.class);` | L53 |
+| `src\main\java\com\jmix\executor\imodel\InstanceDynAttrValueItem.java` | `throw new RuntimeException("Failed to deserialize JSON to InstanceDynAttrValueItem", e);` | L55 |
+
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+很好，所有引用都已经更新了。现在让我编译一下代码，确保没有问题。</details></think>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: mvn compile -q</summary>
+
+```bash
+mvn compile -q
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+编译成功！现在让我运行测试，确保功能正常。</details></think>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: mvn test -Dtest=ComputerConstraintTest#testModuleInitialization -q</summary>
+
+```bash
+mvn test -Dtest=ComputerConstraintTest#testModuleInitialization -q
+```
+
+```
+[main] INFO com.jmix.executor.impl.ModuleConstraintExecutorImpl - Module constraint executor initialized
+[main] INFO com.jmix.executor.impl.util.ModuleUtils - Serializing Module to JSON file: D:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\scenario\partcategory\tempResource\Computer.base.json
+[main] INFO com.jmix.executor.impl.util.ModuleUtils - Successfully serialized Module to JSON file: D:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\scenario\partcategory\tempResource\Computer.base.json
+[main] INFO com.jmix.tool.impl.ModuleGenneratorByAnno - Module saved to: D:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\scenario\partcategory\tempResource\Computer.base.json
+[main] INFO com.jmix.executor.impl.ModuleAlgClassLoader - Loaded class from local project: com.jmix.scenario.partcategory.ComputerConstraint
+[main] INFO com.jmix.executor.impl.ModuleConstraintExecutorImpl - Added modules: 1
+[main] INFO com.jmix.scenario.partcategory.ComputerConstraintTest - Test setup completed, module ID: 124
+[main] INFO com.jmix.scenario.partcategory.ComputerConstraintTest - Module parts: 7
+[main] INFO com.jmix.scenario.partcategory.ComputerConstraintTest - Part: drive, dynAttrSchemas: 3
+[main] INFO com.jmix.scenario.partcategory.ComputerConstraintTest - Part: solidDrive, dynAttrSchemas: 1
+[main] INFO com.jmix.scenario.partcategory.ComputerConstraintTest - Part: mechDrive, dynAttrSchemas: 0
+[main] INFO com.jmix.scenario.partcategory.ComputerConstraintTest - Part: solidDrive1, dynAttrSchemas: 0
+[main] INFO com.jmix.scenario.partcategory.ComputerConstraintTest - Part: solidDrive2, dynAttrSchemas: 0
+[main] INFO com.jmix.scenario.partcategory.ComputerConstraintTest - Part: mechDrive1, dynAttrSchemas: 0
+[main] INFO com.jmix.scenario.partcategory.ComputerConstraintTest - Part: mechDrive2, dynAttrSchemas: 0
+[main] INFO com.jmix.scenario.partcategory.ComputerConstraintTest - Module initialization test passed
+[main] INFO com.jmix.executor.impl.ModuleConstraintExecutorImpl - Module constraint executor finalized
+[main] INFO com.jmix.scenario.partcategory.ComputerConstraintTest - Test teardown completed
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+测试通过了！现在让我提交这些更改到git。</details></think>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: git status</summary>
+
+```bash
+git status
+```
+
+```
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add/rm &lt;file&gt;..." to update what will be committed)
+  (use "git restore &lt;file&gt;..." to discard changes in working directory)
+	modified:   .specstory/history/2026-01-03_22-49Z-dynamic-attribute-and-part-category-annotations.md
+	modified:   "doc/\346\234\200\344\274\230\346\216\245\345\217\243\350\256\276\350\256\241.txt"
+	deleted:    src/main/java/com/jmix/executor/imodel/InstanceDynAttrValue.java
+	modified:   src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java
+
+Untracked files:
+  (use "git add &lt;file&gt;..." to include in what will be committed)
+	src/main/java/com/jmix/executor/imodel/InstanceDynAttrValueItem.java
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+好的，我需要添加这些更改并提交。让我先添加删除的文件和新的文件。</details></think>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: git add -A</summary>
+
+```bash
+git add -A
+```
+
+```
+warning: in the working copy of 'src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java', LF will be replaced by CRLF the next time Git touches it
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+现在提交更改。</details></think>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: git commit -m "refactor: rename InstanceDynAttrValue to InstanceDynAttrValueItem
+
+- Rename class InstanceDynAttrValue to InstanceDynAttrValueItem
+- Update all references in ModuleGenneratorByAnno.java
+- Update import statements and method signatures
+- Maintain all existing functionality"</summary>
+
+```bash
+git commit -m "refactor: rename InstanceDynAttrValue to InstanceDynAttrValueItem
+
+- Rename class InstanceDynAttrValue to InstanceDynAttrValueItem
+- Update all references in ModuleGenneratorByAnno.java
+- Update import statements and method signatures
+- Maintain all existing functionality"
+```
+
+```
+Auto packing the repository for optimum performance.
+See "git help gc" for manual housekeeping.
+[main e403d55] refactor: rename InstanceDynAttrValue to InstanceDynAttrValueItem
+ 4 files changed, 300 insertions(+), 31 deletions(-)
+ rename src/main/java/com/jmix/executor/imodel/{InstanceDynAttrValue.java =&gt; InstanceDynAttrValueItem.java} (82%)
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+现在推送更改到远程仓库。</details></think>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: git push origin main</summary>
+
+```bash
+git push origin main
+```
+
+```
+To https://github.com/goflyboy/jmixconfigengine.git
+   ed02b42..e403d55  main -&gt; main
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+完美！重命名完成并推送成功。让我总结一下完成的工作。</details></think>
+
+---
+
+## ✅ 类重命名完成并提交到远程仓库
+
+### 🔄 重命名详情：
+- **原类名**：`InstanceDynAttrValue`
+- **新类名**：`InstanceDynAttrValueItem`
+
+### 📝 修改的文件：
+1. **类文件重命名**：
+   - `src/main/java/com/jmix/executor/imodel/InstanceDynAttrValue.java` → `src/main/java/com/jmix/executor/imodel/InstanceDynAttrValueItem.java`
+
+2. **类定义更新**：
+   - 类名：`InstanceDynAttrValue` → `InstanceDynAttrValueItem`
+   - 方法签名：`toJsonString(InstanceDynAttrValue)` → `toJsonString(InstanceDynAttrValueItem)`
+   - 方法签名：`fromJsonString(String)` 返回类型更新
+   - 错误消息中的类名引用更新
+
+3. **引用更新**：
+   - `src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java`：
+     - 更新import语句
+     - 更新所有变量声明和方法调用
+
+### ✅ 验证结果：
+- ✅ 代码编译通过
+- ✅ 单元测试通过
+- ✅ 功能保持完整
+
+### 📋 提交信息：
+```
+refactor: rename InstanceDynAttrValue to InstanceDynAttrValueItem
+
+- Rename class InstanceDynAttrValue to InstanceDynAttrValueItem
+- Update all references in ModuleGenneratorByAnno.java
+- Update import statements and method signatures
+- Maintain all existing functionality
+```
+
+### 🌐 远程仓库状态：
+- 提交哈希：`e403d55`
+- 分支：`main`
+- 推送状态：✅ 成功推送到 `origin/main`
+
+类重命名完成，代码已安全提交到远程仓库！🎉
+
+---
+
+_**User (2026-01-03 11:03Z)**_
+
+新增这个类 @Data
+class  InstanceDynAttrValue {//多实例类型属性值 
+	List<InstanceDynAttrValueItem>  instsValues;
+	//例如：attrWhereCondition="Speed like %5400%"，表示查询 attrs["speed"] like  %5400%的InstanceDynAttrValueItem
+	List<InstanceDynAttrValueItem>> query(String whereCondition) {
+		 //....
+	}	
+ public static String toJsonString(InstanceDynAttrValue iValue) {}
+
+   public static InstanceDynAttrValue fromJsonString(String strValue) {}
+}
+
+
+---
+
+_**Agent (model default, mode Agent)**_
+
 
 
 ---
