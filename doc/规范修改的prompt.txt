@@ -103,3 +103,216 @@ import org.junit.jupiter.api.Test;
 
 2025-10-5
 LLMInvoker，替换是替换函数？**   q
+
+
+
+关于规格匹配的探索，请帮我完善方案，并看一下方案是否可行
+
+当前遇到问题：
+1、检查产品有很多规格项(SpecItem),规格项是一个对象，可能有多层结构
+class SpecItem{
+	String fatherCode;
+	String code;
+	String name;
+	String operator; //>,>=,<,<=
+	String value;
+	String unit;
+}
+
+2、标书里的规格项是非结构化？ 非常的随意
+可能是code和value的部分组合
+可能是name operator value unit的组合
+
+
+
+当前我的的一个思路是：
+1、把规格项的code+ name+operator +value + unit拼成一个字符串，然后向量化，产生一个值fullVectorValue;
+
+2、如果标书有一个规格orgSpecDesc，首先向量化，orgVectorValue
+
+3、然后在产品数据库 找最接近fullVectorValue的 规格项
+4、然后在做精准匹配和核对
+
+
+
+
+当前标书规格想
+
+
+
+https://e.huawei.com/cn/products/optical-terminal/optixstar-p813e-e
+
+
+https://apps.cisco.com/ccw/cpc/guest/catalog/seriesId/286314263/TY164684034QM
+
+
+新增COMPOSITE_SPEC和COMPOSITE_SPEC_VALUE表
+
+
+三层
+
+元数据定义
+
+---产品系列1 规格1定义，规格2定义，规格3定义
+
+-----产品1  规格11 规格21 规格31
+
+-----产品2  规格12 规格22 规格32
+ 
+
+假设你是一名建模专家，请对产品下列规格建模，
+要求如下：
+1、请参考业界的软件包Oracle、Sap、PTC、Tacton，要分析他们建模的优缺点 \n   
+2、分两层  “产品系列”类似定义， 具体产品是“实例化”    
+ ---产品系列1 规格1定义，规格2定义，规格3定义
+	-----产品1  规格11 规格21 规格31
+	-----产品2  规格12 规格22 规格32
+ 
+3、要区分不同的规格类型， 可能分 整数型规格、范围行规格、枚举规格，要重复考虑扩展性
+4、典型案例：详细的：
+产品1-P813E的规格：
+	规格1：尺寸（宽×深×高）	220mm x 150mm x 35mm 
+	规格2：重量	约1.2kg
+	规格3：工作环境温度	-40°C to +55°C 
+	规格5：电源适配器额定输入范围	100–240 V AC, 50/60 Hz 
+	规格6：整机供电	56 V DC, 2.6 A
+	规格7：网络侧接口	2*XGS-PON(1*BOB+1*SFP)
+	规格8：用户侧接口	8*GE POE/POE+
+产品2-P810的规格： 
+	规格1：尺寸（宽×深×高）	200mm x 100mm x 35mm 
+	规格2：重量	约0.8kg
+	规格3：工作环境温度	-30°C to +45°C 
+	规格5：电源适配器额定输入范围	100–240 V AC, 50/60 Hz 
+	规格6：整机供电	56 V DC, 2.6 A
+	规格7：网络侧接口	1*XGS-PON(1*SFP)
+	规格8：用户侧接口	4*GE POE++
+
+
+输出要求：
+1、针对上面，Oracle、Sap、PTC、Tacton的建模方式及优缺点说明
+2、你建议的建模方式，其核心类图是什么，其设计要点是什么？
+3、根据建模，给出典型案例的json化表达
+
+-----产品1  规格11 规格21 规格31
+
+-----产品2  规格12 规格22 规格32
+ 
+
+ 
+// 规格定义基类
+public abstract class SpecificationDefinition {
+    protected String id;
+    protected String name;
+    protected SpecType type;
+    protected String code;
+    protected Constraint constraints;
+}
+
+// 规格类型枚举
+public enum SpecType {
+    SIMPLE, COMPOSITE, RANGE, ENUM, INTERFACE
+}
+
+ 
+
+// 简单规格定义
+public class SimpleSpecDef extends SpecificationDefinition {
+    protected String unit;
+    protected String precision;
+    protected Boolean allowApproximate;
+}
+
+// 复合规格定义
+public class CompositeSpecDef extends SpecificationDefinition {
+    protected List<ComponentSpecDef> components;
+}
+
+// 组件规格定义
+public class ComponentSpecDef extends SpecificationDefinition {
+    protected String parentId; // 所属复合规格ID
+}
+
+// 范围规格定义
+public class RangeSpecDef extends SpecificationDefinition {
+    protected NumericValue min;
+    protected NumericValue max;
+    protected String unit;
+}
+
+// 接口规格定义
+public class InterfaceSpecDef extends SpecificationDefinition {
+    protected String portType;
+    protected Integer count;
+    protected String technology;
+    protected List<InterfaceSpecDef> subInterfaces;
+    protected List<String> powerTypes;
+}
+
+// 数值类
+public class NumericValue {
+    protected Double numericValue;
+    protected String unit;
+    protected Boolean isApproximate;
+}
+
+// 约束类
+public class Constraint {
+    protected Double min;
+    protected Double max;
+    protected List<String> allowedValues;
+}
+
+// 产品系列
+public class ProductFamily {
+    protected String code;
+    protected String name;
+    protected List<SpecificationDefinition> specificationDefs;
+}
+
+// 规格值基类
+public abstract class SpecificationValue {
+    protected String specId;
+}
+
+// 简单规格值
+public class SimpleValue extends SpecificationValue {
+    protected NumericValue numericValue;
+    protected String stringValue;
+}
+
+// 复合规格值
+public class CompositeValue extends SpecificationValue {
+    protected Map<String, Object> components; // key为组件ID，value为对应的规格值
+}
+
+// 范围规格值
+public class RangeValue extends SpecificationValue {
+    protected NumericValue minValue;
+    protected NumericValue maxValue;
+    protected String unit;
+}
+
+// 接口规格值
+public class InterfaceValue extends SpecificationValue {
+    protected List<InterfacePort> ports;
+}
+
+// 接口端口
+public class InterfacePort {
+    protected String portType;
+    protected Integer count;
+    protected String technology;
+    protected List<InterfacePort> subInterfaces;
+    protected List<String> powerTypes;
+}
+
+// 产品实例
+public class ProductInstance {
+    protected String id;
+    protected String familyId;
+    protected ProductFamily family;
+    protected Map<SpecificationDefinition, SpecificationValue> specification;
+}
+
+
+

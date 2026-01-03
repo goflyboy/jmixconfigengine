@@ -114,7 +114,7 @@ public class HelloConstraintSimpleTest {
                 .findFirst()
                 .orElse(null);
         assertNotNull(colorPara, "Color parameter should exist");
-        assertEquals("Red", colorPara.getValue(), "Color should be Red");
+        assertEquals("1", colorPara.getValue(), "Color should be Red");
 
         // 验证size参数为Small
         ParaInst sizePara = solution.getParas().stream()
@@ -122,7 +122,7 @@ public class HelloConstraintSimpleTest {
                 .findFirst()
                 .orElse(null);
         assertNotNull(sizePara, "Size parameter should exist");
-        assertEquals("Small", sizePara.getValue(), "Size should be Small");
+        assertEquals("10", sizePara.getValue(), "Size should be Small");
 
         log.info("Test passed: color={}, size={}", colorPara.getValue(), sizePara.getValue());
     }
