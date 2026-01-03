@@ -1,9 +1,9 @@
 package com.jmix.tool.impl;
 
+import com.jmix.executor.imodel.DynamicAttributerOption;
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.ModuleAlgArtifact;
 import com.jmix.executor.imodel.Para;
-import com.jmix.executor.imodel.ParaOption;
 import com.jmix.executor.imodel.Part;
 import com.jmix.executor.imodel.Rule;
 import com.jmix.executor.imodel.anno.CodeRuleAnno;
@@ -119,12 +119,10 @@ public final class ModuleGenneratorByAnno {
         // 设置其他属性
         para.setFatherCode(paraAnno.fatherCode());
         para.setDefaultValue(paraAnno.defaultValue());
-        para.setDescription(paraAnno.description());
         para.setSortNo(paraAnno.sortNo());
-        para.setType(paraAnno.type());
+        // 设置参数类型，直接使用注解中的类型
+        para.setParaType(paraAnno.type());
         para.setExtSchema(paraAnno.extSchema());
-        para.setMinValue(paraAnno.minValue());
-        para.setMaxValue(paraAnno.maxValue());
 
         // 处理扩展属性
         if (paraAnno.extAttrs().length > 0) {
@@ -140,10 +138,10 @@ public final class ModuleGenneratorByAnno {
 
         // 处理枚举选项
         if (paraAnno.options().length > 0) {
-            List<ParaOption> options = new ArrayList<>();
+            List<DynamicAttributerOption> options = new ArrayList<>();
             for (int i = 0; i < paraAnno.options().length; i++) {
                 String raw = paraAnno.options()[i];
-                ParaOption option = createParaOption(raw, i);
+                DynamicAttributerOption option = createDynamicAttributeOption(raw, i);
                 options.add(option);
             }
             para.setOptions(options);
@@ -171,14 +169,14 @@ public final class ModuleGenneratorByAnno {
         part.setDescription(partAnno.description());
         part.setSortNo(partAnno.sortNo());
         part.setMaxQuantity(partAnno.maxQuantity());
-        part.setType(partAnno.type());
+        part.setPartType(partAnno.type());
         part.setPrice(partAnno.price());
         part.setExtSchema(partAnno.extSchema());
 
         // 处理规格属性
         if (partAnno.attrs().length > 0) {
             Map<String, String> attrs = parseAttributes(partAnno.attrs());
-            part.setAttrs(attrs);
+            part.setDynAttr(attrs);
         }
 
         // 处理扩展属性
@@ -570,7 +568,7 @@ public final class ModuleGenneratorByAnno {
      * @param index 选项索引
      * @return 创建的ParaOption对象
      */
-    private static ParaOption createParaOption(String raw, int index) {
+    private static DynamicAttributerOption createDynamicAttributeOption(String raw, int index) {
         String label = raw;
         Integer explicitId = null;
         int sep = raw.indexOf(':');
@@ -590,11 +588,10 @@ public final class ModuleGenneratorByAnno {
                 label = raw.trim();
             }
         }
-        ParaOption option = new ParaOption();
+        DynamicAttributerOption option = new DynamicAttributerOption();
         option.setCode(label);
         option.setCodeId(explicitId != null ? explicitId : (index + 1) * 10);
         option.setDefaultValue(label);
-        option.setDescription("");
         option.setSortNo(index + 1);
         return option;
     }

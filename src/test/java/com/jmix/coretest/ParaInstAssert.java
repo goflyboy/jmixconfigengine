@@ -1,8 +1,8 @@
 package com.jmix.coretest;
 
+import com.jmix.executor.imodel.DynamicAttributerOption;
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.Para;
-import com.jmix.executor.imodel.ParaOption;
 import com.jmix.executor.impl.util.ParaTypeHandler;
 import com.jmix.executor.omodel.ModuleInst;
 import com.jmix.executor.omodel.ParaInst;
@@ -160,7 +160,7 @@ public class ParaInstAssert extends ProgammableInstAssert {
     public ParaInstAssert valueIn(String... expectValues) {
         boolean found = false;
         for (String expectValue : expectValues) {
-            ParaOption option = para.getOption(expectValue).orElse(null);
+            DynamicAttributerOption option = para.getOption(expectValue).orElse(null);
             if (option != null && Objects.equals(actual.getValue(), String.valueOf(option.getCodeId()))) {
                 found = true;
                 break;

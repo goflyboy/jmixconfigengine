@@ -1,5 +1,6 @@
 package com.jmix.tool.artifact;
 
+import com.jmix.executor.imodel.DynamicAttributerOption;
 import com.jmix.executor.imodel.Extensible;
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.Para;
@@ -160,8 +161,16 @@ public class ModuleAlgArtifactGenerator {
      * @param option 参数选项对象
      * @return 构建的参数选项变量信息
      */
-    private ParaOptionVarInfo buildParaOptionInfo(ParaOption option) {
-        ParaOptionVarInfo optionInfo = new ParaOptionVarInfo(option);
+    private ParaOptionVarInfo buildParaOptionInfo(DynamicAttributerOption option) {
+        // 创建兼容的ParaOption对象用于ParaOptionVarInfo
+        ParaOption paraOption = new ParaOption();
+        paraOption.setCode(option.getCode());
+        paraOption.setCodeId(option.getCodeId());
+        paraOption.setDefaultValue(option.getDefaultValue());
+        paraOption.setFatherCode(option.getFatherCode());
+        paraOption.setSortNo(option.getSortNo());
+
+        ParaOptionVarInfo optionInfo = new ParaOptionVarInfo(paraOption);
         optionInfo.setCodeId(option.getCodeId());
         optionInfo.setCode(option.getCode());
         optionInfo.setVarName(option.getCode() + "_" + option.getCodeId() + "_selectVar");

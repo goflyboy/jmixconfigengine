@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * 参数类型枚举
  * 定义参数支持的数据类型
- * 
+ *
  * @since 2025-09-22
  */
 @Slf4j
@@ -19,7 +19,8 @@ public enum ParaType {
     RANGE(6, "Range"),
     DATE(7, "Date"),
     MULTI_ENUM(8, "MultiEnum"),
-    GROUP(10, "Group");
+    ATOMIC(9, "AtomicPara"),
+    GROUP(10, "Group");//类似中间件层
 
     /**
      * 参数类型的数值标识

@@ -25,11 +25,11 @@
     "code" : "TestPara",
     "fatherCode" : "TestModule",
     "defaultValue" : "Default",
-    "description" : "测试参数",
+    "description" : null,
     "sortNo" : 1,
-    "type" : "ENUM",
+    "name" : "",
     "options" : [ "java.util.Arrays$ArrayList", [ {
-      "@type" : "ParaOption",
+      "@type" : "DynamicAttributerOption",
       "extSchema" : null,
       "extAttrs" : {
         "@class" : "java.util.HashMap",
@@ -38,12 +38,15 @@
       "code" : "TestOption",
       "fatherCode" : "TestPara",
       "defaultValue" : "TestOption",
-      "description" : "测试选项",
+      "description" : null,
       "sortNo" : 1,
       "codeId" : 100
     } ] ],
-    "minValue" : "-1000",
-    "maxValue" : "1000"
+    "dynAttrType" : "Integer",
+    "value" : null,
+    "valueLogics" : null,
+    "paraType" : "GROUP",
+    "refSpecCode" : null
   } ] ],
   "parts" : [ "java.util.Arrays$ArrayList", [ {
     "@type" : "Part",
@@ -55,16 +58,17 @@
     "code" : "TestPart",
     "fatherCode" : "TestModule",
     "defaultValue" : 0,
-    "description" : "测试部件",
+    "description" : null,
     "sortNo" : 1,
-    "type" : "ATOMIC",
+    "partType" : "ATOMIC",
     "price" : 100,
     "maxQuantity" : 20,
-    "attrs" : {
+    "dynAttr" : {
       "@class" : "java.util.HashMap",
       "partProperty" : "propertyValue"
     },
-    "attrSchemas" : [ "java.util.ArrayList", [ ] ]
+    "dynAttrSchemas" : [ "java.util.ArrayList", [ ] ],
+    "dynAttrSchema" : null
   } ] ],
   "rules" : [ "java.util.Arrays$ArrayList", [ {
     "@type" : "Rule",

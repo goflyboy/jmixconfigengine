@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import com.jmix.executor.imodel.Extensible;
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.Para;
-import com.jmix.executor.imodel.ParaOption;
+import com.jmix.executor.imodel.DynamicAttributerOption;
 import com.jmix.executor.imodel.Part;
 import com.jmix.executor.imodel.Rule;
 import com.jmix.executor.imodel.rule.CalculateRuleSchema;
@@ -413,8 +413,8 @@ public class ModuleAlgArtifactGeneratorTest {
 
         Para colorPara = new Para();
         colorPara.setCode("Color");
-        List<ParaOption> colorOptions = new ArrayList<>();
-        ParaOption redOption = new ParaOption();
+        List<DynamicAttributerOption> colorOptions = new ArrayList<>();
+        DynamicAttributerOption redOption = new DynamicAttributerOption();
         redOption.setCode("Red");
         redOption.setCodeId(1);
         colorOptions.add(redOption);
@@ -467,8 +467,8 @@ public class ModuleAlgArtifactGeneratorTest {
 
         Para colorPara = new Para();
         colorPara.setCode("Color");
-        List<ParaOption> colorOptions = new ArrayList<>();
-        ParaOption redOption = new ParaOption();
+        List<DynamicAttributerOption> colorOptions = new ArrayList<>();
+        DynamicAttributerOption redOption = new DynamicAttributerOption();
         redOption.setCode("Red");
         redOption.setCodeId(1);
         colorOptions.add(redOption);

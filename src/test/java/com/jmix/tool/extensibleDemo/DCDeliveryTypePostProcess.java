@@ -110,15 +110,15 @@ public class DCDeliveryTypePostProcess extends ExtensibleProcess implements Infe
         PartInst partInst = findPartInstByCode(solution, paraInst.getCode());
 
         // 根据Part类型计算交付类型
-        if (part.getType() == PartType.ATOMIC) {
+        if (part.getPartType() == PartType.ATOMIC) {
             if (partInst != null && partInst.getQuantity() != null && partInst.getQuantity() > 5) {
                 return "Bulk";
             }
             return "Express";
-        } else if (part.getType() == PartType.CATEGORY || part.getType() == PartType.BUNDLE) {
+        } else if (part.getPartType() == PartType.CATEGORY || part.getPartType() == PartType.BUNDLE) {
             return "Standard";
         } else {
-            throw new AlgLoaderException("Unsupported part type: " + part.getType());
+            throw new AlgLoaderException("Unsupported part type: " + part.getPartType());
         }
     }
 

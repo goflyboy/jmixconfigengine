@@ -39,7 +39,7 @@ public class DCPara extends Para {
         super();
         if (para != null) {
             this.setCode(para.getCode());
-            this.setType(para.getType());
+            this.setParaType(para.getParaType());
             this.setDefaultValue(para.getDefaultValue());
             this.setOptions(para.getOptions());
             this.setFatherCode(para.getFatherCode());

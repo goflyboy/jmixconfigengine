@@ -2,8 +2,10 @@ package com.jmix.executor.impl.algmodel;
 
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.Para;
+import com.jmix.executor.imodel.DynamicAttributerOption;
 import com.jmix.executor.imodel.ParaOption;
 import com.jmix.executor.imodel.Part;
+import com.jmix.executor.imodel.ParaType;
 import com.jmix.executor.imodel.Rule;
 import com.jmix.executor.imodel.rule.RefProgObjSchema;
 import com.jmix.executor.omodel.AlgLoaderException;
@@ -651,19 +653,22 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         Para para = paraOpt.get();
         ParaVar paraVar = new ParaVar();
         paraVar.setBase(para);
-        switch (para.getType()) {
+        switch (para.getParaType()) {
             case INTEGER:
-                paraVar.setValue(newIntVar(Integer.parseInt(para.getMinValue()), Integer.parseInt(para.getMaxValue()),
-                        f(ParaVar.VALUE_PATTERN, code)));
+            case ATOMIC:
+                // INTEGER/ATOMIC类型使用默认值范围，暂时使用固定范围
+                paraVar.setValue(newIntVar(0, 1000, f(ParaVar.VALUE_PATTERN, code)));
                 break;
             case ENUM:
-                if (para.getOptions() == null) {
+            case GROUP:
+                List<DynamicAttributerOption> options = para.getOptions();
+                if (options == null || options.isEmpty()) {
                     log.error("Para options not found for code: {}", code);
                     throw new AlgLoaderException("Para options not found for code: " + code);
                 }
                 paraVar.setValue(newIntVarFromDomain(para.getOptionIds(), f(ParaVar.VALUE_PATTERN, code)));
 
-                for (ParaOption option : para.getOptions()) {
+                for (DynamicAttributerOption option : options) {
                     ParaOptionVar optionVar = createParaOptionVar(para.getCode(), option.getCode());
                     paraVar.getOptionSelectVars().put(option.getCodeId(), optionVar);
                 }
@@ -674,8 +679,8 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
                 });
                 break;
             default:
-                log.error("Para type not supported: {}", para.getType());
-                throw new AlgLoaderException("Para type not supported: " + para.getType());
+                log.error("Para type not supported: {}", para.getParaType());
+                throw new AlgLoaderException("Para type not supported: " + para.getParaType());
         }
         paraVar.setIsHidden(newBoolVar(f(ParaVar.HIDDEN_PATTERN, code)));
         registerVar(code, paraVar);
@@ -718,13 +723,20 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             throw new AlgLoaderException("Para not found for code: " + paraCode);
         }
         Para para = paraOpt.get();
-        Optional<ParaOption> optionOpt = para.getOption(optionCode);
+        Optional<DynamicAttributerOption> optionOpt = para.getOption(optionCode);
         if (!optionOpt.isPresent()) {
             log.error("ParaOption not found for code: {}", optionCode);
             throw new AlgLoaderException("ParaOption not found for code: " + optionCode);
         }
-        ParaOption option = optionOpt.get();
-        ParaOptionVar optionVar = new ParaOptionVar(option);
+        DynamicAttributerOption option = optionOpt.get();
+        // 创建兼容的ParaOption对象用于ParaOptionVar
+        ParaOption paraOption = new ParaOption();
+        paraOption.setCode(option.getCode());
+        paraOption.setCodeId(option.getCodeId());
+        paraOption.setDefaultValue(option.getDefaultValue());
+        paraOption.setFatherCode(option.getFatherCode());
+        paraOption.setSortNo(option.getSortNo());
+        ParaOptionVar optionVar = new ParaOptionVar(paraOption);
         optionVar.setIsSelectedVar(newBoolVar(f(ParaVar.OPTIONS_PATTERN, paraCode, option.getCode())));
         return optionVar;
     }

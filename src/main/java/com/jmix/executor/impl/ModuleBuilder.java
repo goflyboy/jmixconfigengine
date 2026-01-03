@@ -1,5 +1,6 @@
 package com.jmix.executor.impl;
 
+import com.jmix.executor.imodel.DynamicAttributerOption;
 import com.jmix.executor.imodel.Para;
 import com.jmix.executor.imodel.ParaOption;
 import com.jmix.executor.imodel.ParaType;
@@ -7,6 +8,7 @@ import com.jmix.executor.imodel.Part;
 import com.jmix.executor.imodel.PartType;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -298,7 +300,7 @@ public class ModuleBuilder {
          * @return 当前构建器实例
          */
         public PartBuilder type(PartType type) {
-            part.setType(type);
+            part.setPartType(type);
             return this;
         }
 
@@ -320,7 +322,7 @@ public class ModuleBuilder {
          * @return 当前构建器实例
          */
         public PartBuilder attrs(Map<String, String> attrs) {
-            part.setAttrs(attrs);
+            part.setDynAttr(attrs);
             return this;
         }
 
@@ -332,10 +334,10 @@ public class ModuleBuilder {
          * @return 当前构建器实例
          */
         public PartBuilder attr(String key, String value) {
-            if (part.getAttrs() == null) {
-                part.setAttrs(new HashMap<>());
+            if (part.getDynAttr() == null) {
+                part.setDynAttr(new HashMap<>());
             }
-            part.getAttrs().put(key, value);
+            part.getDynAttr().put(key, value);
             return this;
         }
 
@@ -377,8 +379,8 @@ public class ModuleBuilder {
             if (part.getSortNo() == null) {
                 part.setSortNo(1);
             }
-            if (part.getType() == null) {
-                part.setType(PartType.ATOMIC);
+            if (part.getPartType() == null) {
+                part.setPartType(PartType.ATOMIC);
             }
             return part;
         }
@@ -504,7 +506,7 @@ public class ModuleBuilder {
          * @return 当前构建器实例
          */
         public ParaBuilder type(ParaType type) {
-            para.setType(type);
+            para.setParaType(type);
             return this;
         }
 
@@ -515,7 +517,19 @@ public class ModuleBuilder {
          * @return 当前构建器实例
          */
         public ParaBuilder options(java.util.List<ParaOption> options) {
-            para.setOptions(options);
+            // 类型转换：ParaOption -> DynamicAttributerOption
+            List<DynamicAttributerOption> dynOptions = options.stream()
+                    .map(option -> {
+                        DynamicAttributerOption dynOption = new DynamicAttributerOption();
+                        dynOption.setCode(option.getCode());
+                        dynOption.setCodeId(option.getCodeId());
+                        dynOption.setDefaultValue(option.getDefaultValue());
+                        dynOption.setFatherCode(option.getFatherCode());
+                        dynOption.setSortNo(option.getSortNo());
+                        return dynOption;
+                    })
+                    .collect(java.util.stream.Collectors.toList());
+            para.setOptions(dynOptions);
             return this;
         }
 
@@ -531,7 +545,7 @@ public class ModuleBuilder {
             return this.code(code)
                     .description(description)
                     .sortNo(sortNo)
-                    .type(ParaType.ENUM);
+                    .type(ParaType.GROUP);
         }
 
         /**
@@ -546,7 +560,7 @@ public class ModuleBuilder {
             return this.code(code)
                     .description(description)
                     .sortNo(sortNo)
-                    .type(ParaType.ENUM);
+                    .type(ParaType.GROUP);
         }
 
         /**

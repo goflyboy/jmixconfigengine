@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.jmix.executor.imodel.DynamicAttributerOption;
 import com.jmix.executor.imodel.Para;
-import com.jmix.executor.imodel.ParaOption;
 import com.jmix.executor.imodel.ParaType;
 import com.jmix.executor.impl.util.ParaTypeHandler;
 
@@ -25,7 +25,7 @@ public class ParaTypeHandlerTest {
     public void testGetCodeIdValueInteger() {
         Para para = new Para();
         para.setCode("TestPara");
-        para.setType(ParaType.INTEGER);
+        para.setParaType(ParaType.INTEGER);
 
         String result = ParaTypeHandler.getCodeIdValue(para, "123");
         assertEquals("123", result);
@@ -35,13 +35,13 @@ public class ParaTypeHandlerTest {
     public void testGetCodeIdValueEnum() {
         Para para = new Para();
         para.setCode("TestPara");
-        para.setType(ParaType.ENUM);
+        para.setParaType(ParaType.GROUP);
 
-        ParaOption option1 = new ParaOption();
+        DynamicAttributerOption option1 = new DynamicAttributerOption();
         option1.setCode("Red");
         option1.setCodeId(10);
 
-        ParaOption option2 = new ParaOption();
+        DynamicAttributerOption option2 = new DynamicAttributerOption();
         option2.setCode("Blue");
         option2.setCodeId(20);
 
@@ -55,9 +55,9 @@ public class ParaTypeHandlerTest {
     public void testGetCodeIdValueEnumOptionNotFound() {
         Para para = new Para();
         para.setCode("TestPara");
-        para.setType(ParaType.ENUM);
+        para.setParaType(ParaType.GROUP);
 
-        ParaOption option1 = new ParaOption();
+        DynamicAttributerOption option1 = new DynamicAttributerOption();
         option1.setCode("Red");
         option1.setCodeId(10);
 
@@ -72,7 +72,7 @@ public class ParaTypeHandlerTest {
     public void testGetDisplayValueInteger() {
         Para para = new Para();
         para.setCode("TestPara");
-        para.setType(ParaType.INTEGER);
+        para.setParaType(ParaType.INTEGER);
 
         String result = ParaTypeHandler.getDisplayValue(para, "123");
         assertEquals("123", result);
@@ -82,13 +82,13 @@ public class ParaTypeHandlerTest {
     public void testGetDisplayValueEnum() {
         Para para = new Para();
         para.setCode("TestPara");
-        para.setType(ParaType.ENUM);
+        para.setParaType(ParaType.GROUP);
 
-        ParaOption option1 = new ParaOption();
+        DynamicAttributerOption option1 = new DynamicAttributerOption();
         option1.setCode("Red");
         option1.setCodeId(10);
 
-        ParaOption option2 = new ParaOption();
+        DynamicAttributerOption option2 = new DynamicAttributerOption();
         option2.setCode("Blue");
         option2.setCodeId(20);
 
@@ -102,9 +102,9 @@ public class ParaTypeHandlerTest {
     public void testGetDisplayValueEnumCodeIdNotFound() {
         Para para = new Para();
         para.setCode("TestPara");
-        para.setType(ParaType.ENUM);
+        para.setParaType(ParaType.GROUP);
 
-        ParaOption option1 = new ParaOption();
+        DynamicAttributerOption option1 = new DynamicAttributerOption();
         option1.setCode("Red");
         option1.setCodeId(10);
 
@@ -119,7 +119,7 @@ public class ParaTypeHandlerTest {
     public void testValidateParaTypeValid() {
         Para para = new Para();
         para.setCode("TestPara");
-        para.setType(ParaType.INTEGER);
+        para.setParaType(ParaType.INTEGER);
 
         // 不应该抛出异常
         ParaTypeHandler.validateParaType(para);
@@ -136,9 +136,9 @@ public class ParaTypeHandlerTest {
     public void testHasOptionTrue() {
         Para para = new Para();
         para.setCode("TestPara");
-        para.setType(ParaType.ENUM);
+        para.setParaType(ParaType.GROUP);
 
-        ParaOption option1 = new ParaOption();
+        DynamicAttributerOption option1 = new DynamicAttributerOption();
         option1.setCode("Red");
         option1.setCodeId(10);
 
@@ -151,9 +151,9 @@ public class ParaTypeHandlerTest {
     public void testHasOptionFalse() {
         Para para = new Para();
         para.setCode("TestPara");
-        para.setType(ParaType.ENUM);
+        para.setParaType(ParaType.GROUP);
 
-        ParaOption option1 = new ParaOption();
+        DynamicAttributerOption option1 = new DynamicAttributerOption();
         option1.setCode("Red");
         option1.setCodeId(10);
 
@@ -166,7 +166,7 @@ public class ParaTypeHandlerTest {
     public void testHasOptionIntegerType() {
         Para para = new Para();
         para.setCode("TestPara");
-        para.setType(ParaType.INTEGER);
+        para.setParaType(ParaType.INTEGER);
 
         assertFalse(ParaTypeHandler.hasOption(para, "Red"));
     }

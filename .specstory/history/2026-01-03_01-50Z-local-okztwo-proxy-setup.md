@@ -3961,12 +3961,296 @@ git config --global https.proxy http://127.0.0.1:1081
 ```bash
 git push
 ```
+
+```
+fatal: unable to access 'https://github.com/goflyboy/jmixconfigengine.git/': Failed to connect to 127.0.0.1 port 1081 after 2048 ms: Could not connect to server
+
+```
 </details>
 </tool-use>
 
 ---
 
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: git config --global http.proxy http://127.0.0.1:1082</summary>
 
+```bash
+git config --global http.proxy http://127.0.0.1:1082
+```
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: git config --global https.proxy http://127.0.0.1:1082</summary>
+
+```bash
+git config --global https.proxy http://127.0.0.1:1082
+```
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: git push</summary>
+
+```bash
+git push
+```
+
+```
+fatal: unable to access 'https://github.com/goflyboy/jmixconfigengine.git/': Failed to connect to 127.0.0.1 port 1082 after 2110 ms: Could not connect to server
+
+```
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: git config --global http.proxy http://127.0.0.1:1083</summary>
+
+```bash
+git config --global http.proxy http://127.0.0.1:1083
+```
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: git config --global https.proxy http://127.0.0.1:1083</summary>
+
+```bash
+git config --global https.proxy http://127.0.0.1:1083
+```
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: git push</summary>
+
+```bash
+git push
+```
+
+```
+fatal: unable to access 'https://github.com/goflyboy/jmixconfigengine.git/': Failed to connect to 127.0.0.1 port 1083 after 2120 ms: Could not connect to server
+
+```
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: git config --global http.proxy http://127.0.0.1:1087</summary>
+
+```bash
+git config --global http.proxy http://127.0.0.1:1087
+```
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: git config --global https.proxy http://127.0.0.1:1087</summary>
+
+```bash
+git config --global https.proxy http://127.0.0.1:1087
+```
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: git push</summary>
+
+```bash
+git push
+```
+
+```
+fatal: unable to access 'https://github.com/goflyboy/jmixconfigengine.git/': Failed to connect to 127.0.0.1 port 1087 after 2048 ms: Could not connect to server
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+从 netstat 输出可以看到有一个 7897 端口在监听，这可能是代理服务的端口。让我尝试这个端口。</details></think>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: cd D:\01.code\mygithub\jmixconfigengine</summary>
+
+```bash
+cd D:\01.code\mygithub\jmixconfigengine
+```
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: git config --global http.proxy http://127.0.0.1:7897</summary>
+
+```bash
+git config --global http.proxy http://127.0.0.1:7897
+```
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: git config --global https.proxy http://127.0.0.1:7897</summary>
+
+```bash
+git config --global https.proxy http://127.0.0.1:7897
+```
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: git push</summary>
+
+```bash
+git push
+```
+
+```
+To https://github.com/goflyboy/jmixconfigengine.git
+   35c83e1..2465510  main -&gt; main
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+成功了！使用 7897 端口推送成功。让我确认推送结果并清理代理配置。</details></think>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: cd D:\01.code\mygithub\jmixconfigengine</summary>
+
+```bash
+cd D:\01.code\mygithub\jmixconfigengine
+```
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: git log --oneline -3</summary>
+
+```bash
+git log --oneline -3
+```
+
+```
+2465510 Add lexicographic optimization examples with strict priority
+b77cd17 修复测试用例
+35c83e1 总结3-1
+
+```
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: git config --global --unset http.proxy</summary>
+
+```bash
+git config --global --unset http.proxy
+```
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: git config --global --unset https.proxy</summary>
+
+```bash
+git config --global --unset https.proxy
+```
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: git status</summary>
+
+```bash
+git status
+```
+
+```
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add/rm &lt;file&gt;..." to update what will be committed)
+  (use "git restore &lt;file&gt;..." to discard changes in working directory)
+	deleted:    .specstory/history/2026-01-03_01-50Z-strict-priority-lexicographical-optimization.md
+
+Untracked files:
+  (use "git add &lt;file&gt;..." to include in what will be committed)
+	.specstory/history/2026-01-03_01-50Z-local-okztwo-proxy-setup.md
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+太好了！推送成功了。让我总结一下完成的工作：
+</details></think>
+
+---
+
+## ✅ 代码成功推送到远程仓库！
+
+**推送结果**：
+- 成功推送 2 个提交到 `https://github.com/goflyboy/jmixconfigengine.git`
+- 分支 `main` 现在与 `origin/main` 同步
+
+**推送的提交**：
+1. `2465510 Add lexicographic optimization examples with strict priority`
+2. `b77cd17 修复测试用例`
+
+**推送的代码文件**：
+- `SimpleLexicographicOptimizationTest.java` - 简单字典序优化示例
+- `LexicographicOptimizationTest.java` - 基于SSD部件的复杂字典序优化示例  
+- `LexicographicOptimizationWithMultipleSolutionsTest.java` - 展示第二阶段多解的字典序优化示例
+- 修复的 `ComputerConfigurationModelV2.java`
+
+**代理配置**：
+- 成功找到 OKZTWO 代理的正确端口：`7897`
+- 已清理代理配置，恢复默认状态
+
+所有字典序优化示例代码现在已安全存储在 GitHub 远程仓库中！🎉
 
 ---
 

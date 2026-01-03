@@ -5,10 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.jmix.executor.imodel.DynamicAttributerOption;
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.ModuleType;
 import com.jmix.executor.imodel.Para;
-import com.jmix.executor.imodel.ParaOption;
 import com.jmix.executor.imodel.ParaType;
 import com.jmix.executor.imodel.Part;
 import com.jmix.executor.imodel.PartType;
@@ -254,15 +254,14 @@ public class ModuleUtilsTest {
         Para testPara = new Para();
         testPara.setCode("TestPara");
         testPara.setFatherCode("TestModule");
-        testPara.setType(ParaType.ENUM);
+        testPara.setParaType(ParaType.GROUP);
         testPara.setDefaultValue("Default");
-        testPara.setDescription("测试参数");
         testPara.setSortNo(1);
         testPara.setExtSchema("TestParaSchema");
         testPara.setExtAttr("testAttr", "testValue");
 
         // 创建参数选项
-        ParaOption testOption = createTestParaOption();
+        DynamicAttributerOption testOption = createTestParaOption();
         testPara.setOptions(java.util.Arrays.asList(testOption));
 
         return testPara;
@@ -273,13 +272,12 @@ public class ModuleUtilsTest {
      * 
      * @return 测试参数选项对象
      */
-    private ParaOption createTestParaOption() {
-        ParaOption testOption = new ParaOption();
+    private DynamicAttributerOption createTestParaOption() {
+        DynamicAttributerOption testOption = new DynamicAttributerOption();
         testOption.setCodeId(100);
         testOption.setCode("TestOption");
         testOption.setFatherCode("TestPara");
         testOption.setDefaultValue("TestOption");
-        testOption.setDescription("测试选项");
         testOption.setSortNo(1);
         testOption.setExtAttr("optionAttr", "optionValue");
 
@@ -295,16 +293,15 @@ public class ModuleUtilsTest {
         Part testPart = new Part();
         testPart.setCode("TestPart");
         testPart.setFatherCode("TestModule");
-        testPart.setType(PartType.ATOMIC);
+        testPart.setPartType(PartType.ATOMIC);
         testPart.setDefaultValue(0);
-        testPart.setDescription("测试部件");
         testPart.setSortNo(1);
         testPart.setPrice(100L);
         testPart.setExtSchema("TestPartSchema");
         testPart.setExtAttr("partAttr", "partValue");
 
-        // 初始化attrs字段
-        testPart.setAttrs(new java.util.HashMap<>());
+        // 初始化dynAttr字段
+        testPart.setDynAttr(new java.util.HashMap<>());
         testPart.setAttr("partProperty", "propertyValue");
 
         return testPart;

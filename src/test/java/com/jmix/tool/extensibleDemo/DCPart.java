@@ -39,11 +39,11 @@ public class DCPart extends Part {
         super();
         if (part != null) {
             this.setCode(part.getCode());
-            this.setType(part.getType());
+            this.setPartType(part.getPartType());
             this.setPrice(part.getPrice());
             this.setMaxQuantity(part.getMaxQuantity());
-            this.setAttrs(part.getAttrs());
-            this.setAttrSchemas(part.getAttrSchemas());
+            this.setDynAttr(part.getDynAttr());
+            this.setDynAttrSchemas(part.getDynAttrSchemas());
             this.setDefaultValue(part.getDefaultValue());
             this.setFatherCode(part.getFatherCode());
         }

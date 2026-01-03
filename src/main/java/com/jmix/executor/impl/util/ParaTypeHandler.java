@@ -1,7 +1,7 @@
 package com.jmix.executor.impl.util;
 
 import com.jmix.executor.imodel.Para;
-import com.jmix.executor.imodel.ParaOption;
+import com.jmix.executor.imodel.DynamicAttributerOption;
 import com.jmix.executor.imodel.ParaType;
 import com.jmix.executor.omodel.AlgLoaderException;
 
@@ -21,7 +21,7 @@ public class ParaTypeHandler {
 
     /**
      * 根据Para类型和值，获取对应的codeId值
-     * 
+     *
      * @param para  Para对象
      * @param value 输入值
      * @return 对应的codeId字符串
@@ -33,11 +33,15 @@ public class ParaTypeHandler {
             throw new AlgLoaderException("Para object cannot be null");
         }
 
-        switch (para.getType()) {
+        switch (para.getParaType()) {
             case INTEGER:
+            case ATOMIC:
+                // INTEGER/ATOMIC类型直接返回value作为codeId
                 return value;
             case ENUM:
-                ParaOption option = para.getOption(value).orElse(null);
+            case GROUP:
+                // ENUM/GROUP类型需要查找选项
+                DynamicAttributerOption option = para.getOption(value).orElse(null);
                 if (option == null) {
                     log.error("Option not found in parameter {}: {}, available options: {}",
                             para.getCode(), value, Arrays.toString(para.getOptionCodes()));
@@ -47,15 +51,15 @@ public class ParaTypeHandler {
                 }
                 return String.valueOf(option.getCodeId());
             default:
-                log.error("Parameter {} type not supported: {}", para.getCode(), para.getType());
+                log.error("Parameter {} type not supported: {}", para.getCode(), para.getParaType());
                 throw new AlgLoaderException(String.format(
-                        "Parameter %s type not supported: %s", para.getCode(), para.getType()));
+                        "Parameter %s type not supported: %s", para.getCode(), para.getParaType()));
         }
     }
 
     /**
      * 根据Para类型和codeId值，获取对应的显示值
-     * 
+     *
      * @param para        Para对象
      * @param codeIdValue codeId字符串值
      * @return 对应的显示值
@@ -67,12 +71,14 @@ public class ParaTypeHandler {
             throw new AlgLoaderException("Para object cannot be null");
         }
 
-        switch (para.getType()) {
+        switch (para.getParaType()) {
             case INTEGER:
+            case ATOMIC:
                 return codeIdValue;
             case ENUM:
+            case GROUP:
                 // 根据codeId查找对应的选项
-                Optional<ParaOption> option = para.getOption(Integer.parseInt(codeIdValue));
+                Optional<DynamicAttributerOption> option = para.getOption(Integer.parseInt(codeIdValue));
                 if (option.isPresent()) {
                     return option.get().getCode();
                 }
@@ -80,15 +86,15 @@ public class ParaTypeHandler {
                 throw new AlgLoaderException(String.format(
                         "Option with codeId %s not found in parameter %s", para.getCode(), codeIdValue));
             default:
-                log.error("Parameter {} type not supported: {}", para.getCode(), para.getType());
+                log.error("Parameter {} type not supported: {}", para.getCode(), para.getParaType());
                 throw new AlgLoaderException(String.format(
-                        "Parameter %s type not supported: %s", para.getCode(), para.getType()));
+                        "Parameter %s type not supported: %s", para.getCode(), para.getParaType()));
         }
     }
 
     /**
      * 验证Para类型是否支持
-     * 
+     *
      * @param para Para对象
      * @throws AlgLoaderException 当类型不支持时
      */
@@ -98,22 +104,25 @@ public class ParaTypeHandler {
             throw new AlgLoaderException("Para object cannot be null");
         }
 
-        if (para.getType() != ParaType.INTEGER && para.getType() != ParaType.ENUM) {
-            log.error("Parameter {} type not supported: {}", para.getCode(), para.getType());
+        // 支持所有ParaType类型
+        ParaType paraType = para.getParaType();
+        if (paraType != ParaType.INTEGER && paraType != ParaType.ENUM &&
+            paraType != ParaType.ATOMIC && paraType != ParaType.GROUP) {
+            log.error("Parameter {} type not supported: {}", para.getCode(), para.getParaType());
             throw new AlgLoaderException(String.format(
-                    "Parameter %s type not supported: %s", para.getCode(), para.getType()));
+                    "Parameter %s type not supported: %s", para.getCode(), para.getParaType()));
         }
     }
 
     /**
-     * 检查ENUM类型的Para是否包含指定选项
-     * 
+     * 检查GROUP类型的Para是否包含指定选项
+     *
      * @param para       Para对象
      * @param optionCode 选项代码
      * @return 是否包含该选项
      */
     public static boolean hasOption(Para para, String optionCode) {
-        if (para == null || para.getType() != ParaType.ENUM) {
+        if (para == null || (para.getParaType() != ParaType.ENUM && para.getParaType() != ParaType.GROUP)) {
             return false;
         }
         return para.getOption(optionCode).isPresent();
