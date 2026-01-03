@@ -33,9 +33,11 @@ public class Para extends DynamicAttribute {
      */
     public static final String SHORT_CODE_PREFIX = "P";
 
-    private ParaType paraType = ParaType.ATOMIC;
+    private ParaType paraType = ParaType.STRING;
+
     // 默认值
     private String defaultValue;
+
     // 引用的规格Code
     private String refSpecCode;
 
