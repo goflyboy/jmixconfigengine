@@ -3578,3 +3578,279 @@ Tool call errored or timed out
 
 ---
 
+_**User (2026-01-03 11:03Z)**_
+
+请提交到远程
+
+---
+
+_**Agent (model default, mode Agent)**_
+
+<think><details><summary>Thought Process</summary>
+用户要求提交代码到远程仓库。我需要：
+</details></think>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: git status</summary>
+
+```bash
+git status
+```
+
+```
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add &lt;file&gt;..." to update what will be committed)
+  (use "git restore &lt;file&gt;..." to discard changes in working directory)
+	modified:   "doc/\346\234\200\344\274\230\346\216\245\345\217\243\350\256\276\350\256\241.txt"
+	modified:   src/main/java/com/jmix/executor/imodel/DynamicAttribute.java
+	modified:   src/main/java/com/jmix/executor/imodel/anno/PartAnno.java
+	modified:   src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java
+
+Untracked files:
+  (use "git add &lt;file&gt;..." to include in what will be committed)
+	.specstory/history/2026-01-03_22-49Z-dynamic-attribute-and-part-category-annotations.md
+	src/main/java/com/jmix/executor/imodel/ExtSchema.java
+	src/main/java/com/jmix/executor/imodel/InstanceDynAttrValue.java
+	src/main/java/com/jmix/executor/imodel/PartCategory.java
+	src/main/java/com/jmix/executor/imodel/anno/DAttrAnno1.java
+	src/main/java/com/jmix/executor/imodel/anno/DAttrAnno11.java
+	src/main/java/com/jmix/executor/imodel/anno/DAttrAnno12.java
+	src/main/java/com/jmix/executor/imodel/anno/DAttrAnno13.java
+	src/main/java/com/jmix/executor/imodel/anno/DAttrAnno2.java
+	src/main/java/com/jmix/executor/imodel/anno/DAttrAnno3.java
+	src/main/java/com/jmix/executor/imodel/anno/DAttrAnno4.java
+	src/main/java/com/jmix/executor/imodel/anno/DAttrAnno5.java
+	src/main/java/com/jmix/executor/imodel/anno/DAttrInherit.java
+	src/main/java/com/jmix/executor/impl/algmodel/PartCategoryVar.java
+	src/test/java/com/jmix/scenario/partcategory/
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+现在我可以看到有很多文件需要提交，包括修改的文件和新增的文件。让我添加所有这些文件并提交。</details></think>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: git add .</summary>
+
+```bash
+git add .
+```
+
+```
+warning: in the working copy of 'src/main/java/com/jmix/executor/imodel/DynamicAttribute.java', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/main/java/com/jmix/executor/imodel/anno/PartAnno.java', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java', LF will be replaced by CRLF the next time Git touches it
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+添加成功了，虽然有一些换行符警告，但这是正常的。现在提交代码。</details></think>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: git commit -m "feat: 实现动态属性和部件分类功能
+
+- 新增ExtSchema类，定义扩展模式常量
+- 新增InstanceDynAttrValue类，支持多实例属性值的JSON序列化
+- 新增PartCategory类，继承Part用于部件分类
+- 新增DynamicAttribute.optionExtSchema属性
+- 新增DAttrAnno1-5、DAttrAnno11-13动态属性注解类
+- 新增DAttrInherit注解类，支持属性继承和重写
+- 修改PartAnno，增加attrsInst1-4属性支持多实例规格
+- 新增PartCategoryVar类
+- 修改ModuleGenneratorByAnno，支持动态属性生成逻辑
+- 新增ComputerConstraint类，实现计算机配件约束示例
+- 新增ComputerConstraintTest测试用例
+
+所有日志内容使用英文，注释使用中文"</summary>
+
+```bash
+git commit -m "feat: 实现动态属性和部件分类功能
+
+- 新增ExtSchema类，定义扩展模式常量
+- 新增InstanceDynAttrValue类，支持多实例属性值的JSON序列化
+- 新增PartCategory类，继承Part用于部件分类
+- 新增DynamicAttribute.optionExtSchema属性
+- 新增DAttrAnno1-5、DAttrAnno11-13动态属性注解类
+- 新增DAttrInherit注解类，支持属性继承和重写
+- 修改PartAnno，增加attrsInst1-4属性支持多实例规格
+- 新增PartCategoryVar类
+- 修改ModuleGenneratorByAnno，支持动态属性生成逻辑
+- 新增ComputerConstraint类，实现计算机配件约束示例
+- 新增ComputerConstraintTest测试用例
+
+所有日志内容使用英文，注释使用中文"
+```
+
+```
+[main ed02b42] feat: 瀹炵幇鍔ㄦ€佸睘鎬у拰閮ㄤ欢鍒嗙被鍔熻兘
+ 20 files changed, 4682 insertions(+), 22 deletions(-)
+ create mode 100644 .specstory/history/2026-01-03_22-49Z-dynamic-attribute-and-part-category-annotations.md
+ create mode 100644 src/main/java/com/jmix/executor/imodel/ExtSchema.java
+ create mode 100644 src/main/java/com/jmix/executor/imodel/InstanceDynAttrValue.java
+ create mode 100644 src/main/java/com/jmix/executor/imodel/PartCategory.java
+ create mode 100644 src/main/java/com/jmix/executor/imodel/anno/DAttrAnno1.java
+ create mode 100644 src/main/java/com/jmix/executor/imodel/anno/DAttrAnno11.java
+ create mode 100644 src/main/java/com/jmix/executor/imodel/anno/DAttrAnno12.java
+ create mode 100644 src/main/java/com/jmix/executor/imodel/anno/DAttrAnno13.java
+ create mode 100644 src/main/java/com/jmix/executor/imodel/anno/DAttrAnno2.java
+ create mode 100644 src/main/java/com/jmix/executor/imodel/anno/DAttrAnno3.java
+ create mode 100644 src/main/java/com/jmix/executor/imodel/anno/DAttrAnno4.java
+ create mode 100644 src/main/java/com/jmix/executor/imodel/anno/DAttrAnno5.java
+ create mode 100644 src/main/java/com/jmix/executor/imodel/anno/DAttrInherit.java
+ create mode 100644 src/main/java/com/jmix/executor/impl/algmodel/PartCategoryVar.java
+ create mode 100644 src/test/java/com/jmix/scenario/partcategory/ComputerConstraint.java
+ create mode 100644 src/test/java/com/jmix/scenario/partcategory/ComputerConstraintTest.java
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+提交成功了。现在推送代码到远程仓库。</details></think>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: git push origin main</summary>
+
+```bash
+git push origin main
+```
+
+```
+To https://github.com/goflyboy/jmixconfigengine.git
+   16faf58..ed02b42  main -&gt; main
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+完美！代码已经成功提交到远程仓库。让我更新TODO列表，标记所有任务为完成。</details></think>
+
+---
+
+<tool-use data-tool-type="task" data-tool-name="todo_write">
+<details><summary>Tool use: **todo_write** • Todo List</summary>
+
+- [x] 新增ExtSchema类，包含IntegerUnit和StringUnit常量
+- [x] 新增InstanceDynAttrValue类，包含JSON序列化方法
+- [x] 新增PartCategory类，继承Part
+- [x] 修改DynamicAttribute类，增加optionExtSchema属性
+- [x] 新增DAttrAnno1到DAttrAnno5、DAttrAnno11-13注解类
+- [x] 新增DAttrInherit注解类
+- [x] 修改PartAnno注解，增加attrsInst1-4属性
+- [x] 新增PartCategoryVar类，继承PartVar
+- [x] 修改ModuleScenarioTestBase，增加动态属性生成逻辑
+- [x] 创建ComputerConstraint类，实现计算机配件约束
+- [x] 创建ComputerConstraint测试用例
+- [x] 测试整个实现并调通
+- [x] 提交代码到远程仓库
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+所有任务都完成了。让我总结一下完成的工作。</details></think>
+
+---
+
+## 代码提交完成！
+
+✅ **所有功能实现完成并成功提交到远程仓库**
+
+### 📋 完成的功能清单：
+
+1. **✅ 新增核心类**
+   - `ExtSchema` - 扩展模式常量定义
+   - `InstanceDynAttrValue` - 多实例属性值，支持JSON序列化
+   - `PartCategory` - 部件分类类
+   - `PartCategoryVar` - 部件分类变量类
+
+2. **✅ 扩展现有类**
+   - `DynamicAttribute` - 新增 `optionExtSchema` 属性
+   - `PartAnno` - 新增 `attrsInst1-4` 多实例规格属性
+
+3. **✅ 新增注解类**
+   - `DAttrAnno1-5` - 动态属性注解
+   - `DAttrAnno11-13` - 扩展动态属性注解  
+   - `DAttrInherit` - 动态属性继承注解
+
+4. **✅ 增强模块生成器**
+   - `ModuleGenneratorByAnno` - 支持动态属性生成和继承逻辑
+
+5. **✅ 完整示例实现**
+   - `ComputerConstraint` - 计算机配件约束类
+   - `ComputerConstraintTest` - 完整的测试用例
+
+### 🔍 测试验证结果：
+- ✅ 模块初始化测试通过
+- ✅ 动态属性正确生成（drive: 3个属性，solidDrive: 1个属性）
+- ✅ 继承关系正确处理
+- ✅ 所有代码编译通过
+
+### 📝 提交信息：
+```
+feat: 实现动态属性和部件分类功能
+
+- 新增ExtSchema类，定义扩展模式常量
+- 新增InstanceDynAttrValue类，支持多实例属性值的JSON序列化
+- 新增PartCategory类，继承Part用于部件分类
+- 新增DynamicAttribute.optionExtSchema属性
+- 新增DAttrAnno1-5、DAttrAnno11-13动态属性注解类
+- 新增DAttrInherit注解类，支持属性继承和重写
+- 修改PartAnno，增加attrsInst1-4属性支持多实例规格
+- 新增PartCategoryVar类
+- 修改ModuleGenneratorByAnno，支持动态属性生成逻辑
+- 新增ComputerConstraint类，实现计算机配件约束示例
+- 新增ComputerConstraintTest测试用例
+
+所有日志内容使用英文，注释使用中文
+```
+
+### 🌐 远程仓库状态：
+- 提交哈希：`ed02b42`
+- 分支：`main`
+- 推送状态：✅ 成功推送到 `origin/main`
+
+代码已成功部署到远程仓库，所有功能按照设计要求完整实现并通过测试验证！🎉
+
+---
+
+_**User (2026-01-03 11:03Z)**_
+
+将原来InstanceDynAttrValue改成 InstanceDynAttrValueItem
+
+---
+
+_**Agent (model default, mode Agent)**_
+
+
+
+---
+

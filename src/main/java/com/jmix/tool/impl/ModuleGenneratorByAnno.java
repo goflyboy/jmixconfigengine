@@ -3,7 +3,7 @@ package com.jmix.tool.impl;
 import com.jmix.executor.imodel.DynamicAttributerOption;
 import com.jmix.executor.imodel.DynamicAttribute;
 import com.jmix.executor.imodel.DynamicAttributeType;
-import com.jmix.executor.imodel.InstanceDynAttrValue;
+import com.jmix.executor.imodel.InstanceDynAttrValueItem;
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.ModuleAlgArtifact;
 import com.jmix.executor.imodel.Para;
@@ -818,7 +818,7 @@ public final class ModuleGenneratorByAnno {
 
         // 处理实例1规格属性
         if (partAnno.attrsInst1().length > 0) {
-            InstanceDynAttrValue instValue = new InstanceDynAttrValue();
+            InstanceDynAttrValueItem instValue = new InstanceDynAttrValueItem();
             instValue.setInstId(1);
             Map<String, String> instAttr = new HashMap<>();
             for (String attr : partAnno.attrsInst1()) {
@@ -828,12 +828,12 @@ public final class ModuleGenneratorByAnno {
                 }
             }
             instValue.setInstAttr(instAttr);
-            extAttrs.put("inst1", InstanceDynAttrValue.toJsonString(instValue));
+            extAttrs.put("inst1", InstanceDynAttrValueItem.toJsonString(instValue));
         }
 
         // 处理实例2规格属性
         if (partAnno.attrsInst2().length > 0) {
-            InstanceDynAttrValue instValue = new InstanceDynAttrValue();
+            InstanceDynAttrValueItem instValue = new InstanceDynAttrValueItem();
             instValue.setInstId(2);
             Map<String, String> instAttr = new HashMap<>();
             for (String attr : partAnno.attrsInst2()) {
@@ -843,12 +843,12 @@ public final class ModuleGenneratorByAnno {
                 }
             }
             instValue.setInstAttr(instAttr);
-            extAttrs.put("inst2", InstanceDynAttrValue.toJsonString(instValue));
+            extAttrs.put("inst2", InstanceDynAttrValueItem.toJsonString(instValue));
         }
 
         // 处理实例3规格属性
         if (partAnno.attrsInst3().length > 0) {
-            InstanceDynAttrValue instValue = new InstanceDynAttrValue();
+            InstanceDynAttrValueItem instValue = new InstanceDynAttrValueItem();
             instValue.setInstId(3);
             Map<String, String> instAttr = new HashMap<>();
             for (String attr : partAnno.attrsInst3()) {
@@ -858,12 +858,12 @@ public final class ModuleGenneratorByAnno {
                 }
             }
             instValue.setInstAttr(instAttr);
-            extAttrs.put("inst3", InstanceDynAttrValue.toJsonString(instValue));
+            extAttrs.put("inst3", InstanceDynAttrValueItem.toJsonString(instValue));
         }
 
         // 处理实例4规格属性
         if (partAnno.attrsInst4().length > 0) {
-            InstanceDynAttrValue instValue = new InstanceDynAttrValue();
+            InstanceDynAttrValueItem instValue = new InstanceDynAttrValueItem();
             instValue.setInstId(4);
             Map<String, String> instAttr = new HashMap<>();
             for (String attr : partAnno.attrsInst4()) {
@@ -873,7 +873,7 @@ public final class ModuleGenneratorByAnno {
                 }
             }
             instValue.setInstAttr(instAttr);
-            extAttrs.put("inst4", InstanceDynAttrValue.toJsonString(instValue));
+            extAttrs.put("inst4", InstanceDynAttrValueItem.toJsonString(instValue));
         }
     }
 }
