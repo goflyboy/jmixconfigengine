@@ -207,11 +207,13 @@ List<
 @Data
 class  InstanceDynAttrValue {//多实例类型属性值 
 	List<InstanceDynAttrValueItem>  instsValues;
-	//例如：attrWhereCondition="Speed like %5400%"，表示查询 attrs["speed"] like  %5400%
+	//例如：attrWhereCondition="Speed like %5400%"，表示查询 attrs["speed"] like  %5400%的InstanceDynAttrValueItem
 	List<InstanceDynAttrValueItem>> query(String whereCondition) {
-		 
+		 //....
 	}	
- 
+ public static String toJsonString(InstanceDynAttrValue iValue) {}
+
+   public static InstanceDynAttrValue fromJsonString(String strValue) {}
 }
 
 

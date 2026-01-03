@@ -4384,6 +4384,198 @@ class  InstanceDynAttrValue {//多实例类型属性值
 
 _**Agent (model default, mode Agent)**_
 
+<think><details><summary>Thought Process</summary>
+用户要求新增一个 `InstanceDynAttrValue` 类，这个类包含：</details></think>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="write">
+
+<details><summary>Tool use: **write** • Edit file: src/main/java/com/jmix/executor/imodel/InstanceDynAttrValue.java</summary>
+
+**Chunk 1**
+Lines added: 88, lines removed: 1
+
+```diff
+@@ -1,1 +1,88 @@
+- 
++ package com.jmix.executor.imodel;
++ 
++ import com.fasterxml.jackson.core.JsonProcessingException;
++ import com.fasterxml.jackson.databind.ObjectMapper;
++ 
++ import lombok.Data;
++ 
++ import java.util.ArrayList;
++ import java.util.List;
++ import java.util.stream.Collectors;
++ 
++ /**
++  * 多实例类型属性值
++  * 管理多个实例属性值的容器类
++  *
++  * @since 2025-12-27
++  */
++ @Data
++ public class InstanceDynAttrValue {
++     /**
++      * 实例属性值列表
++      */
++     private List&lt;InstanceDynAttrValueItem&gt; instsValues = new ArrayList&lt;&gt;();
++ 
++     /**
++      * 根据条件查询实例属性值
++      * 例如：whereCondition="Speed like %5400%"，表示查询 attrs["speed"] like %5400%的InstanceDynAttrValueItem
++      *
++      * @param whereCondition 查询条件表达式
++      * @return 匹配的实例属性值列表
++      */
++     public List&lt;InstanceDynAttrValueItem&gt; query(String whereCondition) {
++         if (whereCondition == null || whereCondition.trim().isEmpty()) {
++             return new ArrayList&lt;&gt;(instsValues);
++         }
++ 
++         // 解析查询条件，目前支持简单的 like 查询
++         // 格式：fieldName like %value%
++         String[] parts = whereCondition.split("\\s+like\\s+", 2);
++         if (parts.length != 2) {
++             // 如果不是 like 查询，返回所有
++             return new ArrayList&lt;&gt;(instsValues);
++         }
++ 
++         String fieldName = parts[0].trim();
++         String pattern = parts[1].trim();
++ 
++         // 移除 % 通配符
++         String searchValue = pattern.replaceAll("^%+|%+$", "");
++ 
++         return instsValues.stream()
++                 .filter(item -&gt; {
++                     String attrValue = item.getInstAttr().get(fieldName);
++                     return attrValue != null &amp;&amp; attrValue.contains(searchValue);
++                 })
++                 .collect(Collectors.toList());
++     }
++ 
++     /**
++      * 将对象转换为JSON字符串
++      *
++      * @param iValue 实例属性值对象
++      * @return JSON字符串
++      */
++     public static String toJsonString(InstanceDynAttrValue iValue) {
++         ObjectMapper mapper = new ObjectMapper();
++         try {
++             return mapper.writeValueAsString(iValue);
++         } catch (JsonProcessingException e) {
++             throw new RuntimeException("Failed to serialize InstanceDynAttrValue to JSON", e);
++         }
++     }
++ 
++     /**
++      * 从JSON字符串转换为对象
++      *
++      * @param strValue JSON字符串
++      * @return 实例属性值对象
++      */
++     public static InstanceDynAttrValue fromJsonString(String strValue) {
++         ObjectMapper mapper = new ObjectMapper();
++         try {
++             return mapper.readValue(strValue, InstanceDynAttrValue.class);
++         } catch (JsonProcessingException e) {
++             throw new RuntimeException("Failed to deserialize JSON to InstanceDynAttrValue", e);
++         }
++     }
++ }
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+我创建了新的 `InstanceDynAttrValue` 类，但是我注意到在 `query` 方法中，我写错了语法。`List<InstanceDynAttrValueItem>>` 应该是 `List<InstanceDynAttrValueItem>`。让我修复这个错误。</details></think>
+
+---
+
+Model performed no edit
+
+---
+
+<think><details><summary>Thought Process</summary>
+看起来我没有语法错误。让我检查一下是否需要编译测试。</details></think>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: mvn compile -q</summary>
+
+```bash
+mvn compile -q
+```
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+_**User (2026-01-03 11:03Z)**_
+
+请针对 List<InstanceDynAttrValueItem>> query(String whereCondition) 单独写一下测试用例，单独搞一个测试文件
+
+---
+
+_**Agent (model default, mode Agent)**_
+
 
 
 ---
