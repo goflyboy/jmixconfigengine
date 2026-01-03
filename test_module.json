@@ -40,7 +40,8 @@
       "defaultValue" : "TestOption",
       "description" : null,
       "sortNo" : 1,
-      "codeId" : 100
+      "codeId" : 100,
+      "codeValue" : "100"
     } ] ],
     "dynAttrType" : "Integer",
     "value" : null,

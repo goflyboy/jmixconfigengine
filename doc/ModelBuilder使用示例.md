@@ -6,7 +6,7 @@
 
 ```
 ModelBuilder
-├── ParaOptionBuilder    # 参数选项构建器
+├── DynamicAttributerOptionBuilder    # 动态属性选项构建器
 ├── PartBuilder         # 部件构建器
 └── ParaBuilder         # 参数构建器
 ```
@@ -17,7 +17,7 @@ ModelBuilder
 
 #### 基础构建
 ```java
-ParaOption option = ModelBuilder.ParaOptionBuilder.create()
+DynamicAttributerOption option = ModelBuilder.DynamicAttributerOptionBuilder.create()
     .codeId(10)
     .code("Red")
     .description("红色选项")
@@ -27,7 +27,7 @@ ParaOption option = ModelBuilder.ParaOptionBuilder.create()
 
 #### 使用便捷方法
 ```java
-ParaOption option = ModelBuilder.ParaOptionBuilder.create()
+DynamicAttributerOption option = ModelBuilder.DynamicAttributerOptionBuilder.create()
     .asOption(10, "Red", "红色选项")
     .sortNo(1)
     .build();
@@ -35,7 +35,7 @@ ParaOption option = ModelBuilder.ParaOptionBuilder.create()
 
 #### 动态添加扩展属性
 ```java
-ParaOption option = ModelBuilder.ParaOptionBuilder.create()
+DynamicAttributerOption option = ModelBuilder.DynamicAttributerOptionBuilder.create()
     .asOption(20, "Black", "黑色选项")
     .extAttr("hexCode", "#000000")
     .extAttr("popularity", "veryHigh")
@@ -51,7 +51,7 @@ extAttrs.put("hexCode", "#FF0000");
 extAttrs.put("popularity", "high");
 extAttrs.put("category", "primary");
 
-ParaOption option = ModelBuilder.ParaOptionBuilder.create()
+DynamicAttributerOption option = ModelBuilder.DynamicAttributerOptionBuilder.create()
     .asOption(30, "White", "白色选项")
     .extAttrs(extAttrs)
     .build();
@@ -130,7 +130,7 @@ Para para = ModelBuilder.ParaBuilder.create()
 
 ### 1. 链式调用
 ```java
-ParaOption option = ModelBuilder.ParaOptionBuilder.create()
+DynamicAttributerOption option = ModelBuilder.DynamicAttributerOptionBuilder.create()
     .codeId(100)
     .code("Test")
     .description("测试选项")
@@ -143,7 +143,7 @@ ParaOption option = ModelBuilder.ParaOptionBuilder.create()
 
 ### 2. 带默认值的构建
 ```java
-ParaOption option = ModelBuilder.ParaOptionBuilder.create()
+DynamicAttributerOption option = ModelBuilder.DynamicAttributerOptionBuilder.create()
     .codeId(15)
     .code("Yellow")
     .description("黄色选项")
@@ -153,19 +153,19 @@ ParaOption option = ModelBuilder.ParaOptionBuilder.create()
 ### 3. 在测试数据中的使用
 ```java
 List<ParaOption> colorOptions = Arrays.asList(
-    ModelBuilder.ParaOptionBuilder.create()
+    ModelBuilder.DynamicAttributerOptionBuilder.create()
         .asOption(10, "Red", "红色")
         .sortNo(1)
         .extAttr("hexCode", "#FF0000")
         .extAttr("popularity", "high")
         .build(),
-    ModelBuilder.ParaOptionBuilder.create()
+    ModelBuilder.DynamicAttributerOptionBuilder.create()
         .asOption(20, "Black", "黑色")
         .sortNo(2)
         .extAttr("hexCode", "#000000")
         .extAttr("popularity", "veryHigh")
         .build(),
-    ModelBuilder.ParaOptionBuilder.create()
+    ModelBuilder.DynamicAttributerOptionBuilder.create()
         .asOption(30, "White", "白色")
         .sortNo(3)
         .extAttr("hexCode", "#FFFFFF")
@@ -213,7 +213,7 @@ List<ParaOption> colorOptions = Arrays.asList(
 ### 2. **链式调用顺序**
 ```java
 // ✅ 推荐：逻辑清晰的顺序
-ModelBuilder.ParaOptionBuilder.create()
+ModelBuilder.DynamicAttributerOptionBuilder.create()
     .asOption(10, "Red", "红色")  // 基础信息
     .sortNo(1)                     // 排序信息
     .extAttr("hexCode", "#FF0000") // 扩展属性
@@ -221,7 +221,7 @@ ModelBuilder.ParaOptionBuilder.create()
     .build();
 
 // ❌ 避免：混乱的顺序
-ModelBuilder.ParaOptionBuilder.create()
+ModelBuilder.DynamicAttributerOptionBuilder.create()
     .extAttr("popularity", "high")
     .codeId(10)
     .extAttr("hexCode", "#FF0000")

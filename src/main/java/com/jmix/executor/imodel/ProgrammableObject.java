@@ -20,7 +20,9 @@ import lombok.EqualsAndHashCode;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = Module.class, name = "Module"),
         @JsonSubTypes.Type(value = Para.class, name = "Para"),
-        @JsonSubTypes.Type(value = Part.class, name = "Part")
+        @JsonSubTypes.Type(value = DynamicAttributerOption.class, name = "DynamicAttributerOption"),
+        @JsonSubTypes.Type(value = Part.class, name = "Part"),
+        @JsonSubTypes.Type(value = DynamicAttribute.class, name = "DynamicAttribute")
 })
 public class ProgrammableObject<T> extends Extensible implements Programmable {
     /**
