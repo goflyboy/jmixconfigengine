@@ -24,6 +24,8 @@ public class DynamicAttribute extends ProgrammableObject<String> {
     private String value;
     // 扩展模式
     private String optionExtSchema;
+    // 实例类型：0-非实例属性（默认），1-实例属性
+    private int instType = 0;
     // 动态属性的Logic
     private List<Rule> valueLogics;
 }

@@ -1,8 +1,8 @@
 package com.jmix.tool.impl;
 
-import com.jmix.executor.imodel.DynamicAttributerOption;
 import com.jmix.executor.imodel.DynamicAttribute;
 import com.jmix.executor.imodel.DynamicAttributeType;
+import com.jmix.executor.imodel.DynamicAttributerOption;
 import com.jmix.executor.imodel.InstanceDynAttrValueItem;
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.ModuleAlgArtifact;
@@ -668,7 +668,7 @@ public final class ModuleGenneratorByAnno {
     /**
      * 处理动态属性注解
      *
-     * @param field 字段对象
+     * @param field        字段对象
      * @param partCategory 部件分类对象
      */
     private static void processDynamicAttributeAnnotations(Field field, PartCategory partCategory) {
@@ -732,11 +732,11 @@ public final class ModuleGenneratorByAnno {
     /**
      * 添加动态属性
      *
-     * @param partCategory 部件分类对象
-     * @param code 属性编码
+     * @param partCategory    部件分类对象
+     * @param code            属性编码
      * @param optionExtSchema 扩展模式
-     * @param options 可选值列表
-     * @param instType 实例类型
+     * @param options         可选值列表
+     * @param instType        实例类型
      */
     private static void addDynamicAttribute(PartCategory partCategory, String code, String optionExtSchema,
             String[] options, int instType) {
@@ -762,14 +762,7 @@ public final class ModuleGenneratorByAnno {
             }
         }
         dynAttr.setOptions(dynOptions);
-
-        // 设置实例类型（通过扩展属性存储）
-        Map<String, String> extAttrs = partCategory.getExtAttrs();
-        if (extAttrs == null) {
-            extAttrs = new HashMap<>();
-            partCategory.setExtAttrs(extAttrs);
-        }
-        extAttrs.put("instType_" + code, String.valueOf(instType));
+        dynAttr.setInstType(instType);
 
         partCategory.getDynAttrSchemas().add(dynAttr);
     }
@@ -777,7 +770,7 @@ public final class ModuleGenneratorByAnno {
     /**
      * 处理继承注解
      *
-     * @param field 字段对象
+     * @param field        字段对象
      * @param partCategory 部件分类对象
      */
     private static void processInheritAnnotation(Field field, PartCategory partCategory) {
@@ -806,7 +799,7 @@ public final class ModuleGenneratorByAnno {
     /**
      * 处理实例规格属性
      *
-     * @param part 部件对象
+     * @param part     部件对象
      * @param partAnno 部件注解
      */
     private static void processInstanceAttrs(Part part, PartAnno partAnno) {
@@ -826,9 +819,9 @@ public final class ModuleGenneratorByAnno {
     /**
      * 处理单个实例的规格属性
      *
-     * @param attrs 属性数组
-     * @param instId 实例ID
-     * @param attrKey 属性键
+     * @param attrs    属性数组
+     * @param instId   实例ID
+     * @param attrKey  属性键
      * @param extAttrs 扩展属性映射
      */
     private static void processInstanceAttr(String[] attrs, int instId, String attrKey, Map<String, String> extAttrs) {
