@@ -3,7 +3,6 @@ package com.jmix.executor.impl.algmodel;
 import com.jmix.executor.imodel.DynamicAttributerOption;
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.Para;
-import com.jmix.executor.imodel.ParaOption;
 import com.jmix.executor.imodel.Part;
 import com.jmix.executor.imodel.Rule;
 import com.jmix.executor.imodel.rule.RefProgObjSchema;

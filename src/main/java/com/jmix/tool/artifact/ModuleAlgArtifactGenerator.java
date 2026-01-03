@@ -4,7 +4,6 @@ import com.jmix.executor.imodel.DynamicAttributerOption;
 import com.jmix.executor.imodel.Extensible;
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.Para;
-import com.jmix.executor.imodel.ParaOption;
 import com.jmix.executor.imodel.Part;
 import com.jmix.executor.imodel.ProgrammableObject;
 import com.jmix.executor.imodel.Rule;
