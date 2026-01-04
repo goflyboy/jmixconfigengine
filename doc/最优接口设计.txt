@@ -368,7 +368,28 @@ MechDrive
 5、不能使用完全不包含用户需要的速率的固态硬盘做配置
 
  
+多实例、多属性
  
+
+--电脑  --产品
+---硬盘  --driverVar
+------固态硬盘	--solidDriverVar	 
+-----------固态硬盘1	 --solidDriver1Var	.qty  .isSelected
+-----------固态硬盘2	 --solidDriver2Var	.qty  .isSelected		 
+-----------固态硬盘3	 --solidDriver3Var	.qty  .isSelected		 
+------机械硬盘	--mechDriverVar		 
+-----------机械硬盘1	--mechDriver1Var	.qty  .isSelected	 	 
+-----------机械硬盘2	--mechDriver2Var	.qty  .isSelected	 
+-----------机械硬盘3	--mechDriver2Var	.qty  .isSelected 
+
+solidDriver1Var.qty <=2  初始:[0,100]  //并且最多配置2块  
+solidDriver1Var.isSeleted + solidDriver2Var.isSeleted + solidDriver1Var.isSeleted <=1
+if(solidDriver1Var.isSeleted =1) then solidDriver1Var.qty >= 0  
+
+solidDriver1Var.qty * solidDriver1Var.capacity + solidDriver2Var.qty * solidDriver2Var.capacity + .... = sum >=5T
+
+要求5400速率的固态硬盘2块，要求5400速率的硬盘容量>=5T， 
+
 
 MechDrive
 请参考下列模型来基于ortools-java来构建约束模型。

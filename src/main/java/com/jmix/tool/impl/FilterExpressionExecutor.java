@@ -83,7 +83,7 @@ public final class FilterExpressionExecutor {
      */
     public static <T extends Extensible> List<T> doSelect(List<T> objects, FilterCondition filterCondition) {
         if (filterCondition == null) {
-            log.warn("Failed to parse filter expression: {}, returning original object list", filterExpr);
+            log.warn("Filter condition is null, returning original object list");
             return objects;
         }
 
