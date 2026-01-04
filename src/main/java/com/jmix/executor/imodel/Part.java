@@ -57,7 +57,7 @@ public class Part extends ProgrammableObject<Integer> {
     /**
      * Part分类的规格描述(动态属性定义,partCategoryAttrValues)
      */
-    private List<DynamicAttribute> dynAttrSchemas= new ArrayList<>();
+    private List<DynamicAttribute> dynAttrSchemas = new ArrayList<>();
 
     /**
      * Part分类的schema (partCategoryAttrSchema?)
@@ -94,5 +94,51 @@ public class Part extends ProgrammableObject<Integer> {
     @JsonIgnore
     public void setAttr(String key, String value) {
         dynAttr.put(key, value);
+    }
+
+    /**
+     * 获取实例属性值
+     *
+     * @return 实例属性值对象
+     */
+    @JsonIgnore
+    public InstanceDynAttrValue getInstanceAttrs() {
+        String instanceAttrsStr = this.getAttr("instanceAttrs");
+        if (instanceAttrsStr == null || instanceAttrsStr.trim().isEmpty()) {
+            return null;
+        }
+        return InstanceDynAttrValue.fromJsonString(instanceAttrsStr);
+    }
+
+    /**
+     * 克隆Part对象
+     *
+     * @return 克隆的Part对象
+     */
+    @JsonIgnore
+    public Part clone() {
+        Part pc = new Part();
+        // 复制基本属性
+        pc.setId(this.getId());
+        pc.setCode(this.getCode());
+        pc.setName(this.getName());
+        pc.setShortCode(this.getShortCode());
+        pc.setPartType(this.getPartType());
+        pc.setPrice(this.getPrice());
+        pc.setMaxQuantity(this.getMaxQuantity());
+        pc.setDefaultValue(this.getDefaultValue());
+        pc.setDynAttrSchema(this.getDynAttrSchema());
+
+        // 复制动态属性
+        pc.setDynAttr(new HashMap<>(this.getDynAttr()));
+
+        // 复制动态属性schema
+        pc.setDynAttrSchemas(new ArrayList<>(this.getDynAttrSchemas()));
+
+        // 复制其他可复制的属性
+        pc.setDescription(this.getDescription());
+        pc.setRemark(this.getRemark());
+
+        return pc;
     }
 }

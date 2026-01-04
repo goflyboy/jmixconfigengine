@@ -104,6 +104,7 @@ public class Module extends ProgrammableObject<Integer> {
         }
         initShortCode();
         initRefRelationGraph();
+        initPartCategories();
     }
 
     private void initShortCode() {
@@ -258,6 +259,55 @@ public class Module extends ProgrammableObject<Integer> {
             List<RefProgObjSchema> toRightProgObjs = trimDuplicateRefProgObjs(rule.getToRightProgObjs());
             // 调用refRelationGraph.add(rule.getCode(),fromLeftProgObjs,toRightProgObjs.get(0))
             refRelationGraph.add(rule.getCode(), fromLeftProgObjs, toRightProgObjs);
+        }
+    }
+
+    /**
+     * 初始化PartCategory的partCategoryMap和partMap
+     */
+    private void initPartCategories() {
+        if (parts == null || parts.isEmpty()) {
+            return;
+        }
+
+        // 按照fatherCode进行分组，初始化PartCategory
+        for (Part part : parts) {
+            if (part instanceof PartCategory) {
+                PartCategory category = (PartCategory) part;
+                initPartCategory(category);
+            }
+        }
+    }
+
+    /**
+     * 初始化单个PartCategory
+     *
+     * @param category 部件分类
+     */
+    private void initPartCategory(PartCategory category) {
+        if (parts == null || parts.isEmpty()) {
+            return;
+        }
+
+        String categoryCode = category.getCode();
+
+        // 初始化partCategoryMap（子分类）
+        for (Part part : parts) {
+            if (part instanceof PartCategory && categoryCode.equals(part.getFatherCode())) {
+                category.getPartCategoryMap().put(part.getCode(), (PartCategory) part);
+            }
+        }
+
+        // 初始化partMap（直接子部件）
+        for (Part part : parts) {
+            if (!(part instanceof PartCategory) && categoryCode.equals(part.getFatherCode())) {
+                category.getPartMap().put(part.getCode(), part);
+            }
+        }
+
+        // 递归初始化子分类
+        for (PartCategory subCategory : category.getPartCategoryMap().values()) {
+            initPartCategory(subCategory);
         }
     }
 
