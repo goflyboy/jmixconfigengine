@@ -569,12 +569,11 @@ public final class ModuleGenneratorByAnno {
         }
     }
 
-
     /**
      * 从父部件继承属性
      *
-     * @param child  子部件
-     * @param parent 父部件
+     * @param child       子部件
+     * @param parent      父部件
      * @param overrideMap 重写属性映射
      */
     private static void inheritFromParent(PartCategory child, PartCategory parent, Map<String, String> overrideMap) {
@@ -796,23 +795,6 @@ public final class ModuleGenneratorByAnno {
 
         // 处理动态属性注解
         processDynamicAttributeAnnotations(field, partCategory);
-
-        // 处理继承注解
-        Map<String, String> overrideMap = processInheritAnnotation(field, partCategory, fieldNameToPartCode);
-        if (!overrideMap.isEmpty()) {
-            partOverrideMap.put(code, overrideMap);
-        }
-
-        // 确保 extAttrs 不包含 override 字段
-        Map<String, String> extAttrs = partCategory.getExtAttrs();
-        if (extAttrs != null) {
-            extAttrs.remove("override_Speed");
-            extAttrs.remove("override_Capacity");
-            // 如果 extAttrs 为空，则清空
-            if (extAttrs.isEmpty()) {
-                partCategory.setExtAttrs(null);
-            }
-        }
 
         return Optional.of(partCategory);
     }
