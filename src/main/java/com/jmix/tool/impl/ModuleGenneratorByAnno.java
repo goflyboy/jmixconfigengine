@@ -9,6 +9,7 @@ import com.jmix.executor.imodel.ModuleAlgArtifact;
 import com.jmix.executor.imodel.Para;
 import com.jmix.executor.imodel.Part;
 import com.jmix.executor.imodel.PartCategory;
+import com.jmix.executor.imodel.PartType;
 import com.jmix.executor.imodel.Rule;
 import com.jmix.executor.imodel.anno.CodeRuleAnno;
 import com.jmix.executor.imodel.anno.CompatiableRuleAnno;
@@ -171,7 +172,18 @@ public final class ModuleGenneratorByAnno {
             return Optional.empty();
         }
 
-        Part part = new PartCategory();
+        // 根据字段类型决定部件类型
+        Part part;
+        if (field.getType().getSimpleName().equals("PartCategoryVar")) {
+            part = new PartCategory();
+            part.setPartType(PartType.CATEGORY);
+        } else {
+            // PartVar 对应 ATOMIC 类型，不应该有 dynAttrSchemas
+            part = new Part();
+            part.setPartType(PartType.ATOMIC);
+            // 确保 ATOMIC 类型的部件没有 dynAttrSchemas
+            part.setDynAttrSchemas(new ArrayList<>());
+        }
 
         // 生成Part.code
         String fieldName = field.getName();
@@ -203,25 +215,9 @@ public final class ModuleGenneratorByAnno {
         // 处理实例规格属性
         processInstanceAttrs(part, partAnno);
 
-        // 处理动态属性注解（如果有的话）
-        if (part instanceof PartCategory) {
+        // 处理动态属性注解（只有CATEGORY类型的部件才需要）
+        if (part.getPartType() == PartType.CATEGORY && part instanceof PartCategory) {
             processDynamicAttributeAnnotations(field, (PartCategory) part);
-            // // 继承处理在 processInheritance 中统一处理，这里只存储重写信息
-            // DAttrInherit inheritAnno = field.getAnnotation(DAttrInherit.class);
-            // if (inheritAnno != null) {
-            // String[] overrideAttrs = inheritAnno.overrideAttrs();
-            // Map<String, String> extAttrs = part.getExtAttrs();
-            // if (extAttrs == null) {
-            // extAttrs = new HashMap<>();
-            // part.setExtAttrs(extAttrs);
-            // }
-            // for (String override : overrideAttrs) {
-            // String[] parts = override.split(":");
-            // if (parts.length == 2) {
-            // extAttrs.put("override_" + parts[0], parts[1]);
-            // }
-            // }
-            // }
         }
 
         return Optional.of(part);

@@ -60,6 +60,34 @@ public class Part extends ProgrammableObject<Integer> {
     private List<DynamicAttribute> dynAttrSchemas= new ArrayList<>();
 
     /**
+     * 获取动态属性模式列表
+     * ATOMIC类型的部件不应该有动态属性模式，返回空列表
+     *
+     * @return 动态属性模式列表
+     */
+    @JsonIgnore
+    public List<DynamicAttribute> getDynAttrSchemasForSerialization() {
+        if (partType == PartType.ATOMIC) {
+            return new ArrayList<>();
+        }
+        return dynAttrSchemas;
+    }
+
+    /**
+     * 设置动态属性模式列表
+     * ATOMIC类型的部件会清空列表
+     *
+     * @param dynAttrSchemas 动态属性模式列表
+     */
+    public void setDynAttrSchemas(List<DynamicAttribute> dynAttrSchemas) {
+        if (partType == PartType.ATOMIC) {
+            this.dynAttrSchemas = new ArrayList<>();
+        } else {
+            this.dynAttrSchemas = dynAttrSchemas != null ? dynAttrSchemas : new ArrayList<>();
+        }
+    }
+
+    /**
      * Part分类的schema (partCategoryAttrSchema?)
      */
     private String dynAttrSchema;
