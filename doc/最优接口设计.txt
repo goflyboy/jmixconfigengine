@@ -449,3 +449,8 @@ TODO: 优化
 TODO:   --这个有问题？
   // 选项编码ID
     private int codeId;  ---》codeValue是不是更合适一点
+
+
+TODO: attr
+    "dynAttrSchemas" : [ "java.util.ArrayList", [ ] ],
+    "dynAttrSchema" : null

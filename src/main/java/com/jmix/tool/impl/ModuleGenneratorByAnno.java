@@ -3,6 +3,7 @@ package com.jmix.tool.impl;
 import com.jmix.executor.imodel.DynamicAttribute;
 import com.jmix.executor.imodel.DynamicAttributeType;
 import com.jmix.executor.imodel.DynamicAttributerOption;
+import com.jmix.executor.imodel.InstanceDynAttrValue;
 import com.jmix.executor.imodel.InstanceDynAttrValueItem;
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.ModuleAlgArtifact;
@@ -945,34 +946,43 @@ public final class ModuleGenneratorByAnno {
      * @param partAnno 部件注解
      */
     private static void processInstanceAttrs(Part part, PartAnno partAnno) {
-        Map<String, String> extAttrs = part.getExtAttrs();
-        if (extAttrs == null) {
-            extAttrs = new HashMap<>();
-            part.setExtAttrs(extAttrs);
-        }
+        // 检查是否有实例属性
+        if (partAnno.attrsInst1().length > 0 || partAnno.attrsInst2().length > 0 ||
+            partAnno.attrsInst3().length > 0 || partAnno.attrsInst4().length > 0) {
 
-        // 处理实例规格属性
-        processInstanceAttr(partAnno.attrsInst1(), 1, "inst1", extAttrs);
-        processInstanceAttr(partAnno.attrsInst2(), 2, "inst2", extAttrs);
-        processInstanceAttr(partAnno.attrsInst3(), 3, "inst3", extAttrs);
-        processInstanceAttr(partAnno.attrsInst4(), 4, "inst4", extAttrs);
+            // 创建 InstanceDynAttrValue 容器对象
+            InstanceDynAttrValue instanceDynAttrValue = new InstanceDynAttrValue();
+
+            // 处理各个实例
+            addInstanceAttr(instanceDynAttrValue, partAnno.attrsInst1(), 1);
+            addInstanceAttr(instanceDynAttrValue, partAnno.attrsInst2(), 2);
+            addInstanceAttr(instanceDynAttrValue, partAnno.attrsInst3(), 3);
+            addInstanceAttr(instanceDynAttrValue, partAnno.attrsInst4(), 4);
+
+            // 将序列化后的数据存储到 dynAttr 中
+            Map<String, String> dynAttr = part.getDynAttr();
+            if (dynAttr == null) {
+                dynAttr = new HashMap<>();
+                part.setDynAttr(dynAttr);
+            }
+            dynAttr.put("instanceAttrs", InstanceDynAttrValue.toJsonString(instanceDynAttrValue));
+        }
     }
 
     /**
-     * 处理单个实例的规格属性
+     * 添加实例属性到 InstanceDynAttrValue 容器中
      *
-     * @param attrs    属性数组
-     * @param instId   实例ID
-     * @param attrKey  属性键
-     * @param extAttrs 扩展属性映射
+     * @param container InstanceDynAttrValue 容器对象
+     * @param attrs     属性数组
+     * @param instId    实例ID
      */
-    private static void processInstanceAttr(String[] attrs, int instId, String attrKey, Map<String, String> extAttrs) {
+    private static void addInstanceAttr(InstanceDynAttrValue container, String[] attrs, int instId) {
         if (attrs.length > 0) {
             InstanceDynAttrValueItem instValue = new InstanceDynAttrValueItem();
             instValue.setInstId(instId);
             Map<String, String> instAttr = parseAttributes(attrs);
             instValue.setInstAttr(instAttr);
-            extAttrs.put(attrKey, InstanceDynAttrValueItem.toJsonString(instValue));
+            container.getInstsValues().add(instValue);
         }
     }
 }
