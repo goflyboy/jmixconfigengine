@@ -980,7 +980,7 @@ public final class ModuleGenneratorByAnno {
             InstanceDynAttrValueItem instValue = new InstanceDynAttrValueItem();
             instValue.setInstId(instId);
             Map<String, String> instAttr = parseAttributes(attrs);
-            instValue.setInstAttr(instAttr);
+            instValue.setInstAttrs(instAttr);
             container.getInstsValues().add(instValue);
         }
     }
