@@ -763,7 +763,12 @@ public final class ModuleGenneratorByAnno {
         for (String attr : attributes) {
             String[] parts = attr.split(":");
             if (parts.length == 2) {
+                // key:value 格式
                 attrs.put(parts[0], parts[1]);
+            } else if (parts.length == 1) {
+                // 只有属性名，值设为属性名本身
+                String attrName = parts[0].trim();
+                attrs.put(attrName, attrName);
             }
         }
         return attrs;
