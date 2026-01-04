@@ -7,6 +7,7 @@ import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -31,45 +32,18 @@ public class InstanceDynAttrValue {
      * @return 匹配的实例属性值列表
      */
     public List<InstanceDynAttrValueItem> query(String whereCondition) {
-        if (whereCondition == null || whereCondition.trim().isEmpty()) {
-            return new ArrayList<>(instsValues);
-        }
+        // 将实例属性值转换为属性映射列表
+        List<Map<String, String>> attrMaps = instsValues.stream()
+                .map(InstanceDynAttrValueItem::getInstAttr)
+                .collect(Collectors.toList());
 
-        String trimmedCondition = whereCondition.trim();
+        // 使用工具类进行查询
+        List<Map<String, String>> filteredAttrs = FilterUtils.query(attrMaps, whereCondition);
 
-        // 检查是否是精确匹配查询：fieldName = value
-        String[] equalParts = trimmedCondition.split("\\s*=\\s*", 2);
-        if (equalParts.length == 2) {
-            String fieldName = equalParts[0].trim();
-            String searchValue = equalParts[1].trim();
-
-            return instsValues.stream()
-                    .filter(item -> {
-                        String attrValue = item.getInstAttr().get(fieldName);
-                        return attrValue != null && attrValue.equals(searchValue);
-                    })
-                    .collect(Collectors.toList());
-        }
-
-        // 检查是否是模糊匹配查询：fieldName like %value%
-        String[] likeParts = trimmedCondition.split("\\s+like\\s+", 2);
-        if (likeParts.length == 2) {
-            String fieldName = likeParts[0].trim();
-            String pattern = likeParts[1].trim();
-
-            // 移除 % 通配符
-            String searchValue = pattern.replaceAll("^%+|%+$", "");
-
-            return instsValues.stream()
-                    .filter(item -> {
-                        String attrValue = item.getInstAttr().get(fieldName);
-                        return attrValue != null && attrValue.contains(searchValue);
-                    })
-                    .collect(Collectors.toList());
-        }
-
-        // 如果不是支持的查询格式，返回所有
-        return new ArrayList<>(instsValues);
+        // 将过滤后的属性映射转换回实例属性值对象
+        return instsValues.stream()
+                .filter(item -> filteredAttrs.contains(item.getInstAttr()))
+                .collect(Collectors.toList());
     }
 
     /**
