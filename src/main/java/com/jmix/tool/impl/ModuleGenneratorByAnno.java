@@ -206,22 +206,22 @@ public final class ModuleGenneratorByAnno {
         // 处理动态属性注解（如果有的话）
         if (part instanceof PartCategory) {
             processDynamicAttributeAnnotations(field, (PartCategory) part);
-            // 继承处理在 processInheritance 中统一处理，这里只存储重写信息
-            DAttrInherit inheritAnno = field.getAnnotation(DAttrInherit.class);
-            if (inheritAnno != null) {
-                String[] overrideAttrs = inheritAnno.overrideAttrs();
-                Map<String, String> extAttrs = part.getExtAttrs();
-                if (extAttrs == null) {
-                    extAttrs = new HashMap<>();
-                    part.setExtAttrs(extAttrs);
-                }
-                for (String override : overrideAttrs) {
-                    String[] parts = override.split(":");
-                    if (parts.length == 2) {
-                        extAttrs.put("override_" + parts[0], parts[1]);
-                    }
-                }
-            }
+            // // 继承处理在 processInheritance 中统一处理，这里只存储重写信息
+            // DAttrInherit inheritAnno = field.getAnnotation(DAttrInherit.class);
+            // if (inheritAnno != null) {
+            // String[] overrideAttrs = inheritAnno.overrideAttrs();
+            // Map<String, String> extAttrs = part.getExtAttrs();
+            // if (extAttrs == null) {
+            // extAttrs = new HashMap<>();
+            // part.setExtAttrs(extAttrs);
+            // }
+            // for (String override : overrideAttrs) {
+            // String[] parts = override.split(":");
+            // if (parts.length == 2) {
+            // extAttrs.put("override_" + parts[0], parts[1]);
+            // }
+            // }
+            // }
         }
 
         return Optional.of(part);
