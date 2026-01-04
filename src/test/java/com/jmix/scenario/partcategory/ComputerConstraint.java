@@ -8,6 +8,7 @@ import com.jmix.executor.imodel.anno.DAttrAnno3;
 import com.jmix.executor.imodel.anno.DAttrInherit;
 import com.jmix.executor.imodel.anno.ModuleAnno;
 import com.jmix.executor.imodel.anno.PartAnno;
+import com.jmix.executor.impl.algmodel.PartCategoryVar;
 
 /**
  * 计算机配件约束算法
@@ -25,19 +26,19 @@ public class ComputerConstraint extends ConstraintAlgImplTestBase {
             "Speed_7200a5400:7200/5400:转" }, instType = 0)
     @DAttrAnno3(code = "Capacity", optionExtSchema = "IntegerUnit", options = { "Capacity_8T:8:T", "Capacity_16T:16:T",
             "Capacity_32T:32:T" }, instType = 0)
-    private PartVar driveVar;
+    private PartCategoryVar driveVar;
 
     // 固态硬盘部件分类，继承driveVar并重写属性
     @PartAnno(code = "solidDrive", fatherCode = "drive")
     @DAttrInherit(fatherCode = "driveVar", overrideAttrs = { "Speed:instType=1", "Capacity:instType=1" })
     @DAttrAnno11(code = "maxCapacity", optionExtSchema = "IntegerUnit", options = { "MaxCapacity_8T:8:T",
             "MaxCapacity_16T:16:T" })
-    private PartVar solidDrive;
+    private PartCategoryVar solidDrive;
 
     // 机械硬盘部件分类，继承driveVar
     @PartAnno(code = "mechDrive", fatherCode = "drive")
     @DAttrInherit(fatherCode = "driveVar")
-    private PartVar mechDrive;
+    private PartCategoryVar mechDrive;
 
     // 固态硬盘实例1
     @PartAnno(fatherCode = "solidDrive", attrs = { "BW_8GB", "MaxCapacity_8T" }, attrsInst1 = { "Speed_5400",

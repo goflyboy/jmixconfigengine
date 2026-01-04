@@ -7,4 +7,9 @@ package com.jmix.executor.imodel;
  * @since 2025-12-27
  */
 public class PartCategory extends Part {
+
+    public PartCategory() {
+        super();
+        this.setPartType(PartType.CATEGORY);
+    }
 }

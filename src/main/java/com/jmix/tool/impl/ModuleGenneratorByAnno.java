@@ -481,6 +481,10 @@ public final class ModuleGenneratorByAnno {
         List<Para> paras = new ArrayList<>();
         List<Part> parts = new ArrayList<>();
 
+        // 首先收集所有字段，用于后续继承处理
+        List<Field> partFields = new ArrayList<>();
+        Map<String, String> fieldNameToPartCode = new HashMap<>();
+
         for (Field field : moduleAlgClazz.getDeclaredFields()) {
             if (field.getType().getSimpleName().equals(ParaVar.class.getSimpleName())) {
                 Optional<Para> paraOpt = createParaFromField(field);
@@ -491,18 +495,130 @@ public final class ModuleGenneratorByAnno {
                 Optional<Part> partOpt = createPartFromField(field);
                 if (partOpt.isPresent()) {
                     parts.add(partOpt.get());
+                    fieldNameToPartCode.put(field.getName(), partOpt.get().getCode());
                 }
+                partFields.add(field);
             } else if (field.getType().getSimpleName().equals("PartCategoryVar")) {
-                Optional<Part> partOpt = createPartCategoryFromField(field);
+                Optional<Part> partOpt = createPartCategoryFromField(field, fieldNameToPartCode);
                 if (partOpt.isPresent()) {
                     parts.add(partOpt.get());
+                    fieldNameToPartCode.put(field.getName(), partOpt.get().getCode());
                 }
+                partFields.add(field);
             } else {
                 log.info("ignore field type: " + field.getType().getSimpleName());
             }
         }
 
+        // 处理继承关系
+        processInheritance(parts, fieldNameToPartCode);
+
         return Pair.of(paras, parts);
+    }
+
+    /**
+     * 处理所有部件的继承关系
+     *
+     * @param parts 部件列表
+     * @param fieldNameToPartCode 字段名到部件编码的映射
+     */
+    private static void processInheritance(List<Part> parts, Map<String, String> fieldNameToPartCode) {
+        // 创建部件编码到部件的映射
+        Map<String, Part> partMap = new HashMap<>();
+        for (Part part : parts) {
+            partMap.put(part.getCode(), part);
+        }
+
+        // 处理每个部件的继承
+        for (Part part : parts) {
+            if (part instanceof PartCategory && part.getFatherCode() != null) {
+                PartCategory partCategory = (PartCategory) part;
+
+                // 先尝试直接用 fatherCode 查找
+                Part parentPart = partMap.get(part.getFatherCode());
+
+                // 如果找不到，尝试通过字段名映射查找
+                if (parentPart == null) {
+                    String parentPartCode = fieldNameToPartCode.get(part.getFatherCode());
+                    if (parentPartCode != null) {
+                        parentPart = partMap.get(parentPartCode);
+                    }
+                }
+
+                if (parentPart instanceof PartCategory) {
+                    inheritFromParent(partCategory, (PartCategory) parentPart);
+                }
+            }
+        }
+    }
+
+    /**
+     * 从父部件继承属性
+     *
+     * @param child  子部件
+     * @param parent 父部件
+     */
+    private static void inheritFromParent(PartCategory child, PartCategory parent) {
+        // 复制父部件的所有动态属性
+        for (DynamicAttribute parentAttr : parent.getDynAttrSchemas()) {
+            try {
+                // 深拷贝属性
+                DynamicAttribute childAttr = copyDynamicAttribute(parentAttr);
+
+                // 检查是否有重写
+                Map<String, String> extAttrs = child.getExtAttrs();
+                if (extAttrs != null) {
+                    String overrideKey = "override_" + parentAttr.getCode();
+                    String overrideValue = extAttrs.get(overrideKey);
+
+                    if (overrideValue != null && overrideValue.startsWith("instType=")) {
+                        String instTypeStr = overrideValue.substring("instType=".length());
+                        try {
+                            int instType = Integer.parseInt(instTypeStr);
+                            childAttr.setInstType(instType);
+                        } catch (NumberFormatException e) {
+                            // 保持原有值
+                        }
+                    }
+                }
+
+                // 添加到子部件
+                child.getDynAttrSchemas().add(childAttr);
+            } catch (Exception e) {
+                log.error("Failed to inherit attribute: " + parentAttr.getCode(), e);
+            }
+        }
+    }
+
+    /**
+     * 深拷贝动态属性
+     *
+     * @param original 原始属性
+     * @return 拷贝的属性
+     */
+    private static DynamicAttribute copyDynamicAttribute(DynamicAttribute original) {
+        DynamicAttribute copy = new DynamicAttribute();
+        copy.setCode(original.getCode());
+        copy.setName(original.getName());
+        copy.setDynAttrType(original.getDynAttrType());
+        copy.setValue(original.getValue());
+        copy.setOptionExtSchema(original.getOptionExtSchema());
+        copy.setInstType(original.getInstType());
+
+        // 深拷贝选项列表
+        List<DynamicAttributerOption> copiedOptions = new ArrayList<>();
+        for (DynamicAttributerOption option : original.getOptions()) {
+            DynamicAttributerOption copiedOption = new DynamicAttributerOption();
+            copiedOption.setCode(option.getCode());
+            copiedOption.setCodeId(option.getCodeId());
+            copiedOption.setDefaultValue(option.getDefaultValue());
+            copiedOption.setDescription(option.getDescription());
+            copiedOption.setSortNo(option.getSortNo());
+            copiedOptions.add(copiedOption);
+        }
+        copy.setOptions(copiedOptions);
+
+        return copy;
     }
 
     /**
@@ -646,9 +762,10 @@ public final class ModuleGenneratorByAnno {
      * 从字段创建部件分类
      *
      * @param field 字段对象
+     * @param fieldNameToPartCode 字段名到部件编码的映射
      * @return 创建的部件分类对象
      */
-    private static Optional<Part> createPartCategoryFromField(Field field) {
+    private static Optional<Part> createPartCategoryFromField(Field field, Map<String, String> fieldNameToPartCode) {
         PartCategory partCategory = new PartCategory();
 
         // 生成PartCategory.code
@@ -660,7 +777,7 @@ public final class ModuleGenneratorByAnno {
         processDynamicAttributeAnnotations(field, partCategory);
 
         // 处理继承注解
-        processInheritAnnotation(field, partCategory);
+        processInheritAnnotation(field, partCategory, fieldNameToPartCode);
 
         return Optional.of(partCategory);
     }
@@ -772,14 +889,22 @@ public final class ModuleGenneratorByAnno {
      *
      * @param field        字段对象
      * @param partCategory 部件分类对象
+     * @param fieldNameToPartCode 字段名到部件编码的映射
      */
-    private static void processInheritAnnotation(Field field, PartCategory partCategory) {
+    private static void processInheritAnnotation(Field field, PartCategory partCategory, Map<String, String> fieldNameToPartCode) {
         DAttrInherit inheritAnno = field.getAnnotation(DAttrInherit.class);
         if (inheritAnno != null) {
-            // 设置父对象编码
-            partCategory.setFatherCode(inheritAnno.fatherCode());
+            // 将字段名映射为部件编码
+            String fatherFieldName = inheritAnno.fatherCode();
+            String fatherPartCode = fieldNameToPartCode.get(fatherFieldName);
+            if (fatherPartCode != null) {
+                partCategory.setFatherCode(fatherPartCode);
+            } else {
+                // 如果找不到映射，直接使用字段名
+                partCategory.setFatherCode(fatherFieldName);
+            }
 
-            // 处理重写属性
+            // 存储重写属性信息，用于后续继承处理
             String[] overrideAttrs = inheritAnno.overrideAttrs();
             Map<String, String> extAttrs = partCategory.getExtAttrs();
             if (extAttrs == null) {
