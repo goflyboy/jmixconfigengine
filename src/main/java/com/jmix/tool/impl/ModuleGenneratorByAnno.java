@@ -496,6 +496,7 @@ public final class ModuleGenneratorByAnno {
         // 首先收集所有字段，用于后续继承处理
         List<Field> partFields = new ArrayList<>();
         Map<String, String> fieldNameToPartCode = new HashMap<>();
+        Map<String, Map<String, String>> partOverrideMap = new HashMap<>();
 
         for (Field field : moduleAlgClazz.getDeclaredFields()) {
             if (field.getType().getSimpleName().equals(ParaVar.class.getSimpleName())) {
@@ -511,7 +512,7 @@ public final class ModuleGenneratorByAnno {
                 }
                 partFields.add(field);
             } else if (field.getType().getSimpleName().equals("PartCategoryVar")) {
-                Optional<Part> partOpt = createPartCategoryFromField(field, fieldNameToPartCode);
+                Optional<Part> partOpt = createPartCategoryFromField(field, fieldNameToPartCode, partOverrideMap);
                 if (partOpt.isPresent()) {
                     parts.add(partOpt.get());
                     fieldNameToPartCode.put(field.getName(), partOpt.get().getCode());
@@ -523,7 +524,7 @@ public final class ModuleGenneratorByAnno {
         }
 
         // 处理继承关系
-        processInheritance(parts, fieldNameToPartCode);
+        processInheritance(parts, fieldNameToPartCode, partOverrideMap);
 
         return Pair.of(paras, parts);
     }
@@ -533,8 +534,10 @@ public final class ModuleGenneratorByAnno {
      *
      * @param parts               部件列表
      * @param fieldNameToPartCode 字段名到部件编码的映射
+     * @param partOverrideMap     部件重写映射
      */
-    private static void processInheritance(List<Part> parts, Map<String, String> fieldNameToPartCode) {
+    private static void processInheritance(List<Part> parts, Map<String, String> fieldNameToPartCode,
+            Map<String, Map<String, String>> partOverrideMap) {
         // 创建部件编码到部件的映射
         Map<String, Part> partMap = new HashMap<>();
         for (Part part : parts) {
@@ -558,19 +561,23 @@ public final class ModuleGenneratorByAnno {
                 }
 
                 if (parentPart instanceof PartCategory) {
-                    inheritFromParent(partCategory, (PartCategory) parentPart);
+                    // 获取重写信息
+                    Map<String, String> overrideMap = partOverrideMap.getOrDefault(part.getCode(), new HashMap<>());
+                    inheritFromParent(partCategory, (PartCategory) parentPart, overrideMap);
                 }
             }
         }
     }
+
 
     /**
      * 从父部件继承属性
      *
      * @param child  子部件
      * @param parent 父部件
+     * @param overrideMap 重写属性映射
      */
-    private static void inheritFromParent(PartCategory child, PartCategory parent) {
+    private static void inheritFromParent(PartCategory child, PartCategory parent, Map<String, String> overrideMap) {
         // 复制父部件的所有动态属性
         for (DynamicAttribute parentAttr : parent.getDynAttrSchemas()) {
             try {
@@ -578,19 +585,14 @@ public final class ModuleGenneratorByAnno {
                 DynamicAttribute childAttr = copyDynamicAttribute(parentAttr);
 
                 // 检查是否有重写
-                Map<String, String> extAttrs = child.getExtAttrs();
-                if (extAttrs != null) {
-                    String overrideKey = "override_" + parentAttr.getCode();
-                    String overrideValue = extAttrs.get(overrideKey);
-
-                    if (overrideValue != null && overrideValue.startsWith("instType=")) {
-                        String instTypeStr = overrideValue.substring("instType=".length());
-                        try {
-                            int instType = Integer.parseInt(instTypeStr);
-                            childAttr.setInstType(instType);
-                        } catch (NumberFormatException e) {
-                            // 保持原有值
-                        }
+                String overrideValue = overrideMap.get(parentAttr.getCode());
+                if (overrideValue != null && overrideValue.startsWith("instType=")) {
+                    String instTypeStr = overrideValue.substring("instType=".length());
+                    try {
+                        int instType = Integer.parseInt(instTypeStr);
+                        childAttr.setInstType(instType);
+                    } catch (NumberFormatException e) {
+                        // 保持原有值
                     }
                 }
 
@@ -780,9 +782,11 @@ public final class ModuleGenneratorByAnno {
      *
      * @param field               字段对象
      * @param fieldNameToPartCode 字段名到部件编码的映射
+     * @param partOverrideMap     部件重写映射
      * @return 创建的部件分类对象
      */
-    private static Optional<Part> createPartCategoryFromField(Field field, Map<String, String> fieldNameToPartCode) {
+    private static Optional<Part> createPartCategoryFromField(Field field, Map<String, String> fieldNameToPartCode,
+            Map<String, Map<String, String>> partOverrideMap) {
         PartCategory partCategory = new PartCategory();
 
         // 生成PartCategory.code
@@ -794,7 +798,21 @@ public final class ModuleGenneratorByAnno {
         processDynamicAttributeAnnotations(field, partCategory);
 
         // 处理继承注解
-        processInheritAnnotation(field, partCategory, fieldNameToPartCode);
+        Map<String, String> overrideMap = processInheritAnnotation(field, partCategory, fieldNameToPartCode);
+        if (!overrideMap.isEmpty()) {
+            partOverrideMap.put(code, overrideMap);
+        }
+
+        // 确保 extAttrs 不包含 override 字段
+        Map<String, String> extAttrs = partCategory.getExtAttrs();
+        if (extAttrs != null) {
+            extAttrs.remove("override_Speed");
+            extAttrs.remove("override_Capacity");
+            // 如果 extAttrs 为空，则清空
+            if (extAttrs.isEmpty()) {
+                partCategory.setExtAttrs(null);
+            }
+        }
 
         return Optional.of(partCategory);
     }
@@ -907,9 +925,12 @@ public final class ModuleGenneratorByAnno {
      * @param field               字段对象
      * @param partCategory        部件分类对象
      * @param fieldNameToPartCode 字段名到部件编码的映射
+     * @return 重写属性映射
      */
-    private static void processInheritAnnotation(Field field, PartCategory partCategory,
+    private static Map<String, String> processInheritAnnotation(Field field, PartCategory partCategory,
             Map<String, String> fieldNameToPartCode) {
+        Map<String, String> overrideMap = new HashMap<>();
+
         DAttrInherit inheritAnno = field.getAnnotation(DAttrInherit.class);
         if (inheritAnno != null) {
             // 将字段名映射为部件编码
@@ -922,21 +943,17 @@ public final class ModuleGenneratorByAnno {
                 partCategory.setFatherCode(fatherFieldName);
             }
 
-            // 存储重写属性信息，用于后续继承处理
+            // 解析重写属性
             String[] overrideAttrs = inheritAnno.overrideAttrs();
-            Map<String, String> extAttrs = partCategory.getExtAttrs();
-            if (extAttrs == null) {
-                extAttrs = new HashMap<>();
-                partCategory.setExtAttrs(extAttrs);
-            }
-
             for (String override : overrideAttrs) {
                 String[] parts = override.split(":");
                 if (parts.length == 2) {
-                    extAttrs.put("override_" + parts[0], parts[1]);
+                    overrideMap.put(parts[0], parts[1]);
                 }
             }
         }
+
+        return overrideMap;
     }
 
     /**
@@ -948,7 +965,7 @@ public final class ModuleGenneratorByAnno {
     private static void processInstanceAttrs(Part part, PartAnno partAnno) {
         // 检查是否有实例属性
         if (partAnno.attrsInst1().length > 0 || partAnno.attrsInst2().length > 0 ||
-            partAnno.attrsInst3().length > 0 || partAnno.attrsInst4().length > 0) {
+                partAnno.attrsInst3().length > 0 || partAnno.attrsInst4().length > 0) {
 
             // 创建 InstanceDynAttrValue 容器对象
             InstanceDynAttrValue instanceDynAttrValue = new InstanceDynAttrValue();

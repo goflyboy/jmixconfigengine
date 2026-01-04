@@ -188,11 +188,42 @@ class  PartCategoryVar  extends PartVar {}
 
 Capacity>5
 
+class PartFilter {
+	attrCode="Capacity"
+	attrComparator=">="
+	attrValue="5" 
+	attrWhereCondition="Speed=5400"
+}
 
-attrCode="Capacity"
-attrComparator=">="
-attrValue="5" 
-attrWhereCondition="Speed=5400"
+//先过滤  
+
+class c
+{
+
+@Ignore
+Map<String,PartCategory>  partCategoryMap;
+
+@Ignore
+Map<String, Part> partMap
+
+List<Part> query(String partCatagory, PartFilter filter){
+
+}	
+List<Part> query(PartFilter filter){
+	//先filter.attrCode，在dynAttrSchemas定义是不是 实例类型(instType=1)
+	//如果是实例类型
+
+	//不是实例属性
+	insts= getDynAttrs("instanceAttrs") -
+	//
+}
+
+
+
+对Module读取完后
+在init的最后，根据fatherCode进行填充
+
+
 
 
 
