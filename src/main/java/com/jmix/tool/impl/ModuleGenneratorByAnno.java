@@ -206,7 +206,22 @@ public final class ModuleGenneratorByAnno {
         // 处理动态属性注解（如果有的话）
         if (part instanceof PartCategory) {
             processDynamicAttributeAnnotations(field, (PartCategory) part);
-            processInheritAnnotation(field, (PartCategory) part);
+            // 继承处理在 processInheritance 中统一处理，这里只存储重写信息
+            DAttrInherit inheritAnno = field.getAnnotation(DAttrInherit.class);
+            if (inheritAnno != null) {
+                String[] overrideAttrs = inheritAnno.overrideAttrs();
+                Map<String, String> extAttrs = part.getExtAttrs();
+                if (extAttrs == null) {
+                    extAttrs = new HashMap<>();
+                    part.setExtAttrs(extAttrs);
+                }
+                for (String override : overrideAttrs) {
+                    String[] parts = override.split(":");
+                    if (parts.length == 2) {
+                        extAttrs.put("override_" + parts[0], parts[1]);
+                    }
+                }
+            }
         }
 
         return Optional.of(part);
@@ -519,7 +534,7 @@ public final class ModuleGenneratorByAnno {
     /**
      * 处理所有部件的继承关系
      *
-     * @param parts 部件列表
+     * @param parts               部件列表
      * @param fieldNameToPartCode 字段名到部件编码的映射
      */
     private static void processInheritance(List<Part> parts, Map<String, String> fieldNameToPartCode) {
@@ -761,7 +776,7 @@ public final class ModuleGenneratorByAnno {
     /**
      * 从字段创建部件分类
      *
-     * @param field 字段对象
+     * @param field               字段对象
      * @param fieldNameToPartCode 字段名到部件编码的映射
      * @return 创建的部件分类对象
      */
@@ -887,11 +902,12 @@ public final class ModuleGenneratorByAnno {
     /**
      * 处理继承注解
      *
-     * @param field        字段对象
-     * @param partCategory 部件分类对象
+     * @param field               字段对象
+     * @param partCategory        部件分类对象
      * @param fieldNameToPartCode 字段名到部件编码的映射
      */
-    private static void processInheritAnnotation(Field field, PartCategory partCategory, Map<String, String> fieldNameToPartCode) {
+    private static void processInheritAnnotation(Field field, PartCategory partCategory,
+            Map<String, String> fieldNameToPartCode) {
         DAttrInherit inheritAnno = field.getAnnotation(DAttrInherit.class);
         if (inheritAnno != null) {
             // 将字段名映射为部件编码
