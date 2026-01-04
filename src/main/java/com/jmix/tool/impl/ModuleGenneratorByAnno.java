@@ -970,13 +970,7 @@ public final class ModuleGenneratorByAnno {
         if (attrs.length > 0) {
             InstanceDynAttrValueItem instValue = new InstanceDynAttrValueItem();
             instValue.setInstId(instId);
-            Map<String, String> instAttr = new HashMap<>();
-            for (String attr : attrs) {
-                String[] parts = attr.split(":");
-                if (parts.length == 2) {
-                    instAttr.put(parts[0], parts[1]);
-                }
-            }
+            Map<String, String> instAttr = parseAttributes(attrs);
             instValue.setInstAttr(instAttr);
             extAttrs.put(attrKey, InstanceDynAttrValueItem.toJsonString(instValue));
         }
