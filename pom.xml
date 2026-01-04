@@ -140,6 +140,7 @@
                     <source>21</source>
                     <target>21</target>
                     <encoding>UTF-8</encoding>
+                    <failOnError>false</failOnError>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>

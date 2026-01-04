@@ -45,6 +45,8 @@
     } ] ],
     "dynAttrType" : "Integer",
     "value" : null,
+    "optionExtSchema" : null,
+    "instType" : 0,
     "valueLogics" : null,
     "paraType" : "ENUM",
     "minValue" : "-1000",

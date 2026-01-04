@@ -81,7 +81,7 @@ public class FilterExpressionExecutorTest {
     public void testDoSelectWithNullFilter() {
         List<TestObject> objects = Arrays.asList(
                 new TestObject("para11", "para11 description", 1, "3G", "1"));
-        List<TestObject> result = FilterExpressionExecutor.doSelect(objects, null);
+        List<TestObject> result = FilterExpressionExecutor.doSelect(objects, (String) null);
         assertEquals(1, result.size());
     }
 

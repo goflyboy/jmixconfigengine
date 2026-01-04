@@ -36,7 +36,7 @@ public class InstanceDynAttrValueTest {
         attrs1.put("Speed", "5400");
         attrs1.put("Capacity", "8T");
         attrs1.put("BrandWidth", "8GB/S");
-        item1.setInstAttr(attrs1);
+        item1.setInstAttrs(attrs1);
 
         item2 = new InstanceDynAttrValueItem();
         item2.setInstId(2);
@@ -44,7 +44,7 @@ public class InstanceDynAttrValueTest {
         attrs2.put("Speed", "7200/5400");
         attrs2.put("Capacity", "16T");
         attrs2.put("BrandWidth", "16GB/S");
-        item2.setInstAttr(attrs2);
+        item2.setInstAttrs(attrs2);
 
         item3 = new InstanceDynAttrValueItem();
         item3.setInstId(3);
@@ -52,7 +52,7 @@ public class InstanceDynAttrValueTest {
         attrs3.put("Speed", "9000");
         attrs3.put("Capacity", "4T");
         attrs3.put("BrandWidth", "8GB/S");
-        item3.setInstAttr(attrs3);
+        item3.setInstAttrs(attrs3);
 
         // 添加到列表中
         instanceDynAttrValue.getInstsValues().add(item1);
