@@ -1,5 +1,6 @@
 package com.jmix.executor.imodel;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -15,7 +16,7 @@ import java.util.Map;
  * @since 2025-12-27
  */
 @Data
-public class InstanceDynAttrValueItem {
+public class InstanceDynAttrValueItem extends Extensible {
     /**
      * 实例ID
      */
@@ -24,7 +25,12 @@ public class InstanceDynAttrValueItem {
     /**
      * 实例属性映射
      */
-    private Map<String, String> instAttr = new HashMap<>();
+    private Map<String, String> instAttrs = new HashMap<>();
+
+    @JsonIgnore
+    public String getInstAttr(String key) {
+        return instAttrs.get(key);
+    }
 
     /**
      * 将对象转换为JSON字符串

@@ -1,6 +1,7 @@
 package com.jmix.tool.impl;
 
 import com.jmix.executor.imodel.Extensible;
+import com.jmix.executor.imodel.InstanceDynAttrValueItem;
 import com.jmix.executor.imodel.Part;
 
 import lombok.AllArgsConstructor;
@@ -68,15 +69,25 @@ public final class FilterExpressionExecutor {
             log.warn("Invalid input parameters, returning original object list");
             return objects;
         }
+        Optional<FilterCondition> filterCondition = parseFilterExpression(filterExpr);
+        return doSelect(objects, filterCondition.get());
+    }
 
-        // Parse filter expression once
-        Optional<FilterCondition> conditionOpt = parseFilterExpression(filterExpr);
-        if (!conditionOpt.isPresent()) {
+    /**
+     * 根据过滤表达式过滤对象列表
+     * 
+     * @param objects         要过滤的对象列表
+     * @param filterCondition 过滤表达式
+     * @param <T>             对象类型，必须继承自Extensible
+     * @return 过滤后的对象列表
+     */
+    public static <T extends Extensible> List<T> doSelect(List<T> objects, FilterCondition filterCondition) {
+        if (filterCondition == null) {
             log.warn("Failed to parse filter expression: {}, returning original object list", filterExpr);
             return objects;
         }
 
-        FilterCondition condition = conditionOpt.get();
+        FilterCondition condition = filterCondition;
 
         log.info("Filter expression parsed successfully - field: {}, operator: {}, value: {}",
                 condition.getFieldName(), condition.getOperator(), condition.getValue());
@@ -99,7 +110,7 @@ public final class FilterExpressionExecutor {
      * @param filterExpr 过滤表达式字符串
      * @return 解析后的过滤条件，如果解析失败则返回空
      */
-    private static Optional<FilterCondition> parseFilterExpression(String filterExpr) {
+    public static Optional<FilterCondition> parseFilterExpression(String filterExpr) {
         try {
             Matcher matcher = FILTER_PATTERN.matcher(filterExpr);
             if (matcher.find()) {
@@ -212,6 +223,27 @@ public final class FilterExpressionExecutor {
                     log.info("Getting field value from extended attributes - field: {}, value: {}", fieldName,
                             extValue);
                     return Optional.of(extValue);
+                }
+            }
+            // Try to get dyn attributes first
+            if (object instanceof Part) {
+                Part part = (Part) object;
+                String attValue = part.getAttr(fieldName);
+                if (attValue != null) {
+                    log.info("Getting field value from dyn attributes - field: {}, value: {}", fieldName,
+                            attValue);
+                    return Optional.of(attValue);
+                }
+            }
+            // Try to get dyn attributes first
+            if (object instanceof InstanceDynAttrValueItem) {
+                InstanceDynAttrValueItem intAttrValue = (InstanceDynAttrValueItem) object;
+                String attValue = intAttrValue.getInstAttr(fieldName);
+                if (attValue != null) {
+                    log.info("Getting field value from InstanceDynAttrValueItem attributes - field: {}, value: {}",
+                            fieldName,
+                            attValue);
+                    return Optional.of(attValue);
                 }
             }
 

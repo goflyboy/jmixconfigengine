@@ -186,72 +186,168 @@ class  PartCategoryVar  extends PartVar {}
 输入：
 要求5400速率的固态硬盘2块，要求5400速率的硬盘容量>=5T， 
 
-Capacity>5
 
-class PartFilter {
-	attrCode="Capacity"
+
+请按下列设计的实现，完成对于测试用例设计，并调通，并远程提交
+ 
+0、Part增加下列方法
+ @JsonIgnore
+InstanceDynAttrValue  getInstanceAttrs() {
+	String InstanceAttrsStr = this.getAttr("instanceAttrs"); 
+	if(InstanceAttrsStr == null || InstanceAttrsStr.empty()) { return null;}
+	return InstanceDynAttrValue.fromJsonString(InstanceAttrsStr);
+}
+@Ignore
+Part clone() {
+	Part  pc = new Part();
+	//请其都要复制 //TODO 复制性能是否好，多实例的情况怎么解决？**
+} 
+
+//先过滤  
+1、对PartCategory做下列增强
+ 
+@Ignore
+Map<String,PartCategory>  partCategoryMap = new HashMap();
+
+@Ignore
+Map<String, Part> partMap= new HashMap();
+
+@Ignore
+PartCategory clone() {
+	PartCategory  pc = new PartCategory();
+	//除了parts/partCategoryMap/partCategory,请其都要复制
+}
+
+@Ignore
+public void init(..) (
+	对partCategoryMap、partMap进行初始化
+}
+List<Part> query(String partCatagory, PartConstraintReq constraintReq){
+		
+}	
+
+//返回满足条件的Part 
+List<PartCategory> query(PartCategory category,PartConstraintReq constraintReq){ 
+
+	 Optional<FilterCondition> filterCondition = FilterExpressionExecutor.parseFilterExpression(constraintReq.attrWhereCondition);
+	 if(filterCondition.get() == null) {
+		抛出异常
+	 }
+	 return query(category,constraintReq,attrWhereCondition);
+}
+
+List<PartCategory> query(PartCategory category,PartConstraintReq constraintReq,FilterCondition attrWhereCondition ){ 
+{
+	 PartCategory resultPartCategory = category.clone();
+	 List<PartCategory> resultSubPartCategory = new ArrayList();
+	 if(!category.partCategoryMap.isEmpty()) {
+		for(PartCategory pc: partCategoryMap.values()) {
+			resultSubPartCategory.addAll(query(pc,constraintReq);
+		}  
+	 }	
+	 resultPartCategory.addPartCategory(resultSubPartCategory);
+
+	 //处理当前层part 
+	 result = parseAttribute(constraintReq.attrCode,category.dynAttrSchemas), 解析出原始属性Capacity    
+	 List<Part> filterParts = new ArrayList();
+	 if(result.first.instType == 0) {//非实例属性（默认）
+		filterParts = FilterExpressionExecutor.doSelect(category.partMap.values(),attrWhereCondition);  
+	 }
+	 else {//实例属性 
+		for(Part part:	category.partMap.values()) {
+			List<InstanceDynAttrValueItem> instValues = FilterExpressionExecutor.doSelect(part.getInstanceAttrs().getInstsValues(),attrWhereCondition);
+			int sumAttrValue = 0;
+			for(InstanceDynAttrValueItem instValue: instValues) {
+					sumAttrValue += parseInt(instValue.getInstAttr(result.first.getCode())) //TODO类型处理
+			}
+		    Part cPart = part.clone();
+	        cpart.addAttr(result.first.getCode(),String.valueOf(sumAttrValue));
+			filterParts.add(cPart);
+		} 
+	 }
+	 resultPartCategory.addPart(filterParts); 
+}
+ 
+Pair<DynamicAttribute,String>  parseAttribute(String orgAttrCode,List<DynamicAttribute> dynAttrSchemas){
+	....
+	//例如：orgAttrCode="sum.Capacity"， 输出：DynamicAttribute{code=”Capacity“，...}, AttrFunConstant.SUM 
+}
+
+2、Module的类中init方法，增加对Part的初始化
+修改前：
+void init() {
+	....
+    initRefRelationGraph();
+}
+修改后：
+void init() {
+	....
+    initRefRelationGraph();
+	 根据fatherCode进行对PartCategory的partCategoryMap partMap 进行初始化
+}
+ 
+ 
+
+3、com.jmix.executor.omodel增加下列类：
+ PartConstraintReq、PartConstantAttr、AttrFunConstant
+ class PartConstraintReq {
+	String partCatagory  
+	String attrCode 
+	String attrComparator 
+	String attrValue 
+	String attrWhereCondition 
+}
+class PartConstantAttr{
+	public final String Quantity = "Quantity";//动态属性，常量
+	 
+
+}
+//属性函数常量
+class AttrFunConstant{
+	public final String FUN_PREFIX_SUM = "sum";
+	public final String FUN_PREFIX_AVERAGE = "average"; 
+	public final String FUN_PREFIX_EMPTY = ""; 
+}
+
+
+//例如：5400速率的硬盘容量>=5T  
+class PartConstraintReq {
+	partCatagory = "drive"
+	attrCode="sum.Capacity"//多个的汇总
 	attrComparator=">="
 	attrValue="5" 
 	attrWhereCondition="Speed=5400"
 }
 
-//先过滤  
-
-class c
-{
-
-@Ignore
-Map<String,PartCategory>  partCategoryMap;
-
-@Ignore
-Map<String, Part> partMap
-
-List<Part> query(String partCatagory, PartFilter filter){
-
-}	
-List<Part> query(PartFilter filter){
-	//先filter.attrCode，在dynAttrSchemas定义是不是 实例类型(instType=1)
-	//如果是实例类型
-	instsStr= getDynAttrs("instanceAttrs")  
-	累积出的结果：---InstanceDynAttrValue.query(instsStr,filter.attrWhereCondition);
-
-	//不是实例属性
-	
-	//
+//例如：单个硬盘的容量只能是2T，单个的约束都放到里面去？ 
+//表示1
+class PartConstraintReq {
+	partCatagory = "drive"
+	attrCode="" //单个硬盘
+	attrComparator=""
+	attrValue="" 
+	attrWhereCondition="Capacity=5"
 }
+ 
+
+//例如：5400速率的固态硬盘2块
+class PartConstraintReq  {
+	partCatagory = "solidDrive"
+	attrCode="sum.Quantity"
+	attrComparator="=="
+	attrValue="2" 
+	attrWhereCondition="Speed=5400" 
+|
 
 
-
-对Module读取完后
-在init的最后，根据fatherCode进行填充
-
-
+ 
 
 
 FilterUtils.query
 
 
-先过滤：
+
  
-
-PartCatagory 
-
-List<
-
-将原来InstanceDynAttrValue改成 InstanceDynAttrValueItem
-
-@Data
-class  c {//多实例类型属性值 
-	List<InstanceDynAttrValueItem>  instsValues;
-	//例如：attrWhereCondition="Speed like %5400%"，表示查询 attrs["speed"] like  %5400%的InstanceDynAttrValueItem
-	List<InstanceDynAttrValueItem>> query(String whereCondition) {
-		 //....
-	}	
- public static String toJsonString(InstanceDynAttrValue iValue) {}
-
-   public static InstanceDynAttrValue fromJsonString(String strValue) {}
-}
-
 
  
 
@@ -487,3 +583,20 @@ TODO:   --这个有问题？
 TODO: attr
     "dynAttrSchemas" : [ "java.util.ArrayList", [ ] ],
     "dynAttrSchema" : null
+
+
+先过滤，在构建约束条件？ ***
+
+多个约束请求？ 都变成and？ 
+  A or B  ==> A and ~B  吗？ TODO 
+ 
+//表示2，是静态的都放到这里？ 
+class PartConstraintReq {
+	partCatagory = "drive"
+	attrCode="Capacity" //单个硬盘
+	attrComparator="=="
+	attrValue="2" 
+	attrWhereCondition=""
+}
+
+TODO: 非inst属性和属性不能混合在一起？

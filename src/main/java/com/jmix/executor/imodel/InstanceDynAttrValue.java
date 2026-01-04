@@ -34,7 +34,7 @@ public class InstanceDynAttrValue {
     public List<InstanceDynAttrValueItem> query(String whereCondition) {
         // 将实例属性值转换为属性映射列表
         List<Map<String, String>> attrMaps = instsValues.stream()
-                .map(InstanceDynAttrValueItem::getInstAttr)
+                .map(InstanceDynAttrValueItem::getInstAttrs)
                 .collect(Collectors.toList());
 
         // 使用工具类进行查询
@@ -42,7 +42,7 @@ public class InstanceDynAttrValue {
 
         // 将过滤后的属性映射转换回实例属性值对象
         return instsValues.stream()
-                .filter(item -> filteredAttrs.contains(item.getInstAttr()))
+                .filter(item -> filteredAttrs.contains(item.getInstAttrs()))
                 .collect(Collectors.toList());
     }
 
