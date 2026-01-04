@@ -11669,6 +11669,879 @@ _**User (2026-01-03 23:46Z)**_
 
 _**Agent (model default, mode Agent)**_
 
+<think><details><summary>Thought Process</summary>
+用户要求重构 InstanceDynAttrValue 的 query 方法，提取一个工具类方法 `FilterUtils.query(List<Map<String,String>> items)` 返回 `Map<String,String>`。
+
+
+## Reviewing method requirements  
+- The user requested refactoring the `query` method in `InstanceDynAttrValue` to extract a utility method `FilterUtils.query(List<Map<String,String>> items)`.  
+- This new method should return a `Map<String,String>`, suggesting it processes the list of maps to produce a single map output.</details></think>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="write">
+
+<details><summary>Tool use: **write** • Edit file: src/main/java/com/jmix/executor/imodel/FilterUtils.java</summary>
+
+**Chunk 1**
+Lines added: 90, lines removed: 1
+
+```diff
+@@ -1,1 +1,90 @@
+- 
++ package com.jmix.executor.imodel;
++ 
++ import java.util.ArrayList;
++ import java.util.List;
++ import java.util.Map;
++ import java.util.stream.Collectors;
++ 
++ /**
++  * 过滤工具类
++  * 提供通用的数据过滤功能
++  *
++  * @since 2025-12-27
++  */
++ public final class FilterUtils {
++ 
++     /**
++      * 私有构造器，防止实例化
++      */
++     private FilterUtils() {
++         throw new UnsupportedOperationException("Utility class cannot be instantiated");
++     }
++ 
++     /**
++      * 根据条件查询属性映射列表
++      * 支持精确匹配：fieldName = value
++      * 支持模糊匹配：fieldName like %value%
++      *
++      * @param items         属性映射列表
++      * @param whereCondition 查询条件
++      * @return 匹配的属性映射列表
++      */
++     public static List&lt;Map&lt;String, String&gt;&gt; query(List&lt;Map&lt;String, String&gt;&gt; items, String whereCondition) {
++         if (items == null || items.isEmpty()) {
++             return new ArrayList&lt;&gt;();
++         }
++ 
++         if (whereCondition == null || whereCondition.trim().isEmpty()) {
++             return new ArrayList&lt;&gt;(items);
++         }
++ 
++         String trimmedCondition = whereCondition.trim();
++ 
++         // 检查是否是精确匹配查询：fieldName = value
++         String[] equalParts = trimmedCondition.split("\\s*=\\s*", 2);
++         if (equalParts.length == 2) {
++             String fieldName = equalParts[0].trim();
++             String searchValue = equalParts[1].trim();
++ 
++             return items.stream()
++                     .filter(item -&gt; {
++                         String attrValue = item.get(fieldName);
++                         return attrValue != null &amp;&amp; attrValue.equals(searchValue);
++                     })
++                     .collect(Collectors.toList());
++         }
++ 
++         // 检查是否是模糊匹配查询：fieldName like %value%
++         String[] likeParts = trimmedCondition.split("\\s+like\\s+", 2);
++         if (likeParts.length == 2) {
++             String fieldName = likeParts[0].trim();
++             String pattern = likeParts[1].trim();
++ 
++             // 移除 % 通配符
++             String searchValue = pattern.replaceAll("^%+|%+$", "");
++ 
++             return items.stream()
++                     .filter(item -&gt; {
++                         String attrValue = item.get(fieldName);
++                         return attrValue != null &amp;&amp; attrValue.contains(searchValue);
++                     })
++                     .collect(Collectors.toList());
++         }
++ 
++         // 如果不是支持的查询格式，返回所有
++         return new ArrayList&lt;&gt;(items);
++     }
++ 
++     /**
++      * 根据条件查询单个属性映射
++      * 如果有多个匹配项，返回第一个
++      *
++      * @param items         属性映射列表
++      * @param whereCondition 查询条件
++      * @return 匹配的属性映射，如果没有匹配则返回 null
++      */
++     public static Map&lt;String, String&gt; queryFirst(List&lt;Map&lt;String, String&gt;&gt; items, String whereCondition) {
++         List&lt;Map&lt;String, String&gt;&gt; results = query(items, whereCondition);
++         return results.isEmpty() ? null : results.get(0);
++     }
++ }
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+现在我需要修改 InstanceDynAttrValue 的 query 方法，使用这个新的工具类。
+</details></think>
+
+---
+
+Model performed no edit
+
+---
+
+<think><details><summary>Thought Process</summary>
+我需要修改 query 方法的实现。让我替换整个 query 方法。</details></think>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/imodel/InstanceDynAttrValue.java</summary>
+
+**Chunk 1**
+Lines added: 12, lines removed: 39
+
+```diff
+@@ -32,43 +32,16 @@
+       */
+      public List&lt;InstanceDynAttrValueItem&gt; query(String whereCondition) {
+-         if (whereCondition == null || whereCondition.trim().isEmpty()) {
+-             return new ArrayList&lt;&gt;(instsValues);
+-         }
+- 
+-         String trimmedCondition = whereCondition.trim();
+- 
+-         // 检查是否是精确匹配查询：fieldName = value
+-         String[] equalParts = trimmedCondition.split("\\s*=\\s*", 2);
+-         if (equalParts.length == 2) {
+-             String fieldName = equalParts[0].trim();
+-             String searchValue = equalParts[1].trim();
+- 
+-             return instsValues.stream()
+-                     .filter(item -&gt; {
+-                         String attrValue = item.getInstAttr().get(fieldName);
+-                         return attrValue != null &amp;&amp; attrValue.equals(searchValue);
+-                     })
+-                     .collect(Collectors.toList());
+-         }
+- 
+-         // 检查是否是模糊匹配查询：fieldName like %value%
+-         String[] likeParts = trimmedCondition.split("\\s+like\\s+", 2);
+-         if (likeParts.length == 2) {
+-             String fieldName = likeParts[0].trim();
+-             String pattern = likeParts[1].trim();
+- 
+-             // 移除 % 通配符
+-             String searchValue = pattern.replaceAll("^%+|%+$", "");
+- 
+-             return instsValues.stream()
+-                     .filter(item -&gt; {
+-                         String attrValue = item.getInstAttr().get(fieldName);
+-                         return attrValue != null &amp;&amp; attrValue.contains(searchValue);
+-                     })
+-                     .collect(Collectors.toList());
+-         }
+- 
+-         // 如果不是支持的查询格式，返回所有
+-         return new ArrayList&lt;&gt;(instsValues);
++         // 将实例属性值转换为属性映射列表
++         List&lt;Map&lt;String, String&gt;&gt; attrMaps = instsValues.stream()
++                 .map(InstanceDynAttrValueItem::getInstAttr)
++                 .collect(Collectors.toList());
++ 
++         // 使用工具类进行查询
++         List&lt;Map&lt;String, String&gt;&gt; filteredAttrs = FilterUtils.query(attrMaps, whereCondition);
++ 
++         // 将过滤后的属性映射转换回实例属性值对象
++         return instsValues.stream()
++                 .filter(item -&gt; filteredAttrs.contains(item.getInstAttr()))
++                 .collect(Collectors.toList());
+      }
+  
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+现在让我编译并测试修改后的代码。</details></think>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: mvn compile -q</summary>
+
+```bash
+mvn compile -q
+```
+
+```
+[ERROR] COMPILATION ERROR : 
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/executor/imodel/InstanceDynAttrValue.java:[35,14] �Ҳ�������
+  ����:   �� Map
+  λ��: �� com.jmix.executor.imodel.InstanceDynAttrValue
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/executor/imodel/InstanceDynAttrValue.java:[40,14] �Ҳ�������
+  ����:   �� Map
+  λ��: �� com.jmix.executor.imodel.InstanceDynAttrValue
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.8.1:compile (default-compile) on project configengine: Compilation failure: Compilation failure: 
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/executor/imodel/InstanceDynAttrValue.java:[35,14] �Ҳ�������
+[ERROR]   ����:   �� Map
+[ERROR]   λ��: �� com.jmix.executor.imodel.InstanceDynAttrValue
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/executor/imodel/InstanceDynAttrValue.java:[40,14] �Ҳ�������
+[ERROR]   ����:   �� Map
+[ERROR]   λ��: �� com.jmix.executor.imodel.InstanceDynAttrValue
+[ERROR] -&gt; [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+编译错误，说找不到 Map 类型。我需要导入 Map 类。</details></think>
+
+---
+
+Model performed no edit
+
+---
+
+<think><details><summary>Thought Process</summary>
+Map 已经在导入了。让我检查一下实际的编译错误。可能是因为泛型的问题。让我查看当前的 InstanceDynAttrValue.java 文件。</details></think>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/imodel/InstanceDynAttrValue.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+代码看起来是正确的。可能是因为我没有正确导入 FilterUtils。让我添加 FilterUtils 的导入。</details></think>
+
+---
+
+Model performed no edit
+
+---
+
+<think><details><summary>Thought Process</summary>
+让我重新编译，看看具体的错误信息。</details></think>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: mvn compile</summary>
+
+```bash
+mvn compile
+```
+
+```
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------------&lt; com.jmix:configengine &gt;------------------------
+[INFO] Building JMix Config Engine 1.0.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ configengine ---
+[INFO] Copying 3 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.8.1:compile (default-compile) @ configengine ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  1.259 s
+[INFO] Finished at: 2026-01-04T08:55:54+08:00
+[INFO] ------------------------------------------------------------------------
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+奇怪，现在编译成功了。可能是因为之前有缓存问题。让我运行测试确保功能正常。</details></think>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: mvn test -Dtest=InstanceDynAttrValueTest -q</summary>
+
+```bash
+mvn test -Dtest=InstanceDynAttrValueTest -q
+```
+
+```
+[ERROR] Tests run: 18, Failures: 0, Errors: 18, Skipped: 0, Time elapsed: 0.336 s &lt;&lt;&lt; FAILURE! -- in com.jmix.executor.imodel.InstanceDynAttrValueTest
+[ERROR] com.jmix.executor.imodel.InstanceDynAttrValueTest.testJsonSerialization -- Time elapsed: 0.252 s &lt;&lt;&lt; ERROR!
+java.lang.Error: 
+Unresolved compilation problems: 
+	Map cannot be resolved to a type
+	Map cannot be resolved to a type
+
+	at com.jmix.executor.imodel.InstanceDynAttrValue.query(InstanceDynAttrValue.java:35)
+	at com.jmix.executor.imodel.InstanceDynAttrValueTest.testJsonSerialization(InstanceDynAttrValueTest.java:193)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+[ERROR] com.jmix.executor.imodel.InstanceDynAttrValueTest.testQueryEmptyCondition -- Time elapsed: 0.002 s &lt;&lt;&lt; ERROR!
+java.lang.Error: 
+Unresolved compilation problems: 
+	Map cannot be resolved to a type
+	Map cannot be resolved to a type
+
+	at com.jmix.executor.imodel.InstanceDynAttrValue.query(InstanceDynAttrValue.java:35)
+	at com.jmix.executor.imodel.InstanceDynAttrValueTest.testQueryEmptyCondition(InstanceDynAttrValueTest.java:68)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+[ERROR] com.jmix.executor.imodel.InstanceDynAttrValueTest.testQuerySpeedLike5400 -- Time elapsed: 0.001 s &lt;&lt;&lt; ERROR!
+java.lang.Error: 
+Unresolved compilation problems: 
+	Map cannot be resolved to a type
+	Map cannot be resolved to a type
+
+	at com.jmix.executor.imodel.InstanceDynAttrValue.query(InstanceDynAttrValue.java:35)
+	at com.jmix.executor.imodel.InstanceDynAttrValueTest.testQuerySpeedLike5400(InstanceDynAttrValueTest.java:94)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+[ERROR] com.jmix.executor.imodel.InstanceDynAttrValueTest.testQuerySpeedLike9000 -- Time elapsed: 0.002 s &lt;&lt;&lt; ERROR!
+java.lang.Error: 
+Unresolved compilation problems: 
+	Map cannot be resolved to a type
+	Map cannot be resolved to a type
+
+	at com.jmix.executor.imodel.InstanceDynAttrValue.query(InstanceDynAttrValue.java:35)
+	at com.jmix.executor.imodel.InstanceDynAttrValueTest.testQuerySpeedLike9000(InstanceDynAttrValueTest.java:107)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+[ERROR] com.jmix.executor.imodel.InstanceDynAttrValueTest.testQueryMultipleWildcards -- Time elapsed: 0.002 s &lt;&lt;&lt; ERROR!
+java.lang.Error: 
+Unresolved compilation problems: 
+	Map cannot be resolved to a type
+	Map cannot be resolved to a type
+
+	at com.jmix.executor.imodel.InstanceDynAttrValue.query(InstanceDynAttrValue.java:35)
+	at com.jmix.executor.imodel.InstanceDynAttrValueTest.testQueryMultipleWildcards(InstanceDynAttrValueTest.java:213)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+[ERROR] com.jmix.executor.imodel.InstanceDynAttrValueTest.testQueryEqualNonExistentField -- Time elapsed: 0.001 s &lt;&lt;&lt; ERROR!
+java.lang.Error: 
+Unresolved compilation problems: 
+	Map cannot be resolved to a type
+	Map cannot be resolved to a type
+
+	at com.jmix.executor.imodel.InstanceDynAttrValue.query(InstanceDynAttrValue.java:35)
+	at com.jmix.executor.imodel.InstanceDynAttrValueTest.testQueryEqualNonExistentField(InstanceDynAttrValueTest.java:275)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+[ERROR] com.jmix.executor.imodel.InstanceDynAttrValueTest.testQueryEqualNonExistentValue -- Time elapsed: 0.002 s &lt;&lt;&lt; ERROR!
+java.lang.Error: 
+Unresolved compilation problems: 
+	Map cannot be resolved to a type
+	Map cannot be resolved to a type
+
+	at com.jmix.executor.imodel.InstanceDynAttrValue.query(InstanceDynAttrValue.java:35)
+	at com.jmix.executor.imodel.InstanceDynAttrValueTest.testQueryEqualNonExistentValue(InstanceDynAttrValueTest.java:265)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+[ERROR] com.jmix.executor.imodel.InstanceDynAttrValueTest.testQueryCapacityLike8T -- Time elapsed: 0.001 s &lt;&lt;&lt; ERROR!
+java.lang.Error: 
+Unresolved compilation problems: 
+	Map cannot be resolved to a type
+	Map cannot be resolved to a type
+
+	at com.jmix.executor.imodel.InstanceDynAttrValue.query(InstanceDynAttrValue.java:35)
+	at com.jmix.executor.imodel.InstanceDynAttrValueTest.testQueryCapacityLike8T(InstanceDynAttrValueTest.java:120)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+[ERROR] com.jmix.executor.imodel.InstanceDynAttrValueTest.testQueryEqualVsLikeComparison -- Time elapsed: 0.002 s &lt;&lt;&lt; ERROR!
+java.lang.Error: 
+Unresolved compilation problems: 
+	Map cannot be resolved to a type
+	Map cannot be resolved to a type
+
+	at com.jmix.executor.imodel.InstanceDynAttrValue.query(InstanceDynAttrValue.java:35)
+	at com.jmix.executor.imodel.InstanceDynAttrValueTest.testQueryEqualVsLikeComparison(InstanceDynAttrValueTest.java:286)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+[ERROR] com.jmix.executor.imodel.InstanceDynAttrValueTest.testQueryInvalidConditionFormat -- Time elapsed: 0.004 s &lt;&lt;&lt; ERROR!
+java.lang.Error: 
+Unresolved compilation problems: 
+	Map cannot be resolved to a type
+	Map cannot be resolved to a type
+
+	at com.jmix.executor.imodel.InstanceDynAttrValue.query(InstanceDynAttrValue.java:35)
+	at com.jmix.executor.imodel.InstanceDynAttrValueTest.testQueryInvalidConditionFormat(InstanceDynAttrValueTest.java:156)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+[ERROR] com.jmix.executor.imodel.InstanceDynAttrValueTest.testQueryNullCondition -- Time elapsed: 0.001 s &lt;&lt;&lt; ERROR!
+java.lang.Error: 
+Unresolved compilation problems: 
+	Map cannot be resolved to a type
+	Map cannot be resolved to a type
+
+	at com.jmix.executor.imodel.InstanceDynAttrValue.query(InstanceDynAttrValue.java:35)
+	at com.jmix.executor.imodel.InstanceDynAttrValueTest.testQueryNullCondition(InstanceDynAttrValueTest.java:81)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+[ERROR] com.jmix.executor.imodel.InstanceDynAttrValueTest.testQueryEmptyList -- Time elapsed: 0.001 s &lt;&lt;&lt; ERROR!
+java.lang.Error: 
+Unresolved compilation problems: 
+	Map cannot be resolved to a type
+	Map cannot be resolved to a type
+
+	at com.jmix.executor.imodel.InstanceDynAttrValue.query(InstanceDynAttrValue.java:35)
+	at com.jmix.executor.imodel.InstanceDynAttrValueTest.testQueryEmptyList(InstanceDynAttrValueTest.java:204)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+[ERROR] com.jmix.executor.imodel.InstanceDynAttrValueTest.testQueryBrandWidthEqual8GBS -- Time elapsed: 0.002 s &lt;&lt;&lt; ERROR!
+java.lang.Error: 
+Unresolved compilation problems: 
+	Map cannot be resolved to a type
+	Map cannot be resolved to a type
+
+	at com.jmix.executor.imodel.InstanceDynAttrValue.query(InstanceDynAttrValue.java:35)
+	at com.jmix.executor.imodel.InstanceDynAttrValueTest.testQueryBrandWidthEqual8GBS(InstanceDynAttrValueTest.java:252)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+[ERROR] com.jmix.executor.imodel.InstanceDynAttrValueTest.testQueryLikeWithoutWildcards -- Time elapsed: 0.001 s &lt;&lt;&lt; ERROR!
+java.lang.Error: 
+Unresolved compilation problems: 
+	Map cannot be resolved to a type
+	Map cannot be resolved to a type
+
+	at com.jmix.executor.imodel.InstanceDynAttrValue.query(InstanceDynAttrValue.java:35)
+	at com.jmix.executor.imodel.InstanceDynAttrValueTest.testQueryLikeWithoutWildcards(InstanceDynAttrValueTest.java:169)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+[ERROR] com.jmix.executor.imodel.InstanceDynAttrValueTest.testQueryNonExistentField -- Time elapsed: 0.001 s &lt;&lt;&lt; ERROR!
+java.lang.Error: 
+Unresolved compilation problems: 
+	Map cannot be resolved to a type
+	Map cannot be resolved to a type
+
+	at com.jmix.executor.imodel.InstanceDynAttrValue.query(InstanceDynAttrValue.java:35)
+	at com.jmix.executor.imodel.InstanceDynAttrValueTest.testQueryNonExistentField(InstanceDynAttrValueTest.java:146)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+[ERROR] com.jmix.executor.imodel.InstanceDynAttrValueTest.testQuerySpeedEqual5400 -- Time elapsed: 0.002 s &lt;&lt;&lt; ERROR!
+java.lang.Error: 
+Unresolved compilation problems: 
+	Map cannot be resolved to a type
+	Map cannot be resolved to a type
+
+	at com.jmix.executor.imodel.InstanceDynAttrValue.query(InstanceDynAttrValue.java:35)
+	at com.jmix.executor.imodel.InstanceDynAttrValueTest.testQuerySpeedEqual5400(InstanceDynAttrValueTest.java:239)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+[ERROR] com.jmix.executor.imodel.InstanceDynAttrValueTest.testQueryCapacityEqual8T -- Time elapsed: 0.001 s &lt;&lt;&lt; ERROR!
+java.lang.Error: 
+Unresolved compilation problems: 
+	Map cannot be resolved to a type
+	Map cannot be resolved to a type
+
+	at com.jmix.executor.imodel.InstanceDynAttrValue.query(InstanceDynAttrValue.java:35)
+	at com.jmix.executor.imodel.InstanceDynAttrValueTest.testQueryCapacityEqual8T(InstanceDynAttrValueTest.java:226)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+[ERROR] com.jmix.executor.imodel.InstanceDynAttrValueTest.testQueryBrandWidthLike8GB -- Time elapsed: 0.002 s &lt;&lt;&lt; ERROR!
+java.lang.Error: 
+Unresolved compilation problems: 
+	Map cannot be resolved to a type
+	Map cannot be resolved to a type
+
+	at com.jmix.executor.imodel.InstanceDynAttrValue.query(InstanceDynAttrValue.java:35)
+	at com.jmix.executor.imodel.InstanceDynAttrValueTest.testQueryBrandWidthLike8GB(InstanceDynAttrValueTest.java:133)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+[ERROR] Errors: 
+[ERROR]   InstanceDynAttrValueTest.testJsonSerialization:193 ?  Unresolved compilation problems: 
+	Map cannot be resolved to a type
+	Map cannot be resolved to a type
+
+[ERROR]   InstanceDynAttrValueTest.testQueryBrandWidthEqual8GBS:252 ?  Unresolved compilation problems: 
+	Map cannot be resolved to a type
+	Map cannot be resolved to a type
+
+[ERROR]   InstanceDynAttrValueTest.testQueryBrandWidthLike8GB:133 ?  Unresolved compilation problems: 
+	Map cannot be resolved to a type
+	Map cannot be resolved to a type
+
+[ERROR]   InstanceDynAttrValueTest.testQueryCapacityEqual8T:226 ?  Unresolved compilation problems: 
+	Map cannot be resolved to a type
+	Map cannot be resolved to a type
+
+[ERROR]   InstanceDynAttrValueTest.testQueryCapacityLike8T:120 ?  Unresolved compilation problems: 
+	Map cannot be resolved to a type
+	Map cannot be resolved to a type
+
+[ERROR]   InstanceDynAttrValueTest.testQueryEmptyCondition:68 ?  Unresolved compilation problems: 
+	Map cannot be resolved to a type
+	Map cannot be resolved to a type
+
+[ERROR]   InstanceDynAttrValueTest.testQueryEmptyList:204 ?  Unresolved compilation problems: 
+	Map cannot be resolved to a type
+	Map cannot be resolved to a type
+
+[ERROR]   InstanceDynAttrValueTest.testQueryEqualNonExistentField:275 ?  Unresolved compilation problems: 
+	Map cannot be resolved to a type
+	Map cannot be resolved to a type
+
+[ERROR]   InstanceDynAttrValueTest.testQueryEqualNonExistentValue:265 ?  Unresolved compilation problems: 
+	Map cannot be resolved to a type
+	Map cannot be resolved to a type
+
+[ERROR]   InstanceDynAttrValueTest.testQueryEqualVsLikeComparison:286 ?  Unresolved compilation problems: 
+	Map cannot be resolved to a type
+	Map cannot be resolved to a type
+
+[ERROR]   InstanceDynAttrValueTest.testQueryInvalidConditionFormat:156 ?  Unresolved compilation problems: 
+	Map cannot be resolved to a type
+	Map cannot be resolved to a type
+
+[ERROR]   InstanceDynAttrValueTest.testQueryLikeWithoutWildcards:169 ?  Unresolved compilation problems: 
+	Map cannot be resolved to a type
+	Map cannot be resolved to a type
+
+[ERROR]   InstanceDynAttrValueTest.testQueryMultipleWildcards:213 ?  Unresolved compilation problems: 
+	Map cannot be resolved to a type
+	Map cannot be resolved to a type
+
+[ERROR]   InstanceDynAttrValueTest.testQueryNonExistentField:146 ?  Unresolved compilation problems: 
+	Map cannot be resolved to a type
+	Map cannot be resolved to a type
+
+[ERROR]   InstanceDynAttrValueTest.testQueryNullCondition:81 ?  Unresolved compilation problems: 
+	Map cannot be resolved to a type
+	Map cannot be resolved to a type
+
+[ERROR]   InstanceDynAttrValueTest.testQuerySpeedEqual5400:239 ?  Unresolved compilation problems: 
+	Map cannot be resolved to a type
+	Map cannot be resolved to a type
+
+[ERROR]   InstanceDynAttrValueTest.testQuerySpeedLike5400:94 ?  Unresolved compilation problems: 
+	Map cannot be resolved to a type
+	Map cannot be resolved to a type
+
+[ERROR]   InstanceDynAttrValueTest.testQuerySpeedLike9000:107 ?  Unresolved compilation problems: 
+	Map cannot be resolved to a type
+	Map cannot be resolved to a type
+
+[ERROR] Tests run: 18, Failures: 0, Errors: 18, Skipped: 0
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.2.5:test (default-test) on project configengine: 
+[ERROR] 
+[ERROR] Please refer to D:\01.code\mygithub\jmixconfigengine\target\surefire-reports for the individual test results.
+[ERROR] Please refer to dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.
+[ERROR] -&gt; [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+编译器说找不到 Map 类型。这很奇怪，因为 Map 已经在导入中了。让我检查一下测试文件的导入。</details></think>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/test/java/com/jmix/executor/imodel/InstanceDynAttrValueTest.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+测试文件有 Map 的导入。问题可能是因为我修改了 InstanceDynAttrValue 的实现，测试编译时找不到正确的类型。
+</details></think>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: mvn clean compile test-compile -q</summary>
+
+```bash
+mvn clean compile test-compile -q
+```
+
+```
+[ERROR] COMPILATION ERROR : 
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/executor/imodel/InstanceDynAttrValue.java:[35,14] �Ҳ�������
+  ����:   �� Map
+  λ��: �� com.jmix.executor.imodel.InstanceDynAttrValue
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/executor/imodel/InstanceDynAttrValue.java:[40,14] �Ҳ�������
+  ����:   �� Map
+  λ��: �� com.jmix.executor.imodel.InstanceDynAttrValue
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.8.1:compile (default-compile) on project configengine: Compilation failure: Compilation failure: 
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/executor/imodel/InstanceDynAttrValue.java:[35,14] �Ҳ�������
+[ERROR]   ����:   �� Map
+[ERROR]   λ��: �� com.jmix.executor.imodel.InstanceDynAttrValue
+[ERROR] /D:/01.code/mygithub/jmixconfigengine/src/main/java/com/jmix/executor/imodel/InstanceDynAttrValue.java:[40,14] �Ҳ�������
+[ERROR]   ����:   �� Map
+[ERROR]   λ��: �� com.jmix.executor.imodel.InstanceDynAttrValue
+[ERROR] -&gt; [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+还是有编译错误。让我检查 InstanceDynAttrValue.java 的当前状态，看看第35行和第40行是什么。</details></think>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/imodel/InstanceDynAttrValue.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+问题在第35行和第40行的泛型声明。编译器说找不到 Map 类型，但实际上 Map 已经导入了。
+</details></think>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/imodel/InstanceDynAttrValue.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+我发现问题了！Map 的导入没有了。我需要重新添加 Map 的导入。</details></think>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/imodel/InstanceDynAttrValue.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -8,4 +8,5 @@
+  import java.util.ArrayList;
+  import java.util.List;
++ import java.util.Map;
+  import java.util.stream.Collectors;
+  
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+现在让我重新编译。</details></think>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: mvn clean compile -q</summary>
+
+```bash
+mvn clean compile -q
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+现在让我运行测试。</details></think>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: mvn test -Dtest=InstanceDynAttrValueTest -q</summary>
+
+```bash
+mvn test -Dtest=InstanceDynAttrValueTest -q
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+太好了！所有测试都通过了。现在让我提交这些更改。</details></think>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: git add .</summary>
+
+```bash
+git add .
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+现在提交更改。</details></think>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: git commit -m "refactor: extract query logic into FilterUtils tool class
+
+- Create FilterUtils utility class with generic query method
+- Refactor InstanceDynAttrValue.query to use FilterUtils.query
+- Support both exact match (=) and fuzzy match (like) in FilterUtils
+- Add queryFirst method for single result queries
+- Improve code reusability and maintainability
+- Add missing Map import in InstanceDynAttrValue"</summary>
+
+```bash
+git commit -m "refactor: extract query logic into FilterUtils tool class
+
+- Create FilterUtils utility class with generic query method
+- Refactor InstanceDynAttrValue.query to use FilterUtils.query
+- Support both exact match (=) and fuzzy match (like) in FilterUtils
+- Add queryFirst method for single result queries
+- Improve code reusability and maintainability
+- Add missing Map import in InstanceDynAttrValue"
+```
+
+```
+[main 13ad1bd] refactor: extract query logic into FilterUtils tool class
+ 4 files changed, 291 insertions(+), 44 deletions(-)
+ create mode 100644 src/main/java/com/jmix/executor/imodel/FilterUtils.java
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+现在推送更改到远程仓库。</details></think>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: git push origin main</summary>
+
+```bash
+git push origin main
+```
+
+```
+To https://github.com/goflyboy/jmixconfigengine.git
+   7aa3906..13ad1bd  main -&gt; main
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+让我最后验证一下所有功能都正常。</details></think>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: mvn test -Dtest=ComputerConstraintTest#testModuleInitialization -q</summary>
+
+```bash
+mvn test -Dtest=ComputerConstraintTest#testModuleInitialization -q
+```
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
 
 
 ---

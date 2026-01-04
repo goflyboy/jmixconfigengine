@@ -212,9 +212,11 @@ List<Part> query(String partCatagory, PartFilter filter){
 List<Part> query(PartFilter filter){
 	//先filter.attrCode，在dynAttrSchemas定义是不是 实例类型(instType=1)
 	//如果是实例类型
+	instsStr= getDynAttrs("instanceAttrs")  
+	累积出的结果：---InstanceDynAttrValue.query(instsStr,filter.attrWhereCondition);
 
 	//不是实例属性
-	insts= getDynAttrs("instanceAttrs") -
+	
 	//
 }
 
@@ -226,7 +228,7 @@ List<Part> query(PartFilter filter){
 
 
 
-
+FilterUtils.query
 
 
 先过滤：
