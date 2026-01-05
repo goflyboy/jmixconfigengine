@@ -456,19 +456,28 @@ solidDriver1Var.qty +  solidDriver2Var.qty + 。。。 ==2
  1.2 增加  
    List<PartVar>  subParts = new ArrayList();
    Map<String,PartVar> subPartMap = ....;//方便搜索
+   BoolVar isSelected;//是否选中
 
+ 增加类PartCatagoryVar 
+  class PartCatagoryVar extends PartVar {
 
+		PartCatagoryVar(...) {
+			setQty(null);//不初始化
+			setIsHidden(null);//不初始化
+		} 
 
+  }
 2、对类InferParasReq
   增加 List<PartConstraintReq>  partConstraintReqs
 
 
-3、在类ModuleScenarioTestBase增加
+3、在类ModuleScenarioTestBase 
+3.1 增加函数
 toPartConstraintReqs(String partCatagory, String strReq1,....) {
 	///....见下列案例
 }
 
-strReq1 = "sum.Quantity ==2 where Speed=540";  转化结果为：
+constraintReq1 = "sum.Quantity ==2 where Speed=540";  转化结果为：
 //例如：5400速率的固态硬盘2块
 class PartConstraintReq1 {
 	partCatagory = "solidDrive"
@@ -478,7 +487,7 @@ class PartConstraintReq1 {
 	attrWhereCondition="Speed=5400" 
 |
 
-strReq2 = "sum.Quantity ==2 where Speed like %5400%";   转化结果为：
+constraintReq1 = "sum.Quantity ==2 where Speed like %5400%";   转化结果为：
  class PartConstraintReq  {
 	partCatagory = "solidDrive"
 	attrCode="sum.Quantity"
@@ -486,6 +495,13 @@ strReq2 = "sum.Quantity ==2 where Speed like %5400%";   转化结果为：
 	attrValue="2" 
 	attrWhereCondition="Speed like %5400%" 
 |
+3.3 增加函数
+      List<ModuleInst> inferRecommend(String partCode,String partCatagory, String constraintReq1,....) {
+		调用toPartConstraintReqs 根据入参构建 req
+		//参考inferParas
+	  }
+
+
 
 
 4、类Module增加
@@ -493,15 +509,15 @@ strReq2 = "sum.Quantity ==2 where Speed like %5400%";   转化结果为：
     private List<Part> backParts = new ArrayList<>();
 	
 	@jsonignore
-	public List<Part>  doSelect(String rootCategoryCode,List<PartConstraintReq> filterConstrants) {
-			
-			根据rootCategoryCode，从this.parts 查到 rootCategory 
-			Map<Part>  partMaps = backUpParas();
-			
-			
+	public List<Part>  doSelect(String rootCategoryCode,List<PartConstraintReq> filterConstrants) {			
+			根据rootCategoryCode，从this.parts 查到 rootPartCategory 
+		   backUpParas(); 
+		   PartCategory filtedPartCategory = doSelect(filterConstrants,rootPartCategory);
+		   根据filtedPartCategory对this.parts进行重新构造
+		   return this.parts;
 	}
 	@jsonignore
-	public PartCategory  doSelect(List<PartConstraintReq> filterConstrants, PartCategory rootCategory ) {
+	public PartCategory  doSelect(List<PartConstraintReq> filterConstrants, PartCategory rootPartCategory ) {
 			 for(PartConstraintReq cReq) { 
 				rootCategory = rootCategory.query(cReq);
 			 } 
@@ -509,23 +525,89 @@ strReq2 = "sum.Quantity ==2 where Speed like %5400%";   转化结果为：
 
 	
 		@jsonignore
-	public Map<Part>   backUpParts( ) {
+	public void  backUpParts( ) {
 			this.backParts  =  this.parts;
-			Map<Part> partMaps = new. HashMap(this.paras....);
-			this.paras = new ArrayList();
-			return partMaps;
+		 
+			this.paras = new ArrayList(); 
 	}
 		@jsonignore
 	public void  recoverParas( ) {
 				this.paras  =  this.backParas;
-			this.backParas = new ArrayList();	
+			    this.backParas = new ArrayList();	
 	}
 
-4、先过滤  
+4、对类ModuleConstraintExecutorImpl做下列更新
+4.1 
+   public Result<List<ModuleInst>> inferParas(InferParasReq req) {
+        ....
+		module.init();
+		
+		....
+	}
+4.2 增加方法
+   private void  process(module,req.partConstraintReqs) {
+	
+
+		//先过滤，再使用约束进行求解 
+		partConstraintReqs
+		
+		//....
+	}
 
 
 
 
+5、对类ConstraintAlgImpl做下列更新
+5.1 现有的   protected PartVar createPartVar(String code)  重构为两个函数：
+
+   protected PartVar createPartVar(String code) {
+        Optional<Part> partOpt = module != null ? module.getPart(code) : Optional.empty();
+        if (!partOpt.isPresent()) {
+            log.error("Part not found for code: {}", code);
+            throw new AlgLoaderException("Part not found for code: " + code);
+        }
+        Part part = partOpt.get();
+		if(Part instanceof PartCatagory) {
+				partVar = createPartCategoryVar(
+		 }
+		 partVar = createPartVar(part);
+		return partVar;
+		
+   }
+	protected PartVar createPartVar(Part part) {
+		//现有代码。。。
+    }
+
+    protected PartVar createPartCategoryVar(PartCatagory categoryPart) {
+        PartCatagoryVar partCategoryVar = new PartCatagoryVar();
+        partVar.setBase(categoryPart);
+        for(Part part: categoryPart.partMap.values) {
+			createPartVar(part);
+		}
+		for(PartCatagory tcategoryPart: categoryPart.partCategoryMap.values) {
+			createPartCategoryVar(tcategoryPart);
+		} 
+	}
+	
+6、 
+
+
+
+
+
+
+ TODO： diver根据分类类，可能要分， Part还是用模型建立起来比较好？感觉？*** （数据存储上不区分，但是在类上要区分，行为不同）
+
+	//TODO：单个纯粹过滤，待定？ 例如版本等事情？ 
+isHidden要去掉？  TODO  
+
+先过滤  
+
+TODO：module整个数据就是按本体化组织，按PartCategory组织---*
+
+
+
+TODO: 如果没有partCategory 
 TODO: filterConstrants 是 and 关系
 TODO: 先做一个PartCategory,然后再考虑其它  
    考虑到父分类，一个分类是否相同条件，包括， 单选、多选？ ---》这些封装很重要？***

@@ -1,4 +1,4 @@
-package com.jmix.scenario.partcategory;
+package com.jmix.scenario.partcategory2;
 
 import com.jmix.coretest.ConstraintAlgImplTestBase;
 import com.jmix.executor.imodel.anno.DAttrAnno1;

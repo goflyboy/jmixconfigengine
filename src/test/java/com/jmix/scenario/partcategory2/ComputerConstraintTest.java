@@ -1,4 +1,4 @@
-package com.jmix.scenario.partcategory;
+package com.jmix.scenario.partcategory2;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
