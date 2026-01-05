@@ -31,6 +31,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 模块场景测试基类
@@ -639,7 +641,7 @@ public abstract class ModuleScenarioTestBase {
             // 示例："sum.Quantity ==2 where Speed=540"
             String[] parts = strReq.split(" where ");
             if (parts.length == 2) {
-                req.setAttrWhereCondition(parts[1]);
+                req.setAttrWhereCondition(parts[1].trim());
             } else if (parts.length != 1) {
                 throw new IllegalArgumentException("Invalid constraint format: " + strReq);
             }
@@ -647,8 +649,8 @@ public abstract class ModuleScenarioTestBase {
             // 解析属性表达式：attrCode comparator value
             String attrExpr = parts[0].trim();
             // 使用正则表达式解析：支持==, !=, <, >, <=, >=等比较符
-            java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("(.+?)\\s*(==|!=|<=|>=|<|>)\\s*(.+)");
-            java.util.regex.Matcher matcher = pattern.matcher(attrExpr);
+            Pattern pattern = java.util.regex.Pattern.compile("(.+?)\\s*(==|!=|<=|>=|<|>)\\s*(.+)");
+            Matcher matcher = pattern.matcher(attrExpr);
 
             if (matcher.matches()) {
                 req.setAttrCode(matcher.group(1).trim());
@@ -666,26 +668,18 @@ public abstract class ModuleScenarioTestBase {
 
     /**
      * 基于部件约束进行推理推荐
-     *
-     * @param partCode       部件代码
-     * @param partCategory   部件类别
-     * @param constraintReqs 约束请求字符串数组
+     * 
+     * @param partCategoryCode 部件类别
+     * @param constraintReqs   约束请求字符串数组
      * @return 推荐的模块实例列表
      */
-    protected List<ModuleInst> inferRecommend(String partCode, String partCategory, String... constraintReqs) {
-        List<PartConstraintReq> partConstraintReqs = toPartConstraintReqs(partCategory, constraintReqs);
+    protected List<ModuleInst> inferRecommend(String partCategoryCode, String... constraintReqs) {
+        List<PartConstraintReq> partConstraintReqs = toPartConstraintReqs(partCategoryCode, constraintReqs);
 
         InferParasReq req = new InferParasReq();
         req.setModuleId(getModule().getId());
         req.setEnumerateAllSolution(isEnumerateAllSolution());
         req.setPartConstraintReqs(partConstraintReqs);
-
-        // 如果提供了partCode，设置为主部件
-        if (partCode != null && !partCode.isEmpty()) {
-            PartInst mainPartInst = new PartInst();
-            mainPartInst.setCode(partCode);
-            req.setMainPartInst(mainPartInst);
-        }
 
         Result<List<ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(req);
         log.info("Inference recommend result: {}", result);

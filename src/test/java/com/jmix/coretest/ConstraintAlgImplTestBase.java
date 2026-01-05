@@ -79,8 +79,15 @@ public class ConstraintAlgImplTestBase extends ConstraintAlgImpl {
         /**
          * 子部件选中状态(Part.code -> BoolVar)
          */
-        public Map<String, BoolVar> subPartSelectedVars = new HashMap<>();
+        // public Map<String, BoolVar> subPartSelectedVars = new HashMap<>();
 
+        /**
+         * 是否选中
+         */
+        public BoolVar isSelected;
+    }
+
+    public class PartCategoryVar extends PartVar {
     }
 
     /**
@@ -94,10 +101,14 @@ public class ConstraintAlgImplTestBase extends ConstraintAlgImpl {
         partVar.setBase(internalPartVar.getBase());
         partVar.qty = internalPartVar.getQty();
         partVar.isHidden = internalPartVar.getIsHidden();
-        // 初始化子部件选中状态映射 TODO
-        for (com.jmix.executor.impl.algmodel.PartVar subPart : internalPartVar.getSubParts()) {
-            partVar.subPartSelectedVars.put(subPart.getCode(), newBoolVar(subPart.getCode() + "_selected"));
-        }
+        partVar.isSelected = internalPartVar.getIsSelected();
+
+        // // 初始化子部件选中状态映射 TODO
+        // for (com.jmix.executor.impl.algmodel.PartVar subPart :
+        // internalPartVar.getSubParts()) {
+        // partVar.subPartSelectedVars.put(subPart.getCode(),
+        // newBoolVar(subPart.getCode() + "_selected"));
+        // }
         return partVar;
     }
 
