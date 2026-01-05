@@ -5,6 +5,7 @@ import com.jmix.executor.imodel.anno.DAttrAnno1;
 import com.jmix.executor.imodel.anno.DAttrAnno11;
 import com.jmix.executor.imodel.anno.DAttrAnno2;
 import com.jmix.executor.imodel.anno.DAttrAnno3;
+import com.jmix.executor.imodel.anno.DAttrAnno4;
 import com.jmix.executor.imodel.anno.DAttrInherit;
 import com.jmix.executor.imodel.anno.ModuleAnno;
 import com.jmix.executor.imodel.anno.PartAnno;
@@ -26,6 +27,8 @@ public class ComputerConstraint extends ConstraintAlgImplTestBase {
             "Speed_7200a5400:7200/5400:转" }, instType = 0)
     @DAttrAnno3(code = "Capacity", optionExtSchema = "IntegerUnit", options = { "Capacity_8T:8:T", "Capacity_16T:16:T",
             "Capacity_32T:32:T" }, instType = 0)
+    @DAttrAnno4(code = "capacityWeight", optionExtSchema = "IntegerUnit", options = { "CW_10:10", "CW_20:20", "CW_30:30",
+            "CW_100:100", "CW_200:200", "CW_300:300" }, instType = 0)
     private PartCategoryVar driveVar;
 
     // 固态硬盘部件分类，继承driveVar并重写属性
@@ -41,20 +44,29 @@ public class ComputerConstraint extends ConstraintAlgImplTestBase {
     private PartCategoryVar mechDrive;
 
     // 固态硬盘实例1
-    @PartAnno(fatherCode = "solidDrive", attrs = { "BW_8GB", "MaxCapacity_8T" }, attrsInst1 = { "Speed_5400",
+    @PartAnno(fatherCode = "solidDrive", attrs = { "BW_8GB", "MaxCapacity_8T", "CW_100" }, attrsInst1 = { "Speed_5400",
             "Capacity_8T" }, attrsInst2 = { "Speed_7200a5400", "Capacity_8T" })
     private PartVar solidDrive1;
 
     // 固态硬盘实例2
-    @PartAnno(fatherCode = "solidDrive", attrs = { "BW_16GB", "MaxCapacity_16T" }, attrsInst1 = { "Speed_9000",
+    @PartAnno(fatherCode = "solidDrive", attrs = { "BW_16GB", "MaxCapacity_16T", "CW_200" }, attrsInst1 = { "Speed_9000",
             "Capacity_16T" }, attrsInst2 = { "Speed_7200a5400", "Capacity_16T" })
     private PartVar solidDrive2;
 
+    // 固态硬盘实例3
+    @PartAnno(fatherCode = "solidDrive", attrs = { "BW_16GB", "MaxCapacity_16T", "CW_300" }, attrsInst1 = { "Speed_9000",
+            "Capacity_16T" })
+    private PartVar solidDrive3;
+
     // 机械硬盘实例1
-    @PartAnno(fatherCode = "mechDrive", attrs = { "BW_8GB", "Speed_5400", "Capacity_8T" })
+    @PartAnno(fatherCode = "mechDrive", attrs = { "BW_8GB", "Speed_5400", "Capacity_8T", "CW_30" })
     private PartVar mechDrive1;
 
     // 机械硬盘实例2
-    @PartAnno(fatherCode = "mechDrive", attrs = { "BW_16GB", "Speed_7200a5400", "Capacity_16T" })
+    @PartAnno(fatherCode = "mechDrive", attrs = { "BW_16GB", "Speed_7200a5400", "Capacity_16T", "CW_20" })
     private PartVar mechDrive2;
+
+    // 机械硬盘实例3
+    @PartAnno(fatherCode = "mechDrive", attrs = { "BW_16GB", "Speed_9000", "Capacity_16T", "CW_10" })
+    private PartVar mechDrive3;
 }
