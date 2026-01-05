@@ -4,6 +4,7 @@ import com.jmix.executor.imodel.DynamicAttributerOption;
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.Para;
 import com.jmix.executor.imodel.Part;
+import com.jmix.executor.imodel.PartCategory;
 import com.jmix.executor.imodel.Rule;
 import com.jmix.executor.imodel.rule.RefProgObjSchema;
 import com.jmix.executor.omodel.AlgLoaderException;
@@ -697,12 +698,77 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             throw new AlgLoaderException("Part not found for code: " + code);
         }
         Part part = partOpt.get();
+        if (part instanceof PartCategory) {
+            return createPartCategoryVar((PartCategory) part);
+        }
+        return createPartVar(part);
+    }
+
+    protected PartVar createPartVar(Part part) {
+        // 现有代码
         PartVar partVar = new PartVar();
         partVar.setBase(part);
-        partVar.setQty(newIntVar(0, part.getMaxQuantity(), f(PartVar.QTY_PATTERN, code)));
-        partVar.setIsHidden(newBoolVar(f(PartVar.HIDDEN_PATTERN, code)));
-        registerVar(code, partVar);
+        partVar.setQty(newIntVar(0, part.getMaxQuantity(), f(PartVar.QTY_PATTERN, part.getCode())));
+        partVar.setIsHidden(newBoolVar(f(PartVar.HIDDEN_PATTERN, part.getCode())));
+        registerVar(part.getCode(), partVar);
         return partVar;
+    }
+
+    protected PartVar createPartCategoryVar(PartCategory categoryPart) {
+        PartCategoryVar partCategoryVar = new PartCategoryVar();
+        partCategoryVar.setBase(categoryPart);
+        for (Part part : categoryPart.getPartMap().values()) {
+            createPartVar(part);
+        }
+        for (PartCategory subCategory : categoryPart.getPartCategoryMap().values()) {
+            createPartCategoryVar(subCategory);
+        }
+        return partCategoryVar;
+    }
+
+    /**
+     * 添加求和函数约束
+     *
+     * @param sumParts    求和的部件列表
+     * @param sumAttrCode 求和属性代码
+     * @param comparator  比较符
+     * @param leftValue   左值
+     */
+    protected void sumFunConstraint(List<Part> sumParts, String sumAttrCode, String comparator, int leftValue) {
+        List<IntVar> sumTerms = new ArrayList<>();
+        for (Part part : sumParts) {
+            PartVar partVar = getPartVar(part.getCode());
+            if (partVar.getQty() != null) {
+                int attrValue = Integer.parseInt(part.getAttr(sumAttrCode));
+                sumTerms.add(model.getCpModel().newConstant(attrValue).mul(partVar.getQty()));
+            }
+        }
+
+        if (!sumTerms.isEmpty()) {
+            IntVar sumFunVar = LinearExpr.sum(sumTerms.toArray(new IntVar[0]));
+            switch (comparator) {
+                case "==":
+                    model.getCpModel().addEquality(sumFunVar, leftValue);
+                    break;
+                case "!=":
+                    model.getCpModel().addDifferent(sumFunVar, leftValue);
+                    break;
+                case "<":
+                    model.getCpModel().addLessThan(sumFunVar, leftValue);
+                    break;
+                case "<=":
+                    model.getCpModel().addLessOrEqual(sumFunVar, leftValue);
+                    break;
+                case ">":
+                    model.getCpModel().addGreaterThan(sumFunVar, leftValue);
+                    break;
+                case ">=":
+                    model.getCpModel().addGreaterOrEqual(sumFunVar, leftValue);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unsupported comparator: " + comparator);
+            }
+        }
     }
 
     /**

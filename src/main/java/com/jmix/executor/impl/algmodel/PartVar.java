@@ -9,7 +9,9 @@ import com.google.ortools.sat.IntVar;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -57,9 +59,19 @@ public class PartVar extends Var<Part> {
     private BoolVar isHidden;
 
     /**
-     * 子部件选中状态(Part.code -> BoolVar)
+     * 子部件列表
      */
-    private Map<String, BoolVar> subPartSelectedVars = new HashMap<>();
+    private List<PartVar> subParts = new ArrayList<>();
+
+    /**
+     * 子部件映射表(Part.code -> PartVar)
+     */
+    private Map<String, PartVar> subPartMap = new HashMap<>();
+
+    /**
+     * 是否选中
+     */
+    private BoolVar isSelected;
 
     /**
      * 获取变量字符串表示
@@ -73,7 +85,7 @@ public class PartVar extends Var<Part> {
         sb.append("PartVar{code=").append(getCode());
         sb.append(", qty=").append(this.qty == null ? "null" : solutionCallback.value(this.getQty()));
         sb.append(", hidden=").append(this.isHidden == null ? "null" : solutionCallback.value(this.getIsHidden()));
-        sb.append(", subParts=").append(getSubPartSelectedVars().size());
+        sb.append(", subParts=").append(getSubParts().size());
         sb.append("}");
         return sb.toString();
     }
@@ -92,4 +104,19 @@ public class PartVar extends Var<Part> {
                 HIDDEN_SHORT_NAME,
                 this.isHidden == null ? "null" : solutionCallback.value(this.isHidden));
     }
+}
+
+/**
+ * 部件类别变量
+ * 表示约束求解中的部件类别变量
+ *
+ * @since 2025-01-05
+ */
+class PartCategoryVar extends PartVar {
+
+    PartCategoryVar() {
+        setQty(null);// 不初始化
+        setIsHidden(null);// 不初始化
+    }
+
 }

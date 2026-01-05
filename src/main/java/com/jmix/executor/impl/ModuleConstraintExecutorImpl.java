@@ -2,7 +2,10 @@ package com.jmix.executor.impl;
 
 import com.jmix.executor.ModuleConstraintExecutor;
 import com.jmix.executor.imodel.ConstraintConfig;
+import com.jmix.executor.imodel.DynamicAttribute;
 import com.jmix.executor.imodel.Module;
+import com.jmix.executor.imodel.Part;
+import com.jmix.executor.imodel.PartCategory;
 import com.jmix.executor.imodel.rule.RefProgObjSchema;
 import com.jmix.executor.impl.algmodel.AlgCPModel;
 import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
@@ -10,11 +13,13 @@ import com.jmix.executor.impl.algmodel.RelaxVar;
 import com.jmix.executor.impl.util.Pair;
 import com.jmix.executor.omodel.AlgExecutorException;
 import com.jmix.executor.omodel.AlgLoaderException;
+import com.jmix.executor.omodel.AttrFunConstant;
 import com.jmix.executor.omodel.ExtensibleProcess;
 import com.jmix.executor.omodel.InferParasPostProcess;
 import com.jmix.executor.omodel.InferParasReq;
 import com.jmix.executor.omodel.ModuleInst;
 import com.jmix.executor.omodel.ParaInst;
+import com.jmix.executor.omodel.PartConstraintReq;
 import com.jmix.executor.omodel.PartInst;
 import com.jmix.executor.omodel.Result;
 
@@ -419,6 +424,28 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
         if (req.getPrePartInsts() != null) {
             for (PartInst partInst : req.getPrePartInsts()) {
                 alg.addPartEquality(partInst.getCode(), partInst.getQuantity());
+            }
+        }
+        if (req.getPartConstraintReqs() != null) {
+            addPartConstraintReqs(alg, req.getPartConstraintReqs());
+        }
+    }
+
+    /**
+     * 添加部件约束请求
+     *
+     * @param alg                约束算法实现
+     * @param partConstraintReqs 部件约束请求列表
+     */
+    private void addPartConstraintReqs(ConstraintAlgImpl alg, List<PartConstraintReq> partConstraintReqs) {
+        for (PartConstraintReq partConstraintReq : partConstraintReqs) {
+            PartCategory partCategory = alg.getModule().getParaCategory(partConstraintReq.getPartCategory());
+            List<Part> filterParts = partCategory.query(partConstraintReq);
+            Pair<DynamicAttribute, String> result = partCategory.parseAttribute(partConstraintReq.getAttrCode());
+            // 根据result.second构建约束表达式
+            if (AttrFunConstant.FUN_PREFIX_SUM.equals(result.getSecond())) {
+                alg.sumFunConstraint(filterParts, result.getFirst().getCode(), partConstraintReq.getAttrComparator(),
+                        Integer.parseInt(partConstraintReq.getAttrValue()));
             }
         }
     }
