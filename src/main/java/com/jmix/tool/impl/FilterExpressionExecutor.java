@@ -54,7 +54,7 @@ public final class FilterExpressionExecutor {
      */
     @Data
     @AllArgsConstructor
-    private static class FilterCondition {
+    public static class FilterCondition {
 
         private final String fieldName;
 

@@ -1,10 +1,13 @@
 package com.jmix.executor.imodel;
 
 import com.jmix.executor.impl.util.Pair;
+import com.jmix.executor.omodel.AttrFunConstant;
 import com.jmix.executor.omodel.PartConstraintReq;
 import com.jmix.tool.impl.FilterExpressionExecutor;
+import com.jmix.tool.impl.FilterExpressionExecutor.FilterCondition;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.base.Strings;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * 部件分类
@@ -56,7 +60,7 @@ public class PartCategory extends Part {
         pc.setPrice(this.getPrice());
         pc.setMaxQuantity(this.getMaxQuantity());
         pc.setDynAttr(new HashMap<>(this.getDynAttr()));
-        pc.setDynAttrSchemas(new ArrayList<>(this.getDynAttrSchemas()));
+        pc.setDynAttrSchemas(this.getDynAttrSchemas());
         pc.setDynAttrSchema(this.getDynAttrSchema());
 
         // 不复制partCategoryMap和partMap，这些将在init方法中重新初始化
@@ -78,7 +82,7 @@ public class PartCategory extends Part {
      * @param constraintReq 约束请求
      * @return 满足条件的PartCategory列表
      */
-    public List<PartCategory> query(PartConstraintReq constraintReq) {
+    public PartCategory query(PartConstraintReq constraintReq) {
         return query(this, constraintReq);
     }
 
@@ -87,9 +91,9 @@ public class PartCategory extends Part {
      *
      * @param category      部件分类
      * @param constraintReq 约束请求
-     * @return 满足条件的PartCategory列表
+     * @return 满足条件的PartCategory
      */
-    public List<PartCategory> query(PartCategory category, PartConstraintReq constraintReq) {
+    public PartCategory query(PartCategory category, PartConstraintReq constraintReq) {
         if (constraintReq.getAttrWhereCondition() == null || constraintReq.getAttrWhereCondition().trim().isEmpty()) {
             throw new IllegalArgumentException("Filter condition cannot be empty");
         }
@@ -104,112 +108,71 @@ public class PartCategory extends Part {
      * @param attrWhereCondition 过滤条件字符串
      * @return 满足条件的PartCategory列表
      */
-    public List<PartCategory> query(PartCategory category, PartConstraintReq constraintReq, String attrWhereCondition) {
+    public PartCategory query(PartCategory category, PartConstraintReq constraintReq, String attrWhereCondition) {
         PartCategory resultPartCategory = category.clone();
         List<PartCategory> resultSubPartCategory = new ArrayList<>();
 
         // 处理子分类
         if (!category.partCategoryMap.isEmpty()) {
             for (PartCategory pc : category.partCategoryMap.values()) {
-                resultSubPartCategory.addAll(query(pc, constraintReq));
+                resultSubPartCategory.add(query(pc, constraintReq));
             }
         }
-        resultPartCategory.addPartCategory(resultSubPartCategory);
+        if (!resultSubPartCategory.isEmpty()) {
+            resultPartCategory.addPartCategory(resultSubPartCategory);
+        }
 
-        // 解析属性代码
-        Pair<DynamicAttribute, String> attrResult = parseAttribute(constraintReq.getAttrCode(),
-                category.getDynAttrSchemas());
+        // 解析属性代码, 有一个非空即可，whereCondition和attrcode不能有一个实例属性，有一个不是实例属性
+        Pair<DynamicAttribute, String> attrResult = null;
+        if (!Strings.isNullOrEmpty(constraintReq.getAttrCode())) {
+            attrResult = parseAttribute(constraintReq.getAttrCode(),
+                    category.getDynAttrSchemas());
+        } else {
+            attrResult = parseAttributeFromCondition(constraintReq.getAttrWhereCondition(),
+                    category.getDynAttrSchemas());
+        }
 
         List<Part> filterParts = new ArrayList<>();
         if (attrResult.getFirst().getInstType() == 0) { // 非实例属性
-            // 检查过滤条件是否涉及实例属性
-            boolean hasInstanceAttrInCondition = hasInstanceAttributeInCondition(attrWhereCondition,
-                    category.getDynAttrSchemas());
+            // 过滤条件不涉及实例属性，直接在Part级别过滤
+            filterParts = FilterExpressionExecutor.doSelect(new ArrayList<>(category.partMap.values()),
+                    attrWhereCondition);
 
-            if (hasInstanceAttrInCondition) {
-                // 如果过滤条件涉及实例属性，需要在实例级别进行过滤
-                for (Part part : category.partMap.values()) {
-                    InstanceDynAttrValue instAttrs = part.getInstanceAttrs();
-                    if (instAttrs != null) {
-                        List<InstanceDynAttrValueItem> instValues = FilterExpressionExecutor
-                                .doSelect(instAttrs.getInstsValues(), attrWhereCondition);
-                        if (!instValues.isEmpty()) {
-                            // 如果有匹配的实例，直接复制原始Part的属性值（对于非实例属性）
-                            Part cPart = part.clone();
-                            filterParts.add(cPart);
-                        }
-                    }
-                }
-            } else {
-                // 过滤条件不涉及实例属性，直接在Part级别过滤
-                filterParts = FilterExpressionExecutor.doSelect(new ArrayList<>(category.partMap.values()),
-                        attrWhereCondition);
-            }
         } else { // 实例属性
             for (Part part : category.partMap.values()) {
                 InstanceDynAttrValue instAttrs = part.getInstanceAttrs();
-                if (instAttrs != null) {
-                    List<InstanceDynAttrValueItem> instValues = FilterExpressionExecutor
-                            .doSelect(instAttrs.getInstsValues(), attrWhereCondition);
-                    int sumAttrValue = 0;
-                    for (InstanceDynAttrValueItem instValue : instValues) {
-                        String attrValue = instValue.getInstAttr(attrResult.getFirst().getCode());
-                        if (attrValue != null) {
-                            try {
-                                sumAttrValue += Integer.parseInt(attrValue);
-                            } catch (NumberFormatException e) {
-                                // 处理非数字类型的情况
-                            }
-                        }
-                    }
-                    Part cPart = part.clone();
-                    cPart.setAttr(attrResult.getFirst().getCode(), String.valueOf(sumAttrValue));
-                    filterParts.add(cPart);
+                if (instAttrs == null) {
+                    throw new IllegalStateException("Instance attributes not found for part: " + part.getCode());
                 }
+                List<InstanceDynAttrValueItem> instValues = FilterExpressionExecutor
+                        .doSelect(instAttrs.getInstsValues(), attrWhereCondition);
+                if (instValues.isEmpty()) {
+                    continue;
+                }
+                int sumAttrValue = 0;
+                for (InstanceDynAttrValueItem instValue : instValues) {
+                    String attrValue = instValue.getInstAttr(attrResult.getFirst().getCode());
+                    if (attrValue == null) {
+                        throw new IllegalArgumentException(
+                                "Attribute '" + attrResult.getFirst().getCode() + "' value is null for part '"
+                                        + part.getCode() + "'");
+                    }
+                    try {
+                        sumAttrValue += Integer.parseInt(attrValue);
+                    } catch (NumberFormatException e) {
+                        throw new IllegalArgumentException(
+                                "Invalid number format for attribute '" + attrResult.getFirst().getCode()
+                                        + "' with value '" + attrValue + "' in part '" + part.getCode() + "'",
+                                e);
+                    }
+                }
+                Part cPart = part.clone();
+                cPart.setAttr(attrResult.getFirst().getCode(), String.valueOf(sumAttrValue));
+                filterParts.add(cPart);
             }
         }
         resultPartCategory.addPart(filterParts);
-
-        List<PartCategory> resultList = new ArrayList<>();
-        resultList.add(resultPartCategory);
-        return resultList;
-    }
-
-    /**
-     * 检查过滤条件是否涉及实例属性
-     *
-     * @param whereCondition 过滤条件字符串
-     * @param dynAttrSchemas 动态属性schema列表
-     * @return 如果过滤条件涉及实例属性则返回true，否则返回false
-     */
-    @JsonIgnore
-    private boolean hasInstanceAttributeInCondition(String whereCondition, List<DynamicAttribute> dynAttrSchemas) {
-        if (whereCondition == null || whereCondition.trim().isEmpty()) {
-            return false;
-        }
-
-        // 简单的解析，提取字段名
-        String trimmed = whereCondition.trim();
-
-        // 处理 like 条件
-        if (trimmed.contains(" like ")) {
-            String[] parts = trimmed.split("\\s+like\\s+", 2);
-            if (parts.length >= 1) {
-                String fieldName = parts[0].trim();
-                return isInstanceAttribute(fieldName, dynAttrSchemas);
-            }
-        }
-
-        // 处理等于条件
-        if (trimmed.contains("=")) {
-            String[] parts = trimmed.split("\\s*=\\s*", 2);
-            if (parts.length >= 1) {
-                String fieldName = parts[0].trim();
-                return isInstanceAttribute(fieldName, dynAttrSchemas);
-            }
-        }
-
-        return false;
+        return resultPartCategory;
     }
 
     /**
@@ -227,6 +190,33 @@ public class PartCategory extends Part {
             }
         }
         return false;
+    }
+
+    /**
+     * 从过滤条件中解析属性
+     *
+     * @param whereCondition 过滤条件字符串
+     * @param dynAttrSchemas 动态属性schema列表
+     * @return 属性和操作符的配对
+     */
+    @JsonIgnore
+    public Pair<DynamicAttribute, String> parseAttributeFromCondition(String whereCondition,
+            List<DynamicAttribute> dynAttrSchemas) {
+        Optional<FilterCondition> filterConditionOpt = FilterExpressionExecutor.parseFilterExpression(whereCondition);
+        if (!filterConditionOpt.isPresent()) {
+            throw new IllegalArgumentException("Invalid filter condition format: " + whereCondition);
+        }
+
+        FilterCondition filterCondition = filterConditionOpt.get();
+        String fieldName = filterCondition.getFieldName();
+
+        for (DynamicAttribute attr : dynAttrSchemas) {
+            if (attr.getCode().equals(fieldName)) {
+                return Pair.of(attr, AttrFunConstant.FUN_PREFIX_EMPTY);
+            }
+        }
+
+        throw new IllegalArgumentException("Attribute '" + fieldName + "' not found in schema");
     }
 
     /**
@@ -263,7 +253,9 @@ public class PartCategory extends Part {
      * @param partCategories 子部件分类列表
      */
     public void addPartCategory(List<PartCategory> partCategories) {
-        // 实现添加子部件分类的逻辑
+        for (PartCategory partCategory : partCategories) {
+            this.partCategoryMap.put(partCategory.getCode(), partCategory);
+        }
     }
 
     /**
