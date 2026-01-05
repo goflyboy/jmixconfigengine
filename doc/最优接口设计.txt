@@ -524,7 +524,15 @@ List<PartCategory> query(PartConstraintReq constraintReq) --》返回值改为Li
 	
 		for( PartConstraintReq partConstraintReq :req.partConstraintReqs) {
 			PartCategory partCatagory = module.getParaCategory(partConstraintReq.partCatagory);
-			List<Part>  filterParts = partCatagory.query(partConstraintReq);	
+			List<Part>  filterParts = partCatagory.query(partConstraintReq).getParts();	
+			partCatagory.parseAttribute(partConstraintReq.attrCode) ->result 
+			根据result.second 构建约束表达式
+			如果result.second == AttrFunConstant.FUN_PREFIX_SUM， 
+			IntVar sumFun = 
+
+			表示filterParts对应的partVar.
+
+			result.second(如："AttrFunConstant.FUN_PREFIX_SUM)
 			//先过滤，再使用约束进行求解 
 			//TODOO
 				
@@ -565,13 +573,25 @@ List<PartCategory> query(PartConstraintReq constraintReq) --》返回值改为Li
 		} 
 	}
 	
-6、 
+
+6.2 添加一个sumFunConstaint 
+	void sumFunConstaint(List<Part> sumParts, String sumAttrCode, String comparator，int leftValue) {
+
+		下列代码需要根据 Ortools来生成  
+			IntVar sumFunVar = ....
+			for(Part part: sumParts) {
+				PartVar  partVar = getPartVar(part.code);
+				sumFunVar = sumFunVar + partVar.qty *  toInt( part.getAttr(sumAttrCode));
+			}
+			sumFunVar comparator leftValue
+	}	
 
 
 
 
 
 
+TODO comparator常量 
  TODO： diver根据分类类，可能要分， Part还是用模型建立起来比较好？感觉？*** （数据存储上不区分，但是在类上要区分，行为不同）
 
 	//TODO：单个纯粹过滤，待定？ 例如版本等事情？ 
