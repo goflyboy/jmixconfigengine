@@ -528,13 +528,7 @@ List<PartCategory> query(PartConstraintReq constraintReq) --》返回值改为Li
 			partCatagory.parseAttribute(partConstraintReq.attrCode) ->result 
 			根据result.second 构建约束表达式
 			如果result.second == AttrFunConstant.FUN_PREFIX_SUM， 
-			IntVar sumFun = 
-
-			表示filterParts对应的partVar.
-
-			result.second(如："AttrFunConstant.FUN_PREFIX_SUM)
-			//先过滤，再使用约束进行求解 
-			//TODOO
+			 alg.sumFunConstaint( filterParts,  result.sumAttrCode, partConstraintReq.attrComparator，partConstraintReq.attrValue); 
 				
 	}
 
