@@ -123,7 +123,8 @@ public class PartCategory extends Part {
         List<Part> filterParts = new ArrayList<>();
         if (attrResult.getFirst().getInstType() == 0) { // 非实例属性
             // 检查过滤条件是否涉及实例属性
-            boolean hasInstanceAttrInCondition = hasInstanceAttributeInCondition(attrWhereCondition, category.getDynAttrSchemas());
+            boolean hasInstanceAttrInCondition = hasInstanceAttributeInCondition(attrWhereCondition,
+                    category.getDynAttrSchemas());
 
             if (hasInstanceAttrInCondition) {
                 // 如果过滤条件涉及实例属性，需要在实例级别进行过滤

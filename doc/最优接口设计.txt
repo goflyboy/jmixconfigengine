@@ -450,24 +450,97 @@ solidDriver1Var.qty +  solidDriver2Var.qty + 。。。 ==2
 
 
 设计2：
-1、在diver上增加动态属性    capacityWeigh(Integer) 
-2、设置的值分别为：
-
-
-2/
-
-
-
-问题：
-TODO: 支持like 操作？
-
  
+1、对类 PartVar
+ 1.1 删除subPartSelectedVars
+ 1.2 增加  
+   List<PartVar>  subParts = new ArrayList();
+   Map<String,PartVar> subPartMap = ....;//方便搜索
+
+
+
+2、对类InferParasReq
+  增加 List<PartConstraintReq>  partConstraintReqs
+
+
+3、在类ModuleScenarioTestBase增加
+toPartConstraintReqs(String partCatagory, String strReq1,....) {
+	///....见下列案例
+}
+
+strReq1 = "sum.Quantity ==2 where Speed=540";  转化结果为：
+//例如：5400速率的固态硬盘2块
+class PartConstraintReq1 {
+	partCatagory = "solidDrive"
+	attrCode="sum.Quantity"
+	attrComparator="=="
+	attrValue="2" 
+	attrWhereCondition="Speed=5400" 
+|
+
+strReq2 = "sum.Quantity ==2 where Speed like %5400%";   转化结果为：
+ class PartConstraintReq  {
+	partCatagory = "solidDrive"
+	attrCode="sum.Quantity"
+	attrComparator="=="
+	attrValue="2" 
+	attrWhereCondition="Speed like %5400%" 
+|
+
+
+4、类Module增加
+	@jsonignore
+    private List<Part> backParts = new ArrayList<>();
+	
+	@jsonignore
+	public List<Part>  doSelect(String rootCategoryCode,List<PartConstraintReq> filterConstrants) {
+			
+			根据rootCategoryCode，从this.parts 查到 rootCategory 
+			Map<Part>  partMaps = backUpParas();
+			
+			
+	}
+	@jsonignore
+	public PartCategory  doSelect(List<PartConstraintReq> filterConstrants, PartCategory rootCategory ) {
+			 for(PartConstraintReq cReq) { 
+				rootCategory = rootCategory.query(cReq);
+			 } 
+	}
+
+	
+		@jsonignore
+	public Map<Part>   backUpParts( ) {
+			this.backParts  =  this.parts;
+			Map<Part> partMaps = new. HashMap(this.paras....);
+			this.paras = new ArrayList();
+			return partMaps;
+	}
+		@jsonignore
+	public void  recoverParas( ) {
+				this.paras  =  this.backParas;
+			this.backParas = new ArrayList();	
+	}
+
+4、先过滤  
+
+
+
+
+TODO: filterConstrants 是 and 关系
+TODO: 先做一个PartCategory,然后再考虑其它  
+   考虑到父分类，一个分类是否相同条件，包括， 单选、多选？ ---》这些封装很重要？***
+ 
+ TODO： relax的权重，和这里的权重的差别，怎么融合？
 
 TODO: capacityWeigh(Integer) --  使用枚举值
 
 5、不能使用完全不包含用户需要的速率的固态硬盘做配置  --先过滤和执行能满足，那如果没有这个要求，怎么办？
 
 TODO： 基于一个PartCategory怎么做扩展，自己写规则***  
+
+TODO：名字要改：
+@Data
+public class InferParasReq {
 
 
 

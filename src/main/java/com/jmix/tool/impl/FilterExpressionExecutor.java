@@ -1,4 +1,4 @@
- package com.jmix.tool.impl;
+package com.jmix.tool.impl;
 
 import com.jmix.executor.imodel.Extensible;
 import com.jmix.executor.imodel.InstanceDynAttrValueItem;
@@ -334,7 +334,8 @@ public final class FilterExpressionExecutor {
                     fieldValue, pattern, regex, result);
             return result;
         } catch (Exception e) {
-            log.error("Exception occurred while matching like pattern - value: {}, pattern: {}", fieldValue, pattern, e);
+            log.error("Exception occurred while matching like pattern - value: {}, pattern: {}", fieldValue, pattern,
+                    e);
             return false;
         }
     }
@@ -365,8 +366,8 @@ public final class FilterExpressionExecutor {
 
         // Convert SQL wildcards to regex
         String regex = escaped
-                .replace("%", ".*")  // % matches any sequence of characters
-                .replace("_", ".");   // _ matches any single character
+                .replace("%", ".*") // % matches any sequence of characters
+                .replace("_", "."); // _ matches any single character
 
         // Add anchors to match entire string
         return "^" + regex + "$";
