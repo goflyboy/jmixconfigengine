@@ -565,12 +565,21 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
     /**
      * 获取变量
-     * 
+     *
      * @param code 变量代码
      * @return 变量实例
      */
     public Var<?> getVar(String code) {
         return varMap.get(code);
+    }
+
+    /**
+     * 获取模块对象
+     *
+     * @return 模块对象
+     */
+    public Module getModule() {
+        return module;
     }
 
     /**
@@ -734,41 +743,46 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @param comparator  比较符
      * @param leftValue   左值
      */
-    protected void sumFunConstraint(List<Part> sumParts, String sumAttrCode, String comparator, int leftValue) {
-        List<IntVar> sumTerms = new ArrayList<>();
+    public void sumFunConstraint(List<Part> sumParts, String sumAttrCode, String comparator, int leftValue) {
+        List<LinearExpr> sumTerms = new ArrayList<>();
         for (Part part : sumParts) {
             PartVar partVar = getPartVar(part.getCode());
             if (partVar.getQty() != null) {
                 int attrValue = Integer.parseInt(part.getAttr(sumAttrCode));
-                sumTerms.add(model.getCpModel().newConstant(attrValue).mul(partVar.getQty()));
+                sumTerms.add(LinearExpr.term(partVar.getQty(), attrValue));
             }
         }
 
-        if (!sumTerms.isEmpty()) {
-            IntVar sumFunVar = LinearExpr.sum(sumTerms.toArray(new IntVar[0]));
-            switch (comparator) {
-                case "==":
-                    model.getCpModel().addEquality(sumFunVar, leftValue);
-                    break;
-                case "!=":
-                    model.getCpModel().addDifferent(sumFunVar, leftValue);
-                    break;
-                case "<":
-                    model.getCpModel().addLessThan(sumFunVar, leftValue);
-                    break;
-                case "<=":
-                    model.getCpModel().addLessOrEqual(sumFunVar, leftValue);
-                    break;
-                case ">":
-                    model.getCpModel().addGreaterThan(sumFunVar, leftValue);
-                    break;
-                case ">=":
-                    model.getCpModel().addGreaterOrEqual(sumFunVar, leftValue);
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unsupported comparator: " + comparator);
-            }
+        if (sumTerms.isEmpty()) {
+            log.warn("No valid parts found for sum constraint with attrCode: {}, comparator: {}, leftValue: {}",
+                    sumAttrCode, comparator, leftValue);
+            return;
         }
+
+        LinearExpr sumFunExpr = LinearExpr.sum(sumTerms.toArray(new LinearExpr[0]));
+        switch (comparator) {
+            case "==":
+                model.getCpModel().addEquality(sumFunExpr, leftValue);
+                break;
+            case "!=":
+                model.getCpModel().addDifferent(sumFunExpr, leftValue);
+                break;
+            case "<":
+                model.getCpModel().addLessThan(sumFunExpr, leftValue);
+                break;
+            case "<=":
+                model.getCpModel().addLessOrEqual(sumFunExpr, leftValue);
+                break;
+            case ">":
+                model.getCpModel().addGreaterThan(sumFunExpr, leftValue);
+                break;
+            case ">=":
+                model.getCpModel().addGreaterOrEqual(sumFunExpr, leftValue);
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported comparator: " + comparator);
+        }
+
     }
 
     /**

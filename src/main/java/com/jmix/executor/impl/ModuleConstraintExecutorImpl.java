@@ -439,14 +439,72 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
      */
     private void addPartConstraintReqs(ConstraintAlgImpl alg, List<PartConstraintReq> partConstraintReqs) {
         for (PartConstraintReq partConstraintReq : partConstraintReqs) {
-            PartCategory partCategory = alg.getModule().getParaCategory(partConstraintReq.getPartCategory());
-            List<Part> filterParts = partCategory.query(partConstraintReq);
-            Pair<DynamicAttribute, String> result = partCategory.parseAttribute(partConstraintReq.getAttrCode());
+            // 从module中找到对应的PartCategory
+            PartCategory partCategory = findPartCategory(alg.getModule(), partConstraintReq.getPartCategory());
+            if (partCategory == null) {
+                log.error("PartCategory not found: {}", partConstraintReq.getPartCategory());
+                continue;
+            }
+
+            // 查询满足条件的PartCategory
+            PartCategory filteredCategory = partCategory.query(partConstraintReq);
+
+            // 获取所有叶子部件
+            List<Part> filterParts = getAllLeafParts(filteredCategory);
+
+            // 解析属性
+            Pair<DynamicAttribute, String> result = partCategory.parseAttribute(partConstraintReq.getAttrCode(),
+                    partCategory.getDynAttrSchemas());
+
             // 根据result.second构建约束表达式
             if (AttrFunConstant.FUN_PREFIX_SUM.equals(result.getSecond())) {
                 alg.sumFunConstraint(filterParts, result.getFirst().getCode(), partConstraintReq.getAttrComparator(),
                         Integer.parseInt(partConstraintReq.getAttrValue()));
             }
+        }
+    }
+
+    /**
+     * 从模块中查找部件分类
+     *
+     * @param module       模块对象
+     * @param categoryCode 分类代码
+     * @return 找到的PartCategory，如果未找到则返回null
+     */
+    private PartCategory findPartCategory(Module module, String categoryCode) {
+        for (Part part : module.getParts()) {
+            if (part instanceof PartCategory && part.getCode().equals(categoryCode)) {
+                return (PartCategory) part;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 获取PartCategory中的所有叶子部件
+     *
+     * @param category 部件分类
+     * @return 所有叶子部件列表
+     */
+    private List<Part> getAllLeafParts(PartCategory category) {
+        List<Part> leafParts = new ArrayList<>();
+        collectLeafParts(category, leafParts);
+        return leafParts;
+    }
+
+    /**
+     * 递归收集叶子部件
+     *
+     * @param category  部件分类
+     * @param leafParts 叶子部件列表
+     */
+    private void collectLeafParts(PartCategory category, List<Part> leafParts) {
+        // 添加直接的部件
+        leafParts.addAll(category.getPartMap().values());
+
+        // 递归处理子分类
+        for (PartCategory subCategory : category.getPartCategoryMap().values()) {
+            collectLeafParts(subCategory, leafParts);
         }
     }
 

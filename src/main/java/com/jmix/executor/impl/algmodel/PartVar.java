@@ -105,18 +105,3 @@ public class PartVar extends Var<Part> {
                 this.isHidden == null ? "null" : solutionCallback.value(this.isHidden));
     }
 }
-
-/**
- * 部件类别变量
- * 表示约束求解中的部件类别变量
- *
- * @since 2025-01-05
- */
-class PartCategoryVar extends PartVar {
-
-    PartCategoryVar() {
-        setQty(null);// 不初始化
-        setIsHidden(null);// 不初始化
-    }
-
-}
