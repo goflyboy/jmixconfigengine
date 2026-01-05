@@ -583,6 +583,9 @@ List<PartCategory> query(PartConstraintReq constraintReq) --》返回值改为Li
 
 
 
+TODO: 引擎接口要抽取出来？
+    public void helloSample() throws IOException {
+
 
 
 TODO comparator常量 

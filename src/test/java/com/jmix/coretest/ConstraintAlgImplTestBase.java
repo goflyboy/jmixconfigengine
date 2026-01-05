@@ -85,7 +85,7 @@ public class ConstraintAlgImplTestBase extends ConstraintAlgImpl {
 
     /**
      * 创建部件变量, 继承类可以重载
-     * 
+     *
      * @param internalPartVar 内部部件变量
      * @return 创建的部件变量
      */
@@ -94,7 +94,10 @@ public class ConstraintAlgImplTestBase extends ConstraintAlgImpl {
         partVar.setBase(internalPartVar.getBase());
         partVar.qty = internalPartVar.getQty();
         partVar.isHidden = internalPartVar.getIsHidden();
-        partVar.subPartSelectedVars = internalPartVar.getSubPartSelectedVars();
+        // 初始化子部件选中状态映射 TODO
+        for (com.jmix.executor.impl.algmodel.PartVar subPart : internalPartVar.getSubParts()) {
+            partVar.subPartSelectedVars.put(subPart.getCode(), newBoolVar(subPart.getCode() + "_selected"));
+        }
         return partVar;
     }
 
