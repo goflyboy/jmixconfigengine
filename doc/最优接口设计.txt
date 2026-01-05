@@ -347,7 +347,13 @@ class PartConstraintReq  {
 |
 
 
- 
+ class PartConstraintReq  {
+	partCatagory = "solidDrive"
+	attrCode="sum.Quantity"
+	attrComparator="=="
+	attrValue="2" 
+	attrWhereCondition="Speed like %5400%" 
+|
 
 
  
@@ -374,19 +380,100 @@ MechDrive
 --电脑  --产品
 ---硬盘  --driverVar
 ------固态硬盘	--solidDriverVar	 
------------固态硬盘1	 --solidDriver1Var	.qty  .isSelected
------------固态硬盘2	 --solidDriver2Var	.qty  .isSelected		 
------------固态硬盘3	 --solidDriver3Var	.qty  .isSelected		 
+-----------固态硬盘1	 --solidDriver1Var	.qty  .isSelected   capacityWeight = 100  --5400-2T ，7200/5400-1T
+-----------固态硬盘2	 --solidDriver2Var	.qty  .isSelected	capacityWeight = 200  --7200/5400 -4T
+-----------固态硬盘3	 --solidDriver3Var	.qty  .isSelected	capacityWeight = 300  --9000	 
 ------机械硬盘	--mechDriverVar		 
------------机械硬盘1	--mechDriver1Var	.qty  .isSelected	 	 
------------机械硬盘2	--mechDriver2Var	.qty  .isSelected	 
------------机械硬盘3	--mechDriver2Var	.qty  .isSelected 
+-----------机械硬盘1	--mechDriver1Var	.qty  .isSelected	capacityWeight = 30   5400
+-----------机械硬盘2	--mechDriver2Var	.qty  .isSelected	capacityWeight = 20   7200 
+-----------机械硬盘3	--mechDriver2Var	.qty  .isSelected   capacityWeight = 10   9000
+
+
+1、固态硬盘必须配置同一种，并且最多配置2块  
 
 solidDriver1Var.qty <=2  初始:[0,100]  //并且最多配置2块  
 solidDriver1Var.isSeleted + solidDriver2Var.isSeleted + solidDriver1Var.isSeleted <=1
 if(solidDriver1Var.isSeleted =1) then solidDriver1Var.qty >= 0  
 
+
+
+
+4、固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量
+所以，“固态硬盘优先匹配高速率容量”可能意味着：在满足5400速率需求时，优先使用转速更高的实例分组（即7200/5400，因为它还支持7200，所以是更高速的）来提供容量，当这种高速实例分组不够时，再使用只支持5400的实例分组。
+
+建模步骤：
+
+将固态硬盘的实例分组分为两类：高速组（转速包含7200或9000，且同时包含5400，即7200/5400）和低速组（只包含5400）。注意，根据数据，固态硬盘中没有只包含7200的，所以高速组就是7200/5400，低速组是5400。
+
+优先使用高速组的固态硬盘，当高速组的固态硬盘用尽（达到最大数量）仍不满足容量需求时，再使用低速组的固态硬盘。
+
+当固态硬盘的所有实例分组（高速和低速）都用尽后，仍不满足容量需求，再使用机械硬盘（机械硬盘都是5400）。
+
+因此，我们需要按照以下顺序使用硬盘：
+第一优先级：固态硬盘高速组（转速7200/5400）
+第二优先级：固态硬盘低速组（转速5400）
+第三优先级：机械硬盘（转速5400）
+
+---> capacityWeight  --这个值好像动态的？**TODO：需要固态和机械在一起
+
+
+solidDriver1Var.isSeleted * solidDriver1Var.capacityWeight + solidDriver2Var.isSeleted * solidDriver2Var.capacityWeight + .... = objCapacityWeight
+
+max(objCapacityWeight)
+
+2、优先使用固态硬盘，固态硬盘满配后还不满足要求的用机械硬盘补充
+--满配后？
+但是，在约束建模中，我们通常通过条件约束来实现。不过，这里我们可以用另一种方式：通过权重和约束结合。
+
+然而，如果我们已经用权重来体现优先级，那么求解器会自动优先选择固态硬盘，直到固态硬盘不够用时才会选择机械硬盘。
+但是，这并不能严格保证“固态硬盘满配后才用机械硬盘”，因为如果固态硬盘数量没有达到上限，但是已经满足容量需求，那么就不会用机械硬盘，这是合理的
+--->鉴于需求的模糊性,和其它约束还有冲突？ --“固态硬盘的数量上限是明确的（2块）” 
+---TODO：后续要研究，好麻烦  先用4来搞，简化处理
+
+
+3、用户提了固态硬盘数量的，使用固态硬盘数量，否则需要计算固态硬盘数量
+solidDriver1Var.qty == 5
+
+
+
+5、不能使用完全不包含用户需要的速率的固态硬盘做配置  
+--先过滤和执行能满足
+
+
+动态：
+  要求5400速率的硬盘容量>=5T， 
 solidDriver1Var.qty * solidDriver1Var.capacity + solidDriver2Var.qty * solidDriver2Var.capacity + .... = sum >=5T
+ 要求5400速率的固态硬盘2块，  ==等于2
+solidDriver1Var.qty +  solidDriver2Var.qty + 。。。 ==2
+
+
+
+
+设计2：
+1、在diver上增加动态属性    capacityWeigh(Integer) 
+2、设置的值分别为：
+
+
+2/
+
+
+
+问题：
+TODO: 支持like 操作？
+
+ 
+
+TODO: capacityWeigh(Integer) --  使用枚举值
+
+5、不能使用完全不包含用户需要的速率的固态硬盘做配置  --先过滤和执行能满足，那如果没有这个要求，怎么办？
+
+TODO： 基于一个PartCategory怎么做扩展，自己写规则***  
+
+
+
+1、优先？ 
+
+
 
 要求5400速率的固态硬盘2块，要求5400速率的硬盘容量>=5T， 
 

@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.jmix.executor.impl.util.Pair;
 import com.jmix.executor.omodel.PartConstantAttr;
 import com.jmix.executor.omodel.PartConstraintReq;
 
@@ -41,7 +42,7 @@ public class PartCategoryTest {
     private void setupDriveCategory() {
         driveCategory = new PartCategory();
         driveCategory.setCode("drive");
-        driveCategory.setName("硬盘分类");
+        driveCategory.setDescription("硬盘分类");
 
         // 创建动态属性schema
         List<DynamicAttribute> schemas = new ArrayList<>();
@@ -71,7 +72,7 @@ public class PartCategoryTest {
         // 5400转硬盘，8T容量
         Part drive1 = new Part();
         drive1.setCode("drive_5400_8t");
-        drive1.setName("5400转8T硬盘");
+        drive1.setDescription("5400转8T硬盘");
 
         // 创建实例属性
         InstanceDynAttrValue instAttrs1 = new InstanceDynAttrValue();
@@ -90,7 +91,7 @@ public class PartCategoryTest {
         // 7200转硬盘，16T容量
         Part drive2 = new Part();
         drive2.setCode("drive_7200_16t");
-        drive2.setName("7200转16T硬盘");
+        drive2.setDescription("7200转16T硬盘");
 
         InstanceDynAttrValue instAttrs2 = new InstanceDynAttrValue();
         InstanceDynAttrValueItem item2 = new InstanceDynAttrValueItem();
@@ -108,7 +109,7 @@ public class PartCategoryTest {
         // 9000转硬盘，4T容量
         Part drive3 = new Part();
         drive3.setCode("drive_9000_4t");
-        drive3.setName("9000转4T硬盘");
+        drive3.setDescription("9000转4T硬盘");
 
         InstanceDynAttrValue instAttrs3 = new InstanceDynAttrValue();
         InstanceDynAttrValueItem item3 = new InstanceDynAttrValueItem();
@@ -132,7 +133,7 @@ public class PartCategoryTest {
     private void setupSolidDriveCategory() {
         solidDriveCategory = new PartCategory();
         solidDriveCategory.setCode("solidDrive");
-        solidDriveCategory.setName("固态硬盘分类");
+        solidDriveCategory.setDescription("固态硬盘分类");
 
         // 创建动态属性schema
         List<DynamicAttribute> schemas = new ArrayList<>();
@@ -161,7 +162,7 @@ public class PartCategoryTest {
 
         Part solidDrive = new Part();
         solidDrive.setCode("solid_drive_5400");
-        solidDrive.setName("5400速率固态硬盘");
+        solidDrive.setDescription("5400速率固态硬盘");
 
         // 创建2个实例
         InstanceDynAttrValue instAttrs = new InstanceDynAttrValue();
@@ -237,7 +238,7 @@ public class PartCategoryTest {
         req.setAttrCode("sum.Quantity");
         req.setAttrComparator("==");
         req.setAttrValue("2");
-        req.setAttrWhereCondition("Speed=5400");
+        req.setAttrWhereCondition("Speed like %5400%");
 
         List<PartCategory> results = solidDriveCategory.query(req);
 
@@ -304,7 +305,7 @@ public class PartCategoryTest {
 
         assertNotNull(cloned, "Cloned object should not be null");
         assertEquals(driveCategory.getCode(), cloned.getCode(), "Code should be cloned");
-        assertEquals(driveCategory.getName(), cloned.getName(), "Name should be cloned");
+        assertEquals(driveCategory.getDescription(), cloned.getDescription(), "Description should be cloned");
         assertNotSame(driveCategory, cloned, "Cloned object should be different instance");
 
         // partMap和partCategoryMap不应该被克隆

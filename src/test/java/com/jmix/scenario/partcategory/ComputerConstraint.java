@@ -27,7 +27,8 @@ public class ComputerConstraint extends ConstraintAlgImplTestBase {
             "Speed_7200a5400:7200/5400:转" }, instType = 0)
     @DAttrAnno3(code = "Capacity", optionExtSchema = "IntegerUnit", options = { "Capacity_8T:8:T", "Capacity_16T:16:T",
             "Capacity_32T:32:T" }, instType = 0)
-    @DAttrAnno4(code = "capacityWeight", optionExtSchema = "IntegerUnit", options = { "CW_10:10", "CW_20:20", "CW_30:30",
+    @DAttrAnno4(code = "capacityWeight", optionExtSchema = "IntegerUnit", options = { "CW_10:10", "CW_20:20",
+            "CW_30:30",
             "CW_100:100", "CW_200:200", "CW_300:300" }, instType = 0)
     private PartCategoryVar driveVar;
 
@@ -49,12 +50,14 @@ public class ComputerConstraint extends ConstraintAlgImplTestBase {
     private PartVar solidDrive1;
 
     // 固态硬盘实例2
-    @PartAnno(fatherCode = "solidDrive", attrs = { "BW_16GB", "MaxCapacity_16T", "CW_200" }, attrsInst1 = { "Speed_9000",
+    @PartAnno(fatherCode = "solidDrive", attrs = { "BW_16GB", "MaxCapacity_16T", "CW_200" }, attrsInst1 = {
+            "Speed_9000",
             "Capacity_16T" }, attrsInst2 = { "Speed_7200a5400", "Capacity_16T" })
     private PartVar solidDrive2;
 
     // 固态硬盘实例3
-    @PartAnno(fatherCode = "solidDrive", attrs = { "BW_16GB", "MaxCapacity_16T", "CW_300" }, attrsInst1 = { "Speed_9000",
+    @PartAnno(fatherCode = "solidDrive", attrs = { "BW_16GB", "MaxCapacity_16T", "CW_300" }, attrsInst1 = {
+            "Speed_9000",
             "Capacity_16T" })
     private PartVar solidDrive3;
 

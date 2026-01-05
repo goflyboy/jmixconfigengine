@@ -122,8 +122,28 @@ public class PartCategory extends Part {
 
         List<Part> filterParts = new ArrayList<>();
         if (attrResult.getFirst().getInstType() == 0) { // 非实例属性
-            filterParts = FilterExpressionExecutor.doSelect(new ArrayList<>(category.partMap.values()),
-                    attrWhereCondition);
+            // 检查过滤条件是否涉及实例属性
+            boolean hasInstanceAttrInCondition = hasInstanceAttributeInCondition(attrWhereCondition, category.getDynAttrSchemas());
+
+            if (hasInstanceAttrInCondition) {
+                // 如果过滤条件涉及实例属性，需要在实例级别进行过滤
+                for (Part part : category.partMap.values()) {
+                    InstanceDynAttrValue instAttrs = part.getInstanceAttrs();
+                    if (instAttrs != null) {
+                        List<InstanceDynAttrValueItem> instValues = FilterExpressionExecutor
+                                .doSelect(instAttrs.getInstsValues(), attrWhereCondition);
+                        if (!instValues.isEmpty()) {
+                            // 如果有匹配的实例，直接复制原始Part的属性值（对于非实例属性）
+                            Part cPart = part.clone();
+                            filterParts.add(cPart);
+                        }
+                    }
+                }
+            } else {
+                // 过滤条件不涉及实例属性，直接在Part级别过滤
+                filterParts = FilterExpressionExecutor.doSelect(new ArrayList<>(category.partMap.values()),
+                        attrWhereCondition);
+            }
         } else { // 实例属性
             for (Part part : category.partMap.values()) {
                 InstanceDynAttrValue instAttrs = part.getInstanceAttrs();
@@ -155,13 +175,68 @@ public class PartCategory extends Part {
     }
 
     /**
+     * 检查过滤条件是否涉及实例属性
+     *
+     * @param whereCondition 过滤条件字符串
+     * @param dynAttrSchemas 动态属性schema列表
+     * @return 如果过滤条件涉及实例属性则返回true，否则返回false
+     */
+    @JsonIgnore
+    private boolean hasInstanceAttributeInCondition(String whereCondition, List<DynamicAttribute> dynAttrSchemas) {
+        if (whereCondition == null || whereCondition.trim().isEmpty()) {
+            return false;
+        }
+
+        // 简单的解析，提取字段名
+        String trimmed = whereCondition.trim();
+
+        // 处理 like 条件
+        if (trimmed.contains(" like ")) {
+            String[] parts = trimmed.split("\\s+like\\s+", 2);
+            if (parts.length >= 1) {
+                String fieldName = parts[0].trim();
+                return isInstanceAttribute(fieldName, dynAttrSchemas);
+            }
+        }
+
+        // 处理等于条件
+        if (trimmed.contains("=")) {
+            String[] parts = trimmed.split("\\s*=\\s*", 2);
+            if (parts.length >= 1) {
+                String fieldName = parts[0].trim();
+                return isInstanceAttribute(fieldName, dynAttrSchemas);
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * 检查属性是否为实例属性
+     *
+     * @param attrCode       属性代码
+     * @param dynAttrSchemas 动态属性schema列表
+     * @return 如果是实例属性则返回true，否则返回false
+     */
+    @JsonIgnore
+    private boolean isInstanceAttribute(String attrCode, List<DynamicAttribute> dynAttrSchemas) {
+        for (DynamicAttribute attr : dynAttrSchemas) {
+            if (attr.getCode().equals(attrCode) && attr.getInstType() == 1) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * 解析属性代码
      *
      * @param orgAttrCode    原始属性代码
      * @param dynAttrSchemas 动态属性schema列表
      * @return 属性和函数的配对
      */
-    private Pair<DynamicAttribute, String> parseAttribute(String orgAttrCode, List<DynamicAttribute> dynAttrSchemas) {
+    @JsonIgnore
+    public Pair<DynamicAttribute, String> parseAttribute(String orgAttrCode, List<DynamicAttribute> dynAttrSchemas) {
         // 解析逻辑，例如："sum.Capacity" -> DynamicAttribute{Capacity}, "sum"
         String funPrefix = "";
         String attrCode = orgAttrCode;

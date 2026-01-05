@@ -1,4 +1,4 @@
-package com.jmix.tool.impl;
+ package com.jmix.tool.impl;
 
 import com.jmix.executor.imodel.Extensible;
 import com.jmix.executor.imodel.InstanceDynAttrValueItem;
@@ -27,7 +27,17 @@ import java.util.regex.Pattern;
 @Slf4j
 public final class FilterExpressionExecutor {
 
-    private static final Pattern FILTER_PATTERN = Pattern.compile("(\\w+)\\s*([=!<>]+)\\s*\"?([^\"]*)\"?");
+    // 操作符常量
+    public static final String OP_EQUALS = "=";
+    public static final String OP_EQUALS_DOUBLE = "==";
+    public static final String OP_NOT_EQUALS = "!=";
+    public static final String OP_GREATER_THAN = ">";
+    public static final String OP_LESS_THAN = "<";
+    public static final String OP_GREATER_EQUALS = ">=";
+    public static final String OP_LESS_EQUALS = "<=";
+    public static final String OP_LIKE = "like";
+
+    private static final Pattern FILTER_PATTERN = Pattern.compile("(\\w+)\\s*([=!<>]+|like)\\s*\"?([^\"]*)\"?");
 
     // Class field cache to improve performance
     private static final Map<Class<?>, Map<String, java.lang.reflect.Field>> FIELD_CACHE = new ConcurrentHashMap<>();
@@ -173,24 +183,27 @@ public final class FilterExpressionExecutor {
 
             boolean result = false;
             switch (operator) {
-                case "=":
-                case "==":
+                case OP_EQUALS:
+                case OP_EQUALS_DOUBLE:
                     result = fieldValueStr.equals(value);
                     break;
-                case "!=":
+                case OP_NOT_EQUALS:
                     result = !fieldValueStr.equals(value);
                     break;
-                case ">":
+                case OP_GREATER_THAN:
                     result = compareValues(fieldValueStr, value) > 0;
                     break;
-                case "<":
+                case OP_LESS_THAN:
                     result = compareValues(fieldValueStr, value) < 0;
                     break;
-                case ">=":
+                case OP_GREATER_EQUALS:
                     result = compareValues(fieldValueStr, value) >= 0;
                     break;
-                case "<=":
+                case OP_LESS_EQUALS:
                     result = compareValues(fieldValueStr, value) <= 0;
+                    break;
+                case OP_LIKE:
+                    result = matchesLikePattern(fieldValueStr, value);
                     break;
                 default:
                     log.warn("Unsupported operator: {}", operator);
@@ -241,8 +254,7 @@ public final class FilterExpressionExecutor {
                 String attValue = intAttrValue.getInstAttr(fieldName);
                 if (attValue != null) {
                     log.info("Getting field value from InstanceDynAttrValueItem attributes - field: {}, value: {}",
-                            fieldName,
-                            attValue);
+                            fieldName, attValue);
                     return Optional.of(attValue);
                 }
             }
@@ -307,8 +319,62 @@ public final class FilterExpressionExecutor {
     }
 
     /**
+     * Check if value matches like pattern
+     *
+     * @param fieldValue 字段值
+     * @param pattern    like模式字符串，支持%和_通配符
+     * @return 如果匹配则返回true，否则返回false
+     */
+    private static boolean matchesLikePattern(String fieldValue, String pattern) {
+        try {
+            // Convert SQL like pattern to regex pattern
+            String regex = convertLikePatternToRegex(pattern);
+            boolean result = fieldValue.matches(regex);
+            log.info("Like pattern matching: '{}' like '{}' -> regex: '{}' -> result: {}",
+                    fieldValue, pattern, regex, result);
+            return result;
+        } catch (Exception e) {
+            log.error("Exception occurred while matching like pattern - value: {}, pattern: {}", fieldValue, pattern, e);
+            return false;
+        }
+    }
+
+    /**
+     * Convert SQL like pattern to regex pattern
+     *
+     * @param likePattern SQL like模式字符串
+     * @return 转换后的正则表达式
+     */
+    private static String convertLikePatternToRegex(String likePattern) {
+        // Escape special regex characters except % and _
+        String escaped = likePattern
+                .replace("\\", "\\\\")
+                .replace(".", "\\.")
+                .replace("^", "\\^")
+                .replace("$", "\\$")
+                .replace("*", "\\*")
+                .replace("+", "\\+")
+                .replace("?", "\\?")
+                .replace("|", "\\|")
+                .replace("{", "\\{")
+                .replace("}", "\\}")
+                .replace("[", "\\[")
+                .replace("]", "\\]")
+                .replace("(", "\\(")
+                .replace(")", "\\)");
+
+        // Convert SQL wildcards to regex
+        String regex = escaped
+                .replace("%", ".*")  // % matches any sequence of characters
+                .replace("_", ".");   // _ matches any single character
+
+        // Add anchors to match entire string
+        return "^" + regex + "$";
+    }
+
+    /**
      * Compare values
-     * 
+     *
      * @param value1 第一个值
      * @param value2 第二个值
      * @return 比较结果：负数表示value1小于value2，0表示相等，正数表示value1大于value2

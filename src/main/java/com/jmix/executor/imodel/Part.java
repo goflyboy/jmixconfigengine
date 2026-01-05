@@ -118,15 +118,18 @@ public class Part extends ProgrammableObject<Integer> {
     @JsonIgnore
     public Part clone() {
         Part pc = new Part();
-        // 复制基本属性
-        pc.setId(this.getId());
+        // 复制ProgrammableObject属性
         pc.setCode(this.getCode());
-        pc.setName(this.getName());
+        pc.setFatherCode(this.getFatherCode());
+        pc.setDefaultValue(this.getDefaultValue());
+        pc.setDescription(this.getDescription());
+        pc.setSortNo(this.getSortNo());
         pc.setShortCode(this.getShortCode());
+
+        // 复制Part特有属性
         pc.setPartType(this.getPartType());
         pc.setPrice(this.getPrice());
         pc.setMaxQuantity(this.getMaxQuantity());
-        pc.setDefaultValue(this.getDefaultValue());
         pc.setDynAttrSchema(this.getDynAttrSchema());
 
         // 复制动态属性
@@ -134,10 +137,6 @@ public class Part extends ProgrammableObject<Integer> {
 
         // 复制动态属性schema
         pc.setDynAttrSchemas(new ArrayList<>(this.getDynAttrSchemas()));
-
-        // 复制其他可复制的属性
-        pc.setDescription(this.getDescription());
-        pc.setRemark(this.getRemark());
 
         return pc;
     }
