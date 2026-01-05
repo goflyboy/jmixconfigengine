@@ -35,6 +35,11 @@ public class Part extends ProgrammableObject<Integer> {
     public static final String SHORT_CODE_PREFIX = "PT";
 
     /**
+     * 实例属性键名
+     */
+    public static final String INSTANCE_ATTRS = "instanceAttrs";
+
+    /**
      * 部件类型
      */
     private PartType partType = PartType.ATOMIC;
@@ -103,7 +108,7 @@ public class Part extends ProgrammableObject<Integer> {
      */
     @JsonIgnore
     public InstanceDynAttrValue getInstanceAttrs() {
-        String instanceAttrsStr = this.getAttr("instanceAttrs");
+        String instanceAttrsStr = this.getAttr(INSTANCE_ATTRS);
         if (instanceAttrsStr == null || instanceAttrsStr.trim().isEmpty()) {
             return null;
         }

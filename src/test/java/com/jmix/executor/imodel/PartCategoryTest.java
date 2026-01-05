@@ -26,6 +26,8 @@ import java.util.Map;
  */
 public class PartCategoryTest {
 
+    private static final String INSTANCE_ATTRS = "instanceAttrs";
+
     private PartCategory driveCategory;
     private PartCategory solidDriveCategory;
 
@@ -84,7 +86,7 @@ public class PartCategoryTest {
         item1.setInstAttrs(attrs1);
         instAttrs1.getInstsValues().add(item1);
 
-        drive1.setAttr("instanceAttrs", InstanceDynAttrValue.toJsonString(instAttrs1));
+        drive1.setAttr(INSTANCE_ATTRS, InstanceDynAttrValue.toJsonString(instAttrs1));
         drive1.setAttr(PartConstantAttr.Quantity, "1");
         drives.add(drive1);
 
@@ -102,7 +104,7 @@ public class PartCategoryTest {
         item2.setInstAttrs(attrs2);
         instAttrs2.getInstsValues().add(item2);
 
-        drive2.setAttr("instanceAttrs", InstanceDynAttrValue.toJsonString(instAttrs2));
+        drive2.setAttr(INSTANCE_ATTRS, InstanceDynAttrValue.toJsonString(instAttrs2));
         drive2.setAttr(PartConstantAttr.Quantity, "1");
         drives.add(drive2);
 
@@ -120,7 +122,7 @@ public class PartCategoryTest {
         item3.setInstAttrs(attrs3);
         instAttrs3.getInstsValues().add(item3);
 
-        drive3.setAttr("instanceAttrs", InstanceDynAttrValue.toJsonString(instAttrs3));
+        drive3.setAttr(INSTANCE_ATTRS, InstanceDynAttrValue.toJsonString(instAttrs3));
         drive3.setAttr(PartConstantAttr.Quantity, "1");
         drives.add(drive3);
 
@@ -176,7 +178,7 @@ public class PartCategoryTest {
             instAttrs.getInstsValues().add(item);
         }
 
-        solidDrive.setAttr("instanceAttrs", InstanceDynAttrValue.toJsonString(instAttrs));
+        solidDrive.setAttr(INSTANCE_ATTRS, InstanceDynAttrValue.toJsonString(instAttrs));
         solidDrive.setAttr(PartConstantAttr.Quantity, "2");
         solidDrives.add(solidDrive);
 

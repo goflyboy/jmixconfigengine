@@ -59,6 +59,11 @@ import java.util.Optional;
 @Slf4j
 public final class ModuleGenneratorByAnno {
     /**
+     * 实例属性键名
+     */
+    public static final String INSTANCE_ATTRS = "instanceAttrs";
+
+    /**
      * 私有构造器，防止工具类被实例化
      */
     private ModuleGenneratorByAnno() {
@@ -964,7 +969,7 @@ public final class ModuleGenneratorByAnno {
                 dynAttr = new HashMap<>();
                 part.setDynAttr(dynAttr);
             }
-            dynAttr.put("instanceAttrs", InstanceDynAttrValue.toJsonString(instanceDynAttrValue));
+            dynAttr.put(INSTANCE_ATTRS, InstanceDynAttrValue.toJsonString(instanceDynAttrValue));
         }
     }
 
