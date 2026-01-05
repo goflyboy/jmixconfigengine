@@ -421,6 +421,28 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
                 alg.addPartEquality(partInst.getCode(), partInst.getQuantity());
             }
         }
+        if (req.getPartConstraintReqs() != null) {
+            addPartConstraintReqs(alg, req.getPartConstraintReqs());
+        }
+    }
+
+    /**
+     * 添加部件约束请求
+     *
+     * @param alg 约束算法实现
+     * @param partConstraintReqs 部件约束请求列表
+     */
+    private void addPartConstraintReqs(ConstraintAlgImpl alg, List<PartConstraintReq> partConstraintReqs) {
+        for (PartConstraintReq partConstraintReq : partConstraintReqs) {
+            PartCategory partCategory = alg.module.getParaCategory(partConstraintReq.getPartCategory());
+            List<Part> filterParts = partCategory.query(partConstraintReq);
+            Pair<DynamicAttribute, String> result = partCategory.parseAttribute(partConstraintReq.getAttrCode());
+            // 根据result.second构建约束表达式
+            if (AttrFunConstant.FUN_PREFIX_SUM.equals(result.getSecond())) {
+                alg.sumFunConstraint(filterParts, result.getFirst().getCode(), partConstraintReq.getAttrComparator(),
+                        Integer.parseInt(partConstraintReq.getAttrValue()));
+            }
+        }
     }
 
     /**

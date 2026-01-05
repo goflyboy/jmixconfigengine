@@ -13,6 +13,7 @@ import com.jmix.executor.omodel.AlgLoaderException;
 import com.jmix.executor.omodel.InferParasReq;
 import com.jmix.executor.omodel.ModuleInst;
 import com.jmix.executor.omodel.ParaInst;
+import com.jmix.executor.omodel.PartConstraintReq;
 import com.jmix.executor.omodel.PartInst;
 import com.jmix.executor.omodel.Result;
 import com.jmix.tool.impl.ModuleGenneratorByAnno;
@@ -600,7 +601,7 @@ public abstract class ModuleScenarioTestBase {
 
     /**
      * 打印其他变量的短名称信息
-     * 
+     *
      * @param solutions 解决方案列表
      * @param sb        字符串构建器
      */
@@ -618,5 +619,78 @@ public abstract class ModuleScenarioTestBase {
                 }
             }
         }
+    }
+
+    /**
+     * 将字符串约束请求转换为PartConstraintReq列表
+     *
+     * @param partCategory 部件类别
+     * @param strReqs      字符串约束请求数组，格式如："sum.Quantity ==2 where Speed=540"
+     * @return PartConstraintReq列表
+     */
+    protected List<PartConstraintReq> toPartConstraintReqs(String partCategory, String... strReqs) {
+        List<PartConstraintReq> reqs = new ArrayList<>();
+
+        for (String strReq : strReqs) {
+            PartConstraintReq req = new PartConstraintReq();
+            req.setPartCategory(partCategory);
+
+            // 解析格式：attrCode comparator value where condition
+            // 示例："sum.Quantity ==2 where Speed=540"
+            String[] parts = strReq.split(" where ");
+            if (parts.length == 2) {
+                req.setAttrWhereCondition(parts[1]);
+            } else if (parts.length != 1) {
+                throw new IllegalArgumentException("Invalid constraint format: " + strReq);
+            }
+
+            // 解析属性表达式：attrCode comparator value
+            String attrExpr = parts[0].trim();
+            // 使用正则表达式解析：支持==, !=, <, >, <=, >=等比较符
+            java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("(.+?)\\s*(==|!=|<=|>=|<|>)\\s*(.+)");
+            java.util.regex.Matcher matcher = pattern.matcher(attrExpr);
+
+            if (matcher.matches()) {
+                req.setAttrCode(matcher.group(1).trim());
+                req.setAttrComparator(matcher.group(2).trim());
+                req.setAttrValue(matcher.group(3).trim());
+            } else {
+                throw new IllegalArgumentException("Invalid attribute expression format: " + attrExpr);
+            }
+
+            reqs.add(req);
+        }
+
+        return reqs;
+    }
+
+    /**
+     * 基于部件约束进行推理推荐
+     *
+     * @param partCode      部件代码
+     * @param partCategory  部件类别
+     * @param constraintReqs 约束请求字符串数组
+     * @return 推荐的模块实例列表
+     */
+    protected List<ModuleInst> inferRecommend(String partCode, String partCategory, String... constraintReqs) {
+        List<PartConstraintReq> partConstraintReqs = toPartConstraintReqs(partCategory, constraintReqs);
+
+        InferParasReq req = new InferParasReq();
+        req.setModuleId(getModule().getId());
+        req.setEnumerateAllSolution(isEnumerateAllSolution());
+        req.setPartConstraintReqs(partConstraintReqs);
+
+        // 如果提供了partCode，设置为主部件
+        if (partCode != null && !partCode.isEmpty()) {
+            PartInst mainPartInst = new PartInst();
+            mainPartInst.setCode(partCode);
+            req.setMainPartInst(mainPartInst);
+        }
+
+        Result<List<ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(req);
+        log.info("Inference recommend result: {}", result);
+        setResult(result);
+        setSolutions(result.getData());
+        return getSolutions();
     }
 }

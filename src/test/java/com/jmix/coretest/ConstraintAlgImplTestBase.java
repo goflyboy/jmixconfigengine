@@ -10,6 +10,7 @@ import com.jmix.executor.omodel.AlgLoaderException;
 import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.IntVar;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,9 +78,19 @@ public class ConstraintAlgImplTestBase extends ConstraintAlgImpl {
         public BoolVar isHidden;
 
         /**
-         * 子部件选中状态(Part.code -> BoolVar)
+         * 子部件列表
          */
-        public Map<String, BoolVar> subPartSelectedVars = new HashMap<>();
+        public List<PartVar> subParts = new ArrayList<>();
+
+        /**
+         * 子部件映射表(Part.code -> PartVar)
+         */
+        public Map<String, PartVar> subPartMap = new HashMap<>();
+
+        /**
+         * 是否选中
+         */
+        public BoolVar isSelected;
 
     }
 
@@ -94,7 +105,10 @@ public class ConstraintAlgImplTestBase extends ConstraintAlgImpl {
         partVar.setBase(internalPartVar.getBase());
         partVar.qty = internalPartVar.getQty();
         partVar.isHidden = internalPartVar.getIsHidden();
-        partVar.subPartSelectedVars = internalPartVar.getSubPartSelectedVars();
+        // 复制新字段（在测试环境中可能不需要完整复制）
+        partVar.subParts = new ArrayList<>();
+        partVar.subPartMap = new HashMap<>();
+        partVar.isSelected = internalPartVar.getIsSelected();
         return partVar;
     }
 

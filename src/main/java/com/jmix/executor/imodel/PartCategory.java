@@ -80,9 +80,9 @@ public class PartCategory extends Part {
      * 查询满足条件的Part
      *
      * @param constraintReq 约束请求
-     * @return 满足条件的PartCategory列表
+     * @return 满足条件的Part列表
      */
-    public PartCategory query(PartConstraintReq constraintReq) {
+    public List<Part> query(PartConstraintReq constraintReq) {
         return query(this, constraintReq);
     }
 
@@ -91,9 +91,9 @@ public class PartCategory extends Part {
      *
      * @param category      部件分类
      * @param constraintReq 约束请求
-     * @return 满足条件的PartCategory
+     * @return 满足条件的Part列表
      */
-    public PartCategory query(PartCategory category, PartConstraintReq constraintReq) {
+    public List<Part> query(PartCategory category, PartConstraintReq constraintReq) {
         if (constraintReq.getAttrWhereCondition() == null || constraintReq.getAttrWhereCondition().trim().isEmpty()) {
             throw new IllegalArgumentException("Filter condition cannot be empty");
         }
@@ -106,20 +106,16 @@ public class PartCategory extends Part {
      * @param category           部件分类
      * @param constraintReq      约束请求
      * @param attrWhereCondition 过滤条件字符串
-     * @return 满足条件的PartCategory列表
+     * @return 满足条件的Part列表
      */
-    public PartCategory query(PartCategory category, PartConstraintReq constraintReq, String attrWhereCondition) {
-        PartCategory resultPartCategory = category.clone();
-        List<PartCategory> resultSubPartCategory = new ArrayList<>();
+    public List<Part> query(PartCategory category, PartConstraintReq constraintReq, String attrWhereCondition) {
+        List<Part> resultParts = new ArrayList<>();
 
-        // 处理子分类
+        // 处理子分类 - 递归查询所有子分类中的部件
         if (!category.partCategoryMap.isEmpty()) {
             for (PartCategory pc : category.partCategoryMap.values()) {
-                resultSubPartCategory.add(query(pc, constraintReq));
+                resultParts.addAll(query(pc, constraintReq, attrWhereCondition));
             }
-        }
-        if (!resultSubPartCategory.isEmpty()) {
-            resultPartCategory.addPartCategory(resultSubPartCategory);
         }
 
         // 解析属性代码, 有一个非空即可，whereCondition和attrcode不能有一个实例属性，有一个不是实例属性
@@ -171,8 +167,9 @@ public class PartCategory extends Part {
                 filterParts.add(cPart);
             }
         }
-        resultPartCategory.addPart(filterParts);
-        return resultPartCategory;
+
+        resultParts.addAll(filterParts);
+        return resultParts;
     }
 
     /**

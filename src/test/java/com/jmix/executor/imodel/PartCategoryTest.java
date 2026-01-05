@@ -189,9 +189,7 @@ public class PartCategoryTest {
         req.setAttrCode("sum.Capacity");
         req.setAttrWhereCondition("Speed like %5400%");
 
-        PartCategory result = driveCategory.query(req);
-
-        List<Part> parts = new ArrayList<>(result.getPartMap().values());
+        List<Part> parts = driveCategory.query(req);
 
         // 应该只返回5400转的硬盘，且容量总和>=5T
         assertEquals(2, parts.size(), "Should return 21 drive part");
@@ -209,7 +207,7 @@ public class PartCategoryTest {
         req.setAttrValue("");
         req.setAttrWhereCondition("Capacity=2");
 
-        PartCategory result = driveCategory.query(req);
+        List<Part> result = driveCategory.query(req);
 
         assertNotNull(result, "Query result should not be null");
         // 这个查询应该没有匹配的硬盘，因为所有硬盘的容量都不是2T
@@ -226,9 +224,9 @@ public class PartCategoryTest {
         req.setAttrCode("sum.Quantity");
         req.setAttrWhereCondition("Speed like %5400%");
 
-        PartCategory results = solidDriveCategory.query(req);
+        List<Part> results = solidDriveCategory.query(req);
 
-        assertEquals(1, results.getPartMap().values().size(), "Should return 1 solid drive part");
+        assertEquals(1, results.size(), "Should return 1 solid drive part");
     }
 
     /**
