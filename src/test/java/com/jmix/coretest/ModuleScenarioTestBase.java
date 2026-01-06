@@ -583,7 +583,7 @@ public abstract class ModuleScenarioTestBase {
         // 1. shortCodes(P1:Size, P2:Color,PT1:part1)
         sb.append("1.1. ").append(module.getProgObjShortCodeMemo()).append(System.lineSeparator());
         // 2. Attrs(V:value, H:isHidden, Q:qty)
-        sb.append("1.2. Attrs(V:value, H:isHidden, Q:qty)").append(System.lineSeparator());
+        sb.append("1.2. Attrs(V:value, H:isHidden, Q:qty,S:isSelected)").append(System.lineSeparator());
         // 3. Other Variable shortName
         sb.append("1.3. Other Variable shortName:").append(System.lineSeparator());
         printOthers(solutions, sb);

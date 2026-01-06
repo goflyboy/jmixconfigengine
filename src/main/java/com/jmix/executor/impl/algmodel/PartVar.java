@@ -53,6 +53,11 @@ public class PartVar extends Var<Part> {
     public static final String HIDDEN_SHORT_NAME = "H";
 
     /**
+     * 选中Var的短名称
+     */
+    public static final String ISSELECTED_SHORT_NAME = "S";
+
+    /**
      * 部件的数量值
      */
     private IntVar qty;
@@ -89,6 +94,8 @@ public class PartVar extends Var<Part> {
         sb.append("PartVar{code=").append(getCode());
         sb.append(", qty=").append(this.qty == null ? "null" : solutionCallback.value(this.getQty()));
         sb.append(", hidden=").append(this.isHidden == null ? "null" : solutionCallback.value(this.getIsHidden()));
+        sb.append(", selected=")
+                .append(this.isSelected == null ? "null" : solutionCallback.value(this.getIsSelected()));
         sb.append(", subParts=").append(getSubParts().size());
         sb.append("}");
         return sb.toString();
@@ -102,10 +109,12 @@ public class PartVar extends Var<Part> {
      */
     @Override
     public String getShortString(CpSolverSolutionCallback solutionCallback) {
-        // P1(Q:1,H:0)
-        return String.format("%s(%s:%s,%s:%s)", getCode(), QTY_SHORT_NAME,
+        // P1(Q:1,H:0,S:1)
+        return String.format("%s(%s:%s,%s:%s,%s:%s)", getCode(), QTY_SHORT_NAME,
                 this.qty == null ? "null" : solutionCallback.value(this.qty),
                 HIDDEN_SHORT_NAME,
-                this.isHidden == null ? "null" : solutionCallback.value(this.isHidden));
+                this.isHidden == null ? "null" : solutionCallback.value(this.isHidden),
+                ISSELECTED_SHORT_NAME,
+                this.isSelected == null ? "null" : solutionCallback.value(this.isSelected));
     }
 }
