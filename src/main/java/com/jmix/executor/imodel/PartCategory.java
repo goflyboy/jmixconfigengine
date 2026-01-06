@@ -2,6 +2,7 @@ package com.jmix.executor.imodel;
 
 import com.jmix.executor.impl.util.Pair;
 import com.jmix.executor.omodel.AttrFunConstant;
+import com.jmix.executor.omodel.PartConstantAttr;
 import com.jmix.executor.omodel.PartConstraintReq;
 import com.jmix.tool.impl.FilterExpressionExecutor;
 import com.jmix.tool.impl.FilterExpressionExecutor.FilterCondition;
@@ -210,13 +211,8 @@ public class PartCategory extends Part {
         FilterCondition filterCondition = filterConditionOpt.get();
         String fieldName = filterCondition.getFieldName();
 
-        for (DynamicAttribute attr : dynAttrSchemas) {
-            if (attr.getCode().equals(fieldName)) {
-                return Pair.of(attr, AttrFunConstant.FUN_PREFIX_EMPTY);
-            }
-        }
-
-        throw new IllegalArgumentException("Attribute '" + fieldName + "' not found in schema");
+        DynamicAttribute attr = findAttribute(fieldName, dynAttrSchemas);
+        return Pair.of(attr, AttrFunConstant.FUN_PREFIX_EMPTY);
     }
 
     /**
@@ -238,13 +234,35 @@ public class PartCategory extends Part {
             attrCode = parts[1];
         }
 
+        DynamicAttribute attr = findAttribute(attrCode, dynAttrSchemas);
+        return Pair.of(attr, funPrefix);
+    }
+
+    /**
+     * 根据属性代码查找动态属性
+     *
+     * @param attrCode       属性代码
+     * @param dynAttrSchemas 动态属性schema列表
+     * @return 找到的DynamicAttribute对象
+     * @throws IllegalArgumentException 当属性未找到时抛出
+     */
+    @JsonIgnore
+    private DynamicAttribute findAttribute(String attrCode, List<DynamicAttribute> dynAttrSchemas) {
+        // 首先在动态属性schema列表中查找
         for (DynamicAttribute attr : dynAttrSchemas) {
             if (attr.getCode().equals(attrCode)) {
-                return Pair.of(attr, funPrefix);
+                return attr;
             }
         }
 
-        throw new IllegalArgumentException("Attribute not found: " + attrCode);
+        // 如果在schema列表中找不到，则在常量属性中查找
+        DynamicAttribute cAttr = PartConstantAttr.getAttr(attrCode);
+        if (cAttr != null) {
+            return cAttr;
+        }
+
+        // 如果都找不到，抛出异常
+        throw new IllegalArgumentException("Attribute '" + attrCode + "' not found in schema");
     }
 
     /**
@@ -268,8 +286,8 @@ public class PartCategory extends Part {
             this.partMap.put(part.getCode(), part);
         }
     }
-	
-	/**
+
+    /**
      * 获取子部件列表
      *
      * @return 子部件列表

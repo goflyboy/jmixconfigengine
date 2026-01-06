@@ -37,6 +37,10 @@ public class PartVar extends Var<Part> {
      * 显示隐藏Var的命名模式
      */
     public static final String HIDDEN_PATTERN = VAR_PATTERN_PREFIX + "isHidden.%s";
+    /**
+     * 选中隐藏Var的命名模式
+     */
+    public static final String ISSELECTED_PATTERN = VAR_PATTERN_PREFIX + "isSelected.%s";
 
     /**
      * 部件数量Var的短名称

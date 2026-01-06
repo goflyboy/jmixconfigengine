@@ -86,6 +86,7 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
         // rule1://固态硬盘必须配置同一种，并且最多配置2块
         @CodeRuleAnno(normalNaturalCode = "solidDrive1.isSelected + solidDrive2.isSelected + solidDrive3.isSelected <= 1\n solidDrive1.qty + solidDrive2.qty + solidDrive3.qty <= 2\n if(solidDrive1.isSelected ==1) then solidDrive1.qty >= 0")
         private void rule1() {
+            log.info("xxx");
             // Constraint: At most one type of solid drive can be selected
             // solidDrive1.isSelected + solidDrive2.isSelected + solidDrive3.isSelected <= 1
             LinearExpr sumSelected = LinearExpr

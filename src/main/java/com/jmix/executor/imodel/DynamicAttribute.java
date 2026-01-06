@@ -28,4 +28,19 @@ public class DynamicAttribute extends ProgrammableObject<String> {
     private int instType = 0;
     // 动态属性的Logic
     private List<Rule> valueLogics;
+
+    /**
+     * 创建Integer类型的动态属性
+     *
+     * @param code 属性编码
+     * @param name 属性名称
+     * @return 创建的DynamicAttribute实例
+     */
+    public static DynamicAttribute createIntegerAttr(String code, String name) {
+        DynamicAttribute attr = new DynamicAttribute();
+        attr.setName(name);
+        attr.setCode(code);
+        attr.setDynAttrType(DynamicAttributeType.Integer);
+        return attr;
+    }
 }

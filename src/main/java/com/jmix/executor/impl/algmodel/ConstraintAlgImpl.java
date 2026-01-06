@@ -719,6 +719,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         partVar.setBase(part);
         partVar.setQty(newIntVar(0, part.getMaxQuantity(), f(PartVar.QTY_PATTERN, part.getCode())));
         partVar.setIsHidden(newBoolVar(f(PartVar.HIDDEN_PATTERN, part.getCode())));
+        partVar.setIsSelected(newBoolVar(f(PartVar.ISSELECTED_PATTERN, part.getCode())));
         registerVar(part.getCode(), partVar);
         return partVar;
     }

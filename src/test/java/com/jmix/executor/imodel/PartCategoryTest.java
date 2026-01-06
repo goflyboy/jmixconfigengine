@@ -3,6 +3,7 @@ package com.jmix.executor.imodel;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -62,7 +63,7 @@ public class PartCategoryTest {
         schemas.add(speedAttr);
 
         DynamicAttribute quantityAttr = new DynamicAttribute();
-        quantityAttr.setCode(PartConstantAttr.Quantity);
+        quantityAttr.setCode(PartConstantAttr.Quantity.getCode());
         quantityAttr.setName("数量");
         quantityAttr.setInstType(0); // 非实例属性
         schemas.add(quantityAttr);
@@ -88,7 +89,7 @@ public class PartCategoryTest {
         instAttrs1.getInstsValues().add(item1);
 
         drive1.setAttr(INSTANCE_ATTRS, InstanceDynAttrValue.toJsonString(instAttrs1));
-        drive1.setAttr(PartConstantAttr.Quantity, "1");
+        drive1.setAttr(PartConstantAttr.Quantity.getCode(), "1");
         drives.add(drive1);
 
         // 7200转硬盘，16T容量
@@ -106,7 +107,7 @@ public class PartCategoryTest {
         instAttrs2.getInstsValues().add(item2);
 
         drive2.setAttr(INSTANCE_ATTRS, InstanceDynAttrValue.toJsonString(instAttrs2));
-        drive2.setAttr(PartConstantAttr.Quantity, "1");
+        drive2.setAttr(PartConstantAttr.Quantity.getCode(), "1");
         drives.add(drive2);
 
         // 9000转硬盘，4T容量
@@ -124,7 +125,7 @@ public class PartCategoryTest {
         instAttrs3.getInstsValues().add(item3);
 
         drive3.setAttr(INSTANCE_ATTRS, InstanceDynAttrValue.toJsonString(instAttrs3));
-        drive3.setAttr(PartConstantAttr.Quantity, "1");
+        drive3.setAttr(PartConstantAttr.Quantity.getCode(), "1");
         drives.add(drive3);
 
         driveCategory.addPart(drives);
@@ -153,7 +154,7 @@ public class PartCategoryTest {
         schemas.add(speedAttr);
 
         DynamicAttribute quantityAttr = new DynamicAttribute();
-        quantityAttr.setCode(PartConstantAttr.Quantity);
+        quantityAttr.setCode(PartConstantAttr.Quantity.getCode());
         quantityAttr.setName("数量");
         quantityAttr.setInstType(0); // 非实例属性
         schemas.add(quantityAttr);
@@ -288,5 +289,36 @@ public class PartCategoryTest {
         // partMap和partCategoryMap不应该被克隆
         assertTrue(cloned.getPartMap().isEmpty(), "partMap should not be cloned");
         assertTrue(cloned.getPartCategoryMap().isEmpty(), "partCategoryMap should not be cloned");
+    }
+
+    @Test
+    public void testPartConstantAttrIsContainValue() {
+        // 测试包含的常量值
+        assertTrue(PartConstantAttr.isContainAttrCode("Quantity"), "Should contain 'Quantity' value");
+
+        // 测试不包含的常量值
+        assertTrue(!PartConstantAttr.isContainAttrCode("NonExistent"), "Should not contain 'NonExistent' value");
+        assertTrue(!PartConstantAttr.isContainAttrCode(""), "Should not contain empty string");
+        assertTrue(!PartConstantAttr.isContainAttrCode(null), "Should not contain null value");
+
+        // 测试大小写敏感
+        assertTrue(!PartConstantAttr.isContainAttrCode("quantity"), "Should be case sensitive - 'quantity' should not match 'Quantity'");
+    }
+
+    @Test
+    public void testPartConstantAttrGetAttr() {
+        // 测试获取存在的属性
+        DynamicAttribute attr = PartConstantAttr.getAttr("Quantity");
+        assertNotNull(attr, "Should return DynamicAttribute for 'Quantity'");
+        assertEquals("Quantity", attr.getCode(), "Code should be 'Quantity'");
+        assertEquals("配置的数量", attr.getName(), "Name should be '配置的数量'");
+
+        // 测试获取不存在的属性
+        DynamicAttribute nullAttr = PartConstantAttr.getAttr("NonExistent");
+        assertNull(nullAttr, "Should return null for non-existent code");
+
+        // 测试大小写敏感
+        DynamicAttribute caseSensitiveAttr = PartConstantAttr.getAttr("quantity");
+        assertNull(caseSensitiveAttr, "Should return null for case mismatch");
     }
 }
