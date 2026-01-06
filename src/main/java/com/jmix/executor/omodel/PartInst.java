@@ -43,6 +43,11 @@ public class PartInst {
     private boolean isHidden = false;
 
     /**
+     * 是否选中
+     */
+    private boolean isSelected = false;
+
+    /**
      * 扩展属性
      */
     private Map<String, Object> extAttrs;
@@ -60,8 +65,8 @@ public class PartInst {
 
     /**
      * 生成短字符串表示
-     * 
-     * @return 短字符串，例如：PT1(Q:20,H:0)
+     *
+     * @return 短字符串，例如：PT1(Q:20,H:0,S:1)
      */
     public String toShortString() {
         StringBuilder sb = new StringBuilder();
@@ -77,6 +82,9 @@ public class PartInst {
             sb.append(",");
         }
         sb.append("H:").append(isHidden ? 1 : 0);
+
+        // 添加选中状态
+        sb.append(",S:").append(isSelected ? 1 : 0);
 
         sb.append(")");
         return sb.toString();

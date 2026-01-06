@@ -580,7 +580,8 @@ List<PartCategory> query(PartConstraintReq constraintReq) --》返回值改为Li
 			sumFunVar comparator leftValue
 	}	
 
-
+TODO： PartInst的怎么处理？  是否要把输入都独立出来得了？
+    private Map<String, String> selectAttrValue;
 
 
 TODO: 引擎接口要抽取出来？

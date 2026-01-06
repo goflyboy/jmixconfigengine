@@ -149,6 +149,7 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
         // 从模块中获取对应的Part模型，设置shortCode
         inst.setShortCode(partVar.getBase().getShortCode());
         inst.setQuantity((int) value(partVar.getQty()));
+        inst.setSelected(partVar.getIsSelected() != null && value(partVar.getIsSelected()) == 1);
         return inst;
     }
 
