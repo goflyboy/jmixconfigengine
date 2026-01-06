@@ -746,11 +746,14 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      */
     public void sumFunConstraint(List<Part> sumParts, String sumAttrCode, String comparator, int leftValue) {
         List<LinearExpr> sumTerms = new ArrayList<>();
+        List<String> sumTermStrings = new ArrayList<>();
+
         for (Part part : sumParts) {
             PartVar partVar = getPartVar(part.getCode());
             if (partVar.getQty() != null) {
                 int attrValue = Integer.parseInt(part.getAttr(sumAttrCode));
                 sumTerms.add(LinearExpr.term(partVar.getQty(), attrValue));
+                sumTermStrings.add(partVar.getBase().getShortCode() + "*" + attrValue);
             }
         }
 
@@ -761,28 +764,13 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         }
 
         LinearExpr sumFunExpr = LinearExpr.sum(sumTerms.toArray(new LinearExpr[0]));
-        switch (comparator) {
-            case "==":
-                model.getCpModel().addEquality(sumFunExpr, leftValue);
-                break;
-            case "!=":
-                model.getCpModel().addDifferent(sumFunExpr, leftValue);
-                break;
-            case "<":
-                model.getCpModel().addLessThan(sumFunExpr, leftValue);
-                break;
-            case "<=":
-                model.getCpModel().addLessOrEqual(sumFunExpr, leftValue);
-                break;
-            case ">":
-                model.getCpModel().addGreaterThan(sumFunExpr, leftValue);
-                break;
-            case ">=":
-                model.getCpModel().addGreaterOrEqual(sumFunExpr, leftValue);
-                break;
-            default:
-                throw new IllegalArgumentException("Unsupported comparator: " + comparator);
-        }
+        String sumFormulaBase = String.join(" + ", sumTermStrings);
+
+        ComparisonOperator operator = ComparisonOperator.fromSymbol(comparator);
+        operator.applyConstraint(model.getCpModel(), sumFunExpr, leftValue);
+        String sumFormula = operator.getFormulaString(sumFormulaBase, leftValue);
+
+        log.info("Added sum constraint: {}", sumFormula);
 
     }
 

@@ -120,7 +120,13 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
         }
 
         // rule2://固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量
-        @CodeRuleAnno(normalNaturalCode = "solidCapacityWeight = solidDrive1.isSelected *  solidDrive1. capacityWeight + solidDrive2.isSelected *  solidDrive2. capacityWeight + solidDrive3.isSelected *  solidDrive3. capacityWeight \n mechCapacityWeight =  mechDrive1.isSelected *  mechDrive1. capacityWeight + mechDrive2.isSelected *  mechDrive2. capacityWeight + mechDrive3.isSelected *  mechDrive3. capacityWeight \n min(solidCapacityWeight + mechCapacityWeight)")
+        // @CodeRuleAnno(normalNaturalCode = "solidCapacityWeight =
+        // solidDrive1.isSelected * solidDrive1. capacityWeight + solidDrive2.isSelected
+        // * solidDrive2. capacityWeight + solidDrive3.isSelected * solidDrive3.
+        // capacityWeight \n mechCapacityWeight = mechDrive1.isSelected * mechDrive1.
+        // capacityWeight + mechDrive2.isSelected * mechDrive2. capacityWeight +
+        // mechDrive3.isSelected * mechDrive3. capacityWeight \n min(solidCapacityWeight
+        // + mechCapacityWeight)")
         private void rule2() {
             // This rule is an optimization objective: minimize total capacity weight.
             // We need to define expressions for solidCapacityWeight and mechCapacityWeight.
