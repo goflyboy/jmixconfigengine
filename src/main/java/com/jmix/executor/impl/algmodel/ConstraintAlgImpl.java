@@ -636,6 +636,10 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         }
     }
 
+    private Var<?> getRegisterVar(String code) {
+        return varMap.get(code);
+    }
+
     /**
      * 获取其他变量映射
      * 
@@ -714,6 +718,10 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     }
 
     protected PartVar createPartVar(Part part) {
+        Var<?> tempVar = getRegisterVar(part.getCode());
+        if (null != tempVar) {
+            return (PartVar) tempVar;
+        }
         // 现有代码
         PartVar partVar = new PartVar();
         partVar.setBase(part);
