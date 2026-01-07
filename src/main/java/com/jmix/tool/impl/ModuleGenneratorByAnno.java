@@ -32,6 +32,7 @@ import com.jmix.executor.imodel.rule.ExprSchema;
 import com.jmix.executor.imodel.rule.RefProgObjSchema;
 import com.jmix.executor.impl.algmodel.ConstraintAlg;
 import com.jmix.executor.impl.algmodel.ParaVar;
+import com.jmix.executor.impl.algmodel.PartCategoryVar;
 import com.jmix.executor.impl.algmodel.PartVar;
 import com.jmix.executor.impl.util.ModuleUtils;
 import com.jmix.executor.impl.util.Pair;
@@ -183,6 +184,8 @@ public final class ModuleGenneratorByAnno {
         if (field.getType().getSimpleName().equals("PartCategoryVar")) {
             part = new PartCategory();
             part.setPartType(PartType.CATEGORY);
+            // 处理动态属性注解
+            processDynamicAttributeAnnotations(field, (PartCategory) part);
         } else {
             // PartVar 对应 ATOMIC 类型，不应该有 dynAttrSchemas
             part = new Part();
@@ -509,15 +512,9 @@ public final class ModuleGenneratorByAnno {
                 if (paraOpt.isPresent()) {
                     paras.add(paraOpt.get());
                 }
-            } else if (field.getType().getSimpleName().equals(PartVar.class.getSimpleName())) {
+            } else if (field.getType().getSimpleName().equals(PartVar.class.getSimpleName()) ||
+                    field.getType().getSimpleName().equals(PartCategoryVar.class.getSimpleName())) {
                 Optional<Part> partOpt = createPartFromField(field);
-                if (partOpt.isPresent()) {
-                    parts.add(partOpt.get());
-                    fieldNameToPartCode.put(field.getName(), partOpt.get().getCode());
-                }
-                partFields.add(field);
-            } else if (field.getType().getSimpleName().equals("PartCategoryVar")) {
-                Optional<Part> partOpt = createPartCategoryFromField(field, fieldNameToPartCode, partOverrideMap);
                 if (partOpt.isPresent()) {
                     parts.add(partOpt.get());
                     fieldNameToPartCode.put(field.getName(), partOpt.get().getCode());
@@ -779,29 +776,6 @@ public final class ModuleGenneratorByAnno {
             }
         }
         return attrs;
-    }
-
-    /**
-     * 从字段创建部件分类
-     *
-     * @param field               字段对象
-     * @param fieldNameToPartCode 字段名到部件编码的映射
-     * @param partOverrideMap     部件重写映射
-     * @return 创建的部件分类对象
-     */
-    private static Optional<Part> createPartCategoryFromField(Field field, Map<String, String> fieldNameToPartCode,
-            Map<String, Map<String, String>> partOverrideMap) {
-        PartCategory partCategory = new PartCategory();
-
-        // 生成PartCategory.code
-        String fieldName = field.getName();
-        String code = fieldName.replace("Var", "");
-        partCategory.setCode(code);
-
-        // 处理动态属性注解
-        processDynamicAttributeAnnotations(field, partCategory);
-
-        return Optional.of(partCategory);
     }
 
     /**

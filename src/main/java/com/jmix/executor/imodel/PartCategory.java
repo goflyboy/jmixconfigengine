@@ -172,7 +172,7 @@ public class PartCategory extends Part {
                 filterParts.add(cPart);
             }
         }
-        resultPartCategory.addPart(filterParts);
+        resultPartCategory.addSubParts(filterParts);
         return resultPartCategory;
     }
 
@@ -277,13 +277,26 @@ public class PartCategory extends Part {
     }
 
     /**
-     * 添加部件
+     * 添加子部件
      *
-     * @param parts 部件列表
+     * @param subPart 子部件（可以是Part或PartCategory）
      */
-    public void addPart(List<Part> parts) {
-        for (Part part : parts) {
-            this.partMap.put(part.getCode(), part);
+    public void addSubPart(Part subPart) {
+        if (subPart instanceof PartCategory) {
+            this.partCategoryMap.put(subPart.getCode(), (PartCategory) subPart);
+        } else {
+            this.partMap.put(subPart.getCode(), subPart);
+        }
+    }
+
+    /**
+     * 添加子部件列表
+     *
+     * @param subParts 子部件列表（可以是Part或PartCategory）
+     */
+    public void addSubParts(List<? extends Part> subParts) {
+        for (Part part : subParts) {
+            addSubPart(part);
         }
     }
 

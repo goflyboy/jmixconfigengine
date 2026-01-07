@@ -5,6 +5,7 @@ import com.jmix.executor.impl.ModuleRefRelationGraph;
 import com.jmix.executor.impl.util.Pair;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.base.Strings;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -104,7 +105,7 @@ public class Module extends ProgrammableObject<Integer> {
         }
         initShortCode();
         initRefRelationGraph();
-        initPartCategories();
+        initSubParts();
     }
 
     private void initShortCode() {
@@ -263,51 +264,23 @@ public class Module extends ProgrammableObject<Integer> {
     }
 
     /**
-     * 初始化PartCategory的partCategoryMap和partMap
-     */
-    private void initPartCategories() {
-        if (parts == null || parts.isEmpty()) {
-            return;
-        }
-
-        // 按照fatherCode进行分组，初始化PartCategory
-        for (Part part : parts) {
-            if (part instanceof PartCategory) {
-                PartCategory category = (PartCategory) part;
-                initPartCategory(category);
-            }
-        }
-    }
-
-    /**
      * 初始化单个PartCategory
      *
      * @param category 部件分类
      */
-    private void initPartCategory(PartCategory category) {
-        if (parts == null || parts.isEmpty()) {
-            return;
-        }
-
-        String categoryCode = category.getCode();
-
+    private void initSubParts() {
         // 初始化partCategoryMap（子分类）
         for (Part part : parts) {
-            if (part instanceof PartCategory && categoryCode.equals(part.getFatherCode())) {
-                category.getPartCategoryMap().put(part.getCode(), (PartCategory) part);
+            if (Strings.isNullOrEmpty(part.getFatherCode())) {
+                continue;
             }
-        }
-
-        // 初始化partMap（直接子部件）
-        for (Part part : parts) {
-            if (!(part instanceof PartCategory) && categoryCode.equals(part.getFatherCode())) {
-                category.getPartMap().put(part.getCode(), part);
+            Part fatherPart = this.partMap.get(part.getFatherCode());
+            if (fatherPart instanceof PartCategory) {
+                ((PartCategory) fatherPart).addSubPart(part);
+            } else {
+                throw new IllegalStateException("Father part '" + part.getFatherCode() +
+                        "' is not a PartCategory, cannot add subpart '" + part.getCode() + "'");
             }
-        }
-
-        // 递归初始化子分类
-        for (PartCategory subCategory : category.getPartCategoryMap().values()) {
-            initPartCategory(subCategory);
         }
     }
 

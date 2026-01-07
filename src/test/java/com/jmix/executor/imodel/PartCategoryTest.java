@@ -128,7 +128,7 @@ public class PartCategoryTest {
         drive3.setAttr(PartConstantAttr.Quantity.getCode(), "1");
         drives.add(drive3);
 
-        driveCategory.addPart(drives);
+        driveCategory.addSubParts(drives);
     }
 
     /**
@@ -177,7 +177,7 @@ public class PartCategoryTest {
         solidDrive2.setAttr("Capacity", "16");
         solidDrive2.setAttr("Speed", "9000");
         solidDrives.add(solidDrive2);
-        solidDriveCategory.addPart(solidDrives);
+        solidDriveCategory.addSubParts(solidDrives);
     }
 
     /**
@@ -302,7 +302,8 @@ public class PartCategoryTest {
         assertTrue(!PartConstantAttr.isContainAttrCode(null), "Should not contain null value");
 
         // 测试大小写敏感
-        assertTrue(!PartConstantAttr.isContainAttrCode("quantity"), "Should be case sensitive - 'quantity' should not match 'Quantity'");
+        assertTrue(!PartConstantAttr.isContainAttrCode("quantity"),
+                "Should be case sensitive - 'quantity' should not match 'Quantity'");
     }
 
     @Test
