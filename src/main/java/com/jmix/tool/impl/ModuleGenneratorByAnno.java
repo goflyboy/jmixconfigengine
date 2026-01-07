@@ -525,6 +525,25 @@ public final class ModuleGenneratorByAnno {
             }
         }
 
+        for (Field field : moduleAlgClazz.getDeclaredFields()) {
+            // 处理继承注解，为partOverrideMap赋值
+            DAttrInherit inheritAnno = field.getAnnotation(DAttrInherit.class);
+            if (inheritAnno != null) {
+                Map<String, String> overrideMap = new HashMap<>();
+                // 解析重写属性
+                String[] overrideAttrs = inheritAnno.overrideAttrs();
+                for (String override : overrideAttrs) {
+                    String[] partCodes = override.split(":");
+                    if (partCodes.length == 2) {
+                        overrideMap.put(partCodes[0], partCodes[1]);
+                    }
+                }
+                if (!overrideMap.isEmpty()) {
+                    String partCode = field.getName().replace("Var", "");
+                    partOverrideMap.put(partCode, overrideMap);
+                }
+            }
+        }
         // 处理继承关系
         processInheritance(parts, fieldNameToPartCode, partOverrideMap);
 
@@ -587,6 +606,11 @@ public final class ModuleGenneratorByAnno {
 
                 // 检查是否有重写
                 String overrideValue = overrideMap.get(parentAttr.getCode());
+                if (overrideValue != null) {
+                    // 去除所有空格
+                    overrideValue = overrideValue.replaceAll("\\s+", "");
+                }
+
                 if (overrideValue != null && overrideValue.startsWith("instType=")) {
                     String instTypeStr = overrideValue.substring("instType=".length());
                     try {
