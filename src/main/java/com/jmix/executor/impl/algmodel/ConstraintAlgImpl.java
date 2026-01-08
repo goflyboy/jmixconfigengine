@@ -1083,4 +1083,47 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
         return condition;
     }
+
+    /**
+     * 设置部件为未选中状态（批量）
+     * 遍历调用 setPartUnSelected(Part part)
+     *
+     * @param parts 部件列表
+     */
+    public void setPartUnSelected(List<Part> parts) {
+        if (parts == null || parts.isEmpty()) {
+            return;
+        }
+        for (Part part : parts) {
+            setPartUnSelected(part);
+        }
+    }
+
+    /**
+     * 设置部件为未选中状态
+     * 根据 part.code 找到对应 partVar，使用 ortools 设置：
+     * - partVar.isSelected == 0
+     * - partVar.qty == 0
+     *
+     * @param part 部件
+     * @throws AlgLoaderException 异常
+     */
+    public void setPartUnSelected(Part part) {
+        if (part == null) {
+            log.warn("Part is null, cannot set unselected");
+            return;
+        }
+
+        // 根据 part.code 找到对应 partVar
+        PartVar partVar = getPartVar(part.getCode());
+
+        // 使用 ortools 设置约束
+        // partVar.isSelected == 0
+        model.addEquality(partVar.getIsSelected(), 0);
+
+        // partVar.qty == 0
+        model.addEquality(partVar.getQty(), 0);
+
+        log.info("Set part unselected: code={}, isSelected=0, qty=0", part.getCode());
+    }
 }

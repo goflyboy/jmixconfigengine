@@ -589,28 +589,73 @@ TODO：怎么实现差量计算：
 方案2： 根据过滤的，设置的数量*** --其它设置为0：
 
 
-添加一个函数
+请按下列设计增强
 
-List<Part> u
-calcUnFilterLeafParts(List<Part> filterLeafParts, PartCatagory allPartCategory) {
+1、对ModuleConstraintExecutorImpl做下列增强
+1.1 添加一个函数
+
+calcUnFilterLeafParts(PartCatagory allPartCategory,List<Part> filterLeafParts) {
 	List<Part> unFilterLeafParts = ...;
 	//遍历 allPartCategory本身的parts,及其子PartCategory的parts ，如果 不在filterLeafParts，添加到unFilterLeafParts
+	return unFilterLeafParts;
+}
+
+1.2 修改函数：addPartConstraintReqs
+修改前：
+ ... addPartConstraintReqs(...){
+	...
+		List<Part> filterParts = getAllLeafParts(filteredCategory); 
+	...
+		alg.sumFunConstraint(....)
+	...
+
+}
+
+修改后：
+... addPartConstraintReqs(...){
+	...
+		List<Part> filterParts = getAllLeafParts(filteredCategory);
+		List<Part> unFilterParts = calcUnFilterLeafParts(partCategory,filterParts);
+	...
+		alg.sumFunConstraint(....)
+		alg.setPartUnSelected(unFilterParts);
+	...
 
 }
 
 
-TODO：这个世界，是把很多事情揉在做，导致复杂？  把本身一体的事情 隔离做？  ---正反 有点意思  why?
+2、在类ConstraintAlglmpl添加下列方法
 
-processInheritAnnotation
-processInheritance
-   private static Map<String, String> processInheritAnnotation(Field field, PartCategory partCategory,
-            Map<String, String> fieldNameToPartCode) {
+void setPartUnSelected(List<Part> parts) 【
+	遍历调用setPartUnSelected
+
+}
+ 
+void setPartUnSelected(Part part) 【
+	根据part.code找到对应partVar 
+	根据ortools设置
+     partVar.isselected == 0
+     partVar.qty == 0
+}
+ 
+
+
+TODO：idea这个世界，是把很多事情揉在做，导致复杂？  把本身一体的事情 隔离做？  ---正反 有点意思  why?
+
+ 
+
+TODO: idea 大模型时代 模糊化语言？不讲细节？ 重点将过程？ ---**
+1.2 修改函数：addPartConstraintReqs
+
+
 
 
 TODO：把访问大模型的接口换一下？**
 
 TODO： 是bug
             Map<String, String> extAttrs = parseAttributes(partAnno.extAttrs(), new ArrayList<>());
+
+TODO: 所有设置系统函数的ConstraintAlglmpl的地方，都要打日志，最后单独抽取出来，方便查看？***
 
 public enum DynamicAttributeType {  DAttrAnno11 及解析
     Integer(0, "Integer"),  --类型明确一下
