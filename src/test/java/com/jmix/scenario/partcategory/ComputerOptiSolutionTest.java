@@ -54,33 +54,33 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
         private PartCategoryVar mechDrive;
 
         // 固态硬盘实例1
-        @PartAnno(fatherCode = "solidDrive", attrs = { "BW_8GB", "MaxCapacity_8T", "CW_100" }, attrsInst1 = {
-                "Speed_5400",
-                "Capacity_8T" }, attrsInst2 = { "Speed_7200a5400", "Capacity_8T" })
+        @PartAnno(fatherCode = "solidDrive", attrs = { "8", "8", "100" }, attrsInst1 = {
+                "5400",
+                "8" }, attrsInst2 = { "7200/5400", "8" })
         private PartVar solidDrive1;
 
         // 固态硬盘实例2
-        @PartAnno(fatherCode = "solidDrive", attrs = { "BW_16GB", "MaxCapacity_16T", "CW_200" }, attrsInst1 = {
-                "Speed_9000",
-                "Capacity_16T" }, attrsInst2 = { "Speed_7200a5400", "Capacity_16T" })
+        @PartAnno(fatherCode = "solidDrive", attrs = { "16", "16", "200" }, attrsInst1 = {
+                "9000",
+                "16" }, attrsInst2 = { "7200/5400", "16" })
         private PartVar solidDrive2;
 
         // 固态硬盘实例3
-        @PartAnno(fatherCode = "solidDrive", attrs = { "BW_16GB", "MaxCapacity_16T", "CW_300" }, attrsInst1 = {
-                "Speed_9000",
-                "Capacity_16T" })
+        @PartAnno(fatherCode = "solidDrive", attrs = { "16", "16", "300" }, attrsInst1 = {
+                "9000",
+                "16" })
         private PartVar solidDrive3;
 
         // 机械硬盘实例1
-        @PartAnno(fatherCode = "mechDrive", attrs = { "BW_8GB", "Speed_5400", "Capacity_8T", "CW_30" })
+        @PartAnno(fatherCode = "mechDrive", attrs = { "8", "5400", "8", "30" })
         private PartVar mechDrive1;
 
         // 机械硬盘实例2
-        @PartAnno(fatherCode = "mechDrive", attrs = { "BW_16GB", "Speed_7200a5400", "Capacity_16T", "CW_20" })
+        @PartAnno(fatherCode = "mechDrive", attrs = { "16", "7200/5400", "16", "20" })
         private PartVar mechDrive2;
 
         // 机械硬盘实例3
-        @PartAnno(fatherCode = "mechDrive", attrs = { "BW_16GB", "Speed_9000", "Capacity_16T", "CW_10" })
+        @PartAnno(fatherCode = "mechDrive", attrs = { "16", "9000", "16", "10" })
         private PartVar mechDrive3;
 
         // rule1://固态硬盘必须配置同一种，并且最多配置2块

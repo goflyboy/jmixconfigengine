@@ -211,13 +211,22 @@ public final class ModuleGenneratorByAnno {
 
         // 处理规格属性
         if (partAnno.attrs().length > 0) {
-            Map<String, String> attrs = parseAttributes(partAnno.attrs());
+            Map<String, String> attrs = parseAttributes(partAnno.attrs(), new ArrayList<>());
             part.setDynAttr(attrs);
+
+            // 保存原始attrs数据，供后续processInheritance使用
+            Map<String, String> extAttrs = part.getExtAttrs();
+            if (extAttrs == null) {
+                extAttrs = new HashMap<>();
+                part.setExtAttrs(extAttrs);
+            }
+            // 将原始attrs数组序列化为字符串存储
+            extAttrs.put("original_attrs", String.join(",", partAnno.attrs()));
         }
 
         // 处理扩展属性
         if (partAnno.extAttrs().length > 0) {
-            Map<String, String> extAttrs = parseAttributes(partAnno.extAttrs());
+            Map<String, String> extAttrs = parseAttributes(partAnno.extAttrs(), new ArrayList<>());
             part.setExtAttrs(extAttrs);
         }
 
@@ -586,6 +595,124 @@ public final class ModuleGenneratorByAnno {
                     Map<String, String> overrideMap = partOverrideMap.getOrDefault(part.getCode(), new HashMap<>());
                     inheritFromParent(partCategory, (PartCategory) parentPart, overrideMap);
                 }
+            } else if (part.getPartType() == PartType.ATOMIC && part.getFatherCode() != null) {
+                // 处理PartVar的属性，需要根据父类PartCategory重新解析属性
+                PartCategory parentCategory = null;
+
+                // 先尝试直接用 fatherCode 查找
+                Part parentPart = partMap.get(part.getFatherCode());
+
+                // 如果找不到，尝试通过字段名映射查找
+                if (parentPart == null) {
+                    String parentPartCode = fieldNameToPartCode.get(part.getFatherCode());
+                    if (parentPartCode != null) {
+                        parentPart = partMap.get(parentPartCode);
+                    }
+                }
+
+                if (parentPart instanceof PartCategory) {
+                    parentCategory = (PartCategory) parentPart;
+                }
+
+                if (parentCategory != null) {
+                    // 重新处理PartVar的属性
+                    reprocessPartVarAttributes(part, parentCategory);
+                }
+            }
+        }
+    }
+
+    /**
+     * 重新处理PartVar的属性
+     *
+     * @param partVar        PartVar部件
+     * @param parentCategory 父类PartCategory
+     */
+    private static void reprocessPartVarAttributes(Part partVar, PartCategory parentCategory) {
+        // 从扩展属性中恢复原始的attrs数组
+        Map<String, String> extAttrs = partVar.getExtAttrs();
+        String originalAttrsStr = extAttrs != null ? extAttrs.get("original_attrs") : null;
+        if (originalAttrsStr == null) {
+            log.warn("No original attrs data found for {}", partVar.getCode());
+            return;
+        }
+
+        String[] originalAttrs = originalAttrsStr.split(",");
+        List<DynamicAttribute> allSchemas = parentCategory.getDynAttrSchemas();
+        Map<String, String> properAttrs = new HashMap<>();
+
+        // 重新映射属性：按schema顺序匹配原始attrs值
+        for (int i = 0; i < Math.min(allSchemas.size(), originalAttrs.length); i++) {
+            DynamicAttribute schema = allSchemas.get(i);
+            String value = originalAttrs[i];
+            // 验证值是否有效
+            if (schema.queryOptionByCodeValue(value) != null) {
+                properAttrs.put(schema.getCode(), value);
+            } else {
+                log.warn("Invalid value {} for attribute {} in {}", value, schema.getCode(), partVar.getCode());
+            }
+        }
+
+        // 更新dynAttr
+        partVar.setDynAttr(properAttrs);
+
+        // 清理临时数据
+        if (extAttrs != null) {
+            extAttrs.remove("original_attrs");
+        }
+
+        // 重新处理实例属性 - 使用父类PartCategory的非实例属性schema
+        List<DynamicAttribute> notInstSchemas = parentCategory.queryDynAttrSchemas4NotInst();
+        reprocessInstanceAttributes(partVar, notInstSchemas);
+    }
+
+    /**
+     * 验证属性值是否有效
+     *
+     * @param attrs          属性映射
+     * @param dynAttrSchemas 动态属性schema列表
+     * @param context        上下文信息（用于日志）
+     */
+    private static void validateAndLogAttributes(Map<String, String> attrs, List<DynamicAttribute> dynAttrSchemas,
+            String context) {
+        for (Map.Entry<String, String> entry : attrs.entrySet()) {
+            String attrCode = entry.getKey();
+            String attrValue = entry.getValue();
+
+            // 找到对应的schema
+            DynamicAttribute schema = dynAttrSchemas.stream()
+                    .filter(s -> s.getCode().equals(attrCode))
+                    .findFirst()
+                    .orElse(null);
+
+            if (schema == null) {
+                log.warn("Schema not found for attribute: {} in {}", attrCode, context);
+                continue;
+            }
+
+            // 验证attrValue是否存在于选项中
+            if (schema.queryOptionByCodeValue(attrValue) == null) {
+                log.warn("Option not found for codeValue: {} in attribute {} of {}", attrValue, attrCode, context);
+            }
+        }
+    }
+
+    /**
+     * 重新处理实例属性
+     *
+     * @param partVar        PartVar部件
+     * @param notInstSchemas 非实例属性schema列表
+     */
+    private static void reprocessInstanceAttributes(Part partVar, List<DynamicAttribute> notInstSchemas) {
+        // 获取当前的实例属性
+        InstanceDynAttrValue instanceAttrs = partVar.getInstanceAttrs();
+        if (instanceAttrs != null && instanceAttrs.getInstsValues() != null) {
+            for (InstanceDynAttrValueItem instValue : instanceAttrs.getInstsValues()) {
+                Map<String, String> instAttrs = instValue.getInstAttrs();
+                if (instAttrs != null && !instAttrs.isEmpty()) {
+                    validateAndLogAttributes(instAttrs, notInstSchemas,
+                            partVar.getCode() + " inst" + instValue.getInstId());
+                }
             }
         }
     }
@@ -786,19 +913,49 @@ public final class ModuleGenneratorByAnno {
      * @param attributes 属性字符串数组，格式为 "key:value"
      * @return 解析后的属性Map
      */
-    private static Map<String, String> parseAttributes(String[] attributes) {
+    private static Map<String, String> parseAttributes(String[] attributes, List<DynamicAttribute> dynAttrSchemas) {
         Map<String, String> attrs = new HashMap<>();
-        for (String attr : attributes) {
-            String[] parts = attr.split(":");
-            if (parts.length == 2) {
-                // key:value 格式
-                attrs.put(parts[0], parts[1]);
-            } else if (parts.length == 1) {
-                // 只有属性名，值设为属性名本身
-                String attrName = parts[0].trim();
-                attrs.put(attrName, attrName);
+
+        for (int i = 0; i < attributes.length && i < dynAttrSchemas.size(); i++) {
+            String attribute = attributes[i];
+            DynamicAttribute dynAttrSchema = dynAttrSchemas.get(i);
+
+            String attrCode = "";
+            String attrValue = "";
+
+            // 判断attributes[i]是否有":"
+            if (attribute.contains(":")) {
+                // "attrCode:attrValue"模式
+                String[] parts = attribute.split(":", 2);
+                attrCode = parts[0].trim();
+                attrValue = parts[1].trim();
+
+                // 校验 dynAttrSchema.getCode 和 attrCode是否相等
+                if (!dynAttrSchema.getCode().equals(attrCode)) {
+                    log.warn("Attribute code mismatch: expected {}, got {}", dynAttrSchema.getCode(), attrCode);
+                    continue;
+                }
+
+                // 校验 dynAttrSchema.queryOptionByCodeValue(attrValue)是否存在
+                if (dynAttrSchema.queryOptionByCodeValue(attrValue) == null) {
+                    log.warn("Option not found for codeValue: {} in attribute {}", attrValue, attrCode);
+                    continue;
+                }
+            } else {
+                // "attrValue"模式
+                attrValue = attribute.trim();
+                attrCode = dynAttrSchema.getCode();
+
+                // 校验dynAttrSchema.queryOptionByCodeValue(attrValue)是否存在
+                if (dynAttrSchema.queryOptionByCodeValue(attrValue) == null) {
+                    log.warn("Option not found for codeValue: {} in attribute {}", attrValue, attrCode);
+                    continue;
+                }
             }
+
+            attrs.put(attrCode, attrValue);
         }
+
         return attrs;
     }
 
@@ -982,7 +1139,7 @@ public final class ModuleGenneratorByAnno {
         if (attrs.length > 0) {
             InstanceDynAttrValueItem instValue = new InstanceDynAttrValueItem();
             instValue.setInstId(instId);
-            Map<String, String> instAttr = parseAttributes(attrs);
+            Map<String, String> instAttr = parseAttributes(attrs, new ArrayList<>());
             instValue.setInstAttrs(instAttr);
             container.getInstsValues().add(instValue);
         }

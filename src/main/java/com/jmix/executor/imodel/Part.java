@@ -145,4 +145,28 @@ public class Part extends ProgrammableObject<Integer> {
 
         return pc;
     }
+
+    /**
+     * 查询实例类型的动态属性定义
+     *
+     * @return 实例类型(instType=1)的动态属性列表
+     */
+    @JsonIgnore
+    public List<DynamicAttribute> queryDynAttrSchemas4Inst() {
+        return dynAttrSchemas.stream()
+                .filter(attr -> attr.getInstType() == 1)
+                .toList();
+    }
+
+    /**
+     * 查询非实例类型的动态属性定义
+     *
+     * @return 非实例类型(instType=0)的动态属性列表
+     */
+    @JsonIgnore
+    public List<DynamicAttribute> queryDynAttrSchemas4NotInst() {
+        return dynAttrSchemas.stream()
+                .filter(attr -> attr.getInstType() == 0)
+                .toList();
+    }
 }

@@ -1,10 +1,13 @@
 package com.jmix.executor.imodel;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 动态属性
@@ -28,6 +31,75 @@ public class DynamicAttribute extends ProgrammableObject<String> {
     private int instType = 0;
     // 动态属性的Logic
     private List<Rule> valueLogics;
+
+    /**
+     * 选项映射：codeValue -> DynamicAttributerOption
+     */
+    @JsonIgnore
+    private Map<String, DynamicAttributerOption> codeValueOptionMap = new HashMap<>();
+
+    /**
+     * 选项映射：codeId -> DynamicAttributerOption
+     */
+    @JsonIgnore
+    private Map<String, DynamicAttributerOption> codeIdOptionMap = new HashMap<>();
+
+    /**
+     * 选项映射：code -> DynamicAttributerOption
+     */
+    @JsonIgnore
+    private Map<String, DynamicAttributerOption> codeOptionMap = new HashMap<>();
+
+    /**
+     * 根据codeValue查询选项
+     *
+     * @param codeValue 选项的codeValue
+     * @return 对应的DynamicAttributerOption，如果不存在返回null
+     */
+    @JsonIgnore
+    public DynamicAttributerOption queryOptionByCodeValue(String codeValue) {
+        if (codeValueOptionMap.isEmpty() && !options.isEmpty()) {
+            // 构建codeValueOptionMap
+            for (DynamicAttributerOption option : options) {
+                codeValueOptionMap.put(option.getCodeValue(), option);
+            }
+        }
+        return codeValueOptionMap.get(codeValue);
+    }
+
+    /**
+     * 根据codeId查询选项
+     *
+     * @param codeId 选项的codeId
+     * @return 对应的DynamicAttributerOption，如果不存在返回null
+     */
+    @JsonIgnore
+    public DynamicAttributerOption queryOptionByCodeId(String codeId) {
+        if (codeIdOptionMap.isEmpty() && !options.isEmpty()) {
+            // 构建codeIdOptionMap
+            for (DynamicAttributerOption option : options) {
+                codeIdOptionMap.put(option.getCodeId(), option);
+            }
+        }
+        return codeIdOptionMap.get(codeId);
+    }
+
+    /**
+     * 根据code查询选项
+     *
+     * @param code 选项的code
+     * @return 对应的DynamicAttributerOption，如果不存在返回null
+     */
+    @JsonIgnore
+    public DynamicAttributerOption queryOptionByCode(String code) {
+        if (codeOptionMap.isEmpty() && !options.isEmpty()) {
+            // 构建codeOptionMap
+            for (DynamicAttributerOption option : options) {
+                codeOptionMap.put(option.getCode(), option);
+            }
+        }
+        return codeOptionMap.get(code);
+    }
 
     /**
      * 创建Integer类型的动态属性
