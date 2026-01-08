@@ -580,6 +580,23 @@ List<PartCategory> query(PartConstraintReq constraintReq) --》返回值改为Li
 			sumFunVar comparator leftValue
 	}	
 
+
+
+processInheritAnnotation
+processInheritance
+   private static Map<String, String> processInheritAnnotation(Field field, PartCategory partCategory,
+            Map<String, String> fieldNameToPartCode) {
+
+
+TODO：把访问大模型的接口换一下？**
+
+TODO： 是bug
+            Map<String, String> extAttrs = parseAttributes(partAnno.extAttrs(), new ArrayList<>());
+
+public enum DynamicAttributeType {  DAttrAnno11 及解析
+    Integer(0, "Integer"),  --类型明确一下
+
+
 TODO： PartInst的怎么处理？  是否要把输入都独立出来得了？
     private Map<String, String> selectAttrValue;
 

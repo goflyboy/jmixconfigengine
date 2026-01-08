@@ -1,6 +1,7 @@
 package com.jmix.executor.imodel;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -42,7 +43,7 @@ public class DynamicAttribute extends ProgrammableObject<String> {
      * 选项映射：codeId -> DynamicAttributerOption
      */
     @JsonIgnore
-    private Map<String, DynamicAttributerOption> codeIdOptionMap = new HashMap<>();
+    private Map<Integer, DynamicAttributerOption> codeIdOptionMap = new HashMap<>();
 
     /**
      * 选项映射：code -> DynamicAttributerOption
@@ -74,7 +75,7 @@ public class DynamicAttribute extends ProgrammableObject<String> {
      * @return 对应的DynamicAttributerOption，如果不存在返回null
      */
     @JsonIgnore
-    public DynamicAttributerOption queryOptionByCodeId(String codeId) {
+    public DynamicAttributerOption queryOptionByCodeId(int codeId) {
         if (codeIdOptionMap.isEmpty() && !options.isEmpty()) {
             // 构建codeIdOptionMap
             for (DynamicAttributerOption option : options) {

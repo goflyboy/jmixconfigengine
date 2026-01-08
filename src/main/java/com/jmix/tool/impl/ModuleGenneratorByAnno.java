@@ -38,6 +38,8 @@ import com.jmix.executor.impl.util.ModuleUtils;
 import com.jmix.executor.impl.util.Pair;
 import com.jmix.executor.omodel.AlgLoaderException;
 
+import com.google.common.base.Strings;
+
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -173,7 +175,7 @@ public final class ModuleGenneratorByAnno {
         return Optional.of(para);
     }
 
-    private static Optional<Part> createPartFromField(Field field) {
+    private static Optional<Part> createPartFromField(Field field, Map<String, Part> partMap) {
         PartAnno partAnno = field.getAnnotation(PartAnno.class);
         if (partAnno == null) {
             return Optional.empty();
@@ -184,8 +186,6 @@ public final class ModuleGenneratorByAnno {
         if (field.getType().getSimpleName().equals("PartCategoryVar")) {
             part = new PartCategory();
             part.setPartType(PartType.CATEGORY);
-            // 处理动态属性注解
-            processDynamicAttributeAnnotations(field, (PartCategory) part);
         } else {
             // PartVar 对应 ATOMIC 类型，不应该有 dynAttrSchemas
             part = new Part();
@@ -205,23 +205,18 @@ public final class ModuleGenneratorByAnno {
         part.setDescription(partAnno.description());
         part.setSortNo(partAnno.sortNo());
         part.setMaxQuantity(partAnno.maxQuantity());
-        part.setPartType(partAnno.type());
         part.setPrice(partAnno.price());
         part.setExtSchema(partAnno.extSchema());
 
         // 处理规格属性
-        if (partAnno.attrs().length > 0) {
-            Map<String, String> attrs = parseAttributes(partAnno.attrs(), new ArrayList<>());
+        if (partAnno.attrs().length > 0 && part.getPartType() == PartType.ATOMIC && part.getFatherCode() != null) {
+            PartCategory fatherPartCategory = (PartCategory) partMap.get(part.getFatherCode());
+            Map<String, String> attrs = parseAttributes(partAnno.attrs(),
+                    fatherPartCategory.queryDynAttrSchemas4NotInst());
             part.setDynAttr(attrs);
 
-            // 保存原始attrs数据，供后续processInheritance使用
-            Map<String, String> extAttrs = part.getExtAttrs();
-            if (extAttrs == null) {
-                extAttrs = new HashMap<>();
-                part.setExtAttrs(extAttrs);
-            }
-            // 将原始attrs数组序列化为字符串存储
-            extAttrs.put("original_attrs", String.join(",", partAnno.attrs()));
+            // 处理实例规格属性
+            processInstanceAttrs(part, partAnno, fatherPartCategory.queryDynAttrSchemas4Inst());
         }
 
         // 处理扩展属性
@@ -230,12 +225,11 @@ public final class ModuleGenneratorByAnno {
             part.setExtAttrs(extAttrs);
         }
 
-        // 处理实例规格属性
-        processInstanceAttrs(part, partAnno);
-
         // 处理动态属性注解（只有CATEGORY类型的部件才需要）
-        if (part.getPartType() == PartType.CATEGORY && part instanceof PartCategory) {
+        if (part.getPartType() == PartType.CATEGORY) {
             processDynamicAttributeAnnotations(field, (PartCategory) part);
+            // 继承的属性在后面，方便实例属性等处理
+            processInheritance(field, part, partMap);
         }
 
         return Optional.of(part);
@@ -508,13 +502,11 @@ public final class ModuleGenneratorByAnno {
      */
     private static Pair<List<Para>, List<Part>> buildParaParts(Class<?> moduleAlgClazz) {
         List<Para> paras = new ArrayList<>();
-        List<Part> parts = new ArrayList<>();
 
+        Map<String, Part> partMap = new HashMap<>();
         // 首先收集所有字段，用于后续继承处理
         List<Field> partFields = new ArrayList<>();
         Map<String, String> fieldNameToPartCode = new HashMap<>();
-        Map<String, Map<String, String>> partOverrideMap = new HashMap<>();
-
         for (Field field : moduleAlgClazz.getDeclaredFields()) {
             if (field.getType().getSimpleName().equals(ParaVar.class.getSimpleName())) {
                 Optional<Para> paraOpt = createParaFromField(field);
@@ -523,9 +515,9 @@ public final class ModuleGenneratorByAnno {
                 }
             } else if (field.getType().getSimpleName().equals(PartVar.class.getSimpleName()) ||
                     field.getType().getSimpleName().equals(PartCategoryVar.class.getSimpleName())) {
-                Optional<Part> partOpt = createPartFromField(field);
+                Optional<Part> partOpt = createPartFromField(field, partMap);
                 if (partOpt.isPresent()) {
-                    parts.add(partOpt.get());
+                    partMap.put(partOpt.get().getCode(), partOpt.get());
                     fieldNameToPartCode.put(field.getName(), partOpt.get().getCode());
                 }
                 partFields.add(field);
@@ -533,28 +525,7 @@ public final class ModuleGenneratorByAnno {
                 log.info("ignore field type: " + field.getType().getSimpleName());
             }
         }
-
-        for (Field field : moduleAlgClazz.getDeclaredFields()) {
-            // 处理继承注解，为partOverrideMap赋值
-            DAttrInherit inheritAnno = field.getAnnotation(DAttrInherit.class);
-            if (inheritAnno != null) {
-                Map<String, String> overrideMap = new HashMap<>();
-                // 解析重写属性
-                String[] overrideAttrs = inheritAnno.overrideAttrs();
-                for (String override : overrideAttrs) {
-                    String[] partCodes = override.split(":");
-                    if (partCodes.length == 2) {
-                        overrideMap.put(partCodes[0], partCodes[1]);
-                    }
-                }
-                if (!overrideMap.isEmpty()) {
-                    String partCode = field.getName().replace("Var", "");
-                    partOverrideMap.put(partCode, overrideMap);
-                }
-            }
-        }
-        // 处理继承关系
-        processInheritance(parts, fieldNameToPartCode, partOverrideMap);
+        List<Part> parts = new ArrayList<>(partMap.values());
 
         return Pair.of(paras, parts);
     }
@@ -566,155 +537,34 @@ public final class ModuleGenneratorByAnno {
      * @param fieldNameToPartCode 字段名到部件编码的映射
      * @param partOverrideMap     部件重写映射
      */
-    private static void processInheritance(List<Part> parts, Map<String, String> fieldNameToPartCode,
-            Map<String, Map<String, String>> partOverrideMap) {
-        // 创建部件编码到部件的映射
-        Map<String, Part> partMap = new HashMap<>();
-        for (Part part : parts) {
-            partMap.put(part.getCode(), part);
+    private static void processInheritance(Field field, Part part,
+            Map<String, Part> partMap) {
+        Map<String, String> overrideMap = new HashMap<>();
+        // 处理继承注解，为partOverrideMap赋值
+        DAttrInherit inheritAnno = field.getAnnotation(DAttrInherit.class);
+        if (inheritAnno != null) {
+
+            // 解析重写属性
+            String[] overrideAttrs = inheritAnno.overrideAttrs();
+            for (String override : overrideAttrs) {
+                String[] partCodes = override.split(":");
+                if (partCodes.length == 2) {
+                    overrideMap.put(partCodes[0], partCodes[1]);
+                }
+            }
         }
 
         // 处理每个部件的继承
-        for (Part part : parts) {
-            if (part instanceof PartCategory && part.getFatherCode() != null) {
-                PartCategory partCategory = (PartCategory) part;
-
-                // 先尝试直接用 fatherCode 查找
-                Part parentPart = partMap.get(part.getFatherCode());
-
-                // 如果找不到，尝试通过字段名映射查找
-                if (parentPart == null) {
-                    String parentPartCode = fieldNameToPartCode.get(part.getFatherCode());
-                    if (parentPartCode != null) {
-                        parentPart = partMap.get(parentPartCode);
-                    }
-                }
-
-                if (parentPart instanceof PartCategory) {
-                    // 获取重写信息
-                    Map<String, String> overrideMap = partOverrideMap.getOrDefault(part.getCode(), new HashMap<>());
-                    inheritFromParent(partCategory, (PartCategory) parentPart, overrideMap);
-                }
-            } else if (part.getPartType() == PartType.ATOMIC && part.getFatherCode() != null) {
-                // 处理PartVar的属性，需要根据父类PartCategory重新解析属性
-                PartCategory parentCategory = null;
-
-                // 先尝试直接用 fatherCode 查找
-                Part parentPart = partMap.get(part.getFatherCode());
-
-                // 如果找不到，尝试通过字段名映射查找
-                if (parentPart == null) {
-                    String parentPartCode = fieldNameToPartCode.get(part.getFatherCode());
-                    if (parentPartCode != null) {
-                        parentPart = partMap.get(parentPartCode);
-                    }
-                }
-
-                if (parentPart instanceof PartCategory) {
-                    parentCategory = (PartCategory) parentPart;
-                }
-
-                if (parentCategory != null) {
-                    // 重新处理PartVar的属性
-                    reprocessPartVarAttributes(part, parentCategory);
-                }
+        if (part instanceof PartCategory && !Strings.isNullOrEmpty(part.getFatherCode())) {
+            PartCategory partCategory = (PartCategory) part;
+            Part parentPart = partMap.get(part.getFatherCode());
+            if (null == parentPart) {
+                log.error("Parent part not found,please check the order {}", part.getFatherCode());
+                throw new AlgLoaderException("Parent part not found:please check the order " + part.getFatherCode());
             }
-        }
-    }
-
-    /**
-     * 重新处理PartVar的属性
-     *
-     * @param partVar        PartVar部件
-     * @param parentCategory 父类PartCategory
-     */
-    private static void reprocessPartVarAttributes(Part partVar, PartCategory parentCategory) {
-        // 从扩展属性中恢复原始的attrs数组
-        Map<String, String> extAttrs = partVar.getExtAttrs();
-        String originalAttrsStr = extAttrs != null ? extAttrs.get("original_attrs") : null;
-        if (originalAttrsStr == null) {
-            log.warn("No original attrs data found for {}", partVar.getCode());
-            return;
+            inheritFromParent(partCategory, (PartCategory) parentPart, overrideMap);
         }
 
-        String[] originalAttrs = originalAttrsStr.split(",");
-        List<DynamicAttribute> allSchemas = parentCategory.getDynAttrSchemas();
-        Map<String, String> properAttrs = new HashMap<>();
-
-        // 重新映射属性：按schema顺序匹配原始attrs值
-        for (int i = 0; i < Math.min(allSchemas.size(), originalAttrs.length); i++) {
-            DynamicAttribute schema = allSchemas.get(i);
-            String value = originalAttrs[i];
-            // 验证值是否有效
-            if (schema.queryOptionByCodeValue(value) != null) {
-                properAttrs.put(schema.getCode(), value);
-            } else {
-                log.warn("Invalid value {} for attribute {} in {}", value, schema.getCode(), partVar.getCode());
-            }
-        }
-
-        // 更新dynAttr
-        partVar.setDynAttr(properAttrs);
-
-        // 清理临时数据
-        if (extAttrs != null) {
-            extAttrs.remove("original_attrs");
-        }
-
-        // 重新处理实例属性 - 使用父类PartCategory的非实例属性schema
-        List<DynamicAttribute> notInstSchemas = parentCategory.queryDynAttrSchemas4NotInst();
-        reprocessInstanceAttributes(partVar, notInstSchemas);
-    }
-
-    /**
-     * 验证属性值是否有效
-     *
-     * @param attrs          属性映射
-     * @param dynAttrSchemas 动态属性schema列表
-     * @param context        上下文信息（用于日志）
-     */
-    private static void validateAndLogAttributes(Map<String, String> attrs, List<DynamicAttribute> dynAttrSchemas,
-            String context) {
-        for (Map.Entry<String, String> entry : attrs.entrySet()) {
-            String attrCode = entry.getKey();
-            String attrValue = entry.getValue();
-
-            // 找到对应的schema
-            DynamicAttribute schema = dynAttrSchemas.stream()
-                    .filter(s -> s.getCode().equals(attrCode))
-                    .findFirst()
-                    .orElse(null);
-
-            if (schema == null) {
-                log.warn("Schema not found for attribute: {} in {}", attrCode, context);
-                continue;
-            }
-
-            // 验证attrValue是否存在于选项中
-            if (schema.queryOptionByCodeValue(attrValue) == null) {
-                log.warn("Option not found for codeValue: {} in attribute {} of {}", attrValue, attrCode, context);
-            }
-        }
-    }
-
-    /**
-     * 重新处理实例属性
-     *
-     * @param partVar        PartVar部件
-     * @param notInstSchemas 非实例属性schema列表
-     */
-    private static void reprocessInstanceAttributes(Part partVar, List<DynamicAttribute> notInstSchemas) {
-        // 获取当前的实例属性
-        InstanceDynAttrValue instanceAttrs = partVar.getInstanceAttrs();
-        if (instanceAttrs != null && instanceAttrs.getInstsValues() != null) {
-            for (InstanceDynAttrValueItem instValue : instanceAttrs.getInstsValues()) {
-                Map<String, String> instAttrs = instValue.getInstAttrs();
-                if (instAttrs != null && !instAttrs.isEmpty()) {
-                    validateAndLogAttributes(instAttrs, notInstSchemas,
-                            partVar.getCode() + " inst" + instValue.getInstId());
-                }
-            }
-        }
     }
 
     /**
@@ -777,6 +627,7 @@ public final class ModuleGenneratorByAnno {
             DynamicAttributerOption copiedOption = new DynamicAttributerOption();
             copiedOption.setCode(option.getCode());
             copiedOption.setCodeId(option.getCodeId());
+            copiedOption.setCodeValue(option.getCodeValue());
             copiedOption.setDefaultValue(option.getDefaultValue());
             copiedOption.setDescription(option.getDescription());
             copiedOption.setSortNo(option.getSortNo());
@@ -901,6 +752,7 @@ public final class ModuleGenneratorByAnno {
         }
         DynamicAttributerOption option = new DynamicAttributerOption();
         option.setCode(label);
+        option.setCodeValue(label);
         option.setCodeId(explicitId != null ? explicitId : (index + 1) * 10);
         option.setDefaultValue(label);
         option.setSortNo(index + 1);
@@ -915,6 +767,14 @@ public final class ModuleGenneratorByAnno {
      */
     private static Map<String, String> parseAttributes(String[] attributes, List<DynamicAttribute> dynAttrSchemas) {
         Map<String, String> attrs = new HashMap<>();
+        // 如果 attributes.length！= dynAttrSchemas.size() 打日志，并抛异常
+        if (attributes.length != dynAttrSchemas.size()) {
+            log.error(
+                    "Attributes array length ({}) does not match dynamic attribute schemas size ({}). Expected: {}, Actual: {}",
+                    attributes.length, dynAttrSchemas.size(), dynAttrSchemas.size(), attributes.length);
+            throw new AlgLoaderException("Attributes array length mismatch: expected " + dynAttrSchemas.size()
+                    + ", but got " + attributes.length);
+        }
 
         for (int i = 0; i < attributes.length && i < dynAttrSchemas.size(); i++) {
             String attribute = attributes[i];
@@ -932,14 +792,18 @@ public final class ModuleGenneratorByAnno {
 
                 // 校验 dynAttrSchema.getCode 和 attrCode是否相等
                 if (!dynAttrSchema.getCode().equals(attrCode)) {
-                    log.warn("Attribute code mismatch: expected {}, got {}", dynAttrSchema.getCode(), attrCode);
-                    continue;
+                    String errorMessage = String.format("Attribute code mismatch: expected %s, got %s",
+                            dynAttrSchema.getCode(), attrCode);
+                    log.error(errorMessage);
+                    throw new AlgLoaderException(errorMessage);
                 }
 
                 // 校验 dynAttrSchema.queryOptionByCodeValue(attrValue)是否存在
                 if (dynAttrSchema.queryOptionByCodeValue(attrValue) == null) {
-                    log.warn("Option not found for codeValue: {} in attribute {}", attrValue, attrCode);
-                    continue;
+                    String errorMessage = String
+                            .format("Option not found for codeValue: {%s} in attribute {%s}", attrValue, attrCode);
+                    log.error(errorMessage);
+                    throw new AlgLoaderException(errorMessage);
                 }
             } else {
                 // "attrValue"模式
@@ -948,8 +812,10 @@ public final class ModuleGenneratorByAnno {
 
                 // 校验dynAttrSchema.queryOptionByCodeValue(attrValue)是否存在
                 if (dynAttrSchema.queryOptionByCodeValue(attrValue) == null) {
-                    log.warn("Option not found for codeValue: {} in attribute {}", attrValue, attrCode);
-                    continue;
+                    String errorMessage = String
+                            .format("Option not found for codeValue: {%s} in attribute {%s}", attrValue, attrCode);
+                    log.error(errorMessage);
+                    throw new AlgLoaderException(errorMessage);
                 }
             }
 
@@ -1023,6 +889,15 @@ public final class ModuleGenneratorByAnno {
         }
     }
 
+    private static boolean isNumber(String str) {
+        try {
+            Double.parseDouble(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
     /**
      * 添加动态属性
      *
@@ -1048,11 +923,32 @@ public final class ModuleGenneratorByAnno {
             if (parts.length >= 3) {
                 DynamicAttributerOption option = new DynamicAttributerOption();
                 option.setCode(parts[0]);
-                option.setCodeId((i + 1) * 10);
+                // 如果parts[1]是数字，则设置为codeId
+                if (isNumber(parts[1])) {
+                    option.setCodeId(Integer.parseInt(parts[1]));
+                } else {
+                    option.setCodeId(i + 1);
+                }
+                option.setCodeValue(parts[1]);
                 option.setDefaultValue(parts[1]); // 值
                 option.setDescription(parts[2]); // 单位或描述
                 option.setSortNo(i + 1);
                 dynOptions.add(option);
+            } else if (parts.length >= 2) {
+                DynamicAttributerOption option = new DynamicAttributerOption();
+                option.setCode(parts[0]);
+                // 如果parts[1]是数字，则设置为codeId
+                if (isNumber(parts[1])) {
+                    option.setCodeId(Integer.parseInt(parts[1]));
+                } else {
+                    option.setCodeId(i + 1);
+                }
+                option.setCodeValue(parts[1]);
+                option.setDefaultValue(parts[1]); // 值
+                option.setSortNo(i + 1);
+                dynOptions.add(option);
+            } else {
+                log.warn("Invalid option format: {}", optionStr);
             }
         }
         dynAttr.setOptions(dynOptions);
@@ -1104,7 +1000,7 @@ public final class ModuleGenneratorByAnno {
      * @param part     部件对象
      * @param partAnno 部件注解
      */
-    private static void processInstanceAttrs(Part part, PartAnno partAnno) {
+    private static void processInstanceAttrs(Part part, PartAnno partAnno, List<DynamicAttribute> dynAttrSchemas) {
         // 检查是否有实例属性
         if (partAnno.attrsInst1().length > 0 || partAnno.attrsInst2().length > 0 ||
                 partAnno.attrsInst3().length > 0 || partAnno.attrsInst4().length > 0) {
@@ -1113,10 +1009,10 @@ public final class ModuleGenneratorByAnno {
             InstanceDynAttrValue instanceDynAttrValue = new InstanceDynAttrValue();
 
             // 处理各个实例
-            addInstanceAttr(instanceDynAttrValue, partAnno.attrsInst1(), 1);
-            addInstanceAttr(instanceDynAttrValue, partAnno.attrsInst2(), 2);
-            addInstanceAttr(instanceDynAttrValue, partAnno.attrsInst3(), 3);
-            addInstanceAttr(instanceDynAttrValue, partAnno.attrsInst4(), 4);
+            addInstanceAttr(instanceDynAttrValue, partAnno.attrsInst1(), 1, dynAttrSchemas);
+            addInstanceAttr(instanceDynAttrValue, partAnno.attrsInst2(), 2, dynAttrSchemas);
+            addInstanceAttr(instanceDynAttrValue, partAnno.attrsInst3(), 3, dynAttrSchemas);
+            addInstanceAttr(instanceDynAttrValue, partAnno.attrsInst4(), 4, dynAttrSchemas);
 
             // 将序列化后的数据存储到 dynAttr 中
             Map<String, String> dynAttr = part.getDynAttr();
@@ -1135,11 +1031,12 @@ public final class ModuleGenneratorByAnno {
      * @param attrs     属性数组
      * @param instId    实例ID
      */
-    private static void addInstanceAttr(InstanceDynAttrValue container, String[] attrs, int instId) {
+    private static void addInstanceAttr(InstanceDynAttrValue container, String[] attrs, int instId,
+            List<DynamicAttribute> dynAttrSchemas) {
         if (attrs.length > 0) {
             InstanceDynAttrValueItem instValue = new InstanceDynAttrValueItem();
             instValue.setInstId(instId);
-            Map<String, String> instAttr = parseAttributes(attrs, new ArrayList<>());
+            Map<String, String> instAttr = parseAttributes(attrs, dynAttrSchemas);
             instValue.setInstAttrs(instAttr);
             container.getInstsValues().add(instValue);
         }

@@ -62,5 +62,3 @@ public enum DynamicAttributeType {
         throw new IllegalArgumentException("Unknown dynamic attribute type value: " + value);
     }
 }
-
-

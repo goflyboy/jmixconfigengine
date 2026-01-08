@@ -8,7 +8,6 @@ import com.jmix.tool.impl.FilterExpressionExecutor;
 import com.jmix.tool.impl.FilterExpressionExecutor.FilterCondition;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.common.base.Strings;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -123,15 +122,9 @@ public class PartCategory extends Part {
             resultPartCategory.addPartCategory(resultSubPartCategory);
         }
 
-        // 解析属性代码, 有一个非空即可，whereCondition和attrcode不能有一个实例属性，有一个不是实例属性
-        Pair<DynamicAttribute, String> attrResult = null;
-        if (!Strings.isNullOrEmpty(constraintReq.getAttrCode())) {
-            attrResult = parseAttribute(constraintReq.getAttrCode(),
-                    category.getDynAttrSchemas());
-        } else {
-            attrResult = parseAttributeFromCondition(constraintReq.getAttrWhereCondition(),
-                    category.getDynAttrSchemas());
-        }
+        // 解析属性代码
+        Pair<DynamicAttribute, String> attrResult = parseAttributeFromCondition(constraintReq.getAttrWhereCondition(),
+                category.getDynAttrSchemas());
 
         List<Part> filterParts = new ArrayList<>();
         if (attrResult.getFirst().getInstType() == 0) { // 非实例属性

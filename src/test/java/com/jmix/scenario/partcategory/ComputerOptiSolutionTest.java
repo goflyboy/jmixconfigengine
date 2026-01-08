@@ -26,7 +26,7 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
     // ---------------模型的定义start----------------------------------------
     @ModuleAnno(id = 123L)
     static public class ComputerOptiSolutionConstraint extends ConstraintAlgImplTestBase {
-        // 硬盘部件分类定义
+        // 硬盘部件分类定义--严格按层级结构定义（顺序很重要），部件的attrs也要按定义的顺序来
         @PartAnno(code = "drive")
         @DAttrAnno1(code = "BrandWidth", optionExtSchema = "IntegerUnit", options = { "BW_8GB:8:GB/S",
                 "BW_16GB:16:GB/S" })

@@ -8,6 +8,7 @@ import com.jmix.executor.imodel.PartCategory;
 import com.jmix.executor.imodel.Rule;
 import com.jmix.executor.imodel.rule.RefProgObjSchema;
 import com.jmix.executor.omodel.AlgLoaderException;
+import com.jmix.executor.omodel.PartConstantAttr;
 
 import com.google.ortools.Loader;
 import com.google.ortools.sat.BoolVar;
@@ -759,9 +760,18 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         for (Part part : sumParts) {
             PartVar partVar = getPartVar(part.getCode());
             if (partVar.getQty() != null) {
-                int attrValue = Integer.parseInt(part.getAttr(sumAttrCode));
+                int attrValue = 0;
+                if (PartConstantAttr.Quantity.getCode().equals(sumAttrCode)) {
+                    attrValue = 1;
+                } else {
+                    attrValue = Integer.parseInt(part.getAttr(sumAttrCode));
+                }
                 sumTerms.add(LinearExpr.term(partVar.getQty(), attrValue));
                 sumTermStrings.add(partVar.getBase().getShortCode() + "*" + attrValue);
+            } else {
+                log.error("PartVar quantity is null for part code: {}, cannot create sum constraint", part.getCode());
+                throw new AlgLoaderException("PartVar quantity is null for part code: " + part.getCode()
+                        + ", cannot create sum constraint");
             }
         }
 

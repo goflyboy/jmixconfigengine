@@ -33,4 +33,5 @@ public @interface DAttrAnno11 {
      * 实例类型
      */
     int instType() default 0;
+
 }
