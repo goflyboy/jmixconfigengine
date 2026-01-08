@@ -95,10 +95,10 @@ public class AlgCPModel {
 
     private void setCurrentRelaxVarName(String ruleCode, int weight) {
         if (!isAttachRelax) {
-            log.info("relax:{} -----No need,setCurrentRelaxVarName", ruleCode);
+            log.info("relax:{} relax is not attached,setCurrentRelaxVarName", ruleCode);
             return;
         }
-        log.info("relax:{} -----setCurrentRelaxVarName", ruleCode);
+        log.info("relax:{} relax is attached,setCurrentRelaxVarName", ruleCode);
         this.currentRelaxVarName = "relax_" + ruleCode;
         this.currentRelaxVar = newBoolVar(this.currentRelaxVarName);
 

@@ -581,6 +581,25 @@ List<PartCategory> query(PartConstraintReq constraintReq) --》返回值改为Li
 	}	
 
 
+设计5：
+
+TODO：怎么实现差量计算：
+
+方案1： 加载是动态，只加载需要的变量？ ---**  长期 
+方案2： 根据过滤的，设置的数量*** --其它设置为0：
+
+
+添加一个函数
+
+List<Part> u
+calcUnFilterLeafParts(List<Part> filterLeafParts, PartCatagory allPartCategory) {
+	List<Part> unFilterLeafParts = ...;
+	//遍历 allPartCategory本身的parts,及其子PartCategory的parts ，如果 不在filterLeafParts，添加到unFilterLeafParts
+
+}
+
+
+TODO：这个世界，是把很多事情揉在做，导致复杂？  把本身一体的事情 隔离做？  ---正反 有点意思  why?
 
 processInheritAnnotation
 processInheritance
