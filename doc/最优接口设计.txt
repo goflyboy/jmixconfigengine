@@ -739,28 +739,39 @@ public enum DynamicAttributeType {//YXX --XX是baseType,Y是CompositeType
     E_INT(0, "ENUM Integer"),
     E_STRING(1, "ENUM String"),
     E_BOOL(2, "ENUM Boolean"),
-    E_FLOAT(3, "base  Float"),
-    E_DOUBLE(4, "base Double"); 
-
+    E_FLOAT(3, "ENUM  Float"),
+    E_DOUBLE(4, "ENUM Double"); 
+	...
     B_INT(100, "base Integer"),
     B_STRING(101, "base String"),
     B_BOOL(102, "base Boolean"),
     B_FLOAT(103, "base  Float"),
     B_DOUBLE(104, "base Double");
+	...
+    public static int BASE_VALUE = 100;
+	
+	CompositeType getCompositeType() {
+		 return CompositeType.fromValue(this.value / BASE_VALUE);
+	}
+	BaseType getBaseType() {
+		 return BaseType.fromValue(this.value % BASE_VALUE);
+	}
 
-
-
-enum BaseType {
-    INT(0, "Integer"),
-    STRING(1, "String"),
-    BOOL(2, "Boolean"),
-    FLOAT(3, "Float"),
-    DOUBLE(4, "Double"); 
-}
-public enum CompositeType { 
-    ENUM(0, "EnumType"),
-    BASE(1, "Base"),
-    RANGE(2, "Range");
+	enum BaseType {
+		INT(0, "Integer"),
+		STRING(1, "String"),
+		BOOL(2, "Boolean"),
+		FLOAT(3, "Float"),
+		DOUBLE(4, "Double"); 
+	...
+	}
+	public enum CompositeType { 
+		ENUM(0, "EnumType"),
+		BASE(1, "Base"),
+		RANGE(2, "Range");
+	....
+	}
+	.....
 }
 
 想给下列值也定义另外一个枚举类，请问叫什么比较合适？
