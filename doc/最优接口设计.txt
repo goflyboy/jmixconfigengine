@@ -780,39 +780,49 @@ public enum DynamicAttributeType {//YXX --XX是baseType,Y是CompositeType
 2、对ModuleGenneratorByAnno的方法 processDynamicAttributeAnnotations等相应调整
  
 
-ExtendedType
+
 
 1、把DynamicAttributeType的BaseType提取出来为一个独立的类
-2、把DynamicAttributeType的BaseType提取出来为一个独立的类
+2、把DynamicAttributeType的CompositeTypeType提取出来为一个独立的类，并改名为ExtendedType
  
 
 设计10：
 1、在类Part增加方法
  queryDynAttrSchemas(String code) -> DynamicAttribute {....}
 
-2、
+2、对类PartCategory做下列增加
 AggregationType
 2.1 新增函数aggregateInstanceDynAttrValue:
- aggregateInstanceDynAttrValue(List<InstanceDynAttrValueItem> instValues,String attrCode,BaseType attrBastType) {
-
+ int aggregateInstanceDynAttrValue4Int(Part part,List<InstanceDynAttrValueItem> instValues,String attrCode) {
+	int sumAttrValue = 0;
    
     for (InstanceDynAttrValueItem instValue : instValues) {
-                    String attrValue = instValue.getInstAttr(attrResult.getFirst().getCode());
+                    String attrValue = instValue.getInstAttr(attrCode);
                     if (attrValue == null) {
                         throw new IllegalArgumentException(
-                                "Attribute '" + attrResult.getFirst().getCode() + "' value is null for part '"
+                                "Attribute '" + attrCode + "' value is null for part '"
                                         + part.getCode() + "'");
                     }
                     try {
                         sumAttrValue += Integer.parseInt(attrValue);
                     } catch (NumberFormatException e) {
                         throw new IllegalArgumentException(
-                                "Invalid number format for attribute '" + attrResult.getFirst().getCode()
+                                "Invalid number format for attribute '" + attrCode
                                         + "' with value '" + attrValue + "' in part '" + part.getCode() + "'",
                                 e);
                     }
-                }
-                Pa
+   }
+   return sumAttrValue;
+}
+2.2 参考 aggregateInstanceDynAttrValue4Int实现
+
+aggregateInstanceDynAttrValue4String  -->所有string相交
+aggregateInstanceDynAttrValue4Float  -->和Int一致
+aggregateInstanceDynAttrValue4Double  -->和Int一致
+aggregateInstanceDynAttrValue4Bool --> 抛异常，不支持
+
+                
+2.3 
 
 
 
