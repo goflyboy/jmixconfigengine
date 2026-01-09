@@ -23,7 +23,7 @@ public class DynamicAttribute extends ProgrammableObject<String> {
     // 动态属性可选值列表
     private List<DynamicAttributerOption> options = new ArrayList<>();
     // 动态属性类型
-    private DynamicAttributeType dynAttrType = DynamicAttributeType.Integer;
+    private DynamicAttributeType dynAttrType = DynamicAttributeType.E_INT;
     // 动态属性的值，拥有计算实例化的值，存在算法
     private String value;
     // 扩展模式
@@ -113,7 +113,7 @@ public class DynamicAttribute extends ProgrammableObject<String> {
         DynamicAttribute attr = new DynamicAttribute();
         attr.setName(name);
         attr.setCode(code);
-        attr.setDynAttrType(DynamicAttributeType.Integer);
+        attr.setDynAttrType(DynamicAttributeType.E_INT);
         return attr;
     }
 }

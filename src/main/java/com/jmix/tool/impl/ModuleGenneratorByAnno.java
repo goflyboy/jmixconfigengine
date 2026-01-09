@@ -913,7 +913,7 @@ public final class ModuleGenneratorByAnno {
         dynAttr.setCode(code);
         dynAttr.setName(code);
         dynAttr.setOptionExtSchema(optionExtSchema);
-        dynAttr.setDynAttrType(DynamicAttributeType.String); // 默认类型
+        dynAttr.setDynAttrType(DynamicAttributeType.E_STRING); // 默认类型
 
         // 解析选项
         List<DynamicAttributerOption> dynOptions = new ArrayList<>();
