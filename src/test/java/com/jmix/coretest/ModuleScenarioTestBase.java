@@ -639,7 +639,7 @@ public abstract class ModuleScenarioTestBase {
 
         for (String strReq : strReqs) {
             PartConstraintReq req = new PartConstraintReq();
-            
+
             // 解析格式：reqPartCategory:attrCode comparator value where condition
             // 示例："sd:sum.Quantity ==2 where Speed=5400"
             String[] categoryParts = strReq.split(":", 2);

@@ -640,6 +640,73 @@ void setPartUnSelected(Part part) 【
  
 
 
+设计6：
+请按下列设计增强,保证编译通过，并跑通ComputerOptiSolutionTest，并提交远程
+0、对类InferParasReq增加属性
+String partCatagoryCode;
+
+
+
+1、对类ModuleScenarioTestBase下列方法更新
+修改前：strReq="sum.Quantity ==2 where Speed=5400"
+    protected List<PartConstraintReq> toPartConstraintReqs(String partCategory, String... strReqs) {
+					...
+		            PartConstraintReq req = new PartConstraintReq();
+					req.setPartCategory(partCategory);
+					...
+	}
+
+修改后：strReq="sd:sum.Quantity ==2 where Speed=5400"
+    protected List<PartConstraintReq> toPartConstraintReqs(String partCategory, String... strReqs) {
+					...
+		            PartConstraintReq req = new PartConstraintReq();
+					按:分割，第一个为reqPartCategory
+					req.setPartCategory(reqPartCategory);
+					...
+	}
+
+3、对类ModuleConstraintExecutorlmpl做下列更新
+3.1 方法initModelByReq更新如下：
+修改前：
+initModelByReq(InferParasReq req, ConstraintAlgImpl alg) {
+	...
+	addPartConstraintReqs(alg, req.getPartConstraintReqs());
+	...
+}
+修改后：
+initModelByReq(InferParasReq req, ConstraintAlgImpl alg) {
+	...
+	addPartConstraintReqs(alg,req.getPartCatagoryCode(), req.getPartConstraintReqs());
+	...
+}
+3.2 addPartConstraintReqs更新如下：
+修改前：
+ ... addPartConstraintReqs(...) {
+	.... findPartCategory(alg.getModule(), partConstraintReq.getPartCategory());
+	....
+ }
+修改后：
+ ... addPartConstraintReqs(...) {
+	.... findPartCategory(alg.getModule(),partCatagoryCode);
+	....
+ }
+
+4、对PartCategory修改如下：
+修改前：
+  public PartCategory query(PartConstraintReq constraintReq) {
+        return query(this, constraintReq);
+    }
+修改后：
+  public PartCategory query(PartConstraintReq constraintReq) {
+		在this根据查找code=constraintReq.partCatagoryCode的reqPartCategory,可能是this，也可能是this下的子PartCategory
+        return query(reqPartCategory, constraintReq);
+    }
+
+
+
+"sd:sum.Quantity ==2 where Speed=5400"
+
+
 TODO：idea这个世界，是把很多事情揉在做，导致复杂？  把本身一体的事情 隔离做？  ---正反 有点意思  why?
 
  
