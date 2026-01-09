@@ -169,4 +169,21 @@ public class Part extends ProgrammableObject<Integer> {
                 .filter(attr -> attr.getInstType() == 0)
                 .toList();
     }
+
+    /**
+     * 根据属性代码查询动态属性定义
+     *
+     * @param code 属性代码
+     * @return 找到的动态属性定义，如果未找到则返回null
+     */
+    @JsonIgnore
+    public DynamicAttribute queryDynAttrSchemas(String code) {
+        if (code == null || code.trim().isEmpty()) {
+            return null;
+        }
+        return dynAttrSchemas.stream()
+                .filter(attr -> code.equals(attr.getCode()))
+                .findFirst()
+                .orElse(null);
+    }
 }

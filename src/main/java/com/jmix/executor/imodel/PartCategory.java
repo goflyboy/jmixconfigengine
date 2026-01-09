@@ -174,25 +174,29 @@ public class PartCategory extends Part {
                 if (instValues.isEmpty()) {
                     continue;
                 }
-                int sumAttrValue = 0;
-                for (InstanceDynAttrValueItem instValue : instValues) {
-                    String attrValue = instValue.getInstAttr(attrResult.getFirst().getCode());
-                    if (attrValue == null) {
-                        throw new IllegalArgumentException(
-                                "Attribute '" + attrResult.getFirst().getCode() + "' value is null for part '"
-                                        + part.getCode() + "'");
-                    }
-                    try {
-                        sumAttrValue += Integer.parseInt(attrValue);
-                    } catch (NumberFormatException e) {
-                        throw new IllegalArgumentException(
-                                "Invalid number format for attribute '" + attrResult.getFirst().getCode()
-                                        + "' with value '" + attrValue + "' in part '" + part.getCode() + "'",
-                                e);
+                Part cPart = part.clone();
+                List<DynamicAttribute> instAttrsList = category.queryDynAttrSchemas4Inst();
+                for (DynamicAttribute instAttr : instAttrsList) {
+                    String sumAttrValue = null;
+                    switch (instAttr.getDynAttrType().getBaseType()) {
+                        case INT:
+                            sumAttrValue = sumInstanceDynAttrValue4Int(part, instValues, instAttr.getCode());
+                            cPart.setAttr(instAttr.getCode(), sumAttrValue);
+                            break;
+                        case FLOAT:
+                            sumAttrValue = sumInstanceDynAttrValue4Float(part, instValues, instAttr.getCode());
+                            cPart.setAttr(instAttr.getCode(), sumAttrValue);
+                            break;
+                        case DOUBLE:
+                            sumAttrValue = sumInstanceDynAttrValue4Double(part, instValues, instAttr.getCode());
+                            cPart.setAttr(instAttr.getCode(), sumAttrValue);
+                            break;
+                        default:
+                            log.warn("Unsupported base type for aggregation: {} in part: {}",
+                                    instAttr.getDynAttrType().getBaseType(), part.getCode());
+                            break;
                     }
                 }
-                Part cPart = part.clone();
-                cPart.setAttr(attrResult.getFirst().getCode(), String.valueOf(sumAttrValue));
                 filterParts.add(cPart);
             }
         }
@@ -332,5 +336,95 @@ public class PartCategory extends Part {
     @JsonIgnore
     public List<Part> getSubParts() {
         return new ArrayList<>(this.partMap.values());
+    }
+
+    /**
+     * 对实例属性值进行整数类型求和
+     *
+     * @param part      部件对象
+     * @param instValues 实例属性值列表
+     * @param attrCode  属性代码
+     * @return 求和后的字符串值
+     */
+    @JsonIgnore
+    private String sumInstanceDynAttrValue4Int(Part part, List<InstanceDynAttrValueItem> instValues,
+            String attrCode) {
+        int sumAttrValue = 0;
+        for (InstanceDynAttrValueItem instValue : instValues) {
+            String attrValue = instValue.getInstAttr(attrCode);
+            if (attrValue == null) {
+                throw new IllegalArgumentException(
+                        "Attribute '" + attrCode + "' value is null for part '" + part.getCode() + "'");
+            }
+            try {
+                sumAttrValue += Integer.parseInt(attrValue);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException(
+                        "Invalid number format for attribute '" + attrCode + "' with value '" + attrValue
+                                + "' in part '" + part.getCode() + "'",
+                        e);
+            }
+        }
+        return String.valueOf(sumAttrValue);
+    }
+
+    /**
+     * 对实例属性值进行浮点数类型求和
+     *
+     * @param part      部件对象
+     * @param instValues 实例属性值列表
+     * @param attrCode  属性代码
+     * @return 求和后的字符串值
+     */
+    @JsonIgnore
+    private String sumInstanceDynAttrValue4Float(Part part, List<InstanceDynAttrValueItem> instValues,
+            String attrCode) {
+        float sumAttrValue = 0.0f;
+        for (InstanceDynAttrValueItem instValue : instValues) {
+            String attrValue = instValue.getInstAttr(attrCode);
+            if (attrValue == null) {
+                throw new IllegalArgumentException(
+                        "Attribute '" + attrCode + "' value is null for part '" + part.getCode() + "'");
+            }
+            try {
+                sumAttrValue += Float.parseFloat(attrValue);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException(
+                        "Invalid number format for attribute '" + attrCode + "' with value '" + attrValue
+                                + "' in part '" + part.getCode() + "'",
+                        e);
+            }
+        }
+        return String.valueOf(sumAttrValue);
+    }
+
+    /**
+     * 对实例属性值进行双精度浮点数类型求和
+     *
+     * @param part      部件对象
+     * @param instValues 实例属性值列表
+     * @param attrCode  属性代码
+     * @return 求和后的字符串值
+     */
+    @JsonIgnore
+    private String sumInstanceDynAttrValue4Double(Part part, List<InstanceDynAttrValueItem> instValues,
+            String attrCode) {
+        double sumAttrValue = 0.0;
+        for (InstanceDynAttrValueItem instValue : instValues) {
+            String attrValue = instValue.getInstAttr(attrCode);
+            if (attrValue == null) {
+                throw new IllegalArgumentException(
+                        "Attribute '" + attrCode + "' value is null for part '" + part.getCode() + "'");
+            }
+            try {
+                sumAttrValue += Double.parseDouble(attrValue);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException(
+                        "Invalid number format for attribute '" + attrCode + "' with value '" + attrValue
+                                + "' in part '" + part.getCode() + "'",
+                        e);
+            }
+        }
+        return String.valueOf(sumAttrValue);
     }
 }
