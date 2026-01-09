@@ -200,7 +200,7 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
     // 要求5400速率的固态硬盘2块
     @Test
     public void testUserSpecialRequirement2() {
-        inferRecommend("drive", "sd:sum.Quantity ==2 where Speed=5400");
+        inferRecommend("drive", "sd:sum.Quantity ==2 where Speed like %5400%");
         // Print solutions for debugging
         printSimpleSolutions();
         // resultAssert()

@@ -455,6 +455,8 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
 
             // 获取所有叶子部件
             List<Part> filterParts = getAllLeafParts(filteredCategory);
+            log.info("filterParts size: {} after filter req.whereCondition: {}", filterParts.size(),
+                    partConstraintReq.getAttrWhereCondition());
             List<Part> unFilterParts = calcUnFilterLeafParts(partCategory, filterParts);
 
             // 解析属性

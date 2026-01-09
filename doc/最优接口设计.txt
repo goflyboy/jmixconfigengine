@@ -709,12 +709,70 @@ initModelByReq(InferParasReq req, ConstraintAlgImpl alg) {
 
 TODO：idea这个世界，是把很多事情揉在做，导致复杂？  把本身一体的事情 隔离做？  ---正反 有点意思  why?
 
- 
+     ENUM(0, "EnumType"),//Y=0, XX=0
+	 RANGE(2, "Range")
+	 ORGINAL(1,"ORGINAL");
+
+	 value 
+
+定义
+enum BaseType {
+    INT(0, "Integer"),
+    STRING(1, "String"),
+    BOOL(2, "Boolean"),
+    FLOAT(3, "Float"),
+    DOUBLE(4, "Double"); 
+}
+
+已经定义了
+对类DynamicAttributeType更新如下：
+修改前：
+public enum DynamicAttributeType {
+    Integer(0, "Integer"),
+    String(1, "String"),
+    Boolean(2, "Boolean"),
+    Float(3, "Float"),
+    Double(4, "Double");
+	....
+修改后：
+public enum DynamicAttributeType {//YXX --XX是baseType,Y是CompositeType
+    E_INT(0, "ENUM Integer"),
+    E_STRING(1, "ENUM String"),
+    E_BOOL(2, "ENUM Boolean"),
+    E_FLOAT(3, "base  Float"),
+    E_DOUBLE(4, "base Double"); 
+
+    B_INT(100, "base Integer"),
+    B_STRING(101, "base String"),
+    B_BOOL(102, "base Boolean"),
+    B_FLOAT(103, "base  Float"),
+    B_DOUBLE(104, "base Double");
+
+
+
+enum BaseType {
+    INT(0, "Integer"),
+    STRING(1, "String"),
+    BOOL(2, "Boolean"),
+    FLOAT(3, "Float"),
+    DOUBLE(4, "Double"); 
+}
+public enum CompositeType { 
+    ENUM(0, "EnumType"),
+    BASE(1, "Base"),
+    RANGE(2, "Range");
+}
+
+想给下列值也定义另外一个枚举类，请问叫什么比较合适？
+    ENUM(0, "EnumType"),
+    RANGE(2, "Range"),
+    BASE(1, "Base");
+
 
 TODO: idea 大模型时代 模糊化语言？不讲细节？ 重点将过程？ ---**
 1.2 修改函数：addPartConstraintReqs
 TODO：  方案1： 加载是动态，只加载需要的变量？ ---**  长期   设计到partVar初始化等过程？ ***
-
+TODO:多个条件在一起？ **
 
 TODO：支持设置shortCode，
 

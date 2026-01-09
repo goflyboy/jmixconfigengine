@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,6 +27,7 @@ import java.util.Optional;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
+@Slf4j
 public class PartCategory extends Part {
 
     @JsonIgnore
@@ -86,8 +88,7 @@ public class PartCategory extends Part {
         // 在this根据查找code=constraintReq.partCatagoryCode的reqPartCategory,可能是this，也可能是this下的子PartCategory
         PartCategory reqPartCategory = findPartCategoryByCode(this, constraintReq.getPartCatagoryCode());
         if (reqPartCategory == null) {
-            // 如果找不到，使用this作为默认值
-            reqPartCategory = this;
+            throw new IllegalArgumentException("PartCategory not found: " + constraintReq.getPartCatagoryCode());
         }
         return query(reqPartCategory, constraintReq);
     }
@@ -102,7 +103,8 @@ public class PartCategory extends Part {
     @JsonIgnore
     private PartCategory findPartCategoryByCode(PartCategory category, String code) {
         if (code == null || code.trim().isEmpty()) {
-            return category;
+            log.error("PartCategory code is null or empty");
+            return null;
         }
         // 如果是当前PartCategory的code，直接返回
         if (category.getCode().equals(code)) {
