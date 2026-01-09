@@ -4,7 +4,6 @@ import com.jmix.coretest.ConstraintAlgImplTestBase;
 import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.executor.imodel.anno.CodeRuleAnno;
 import com.jmix.executor.imodel.anno.DAttrAnno1;
-import com.jmix.executor.imodel.anno.DAttrAnno11;
 import com.jmix.executor.imodel.anno.DAttrAnno2;
 import com.jmix.executor.imodel.anno.DAttrAnno3;
 import com.jmix.executor.imodel.anno.DAttrAnno4;
@@ -28,24 +27,23 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
     static public class ComputerOptiSolutionConstraint extends ConstraintAlgImplTestBase {
         // 硬盘部件分类定义--严格按层级结构定义（顺序很重要），部件的attrs也要按定义的顺序来
         @PartAnno(code = "drive")
-        @DAttrAnno1(code = "BrandWidth", optionExtSchema = "IntegerUnit", options = { "BW_8GB:8:GB/S",
-                "BW_16GB:16:GB/S" })
         @DAttrAnno2(code = "Speed", optionExtSchema = "StringUnit", options = { "Speed_5400:5400:转",
                 "Speed_9000:9000:转",
-                "Speed_7200a5400:7200/5400:转" }, instType = 0)
-        @DAttrAnno3(code = "Capacity", optionExtSchema = "IntegerUnit", options = { "Capacity_8T:8:T",
-                "Capacity_16T:16:T",
-                "Capacity_32T:32:T" }, instType = 0)
+                "Speed_7200a5400:7200/5400:转",
+                "Speed_7200:7200:转" }, instType = 0)
+        @DAttrAnno3(code = "Capacity", optionExtSchema = "IntegerUnit", options = { "Capacity_1T:1:T",
+                "Capacity_2T:2:T",
+                "Capacity_4T:4:T" }, instType = 0)
         @DAttrAnno4(code = "capacityWeight", optionExtSchema = "IntegerUnit", options = { "CW_10:10", "CW_20:20",
                 "CW_30:30",
-                "CW_100:100", "CW_200:200", "CW_300:300" }, instType = 0)
+                "CW_100:100", "CW_200:200", "CW_300:300" }, instType = 0) // 不同点：带点实现
         private PartCategoryVar driveVar;
 
         // 固态硬盘部件分类，继承driveVar并重写属性
         @PartAnno(code = "sd", fatherCode = "drive")
+        @DAttrAnno1(code = "BrandWidth", optionExtSchema = "IntegerUnit", options = { "BW_8GB:8:GB/S",
+                "BW_16GB:16:GB/S" })
         @DAttrInherit(fatherCode = "driveVar", overrideAttrs = { "Speed:instType=1", "Capacity:instType=1" })
-        @DAttrAnno11(code = "maxCapacity", optionExtSchema = "IntegerUnit", options = { "MaxCapacity_8T:8:T",
-                "MaxCapacity_16T:16:T" })
         private PartCategoryVar sd;
 
         // 机械硬盘部件分类，继承driveVar
@@ -54,33 +52,32 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
         private PartCategoryVar md;
 
         // 固态硬盘实例1
-        @PartAnno(fatherCode = "sd", attrs = { "8", "8", "100" }, attrsInst1 = {
+        @PartAnno(fatherCode = "sd", attrs = { "8", "100" }, attrsInst1 = {
                 "5400",
-                "8" }, attrsInst2 = { "7200/5400", "8" })
+                "2" }, attrsInst2 = { "7200/5400", "4" })
         private PartVar sd1;
 
         // 固态硬盘实例2
-        @PartAnno(fatherCode = "sd", attrs = { "16", "16", "200" }, attrsInst1 = {
-                "9000",
-                "16" }, attrsInst2 = { "7200/5400", "16" })
+        @PartAnno(fatherCode = "sd", attrs = { "8", "200" }, attrsInst1 = {
+                "7200/5400", "4" })
         private PartVar sd2;
 
         // 固态硬盘实例3
-        @PartAnno(fatherCode = "sd", attrs = { "16", "16", "300" }, attrsInst1 = {
+        @PartAnno(fatherCode = "sd", attrs = { "8", "300" }, attrsInst1 = {
                 "9000",
-                "16" })
+                "4" })
         private PartVar sd3;
 
         // 机械硬盘实例1
-        @PartAnno(fatherCode = "md", attrs = { "8", "5400", "8", "30" })
+        @PartAnno(fatherCode = "md", attrs = { "5400", "2", "30" })
         private PartVar md1;
 
         // 机械硬盘实例2
-        @PartAnno(fatherCode = "md", attrs = { "16", "7200/5400", "16", "20" })
+        @PartAnno(fatherCode = "md", attrs = { "7200", "2", "20" })
         private PartVar md2;
 
         // 机械硬盘实例3
-        @PartAnno(fatherCode = "md", attrs = { "16", "9000", "16", "10" })
+        @PartAnno(fatherCode = "md", attrs = { "9000", "2", "10" })
         private PartVar md3;
 
         // rule1://固态硬盘必须配置同一种，并且最多配置2块
@@ -186,18 +183,12 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
         super(ComputerOptiSolutionConstraint.class);
     }
 
-    // Test case for user special requirement: partCatagory = "drive" constraintReq1
-    // = "sum.Quantity ==2 where Speed=540"
+    // 要求5400速率的固态硬盘2块
     @Test
     public void testUserSpecialRequirement() {
-        // Test the user's special requirement: infer recommendation for drive category
-        // with constraint sum.Quantity ==2 where Speed=540
-        // Note: Speed=540 likely means Speed_5400 (5400转). We'll use "Speed_5400".
-        // The constraint requires total quantity of parts with Speed=5400 to be 2.
-        // We'll use inferRecommend with partCategory "drive" and constraintReq1.
         inferRecommend("drive", "sum.Quantity ==2 where Speed=5400");
         // Print solutions for debugging
-        printSolutions();
+        printSimpleSolutions();
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(2); // Expect at least one solution, but we don't know exact number. We'll

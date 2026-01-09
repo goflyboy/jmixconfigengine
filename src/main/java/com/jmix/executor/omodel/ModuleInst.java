@@ -114,7 +114,7 @@ public class ModuleInst {
      * 
      * @return 短字符串，例如：P1(V:1,H:0),P2(V:1,H:1),PT1(Q:20,H:0),Other(x1:1,x2:2,x3:3,x4:5)
      */
-    public String toShortString() {
+    public String toShortString(boolean isSimple) {
         StringBuilder sb = new StringBuilder();
 
         // 添加参数信息
@@ -130,7 +130,7 @@ public class ModuleInst {
             if (sb.length() > 0) {
                 sb.append(",");
             }
-            sb.append(part.toShortString());
+            sb.append(part.toShortString(isSimple));
         }
 
         // 添加其他变量信息

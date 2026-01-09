@@ -559,7 +559,11 @@ public abstract class ModuleScenarioTestBase {
      * 
      */
     protected void printSolutions() {
-        printSolutions(getModule(), getSolutions());
+        printSolutions(getModule(), getSolutions(), false);
+    }
+
+    protected void printSimpleSolutions() {
+        printSolutions(getModule(), getSolutions(), true);
     }
 
     /**
@@ -568,7 +572,7 @@ public abstract class ModuleScenarioTestBase {
      * @param module    模块
      * @param solutions 解列表
      */
-    protected void printSolutions(Module module, List<ModuleInst> solutions) {
+    protected void printSolutions(Module module, List<ModuleInst> solutions, boolean isSimple) {
         if (solutions == null || solutions.isEmpty()) {
             log.info("No solutions found");
             return;
@@ -591,7 +595,7 @@ public abstract class ModuleScenarioTestBase {
         sb.append("2.Solutions:").append(System.lineSeparator());
         // 打印解
         for (int i = 0; i < solutions.size(); i++) {
-            sb.append(" S_").append(i + 1).append(": ").append(solutions.get(i).toShortString())
+            sb.append(" S_").append(i + 1).append(": ").append(solutions.get(i).toShortString(isSimple))
                     .append(System.lineSeparator());
         }
         sb.append(System.lineSeparator()).append("******************************************")

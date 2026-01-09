@@ -68,24 +68,19 @@ public class PartInst {
      *
      * @return 短字符串，例如：PT1(Q:20,H:0,S:1)
      */
-    public String toShortString() {
+    public String toShortString(boolean isSimple) {
         StringBuilder sb = new StringBuilder();
         sb.append(shortCode != null ? shortCode : code).append("(");
-
-        // 添加数量信息
-        if (quantity != null) {
+        if (isSimple && (quantity == 0 && isSelected == false)) {
+            // 添加数量信息
+            sb.append("0*");
+        } else {
+            // 添加数量信息
             sb.append("Q:").append(quantity);
+            sb.append(",H:").append(isHidden ? 1 : 0);
+            // 添加选中状态
+            sb.append(",S:").append(isSelected ? 1 : 0);
         }
-
-        // 添加隐藏状态
-        if (sb.length() > (shortCode != null ? shortCode : code).length() + 1) {
-            sb.append(",");
-        }
-        sb.append("H:").append(isHidden ? 1 : 0);
-
-        // 添加选中状态
-        sb.append(",S:").append(isSelected ? 1 : 0);
-
         sb.append(")");
         return sb.toString();
     }
