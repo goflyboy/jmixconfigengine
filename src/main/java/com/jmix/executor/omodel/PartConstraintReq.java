@@ -12,11 +12,6 @@ import lombok.Data;
 public class PartConstraintReq {
 
     /**
-     * 部件分类代码
-     */
-    private String partCategory;
-
-    /**
      * 属性代码
      */
     private String attrCode;

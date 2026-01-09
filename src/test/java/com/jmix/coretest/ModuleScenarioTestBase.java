@@ -653,7 +653,6 @@ public abstract class ModuleScenarioTestBase {
                 reqPartCategory = partCategory;
                 remainingStr = strReq;
             }
-            req.setPartCategory(reqPartCategory);
             req.setPartCatagoryCode(reqPartCategory);
 
             // 解析格式：attrCode comparator value where condition
