@@ -773,11 +773,47 @@ public enum DynamicAttributeType {//YXX --XX是baseType,Y是CompositeType
 	}
 	.....
 }
+ 
+设计9：
+1、类DAttrAnno* 增加 
+    DynamicAttributeType dynAttrType() default DynamicAttributeType.E_INT;
+2、对ModuleGenneratorByAnno的方法 processDynamicAttributeAnnotations等相应调整
+ 
 
-想给下列值也定义另外一个枚举类，请问叫什么比较合适？
-    ENUM(0, "EnumType"),
-    RANGE(2, "Range"),
-    BASE(1, "Base");
+ExtendedType
+
+1、把DynamicAttributeType的BaseType提取出来为一个独立的类
+2、把DynamicAttributeType的BaseType提取出来为一个独立的类
+ 
+
+设计10：
+1、在类Part增加方法
+ queryDynAttrSchemas(String code) -> DynamicAttribute {....}
+
+2、
+AggregationType
+2.1 新增函数aggregateInstanceDynAttrValue:
+ aggregateInstanceDynAttrValue(List<InstanceDynAttrValueItem> instValues,String attrCode,BaseType attrBastType) {
+
+   
+    for (InstanceDynAttrValueItem instValue : instValues) {
+                    String attrValue = instValue.getInstAttr(attrResult.getFirst().getCode());
+                    if (attrValue == null) {
+                        throw new IllegalArgumentException(
+                                "Attribute '" + attrResult.getFirst().getCode() + "' value is null for part '"
+                                        + part.getCode() + "'");
+                    }
+                    try {
+                        sumAttrValue += Integer.parseInt(attrValue);
+                    } catch (NumberFormatException e) {
+                        throw new IllegalArgumentException(
+                                "Invalid number format for attribute '" + attrResult.getFirst().getCode()
+                                        + "' with value '" + attrValue + "' in part '" + part.getCode() + "'",
+                                e);
+                    }
+                }
+                Pa
+
 
 
 TODO: idea 大模型时代 模糊化语言？不讲细节？ 重点将过程？ ---**

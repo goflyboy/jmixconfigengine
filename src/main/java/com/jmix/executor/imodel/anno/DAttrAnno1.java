@@ -1,5 +1,7 @@
 package com.jmix.executor.imodel.anno;
 
+import com.jmix.executor.imodel.DynamicAttributeType;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -33,4 +35,9 @@ public @interface DAttrAnno1 {
      * 实例类型
      */
     int instType() default 0;
+
+    /**
+     * 动态属性类型
+     */
+    DynamicAttributeType dynAttrType() default DynamicAttributeType.E_INT;
 }

@@ -2,6 +2,7 @@ package com.jmix.scenario.partcategory;
 
 import com.jmix.coretest.ConstraintAlgImplTestBase;
 import com.jmix.coretest.ModuleScenarioTestBase;
+import com.jmix.executor.imodel.DynamicAttributeType;
 import com.jmix.executor.imodel.anno.CodeRuleAnno;
 import com.jmix.executor.imodel.anno.DAttrAnno1;
 import com.jmix.executor.imodel.anno.DAttrAnno2;
@@ -27,7 +28,8 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
     static public class ComputerOptiSolutionConstraint extends ConstraintAlgImplTestBase {
         // 硬盘部件分类定义--严格按层级结构定义（顺序很重要），部件的attrs也要按定义的顺序来
         @PartAnno(code = "drive")
-        @DAttrAnno2(code = "Speed", optionExtSchema = "StringUnit", options = { "Speed_5400:5400:转",
+        @DAttrAnno2(code = "Speed", dynAttrType = DynamicAttributeType.E_STRING, optionExtSchema = "StringUnit", options = {
+                "Speed_5400:5400:转",
                 "Speed_9000:9000:转",
                 "Speed_7200a5400:7200/5400:转",
                 "Speed_7200:7200:转" }, instType = 0)

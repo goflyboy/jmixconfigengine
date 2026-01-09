@@ -836,56 +836,56 @@ public final class ModuleGenneratorByAnno {
         DAttrAnno1 dAttrAnno1 = field.getAnnotation(DAttrAnno1.class);
         if (dAttrAnno1 != null) {
             addDynamicAttribute(partCategory, dAttrAnno1.code(), dAttrAnno1.optionExtSchema(),
-                    dAttrAnno1.options(), dAttrAnno1.instType());
+                    dAttrAnno1.options(), dAttrAnno1.instType(), dAttrAnno1.dynAttrType());
         }
 
         // 处理DAttrAnno2
         DAttrAnno2 dAttrAnno2 = field.getAnnotation(DAttrAnno2.class);
         if (dAttrAnno2 != null) {
             addDynamicAttribute(partCategory, dAttrAnno2.code(), dAttrAnno2.optionExtSchema(),
-                    dAttrAnno2.options(), dAttrAnno2.instType());
+                    dAttrAnno2.options(), dAttrAnno2.instType(), dAttrAnno2.dynAttrType());
         }
 
         // 处理DAttrAnno3
         DAttrAnno3 dAttrAnno3 = field.getAnnotation(DAttrAnno3.class);
         if (dAttrAnno3 != null) {
             addDynamicAttribute(partCategory, dAttrAnno3.code(), dAttrAnno3.optionExtSchema(),
-                    dAttrAnno3.options(), dAttrAnno3.instType());
+                    dAttrAnno3.options(), dAttrAnno3.instType(), dAttrAnno3.dynAttrType());
         }
 
         // 处理DAttrAnno4
         DAttrAnno4 dAttrAnno4 = field.getAnnotation(DAttrAnno4.class);
         if (dAttrAnno4 != null) {
             addDynamicAttribute(partCategory, dAttrAnno4.code(), dAttrAnno4.optionExtSchema(),
-                    dAttrAnno4.options(), dAttrAnno4.instType());
+                    dAttrAnno4.options(), dAttrAnno4.instType(), dAttrAnno4.dynAttrType());
         }
 
         // 处理DAttrAnno5
         DAttrAnno5 dAttrAnno5 = field.getAnnotation(DAttrAnno5.class);
         if (dAttrAnno5 != null) {
             addDynamicAttribute(partCategory, dAttrAnno5.code(), dAttrAnno5.optionExtSchema(),
-                    dAttrAnno5.options(), dAttrAnno5.instType());
+                    dAttrAnno5.options(), dAttrAnno5.instType(), dAttrAnno5.dynAttrType());
         }
 
         // 处理DAttrAnno11
         DAttrAnno11 dAttrAnno11 = field.getAnnotation(DAttrAnno11.class);
         if (dAttrAnno11 != null) {
             addDynamicAttribute(partCategory, dAttrAnno11.code(), dAttrAnno11.optionExtSchema(),
-                    dAttrAnno11.options(), dAttrAnno11.instType());
+                    dAttrAnno11.options(), dAttrAnno11.instType(), dAttrAnno11.dynAttrType());
         }
 
         // 处理DAttrAnno12
         DAttrAnno12 dAttrAnno12 = field.getAnnotation(DAttrAnno12.class);
         if (dAttrAnno12 != null) {
             addDynamicAttribute(partCategory, dAttrAnno12.code(), dAttrAnno12.optionExtSchema(),
-                    dAttrAnno12.options(), dAttrAnno12.instType());
+                    dAttrAnno12.options(), dAttrAnno12.instType(), dAttrAnno12.dynAttrType());
         }
 
         // 处理DAttrAnno13
         DAttrAnno13 dAttrAnno13 = field.getAnnotation(DAttrAnno13.class);
         if (dAttrAnno13 != null) {
             addDynamicAttribute(partCategory, dAttrAnno13.code(), dAttrAnno13.optionExtSchema(),
-                    dAttrAnno13.options(), dAttrAnno13.instType());
+                    dAttrAnno13.options(), dAttrAnno13.instType(), dAttrAnno13.dynAttrType());
         }
     }
 
@@ -906,14 +906,15 @@ public final class ModuleGenneratorByAnno {
      * @param optionExtSchema 扩展模式
      * @param options         可选值列表
      * @param instType        实例类型
+     * @param dynAttrType     动态属性类型
      */
     private static void addDynamicAttribute(PartCategory partCategory, String code, String optionExtSchema,
-            String[] options, int instType) {
+            String[] options, int instType, DynamicAttributeType dynAttrType) {
         DynamicAttribute dynAttr = new DynamicAttribute();
         dynAttr.setCode(code);
         dynAttr.setName(code);
         dynAttr.setOptionExtSchema(optionExtSchema);
-        dynAttr.setDynAttrType(DynamicAttributeType.E_STRING); // 默认类型
+        dynAttr.setDynAttrType(dynAttrType);
 
         // 解析选项
         List<DynamicAttributerOption> dynOptions = new ArrayList<>();
