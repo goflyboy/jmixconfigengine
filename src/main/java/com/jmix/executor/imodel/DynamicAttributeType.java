@@ -3,7 +3,7 @@ package com.jmix.executor.imodel;
 /**
  * 动态属性类型枚举
  * 定义动态属性支持的数据类型
- * YXX --XX是baseType,Y是CompositeType
+ * YXX --XX是baseType,Y是ExtendedType
  *
  * @since 2025-09-22
  */
@@ -58,12 +58,12 @@ public enum DynamicAttributeType {
     }
 
     /**
-     * 获取组合类型
+     * 获取扩展类型
      *
-     * @return 组合类型
+     * @return 扩展类型
      */
-    public CompositeType getCompositeType() {
-        return CompositeType.fromValue(this.value / BASE_VALUE);
+    public ExtendedType getExtendedType() {
+        return ExtendedType.fromValue(this.value / BASE_VALUE);
     }
 
     /**
@@ -91,73 +91,4 @@ public enum DynamicAttributeType {
         throw new IllegalArgumentException("Unknown dynamic attribute type value: " + value);
     }
 
-    /**
-     * 基础类型枚举
-     */
-    public enum BaseType {
-        INT(0, "Integer"),
-        STRING(1, "String"),
-        BOOL(2, "Boolean"),
-        FLOAT(3, "Float"),
-        DOUBLE(4, "Double");
-
-        private final int value;
-        private final String name;
-
-        BaseType(int value, String name) {
-            this.value = value;
-            this.name = name;
-        }
-
-        public int getValue() {
-            return value;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public static BaseType fromValue(int value) {
-            for (BaseType type : values()) {
-                if (type.value == value) {
-                    return type;
-                }
-            }
-            throw new IllegalArgumentException("Unknown base type value: " + value);
-        }
-    }
-
-    /**
-     * 组合类型枚举
-     */
-    public enum CompositeType {
-        ENUM(0, "EnumType"),
-        BASE(1, "Base"),
-        RANGE(2, "Range");
-
-        private final int value;
-        private final String name;
-
-        CompositeType(int value, String name) {
-            this.value = value;
-            this.name = name;
-        }
-
-        public int getValue() {
-            return value;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public static CompositeType fromValue(int value) {
-            for (CompositeType type : values()) {
-                if (type.value == value) {
-                    return type;
-                }
-            }
-            throw new IllegalArgumentException("Unknown composite type value: " + value);
-        }
-    }
 }
