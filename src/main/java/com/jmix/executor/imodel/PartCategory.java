@@ -83,7 +83,47 @@ public class PartCategory extends Part {
      * @return 满足条件的PartCategory列表
      */
     public PartCategory query(PartConstraintReq constraintReq) {
-        return query(this, constraintReq);
+        // 在this根据查找code=constraintReq.partCatagoryCode的reqPartCategory,可能是this，也可能是this下的子PartCategory
+        PartCategory reqPartCategory = findPartCategoryByCode(this, constraintReq.getPartCatagoryCode());
+        if (reqPartCategory == null) {
+            // 如果找不到，使用this作为默认值
+            reqPartCategory = this;
+        }
+        return query(reqPartCategory, constraintReq);
+    }
+
+    /**
+     * 根据代码查找PartCategory（可能是this，也可能是子PartCategory）
+     *
+     * @param category 当前PartCategory
+     * @param code     要查找的代码
+     * @return 找到的PartCategory，如果未找到则返回null
+     */
+    @JsonIgnore
+    private PartCategory findPartCategoryByCode(PartCategory category, String code) {
+        if (code == null || code.trim().isEmpty()) {
+            return category;
+        }
+        // 如果是当前PartCategory的code，直接返回
+        if (category.getCode().equals(code)) {
+            return category;
+        }
+        // 在子PartCategory中查找
+        if (category.partCategoryMap != null && !category.partCategoryMap.isEmpty()) {
+            // 先在直接子分类中查找
+            PartCategory found = category.partCategoryMap.get(code);
+            if (found != null) {
+                return found;
+            }
+            // 递归在子分类中查找
+            for (PartCategory subCategory : category.partCategoryMap.values()) {
+                PartCategory result = findPartCategoryByCode(subCategory, code);
+                if (result != null) {
+                    return result;
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -97,18 +137,7 @@ public class PartCategory extends Part {
         if (constraintReq.getAttrWhereCondition() == null || constraintReq.getAttrWhereCondition().trim().isEmpty()) {
             throw new IllegalArgumentException("Filter condition cannot be empty");
         }
-        return query(category, constraintReq, constraintReq.getAttrWhereCondition());
-    }
-
-    /**
-     * 查询满足条件的Part
-     *
-     * @param category           部件分类
-     * @param constraintReq      约束请求
-     * @param attrWhereCondition 过滤条件字符串
-     * @return 满足条件的PartCategory列表
-     */
-    public PartCategory query(PartCategory category, PartConstraintReq constraintReq, String attrWhereCondition) {
+        String attrWhereCondition = constraintReq.getAttrWhereCondition();
         PartCategory resultPartCategory = category.clone();
         List<PartCategory> resultSubPartCategory = new ArrayList<>();
 

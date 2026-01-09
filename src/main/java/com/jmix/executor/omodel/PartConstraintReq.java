@@ -35,4 +35,9 @@ public class PartConstraintReq {
      * 属性过滤条件
      */
     private String attrWhereCondition;
+
+    /**
+     * 部件分类代码（用于查询时指定具体的PartCategory）
+     */
+    private String partCatagoryCode;
 }

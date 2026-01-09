@@ -631,7 +631,7 @@ public abstract class ModuleScenarioTestBase {
      * 将字符串约束请求转换为PartConstraintReq列表
      *
      * @param partCategory 部件类别
-     * @param strReqs      字符串约束请求数组，格式如："sum.Quantity ==2 where Speed=540"
+     * @param strReqs      字符串约束请求数组，格式如："sd:sum.Quantity ==2 where Speed=5400"
      * @return PartConstraintReq列表
      */
     protected List<PartConstraintReq> toPartConstraintReqs(String partCategory, String... strReqs) {
@@ -639,11 +639,25 @@ public abstract class ModuleScenarioTestBase {
 
         for (String strReq : strReqs) {
             PartConstraintReq req = new PartConstraintReq();
-            req.setPartCategory(partCategory);
+            
+            // 解析格式：reqPartCategory:attrCode comparator value where condition
+            // 示例："sd:sum.Quantity ==2 where Speed=5400"
+            String[] categoryParts = strReq.split(":", 2);
+            String reqPartCategory;
+            String remainingStr;
+            if (categoryParts.length == 2) {
+                reqPartCategory = categoryParts[0].trim();
+                remainingStr = categoryParts[1].trim();
+            } else {
+                // 如果没有:，则使用默认的partCategory
+                reqPartCategory = partCategory;
+                remainingStr = strReq;
+            }
+            req.setPartCategory(reqPartCategory);
+            req.setPartCatagoryCode(reqPartCategory);
 
             // 解析格式：attrCode comparator value where condition
-            // 示例："sum.Quantity ==2 where Speed=540"
-            String[] parts = strReq.split(" where ");
+            String[] parts = remainingStr.split(" where ");
             if (parts.length == 2) {
                 req.setAttrWhereCondition(parts[1].trim());
             } else if (parts.length != 1) {
@@ -683,6 +697,7 @@ public abstract class ModuleScenarioTestBase {
         InferParasReq req = new InferParasReq();
         req.setModuleId(getModule().getId());
         req.setEnumerateAllSolution(isEnumerateAllSolution());
+        req.setPartCatagoryCode(partCategoryCode);
         req.setPartConstraintReqs(partConstraintReqs);
 
         Result<List<ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(req);

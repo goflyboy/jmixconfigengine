@@ -429,7 +429,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
             }
         }
         if (req.getPartConstraintReqs() != null) {
-            addPartConstraintReqs(alg, req.getPartConstraintReqs());
+            addPartConstraintReqs(alg, req.getPartCatagoryCode(), req.getPartConstraintReqs());
         }
     }
 
@@ -437,14 +437,16 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
      * 添加部件约束请求
      *
      * @param alg                约束算法实现
+     * @param partCatagoryCode   部件分类代码
      * @param partConstraintReqs 部件约束请求列表
      */
-    private void addPartConstraintReqs(ConstraintAlgImpl alg, List<PartConstraintReq> partConstraintReqs) {
+    private void addPartConstraintReqs(ConstraintAlgImpl alg, String partCatagoryCode,
+            List<PartConstraintReq> partConstraintReqs) {
         for (PartConstraintReq partConstraintReq : partConstraintReqs) {
             // 从module中找到对应的PartCategory
-            PartCategory partCategory = findPartCategory(alg.getModule(), partConstraintReq.getPartCategory());
+            PartCategory partCategory = findPartCategory(alg.getModule(), partCatagoryCode);
             if (partCategory == null) {
-                log.error("PartCategory not found: {}", partConstraintReq.getPartCategory());
+                log.error("PartCategory not found: {}", partCatagoryCode);
                 continue;
             }
 
