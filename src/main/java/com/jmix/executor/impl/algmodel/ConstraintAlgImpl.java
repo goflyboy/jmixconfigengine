@@ -772,7 +772,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
                     attrValue = Integer.parseInt(part.getAttr(sumAttrCode));
                 }
                 sumTerms.add(LinearExpr.term(partVar.getQty(), attrValue));
-                sumTermStrings.add(partVar.getBase().getShortCode() + "*" + attrValue);
+                sumTermStrings.add(partVar.getBase().getShortCode() + ".qty*" + attrValue);
             } else {
                 log.error("PartVar quantity is null for part code: {}, cannot create sum constraint", part.getCode());
                 throw new AlgLoaderException("PartVar quantity is null for part code: " + part.getCode()

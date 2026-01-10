@@ -187,7 +187,7 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
 
     // 要求5400速率的硬盘2块
     @Test
-    public void testUserSpecialRequirement() {
+    public void testUserSpecialRequirementConstantAttr() {
         inferRecommend("drive", "drive:sum.Quantity ==2 where Speed=5400");
         // Print solutions for debugging
         printSimpleSolutions();
@@ -211,4 +211,15 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
         // solutions(1).assertPara("sd1");
     }
 
+    // 要求5400速率的固态硬盘2块
+    @Test
+    public void testUserSpecialRequirement3() {
+        inferRecommend("drive", "sd:sum.Capacity >=5 where Speed like %5400%");
+        // Print solutions for debugging
+        printSimpleSolutions();
+        // resultAssert()
+        // .assertSolutionSizeEqual(1); // Expect at least one solution, but we don't
+        // know exact number. We'll
+        // solutions(1).assertPara("sd1");
+    }
 }

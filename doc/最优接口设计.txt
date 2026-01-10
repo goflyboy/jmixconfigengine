@@ -792,8 +792,8 @@ public enum DynamicAttributeType {//YXX --XX是baseType,Y是CompositeType
 
 2、对类PartCategory做下列增加
 AggregationType
-2.1 新增函数aggregateInstanceDynAttrValue:
- int aggregateInstanceDynAttrValue4Int(Part part,List<InstanceDynAttrValueItem> instValues,String attrCode) {
+2.1 新增函数sumInstanceDynAttrValue:
+ String  sumInstanceDynAttrValue4Int(Part part,List<InstanceDynAttrValueItem> instValues,String attrCode) {
 	int sumAttrValue = 0;
    
     for (InstanceDynAttrValueItem instValue : instValues) {
@@ -812,24 +812,110 @@ AggregationType
                                 e);
                     }
    }
-   return sumAttrValue;
+   return String.valueOf(sumAttrValue);
 }
-2.2 参考 aggregateInstanceDynAttrValue4Int实现
-
-aggregateInstanceDynAttrValue4String  -->所有string相交
-aggregateInstanceDynAttrValue4Float  -->和Int一致
-aggregateInstanceDynAttrValue4Double  -->和Int一致
-aggregateInstanceDynAttrValue4Bool --> 抛异常，不支持
+2.2 参考 sumInstanceDynAttrValue4Int实现
+ 
+sumInstanceDynAttrValue4Float  -->和Int一致
+sumInstanceDynAttrValue4Double  -->和Int一致 
 
                 
-2.3 
+2.3 修改函数 
+修改前：
+  PartCategory query(PartCategory category, PartConstraintReq constraintReq) {
+	  ....
+	  int sumAttrValue = 0;
+	  ...
+	  Part cPart = part.clone();
+      cPart.setAttr(attrResult.getFirst().getCode(), String.valueOf(sumAttrValue));
+      filterParts.add(cPart);
+	  ....
 
+ }
+
+修改后： 
+  PartCategory query(PartCategory category, PartConstraintReq constraintReq) {
+	  ....
+	  Part cPart = part.clone();
+	  String  sumAttrValue = 0;
+	  List<DynamicAttribute> instAttrs = category.queryDynAttrSchemas4Inst();
+	  for(DynamicAttribute instAttr: instAttrs) {
+		switch(instAttr.getDynAttrType().getBaseType) {
+			case INT: 
+				sumAttrValue = sumInstanceDynAttrValue4Int(...);
+				cPart.setAttr(instAttr.getAttrCode(), sumAttrValue);
+				break;
+			case FLOAT: .... 
+			case DOUBLE: .... 
+			default:  ...;
+		}
+	  }
+	  
+	  ... 
+      filterParts.add(cPart);
+	  .... 
+ }
+
+
+设计1：
+
+1、新增一个一个接口
+interface IModule {
+	Optional<Para> getPara(String code);
+	Optional<Part> getPart(String code);
+	List<Rule>  getRules();
+}
+2、Module实现这个IModule
+3、PartCatagory实现这个IModule  
+增加List<Rule> rules;
+增加List<Para> paras;
+
+4、CodeRuleAnno增加字段
+String fatherCode;
+
+5、ComputerOptiSolutionTest
+rule1,rule2的fatherCode= "drive"  
+
+6、对类ModuleGenneratorByAnno做下列更新 
+
+createRulesFromMethods
+
+
+
+
+
+TODO:后续要改成  Module改成ModuleImpl
+
+
+
+先跑通
+CPU和Drivier两种场景？ --单个场景
+先过滤，在约束？求解？ -----先大过滤？
+先满足影响约束，再满足类似什么最优？ 后续设置属性？ 约束可能要硬性和软性的类似？ 
+----类似业务软约束？ 硬件 约束--- A和B不兼容等
+----确定性和不确定性，什么优先？ ---看看分那几种？
+---销售策略？ ---优先？  
+-----约束也有优先级? ****  
+
+----实在是搞不定的，这个Module，开发出来，自己来定制，后续类似FDE工程师，来定制？ 定制一个最优版本了？ 
+
+----多维求解从理论上是一个NP问题？ 
+-----业务建模上，怎么编程可执行的问题？  如果让性能更快？——————
+
+
+
+多维求解的过程验证一下？
+TODO： Rule -->Logic 
+TODO：多PC的写吧。景，CPU和 DIRVE直接有逻辑？ 
 
 
 TODO: idea 大模型时代 模糊化语言？不讲细节？ 重点将过程？ ---**
 1.2 修改函数：addPartConstraintReqs
 TODO：  方案1： 加载是动态，只加载需要的变量？ ---**  长期   设计到partVar初始化等过程？ ***
 TODO:多个条件在一起？ **
+
+TODO； Partcatagory也是一个Module，要接口化一下？ 暂时不这样做？
+  PartCategory也有Parameter
 
 TODO：支持设置shortCode，
 

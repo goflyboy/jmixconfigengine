@@ -341,9 +341,9 @@ public class PartCategory extends Part {
     /**
      * 对实例属性值进行整数类型求和
      *
-     * @param part      部件对象
+     * @param part       部件对象
      * @param instValues 实例属性值列表
-     * @param attrCode  属性代码
+     * @param attrCode   属性代码
      * @return 求和后的字符串值
      */
     @JsonIgnore
@@ -371,9 +371,9 @@ public class PartCategory extends Part {
     /**
      * 对实例属性值进行浮点数类型求和
      *
-     * @param part      部件对象
+     * @param part       部件对象
      * @param instValues 实例属性值列表
-     * @param attrCode  属性代码
+     * @param attrCode   属性代码
      * @return 求和后的字符串值
      */
     @JsonIgnore
@@ -401,9 +401,9 @@ public class PartCategory extends Part {
     /**
      * 对实例属性值进行双精度浮点数类型求和
      *
-     * @param part      部件对象
+     * @param part       部件对象
      * @param instValues 实例属性值列表
-     * @param attrCode  属性代码
+     * @param attrCode   属性代码
      * @return 求和后的字符串值
      */
     @JsonIgnore
