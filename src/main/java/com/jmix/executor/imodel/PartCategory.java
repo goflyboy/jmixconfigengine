@@ -500,7 +500,6 @@ public class PartCategory extends Part implements IModule {
      * 
      * @return 规则列表
      */
-    @JsonIgnore
     @Override
     public List<Rule> getRules() {
         return rules != null ? rules : new ArrayList<>();
@@ -511,7 +510,6 @@ public class PartCategory extends Part implements IModule {
      * 
      * @return 参数列表
      */
-    @JsonIgnore
     @Override
     public List<Para> getParas() {
         return paras != null ? paras : new ArrayList<>();
