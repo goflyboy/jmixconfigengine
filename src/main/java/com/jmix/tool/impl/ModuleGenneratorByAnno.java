@@ -240,10 +240,10 @@ public final class ModuleGenneratorByAnno {
      * 
      * @param moduleAlgClazz 模块算法类
      * @param module         模块对象
-     * @return 创建的规则列表
+     * @return 创建的规则列表（仅包含添加到Module的规则）
      */
     private static List<Rule> createRulesFromMethods(Class<?> moduleAlgClazz, Module module) {
-        List<Rule> rules = new ArrayList<>();
+        List<Rule> moduleRules = new ArrayList<>();
 
         // 遍历所有方法
         for (java.lang.reflect.Method method : moduleAlgClazz.getDeclaredMethods()) {
@@ -252,7 +252,8 @@ public final class ModuleGenneratorByAnno {
             if (compatiableRuleAnno != null) {
                 Rule rule = createCompatibleRule(method, compatiableRuleAnno, module);
                 if (rule != null) {
-                    rules.add(rule);
+                    // CompatiableRuleAnno 没有 fatherCode，默认添加到 Module
+                    moduleRules.add(rule);
                 }
             }
 
@@ -261,12 +262,32 @@ public final class ModuleGenneratorByAnno {
             if (codeRuleAnno != null) {
                 Rule rule = createCodeRule(method, codeRuleAnno, module);
                 if (rule != null) {
-                    rules.add(rule);
+                    // 根据 fatherCode 决定添加到 Module 还是 PartCategory
+                    String fatherCode = codeRuleAnno.fatherCode();
+                    if (Strings.isNullOrEmpty(fatherCode)) {
+                        // fatherCode 为 null 或空字符串，添加到 Module
+                        moduleRules.add(rule);
+                    } else {
+                        // fatherCode 不为空，添加到对应的 PartCategory
+                        Optional<Part> partOpt = module.getPart(fatherCode);
+                        if (partOpt.isPresent() && partOpt.get() instanceof PartCategory) {
+                            PartCategory partCategory = (PartCategory) partOpt.get();
+                            if (partCategory.getRules() == null) {
+                                partCategory.setRules(new ArrayList<>());
+                            }
+                            partCategory.getRules().add(rule);
+                            log.info("Rule '{}' added to PartCategory '{}'", rule.getCode(), fatherCode);
+                        } else {
+                            log.warn("PartCategory '{}' not found for rule '{}', adding to Module instead",
+                                    fatherCode, rule.getCode());
+                            moduleRules.add(rule);
+                        }
+                    }
                 }
             }
         }
 
-        return rules;
+        return moduleRules;
     }
 
     /**

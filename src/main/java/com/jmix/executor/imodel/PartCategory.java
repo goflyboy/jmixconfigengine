@@ -28,13 +28,26 @@ import java.util.Optional;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Slf4j
-public class PartCategory extends Part {
+public class PartCategory extends Part implements IModule {
+
+    /**
+     * 规则列表
+     */
+    private List<Rule> rules = new ArrayList<>();
+
+    /**
+     * 参数列表
+     */
+    private List<Para> paras = new ArrayList<>();
 
     @JsonIgnore
     private Map<String, PartCategory> partCategoryMap = new HashMap<>();
 
     @JsonIgnore
     private Map<String, Part> partMap = new HashMap<>();
+
+    @JsonIgnore
+    private Map<String, Para> paraMap = new HashMap<>();
 
     public PartCategory() {
         super();
@@ -71,11 +84,17 @@ public class PartCategory extends Part {
 
     /**
      * 初始化方法
-     * 对partCategoryMap、partMap进行初始化
+     * 对partCategoryMap、partMap、paraMap进行初始化
      */
     @JsonIgnore
     public void init() {
-        // 初始化逻辑将在Module的init方法中实现
+        // 初始化 paraMap
+        if (paras != null) {
+            for (Para para : paras) {
+                paraMap.put(para.getCode(), para);
+            }
+        }
+        // 其他初始化逻辑将在Module的init方法中实现
     }
 
     /**
@@ -426,5 +445,64 @@ public class PartCategory extends Part {
             }
         }
         return String.valueOf(sumAttrValue);
+    }
+
+    /**
+     * 根据编码获取参数对象
+     * 
+     * @param code 参数编码
+     * @return 参数对象，如果不存在则返回Optional.empty()
+     */
+    @JsonIgnore
+    @Override
+    public Optional<Para> getPara(String code) {
+        if (code == null || paraMap.isEmpty()) {
+            return Optional.empty();
+        }
+        Para para = paraMap.get(code);
+        return para != null ? Optional.of(para) : Optional.empty();
+    }
+
+    /**
+     * 根据编码获取部件对象
+     * 
+     * @param code 部件编码
+     * @return 部件对象，如果不存在则返回Optional.empty()
+     */
+    @JsonIgnore
+    @Override
+    public Optional<Part> getPart(String code) {
+        if (code == null) {
+            return Optional.empty();
+        }
+        // 先在当前PartCategory的partMap中查找
+        Part part = partMap.get(code);
+        if (part != null) {
+            return Optional.of(part);
+        }
+        // 在子PartCategory中查找
+        PartCategory subCategory = partCategoryMap.get(code);
+        if (subCategory != null) {
+            return Optional.of(subCategory);
+        }
+        // 递归在子PartCategory中查找
+        for (PartCategory subPartCategory : partCategoryMap.values()) {
+            Optional<Part> found = subPartCategory.getPart(code);
+            if (found.isPresent()) {
+                return found;
+            }
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * 获取规则列表
+     * 
+     * @return 规则列表
+     */
+    @JsonIgnore
+    @Override
+    public List<Rule> getRules() {
+        return rules != null ? rules : new ArrayList<>();
     }
 }

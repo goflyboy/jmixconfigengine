@@ -25,7 +25,7 @@ import java.util.Optional;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class Module extends ProgrammableObject<Integer> {
+public class Module extends ProgrammableObject<Integer> implements IModule {
 
     /**
      * 默认版本号常量
@@ -187,6 +187,17 @@ public class Module extends ProgrammableObject<Integer> {
         }
         Part part = partMap.get(code);
         return part != null ? Optional.of(part) : Optional.empty();
+    }
+
+    /**
+     * 获取规则列表
+     * 
+     * @return 规则列表
+     */
+    @JsonIgnore
+    @Override
+    public List<Rule> getRules() {
+        return rules != null ? rules : new ArrayList<>();
     }
 
     /**

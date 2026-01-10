@@ -83,7 +83,7 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
         private PartVar md3;
 
         // rule1://固态硬盘必须配置同一种，并且最多配置2块
-        @CodeRuleAnno(normalNaturalCode = "sd1.isSelected + sd2.isSelected + sd3.isSelected <= 1\n "
+        @CodeRuleAnno(fatherCode = "drive", normalNaturalCode = "sd1.isSelected + sd2.isSelected + sd3.isSelected <= 1\n "
                 +
                 "sd1.qty + sd2.qty + sd3.qty <= 2\n if(sd1.isSelected ==1) then sd1.qty >= 0")
         private void rule1() {
@@ -121,7 +121,7 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
         }
 
         // rule2://固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量
-        @CodeRuleAnno(normalNaturalCode = """
+        @CodeRuleAnno(fatherCode = "drive", normalNaturalCode = """
                      solidCapacityWeight =  sd1.isSelected *  capacityWeight + sd2.isSelected.capacityWeight
                              + sd3.isSelected * capacityWeight
                       mechCapacityWeight = md1.isSelected * capacityWeight + md2.isSelected * capacityWeight

@@ -1,0 +1,36 @@
+package com.jmix.executor.imodel;
+
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * 模块接口
+ * 定义了模块的基本操作，包括获取参数、部件和规则
+ * 
+ * @since 2025-01-XX
+ */
+public interface IModule {
+    /**
+     * 根据编码获取参数对象
+     * 
+     * @param code 参数编码
+     * @return 参数对象，如果不存在则返回Optional.empty()
+     */
+    Optional<Para> getPara(String code);
+
+    /**
+     * 根据编码获取部件对象
+     * 
+     * @param code 部件编码
+     * @return 部件对象，如果不存在则返回Optional.empty()
+     */
+    Optional<Part> getPart(String code);
+
+    /**
+     * 获取规则列表
+     * 
+     * @return 规则列表
+     */
+    List<Rule> getRules();
+}
+

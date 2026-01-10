@@ -22,4 +22,9 @@ public @interface CodeRuleAnno {
      * 自然语言描述
      */
     String normalNaturalCode() default "";
+
+    /**
+     * 父部件编码，如果为null或空字符串，则规则添加到Module中；否则添加到对应的PartCategory中
+     */
+    String fatherCode() default "";
 }

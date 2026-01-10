@@ -878,7 +878,8 @@ rule1,rule2的fatherCode= "drive"
 
 6、对类ModuleGenneratorByAnno做下列更新 
 
-createRulesFromMethods
+createRulesFromMethods 逻辑改成，根据fatherCode添加到对应rules中，如果是null或"",则添加到Module中，否则添加到对应的PartCategory中
+
 
 
 
