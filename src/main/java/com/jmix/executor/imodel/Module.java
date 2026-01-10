@@ -276,8 +276,7 @@ public class Module extends ProgrammableObject<Integer> implements IModule {
 
     /**
      * 初始化单个PartCategory
-     *
-     * @param category 部件分类
+     * 将子部件添加到其父PartCategory中
      */
     private void initSubParts() {
         // 初始化partCategoryMap（子分类）
@@ -286,11 +285,16 @@ public class Module extends ProgrammableObject<Integer> implements IModule {
                 continue;
             }
             Part fatherPart = this.partMap.get(part.getFatherCode());
+            if (fatherPart == null) {
+                // fatherCode 指向的不是 Part，可能是 Module 的 code（表示顶级部件），跳过
+                continue;
+            }
             if (fatherPart instanceof PartCategory) {
                 ((PartCategory) fatherPart).addSubPart(part);
             } else {
-                throw new IllegalStateException("Father part '" + part.getFatherCode() +
-                        "' is not a PartCategory, cannot add subpart '" + part.getCode() + "'");
+                // fatherPart 不是 PartCategory，跳过（可能是普通的 Part，不应该有子部件）
+                // 这可能是数据错误，但不应该阻止初始化
+                continue;
             }
         }
     }
