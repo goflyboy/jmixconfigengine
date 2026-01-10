@@ -61,7 +61,7 @@
       "partAttr" : "partValue"
     },
     "code" : "TestPart",
-    "fatherCode" : "TestModule",
+    "fatherCode" : "",
     "defaultValue" : 0,
     "description" : null,
     "sortNo" : 1,
@@ -74,6 +74,47 @@
     },
     "dynAttrSchemas" : [ "java.util.ArrayList", [ ] ],
     "dynAttrSchema" : null
+  } ] ],
+  "rules" : [ "java.util.Arrays$ArrayList", [ {
+    "@type" : "Rule",
+    "extSchema" : "TestRuleSchema",
+    "extAttrs" : {
+      "@class" : "java.util.HashMap",
+      "ruleAttr" : "ruleValue"
+    },
+    "code" : "TestRule",
+    "name" : "测试规则",
+    "progObjType" : "Module",
+    "progObjCode" : "TestModule",
+    "progObjField" : "constraints",
+    "normalNaturalCode" : "这是一个测试规则",
+    "rawCode" : {
+      "@type" : "CompatiableRule",
+      "type" : null,
+      "version" : null,
+      "leftExpr" : {
+        "@type" : "ExprSchema",
+        "rawCode" : "TestPara=\"TestOption\"",
+        "refProgObjs" : [ "java.util.Arrays$ArrayList", [ {
+          "@type" : "RefProgObjSchema",
+          "progObjType" : "Para",
+          "progObjCode" : "TestPara",
+          "progObjField" : "value"
+        } ] ]
+      },
+      "operator" : "Requires",
+      "rightExpr" : {
+        "@type" : "ExprSchema",
+        "rawCode" : "TestPara=\"TestOption\"",
+        "refProgObjs" : [ "java.util.Arrays$ArrayList", [ {
+          "@type" : "RefProgObjSchema",
+          "progObjType" : "Para",
+          "progObjCode" : "TestPara",
+          "progObjField" : "value"
+        } ] ]
+      }
+    },
+    "ruleSchemaTypeFullName" : "CDSL.V5.Struct.TestRule"
   } ] ],
   "alg" : null
 }

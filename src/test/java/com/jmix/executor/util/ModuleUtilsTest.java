@@ -293,7 +293,7 @@ public class ModuleUtilsTest {
     private Part createTestPart() {
         Part testPart = new Part();
         testPart.setCode("TestPart");
-        testPart.setFatherCode("TestModule");
+        testPart.setFatherCode("");
         testPart.setPartType(PartType.ATOMIC);
         testPart.setDefaultValue(0);
         testPart.setSortNo(1);

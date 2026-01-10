@@ -59,6 +59,7 @@ public class PartCategoryTest {
         DynamicAttribute speedAttr = new DynamicAttribute();
         speedAttr.setCode("Speed");
         speedAttr.setName("转速");
+        speedAttr.setDynAttrType(DynamicAttributeType.E_STRING);
         speedAttr.setInstType(1); // 实例属性
         schemas.add(speedAttr);
 

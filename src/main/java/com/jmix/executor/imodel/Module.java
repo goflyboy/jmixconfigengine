@@ -194,7 +194,6 @@ public class Module extends ProgrammableObject<Integer> implements IModule {
      * 
      * @return 规则列表
      */
-    @JsonIgnore
     @Override
     public List<Rule> getRules() {
         return rules != null ? rules : new ArrayList<>();
@@ -284,17 +283,15 @@ public class Module extends ProgrammableObject<Integer> implements IModule {
             if (Strings.isNullOrEmpty(part.getFatherCode())) {
                 continue;
             }
-            Part fatherPart = this.partMap.get(part.getFatherCode());
-            if (fatherPart == null) {
-                // fatherCode 指向的不是 Part，可能是 Module 的 code（表示顶级部件），跳过
+            if (part.getFatherCode().equals(this.getCode())) {
                 continue;
             }
+            Part fatherPart = this.partMap.get(part.getFatherCode());
             if (fatherPart instanceof PartCategory) {
                 ((PartCategory) fatherPart).addSubPart(part);
             } else {
-                // fatherPart 不是 PartCategory，跳过（可能是普通的 Part，不应该有子部件）
-                // 这可能是数据错误，但不应该阻止初始化
-                continue;
+                throw new IllegalStateException("Father part '" + part.getFatherCode()
+                        + "' is not a PartCategory, cannot add subpart '" + part.getCode() + ")");
             }
         }
     }
