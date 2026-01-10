@@ -32,5 +32,19 @@ public interface IModule {
      * @return 规则列表
      */
     List<Rule> getRules();
+
+    /**
+     * 获取参数列表
+     * 
+     * @return 参数列表
+     */
+    List<Para> getParas();
+
+    /**
+     * 获取部件列表
+     * 
+     * @return 部件列表
+     */
+    List<Part> getParts();
 }
 

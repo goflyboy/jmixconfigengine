@@ -505,4 +505,35 @@ public class PartCategory extends Part implements IModule {
     public List<Rule> getRules() {
         return rules != null ? rules : new ArrayList<>();
     }
+
+    /**
+     * 获取参数列表
+     * 
+     * @return 参数列表
+     */
+    @JsonIgnore
+    @Override
+    public List<Para> getParas() {
+        return paras != null ? paras : new ArrayList<>();
+    }
+
+    /**
+     * 获取部件列表
+     * 
+     * @return 部件列表（包括子部件和子分类）
+     */
+    @JsonIgnore
+    @Override
+    public List<Part> getParts() {
+        List<Part> allParts = new ArrayList<>();
+        // 添加所有子部件
+        if (partMap != null) {
+            allParts.addAll(partMap.values());
+        }
+        // 添加所有子分类
+        if (partCategoryMap != null) {
+            allParts.addAll(partCategoryMap.values());
+        }
+        return allParts;
+    }
 }

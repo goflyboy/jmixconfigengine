@@ -1,7 +1,7 @@
 package com.jmix.executor.impl.algmodel;
 
 import com.jmix.executor.imodel.DynamicAttributerOption;
-import com.jmix.executor.imodel.Module;
+import com.jmix.executor.imodel.IModule;
 import com.jmix.executor.imodel.Para;
 import com.jmix.executor.imodel.Part;
 import com.jmix.executor.imodel.PartCategory;
@@ -55,7 +55,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     /**
      * module的基础信息
      */
-    protected Module module;
+    protected IModule module;
 
     /**
      * 变量映射表，存储所有创建的变量实例
@@ -91,13 +91,13 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @param isAttachRelax   是否附加松弛变量
      * @param confictedRelaxs 冲突松弛变量列表
      */
-    public void initModel(CpModel model, Module module, boolean isAttachRelax, List<RelaxVar> confictedRelaxs) {
+    public void initModel(CpModel model, IModule module, boolean isAttachRelax, List<RelaxVar> confictedRelaxs) {
         List<String> fullRules = toFullRules(module);
         List<RefProgObjSchema> fullProgObjs = toFullProgObjs(module);
         initModel(model, module, fullRules, fullProgObjs, isAttachRelax, confictedRelaxs);
     }
 
-    private List<String> toFullRules(Module tempModule) {
+    private List<String> toFullRules(IModule tempModule) {
         List<String> fullRules = new ArrayList<>();
         for (Rule rule : tempModule.getRules()) {
             fullRules.add(rule.getCode());
@@ -105,7 +105,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         return fullRules;
     }
 
-    private List<RefProgObjSchema> toFullProgObjs(Module tempModule) {
+    private List<RefProgObjSchema> toFullProgObjs(IModule tempModule) {
         List<RefProgObjSchema> fullProgObjs = new ArrayList<>();
         RefProgObjSchema refProgObjSchema = null;
         // 根据module.parts,module.paras,创建RefProgObjSchema列表
@@ -130,7 +130,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @param confictedRelaxs 冲突松弛变量列表
      */
     public void initModel(CpModel model,
-            Module module,
+            IModule module,
             List<String> exeRules,
             List<RefProgObjSchema> exeProgObjs,
             List<RelaxVar> confictedRelaxs) {
@@ -148,7 +148,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @param confictedRelaxs 冲突松弛变量列表
      */
     public void initModel(CpModel model,
-            Module module,
+            IModule module,
             List<String> exeRules,
             List<RefProgObjSchema> exeProgObjs,
             boolean isAttachRelax,
@@ -579,7 +579,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      *
      * @return 模块对象
      */
-    public Module getModule() {
+    public IModule getModule() {
         return module;
     }
 
