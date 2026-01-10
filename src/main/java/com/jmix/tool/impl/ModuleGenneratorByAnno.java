@@ -278,9 +278,10 @@ public final class ModuleGenneratorByAnno {
                             partCategory.getRules().add(rule);
                             log.info("Rule '{}' added to PartCategory '{}'", rule.getCode(), fatherCode);
                         } else {
-                            log.warn("PartCategory '{}' not found for rule '{}', adding to Module instead",
+                            log.error("PartCategory '{}' not found for rule '{}', adding to Module instead",
                                     fatherCode, rule.getCode());
-                            moduleRules.add(rule);
+                            throw new AlgLoaderException("PartCategory '" + fatherCode + "' not found for rule '"
+                                    + rule.getCode() + "', adding to Module instead");
                         }
                     }
                 }
