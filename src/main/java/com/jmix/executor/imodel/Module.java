@@ -1,6 +1,7 @@
 package com.jmix.executor.imodel;
 
 import com.jmix.executor.imodel.rule.RefProgObjSchema;
+import com.jmix.executor.imodel.rule.RuleTypeConstants;
 import com.jmix.executor.impl.ModuleRefRelationGraph;
 import com.jmix.executor.impl.util.Pair;
 
@@ -385,5 +386,19 @@ public class Module extends ProgrammableObject<Integer> implements IModule {
             initRefRelationGraph();
         }
         return refRelationGraph.querySubGraph(progObjCodes);
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean hasPriorityRule() {
+        if (rules == null || rules.isEmpty()) {
+            return false;
+        }
+        for (Rule rule : rules) {
+            if (RuleTypeConstants.isPriorityRule(rule.getRuleSchemaTypeFullName())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

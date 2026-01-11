@@ -1,5 +1,6 @@
 package com.jmix.executor.imodel;
 
+import com.jmix.executor.imodel.rule.RuleTypeConstants;
 import com.jmix.executor.impl.util.Pair;
 import com.jmix.executor.omodel.AttrFunConstant;
 import com.jmix.executor.omodel.PartConstantAttr;
@@ -630,5 +631,19 @@ public class PartCategory extends Part implements IModule {
                 collectAtomicParts(subCategory, atomicParts);
             }
         }
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean hasPriorityRule() {
+        if (rules == null || rules.isEmpty()) {
+            return false;
+        }
+        for (Rule rule : rules) {
+            if (RuleTypeConstants.isPriorityRule(rule.getRuleSchemaTypeFullName())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

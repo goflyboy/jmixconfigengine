@@ -78,16 +78,16 @@ public class PartCategoryConstraintExecutorImpl {
                 }
             }
             // 创建CP模型
-            CpModel model = new CpModel();
-            alg.initModel(model, filteredCategory, isAttachRelax, confictedRelaxs);
+            // CpModel model = new CpModel();
+            // alg.initModel(model, filteredCategory, isAttachRelax, confictedRelaxs);
 
             // 检查是否有优先级规则，如果有则使用分级求解
-            if (!alg.getPriorityRuleMap().isEmpty()) {
+            if (filteredCategory.hasPriorityRule()) {
                 return solveWithPriorityConstraints(alg, filteredCategory, isAttachRelax, confictedRelaxs,
                         partCatagoryReq, module);
             }
 
-            return solveConstraintModel(alg, filteredCategory, partCatagoryReq, module);
+            return solveConstraintModel(alg, filteredCategory, isAttachRelax, confictedRelaxs, partCatagoryReq, module);
 
         } catch (Exception e) {
             log.error("Failed to process part category constraint", e);
@@ -107,8 +107,14 @@ public class PartCategoryConstraintExecutorImpl {
      * @return 求解结果
      */
     private Result<List<ModuleInst>> solveConstraintModel(ConstraintAlgImpl alg, PartCategory filteredCategory,
+            boolean isAttachRelax, List<RelaxVar> confictedRelaxs,
             InferPartCategoryReq partCatagoryReq,
             Module module) {
+
+        // 创建CP模型
+        CpModel model = new CpModel();
+        alg.initModel(model, filteredCategory, isAttachRelax, confictedRelaxs);
+
         // 根据请求初始化约束模型
         initModelByReq(filteredCategory, partCatagoryReq, alg);
 

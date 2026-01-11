@@ -54,4 +54,11 @@ public interface IModule {
      */
     List<Part> getAtomicParts();
 
+    /**
+     * 检查是否有优先级规则
+     * 
+     * @return 如果有优先级规则则返回true，否则返回false
+     */
+    boolean hasPriorityRule();
+
 }
