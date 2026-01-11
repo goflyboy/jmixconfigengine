@@ -3,6 +3,7 @@ package com.jmix.executor.impl;
 import com.jmix.executor.ModuleConstraintExecutor;
 import com.jmix.executor.imodel.ConstraintConfig;
 import com.jmix.executor.imodel.DynamicAttribute;
+import com.jmix.executor.imodel.IModule;
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.Part;
 import com.jmix.executor.imodel.PartCategory;
@@ -457,7 +458,11 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
             List<PartConstraintReq> partConstraintReqs) {
         for (PartConstraintReq partConstraintReq : partConstraintReqs) {
             // 从module中找到对应的PartCategory
-            PartCategory partCategory = findPartCategory((Module) alg.getModule(), partCatagoryCode);
+            IModule module = alg.getModule();
+            PartCategory partCategory = null;
+            if (module instanceof Module) {
+                partCategory = ((Module) module).findPartCategory(partCatagoryCode);
+            }
             if (partCategory == null) {
                 log.error("PartCategory not found: {}", partCatagoryCode);
                 continue;
@@ -467,7 +472,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
             PartCategory filteredCategory = partCategory.query(partConstraintReq);
 
             // 获取所有叶子部件
-            List<Part> filterParts = getAllLeafParts(filteredCategory);
+            List<Part> filterParts = filteredCategory.getAllLeafParts();
             log.info("filterParts size: {} after filter req.whereCondition: {}", filterParts.size(),
                     partConstraintReq.getAttrWhereCondition());
             List<Part> unFilterParts = calcUnFilterLeafParts(partCategory, filterParts);
@@ -486,50 +491,6 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
     }
 
     /**
-     * 从模块中查找部件分类
-     *
-     * @param module       模块对象
-     * @param categoryCode 分类代码
-     * @return 找到的PartCategory，如果未找到则返回null
-     */
-    private PartCategory findPartCategory(Module module, String categoryCode) {
-        for (Part part : module.getParts()) {
-            if (part instanceof PartCategory && part.getCode().equals(categoryCode)) {
-                return (PartCategory) part;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * 获取PartCategory中的所有叶子部件
-     *
-     * @param category 部件分类
-     * @return 所有叶子部件列表
-     */
-    private List<Part> getAllLeafParts(PartCategory category) {
-        List<Part> leafParts = new ArrayList<>();
-        collectLeafParts(category, leafParts);
-        return leafParts;
-    }
-
-    /**
-     * 递归收集叶子部件
-     *
-     * @param category  部件分类
-     * @param leafParts 叶子部件列表
-     */
-    private void collectLeafParts(PartCategory category, List<Part> leafParts) {
-        // 添加直接的部件
-        leafParts.addAll(category.getPartMap().values());
-
-        // 递归处理子分类
-        for (PartCategory subCategory : category.getPartCategoryMap().values()) {
-            collectLeafParts(subCategory, leafParts);
-        }
-    }
-
-    /**
      * 计算未过滤的叶子部件
      * 遍历 allPartCategory 本身的 parts 及其子 PartCategory 的 parts，
      * 如果不在 filterLeafParts 中，添加到 unFilterLeafParts
@@ -540,7 +501,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
      */
     private List<Part> calcUnFilterLeafParts(PartCategory allPartCategory, List<Part> filterLeafParts) {
         List<Part> unFilterLeafParts = new ArrayList<>();
-        List<Part> allLeafParts = getAllLeafParts(allPartCategory);
+        List<Part> allLeafParts = allPartCategory.getAllLeafParts();
 
         // 使用 Set 来快速查找，提高性能
         Set<String> filterPartCodes = filterLeafParts.stream()

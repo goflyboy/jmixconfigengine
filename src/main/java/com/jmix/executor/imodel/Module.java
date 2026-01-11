@@ -255,6 +255,25 @@ public class Module extends ProgrammableObject<Integer> implements IModule {
     }
 
     /**
+     * 从模块中查找部件分类
+     *
+     * @param categoryCode 分类代码
+     * @return 找到的PartCategory，如果未找到则返回null
+     */
+    @JsonIgnore
+    public PartCategory findPartCategory(String categoryCode) {
+        if (categoryCode == null || parts == null) {
+            return null;
+        }
+        for (Part part : parts) {
+            if (part instanceof PartCategory && part.getCode().equals(categoryCode)) {
+                return (PartCategory) part;
+            }
+        }
+        return null;
+    }
+
+    /**
      * 初始化引用关系图
      */
     private void initRefRelationGraph() {

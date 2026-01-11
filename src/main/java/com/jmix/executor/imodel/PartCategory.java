@@ -358,6 +358,36 @@ public class PartCategory extends Part implements IModule {
     }
 
     /**
+     * 获取PartCategory中的所有叶子部件
+     * 递归收集所有子分类中的叶子部件（不包括子分类本身）
+     *
+     * @return 所有叶子部件列表
+     */
+    @JsonIgnore
+    public List<Part> getAllLeafParts() {
+        List<Part> leafParts = new ArrayList<>();
+        collectLeafParts(this, leafParts);
+        return leafParts;
+    }
+
+    /**
+     * 递归收集叶子部件
+     *
+     * @param category  部件分类
+     * @param leafParts 叶子部件列表
+     */
+    @JsonIgnore
+    private void collectLeafParts(PartCategory category, List<Part> leafParts) {
+        // 添加直接的部件
+        leafParts.addAll(category.getPartMap().values());
+
+        // 递归处理子分类
+        for (PartCategory subCategory : category.getPartCategoryMap().values()) {
+            collectLeafParts(subCategory, leafParts);
+        }
+    }
+
+    /**
      * 对实例属性值进行整数类型求和
      *
      * @param part       部件对象
