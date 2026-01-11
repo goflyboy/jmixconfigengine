@@ -22,12 +22,12 @@ public class PriorityRuleSchema extends RuleSchema {
     /**
      * 优先级类型
      */
-    private PriorityType type;
+    private PriorityType priorityType;
 
     /**
      * 优先级策略
      */
-    private PriorityStrategy strategy;
+    private PriorityStrategy priorityStrategy;
 
     /**
      * 属性代码
@@ -44,4 +44,3 @@ public class PriorityRuleSchema extends RuleSchema {
         return new ArrayList<>();
     }
 }
-

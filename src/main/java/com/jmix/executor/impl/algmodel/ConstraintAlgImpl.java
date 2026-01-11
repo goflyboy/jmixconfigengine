@@ -289,12 +289,12 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
         PriorityConstraint pConstraint = new PriorityConstraint();
         pConstraint.setRuleCode(rule.getCode());
-        pConstraint.setStrategy(schema.getStrategy());
+        pConstraint.setStrategy(schema.getPriorityStrategy());
         pConstraint.setAttrCode(attrCode);
-        pConstraint.setType(schema.getType());
+        pConstraint.setType(schema.getPriorityType());
 
         // 根据类型构建表达式
-        PriorityType type = schema.getType();
+        PriorityType type = schema.getPriorityType();
         if (type == PriorityType.SELECT) {
             // 选择性，使用 sum4Selected
             pConstraint.setExpr(sum4Selected(attrCode));
@@ -309,7 +309,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         // 存储到 priorityRuleMap，使用 attrCode 作为 key
         priorityRuleMap.put(attrCode, pConstraint);
         log.info("Built priority constraint for attrCode: {}, ruleCode: {}, strategy: {}, type: {}",
-                attrCode, rule.getCode(), schema.getStrategy(), type);
+                attrCode, rule.getCode(), schema.getPriorityStrategy(), type);
     }
 
     /**

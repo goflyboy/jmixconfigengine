@@ -377,14 +377,10 @@ public final class ModuleGenneratorByAnno {
 
         // 创建PriorityRuleSchema
         PriorityRuleSchema schema = new PriorityRuleSchema();
-        // 注意：由于 PriorityRuleSchema 的 type 字段（PriorityType）与基类 RuleSchema 的 type
-        // 字段（String）冲突
-        // 这里设置的是 PriorityRuleSchema 的 type（优先级类型），基类的 type 会被覆盖
-        // 但通过 ruleSchemaTypeFullName 可以识别规则类型
-        schema.setType(anno.type());
+        schema.setPriorityType(anno.type());
         schema.setVersion("1.0");
         schema.setAttrCode(anno.attrCode());
-        schema.setStrategy(anno.strategy());
+        schema.setPriorityStrategy(anno.strategy());
 
         rule.setRawCode(schema);
         return rule;

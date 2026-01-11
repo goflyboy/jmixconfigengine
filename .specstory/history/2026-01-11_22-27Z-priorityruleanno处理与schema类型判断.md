@@ -1187,18 +1187,206 @@ Lines added: 2, lines removed: undefined
 
 <details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/impl/algmodel/ConstraintAlgImpl.java</summary>
 
-Status: **loading**
+**Chunk 1**
+Lines added: 1, lines removed: undefined
 
-```java
-import com.jmix.executor.imodel.Rule;
-import com.jmix.executor.imodel.rule.PriorityRuleSchema;
-import com.jmix.executor.imodel.rule.RefProgObjSchema;
-import com.jmix.executor.imodel.rule.RuleTypeConstants;
+```diff
+@@ -11,4 +11,5 @@
+  import com.jmix.executor.imodel.rule.PriorityRuleSchema;
+  import com.jmix.executor.imodel.rule.RefProgObjSchema;
++ import com.jmix.executor.imodel.rule.RuleTypeConstants;
+  import com.jmix.executor.omodel.AlgLoaderException;
+  import com.jmix.executor.omodel.PartConstantAttr;
 ```
 
 </details>
 
 </tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/impl/algmodel/ConstraintAlgImpl.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: 2
+
+```diff
+@@ -258,6 +258,5 @@
+  
+                  // 检查rule.ruleSchemaTypeFullName是否为PriorityRule，如果是则构建优先级约束
+-                 if (rule.getRuleSchemaTypeFullName() != null
+-                         &amp;&amp; rule.getRuleSchemaTypeFullName().equals("CDSL.V5.Struct.PriorityRule")) {
++                 if (RuleTypeConstants.isPriorityRule(rule.getRuleSchemaTypeFullName())) {
+                      buildPriorityConstraint(rule);
+                  }
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -33,4 +33,5 @@
+  import com.jmix.executor.imodel.rule.PriorityRuleSchema;
+  import com.jmix.executor.imodel.rule.RefProgObjSchema;
++ import com.jmix.executor.imodel.rule.RuleTypeConstants;
+  import com.jmix.executor.impl.algmodel.ConstraintAlg;
+  import com.jmix.executor.impl.algmodel.ParaVar;
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="search" data-tool-name="grep">
+<details>
+<summary>Tool use: **grep** • Grep for "CDSL\.V5\.Struct\.PriorityRule" in "src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java" • 1 match</summary>
+
+Output mode: content
+
+
+| File | Content | Line |
+|------|------|------|
+| `src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java` | `rule.setRuleSchemaTypeFullName("CDSL.V5.Struct.PriorityRule");` | L376 |
+
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+替换 `ModuleGenneratorByAnno.java` 中的硬编码字符串：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -374,5 +374,5 @@
+          rule.setProgObjField("constraints");
+          rule.setNormalNaturalCode(anno.normalNaturalCode());
+-         rule.setRuleSchemaTypeFullName("CDSL.V5.Struct.PriorityRule");
++         rule.setRuleSchemaTypeFullName(RuleTypeConstants.PRIORITY_RULE_FULL_NAME);
+  
+          // 创建PriorityRuleSchema
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="generic" data-tool-name="read_lints">
+<details>
+          <summary>Tool use: **read_lints** • Read lints for 3 files</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/executor/imodel/rule/RuleTypeConstants.java`
+- `src/main/java/com/jmix/executor/impl/algmodel/ConstraintAlgImpl.java`
+- `src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java`
+
+Lint results
+
+Lint errors for `src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| The method processInheritAnnotation(Field, PartCategory, Map<String,String>) from the type ModuleGenneratorByAnno is never used locally | 1041:40-1042:53 | DIAGNOSTIC_SEVERITY_WARNING |
+| '\|\|' 应另起一行。 | 588:94-589:1 | DIAGNOSTIC_SEVERITY_WARNING |
+| '\|\|' 应另起一行。 | 1078:82-1079:1 | DIAGNOSTIC_SEVERITY_WARNING |
+
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+## 修改总结
+
+### 1. 在 `RuleTypeConstants.java` 中添加了 PriorityRule 相关常量
+
+- 添加了 `PRIORITY_RULE = "PriorityRule"` 常量
+- 添加了 `PRIORITY_RULE_FULL_NAME = "CDSL.V5.Struct.PriorityRule"` 常量
+- 添加了 `isPriorityRule(String ruleSchemaTypeFullName)` 判断方法
+- 在 `getRuleTypeName()` 方法中添加了对 PriorityRule 的支持
+
+```22:33:src/main/java/com/jmix/executor/imodel/rule/RuleTypeConstants.java
+    public static final String COMPATIABLE_RULE = "CompatiableRule";
+
+    /**
+     * 计算规则类型
+     */
+    public static final String CALCULATE_RULE = "CalculateRule";
+
+    /**
+     * 选择规则类型
+     */
+    public static final String SELECT_RULE = "SelectRule";
+
+    /**
+     * 优先级规则类型
+     */
+    public static final String PRIORITY_RULE = "PriorityRule";
+```
+
+### 2. 优化了 `ConstraintAlgImpl.java` 中的判断逻辑
+
+- 导入了 `RuleTypeConstants`
+- 使用 `RuleTypeConstants.isPriorityRule()` 方法替换了硬编码的字符串判断
+
+```258:261:src/main/java/com/jmix/executor/impl/algmodel/ConstraintAlgImpl.java
+                // 检查rule.ruleSchemaTypeFullName是否为PriorityRule，如果是则构建优先级约束
+                if (RuleTypeConstants.isPriorityRule(rule.getRuleSchemaTypeFullName())) {
+                    buildPriorityConstraint(rule);
+                }
+```
+
+### 3. 优化了 `ModuleGenneratorByAnno.java` 中的常量使用
+
+- 导入了 `RuleTypeConstants`
+- 使用 `RuleTypeConstants.PRIORITY_RULE_FULL_NAME` 替换了硬编码字符串
+
+所有修改已完成，代码已通过 lint 检查。现在 PriorityRule 相关的常量统一在 `RuleTypeConstants` 中管理，避免了硬编码字符串，提高了代码的可维护性。
 
 ---
 
