@@ -109,12 +109,73 @@ public class PartCategory extends Part implements IModule {
      * @return 满足条件的PartCategory列表
      */
     public PartCategory query(PartConstraintReq constraintReq) {
-        // 在this根据查找code=constraintReq.partCatagoryCode的reqPartCategory,可能是this，也可能是this下的子PartCategory
-        PartCategory reqPartCategory = findPartCategoryByCode(this, constraintReq.getPartCatagoryCode());
-        if (reqPartCategory == null) {
-            throw new IllegalArgumentException("PartCategory not found: " + constraintReq.getPartCatagoryCode());
+        return query(this, constraintReq);
+    }
+
+    private PartCategory query(PartCategory category, PartConstraintReq constraintReq) {
+        PartCategory resultPartCategory = category.clone();
+        if (constraintReq.getPartCatagoryCode().equals(category.getCode())) {// 相等
+            // 先匹配当前原子part
+            List<Part> filterParts = querySubAtomicParts(category, constraintReq);
+            resultPartCategory.addSubParts(filterParts);
         }
-        return query(reqPartCategory, constraintReq);
+        // 在去自己的子分类中匹配
+        for (PartCategory pc : category.partCategoryMap.values()) {
+            resultPartCategory.addPartCategory(query(pc, constraintReq));
+        }
+        return resultPartCategory;
+    }
+
+    private List<Part> querySubAtomicParts(PartCategory category, PartConstraintReq constraintReq) {
+
+        // 解析属性代码
+        Pair<DynamicAttribute, String> attrResult = parseAttributeFromCondition(constraintReq.getAttrWhereCondition(),
+                category.getDynAttrSchemas());
+
+        List<Part> filterParts = new ArrayList<>();
+        if (attrResult.getFirst().getInstType() == 0) { // 非实例属性
+            // 过滤条件不涉及实例属性，直接在Part级别过滤
+            filterParts = FilterExpressionExecutor.doSelect(new ArrayList<>(category.partMap.values()),
+                    constraintReq.getAttrWhereCondition());
+
+        } else { // 实例属性
+            for (Part part : category.partMap.values()) {
+                InstanceDynAttrValue instAttrs = part.getInstanceAttrs();
+                if (instAttrs == null) {
+                    throw new IllegalStateException("Instance attributes not found for part: " + part.getCode());
+                }
+                List<InstanceDynAttrValueItem> instValues = FilterExpressionExecutor
+                        .doSelect(instAttrs.getInstsValues(), constraintReq.getAttrWhereCondition());
+                if (instValues.isEmpty()) {
+                    continue;
+                }
+                Part cPart = part.clone();
+                List<DynamicAttribute> instAttrsList = category.queryDynAttrSchemas4Inst();
+                for (DynamicAttribute instAttr : instAttrsList) {
+                    String sumAttrValue = null;
+                    switch (instAttr.getDynAttrType().getBaseType()) {
+                        case INT:
+                            sumAttrValue = sumInstanceDynAttrValue4Int(part, instValues, instAttr.getCode());
+                            cPart.setAttr(instAttr.getCode(), sumAttrValue);
+                            break;
+                        case FLOAT:
+                            sumAttrValue = sumInstanceDynAttrValue4Float(part, instValues, instAttr.getCode());
+                            cPart.setAttr(instAttr.getCode(), sumAttrValue);
+                            break;
+                        case DOUBLE:
+                            sumAttrValue = sumInstanceDynAttrValue4Double(part, instValues, instAttr.getCode());
+                            cPart.setAttr(instAttr.getCode(), sumAttrValue);
+                            break;
+                        default:
+                            log.warn("Unsupported base type for aggregation: {} in part: {}",
+                                    instAttr.getDynAttrType().getBaseType(), part.getCode());
+                            break;
+                    }
+                }
+                filterParts.add(cPart);
+            }
+        }
+        return filterParts;
     }
 
     /**
@@ -150,82 +211,6 @@ public class PartCategory extends Part implements IModule {
             }
         }
         return null;
-    }
-
-    /**
-     * 查询满足条件的Part
-     *
-     * @param category      部件分类
-     * @param constraintReq 约束请求
-     * @return 满足条件的PartCategory
-     */
-    public PartCategory query(PartCategory category, PartConstraintReq constraintReq) {
-        if (constraintReq.getAttrWhereCondition() == null || constraintReq.getAttrWhereCondition().trim().isEmpty()) {
-            throw new IllegalArgumentException("Filter condition cannot be empty");
-        }
-        String attrWhereCondition = constraintReq.getAttrWhereCondition();
-        PartCategory resultPartCategory = category.clone();
-        List<PartCategory> resultSubPartCategory = new ArrayList<>();
-
-        // 处理子分类
-        if (!category.partCategoryMap.isEmpty()) {
-            for (PartCategory pc : category.partCategoryMap.values()) {
-                resultSubPartCategory.add(query(pc, constraintReq));
-            }
-        }
-        if (!resultSubPartCategory.isEmpty()) {
-            resultPartCategory.addPartCategory(resultSubPartCategory);
-        }
-
-        // 解析属性代码
-        Pair<DynamicAttribute, String> attrResult = parseAttributeFromCondition(constraintReq.getAttrWhereCondition(),
-                category.getDynAttrSchemas());
-
-        List<Part> filterParts = new ArrayList<>();
-        if (attrResult.getFirst().getInstType() == 0) { // 非实例属性
-            // 过滤条件不涉及实例属性，直接在Part级别过滤
-            filterParts = FilterExpressionExecutor.doSelect(new ArrayList<>(category.partMap.values()),
-                    attrWhereCondition);
-
-        } else { // 实例属性
-            for (Part part : category.partMap.values()) {
-                InstanceDynAttrValue instAttrs = part.getInstanceAttrs();
-                if (instAttrs == null) {
-                    throw new IllegalStateException("Instance attributes not found for part: " + part.getCode());
-                }
-                List<InstanceDynAttrValueItem> instValues = FilterExpressionExecutor
-                        .doSelect(instAttrs.getInstsValues(), attrWhereCondition);
-                if (instValues.isEmpty()) {
-                    continue;
-                }
-                Part cPart = part.clone();
-                List<DynamicAttribute> instAttrsList = category.queryDynAttrSchemas4Inst();
-                for (DynamicAttribute instAttr : instAttrsList) {
-                    String sumAttrValue = null;
-                    switch (instAttr.getDynAttrType().getBaseType()) {
-                        case INT:
-                            sumAttrValue = sumInstanceDynAttrValue4Int(part, instValues, instAttr.getCode());
-                            cPart.setAttr(instAttr.getCode(), sumAttrValue);
-                            break;
-                        case FLOAT:
-                            sumAttrValue = sumInstanceDynAttrValue4Float(part, instValues, instAttr.getCode());
-                            cPart.setAttr(instAttr.getCode(), sumAttrValue);
-                            break;
-                        case DOUBLE:
-                            sumAttrValue = sumInstanceDynAttrValue4Double(part, instValues, instAttr.getCode());
-                            cPart.setAttr(instAttr.getCode(), sumAttrValue);
-                            break;
-                        default:
-                            log.warn("Unsupported base type for aggregation: {} in part: {}",
-                                    instAttr.getDynAttrType().getBaseType(), part.getCode());
-                            break;
-                    }
-                }
-                filterParts.add(cPart);
-            }
-        }
-        resultPartCategory.addSubParts(filterParts);
-        return resultPartCategory;
     }
 
     /**
@@ -322,9 +307,13 @@ public class PartCategory extends Part implements IModule {
      *
      * @param partCategories 子部件分类列表
      */
+    public void addPartCategory(PartCategory partCategory) {
+        this.partCategoryMap.put(partCategory.getCode(), partCategory);
+    }
+
     public void addPartCategory(List<PartCategory> partCategories) {
         for (PartCategory partCategory : partCategories) {
-            this.partCategoryMap.put(partCategory.getCode(), partCategory);
+            addPartCategory(partCategory);
         }
     }
 

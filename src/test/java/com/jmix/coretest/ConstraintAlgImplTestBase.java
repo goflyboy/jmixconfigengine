@@ -2,6 +2,7 @@ package com.jmix.coretest;
 
 import com.jmix.executor.imodel.Para;
 import com.jmix.executor.imodel.Part;
+import com.jmix.executor.imodel.PartCategory;
 import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
 import com.jmix.executor.impl.algmodel.ParaOptionVar;
 import com.jmix.executor.impl.algmodel.Var;
@@ -13,10 +14,14 @@ import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.LinearArgument;
 import com.google.ortools.sat.LinearExpr;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
+@Slf4j
 public class ConstraintAlgImplTestBase extends ConstraintAlgImpl {
 
     /**
@@ -151,42 +156,49 @@ public class ConstraintAlgImplTestBase extends ConstraintAlgImpl {
                 leftParaFilterOptionCodes, super.getParaVar(rightParaVar.getCode()), rightParaFilterOptionCodes);
     }
 
+    /**
+     * 通用的部件求和方法，根据指定的变量获取函数计算总和
+     * 
+     * @param cofAttrCode 属性代码，如果为null或空则使用默认值1
+     * @param varGetter   从PartVar获取LinearArgument的函数（如getIsSelected或getQty）
+     * @return 求和后的LinearExpr表达式
+     */
+    private LinearExpr sum4Parts(String cofAttrCode,
+            Function<com.jmix.executor.impl.algmodel.PartVar, LinearArgument> varGetter) {
+        com.jmix.executor.impl.algmodel.PartVar partVar = null;
+        LinearArgument[] sumTerms = new LinearArgument[super.getModule().getParts().size()];
+        int index = 0;
+        boolean isWithoutAttr = Strings.isNullOrEmpty(cofAttrCode);
+        for (Part part : super.getModule().getParts()) {
+            if (part instanceof PartCategory) {
+                continue;
+            }
+            partVar = super.getPartVar(part.getCode());
+            if (partVar == null) {
+                log.error("PartVar not found for code: {}", part.getCode());
+                throw new AlgLoaderException("PartVar not found for code: " + part.getCode());
+            }
+            int attrValue = isWithoutAttr ? 1 : Integer.parseInt(part.getAttr(cofAttrCode));
+            sumTerms[index] = LinearExpr.term(varGetter.apply(partVar), attrValue);
+            index++;
+        }
+        return LinearExpr.sum(sumTerms);
+    }
+
     public LinearExpr sum4Selected() {
         return sum4Selected(null);
     }
 
     public LinearExpr sum4Selected(String cofAttrCode) {
-        com.jmix.executor.impl.algmodel.PartVar partVar = null;
-        LinearArgument[] sumTerms = new LinearArgument[super.getModule().getParts().size()];
-        int index = 0;
-        boolean isWithoutAttr = Strings.isNullOrEmpty(cofAttrCode);
-        for (Part part : super.getModule().getParts()) {
-            partVar = super.getPartVar(part.getCode());
-            int attrValue = isWithoutAttr ? 1 : Integer.parseInt(part.getAttr(cofAttrCode));
-            sumTerms[index] = LinearExpr.term(partVar.getIsSelected(), attrValue);
-            index++;
-        }
-        LinearExpr sumSelected = LinearExpr.sum(sumTerms);
-        return sumSelected;
+        return sum4Parts(cofAttrCode, com.jmix.executor.impl.algmodel.PartVar::getIsSelected);
     }
 
     public LinearExpr sum4Quantity() {
-        return sum4Selected(null);
+        return sum4Quantity(null);
     }
 
     public LinearExpr sum4Quantity(String cofAttrCode) {
-        com.jmix.executor.impl.algmodel.PartVar partVar = null;
-        LinearArgument[] sumTerms = new LinearArgument[super.getModule().getParts().size()];
-        int index = 0;
-        boolean isWithoutAttr = Strings.isNullOrEmpty(cofAttrCode);
-        for (Part part : super.getModule().getParts()) {
-            partVar = super.getPartVar(part.getCode());
-            int attrValue = isWithoutAttr ? 1 : Integer.parseInt(part.getAttr(cofAttrCode));
-            sumTerms[index] = LinearExpr.term(partVar.getQty(), attrValue);
-            index++;
-        }
-        LinearExpr sumSelected = LinearExpr.sum(sumTerms);
-        return sumSelected;
+        return sum4Parts(cofAttrCode, com.jmix.executor.impl.algmodel.PartVar::getQty);
     }
 
 }
