@@ -200,6 +200,42 @@ public class Module extends ProgrammableObject<Integer> implements IModule {
     }
 
     /**
+     * 获取参数列表
+     * 
+     * @return 参数列表
+     */
+    @Override
+    public List<Para> getParas() {
+        return paras != null ? paras : new ArrayList<>();
+    }
+
+    /**
+     * 获取部件列表
+     * 
+     * @return 部件列表
+     */
+    @Override
+    public List<Part> getParts() {
+        return parts != null ? parts : new ArrayList<>();
+    }
+
+    /**
+     * 获取原子部件列表
+     * 
+     * @return 原子部件列表（partType为ATOMIC的部件）
+     */
+    @Override
+    @JsonIgnore
+    public List<Part> getAtomicParts() {
+        if (parts == null) {
+            return new ArrayList<>();
+        }
+        return parts.stream()
+                .filter(part -> part.getPartType() == PartType.ATOMIC)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    /**
      * 根据父部件编码获取子部件列表
      * 
      * @param fatherCode 父部件编码

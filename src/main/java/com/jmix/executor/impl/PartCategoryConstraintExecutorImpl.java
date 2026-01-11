@@ -149,33 +149,26 @@ public class PartCategoryConstraintExecutorImpl {
             // 获取所有叶子部件
             List<Part> filterParts = filteredCategory.getAllLeafParts();
 
-            // 获取原始部件分类用于计算未过滤的部件
-            PartCategory originalCategory = alg.getModule() instanceof Module
-                    ? ((Module) alg.getModule()).findPartCategory(req.getPartCatagoryCode())
-                    : null;
-            if (originalCategory != null) {
-                List<Part> unFilterParts = PartCategory.calcUnFilterLeafParts(originalCategory, filterParts);
+            // 处理最后一个约束请求
+            PartConstraintReq lastPartConstraintReq = req.getPartConstraintReqs()
+                    .get(req.getPartConstraintReqs().size() - 1);
 
-                // 处理最后一个约束请求
-                PartConstraintReq lastPartConstraintReq = req.getPartConstraintReqs()
-                        .get(req.getPartConstraintReqs().size() - 1);
+            log.info("filterParts size: {} after filter req.whereCondition: {}", filterParts.size(),
+                    lastPartConstraintReq.getAttrWhereCondition());
 
-                log.info("filterParts size: {} after filter req.whereCondition: {}", filterParts.size(),
-                        lastPartConstraintReq.getAttrWhereCondition());
+            // 解析属性
+            Pair<DynamicAttribute, String> result = filteredCategory.parseAttribute(
+                    lastPartConstraintReq.getAttrCode(),
+                    filteredCategory.getDynAttrSchemas());
 
-                // 解析属性
-                Pair<DynamicAttribute, String> result = originalCategory.parseAttribute(
-                        lastPartConstraintReq.getAttrCode(),
-                        originalCategory.getDynAttrSchemas());
-
-                // 根据result.second构建约束表达式
-                if (AttrFunConstant.FUN_PREFIX_SUM.equals(result.getSecond())) {
-                    alg.sumFunConstraint(filterParts, result.getFirst().getCode(),
-                            lastPartConstraintReq.getAttrComparator(),
-                            Integer.parseInt(lastPartConstraintReq.getAttrValue()));
-                    alg.setPartUnSelected(unFilterParts);
-                }
+            // 根据result.second构建约束表达式
+            if (AttrFunConstant.FUN_PREFIX_SUM.equals(result.getSecond())) {
+                alg.sumFunConstraint(filterParts, result.getFirst().getCode(),
+                        lastPartConstraintReq.getAttrComparator(),
+                        Integer.parseInt(lastPartConstraintReq.getAttrValue()));
+                // alg.setPartUnSelected(unFilterParts);
             }
+
         }
     }
 

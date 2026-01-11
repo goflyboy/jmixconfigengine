@@ -2,7 +2,6 @@ package com.jmix.coretest;
 
 import com.jmix.executor.imodel.Para;
 import com.jmix.executor.imodel.Part;
-import com.jmix.executor.imodel.PartCategory;
 import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
 import com.jmix.executor.impl.algmodel.ParaOptionVar;
 import com.jmix.executor.impl.algmodel.Var;
@@ -166,18 +165,12 @@ public class ConstraintAlgImplTestBase extends ConstraintAlgImpl {
     private LinearExpr sum4Parts(String cofAttrCode,
             Function<com.jmix.executor.impl.algmodel.PartVar, LinearArgument> varGetter) {
         com.jmix.executor.impl.algmodel.PartVar partVar = null;
-        LinearArgument[] sumTerms = new LinearArgument[super.getModule().getParts().size()];
+        List<Part> atomicParts = super.getModule().getAtomicParts();
+        LinearArgument[] sumTerms = new LinearArgument[atomicParts.size()];
         int index = 0;
         boolean isWithoutAttr = Strings.isNullOrEmpty(cofAttrCode);
-        for (Part part : super.getModule().getParts()) {
-            if (part instanceof PartCategory) {
-                continue;
-            }
+        for (Part part : atomicParts) {
             partVar = super.getPartVar(part.getCode());
-            if (partVar == null) {
-                log.error("PartVar not found for code: {}", part.getCode());
-                throw new AlgLoaderException("PartVar not found for code: " + part.getCode());
-            }
             int attrValue = isWithoutAttr ? 1 : Integer.parseInt(part.getAttr(cofAttrCode));
             sumTerms[index] = LinearExpr.term(varGetter.apply(partVar), attrValue);
             index++;

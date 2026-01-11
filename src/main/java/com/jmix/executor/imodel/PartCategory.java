@@ -109,19 +109,25 @@ public class PartCategory extends Part implements IModule {
      * @return 满足条件的PartCategory列表
      */
     public PartCategory query(PartConstraintReq constraintReq) {
-        return query(this, constraintReq);
+        return query(this, constraintReq, false);
     }
 
-    private PartCategory query(PartCategory category, PartConstraintReq constraintReq) {
+    private PartCategory query(PartCategory category, PartConstraintReq constraintReq,
+            boolean hasMatchedPartCategoryOfReq) {
         PartCategory resultPartCategory = category.clone();
-        if (constraintReq.getPartCatagoryCode().equals(category.getCode())) {// 相等
+        if (!hasMatchedPartCategoryOfReq) {
+            if (constraintReq.getPartCatagoryCode().equals(category.getCode())) {
+                hasMatchedPartCategoryOfReq = true;
+            }
+        }
+        if (hasMatchedPartCategoryOfReq) {
             // 先匹配当前原子part
             List<Part> filterParts = querySubAtomicParts(category, constraintReq);
             resultPartCategory.addSubParts(filterParts);
         }
         // 在去自己的子分类中匹配
         for (PartCategory pc : category.partCategoryMap.values()) {
-            resultPartCategory.addPartCategory(query(pc, constraintReq));
+            resultPartCategory.addPartCategory(query(pc, constraintReq, hasMatchedPartCategoryOfReq));
         }
         return resultPartCategory;
     }
@@ -586,5 +592,43 @@ public class PartCategory extends Part implements IModule {
             allParts.addAll(partCategoryMap.values());
         }
         return allParts;
+    }
+
+    /**
+     * 获取原子部件列表
+     * 递归收集所有子分类中的原子部件
+     * 
+     * @return 原子部件列表（partType为ATOMIC的部件）
+     */
+    @JsonIgnore
+    @Override
+    public List<Part> getAtomicParts() {
+        List<Part> atomicParts = new ArrayList<>();
+        collectAtomicParts(this, atomicParts);
+        return atomicParts;
+    }
+
+    /**
+     * 递归收集原子部件
+     * 
+     * @param category    部件分类
+     * @param atomicParts 原子部件列表
+     */
+    @JsonIgnore
+    private void collectAtomicParts(PartCategory category, List<Part> atomicParts) {
+        // 添加当前分类中的原子部件
+        if (category.partMap != null) {
+            for (Part part : category.partMap.values()) {
+                if (part.getPartType() == PartType.ATOMIC) {
+                    atomicParts.add(part);
+                }
+            }
+        }
+        // 递归处理子分类
+        if (category.partCategoryMap != null) {
+            for (PartCategory subCategory : category.partCategoryMap.values()) {
+                collectAtomicParts(subCategory, atomicParts);
+            }
+        }
     }
 }

@@ -46,5 +46,12 @@ public interface IModule {
      * @return 部件列表
      */
     List<Part> getParts();
-}
 
+    /**
+     * 获取原子部件列表
+     * 
+     * @return 原子部件列表（partType为ATOMIC的部件）
+     */
+    List<Part> getAtomicParts();
+
+}
