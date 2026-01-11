@@ -636,14 +636,22 @@ public class PartCategory extends Part implements IModule {
     @Override
     @JsonIgnore
     public boolean hasPriorityRule() {
+        List<Rule> priorityRules = queryPriorityRules();
+        return !priorityRules.isEmpty();
+    }
+
+    @Override
+    @JsonIgnore
+    public List<Rule> queryPriorityRules() {
+        List<Rule> priorityRules = new ArrayList<>();
         if (rules == null || rules.isEmpty()) {
-            return false;
+            return priorityRules;
         }
         for (Rule rule : rules) {
             if (RuleTypeConstants.isPriorityRule(rule.getRuleSchemaTypeFullName())) {
-                return true;
+                priorityRules.add(rule);
             }
         }
-        return false;
+        return priorityRules;
     }
 }

@@ -61,4 +61,11 @@ public interface IModule {
      */
     boolean hasPriorityRule();
 
+    /**
+     * 查询所有优先级规则
+     * 
+     * @return 优先级规则列表
+     */
+    List<Rule> queryPriorityRules();
+
 }

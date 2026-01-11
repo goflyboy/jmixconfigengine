@@ -1866,6 +1866,334 @@ Lint errors for `src/main/java/com/jmix/executor/impl/PartCategoryConstraintExec
 ---
 
 
+所有修改已完成。总结如下：
+
+## 完成的修改
+
+### 1. 在 IModule 接口中添加了 `hasPriorityRule()` 方法
+```57:62:src/main/java/com/jmix/executor/imodel/IModule.java
+    /**
+     * 检查是否有优先级规则
+     * 
+     * @return 如果有优先级规则则返回true，否则返回false
+     */
+    boolean hasPriorityRule();
+```
+
+### 2. 在 Module 类中实现了 `hasPriorityRule()` 方法
+```391:402:src/main/java/com/jmix/executor/imodel/Module.java
+    @Override
+    @JsonIgnore
+    public boolean hasPriorityRule() {
+        if (rules == null || rules.isEmpty()) {
+            return false;
+        }
+        for (Rule rule : rules) {
+            if (RuleTypeConstants.isPriorityRule(rule.getRuleSchemaTypeFullName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+```
+
+### 3. 在 PartCategory 类中实现了 `hasPriorityRule()` 方法
+```636:647:src/main/java/com/jmix/executor/imodel/PartCategory.java
+    @Override
+    @JsonIgnore
+    public boolean hasPriorityRule() {
+        if (rules == null || rules.isEmpty()) {
+            return false;
+        }
+        for (Rule rule : rules) {
+            if (RuleTypeConstants.isPriorityRule(rule.getRuleSchemaTypeFullName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+```
+
+### 4. 更新了 PartCategoryConstraintExecutorImpl.java 中的判断逻辑
+```84:88:src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java
+            // 检查是否有优先级规则，如果有则使用分级求解
+            if (filteredCategory.hasPriorityRule()) {
+                return solveWithPriorityConstraints(alg, filteredCategory, isAttachRelax, confictedRelaxs,
+                        partCatagoryReq, module);
+            }
+```
+
+已将判断从 `!alg.getPriorityRuleMap().isEmpty()` 改为 `filteredCategory.hasPriorityRule()`，逻辑更清晰，直接基于模块/分类的规则判断，而不是依赖算法对象的内部状态。代码编译通过，只有一些代码风格警告，不影响功能。
+
+---
+
+_**User (2026-01-09 14:37Z)**_
+
+IModule增加  queryPriorityRules()-->List<Rule>
+
+---
+
+_**Agent (model default, mode Agent)**_
+
+
+
+---
+
+
+在 IModule 接口中添加 `queryPriorityRules()` 方法，并在 Module 和 PartCategory 中实现：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/imodel/IModule.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/imodel/Module.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/imodel/PartCategory.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+在 IModule 接口中添加 `queryPriorityRules()` 方法，并在 Module 和 PartCategory 中实现：
+
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/imodel/IModule.java</summary>
+
+**Chunk 1**
+Lines added: 7, lines removed: undefined
+
+```diff
+@@ -62,4 +62,11 @@
+      boolean hasPriorityRule();
+  
++     /**
++      * 查询所有优先级规则
++      * 
++      * @return 优先级规则列表
++      */
++     List&lt;Rule&gt; queryPriorityRules();
++ 
+  }
+  
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/imodel/Module.java</summary>
+
+**Chunk 1**
+Lines added: 15, lines removed: undefined
+
+```diff
+@@ -402,3 +402,18 @@
+          return false;
+      }
++ 
++     @Override
++     @JsonIgnore
++     public List&lt;Rule&gt; queryPriorityRules() {
++         List&lt;Rule&gt; priorityRules = new ArrayList&lt;&gt;();
++         if (rules == null || rules.isEmpty()) {
++             return priorityRules;
++         }
++         for (Rule rule : rules) {
++             if (RuleTypeConstants.isPriorityRule(rule.getRuleSchemaTypeFullName())) {
++                 priorityRules.add(rule);
++             }
++         }
++         return priorityRules;
++     }
+  }
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/imodel/PartCategory.java</summary>
+
+**Chunk 1**
+Lines added: 15, lines removed: undefined
+
+```diff
+@@ -647,4 +647,19 @@
+          return false;
+      }
++ 
++     @Override
++     @JsonIgnore
++     public List&lt;Rule&gt; queryPriorityRules() {
++         List&lt;Rule&gt; priorityRules = new ArrayList&lt;&gt;();
++         if (rules == null || rules.isEmpty()) {
++             return priorityRules;
++         }
++         for (Rule rule : rules) {
++             if (RuleTypeConstants.isPriorityRule(rule.getRuleSchemaTypeFullName())) {
++                 priorityRules.add(rule);
++             }
++         }
++         return priorityRules;
++     }
+  }
+  
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="generic" data-tool-name="read_lints">
+<details>
+          <summary>Tool use: **read_lints** • Read lints for 3 files</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/executor/imodel/IModule.java`
+- `src/main/java/com/jmix/executor/imodel/Module.java`
+- `src/main/java/com/jmix/executor/imodel/PartCategory.java`
+
+Lint results
+
+Lint errors for `src/main/java/com/jmix/executor/imodel/PartCategory.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| TODO 后续参数值可能会有变化 | 85:58-85:74 | DIAGNOSTIC_SEVERITY_INFORMATION |
+| ';' 后应有空格。 | 85:54-86:1 | DIAGNOSTIC_SEVERITY_WARNING |
+
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+验证修改是否正确：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/imodel/IModule.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/imodel/Module.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/imodel/PartCategory.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+所有修改已完成。总结如下：
+
+## 完成的修改
+
+### 1. 在 IModule 接口中添加了 `queryPriorityRules()` 方法
+```64:69:src/main/java/com/jmix/executor/imodel/IModule.java
+    /**
+     * 查询所有优先级规则
+     * 
+     * @return 优先级规则列表
+     */
+    List<Rule> queryPriorityRules();
+```
+
+### 2. 在 Module 类中实现了 `queryPriorityRules()` 方法
+```405:417:src/main/java/com/jmix/executor/imodel/Module.java
+    @Override
+    @JsonIgnore
+    public List<Rule> queryPriorityRules() {
+        List<Rule> priorityRules = new ArrayList<>();
+        if (rules == null || rules.isEmpty()) {
+            return priorityRules;
+        }
+        for (Rule rule : rules) {
+            if (RuleTypeConstants.isPriorityRule(rule.getRuleSchemaTypeFullName())) {
+                priorityRules.add(rule);
+            }
+        }
+        return priorityRules;
+    }
+```
+
+### 3. 在 PartCategory 类中实现了 `queryPriorityRules()` 方法
+```650:662:src/main/java/com/jmix/executor/imodel/PartCategory.java
+    @Override
+    @JsonIgnore
+    public List<Rule> queryPriorityRules() {
+        List<Rule> priorityRules = new ArrayList<>();
+        if (rules == null || rules.isEmpty()) {
+            return priorityRules;
+        }
+        for (Rule rule : rules) {
+            if (RuleTypeConstants.isPriorityRule(rule.getRuleSchemaTypeFullName())) {
+                priorityRules.add(rule);
+            }
+        }
+        return priorityRules;
+    }
+```
+
+`queryPriorityRules()` 方法已添加到 IModule 接口，并在 Module 和 PartCategory 中实现。该方法遍历所有规则，筛选出优先级规则并返回列表。代码编译通过，只有一个代码风格警告，不影响功能。
 
 ---
 
