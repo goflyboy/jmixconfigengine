@@ -31,6 +31,11 @@ public final class RuleTypeConstants {
      */
     public static final String SELECT_RULE = "SelectRule";
 
+    /**
+     * 优先级规则类型
+     */
+    public static final String PRIORITY_RULE = "PriorityRule";
+
     // ==================== 规则Schema类型全名 ====================
 
     /**
@@ -47,6 +52,11 @@ public final class RuleTypeConstants {
      * 选择规则类型全名
      */
     public static final String SELECT_RULE_FULL_NAME = "CDSL.V5.Struct.SelectRule";
+
+    /**
+     * 优先级规则类型全名
+     */
+    public static final String PRIORITY_RULE_FULL_NAME = "CDSL.V5.Struct.PriorityRule";
 
     // ==================== 操作符类型 ====================
 
@@ -113,6 +123,17 @@ public final class RuleTypeConstants {
     }
 
     /**
+     * 判断是否为优先级规则
+     * 
+     * @param ruleSchemaTypeFullName 规则Schema类型全名
+     * @return 是否为优先级规则
+     */
+    public static boolean isPriorityRule(String ruleSchemaTypeFullName) {
+        return ruleSchemaTypeFullName != null
+                && ruleSchemaTypeFullName.contains(PRIORITY_RULE);
+    }
+
+    /**
      * 获取规则类型名称（从全名中提取）
      * 
      * @param ruleSchemaTypeFullName 规则Schema类型全名
@@ -129,6 +150,8 @@ public final class RuleTypeConstants {
             return Optional.of(CALCULATE_RULE);
         } else if (isSelectRule(ruleSchemaTypeFullName)) {
             return Optional.of(SELECT_RULE);
+        } else if (isPriorityRule(ruleSchemaTypeFullName)) {
+            return Optional.of(PRIORITY_RULE);
         } else {
             throw new IllegalArgumentException("Invalid rule schema type full name: " + ruleSchemaTypeFullName);
         }

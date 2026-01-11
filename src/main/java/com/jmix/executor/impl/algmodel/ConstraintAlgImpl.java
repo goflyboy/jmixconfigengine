@@ -8,8 +8,9 @@ import com.jmix.executor.imodel.PartCategory;
 import com.jmix.executor.imodel.PriorityConstraint;
 import com.jmix.executor.imodel.PriorityType;
 import com.jmix.executor.imodel.Rule;
-import com.jmix.executor.imodel.anno.PriorityRuleAnno;
+import com.jmix.executor.imodel.rule.PriorityRuleSchema;
 import com.jmix.executor.imodel.rule.RefProgObjSchema;
+import com.jmix.executor.imodel.rule.RuleTypeConstants;
 import com.jmix.executor.omodel.AlgLoaderException;
 import com.jmix.executor.omodel.PartConstantAttr;
 
@@ -255,10 +256,9 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
                 ruleMethods.put(ruleCode, method);
                 log.info("Built rule method mapping: {} -> {}", ruleCode, method.getName());
 
-                // 检查是否有PriorityRuleAnno注解，如果有则构建优先级约束
-                PriorityRuleAnno priorityRuleAnno = method.getAnnotation(PriorityRuleAnno.class);
-                if (priorityRuleAnno != null) {
-                    buildPriorityConstraint(rule, priorityRuleAnno);
+                // 检查rule.ruleSchemaTypeFullName是否为PriorityRule，如果是则构建优先级约束
+                if (RuleTypeConstants.isPriorityRule(rule.getRuleSchemaTypeFullName())) {
+                    buildPriorityConstraint(rule);
                 }
             } else {
                 log.error("Rule method not found for rule code: {}", ruleCode);
@@ -272,24 +272,29 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     /**
      * 构建优先级约束
      * 
-     * @param rule             规则对象
-     * @param priorityRuleAnno 优先级规则注解
+     * @param rule 规则对象
      */
-    private void buildPriorityConstraint(Rule rule, PriorityRuleAnno priorityRuleAnno) {
-        String attrCode = priorityRuleAnno.attrCode();
+    private void buildPriorityConstraint(Rule rule) {
+        if (rule.getRawCode() == null || !(rule.getRawCode() instanceof PriorityRuleSchema)) {
+            log.warn("Rule rawCode is not PriorityRuleSchema for rule: {}", rule.getCode());
+            return;
+        }
+
+        PriorityRuleSchema schema = (PriorityRuleSchema) rule.getRawCode();
+        String attrCode = schema.getAttrCode();
         if (attrCode == null || attrCode.isEmpty()) {
-            log.warn("PriorityRuleAnno attrCode is empty for rule: {}", rule.getCode());
+            log.warn("PriorityRuleSchema attrCode is empty for rule: {}", rule.getCode());
             return;
         }
 
         PriorityConstraint pConstraint = new PriorityConstraint();
         pConstraint.setRuleCode(rule.getCode());
-        pConstraint.setStrategy(priorityRuleAnno.strategy());
+        pConstraint.setStrategy(schema.getStrategy());
         pConstraint.setAttrCode(attrCode);
-        pConstraint.setType(priorityRuleAnno.type());
+        pConstraint.setType(schema.getType());
 
         // 根据类型构建表达式
-        PriorityType type = priorityRuleAnno.type();
+        PriorityType type = schema.getType();
         if (type == PriorityType.SELECT) {
             // 选择性，使用 sum4Selected
             pConstraint.setExpr(sum4Selected(attrCode));
@@ -304,7 +309,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         // 存储到 priorityRuleMap，使用 attrCode 作为 key
         priorityRuleMap.put(attrCode, pConstraint);
         log.info("Built priority constraint for attrCode: {}, ruleCode: {}, strategy: {}, type: {}",
-                attrCode, rule.getCode(), priorityRuleAnno.strategy(), type);
+                attrCode, rule.getCode(), schema.getStrategy(), type);
     }
 
     /**

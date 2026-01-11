@@ -26,10 +26,13 @@ import com.jmix.executor.imodel.anno.DAttrInherit;
 import com.jmix.executor.imodel.anno.ModuleAnno;
 import com.jmix.executor.imodel.anno.ParaAnno;
 import com.jmix.executor.imodel.anno.PartAnno;
+import com.jmix.executor.imodel.anno.PriorityRuleAnno;
 import com.jmix.executor.imodel.rule.CodeRuleSchema;
 import com.jmix.executor.imodel.rule.CompatiableRuleSchema;
 import com.jmix.executor.imodel.rule.ExprSchema;
+import com.jmix.executor.imodel.rule.PriorityRuleSchema;
 import com.jmix.executor.imodel.rule.RefProgObjSchema;
+import com.jmix.executor.imodel.rule.RuleTypeConstants;
 import com.jmix.executor.impl.algmodel.ConstraintAlg;
 import com.jmix.executor.impl.algmodel.ParaVar;
 import com.jmix.executor.impl.algmodel.PartCategoryVar;
@@ -257,6 +260,16 @@ public final class ModuleGenneratorByAnno {
                 }
             }
 
+            // 检查是否有PriorityRuleAnno注解
+            PriorityRuleAnno priorityRuleAnno = method.getAnnotation(PriorityRuleAnno.class);
+            if (priorityRuleAnno != null) {
+                Rule rule = createPriorityRule(method, priorityRuleAnno, module);
+                if (rule != null) {
+                    // PriorityRuleAnno 没有 fatherCode，默认添加到 Module
+                    moduleRules.add(rule);
+                }
+            }
+
             // 检查是否有CodeRuleAnno注解
             CodeRuleAnno codeRuleAnno = method.getAnnotation(CodeRuleAnno.class);
             if (codeRuleAnno != null) {
@@ -335,6 +348,43 @@ public final class ModuleGenneratorByAnno {
             rightExpr.setRefProgObjs(generateRefProgObjSchemas(anno.rightExprCode(), module));
             schema.setRightExpr(rightExpr);
         }
+
+        rule.setRawCode(schema);
+        return rule;
+    }
+
+    /**
+     * 创建优先级规则
+     * 
+     * @param method 方法对象
+     * @param anno   优先级规则注解
+     * @param module 模块对象
+     * @return 创建的优先级规则
+     */
+    private static Rule createPriorityRule(java.lang.reflect.Method method, PriorityRuleAnno anno, Module module) {
+        Rule rule = new Rule();
+
+        // 设置基本信息
+        String methodName = method.getName();
+        String ruleCode = anno.code().isEmpty() ? methodName : anno.code();
+        rule.setCode(ruleCode);
+        rule.setName(ruleCode);
+        rule.setProgObjType("Module");
+        rule.setProgObjCode(module.getCode());
+        rule.setProgObjField("constraints");
+        rule.setNormalNaturalCode(anno.normalNaturalCode());
+        rule.setRuleSchemaTypeFullName(RuleTypeConstants.PRIORITY_RULE_FULL_NAME);
+
+        // 创建PriorityRuleSchema
+        PriorityRuleSchema schema = new PriorityRuleSchema();
+        // 注意：由于 PriorityRuleSchema 的 type 字段（PriorityType）与基类 RuleSchema 的 type
+        // 字段（String）冲突
+        // 这里设置的是 PriorityRuleSchema 的 type（优先级类型），基类的 type 会被覆盖
+        // 但通过 ruleSchemaTypeFullName 可以识别规则类型
+        schema.setType(anno.type());
+        schema.setVersion("1.0");
+        schema.setAttrCode(anno.attrCode());
+        schema.setStrategy(anno.strategy());
 
         rule.setRawCode(schema);
         return rule;

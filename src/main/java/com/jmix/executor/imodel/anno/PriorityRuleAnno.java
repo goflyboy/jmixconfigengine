@@ -27,6 +27,11 @@ public @interface PriorityRuleAnno {
     String normalNaturalCode() default "";
 
     /**
+     * 原始代码
+     */
+    String rawCode() default "";
+
+    /**
      * 父部件编码，如果为null或空字符串，则规则添加到Module中；否则添加到对应的PartCategory中
      */
     String fatherCode() default "";

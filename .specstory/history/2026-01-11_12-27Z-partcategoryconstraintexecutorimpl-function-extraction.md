@@ -2425,3 +2425,108 @@ Lint errors for `src/main/java/com/jmix/executor/impl/PartCategoryConstraintExec
 
 ---
 
+_**User (2026-01-09 14:37Z)**_
+
+PriorityRuleAnno增加String rawCode
+
+---
+
+_**Agent (model default, mode Agent)**_
+
+
+
+---
+
+
+在 `PriorityRuleAnno` 注解中添加 `rawCode` 字段。
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/imodel/anno/PriorityRuleAnno.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+在 `PriorityRuleAnno` 注解中添加 `rawCode` 字段：
+
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/imodel/anno/PriorityRuleAnno.java</summary>
+
+**Chunk 1**
+Lines added: 5, lines removed: undefined
+
+```diff
+@@ -26,4 +26,9 @@
+       */
+      String normalNaturalCode() default "";
++ 
++     /**
++      * 原始代码
++      */
++     String rawCode() default "";
+  
+      /**
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="generic" data-tool-name="read_lints">
+<details>
+          <summary>Tool use: **read_lints** • Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/executor/imodel/anno/PriorityRuleAnno.java`
+
+Lint results
+
+
+**No lint errors found**
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+已在 `PriorityRuleAnno` 注解中添加 `rawCode` 字段。检查测试文件是否需要更新：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/test/java/com/jmix/scenario/partcategory/ComputerOptiSolutionTest.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+
+---
+

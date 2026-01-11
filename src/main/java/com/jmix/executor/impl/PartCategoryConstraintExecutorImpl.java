@@ -77,6 +77,9 @@ public class PartCategoryConstraintExecutorImpl {
                     filteredCategory = filteredCategory.query(partConstraintReq);
                 }
             }
+            // 创建CP模型
+            CpModel model = new CpModel();
+            alg.initModel(model, filteredCategory, isAttachRelax, confictedRelaxs);
 
             // 检查是否有优先级规则，如果有则使用分级求解
             if (!alg.getPriorityRuleMap().isEmpty()) {
@@ -84,7 +87,7 @@ public class PartCategoryConstraintExecutorImpl {
                         partCatagoryReq, module);
             }
 
-            return solveConstraintModel(alg, filteredCategory, isAttachRelax, confictedRelaxs, partCatagoryReq, module);
+            return solveConstraintModel(alg, filteredCategory, partCatagoryReq, module);
 
         } catch (Exception e) {
             log.error("Failed to process part category constraint", e);
@@ -104,12 +107,8 @@ public class PartCategoryConstraintExecutorImpl {
      * @return 求解结果
      */
     private Result<List<ModuleInst>> solveConstraintModel(ConstraintAlgImpl alg, PartCategory filteredCategory,
-            boolean isAttachRelax, List<RelaxVar> confictedRelaxs, InferPartCategoryReq partCatagoryReq,
+            InferPartCategoryReq partCatagoryReq,
             Module module) {
-        // 创建CP模型
-        CpModel model = new CpModel();
-        alg.initModel(model, filteredCategory, isAttachRelax, confictedRelaxs);
-
         // 根据请求初始化约束模型
         initModelByReq(filteredCategory, partCatagoryReq, alg);
 
@@ -118,7 +117,8 @@ public class PartCategoryConstraintExecutorImpl {
 
         if (config.isLogModelProto()) {
             // 将module的CpModelProto信息输出到文件config.logFilePath/module.proto.txt
-            model.exportToFile(config.getLogFilePath() + File.separator + module.getCode() + ".proto.txt");
+            alg.getModel().getCpModel()
+                    .exportToFile(config.getLogFilePath() + File.separator + module.getCode() + ".proto.txt");
         }
 
         CpSolver solver = new CpSolver();
@@ -128,7 +128,7 @@ public class PartCategoryConstraintExecutorImpl {
         // 可按需设置更多参数
         ModuleInstSolutionCallBack cb = new ModuleInstSolutionCallBack(module, alg.getVars(),
                 alg.getOtherVarMap());
-        CpSolverStatus status = solver.solve(model, cb);
+        CpSolverStatus status = solver.solve(alg.getModel().getCpModel(), cb);
 
         // 如果模型无效，调用ValidateCpModel获取详细错误信息
         if (status == CpSolverStatus.MODEL_INVALID) {

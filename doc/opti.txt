@@ -1,0 +1,160 @@
+
+您需要的是在满足优先级顺序的前提下，找出多个可行解，并按优先级顺序排序。这是多目标优化 或分级求解问题。以下是几种实现方法：
+
+方案1：分级求解法（最符合需求）
+
+public class MultiSolutionFinder {
+    private CpModel model;
+    private CpSolver solver;
+    private List<Part> allParts;
+    private Map<String, IntVar> partVars;
+    
+    // 存储找到的所有解
+    private List<Solution> solutions = new ArrayList<>();
+    
+    public List<Solution> findPrioritizedSolutions(int maxSolutions) {
+        // 步骤1：先优化最高优先级目标（容量权重）
+        System.out.println("步骤1: 优化最高优先级目标（容量权重）");
+        Solution bestCapacitySolution = optimizeCapacityWeight();
+        solutions.add(bestCapacitySolution);
+        
+        // 步骤2：在保持高优先级目标接近最优的前提下，寻找多个解
+        System.out.println("\n步骤2: 寻找多个满足容量优先级的解");
+        addCapacityConstraint(bestCapacitySolution.capacityScore);
+        findMultipleSolutions(maxSolutions);
+        
+        // 步骤3：对解按优先级排序
+        System.out.println("\n步骤3: 按优先级顺序排序解");
+        sortSolutionsByPriority();
+        
+        return solutions;
+    }
+    
+    private Solution optimizeCapacityWeight() {
+        // 优化容量权重（最高优先级）
+        LinearExprBuilder capacityObj = LinearExpr.newBuilder();
+        
+        for (Part part : allParts) {
+            for (PartInstanceGroup group : part.instanceGroups) {
+                String key = getGroupKey(part, group);
+                int priorityValue = group.capacityWeight * parseCapacityTB(group.capacity);
+                capacityObj.addTerm(groupVars.get(key), priorityValue);
+            }
+        }
+        
+        model.maximize(capacityObj.build());
+        
+        CpSolver solver = new CpSolver();
+        CpSolverStatus status = solver.solve(model);
+        
+        if (status == CpSolverStatus.OPTIMAL || status == CpSolverStatus.FEASIBLE) {
+            Solution solution = extractSolution(solver);
+            solution.capacityScore = solver.objectiveValue();
+            return solution;
+        }
+        return null;
+    }
+    
+    private void addCapacityConstraint(long bestCapacityScore) {
+        // 添加约束：容量权重不能低于最优值的某个阈值
+        double threshold = 0.9; // 允许10%的偏差
+        long minCapacity = (long)(bestCapacityScore * threshold);
+        
+        LinearExprBuilder capacityExpr = LinearExpr.newBuilder();
+        for (Part part : allParts) {
+            for (PartInstanceGroup group : part.instanceGroups) {
+                String key = getGroupKey(part, group);
+                int priorityValue = group.capacityWeight * parseCapacityTB(group.capacity);
+                capacityExpr.addTerm(groupVars.get(key), priorityValue);
+            }
+        }
+        
+        model.addGreaterOrEqual(capacityExpr.build(), minCapacity);
+    }
+    
+    private void findMultipleSolutions(int maxSolutions) {
+        // 使用解决方案池寻找多个解
+        CpSolverParameters params = CpSolverParameters.newBuilder()
+                .setMaxTimeInSeconds(30)
+                .setFillAdditionalSolutionsInResponse(true) // 启用多解收集
+                .setNumSearchWorkers(8)
+                .build();
+        
+        // 创建解决方案收集器
+        List<CpSolverSolution> allSolutions = new ArrayList<>();
+        
+        // 设置搜索所有解的回调
+        CpSolverSolutionCallback callback = new CpSolverSolutionCallback() {
+            private int solutionCount = 0;
+            
+            @Override
+            public void onSolutionCallback() {
+                if (solutionCount >= maxSolutions) {
+                    stopSearch();
+                    return;
+                }
+                
+                // 提取解
+                CpSolverSolution solution = new CpSolverSolution();
+                solution.objectiveValue = objectiveValue();
+                solution.variableValues = new HashMap<>();
+                
+                // 记录所有变量值
+                for (Map.Entry<String, IntVar> entry : partVars.entrySet()) {
+                    long value = value(entry.getValue());
+                    solution.variableValues.put(entry.getKey(), value);
+                }
+                
+                allSolutions.add(solution);
+                solutionCount++;
+                
+                System.out.println("找到第 " + solutionCount + " 个解，目标值: " + objectiveValue());
+            }
+        };
+        
+        // 求解（寻找多个解）
+        CpSolverStatus status = solver.solveWithSolutionCallback(model, callback, params);
+        
+        // 转换为我们需要的Solution格式
+        for (CpSolverSolution cpSolution : allSolutions) {
+            Solution solution = convertToSolution(cpSolution);
+            solutions.add(solution);
+        }
+    }
+    
+    private void sortSolutionsByPriority() {
+        // 按多个优先级排序：容量权重 > 利润 > 货期 > 价格
+        solutions.sort((s1, s2) -> {
+            // 第一优先级：容量权重（降序，越高越好）
+            int cmp = Long.compare(s2.capacityScore, s1.capacityScore);
+            if (cmp != 0) return cmp;
+            
+            // 第二优先级：利润（降序）
+            cmp = Long.compare(s2.profit, s1.profit);
+            if (cmp != 0) return cmp;
+            
+            // 第三优先级：货期（升序，越小越好）
+            cmp = Long.compare(s1.deliveryTime, s2.deliveryTime);
+            if (cmp != 0) return cmp;
+            
+            // 第四优先级：价格（升序）
+            return Long.compare(s1.price, s2.price);
+        });
+        
+        // 打印排序结果
+        System.out.println("\n=== 按优先级排序的解 ===");
+        for (int i = 0; i < solutions.size(); i++) {
+            Solution s = solutions.get(i);
+            System.out.printf("解%d: 容量分=%.1f, 利润=%d, 货期=%d天, 价格=%d\n",
+                i + 1, s.capacityScore, s.profit, s.deliveryTime, s.price);
+        }
+    }
+    
+    static class Solution {
+        long capacityScore;  // 容量权重得分
+        long profit;         // 利润
+        long deliveryTime;   // 货期
+        long price;          // 价格
+        Map<String, Long> partSelections; // 部件选择
+    }
+}
