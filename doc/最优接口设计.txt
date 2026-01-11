@@ -883,6 +883,132 @@ createRulesFromMethods 逻辑改成，根据fatherCode添加到对应rules中，
 
 
 
+设计11：
+
+    /**
+     * 部件分类代码
+     */
+    private String partCatagoryCode;
+
+
+
+1、在com.jmix.executor.omodel增加下列类
+
+@Data
+public class InferPartCategoryReq { 
+     
+    /**
+     * 前置参数实例列表
+     */
+    private List<ParaInst> preParaInsts;
+
+    /**
+     * 前置部件实例列表
+     */
+    private List<PartInst> prePartInsts;
+
+    /**
+     * 部件约束请求列表
+     */
+    private List<PartConstraintReq> partConstraintReqs;
+
+    /**
+     * 是否枚举所有解, false，仅返回一个可行解，true，则返回所有的可选解
+     */
+    private boolean enumerateAllSolution = false;
+
+    /**
+     * 部件分类代码
+     */
+    private String partCatagoryCode;
+}
+
+
+2、ModuleConstraintExecutorImpl做下列改变
+2.1 
+修改前：
+Result<List<ModuleInst>> inferParas(InferParasReq req) {
+
+修改后：
+
+Result<List<ModuleInst>> inferParas(InferParasReq req) {
+
+   
+2.2 增加函数 toInferPartCategoryReq(InferParasReq req) -->InferPartCategoryReq  {...}
+2.3 
+
+
+
+新建一个类
+class PartCategoryConstraintExecutorImpl {
+
+void processPartCategory(InferPartCategoryReq partCatagoryReq, Module module) {
+	ConstraintAlgImpl alg = createConstraintAlg(module.id,module.code);
+	module.
+
+}
+
+
+
+
+ ConstraintAlgImpl createConstraintAlg(long moduleId, String moduleCode) throws AlgLoaderException {
+    private ConstraintAlgImpl initConstraintModel(Module module, InferPartCategoryReq req,
+            boolean isAttachRelax, List<RelaxVar> confictedRelaxs)
+            throws AlgLoaderException, AlgExecutorException {
+        // 加载算法类
+        ModuleAlgClassLoader loader = getModuleClassLoader(module.getId());
+        if (loader == null) {
+            log.error("ModuleAlgClassLoader not found for module: {}", module.getId());
+            throw new AlgLoaderException("ModuleAlgClassLoader not found for module: " + module.getId());
+        }
+
+        // 初始化约束模型
+        ConstraintAlgImpl alg = loader.newConstraintAlg(module.getCode());
+        CpModel model = new CpModel();
+
+        // 根据loadType决定是否使用差量加载模型
+        if (config.getLoadType() == ConstraintConfig.LOAD_TYPE_INCREMENTAL) {
+            // 差量加载模型
+            List<String> inputProgObjs = buildInputProgObjs(req);
+
+            // 查询子图
+            Pair<List<String>, List<RefProgObjSchema>> relativePair = module
+                    .querySubGraph(inputProgObjs.toArray(new String[0]));
+
+            // 打印relativePair.first,relativePair.second, 本次推理涉及到exeRules和exeProgObjs
+            log.info("Incremental loading - involved rules: {}", relativePair.getFirst());
+            log.info("Incremental loading - involved progObjs: {}",
+                    relativePair.getSecond().stream().map(RefProgObjSchema::getProgObjCode)
+                            .collect(java.util.stream.Collectors.toList()));
+
+            // 调用新的initModel方法
+            alg.initModel(model, module, relativePair.getFirst(), relativePair.getSecond(), isAttachRelax,
+                    confictedRelaxs);
+        } else {
+            // 全量加载模型
+            alg.initModel(model, module, isAttachRelax, confictedRelaxs);
+        }
+
+        // 根据请求初始化约束模型
+        initModelByReq(req, alg);
+
+        // 添加松弛目标函数, 方便调试
+        alg.addRelaxObjectFunction();
+        return alg;
+    }
+
+
+
+
+
+}
+
+   
+
+
+TODO: 类有点乱zhaozhao
+
+2.2 
 
 
 TODO:后续要改成  Module改成ModuleImpl

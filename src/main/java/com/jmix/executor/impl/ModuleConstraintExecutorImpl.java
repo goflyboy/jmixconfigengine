@@ -336,18 +336,31 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
         return new RunInferParasRsp(status, cb, alg.getModel(), solver);
     }
 
-    private ConstraintAlgImpl initConstraintModel(Module module, InferParasReq req,
-            boolean isAttachRelax, List<RelaxVar> confictedRelaxs)
-            throws AlgLoaderException, AlgExecutorException {
+    /**
+     * 创建约束算法实例
+     * 
+     * @param moduleId   模块ID
+     * @param moduleCode 模块代码
+     * @return 约束算法实例
+     * @throws AlgLoaderException 如果模块类加载器未找到或创建失败
+     */
+    private ConstraintAlgImpl createConstraintAlg(long moduleId, String moduleCode) throws AlgLoaderException {
         // 加载算法类
-        ModuleAlgClassLoader loader = getModuleClassLoader(module.getId());
+        ModuleAlgClassLoader loader = getModuleClassLoader(moduleId);
         if (loader == null) {
-            log.error("ModuleAlgClassLoader not found for module: {}", module.getId());
-            throw new AlgLoaderException("ModuleAlgClassLoader not found for module: " + module.getId());
+            log.error("ModuleAlgClassLoader not found for module: {}", moduleId);
+            throw new AlgLoaderException("ModuleAlgClassLoader not found for module: " + moduleId);
         }
 
         // 初始化约束模型
-        ConstraintAlgImpl alg = loader.newConstraintAlg(module.getCode());
+        return loader.newConstraintAlg(moduleCode);
+    }
+
+    private ConstraintAlgImpl initConstraintModel(Module module, InferParasReq req,
+            boolean isAttachRelax, List<RelaxVar> confictedRelaxs)
+            throws AlgLoaderException, AlgExecutorException {
+        // 创建约束算法实例
+        ConstraintAlgImpl alg = createConstraintAlg(module.getId(), module.getCode());
         CpModel model = new CpModel();
 
         // 根据loadType决定是否使用差量加载模型
@@ -444,7 +457,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
             List<PartConstraintReq> partConstraintReqs) {
         for (PartConstraintReq partConstraintReq : partConstraintReqs) {
             // 从module中找到对应的PartCategory
-            PartCategory partCategory = findPartCategory(alg.getModule(), partCatagoryCode);
+            PartCategory partCategory = findPartCategory((Module) alg.getModule(), partCatagoryCode);
             if (partCategory == null) {
                 log.error("PartCategory not found: {}", partCatagoryCode);
                 continue;
