@@ -68,6 +68,12 @@ public class Rule extends Extensible {
     private String ruleSchemaTypeFullName;
 
     /**
+     * 父部件编码
+     * 如果为空字符串，则规则添加到 Module 中；否则添加到对应的 PartCategory 中
+     */
+    private String fatherCode = "";
+
+    /**
      * 获取规则左侧引用的编程对象列表
      * 
      * @return 左侧引用的编程对象列表

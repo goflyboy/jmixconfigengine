@@ -265,8 +265,7 @@ public final class ModuleGenneratorByAnno {
             if (priorityRuleAnno != null) {
                 Rule rule = createPriorityRule(method, priorityRuleAnno, module);
                 if (rule != null) {
-                    // PriorityRuleAnno 没有 fatherCode，默认添加到 Module
-                    moduleRules.add(rule);
+                    addRuleToModuleOrPartCategory(rule, module, moduleRules);
                 }
             }
 
@@ -275,33 +274,44 @@ public final class ModuleGenneratorByAnno {
             if (codeRuleAnno != null) {
                 Rule rule = createCodeRule(method, codeRuleAnno, module);
                 if (rule != null) {
-                    // 根据 fatherCode 决定添加到 Module 还是 PartCategory
-                    String fatherCode = codeRuleAnno.fatherCode();
-                    if (Strings.isNullOrEmpty(fatherCode)) {
-                        // fatherCode 为 null 或空字符串，添加到 Module
-                        moduleRules.add(rule);
-                    } else {
-                        // fatherCode 不为空，添加到对应的 PartCategory
-                        Optional<Part> partOpt = module.getPart(fatherCode);
-                        if (partOpt.isPresent() && partOpt.get() instanceof PartCategory) {
-                            PartCategory partCategory = (PartCategory) partOpt.get();
-                            if (partCategory.getRules() == null) {
-                                partCategory.setRules(new ArrayList<>());
-                            }
-                            partCategory.getRules().add(rule);
-                            log.info("Rule '{}' added to PartCategory '{}'", rule.getCode(), fatherCode);
-                        } else {
-                            log.error("PartCategory '{}' not found for rule '{}', adding to Module instead",
-                                    fatherCode, rule.getCode());
-                            throw new AlgLoaderException("PartCategory '" + fatherCode + "' not found for rule '"
-                                    + rule.getCode() + "', adding to Module instead");
-                        }
-                    }
+                    addRuleToModuleOrPartCategory(rule, module, moduleRules);
                 }
             }
         }
 
         return moduleRules;
+    }
+
+    /**
+     * 将规则添加到 Module 或 PartCategory
+     * 根据规则的 fatherCode 字段决定添加到哪个位置
+     * 
+     * @param rule        规则对象
+     * @param module      模块对象
+     * @param moduleRules Module 的规则列表
+     */
+    private static void addRuleToModuleOrPartCategory(Rule rule, Module module, List<Rule> moduleRules) {
+        String fatherCode = rule.getFatherCode();
+        if (Strings.isNullOrEmpty(fatherCode)) {
+            // fatherCode 为 null 或空字符串，添加到 Module
+            moduleRules.add(rule);
+        } else {
+            // fatherCode 不为空，添加到对应的 PartCategory
+            Optional<Part> partOpt = module.getPart(fatherCode);
+            if (partOpt.isPresent() && partOpt.get() instanceof PartCategory) {
+                PartCategory partCategory = (PartCategory) partOpt.get();
+                if (partCategory.getRules() == null) {
+                    partCategory.setRules(new ArrayList<>());
+                }
+                partCategory.getRules().add(rule);
+                log.info("Rule '{}' added to PartCategory '{}'", rule.getCode(), fatherCode);
+            } else {
+                log.error("PartCategory '{}' not found for rule '{}', adding to Module instead",
+                        fatherCode, rule.getCode());
+                throw new AlgLoaderException("PartCategory '" + fatherCode + "' not found for rule '"
+                        + rule.getCode() + "', adding to Module instead");
+            }
+        }
     }
 
     /**
@@ -374,6 +384,7 @@ public final class ModuleGenneratorByAnno {
         rule.setProgObjField("constraints");
         rule.setNormalNaturalCode(anno.normalNaturalCode());
         rule.setRuleSchemaTypeFullName(RuleTypeConstants.PRIORITY_RULE_FULL_NAME);
+        rule.setFatherCode(anno.fatherCode());
 
         // 创建PriorityRuleSchema
         PriorityRuleSchema schema = new PriorityRuleSchema();
@@ -406,6 +417,7 @@ public final class ModuleGenneratorByAnno {
         rule.setProgObjField("constraints");
         rule.setNormalNaturalCode(anno.normalNaturalCode());
         rule.setRuleSchemaTypeFullName("CDSL.V5.Struct.CodeRule");
+        rule.setFatherCode(anno.fatherCode());
 
         // 创建CodeRuleSchema
         CodeRuleSchema schema = new CodeRuleSchema();

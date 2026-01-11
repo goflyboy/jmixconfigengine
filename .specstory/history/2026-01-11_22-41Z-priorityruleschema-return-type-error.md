@@ -382,3 +382,703 @@ Lint errors for `src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java`
 
 ---
 
+_**User (2026-01-09 14:37Z)**_
+
+@src/main/java/com/jmix/executor/imodel/rule/PriorityRuleSchema.java:26-31  这个也改成priorityStrategy
+
+---
+
+_**Agent (model default, mode Agent)**_
+
+
+
+---
+
+
+检查 `strategy` 字段的使用情况，然后重命名为 `priorityStrategy`：
+
+
+---
+
+<tool-use data-tool-type="search" data-tool-name="grep">
+<details>
+<summary>Tool use: **grep** • Grep for "\.getStrategy\(\)|\.setStrategy\(" in "src" • 4 matches</summary>
+
+Output mode: content
+
+
+| File | Content | Line |
+|------|------|------|
+| `src\main\java\com\jmix\tool\impl\ModuleGenneratorByAnno.java` | `schema.setStrategy(anno.strategy());` | L383 |
+| `src\main\java\com\jmix\executor\impl\algmodel\ConstraintAlgImpl.java` | `pConstraint.setStrategy(schema.getStrategy());` | L292 |
+| `src\main\java\com\jmix\executor\impl\algmodel\ConstraintAlgImpl.java` | `attrCode, rule.getCode(), schema.getStrategy(), type);` | L312 |
+| `src\main\java\com\jmix\executor\impl\PartCategoryConstraintExecutorImpl.java` | `if (pConstraint.getStrategy() == PriorityStrategy.MAX) \{` | L197 |
+
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="search" data-tool-name="grep">
+<details>
+<summary>Tool use: **grep** • Grep for "schema\.getStrategy|schema\.setStrategy" in "src" • 3 matches</summary>
+
+Output mode: content
+
+
+| File | Content | Line |
+|------|------|------|
+| `src\main\java\com\jmix\tool\impl\ModuleGenneratorByAnno.java` | `schema.setStrategy(anno.strategy());` | L383 |
+| `src\main\java\com\jmix\executor\impl\algmodel\ConstraintAlgImpl.java` | `pConstraint.setStrategy(schema.getStrategy());` | L292 |
+| `src\main\java\com\jmix\executor\impl\algmodel\ConstraintAlgImpl.java` | `attrCode, rule.getCode(), schema.getStrategy(), type);` | L312 |
+
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+重命名 `strategy` 为 `priorityStrategy`，并更新所有引用：
+
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/imodel/rule/PriorityRuleSchema.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -28,5 +28,5 @@
+       * 优先级策略
+       */
+-     private PriorityStrategy strategy;
++     private PriorityStrategy priorityStrategy;
+  
+      /**
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/algmodel/ConstraintAlgImpl.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+更新所有使用 `strategy` 的地方：
+
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/impl/algmodel/ConstraintAlgImpl.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -290,5 +290,5 @@
+          PriorityConstraint pConstraint = new PriorityConstraint();
+          pConstraint.setRuleCode(rule.getCode());
+-         pConstraint.setStrategy(schema.getStrategy());
++         pConstraint.setStrategy(schema.getPriorityStrategy());
+          pConstraint.setAttrCode(attrCode);
+          pConstraint.setType(schema.getPriorityType());
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/impl/algmodel/ConstraintAlgImpl.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -310,5 +310,5 @@
+          priorityRuleMap.put(attrCode, pConstraint);
+          log.info("Built priority constraint for attrCode: {}, ruleCode: {}, strategy: {}, type: {}",
+-                 attrCode, rule.getCode(), schema.getStrategy(), type);
++                 attrCode, rule.getCode(), schema.getPriorityStrategy(), type);
+      }
+  
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -381,5 +381,5 @@
+          schema.setVersion("1.0");
+          schema.setAttrCode(anno.attrCode());
+-         schema.setStrategy(anno.strategy());
++         schema.setPriorityStrategy(anno.strategy());
+  
+          rule.setRawCode(schema);
+```
+
+</details>
+
+</tool-use>
+
+---
+
+
+
+---
+
+
+检查是否有编译错误：
+
+
+---
+
+<tool-use data-tool-type="generic" data-tool-name="read_lints">
+<details>
+          <summary>Tool use: **read_lints** • Read lints for 3 files</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/executor/imodel/rule/PriorityRuleSchema.java`
+- `src/main/java/com/jmix/executor/impl/algmodel/ConstraintAlgImpl.java`
+- `src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java`
+
+Lint results
+
+Lint errors for `src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| The method processInheritAnnotation(Field, PartCategory, Map<String,String>) from the type ModuleGenneratorByAnno is never used locally | 1037:40-1038:53 | DIAGNOSTIC_SEVERITY_WARNING |
+| '\|\|' 应另起一行。 | 584:94-585:1 | DIAGNOSTIC_SEVERITY_WARNING |
+| '\|\|' 应另起一行。 | 1074:82-1075:1 | DIAGNOSTIC_SEVERITY_WARNING |
+
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+验证修改后的文件：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/imodel/rule/PriorityRuleSchema.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+已将 `strategy` 字段重命名为 `priorityStrategy`，并更新了所有引用：
+
+1. **PriorityRuleSchema.java**：将 `strategy` 字段重命名为 `priorityStrategy`
+2. **ConstraintAlgImpl.java**：将 `schema.getStrategy()` 改为 `schema.getPriorityStrategy()`（两处）
+3. **ModuleGenneratorByAnno.java**：将 `schema.setStrategy()` 改为 `schema.setPriorityStrategy()`
+
+现在 `PriorityRuleSchema` 中的字段都使用了 `priority` 前缀：
+- `priorityType` - 优先级类型
+- `priorityStrategy` - 优先级策略
+
+命名更清晰，避免与父类字段冲突。编译通过，无错误。
+
+---
+
+_**User (2026-01-09 14:37Z)**_
+
+@src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java:277-301 1、 Rule也增加字段fatherCode,默认是"",简化这块的逻辑   2、选择的代码抽取一个独立函数  3、独立的函数也应用到PriorityRuleAnno
+
+---
+
+_**Agent (model default, mode Agent)**_
+
+
+
+---
+
+
+查看相关代码结构：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/imodel/Rule.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="search" data-tool-name="grep">
+<details>
+<summary>Tool use: **grep** • Grep for "PriorityRuleAnno|@PriorityRule" in "src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java" • 5 matches</summary>
+
+Output mode: content
+
+
+| File | Content | Line |
+|------|------|------|
+| `src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java` | `import com.jmix.executor.imodel.anno.PriorityRuleAnno;` | L29 |
+| `src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java` | `// 检查是否有PriorityRuleAnno注解` | L263 |
+| `src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java` | `PriorityRuleAnno priorityRuleAnno = method.getAnnotation(PriorityRuleAnno.class);` | L264 |
+| `src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java` | `// PriorityRuleAnno 没有 fatherCode，默认添加到 Module` | L268 |
+| `src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java` | `private static Rule createPriorityRule(java.lang.reflect.Method method, PriorityRuleAnno anno, Module module) \{` | L364 |
+
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+查看 PriorityRuleAnno 的定义和 createPriorityRule、createCodeRule 的实现：
+
+
+---
+
+<tool-use data-tool-type="search" data-tool-name="grep">
+<details>
+<summary>Tool use: **grep** • Grep for "interface PriorityRuleAnno|@interface PriorityRuleAnno" in "src" • 1 match</summary>
+
+Output mode: content
+
+
+| File | Content | Line |
+|------|------|------|
+| `src\main\java\com\jmix\executor\imodel\anno\PriorityRuleAnno.java` | `public @interface PriorityRuleAnno \{` | L18 |
+
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="search" data-tool-name="grep">
+<details>
+<summary>Tool use: **grep** • Grep for "interface CodeRuleAnno|@interface CodeRuleAnno" in "src" • 1 match</summary>
+
+Output mode: content
+
+
+| File | Content | Line |
+|------|------|------|
+| `src\main\java\com\jmix\executor\imodel\anno\CodeRuleAnno.java` | `public @interface CodeRuleAnno \{` | L15 |
+
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+查看 PriorityRuleAnno 和 CodeRuleAnno 的定义：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/imodel/anno/PriorityRuleAnno.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/imodel/anno/CodeRuleAnno.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+开始实现：
+1. 在 Rule 类中添加 fatherCode 字段
+2. 抽取独立函数处理规则添加逻辑
+3. 在 createCodeRule 和 createPriorityRule 中设置 fatherCode
+4. 更新调用处使用新函数
+
+
+---
+
+<tool-use data-tool-type="task" data-tool-name="todo_write">
+<details><summary>Tool use: **todo_write** • Todo List</summary>
+
+- [-] 在 Rule 类中添加 fatherCode 字段，默认值为空字符串
+- [ ] 抽取独立函数处理规则添加到 Module 或 PartCategory 的逻辑
+- [ ] 在 createCodeRule 和 createPriorityRule 中设置 fatherCode
+- [ ] 更新调用处使用新的函数
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/imodel/Rule.java</summary>
+
+**Chunk 1**
+Lines added: 6, lines removed: undefined
+
+```diff
+@@ -67,4 +67,10 @@
+       */
+      private String ruleSchemaTypeFullName;
++ 
++     /**
++      * 父部件编码
++      * 如果为空字符串，则规则添加到 Module 中；否则添加到对应的 PartCategory 中
++      */
++     private String fatherCode = "";
+  
+      /**
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+抽取独立函数，并更新相关代码：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="search" data-tool-name="grep">
+<details>
+<summary>Tool use: **grep** • Grep for "import.*Optional|import.*ArrayList|import.*List" in "src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java" • 3 matches</summary>
+
+Output mode: content
+
+
+| File | Content | Line |
+|------|------|------|
+| `src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java` | `import java.util.ArrayList;` | L52 |
+| `src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java` | `import java.util.List;` | L55 |
+| `src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java` | `import java.util.Optional;` | L57 |
+
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+实现：先抽取独立函数，再更新相关代码：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java</summary>
+
+**Chunk 1**
+Lines added: 32, lines removed: undefined
+
+```diff
+@@ -304,4 +304,36 @@
+          return moduleRules;
+      }
++ 
++     /**
++      * 将规则添加到 Module 或 PartCategory
++      * 根据规则的 fatherCode 字段决定添加到哪个位置
++      * 
++      * @param rule 规则对象
++      * @param module 模块对象
++      * @param moduleRules Module 的规则列表
++      */
++     private static void addRuleToModuleOrPartCategory(Rule rule, Module module, List&lt;Rule&gt; moduleRules) {
++         String fatherCode = rule.getFatherCode();
++         if (Strings.isNullOrEmpty(fatherCode)) {
++             // fatherCode 为 null 或空字符串，添加到 Module
++             moduleRules.add(rule);
++         } else {
++             // fatherCode 不为空，添加到对应的 PartCategory
++             Optional&lt;Part&gt; partOpt = module.getPart(fatherCode);
++             if (partOpt.isPresent() &amp;&amp; partOpt.get() instanceof PartCategory) {
++                 PartCategory partCategory = (PartCategory) partOpt.get();
++                 if (partCategory.getRules() == null) {
++                     partCategory.setRules(new ArrayList&lt;&gt;());
++                 }
++                 partCategory.getRules().add(rule);
++                 log.info("Rule '{}' added to PartCategory '{}'", rule.getCode(), fatherCode);
++             } else {
++                 log.error("PartCategory '{}' not found for rule '{}', adding to Module instead",
++                         fatherCode, rule.getCode());
++                 throw new AlgLoaderException("PartCategory '" + fatherCode + "' not found for rule '"
++                         + rule.getCode() + "', adding to Module instead");
++             }
++         }
++     }
+  
+      /**
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: 2
+
+```diff
+@@ -266,6 +266,5 @@
+                  Rule rule = createPriorityRule(method, priorityRuleAnno, module);
+                  if (rule != null) {
+-                     // PriorityRuleAnno 没有 fatherCode，默认添加到 Module
+-                     moduleRules.add(rule);
++                     addRuleToModuleOrPartCategory(rule, module, moduleRules);
+                  }
+              }
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: 22
+
+```diff
+@@ -275,26 +275,5 @@
+                  Rule rule = createCodeRule(method, codeRuleAnno, module);
+                  if (rule != null) {
+-                     // 根据 fatherCode 决定添加到 Module 还是 PartCategory
+-                     String fatherCode = codeRuleAnno.fatherCode();
+-                     if (Strings.isNullOrEmpty(fatherCode)) {
+-                         // fatherCode 为 null 或空字符串，添加到 Module
+-                         moduleRules.add(rule);
+-                     } else {
+-                         // fatherCode 不为空，添加到对应的 PartCategory
+-                         Optional&lt;Part&gt; partOpt = module.getPart(fatherCode);
+-                         if (partOpt.isPresent() &amp;&amp; partOpt.get() instanceof PartCategory) {
+-                             PartCategory partCategory = (PartCategory) partOpt.get();
+-                             if (partCategory.getRules() == null) {
+-                                 partCategory.setRules(new ArrayList&lt;&gt;());
+-                             }
+-                             partCategory.getRules().add(rule);
+-                             log.info("Rule '{}' added to PartCategory '{}'", rule.getCode(), fatherCode);
+-                         } else {
+-                             log.error("PartCategory '{}' not found for rule '{}', adding to Module instead",
+-                                     fatherCode, rule.getCode());
+-                             throw new AlgLoaderException("PartCategory '" + fatherCode + "' not found for rule '"
+-                                     + rule.getCode() + "', adding to Module instead");
+-                         }
+-                     }
++                     addRuleToModuleOrPartCategory(rule, module, moduleRules);
+                  }
+              }
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -385,4 +385,5 @@
+          rule.setNormalNaturalCode(anno.normalNaturalCode());
+          rule.setRuleSchemaTypeFullName(RuleTypeConstants.PRIORITY_RULE_FULL_NAME);
++         rule.setFatherCode(anno.fatherCode());
+  
+          // 创建PriorityRuleSchema
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/tool/impl/ModuleGenneratorByAnno.java</summary>
+
+Status: **loading**
+
+```java
+    private static Rule createCodeRule(java.lang.reflect.Method method, CodeRuleAnno anno, Module module) {
+        Rule rule = new Rule();
+
+        // 设置基本信息
+        String methodName = method.getName();
+        rule.setCode(methodName);
+        rule.setName(methodName);
+        rule.setProgObjType("Module");
+        rule.setProgObjCode(module.getCode());
+        rule.setProgObjField("constraints");
+        rule.setNormalNaturalCode(anno.normalNaturalCode());
+        rule.setRuleSchemaTypeFullName("CDSL.V5.Struct.CodeRule");
+        rule.setFatherCode(anno.fatherCode());
+```
+
+</details>
+
+</tool-use>
+
+---
+
+
+
+---
+
