@@ -73,57 +73,74 @@ public class PartCategoryConstraintExecutorImpl {
                 }
             }
 
-            // 创建CP模型
-            CpModel model = new CpModel();
-            alg.initModel(model, filteredCategory, isAttachRelax, confictedRelaxs);
-
-            // 根据请求初始化约束模型
-            initModelByReq(filteredCategory, partCatagoryReq, alg);
-
-            // 添加松弛目标函数, 方便调试
-            alg.addRelaxObjectFunction();
-
-            if (config.isLogModelProto()) {
-                // 将module的CpModelProto信息输出到文件config.logFilePath/module.proto.txt
-                model.exportToFile(config.getLogFilePath() + File.separator + module.getCode() + ".proto.txt");
-            }
-
-            CpSolver solver = new CpSolver();
-            solver.getParameters().setEnumerateAllSolutions(partCatagoryReq.isEnumerateAllSolution());
-            solver.getParameters().setNumSearchWorkers(1); // 单线程搜索，防止有重复解
-            log.info("solver parameters:\n" + solver.getParameters().toString());
-            // 可按需设置更多参数
-            ModuleInstSolutionCallBack cb = new ModuleInstSolutionCallBack(module, alg.getVars(),
-                    alg.getOtherVarMap());
-            CpSolverStatus status = solver.solve(model, cb);
-
-            // 如果模型无效，调用ValidateCpModel获取详细错误信息
-            if (status == CpSolverStatus.MODEL_INVALID) {
-                // 重新获取模型进行验证
-                ConstraintAlgImpl validationAlg = createConstraintAlg(module.getId(), module.getCode());
-                CpModel validationModel = new CpModel();
-                validationAlg.initModel(validationModel, module, false, new ArrayList<>());
-                String validationError = validationModel.validate();
-                log.error("Model validation failed: {}", validationError);
-                return Result.failed("Model validation failed: " + validationError);
-            }
-
-            if (status != CpSolverStatus.OPTIMAL && status != CpSolverStatus.FEASIBLE
-                    && status != CpSolverStatus.INFEASIBLE) {
-                return Result.failed("solver status: " + status);
-            }
-
-            if (status == CpSolverStatus.INFEASIBLE) {
-                return Result.success(null);
-            }
-
-            // 返回成功结果
-            return Result.success(cb.getAllSolutions());
+            return solveConstraintModel(alg, filteredCategory, isAttachRelax, confictedRelaxs, partCatagoryReq, module);
 
         } catch (Exception e) {
             log.error("Failed to process part category constraint", e);
             return Result.failed("Failed to process part category constraint: " + e.getMessage());
         }
+    }
+
+    /**
+     * 求解约束模型并返回结果
+     * 
+     * @param alg              约束算法实现
+     * @param filteredCategory 过滤后的部件分类
+     * @param isAttachRelax    是否附加松弛变量
+     * @param confictedRelaxs  冲突松弛变量列表
+     * @param partCatagoryReq  部件分类请求
+     * @param module           模块对象
+     * @return 求解结果
+     */
+    private Result<List<ModuleInst>> solveConstraintModel(ConstraintAlgImpl alg, PartCategory filteredCategory,
+            boolean isAttachRelax, List<RelaxVar> confictedRelaxs, InferPartCategoryReq partCatagoryReq,
+            Module module) {
+        // 创建CP模型
+        CpModel model = new CpModel();
+        alg.initModel(model, filteredCategory, isAttachRelax, confictedRelaxs);
+
+        // 根据请求初始化约束模型
+        initModelByReq(filteredCategory, partCatagoryReq, alg);
+
+        // 添加松弛目标函数, 方便调试
+        alg.addRelaxObjectFunction();
+
+        if (config.isLogModelProto()) {
+            // 将module的CpModelProto信息输出到文件config.logFilePath/module.proto.txt
+            model.exportToFile(config.getLogFilePath() + File.separator + module.getCode() + ".proto.txt");
+        }
+
+        CpSolver solver = new CpSolver();
+        solver.getParameters().setEnumerateAllSolutions(partCatagoryReq.isEnumerateAllSolution());
+        solver.getParameters().setNumSearchWorkers(1); // 单线程搜索，防止有重复解
+        log.info("solver parameters:\n" + solver.getParameters().toString());
+        // 可按需设置更多参数
+        ModuleInstSolutionCallBack cb = new ModuleInstSolutionCallBack(module, alg.getVars(),
+                alg.getOtherVarMap());
+        CpSolverStatus status = solver.solve(model, cb);
+
+        // 如果模型无效，调用ValidateCpModel获取详细错误信息
+        if (status == CpSolverStatus.MODEL_INVALID) {
+            // 重新获取模型进行验证
+            ConstraintAlgImpl validationAlg = createConstraintAlg(module.getId(), module.getCode());
+            CpModel validationModel = new CpModel();
+            validationAlg.initModel(validationModel, module, false, new ArrayList<>());
+            String validationError = validationModel.validate();
+            log.error("Model validation failed: {}", validationError);
+            return Result.failed("Model validation failed: " + validationError);
+        }
+
+        if (status != CpSolverStatus.OPTIMAL && status != CpSolverStatus.FEASIBLE
+                && status != CpSolverStatus.INFEASIBLE) {
+            return Result.failed("solver status: " + status);
+        }
+
+        if (status == CpSolverStatus.INFEASIBLE) {
+            return Result.success(null);
+        }
+
+        // 返回成功结果
+        return Result.success(cb.getAllSolutions());
     }
 
     /**

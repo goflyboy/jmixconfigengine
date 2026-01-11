@@ -115,6 +115,11 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
             model.maximize(sumCapacityWeight);
         }
 
+        // private void rule2() {
+        // LinearExpr sumCapacityWeight = sum4Selected("capacityWeight");
+        // model.maximize(sumCapacityWeight);
+        // }
+
         private void rule2_backup() {
             final int SOLID1_WEIGHT = 100;
             final int SOLID2_WEIGHT = 200;

@@ -1027,7 +1027,249 @@ Result<List<ModuleInst>> processPartCategory(InferPartCategoryReq partCatagoryRe
  }
 
 
+设计11：
+
+1、参考AlgCPModel，对com.google.ortools.sat.LinearExpr包装一个AlgLinearExpr记录类似sumFormulaBase的exprStr 
+2、sum4Parts中的sumFormulaBase放到exprStr中
+3、参考 sumFunConstraint中，在model中addLessOrEqual打印完整的公式
+修改前：
+               sumTerms.add(LinearExpr.term(partVar.getQty(), attrValue));
+                sumTermStrings.add(partVar.getBase().getShortCode() + ".Q*" + attrValue);
+
+修改后：
+               sumTerms.add(LinearExpr.term(partVar.getQty(), attrValue));
+                sumTerms.addStr(partVar.getBase().getShortCode() + ".Q*" + attrValue);
+4、
+   model.minimize(LinearExpr.sum(weightedTerms));
+
+
+
+请按下列设计进行设计，请完成
+
+0、类InferPartCategoryReq增加
+int maxSolutionNum; //最大solution的个数
+
  
+
+1、增加下列类
+class PriorityConstraint {
+    String ruleCode;
+	LinearExpr  expr;
+	  PriorityStrategy  strategy 
+}
+
+enum PriorityType {
+  SELECT,//选择性，和part.isSelected相关，例如：优先匹配高速率容量
+  SUMARIZE,//汇总性，和part.qty相关，例如：总容量越大于浩 
+}
+
+
+enum PriorityStrategy {
+  MAX,//最大
+  MIN,//最小 
+}
+
+2、对类ConstraintAlgImpl做下列增强：
+class ConstraintAlgImpl {
+....
+....
+}
+
+修改后：
+class ConstraintAlgImpl {
+....
+Map<String,PriorityConstraint> priorityRuleMap;
+
+
+	void buildRuleMethods() {
+		....
+		调用buildPriorityConstraint 放到priorityRuleMap中<attrCode,xxx>
+		....
+	}
+	void buildPriorityConstraint(Rule rule) {
+		PriorityConstraint pConstraint = ....;
+		pConstraint.expr = sum4Selected(rule.attrCode); 
+		...
+	}
+....
+}
+
+
+
+4、参考CompatiableRuleSchema，增加类 PriorityRuleSchema  
+
+@Data
+@EqualsAndHashCode(callSuper = true)
+public class PriorityRuleSchema extends RuleSchema {
+ 
+     PriorityType type;
+	 
+	 PriorityStrategy  strategy 
+	
+	 String attrCode; 
+}
+
+5、参考CodeRuleAnno，新增注解PriorityRuleAnno
+
+ @interface CodeRuleAnno {
+    /**
+     * 规则代码
+     */
+    String code() default "";
+
+    /**
+     * 自然语言描述
+     */
+    String normalNaturalCode() default "";
+
+    /**
+     * 父部件编码，如果为null或空字符串，则规则添加到Module中；否则添加到对应的PartCategory中
+     */
+    String fatherCode() default "";
+
+	String attrCode;
+	
+     PriorityType type;
+	 
+	 PriorityStrategy  strategy 
+}
+
+6、类 ComputerOptiSolutionConstraint中rule2改为：
+
+//优先性策略：
+@PriorityRuleAnno(fatherCode="drivie",normalNaturalCode="固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量"
+	rawCode="选择的部件capacityWeight总和越大越好",
+   attr="capacityWeight", strategy="MAX",type="SELECT")
+
+private void rule2() {
+
+}
+
+7、对PartCategoryConstraintExecutorImpl做下列增强
+参考@doc/opti.txt 代码，实现对 PriorityRule分级求解
+修改前： 
+....processPartCategory() {
+	....
+	...
+	return solveConstraintModel(alg, filteredCategory, isAttachRelax, confictedRelaxs, partCatagoryReq, module);
+}
+  
+
+修改后： 
+....processPartCategory() {
+	....
+	...
+	// 步骤1：先每个优化解最优解 
+	对rule中每条PriorityRule (attr1)
+		调用solveConstraintModel方法完成目标解求解 attr1Obj目标解
+    
+	// 步骤2：在保持高优先级目标接近最优的前提下，寻找多个解(attr1Obj 的30%上浮和下降）
+		调用solveConstraintModel 
+	//对解按优先级排序
+	  
+}
+  
+
+
+
+
+
+
+
+
+
+TODO:产品有多个Priv值怎么办？ ***
+
+
+
+
+设计111：
+
+
+OptiStrategyReq optiStrategy;
+
+2、
+先过滤：
+每个优先都一个单独求解的过程？ ---按当前约束？ 算一次
+currentMax  
+
+objFun > * currentMax * 30%
+
+
+都要变成最小值问题：
+  minValue_D1
+  max 
+for(OptiStrategyAttrReq dimAttrReq: attrReqs) {
+	//这个维度先求
+    
+
+}
+
+
+
+使用场景？ 使用场景？ 怎么做？ 
+
+总总量相关的 qty*dimeAtt，如果仅是选择相关，则用selected即可？
+@maximize
+
+InferPartCategoryReq
+
+ 
+
+1、目录价最小
+{"attrReqs":[{"attrCode":"ListPrice", "strategy":"MIN"}]
+2、先目录加最小，货期最小  
+{"attrReqs":[{"attrCode":"ListPrice", "strategy":"MIN"},{"attrCode":"Delivery", "strategy":"MAX"}]
+3、货期最小，同时利润最大
+{"attrReqs":[{"attrCode":"Delivery", "strategy":"MIN"},{"attrCode":"Profit", "strategy":"MAX"}]
+
+class PriorityAttrConstant {
+String LIST_PRICE= "ListPrice";  
+String DELIVERY = "Delivery";  
+String PROFIT = "Profit";  //double  
+}
+
+class PriorityAttrStrategyReq {
+	String attrCode;
+	PriorityStrategy  strategy;
+}
+class PriorityStrategy {
+  List<PriorityAttrStrategyReq> attrReqs;
+}
+
+
+多维目标求解：
+
+多因子目标求解
+
+
+
+
+都变成最小问题
+
+
+
+最优解？
+---
+
+
+因子：
+
+
+最大解的个数
+
+
+多个目标：
+最大问题，变成最小问题？ 
+
+
+
+
+
+
+ 
+
+2026-1-11：
 
 
 
