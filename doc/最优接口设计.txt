@@ -1172,6 +1172,13 @@ private void rule2() {
 
 
 
+class PriorityAttrObjValue {
+{
+	String attrCode;
+	PriorityRuleSchema schema;
+	double optimalValue; 
+
+}
 
 
 

@@ -5,8 +5,10 @@ import com.jmix.executor.imodel.DynamicAttribute;
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.Part;
 import com.jmix.executor.imodel.PartCategory;
-import com.jmix.executor.imodel.PriorityConstraint;
 import com.jmix.executor.imodel.PriorityStrategy;
+import com.jmix.executor.imodel.PriorityType;
+import com.jmix.executor.imodel.Rule;
+import com.jmix.executor.imodel.rule.PriorityRuleSchema;
 import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
 import com.jmix.executor.impl.algmodel.RelaxVar;
 import com.jmix.executor.impl.util.Pair;
@@ -174,14 +176,26 @@ public class PartCategoryConstraintExecutorImpl {
     private Result<List<ModuleInst>> solveWithPriorityConstraints(ConstraintAlgImpl alg,
             PartCategory filteredCategory, boolean isAttachRelax, List<RelaxVar> confictedRelaxs,
             InferPartCategoryReq partCatagoryReq, Module module) {
-        Map<String, PriorityConstraint> priorityRuleMap = alg.getPriorityRuleMap();
+        List<Rule> priorityRules = filteredCategory.queryPriorityRules();
         List<ModuleInst> allSolutions = new ArrayList<>();
 
         // 步骤1：对每个优先级规则优化求解最优解
         Map<String, Double> optimalValues = new HashMap<>();
-        for (Map.Entry<String, PriorityConstraint> entry : priorityRuleMap.entrySet()) {
-            String attrCode = entry.getKey();
-            PriorityConstraint pConstraint = entry.getValue();
+        for (Rule rule : priorityRules) {
+            if (rule.getRawCode() == null || !(rule.getRawCode() instanceof PriorityRuleSchema)) {
+                log.warn("Rule rawCode is not PriorityRuleSchema for rule: {}", rule.getCode());
+                continue;
+            }
+
+            PriorityRuleSchema schema = (PriorityRuleSchema) rule.getRawCode();
+            String attrCode = schema.getAttrCode();
+            if (attrCode == null || attrCode.isEmpty()) {
+                log.warn("PriorityRuleSchema attrCode is empty for rule: {}", rule.getCode());
+                continue;
+            }
+
+            PriorityType priorityType = schema.getPriorityType();
+            PriorityStrategy priorityStrategy = schema.getPriorityStrategy();
 
             log.info("Step 1: Optimizing priority constraint for attrCode: {}", attrCode);
 
@@ -194,13 +208,13 @@ public class PartCategoryConstraintExecutorImpl {
 
             // 重新构建目标函数表达式（使用新的alg实例）
             LinearExpr objectiveExpr;
-            if (pConstraint.getType() == com.jmix.executor.imodel.PriorityType.SELECT) {
+            if (priorityType == PriorityType.SELECT) {
                 objectiveExpr = optAlg.sum4Selected(attrCode);
             } else {
                 objectiveExpr = optAlg.sum4Quantity(attrCode);
             }
 
-            if (pConstraint.getStrategy() == PriorityStrategy.MAX) {
+            if (priorityStrategy == PriorityStrategy.MAX) {
                 optModel.maximize(objectiveExpr);
             } else {
                 optModel.minimize(objectiveExpr);
@@ -223,60 +237,65 @@ public class PartCategoryConstraintExecutorImpl {
         }
 
         // 步骤2：在保持高优先级目标接近最优的前提下，寻找多个解
-        if (!optimalValues.isEmpty()) {
+        if (!optimalValues.isEmpty() && !priorityRules.isEmpty()) {
             // 获取第一个优先级规则（最高优先级）
-            String firstAttrCode = priorityRuleMap.keySet().iterator().next();
-            PriorityConstraint firstConstraint = priorityRuleMap.get(firstAttrCode);
-            Double firstOptimalValue = optimalValues.get(firstAttrCode);
+            Rule firstRule = priorityRules.get(0);
+            if (firstRule.getRawCode() != null && firstRule.getRawCode() instanceof PriorityRuleSchema) {
+                PriorityRuleSchema firstSchema = (PriorityRuleSchema) firstRule.getRawCode();
+                String firstAttrCode = firstSchema.getAttrCode();
+                PriorityType firstPriorityType = firstSchema.getPriorityType();
+                Double firstOptimalValue = optimalValues.get(firstAttrCode);
 
-            if (firstOptimalValue != null) {
-                log.info("Step 2: Finding multiple solutions with priority constraint for attrCode: {}", firstAttrCode);
+                if (firstAttrCode != null && !firstAttrCode.isEmpty() && firstOptimalValue != null) {
+                    log.info("Step 2: Finding multiple solutions with priority constraint for attrCode: {}",
+                            firstAttrCode);
 
-                // 创建新的算法实例和模型
-                ConstraintAlgImpl multiAlg = createConstraintAlg(module.getId(), module.getCode());
-                CpModel multiModel = new CpModel();
-                multiAlg.initModel(multiModel, filteredCategory, isAttachRelax, confictedRelaxs);
-                initModelByReq(filteredCategory, partCatagoryReq, multiAlg);
-                multiAlg.addRelaxObjectFunction();
+                    // 创建新的算法实例和模型
+                    ConstraintAlgImpl multiAlg = createConstraintAlg(module.getId(), module.getCode());
+                    CpModel multiModel = new CpModel();
+                    multiAlg.initModel(multiModel, filteredCategory, isAttachRelax, confictedRelaxs);
+                    initModelByReq(filteredCategory, partCatagoryReq, multiAlg);
+                    multiAlg.addRelaxObjectFunction();
 
-                // 添加约束：保持高优先级目标在最优值的30%范围内
-                double threshold = 0.3;
-                double minValue = firstOptimalValue * (1 - threshold);
-                double maxValue = firstOptimalValue * (1 + threshold);
+                    // 添加约束：保持高优先级目标在最优值的30%范围内
+                    double threshold = 0.3;
+                    double minValue = firstOptimalValue * (1 - threshold);
+                    double maxValue = firstOptimalValue * (1 + threshold);
 
-                // 重新构建表达式（使用新的alg实例）
-                LinearExpr firstExpr;
-                if (firstConstraint.getType() == com.jmix.executor.imodel.PriorityType.SELECT) {
-                    firstExpr = multiAlg.sum4Selected(firstAttrCode);
-                } else {
-                    firstExpr = multiAlg.sum4Quantity(firstAttrCode);
-                }
-                multiModel.addGreaterOrEqual(firstExpr, (long) minValue);
-                multiModel.addLessOrEqual(firstExpr, (long) maxValue);
+                    // 重新构建表达式（使用新的alg实例）
+                    LinearExpr firstExpr;
+                    if (firstPriorityType == PriorityType.SELECT) {
+                        firstExpr = multiAlg.sum4Selected(firstAttrCode);
+                    } else {
+                        firstExpr = multiAlg.sum4Quantity(firstAttrCode);
+                    }
+                    multiModel.addGreaterOrEqual(firstExpr, (long) minValue);
+                    multiModel.addLessOrEqual(firstExpr, (long) maxValue);
 
-                log.info("Added constraint: {} <= {} <= {}", (long) minValue, firstAttrCode, (long) maxValue);
+                    log.info("Added constraint: {} <= {} <= {}", (long) minValue, firstAttrCode, (long) maxValue);
 
-                // 求解多个解
-                CpSolver multiSolver = new CpSolver();
-                multiSolver.getParameters().setEnumerateAllSolutions(true);
-                multiSolver.getParameters().setNumSearchWorkers(1);
+                    // 求解多个解
+                    CpSolver multiSolver = new CpSolver();
+                    multiSolver.getParameters().setEnumerateAllSolutions(true);
+                    multiSolver.getParameters().setNumSearchWorkers(1);
 
-                ModuleInstSolutionCallBack multiCb = new ModuleInstSolutionCallBack(module, multiAlg.getVars(),
-                        multiAlg.getOtherVarMap());
-                CpSolverStatus multiStatus = multiSolver.solve(multiModel, multiCb);
+                    ModuleInstSolutionCallBack multiCb = new ModuleInstSolutionCallBack(module, multiAlg.getVars(),
+                            multiAlg.getOtherVarMap());
+                    CpSolverStatus multiStatus = multiSolver.solve(multiModel, multiCb);
 
-                if (multiStatus == CpSolverStatus.OPTIMAL || multiStatus == CpSolverStatus.FEASIBLE) {
-                    allSolutions.addAll(multiCb.getAllSolutions());
-                    log.info("Found {} solutions with priority constraints", allSolutions.size());
-                } else {
-                    log.warn("Failed to find multiple solutions, status: {}", multiStatus);
+                    if (multiStatus == CpSolverStatus.OPTIMAL || multiStatus == CpSolverStatus.FEASIBLE) {
+                        allSolutions.addAll(multiCb.getAllSolutions());
+                        log.info("Found {} solutions with priority constraints", allSolutions.size());
+                    } else {
+                        log.warn("Failed to find multiple solutions, status: {}", multiStatus);
+                    }
                 }
             }
         }
 
         // 步骤3：对解按优先级排序
         if (!allSolutions.isEmpty()) {
-            sortSolutionsByPriority(allSolutions, priorityRuleMap, alg);
+            sortSolutionsByPriority(allSolutions, priorityRules, alg);
         }
 
         // 限制解的数量
@@ -292,11 +311,11 @@ public class PartCategoryConstraintExecutorImpl {
     /**
      * 按优先级对解进行排序
      * 
-     * @param solutions       解列表
-     * @param priorityRuleMap 优先级规则映射表
-     * @param alg             约束算法实现
+     * @param solutions     解列表
+     * @param priorityRules 优先级规则列表
+     * @param alg           约束算法实现
      */
-    private void sortSolutionsByPriority(List<ModuleInst> solutions, Map<String, PriorityConstraint> priorityRuleMap,
+    private void sortSolutionsByPriority(List<ModuleInst> solutions, List<Rule> priorityRules,
             ConstraintAlgImpl alg) {
         // 这里需要根据实际的解结构来计算每个解的优先级得分
         // 由于解的结构可能比较复杂，这里提供一个基础框架

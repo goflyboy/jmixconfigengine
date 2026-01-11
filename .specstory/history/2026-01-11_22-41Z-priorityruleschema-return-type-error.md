@@ -2197,3 +2197,583 @@ Lint errors for `src/main/java/com/jmix/executor/imodel/PartCategory.java`
 
 ---
 
+_**User (2026-01-09 14:37Z)**_
+
+@src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java:182-183  这个判断改成filteredCategory.queryPriorityRules来循环
+
+---
+
+_**Agent (model default, mode Agent)**_
+
+
+
+---
+
+
+查看相关代码上下文：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="search" data-tool-name="grep">
+<details>
+<summary>Tool use: **grep** • Grep for "priorityRuleMap|PriorityConstraint" in "src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java" • 11 matches</summary>
+
+Output mode: content
+
+
+| File | Content | Line |
+|------|------|------|
+| `src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java` | `import com.jmix.executor.imodel.PriorityConstraint;` | L8 |
+| `src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java` | `return solveWithPriorityConstraints(alg, filteredCategory, isAttachRelax, confictedRelaxs,` | L86 |
+| `src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java` | `private Result<List<ModuleInst>> solveWithPriorityConstraints(ConstraintAlgImpl alg,` | L174 |
+| `src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java` | `Map<String, PriorityConstraint> priorityRuleMap = alg.getPriorityRuleMap();` | L177 |
+| `src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java` | `for (Map.Entry<String, PriorityConstraint> entry : priorityRuleMap.entrySet()) \{` | L182 |
+| `src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java` | `PriorityConstraint pConstraint = entry.getValue();` | L184 |
+| `src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java` | `String firstAttrCode = priorityRuleMap.keySet().iterator().next();` | L228 |
+| `src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java` | `PriorityConstraint firstConstraint = priorityRuleMap.get(firstAttrCode);` | L229 |
+| `src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java` | `sortSolutionsByPriority(allSolutions, priorityRuleMap, alg);` | L279 |
+| `src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java` | `* @param priorityRuleMap 优先级规则映射表` | L296 |
+| `src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java` | `private void sortSolutionsByPriority(List<ModuleInst> solutions, Map<String, PriorityConstraint> priorityRuleMap,` | L299 |
+
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+查看完整的方法实现，了解如何从 Rule 中提取信息：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/imodel/rule/PriorityRuleSchema.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="search" data-tool-name="grep">
+<details>
+<summary>Tool use: **grep** • Grep for "import.*PriorityRuleSchema|import.*Rule" in "src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java" • 0 matches</summary>
+
+Output mode: content
+
+
+_No matches found_
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+查看完整的导入和 sortSolutionsByPriority 方法：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+修改代码，使用 `filteredCategory.queryPriorityRules()` 替代 `priorityRuleMap`：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
+
+**Chunk 1**
+Lines added: 3, lines removed: undefined
+
+```diff
+@@ -8,4 +8,7 @@
+  import com.jmix.executor.imodel.PriorityConstraint;
+  import com.jmix.executor.imodel.PriorityStrategy;
++ import com.jmix.executor.imodel.PriorityType;
++ import com.jmix.executor.imodel.Rule;
++ import com.jmix.executor.imodel.rule.PriorityRuleSchema;
+  import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
+  import com.jmix.executor.impl.algmodel.RelaxVar;
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
+
+**Chunk 1**
+Lines added: 16, lines removed: 4
+
+```diff
+@@ -178,12 +178,24 @@
+              PartCategory filteredCategory, boolean isAttachRelax, List&lt;RelaxVar&gt; confictedRelaxs,
+              InferPartCategoryReq partCatagoryReq, Module module) {
+-         Map&lt;String, PriorityConstraint&gt; priorityRuleMap = alg.getPriorityRuleMap();
++         List&lt;Rule&gt; priorityRules = filteredCategory.queryPriorityRules();
+          List&lt;ModuleInst&gt; allSolutions = new ArrayList&lt;&gt;();
+  
+          // 步骤1：对每个优先级规则优化求解最优解
+          Map&lt;String, Double&gt; optimalValues = new HashMap&lt;&gt;();
+-         for (Map.Entry&lt;String, PriorityConstraint&gt; entry : priorityRuleMap.entrySet()) {
+-             String attrCode = entry.getKey();
+-             PriorityConstraint pConstraint = entry.getValue();
++         for (Rule rule : priorityRules) {
++             if (rule.getRawCode() == null || !(rule.getRawCode() instanceof PriorityRuleSchema)) {
++                 log.warn("Rule rawCode is not PriorityRuleSchema for rule: {}", rule.getCode());
++                 continue;
++             }
++ 
++             PriorityRuleSchema schema = (PriorityRuleSchema) rule.getRawCode();
++             String attrCode = schema.getAttrCode();
++             if (attrCode == null || attrCode.isEmpty()) {
++                 log.warn("PriorityRuleSchema attrCode is empty for rule: {}", rule.getCode());
++                 continue;
++             }
++ 
++             PriorityType priorityType = schema.getPriorityType();
++             PriorityStrategy priorityStrategy = schema.getPriorityStrategy();
+  
+              log.info("Step 1: Optimizing priority constraint for attrCode: {}", attrCode);
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -210,11 +210,11 @@
+              // 重新构建目标函数表达式（使用新的alg实例）
+              LinearExpr objectiveExpr;
+-             if (pConstraint.getType() == com.jmix.executor.imodel.PriorityType.SELECT) {
++             if (priorityType == PriorityType.SELECT) {
+                  objectiveExpr = optAlg.sum4Selected(attrCode);
+              } else {
+                  objectiveExpr = optAlg.sum4Quantity(attrCode);
+              }
+  
+-             if (pConstraint.getStrategy() == PriorityStrategy.MAX) {
++             if (priorityStrategy == PriorityStrategy.MAX) {
+                  optModel.maximize(objectiveExpr);
+              } else {
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
+
+**Chunk 1**
+Lines added: 26, lines removed: 23
+
+```diff
+@@ -239,32 +239,35 @@
+  
+          // 步骤2：在保持高优先级目标接近最优的前提下，寻找多个解
+-         if (!optimalValues.isEmpty()) {
++         if (!optimalValues.isEmpty() &amp;&amp; !priorityRules.isEmpty()) {
+              // 获取第一个优先级规则（最高优先级）
+-             String firstAttrCode = priorityRuleMap.keySet().iterator().next();
+-             PriorityConstraint firstConstraint = priorityRuleMap.get(firstAttrCode);
+-             Double firstOptimalValue = optimalValues.get(firstAttrCode);
++             Rule firstRule = priorityRules.get(0);
++             if (firstRule.getRawCode() != null &amp;&amp; firstRule.getRawCode() instanceof PriorityRuleSchema) {
++                 PriorityRuleSchema firstSchema = (PriorityRuleSchema) firstRule.getRawCode();
++                 String firstAttrCode = firstSchema.getAttrCode();
++                 PriorityType firstPriorityType = firstSchema.getPriorityType();
++                 Double firstOptimalValue = optimalValues.get(firstAttrCode);
+  
+-             if (firstOptimalValue != null) {
+-                 log.info("Step 2: Finding multiple solutions with priority constraint for attrCode: {}", firstAttrCode);
++                 if (firstAttrCode != null &amp;&amp; !firstAttrCode.isEmpty() &amp;&amp; firstOptimalValue != null) {
++                     log.info("Step 2: Finding multiple solutions with priority constraint for attrCode: {}", firstAttrCode);
+  
+-                 // 创建新的算法实例和模型
+-                 ConstraintAlgImpl multiAlg = createConstraintAlg(module.getId(), module.getCode());
+-                 CpModel multiModel = new CpModel();
+-                 multiAlg.initModel(multiModel, filteredCategory, isAttachRelax, confictedRelaxs);
+-                 initModelByReq(filteredCategory, partCatagoryReq, multiAlg);
+-                 multiAlg.addRelaxObjectFunction();
++                     // 创建新的算法实例和模型
++                     ConstraintAlgImpl multiAlg = createConstraintAlg(module.getId(), module.getCode());
++                     CpModel multiModel = new CpModel();
++                     multiAlg.initModel(multiModel, filteredCategory, isAttachRelax, confictedRelaxs);
++                     initModelByReq(filteredCategory, partCatagoryReq, multiAlg);
++                     multiAlg.addRelaxObjectFunction();
+  
+-                 // 添加约束：保持高优先级目标在最优值的30%范围内
+-                 double threshold = 0.3;
+-                 double minValue = firstOptimalValue * (1 - threshold);
+-                 double maxValue = firstOptimalValue * (1 + threshold);
++                     // 添加约束：保持高优先级目标在最优值的30%范围内
++                     double threshold = 0.3;
++                     double minValue = firstOptimalValue * (1 - threshold);
++                     double maxValue = firstOptimalValue * (1 + threshold);
+  
+-                 // 重新构建表达式（使用新的alg实例）
+-                 LinearExpr firstExpr;
+-                 if (firstConstraint.getType() == com.jmix.executor.imodel.PriorityType.SELECT) {
+-                     firstExpr = multiAlg.sum4Selected(firstAttrCode);
+-                 } else {
+-                     firstExpr = multiAlg.sum4Quantity(firstAttrCode);
+-                 }
++                     // 重新构建表达式（使用新的alg实例）
++                     LinearExpr firstExpr;
++                     if (firstPriorityType == PriorityType.SELECT) {
++                         firstExpr = multiAlg.sum4Selected(firstAttrCode);
++                     } else {
++                         firstExpr = multiAlg.sum4Quantity(firstAttrCode);
++                     }
+                  multiModel.addGreaterOrEqual(firstExpr, (long) minValue);
+                  multiModel.addLessOrEqual(firstExpr, (long) maxValue);
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+修复步骤2的代码结构：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
+
+**Chunk 1**
+Lines added: 19, lines removed: 18
+
+```diff
+@@ -270,26 +270,27 @@
+                          firstExpr = multiAlg.sum4Quantity(firstAttrCode);
+                      }
+-                 multiModel.addGreaterOrEqual(firstExpr, (long) minValue);
+-                 multiModel.addLessOrEqual(firstExpr, (long) maxValue);
++                     multiModel.addGreaterOrEqual(firstExpr, (long) minValue);
++                     multiModel.addLessOrEqual(firstExpr, (long) maxValue);
+  
+-                 log.info("Added constraint: {} &lt;= {} &lt;= {}", (long) minValue, firstAttrCode, (long) maxValue);
++                     log.info("Added constraint: {} &lt;= {} &lt;= {}", (long) minValue, firstAttrCode, (long) maxValue);
+  
+-                 // 求解多个解
+-                 CpSolver multiSolver = new CpSolver();
+-                 multiSolver.getParameters().setEnumerateAllSolutions(true);
+-                 multiSolver.getParameters().setNumSearchWorkers(1);
++                     // 求解多个解
++                     CpSolver multiSolver = new CpSolver();
++                     multiSolver.getParameters().setEnumerateAllSolutions(true);
++                     multiSolver.getParameters().setNumSearchWorkers(1);
+  
+-                 ModuleInstSolutionCallBack multiCb = new ModuleInstSolutionCallBack(module, multiAlg.getVars(),
+-                         multiAlg.getOtherVarMap());
+-                 CpSolverStatus multiStatus = multiSolver.solve(multiModel, multiCb);
++                     ModuleInstSolutionCallBack multiCb = new ModuleInstSolutionCallBack(module, multiAlg.getVars(),
++                             multiAlg.getOtherVarMap());
++                     CpSolverStatus multiStatus = multiSolver.solve(multiModel, multiCb);
+  
+-                 if (multiStatus == CpSolverStatus.OPTIMAL || multiStatus == CpSolverStatus.FEASIBLE) {
+-                     allSolutions.addAll(multiCb.getAllSolutions());
+-                     log.info("Found {} solutions with priority constraints", allSolutions.size());
+-                 } else {
+-                     log.warn("Failed to find multiple solutions, status: {}", multiStatus);
+-                 }
+-             }
+-         }
++                     if (multiStatus == CpSolverStatus.OPTIMAL || multiStatus == CpSolverStatus.FEASIBLE) {
++                         allSolutions.addAll(multiCb.getAllSolutions());
++                         log.info("Found {} solutions with priority constraints", allSolutions.size());
++                     } else {
++                         log.warn("Failed to find multiple solutions, status: {}", multiStatus);
++                     }
++                 }
++             }
++         }
+  
+          // 步骤3：对解按优先级排序
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+Model supplied an ambiguous edit
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
+
+**Chunk 1**
+Lines added: 4, lines removed: 4
+
+```diff
+@@ -312,9 +312,9 @@
+       * 按优先级对解进行排序
+       * 
+-      * @param solutions       解列表
+-      * @param priorityRuleMap 优先级规则映射表
+-      * @param alg             约束算法实现
++      * @param solutions     解列表
++      * @param priorityRules 优先级规则列表
++      * @param alg           约束算法实现
+       */
+-     private void sortSolutionsByPriority(List&lt;ModuleInst&gt; solutions, Map&lt;String, PriorityConstraint&gt; priorityRuleMap,
++     private void sortSolutionsByPriority(List&lt;ModuleInst&gt; solutions, List&lt;Rule&gt; priorityRules,
+              ConstraintAlgImpl alg) {
+          // 这里需要根据实际的解结构来计算每个解的优先级得分
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="generic" data-tool-name="read_lints">
+<details>
+          <summary>Tool use: **read_lints** • Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java`
+
+Lint results
+
+Lint errors for `src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| priorityRuleMap cannot be resolved to a variable | 298:51-298:66 | DIAGNOSTIC_SEVERITY_ERROR |
+| The method sortSolutionsByPriority(List<ModuleInst>, List<Rule>, ConstraintAlgImpl) from the type PartCategoryConstraintExecutorImpl is never used locally | 318:18-319:35 | DIAGNOSTIC_SEVERITY_WARNING |
+| TODO: 实现具体的排序逻辑，根据优先级规则计算每个解的得分并排序 | 325:12-325:46 | DIAGNOSTIC_SEVERITY_INFORMATION |
+| 无用导入 - com.jmix.executor.imodel.PriorityConstraint 。 | 8:8-9:1 | DIAGNOSTIC_SEVERITY_WARNING |
+| “VARIABLE_DEF”之前应该有一个空白行。 | 46:5-47:1 | DIAGNOSTIC_SEVERITY_WARNING |
+| TODO块： 'TODO:' 。 | 325:11-326:1 | DIAGNOSTIC_SEVERITY_WARNING |
+
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+修复错误：`priorityRuleMap` 未定义。查看当前代码状态：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="search" data-tool-name="grep">
+<details>
+<summary>Tool use: **grep** • Grep for "priorityRuleMap" in "src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java" • 1 match</summary>
+
+Output mode: content
+
+
+| File | Content | Line |
+|------|------|------|
+| `src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java` | `sortSolutionsByPriority(allSolutions, priorityRuleMap, alg);` | L298 |
+
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace**</summary>
+
+Status: **loading**
+
+</details>
+
+</tool-use>
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace**</summary>
+
+Status: **loading**
+
+</details>
+
+</tool-use>
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+<tool-use data-tool-type="unknown" data-tool-name="read_file">
+<details>
+<summary>Tool use: **read_file**</summary>
+
+Status: **loading**
+
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+
+---
+
