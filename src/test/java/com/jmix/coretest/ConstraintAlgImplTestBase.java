@@ -15,6 +15,7 @@ import com.google.ortools.sat.LinearExpr;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -160,21 +161,26 @@ public class ConstraintAlgImplTestBase extends ConstraintAlgImpl {
      * 
      * @param cofAttrCode 属性代码，如果为null或空则使用默认值1
      * @param varGetter   从PartVar获取LinearArgument的函数（如getIsSelected或getQty）
+     * @param varName     变量名称（如"isSelected"或"qty"），用于构建字符串表达式
      * @return 求和后的LinearExpr表达式
      */
     private LinearExpr sum4Parts(String cofAttrCode,
-            Function<com.jmix.executor.impl.algmodel.PartVar, LinearArgument> varGetter) {
+            Function<com.jmix.executor.impl.algmodel.PartVar, LinearArgument> varGetter, String varName) {
         com.jmix.executor.impl.algmodel.PartVar partVar = null;
         List<Part> atomicParts = super.getModule().getAtomicParts();
         LinearArgument[] sumTerms = new LinearArgument[atomicParts.size()];
+        List<String> sumTermStrings = new ArrayList<>();
         int index = 0;
         boolean isWithoutAttr = Strings.isNullOrEmpty(cofAttrCode);
         for (Part part : atomicParts) {
             partVar = super.getPartVar(part.getCode());
             int attrValue = isWithoutAttr ? 1 : Integer.parseInt(part.getAttr(cofAttrCode));
             sumTerms[index] = LinearExpr.term(varGetter.apply(partVar), attrValue);
+            sumTermStrings.add(partVar.getBase().getShortCode() + "." + varName + "*" + attrValue);
             index++;
         }
+        String sumFormulaBase = String.join(" + ", sumTermStrings);
+        log.info("Sum formula: {}", sumFormulaBase);
         return LinearExpr.sum(sumTerms);
     }
 
@@ -183,7 +189,7 @@ public class ConstraintAlgImplTestBase extends ConstraintAlgImpl {
     }
 
     public LinearExpr sum4Selected(String cofAttrCode) {
-        return sum4Parts(cofAttrCode, com.jmix.executor.impl.algmodel.PartVar::getIsSelected);
+        return sum4Parts(cofAttrCode, com.jmix.executor.impl.algmodel.PartVar::getIsSelected, "S");
     }
 
     public LinearExpr sum4Quantity() {
@@ -191,7 +197,7 @@ public class ConstraintAlgImplTestBase extends ConstraintAlgImpl {
     }
 
     public LinearExpr sum4Quantity(String cofAttrCode) {
-        return sum4Parts(cofAttrCode, com.jmix.executor.impl.algmodel.PartVar::getQty);
+        return sum4Parts(cofAttrCode, com.jmix.executor.impl.algmodel.PartVar::getQty, "Q");
     }
 
 }

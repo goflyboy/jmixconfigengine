@@ -510,3 +510,343 @@ Lint errors for `src/main/java/com/jmix/executor/imodel/PartCategory.java`
 
 ---
 
+_**User (2026-01-09 14:37Z)**_
+
+@src/main/java/com/jmix/executor/impl/algmodel/ConstraintAlgImpl.java:760-763 @src/test/java/com/jmix/coretest/ConstraintAlgImplTestBase.java:165-179 参考sumFunConstraint，在sum4Parts中，也把sumTermStrings打印出来
+
+---
+
+_**Agent (model default, mode Agent)**_
+
+
+
+---
+
+
+查看 `sumFunConstraint` 方法中 `sumTermStrings` 的处理方式，以便在 `sum4Parts` 中添加类似的打印。
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/algmodel/ConstraintAlgImpl.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/test/java/com/jmix/coretest/ConstraintAlgImplTestBase.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+继续查看 `sumFunConstraint` 方法中如何打印 `sumTermStrings`：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/algmodel/ConstraintAlgImpl.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="search" data-tool-name="grep">
+<details>
+<summary>Tool use: **grep** • Grep for "sumTermStrings" in "src/main/java/com/jmix/executor/impl/algmodel/ConstraintAlgImpl.java" • 3 matches</summary>
+
+Output mode: content
+
+
+| File | Content | Line |
+|------|------|------|
+| `src/main/java/com/jmix/executor/impl/algmodel/ConstraintAlgImpl.java` | `List<String> sumTermStrings = new ArrayList<>();` | L763 |
+| `src/main/java/com/jmix/executor/impl/algmodel/ConstraintAlgImpl.java` | `sumTermStrings.add(partVar.getBase().getShortCode() + ".qty*" + attrValue);` | L775 |
+| `src/main/java/com/jmix/executor/impl/algmodel/ConstraintAlgImpl.java` | `String sumFormulaBase = String.join(" + ", sumTermStrings);` | L790 |
+
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+查看 `sum4Parts` 的调用情况，了解 `varGetter` 的用法：
+
+
+---
+
+<tool-use data-tool-type="search" data-tool-name="grep">
+<details>
+<summary>Tool use: **grep** • Grep for "sum4Parts" in "src/test/java/com/jmix/coretest/ConstraintAlgImplTestBase.java" • 3 matches</summary>
+
+Output mode: content
+
+
+| File | Content | Line |
+|------|------|------|
+| `src/test/java/com/jmix/coretest/ConstraintAlgImplTestBase.java` | `private LinearExpr sum4Parts(String cofAttrCode,` | L165 |
+| `src/test/java/com/jmix/coretest/ConstraintAlgImplTestBase.java` | `return sum4Parts(cofAttrCode, com.jmix.executor.impl.algmodel.PartVar::getIsSelected);` | L186 |
+| `src/test/java/com/jmix/coretest/ConstraintAlgImplTestBase.java` | `return sum4Parts(cofAttrCode, com.jmix.executor.impl.algmodel.PartVar::getQty);` | L194 |
+
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/test/java/com/jmix/coretest/ConstraintAlgImplTestBase.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+在 `sum4Parts` 中添加 `sumTermStrings` 的打印，参考 `sumFunConstraint` 的实现：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/test/java/com/jmix/coretest/ConstraintAlgImplTestBase.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+修改 `sum4Parts` 方法，添加 `sumTermStrings` 的构建和打印。需要确定 `varGetter` 对应的属性名，因此添加一个参数来指定：
+
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/test/java/com/jmix/coretest/ConstraintAlgImplTestBase.java</summary>
+
+**Chunk 1**
+Lines added: 3, lines removed: 1
+
+```diff
+@@ -161,11 +161,13 @@
+       * @param cofAttrCode 属性代码，如果为null或空则使用默认值1
+       * @param varGetter   从PartVar获取LinearArgument的函数（如getIsSelected或getQty）
++      * @param varName     变量名称（如"isSelected"或"qty"），用于构建字符串表达式
+       * @return 求和后的LinearExpr表达式
+       */
+      private LinearExpr sum4Parts(String cofAttrCode,
+-             Function&lt;com.jmix.executor.impl.algmodel.PartVar, LinearArgument&gt; varGetter) {
++             Function&lt;com.jmix.executor.impl.algmodel.PartVar, LinearArgument&gt; varGetter, String varName) {
+          com.jmix.executor.impl.algmodel.PartVar partVar = null;
+          List&lt;Part&gt; atomicParts = super.getModule().getAtomicParts();
+          LinearArgument[] sumTerms = new LinearArgument[atomicParts.size()];
++         List&lt;String&gt; sumTermStrings = new ArrayList&lt;&gt;();
+          int index = 0;
+          boolean isWithoutAttr = Strings.isNullOrEmpty(cofAttrCode);
+```
+
+**Chunk 2**
+Lines added: 3, lines removed: undefined
+
+```diff
+@@ -174,6 +176,9 @@
+              int attrValue = isWithoutAttr ? 1 : Integer.parseInt(part.getAttr(cofAttrCode));
+              sumTerms[index] = LinearExpr.term(varGetter.apply(partVar), attrValue);
++             sumTermStrings.add(partVar.getBase().getShortCode() + "." + varName + "*" + attrValue);
+              index++;
+          }
++         String sumFormulaBase = String.join(" + ", sumTermStrings);
++         log.info("Sum formula: {}", sumFormulaBase);
+          return LinearExpr.sum(sumTerms);
+      }
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="search" data-tool-name="grep">
+<details>
+<summary>Tool use: **grep** • Grep for "import.*ArrayList" in "src/test/java/com/jmix/coretest/ConstraintAlgImplTestBase.java" • 0 matches</summary>
+
+Output mode: content
+
+
+_No matches found_
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+添加 `ArrayList` 的导入，并更新 `sum4Parts` 的调用处：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/test/java/com/jmix/coretest/ConstraintAlgImplTestBase.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/test/java/com/jmix/coretest/ConstraintAlgImplTestBase.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -16,4 +16,5 @@
+  import lombok.extern.slf4j.Slf4j;
+  
++ import java.util.ArrayList;
+  import java.util.HashMap;
+  import java.util.List;
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/test/java/com/jmix/coretest/ConstraintAlgImplTestBase.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -190,5 +190,5 @@
+  
+      public LinearExpr sum4Selected(String cofAttrCode) {
+-         return sum4Parts(cofAttrCode, com.jmix.executor.impl.algmodel.PartVar::getIsSelected);
++         return sum4Parts(cofAttrCode, com.jmix.executor.impl.algmodel.PartVar::getIsSelected, "isSelected");
+      }
+  
+```
+
+**Chunk 2**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -198,5 +198,5 @@
+  
+      public LinearExpr sum4Quantity(String cofAttrCode) {
+-         return sum4Parts(cofAttrCode, com.jmix.executor.impl.algmodel.PartVar::getQty);
++         return sum4Parts(cofAttrCode, com.jmix.executor.impl.algmodel.PartVar::getQty, "qty");
+      }
+  
+```
+
+</details>
+
+</tool-use>
+
+---
+
+
+
+---
+
+
+检查是否有编译错误：
+
+
+---
+
+<tool-use data-tool-type="generic" data-tool-name="read_lints">
+<details>
+          <summary>Tool use: **read_lints** • Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/test/java/com/jmix/coretest/ConstraintAlgImplTestBase.java`
+
+Lint results
+
+Lint errors for `src/test/java/com/jmix/coretest/ConstraintAlgImplTestBase.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| TODO | 114:28-114:32 | DIAGNOSTIC_SEVERITY_INFORMATION |
+
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/test/java/com/jmix/coretest/ConstraintAlgImplTestBase.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+已参考 `sumFunConstraint` 的实现，在 `sum4Parts` 方法中添加了 `sumTermStrings` 的构建和打印。
+
+## 完成的修改
+
+1. **添加了 `ArrayList` 导入**：用于创建 `sumTermStrings` 列表
+
+2. **修改了 `sum4Parts` 方法**：
+   - 添加了 `varName` 参数，用于指定变量名称（如 "isSelected" 或 "qty"）
+   - 创建了 `sumTermStrings` 列表
+   - 在循环中构建字符串：`partVar.getBase().getShortCode() + "." + varName + "*" + attrValue`
+   - 使用 `String.join(" + ", sumTermStrings)` 连接所有项
+   - 使用 `log.info("Sum formula: {}", sumFormulaBase)` 打印公式
+
+3. **更新了调用方法**：
+   - `sum4Selected` 传入 `"isSelected"`
+   - `sum4Quantity` 传入 `"qty"`
+
+现在 `sum4Parts` 方法会像 `sumFunConstraint` 一样打印求和公式，便于调试和查看约束表达式。
+
+---
+
