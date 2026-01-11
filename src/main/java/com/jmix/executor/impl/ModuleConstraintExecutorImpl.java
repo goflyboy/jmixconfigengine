@@ -24,6 +24,7 @@ import com.jmix.executor.omodel.ParaInst;
 import com.jmix.executor.omodel.PartConstraintReq;
 import com.jmix.executor.omodel.PartInst;
 import com.jmix.executor.omodel.Result;
+import com.jmix.executor.omodel.RunInferParasRsp;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,8 +33,6 @@ import com.google.ortools.sat.CpModel;
 import com.google.ortools.sat.CpSolver;
 import com.google.ortools.sat.CpSolverStatus;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -52,33 +51,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 @Slf4j
 public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
-
-    /**
-     * 运行推理参数响应数据类
-     */
-    @Data
-    @AllArgsConstructor
-    private static class RunInferParasRsp {
-        /**
-         * 求解器状态
-         */
-        private final CpSolverStatus status;
-
-        /**
-         * 模块实例解决方案回调
-         */
-        private final ModuleInstSolutionCallBack solutionCallBack;
-
-        /**
-         * 算法CP模型
-         */
-        private final AlgCPModel algCPModel;
-
-        /**
-         * CP求解器
-         */
-        private final CpSolver solver;
-    }
 
     private final Map<Long, Module> moduleMap = new HashMap<>();
 

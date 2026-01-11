@@ -921,6 +921,8 @@ public class InferPartCategoryReq {
      * 部件分类代码
      */
     private String partCatagoryCode;
+
+	private boolean isEnumerateAllSolution;
 }
 
 
@@ -928,26 +930,85 @@ public class InferPartCategoryReq {
 2.1 
 修改前：
 Result<List<ModuleInst>> inferParas(InferParasReq req) {
+	...
+	module.init();
 
+}
 修改后：
-
+ 
 Result<List<ModuleInst>> inferParas(InferParasReq req) {
-
+	...
+	module.init();
+	PartCategoryConstraintExecutorImpl partCatagoryExcutor= new ...
+	cReq = toInferPartCategoryReq(req);
+	partCatagoryExcutor.processPartCategory();
+}
    
 2.2 增加函数 toInferPartCategoryReq(InferParasReq req) -->InferPartCategoryReq  {...}
 2.3 
 
 
 
-新建一个类
+
+3、新建一个类PartCategoryConstraintExecutorImpl
 class PartCategoryConstraintExecutorImpl {
 
-void processPartCategory(InferPartCategoryReq partCatagoryReq, Module module) {
+Result<List<ModuleInst>> processPartCategory(InferPartCategoryReq partCatagoryReq, Module module,boolean isAttachRelax,List<RelaxVar> confictedRelaxs) {
 	ConstraintAlgImpl alg = createConstraintAlg(module.id,module.code);
-    partCategory = module.findPartCategory(partCatagoryReq.partCatagoryCode);
+    filteredCategory = module.findPartCategory(partCatagoryReq.partCatagoryCode);
 	for (PartConstraintReq partConstraintReq : partCatagoryReq.partConstraintReqs) {
             // 查询满足条件的PartCategory
-            PartCategory filteredCategory = partCategory.query(partConstraintReq);
+            filteredCategory = partCategory.query(partConstraintReq); 
+	}
+ 	CpModel model = new CpModel();
+	alg.initModel(model, module, isAttachRelax=false, confictedRelaxs);//confictedRelaxs
+    initModelByReq(filteredCategory,req,alg); 
+        // 添加松弛目标函数, 方便调试
+    alg.addRelaxObjectFunction();
+
+
+    if (config.isLogModelProto()) {
+            // 将module的CpModelProto信息输出到文件config.logFilePath/module.proto.txt
+            model.exportToFile(config.getLogFilePath() + File.separator + module.getCode() + ".proto.txt");
+    }
+	CpSolver solver = new CpSolver();
+        solver.getParameters().setEnumerateAllSolutions(req.isEnumerateAllSolution());
+        solver.getParameters().setNumSearchWorkers(1); // 单线程搜索，防止有重复解
+        log.info("solver parameters:\n" + solver.getParameters().toString());
+        // 可按需设置更多参数
+        ModuleInstSolutionCallBack cb = new ModuleInstSolutionCallBack(module, alg.getVars(), alg.getOtherVarMap());
+        CpSolverStatus status = solver.solve(model, cb);
+  // 如果模型无效，调用ValidateCpModel获取详细错误信息
+            if (status == CpSolverStatus.MODEL_INVALID) {
+                // 重新获取模型进行验证
+                ConstraintAlgImpl alg = initConstraintModel(module, req, false, new ArrayList<>());
+                CpModel model = alg.getModel().getCpModel();
+                String validationError = model.validate();
+                log.error("Model validation failed: {}", validationError);
+                return Result.failed("Model validation failed: " + validationError);
+            }
+
+            if (status != CpSolverStatus.OPTIMAL && status != CpSolverStatus.FEASIBLE
+                    && status != CpSolverStatus.INFEASIBLE) {
+                return Result.failed("solver status: " + status);
+            }
+			if (status == CpSolverStatus.INFEASIBLE ) {
+				 return Result.sucess("solver status: " + status);
+			}
+}
+ private void initModelByReq(PartCategory filteredCategory，InferPartCategoryReq req, ConstraintAlgImpl alg) {
+
+        if (req.getPreParaInsts() != null) {
+            for (ParaInst paraInst : req.getPreParaInsts()) {
+                alg.addParaEquality(paraInst.getCode(), paraInst.getValue());
+            }
+        }
+        if (req.getPrePartInsts() != null) {
+            for (PartInst partInst : req.getPrePartInsts()) {
+                alg.addPartEquality(partInst.getCode(), partInst.getQuantity());
+            }
+        }
+
 
             // 获取所有叶子部件
             List<Part> filterParts = filteredCategory.getAllLeafParts();
@@ -955,68 +1016,29 @@ void processPartCategory(InferPartCategoryReq partCatagoryReq, Module module) {
                     partConstraintReq.getAttrWhereCondition());
             List<Part> unFilterParts = PartCategory.calcUnFilterLeafParts(partCategory, filterParts);
 
+            // 解析属性
+            Pair<DynamicAttribute, String> result = partCategory.parseAttribute(partConstraintReq.getAttrCode(),
+                    partCategory.getDynAttrSchemas());
+
+            // 根据result.second构建约束表达式
+            if (AttrFunConstant.FUN_PREFIX_SUM.equals(result.getSecond())) {
+                alg.sumFunConstraint(filterParts, result.getFirst().getCode(), partConstraintReq.getAttrComparator(),
+                        Integer.parseInt(partConstraintReq.getAttrValue()));
+                alg.setPartUnSelected(unFilterParts);
+            }
+ }
 
 
-
-
-	}
-
-}
-
-
-
-
- ConstraintAlgImpl createConstraintAlg(long moduleId, String moduleCode) throws AlgLoaderException {
-    private ConstraintAlgImpl initConstraintModel(Module module, InferPartCategoryReq req,
-            boolean isAttachRelax, List<RelaxVar> confictedRelaxs)
-            throws AlgLoaderException, AlgExecutorException {
-        // 加载算法类
-        ModuleAlgClassLoader loader = getModuleClassLoader(module.getId());
-        if (loader == null) {
-            log.error("ModuleAlgClassLoader not found for module: {}", module.getId());
-            throw new AlgLoaderException("ModuleAlgClassLoader not found for module: " + module.getId());
-        }
-
-        // 初始化约束模型
-        ConstraintAlgImpl alg = loader.newConstraintAlg(module.getCode());
-        CpModel model = new CpModel();
-
-        // 根据loadType决定是否使用差量加载模型
-        if (config.getLoadType() == ConstraintConfig.LOAD_TYPE_INCREMENTAL) {
-            // 差量加载模型
-            List<String> inputProgObjs = buildInputProgObjs(req);
-
-            // 查询子图
-            Pair<List<String>, List<RefProgObjSchema>> relativePair = module
-                    .querySubGraph(inputProgObjs.toArray(new String[0]));
-
-            // 打印relativePair.first,relativePair.second, 本次推理涉及到exeRules和exeProgObjs
-            log.info("Incremental loading - involved rules: {}", relativePair.getFirst());
-            log.info("Incremental loading - involved progObjs: {}",
-                    relativePair.getSecond().stream().map(RefProgObjSchema::getProgObjCode)
-                            .collect(java.util.stream.Collectors.toList()));
-
-            // 调用新的initModel方法
-            alg.initModel(model, module, relativePair.getFirst(), relativePair.getSecond(), isAttachRelax,
-                    confictedRelaxs);
-        } else {
-            // 全量加载模型
-            alg.initModel(model, module, isAttachRelax, confictedRelaxs);
-        }
-
-        // 根据请求初始化约束模型
-        initModelByReq(req, alg);
-
-        // 添加松弛目标函数, 方便调试
-        alg.addRelaxObjectFunction();
-        return alg;
-    }
-
+ 
 
 
 
 
 }
+
+
+TODO: 约束冲突的问题
+            if (status == CpSolverStatus.INFEASIBLE && config.isDebugByRelaxVar()) {
 
    
 
