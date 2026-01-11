@@ -12,6 +12,7 @@ import com.jmix.executor.impl.algmodel.AlgCPModel;
 import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
 import com.jmix.executor.impl.algmodel.RelaxVar;
 import com.jmix.executor.impl.util.Pair;
+import com.jmix.executor.impl.util.ReqUtils;
 import com.jmix.executor.omodel.AlgExecutorException;
 import com.jmix.executor.omodel.AlgLoaderException;
 import com.jmix.executor.omodel.AttrFunConstant;
@@ -365,7 +366,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
         // 根据loadType决定是否使用差量加载模型
         if (config.getLoadType() == ConstraintConfig.LOAD_TYPE_INCREMENTAL) {
             // 差量加载模型
-            List<String> inputProgObjs = buildInputProgObjs(req);
+            List<String> inputProgObjs = ReqUtils.buildInputProgObjs(req);
 
             // 查询子图
             Pair<List<String>, List<RefProgObjSchema>> relativePair = module
@@ -391,33 +392,6 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
         // 添加松弛目标函数, 方便调试
         alg.addRelaxObjectFunction();
         return alg;
-    }
-
-    /**
-     * 构建输入编程对象列表
-     * 
-     * @param req 参数反推请求
-     * @return 输入编程对象代码列表
-     */
-    private List<String> buildInputProgObjs(InferParasReq req) {
-        List<String> inputProgObjs = new ArrayList<>();
-
-        // 根据req.mainPartInst、preParaInsts、prePartInsts构建inputProgObjs（三个结合相加)
-        if (req.getMainPartInst() != null) {
-            inputProgObjs.add(req.getMainPartInst().getCode());
-        }
-        if (req.getPreParaInsts() != null) {
-            for (ParaInst paraInst : req.getPreParaInsts()) {
-                inputProgObjs.add(paraInst.getCode());
-            }
-        }
-        if (req.getPrePartInsts() != null) {
-            for (PartInst partInst : req.getPrePartInsts()) {
-                inputProgObjs.add(partInst.getCode());
-            }
-        }
-
-        return inputProgObjs;
     }
 
     /**

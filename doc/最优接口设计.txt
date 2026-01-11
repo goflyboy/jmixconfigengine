@@ -944,7 +944,22 @@ class PartCategoryConstraintExecutorImpl {
 
 void processPartCategory(InferPartCategoryReq partCatagoryReq, Module module) {
 	ConstraintAlgImpl alg = createConstraintAlg(module.id,module.code);
-	module.
+    partCategory = module.findPartCategory(partCatagoryReq.partCatagoryCode);
+	for (PartConstraintReq partConstraintReq : partCatagoryReq.partConstraintReqs) {
+            // 查询满足条件的PartCategory
+            PartCategory filteredCategory = partCategory.query(partConstraintReq);
+
+            // 获取所有叶子部件
+            List<Part> filterParts = filteredCategory.getAllLeafParts();
+            log.info("filterParts size: {} after filter req.whereCondition: {}", filterParts.size(),
+                    partConstraintReq.getAttrWhereCondition());
+            List<Part> unFilterParts = PartCategory.calcUnFilterLeafParts(partCategory, filterParts);
+
+
+
+
+
+	}
 
 }
 
