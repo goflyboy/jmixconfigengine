@@ -7,8 +7,11 @@ import com.jmix.executor.impl.algmodel.ParaOptionVar;
 import com.jmix.executor.impl.algmodel.Var;
 import com.jmix.executor.omodel.AlgLoaderException;
 
+import com.google.common.base.Strings;
 import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.IntVar;
+import com.google.ortools.sat.LinearArgument;
+import com.google.ortools.sat.LinearExpr;
 
 import java.util.HashMap;
 import java.util.List;
@@ -147,4 +150,43 @@ public class ConstraintAlgImplTestBase extends ConstraintAlgImpl {
         super.addCompatibleConstraintRequires(ruleCode, super.getParaVar(leftParaVar.getCode()),
                 leftParaFilterOptionCodes, super.getParaVar(rightParaVar.getCode()), rightParaFilterOptionCodes);
     }
+
+    public LinearExpr sum4Selected() {
+        return sum4Selected(null);
+    }
+
+    public LinearExpr sum4Selected(String cofAttrCode) {
+        com.jmix.executor.impl.algmodel.PartVar partVar = null;
+        LinearArgument[] sumTerms = new LinearArgument[super.getModule().getParts().size()];
+        int index = 0;
+        boolean isWithoutAttr = Strings.isNullOrEmpty(cofAttrCode);
+        for (Part part : super.getModule().getParts()) {
+            partVar = super.getPartVar(part.getCode());
+            int attrValue = isWithoutAttr ? 1 : Integer.parseInt(part.getAttr(cofAttrCode));
+            sumTerms[index] = LinearExpr.term(partVar.getIsSelected(), attrValue);
+            index++;
+        }
+        LinearExpr sumSelected = LinearExpr.sum(sumTerms);
+        return sumSelected;
+    }
+
+    public LinearExpr sum4Quantity() {
+        return sum4Selected(null);
+    }
+
+    public LinearExpr sum4Quantity(String cofAttrCode) {
+        com.jmix.executor.impl.algmodel.PartVar partVar = null;
+        LinearArgument[] sumTerms = new LinearArgument[super.getModule().getParts().size()];
+        int index = 0;
+        boolean isWithoutAttr = Strings.isNullOrEmpty(cofAttrCode);
+        for (Part part : super.getModule().getParts()) {
+            partVar = super.getPartVar(part.getCode());
+            int attrValue = isWithoutAttr ? 1 : Integer.parseInt(part.getAttr(cofAttrCode));
+            sumTerms[index] = LinearExpr.term(partVar.getQty(), attrValue);
+            index++;
+        }
+        LinearExpr sumSelected = LinearExpr.sum(sumTerms);
+        return sumSelected;
+    }
+
 }

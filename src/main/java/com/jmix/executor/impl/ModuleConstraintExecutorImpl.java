@@ -113,6 +113,9 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
         if (req == null) {
             return Result.failed("req is null");
         }
+        if (req.getPartConstraintReqs() == null || req.getPartConstraintReqs().isEmpty()) {
+            return inferParasOld(req);
+        }
         try {
             // 获取基础数据
             Module module = getModule(req.getModuleId(), req.getModuleCode());
@@ -128,6 +131,64 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
                     loader);
             InferPartCategoryReq cReq = toInferPartCategoryReq(req);
             return partCatagoryExcutor.processPartCategory(cReq, module, false, new ArrayList<>());
+        } catch (AlgLoaderException | AlgExecutorException ex) {
+            log.error("Failed to infer paras", ex);
+            return Result.failed("exception: " + ex.getMessage());
+        }
+    }
+
+    private Result<List<ModuleInst>> inferParasOld(InferParasReq req) {
+        if (req == null) {
+            return Result.failed("req is null");
+        }
+        try {
+            // 获取基础数据
+            Module module = getModule(req.getModuleId(), req.getModuleCode());
+            module.init();
+
+            // 执行约束推理
+            RunInferParasRsp result = runInferParas(module, req, false, new ArrayList<>());
+            CpSolverStatus status = result.getStatus();
+            ModuleInstSolutionCallBack cb = result.getSolutionCallBack();
+            // 如果模型无效，调用ValidateCpModel获取详细错误信息
+            if (status == CpSolverStatus.MODEL_INVALID) {
+                // 重新获取模型进行验证
+                ConstraintAlgImpl alg = initConstraintModel(module, req, false, new ArrayList<>());
+                CpModel model = alg.getModel().getCpModel();
+                String validationError = model.validate();
+                log.error("Model validation failed: {}", validationError);
+                return Result.failed("Model validation failed: " + validationError);
+            }
+
+            if (status != CpSolverStatus.OPTIMAL && status != CpSolverStatus.FEASIBLE
+                    && status != CpSolverStatus.INFEASIBLE) {
+                return Result.failed("solver status: " + status);
+            }
+            if (status == CpSolverStatus.INFEASIBLE && config.isDebugByRelaxVar()) {
+                // 没有可行解，如果 debugByRelaxVar= true，则使用松弛变量检测冲突规则
+                Pair<List<RelaxVar>, RunInferParasRsp> rcResult = null;
+                List<RelaxVar> confictedRelaxs = new ArrayList<>();
+
+                // 第一次运行
+                rcResult = runCalcConfictRules(module, req, true, confictedRelaxs);
+                confictedRelaxs.addAll(rcResult.getFirst());
+
+                // 第二次运行，使用第一次的冲突结果
+                rcResult = runCalcConfictRules(module, req, true, confictedRelaxs);
+                confictedRelaxs.addAll(rcResult.getFirst());
+
+                Result<List<ModuleInst>> r = Result.noSolution(toConfictMessage(confictedRelaxs));
+
+                // 最后一次solution的解
+                List<ModuleInst> solutions = rcResult.getSecond().getSolutionCallBack().getAllSolutions();
+                r.setData(solutions);
+                return r;
+            }
+            // 执行后处理
+            List<ModuleInst> solutions = cb.getAllSolutions();
+            solutions = executePostProcess(module, solutions);
+
+            return Result.success(solutions);
         } catch (AlgLoaderException | AlgExecutorException ex) {
             log.error("Failed to infer paras", ex);
             return Result.failed("exception: " + ex.getMessage());

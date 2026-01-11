@@ -3,14 +3,11 @@ package com.jmix.executor.impl;
 import com.jmix.executor.imodel.ConstraintConfig;
 import com.jmix.executor.imodel.DynamicAttribute;
 import com.jmix.executor.imodel.Module;
-import com.jmix.executor.imodel.Para;
 import com.jmix.executor.imodel.Part;
 import com.jmix.executor.imodel.PartCategory;
-import com.jmix.executor.imodel.Rule;
 import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
 import com.jmix.executor.impl.algmodel.RelaxVar;
 import com.jmix.executor.impl.util.Pair;
-import com.jmix.executor.imodel.rule.RefProgObjSchema;
 import com.jmix.executor.omodel.AttrFunConstant;
 import com.jmix.executor.omodel.InferPartCategoryReq;
 import com.jmix.executor.omodel.ModuleInst;
@@ -28,7 +25,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * 部件分类约束执行器实现类
@@ -50,7 +46,7 @@ public class PartCategoryConstraintExecutorImpl {
      * 处理部件分类约束
      * 
      * @param partCatagoryReq 部件分类请求
-     * @param module           模块对象
+     * @param module          模块对象
      * @param isAttachRelax   是否附加松弛变量
      * @param confictedRelaxs 冲突松弛变量列表
      * @return 推理结果
@@ -77,13 +73,9 @@ public class PartCategoryConstraintExecutorImpl {
                 }
             }
 
-            // 收集所有相关规则（Module规则 + PartCategory规则）
-            List<String> allRules = collectAllRules(module, originalCategory);
-            List<RefProgObjSchema> allProgObjs = collectAllProgObjs(module);
-
             // 创建CP模型
             CpModel model = new CpModel();
-            alg.initModel(model, module, allRules, allProgObjs, isAttachRelax, confictedRelaxs);
+            alg.initModel(model, filteredCategory, isAttachRelax, confictedRelaxs);
 
             // 根据请求初始化约束模型
             initModelByReq(filteredCategory, partCatagoryReq, alg);
@@ -138,8 +130,8 @@ public class PartCategoryConstraintExecutorImpl {
      * 根据请求初始化约束模型
      * 
      * @param filteredCategory 过滤后的部件分类
-     * @param req               部件分类请求
-     * @param alg               约束算法实现
+     * @param req              部件分类请求
+     * @param alg              约束算法实现
      */
     private void initModelByReq(PartCategory filteredCategory, InferPartCategoryReq req, ConstraintAlgImpl alg) {
         if (req.getPreParaInsts() != null) {
@@ -167,7 +159,7 @@ public class PartCategoryConstraintExecutorImpl {
                 // 处理最后一个约束请求
                 PartConstraintReq lastPartConstraintReq = req.getPartConstraintReqs()
                         .get(req.getPartConstraintReqs().size() - 1);
-                
+
                 log.info("filterParts size: {} after filter req.whereCondition: {}", filterParts.size(),
                         lastPartConstraintReq.getAttrWhereCondition());
 
@@ -188,73 +180,6 @@ public class PartCategoryConstraintExecutorImpl {
     }
 
     /**
-     * 收集所有相关规则（Module规则 + PartCategory规则）
-     * 
-     * @param module           模块对象
-     * @param filteredCategory 过滤后的部件分类
-     * @return 所有规则代码列表
-     */
-    private List<String> collectAllRules(Module module, PartCategory filteredCategory) {
-        List<String> allRules = new ArrayList<>();
-        
-        // 添加Module的规则
-        if (module.getRules() != null) {
-            for (Rule rule : module.getRules()) {
-                allRules.add(rule.getCode());
-            }
-        }
-        
-        // 添加PartCategory及其所有父分类的规则
-        PartCategory currentCategory = filteredCategory;
-        while (currentCategory != null) {
-            if (currentCategory.getRules() != null) {
-                for (Rule rule : currentCategory.getRules()) {
-                    allRules.add(rule.getCode());
-                }
-            }
-            // 查找父分类
-            if (currentCategory.getFatherCode() != null && !currentCategory.getFatherCode().isEmpty()) {
-                Optional<Part> parentOpt = module.getPart(currentCategory.getFatherCode());
-                if (parentOpt.isPresent() && parentOpt.get() instanceof PartCategory) {
-                    currentCategory = (PartCategory) parentOpt.get();
-                } else {
-                    break;
-                }
-            } else {
-                break;
-            }
-        }
-        
-        return allRules;
-    }
-
-    /**
-     * 收集所有编程对象
-     * 
-     * @param module 模块对象
-     * @return 所有编程对象Schema列表
-     */
-    private List<RefProgObjSchema> collectAllProgObjs(Module module) {
-        List<RefProgObjSchema> allProgObjs = new ArrayList<>();
-        
-        // 添加所有部件
-        if (module.getParts() != null) {
-            for (Part part : module.getParts()) {
-                allProgObjs.add(new RefProgObjSchema(RefProgObjSchema.PROG_OBJ_TYPE_PART, part.getCode(), ""));
-            }
-        }
-        
-        // 添加所有参数
-        if (module.getParas() != null) {
-            for (Para para : module.getParas()) {
-                allProgObjs.add(new RefProgObjSchema(RefProgObjSchema.PROG_OBJ_TYPE_PARA, para.getCode(), ""));
-            }
-        }
-        
-        return allProgObjs;
-    }
-
-    /**
      * 创建约束算法实例
      * 
      * @param moduleId   模块ID
@@ -265,4 +190,3 @@ public class PartCategoryConstraintExecutorImpl {
         return moduleAlgClassLoader.newConstraintAlg(moduleCode);
     }
 }
-

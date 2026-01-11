@@ -80,6 +80,9 @@ public class PartCategory extends Part implements IModule {
         pc.setDynAttrSchemas(this.getDynAttrSchemas());
         pc.setDynAttrSchema(this.getDynAttrSchema());
 
+        pc.setRules(new ArrayList<>(this.getRules()));
+        pc.setParas(new ArrayList<>(this.getParas()));// TODO 后续参数值可能会有变化
+
         // 不复制partCategoryMap和partMap，这些将在init方法中重新初始化
         return pc;
     }

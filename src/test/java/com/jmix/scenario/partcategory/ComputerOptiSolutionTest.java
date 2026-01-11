@@ -12,7 +12,6 @@ import com.jmix.executor.imodel.anno.DAttrInherit;
 import com.jmix.executor.imodel.anno.ModuleAnno;
 import com.jmix.executor.imodel.anno.PartAnno;
 
-import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.LinearExpr;
 
@@ -90,34 +89,17 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
             log.info("xxx");
             // Constraint: At most one type of solid drive can be selected
             // sd1.isSelected + sd2.isSelected + sd3.isSelected <= 1
-            LinearExpr sumSelected = LinearExpr
-                    .sum(new BoolVar[] { sd1.isSelected, sd2.isSelected, sd3.isSelected });
+            // LinearExpr sumSelected = LinearExpr
+            // .sum(new BoolVar[] { sd1.isSelected, sd2.isSelected, sd3.isSelected });
+            LinearExpr sumSelected = sum4Selected();
             model.addLessOrEqual(sumSelected, 1);
 
             // Constraint: Total quantity of solid drives <= 2
             // sd1.qty + sd2.qty + sd3.qty <= 2
-            LinearExpr sumQty = LinearExpr.sum(new IntVar[] { sd1.qty, sd2.qty, sd3.qty });
+            // LinearExpr sumQty = LinearExpr.sum(new IntVar[] { sd1.qty, sd2.qty, sd3.qty
+            // });
+            LinearExpr sumQty = sum4Quantity();
             model.addLessOrEqual(sumQty, 2);
-
-            // Constraint: If sd1 is selected, its quantity must be >= 0 (implicitly
-            // true, but we can enforce qty >= 0 if selected)
-            // This is a logical implication: isSelected -> qty >= 0. Since qty is
-            // non-negative by definition, we don't need to add a constraint.
-            // However, we need to link isSelected to qty > 0. Typically, if selected, qty >
-            // 0.
-            // We'll add: isSelected -> qty >= 1, and not isSelected -> qty == 0
-            // This is a common pattern for part selection.
-            // model.addGreaterOrEqual(sd1.qty, 1).onlyEnforceIf(sd1.isSelected);
-            // model.addEquality(sd1.qty, 0).onlyEnforceIf(sd1.isSelected.not());
-
-            // model.addGreaterOrEqual(sd2.qty, 1).onlyEnforceIf(sd2.isSelected);
-            // model.addEquality(sd2.qty, 0).onlyEnforceIf(sd2.isSelected.not());
-
-            // model.addGreaterOrEqual(sd3.qty, 1).onlyEnforceIf(sd3.isSelected);
-            // model.addEquality(sd3.qty, 0).onlyEnforceIf(sd3.isSelected.not());
-
-            // Add hidden constraints if needed (rule does not involve isHidden, so not
-            // required)
         }
 
         // rule2://固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量
@@ -129,6 +111,11 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
                        max(solidCapacityWeight        + mechCapacityWeight)
                 """)
         private void rule2() {
+            LinearExpr sumCapacityWeight = sum4Selected("capacityWeight");
+            model.maximize(sumCapacityWeight);
+        }
+
+        private void rule2_backup() {
             final int SOLID1_WEIGHT = 100;
             final int SOLID2_WEIGHT = 200;
             final int SOLID3_WEIGHT = 300;
