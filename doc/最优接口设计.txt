@@ -1044,7 +1044,7 @@ Result<List<ModuleInst>> processPartCategory(InferPartCategoryReq partCatagoryRe
 
 
 
-请按下列设计进行设计，请完成
+请按下列设计进行开发，并完成ComputerOptiSolutionTest的测试
 
 0、类InferPartCategoryReq增加
 int maxSolutionNum; //最大solution的个数

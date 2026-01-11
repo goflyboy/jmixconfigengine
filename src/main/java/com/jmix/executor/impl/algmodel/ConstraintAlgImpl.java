@@ -5,7 +5,10 @@ import com.jmix.executor.imodel.IModule;
 import com.jmix.executor.imodel.Para;
 import com.jmix.executor.imodel.Part;
 import com.jmix.executor.imodel.PartCategory;
+import com.jmix.executor.imodel.PriorityConstraint;
+import com.jmix.executor.imodel.PriorityType;
 import com.jmix.executor.imodel.Rule;
+import com.jmix.executor.imodel.anno.PriorityRuleAnno;
 import com.jmix.executor.imodel.rule.RefProgObjSchema;
 import com.jmix.executor.omodel.AlgLoaderException;
 import com.jmix.executor.omodel.PartConstantAttr;
@@ -71,6 +74,11 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * 所有规则方法的映射表，存储规则代码到对应方法的映射
      */
     protected Map<String, Method> ruleMethods = new HashMap<>();
+
+    /**
+     * 优先级约束映射表，存储属性代码到优先级约束的映射
+     */
+    protected Map<String, PriorityConstraint> priorityRuleMap = new HashMap<>();
 
     /**
      * 添加和隐藏相关的约束的Var
@@ -246,6 +254,12 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             if (method != null) {
                 ruleMethods.put(ruleCode, method);
                 log.info("Built rule method mapping: {} -> {}", ruleCode, method.getName());
+
+                // 检查是否有PriorityRuleAnno注解，如果有则构建优先级约束
+                PriorityRuleAnno priorityRuleAnno = method.getAnnotation(PriorityRuleAnno.class);
+                if (priorityRuleAnno != null) {
+                    buildPriorityConstraint(rule, priorityRuleAnno);
+                }
             } else {
                 log.error("Rule method not found for rule code: {}", ruleCode);
                 throw new AlgLoaderException("Rule method not found for rule code: " + ruleCode);
@@ -253,6 +267,44 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         }
 
         log.info("Built {} rule methods from module rules", ruleMethods.size());
+    }
+
+    /**
+     * 构建优先级约束
+     * 
+     * @param rule             规则对象
+     * @param priorityRuleAnno 优先级规则注解
+     */
+    private void buildPriorityConstraint(Rule rule, PriorityRuleAnno priorityRuleAnno) {
+        String attrCode = priorityRuleAnno.attrCode();
+        if (attrCode == null || attrCode.isEmpty()) {
+            log.warn("PriorityRuleAnno attrCode is empty for rule: {}", rule.getCode());
+            return;
+        }
+
+        PriorityConstraint pConstraint = new PriorityConstraint();
+        pConstraint.setRuleCode(rule.getCode());
+        pConstraint.setStrategy(priorityRuleAnno.strategy());
+        pConstraint.setAttrCode(attrCode);
+        pConstraint.setType(priorityRuleAnno.type());
+
+        // 根据类型构建表达式
+        PriorityType type = priorityRuleAnno.type();
+        if (type == PriorityType.SELECT) {
+            // 选择性，使用 sum4Selected
+            pConstraint.setExpr(sum4Selected(attrCode));
+        } else if (type == PriorityType.SUMARIZE) {
+            // 汇总性，使用 sum4Quantity
+            pConstraint.setExpr(sum4Quantity(attrCode));
+        } else {
+            log.warn("Unknown PriorityType: {} for rule: {}", type, rule.getCode());
+            return;
+        }
+
+        // 存储到 priorityRuleMap，使用 attrCode 作为 key
+        priorityRuleMap.put(attrCode, pConstraint);
+        log.info("Built priority constraint for attrCode: {}, ruleCode: {}, strategy: {}, type: {}",
+                attrCode, rule.getCode(), priorityRuleAnno.strategy(), type);
     }
 
     /**
@@ -651,6 +703,15 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     }
 
     /**
+     * 获取优先级规则映射表
+     * 
+     * @return 优先级规则映射表
+     */
+    public Map<String, PriorityConstraint> getPriorityRuleMap() {
+        return priorityRuleMap;
+    }
+
+    /**
      * 创建参数变量
      * 
      * @param code 参数代码
@@ -795,6 +856,71 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
         log.info("Added sum constraint: {}", sumFormula);
 
+    }
+
+    /**
+     * 通用的部件求和方法，根据指定的变量获取函数计算总和
+     * 
+     * @param cofAttrCode 属性代码，如果为null或空则使用默认值1
+     * @param varGetter   从PartVar获取LinearArgument的函数（如getIsSelected或getQty）
+     * @param varName     变量名称（如"isSelected"或"qty"），用于构建字符串表达式
+     * @return 求和后的LinearExpr表达式
+     */
+    private LinearExpr sum4Parts(String cofAttrCode,
+            java.util.function.Function<PartVar, LinearArgument> varGetter, String varName) {
+        List<Part> atomicParts = module.getAtomicParts();
+        List<LinearExpr> sumTerms = new ArrayList<>();
+        List<String> sumTermStrings = new ArrayList<>();
+        boolean isWithoutAttr = cofAttrCode == null || cofAttrCode.isEmpty();
+
+        for (Part part : atomicParts) {
+            PartVar partVar = getPartVar(part.getCode());
+            int attrValue = isWithoutAttr ? 1 : Integer.parseInt(part.getAttr(cofAttrCode));
+            sumTerms.add(LinearExpr.term(varGetter.apply(partVar), attrValue));
+            sumTermStrings.add(partVar.getBase().getShortCode() + "." + varName + "*" + attrValue);
+        }
+
+        String sumFormulaBase = String.join(" + ", sumTermStrings);
+        log.info("Sum formula: {}", sumFormulaBase);
+        return LinearExpr.sum(sumTerms.toArray(new LinearExpr[0]));
+    }
+
+    /**
+     * 对选中的部件求和（带属性系数）
+     * 
+     * @param cofAttrCode 属性代码，如果为null或空则使用默认值1
+     * @return 求和后的LinearExpr表达式
+     */
+    public LinearExpr sum4Selected(String cofAttrCode) {
+        return sum4Parts(cofAttrCode, PartVar::getIsSelected, "S");
+    }
+
+    /**
+     * 对选中的部件求和（不带属性系数）
+     * 
+     * @return 求和后的LinearExpr表达式
+     */
+    public LinearExpr sum4Selected() {
+        return sum4Selected(null);
+    }
+
+    /**
+     * 对数量的部件求和（带属性系数）
+     * 
+     * @param cofAttrCode 属性代码，如果为null或空则使用默认值1
+     * @return 求和后的LinearExpr表达式
+     */
+    public LinearExpr sum4Quantity(String cofAttrCode) {
+        return sum4Parts(cofAttrCode, PartVar::getQty, "Q");
+    }
+
+    /**
+     * 对数量的部件求和（不带属性系数）
+     * 
+     * @return 求和后的LinearExpr表达式
+     */
+    public LinearExpr sum4Quantity() {
+        return sum4Quantity(null);
     }
 
     /**

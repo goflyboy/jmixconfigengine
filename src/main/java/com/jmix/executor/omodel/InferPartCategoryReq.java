@@ -36,5 +36,9 @@ public class InferPartCategoryReq {
      * 部件分类代码
      */
     private String partCatagoryCode;
-}
 
+    /**
+     * 最大solution的个数
+     */
+    private int maxSolutionNum = 10;
+}

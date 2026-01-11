@@ -20,7 +20,8 @@ import java.util.List;
         @JsonSubTypes.Type(value = CompatiableRuleSchema.class, name = "CompatiableRule"),
         @JsonSubTypes.Type(value = CalculateRuleSchema.class, name = "CalculateRule"),
         @JsonSubTypes.Type(value = SelectRuleSchema.class, name = "SelectRule"),
-        @JsonSubTypes.Type(value = CodeRuleSchema.class, name = "CodeRule")
+        @JsonSubTypes.Type(value = CodeRuleSchema.class, name = "CodeRule"),
+        @JsonSubTypes.Type(value = PriorityRuleSchema.class, name = "PriorityRule")
 })
 public abstract class RuleSchema {
     /**

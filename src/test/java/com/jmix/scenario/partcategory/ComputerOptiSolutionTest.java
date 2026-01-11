@@ -3,6 +3,8 @@ package com.jmix.scenario.partcategory;
 import com.jmix.coretest.ConstraintAlgImplTestBase;
 import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.executor.imodel.DynamicAttributeType;
+import com.jmix.executor.imodel.PriorityStrategy;
+import com.jmix.executor.imodel.PriorityType;
 import com.jmix.executor.imodel.anno.CodeRuleAnno;
 import com.jmix.executor.imodel.anno.DAttrAnno1;
 import com.jmix.executor.imodel.anno.DAttrAnno2;
@@ -11,6 +13,7 @@ import com.jmix.executor.imodel.anno.DAttrAnno4;
 import com.jmix.executor.imodel.anno.DAttrInherit;
 import com.jmix.executor.imodel.anno.ModuleAnno;
 import com.jmix.executor.imodel.anno.PartAnno;
+import com.jmix.executor.imodel.anno.PriorityRuleAnno;
 
 import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.LinearExpr;
@@ -103,16 +106,9 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
         }
 
         // rule2://固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量
-        @CodeRuleAnno(fatherCode = "drive", normalNaturalCode = """
-                     solidCapacityWeight =  sd1.isSelected *  capacityWeight + sd2.isSelected.capacityWeight
-                             + sd3.isSelected * capacityWeight
-                      mechCapacityWeight = md1.isSelected * capacityWeight + md2.isSelected * capacityWeight
-                            +  md3.isSelected * capacityWeight
-                       max(solidCapacityWeight        + mechCapacityWeight)
-                """)
+        @PriorityRuleAnno(fatherCode = "drive", normalNaturalCode = "固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量", attrCode = "capacityWeight", strategy = PriorityStrategy.MAX, type = PriorityType.SELECT)
         private void rule2() {
-            LinearExpr sumCapacityWeight = sum4Selected("capacityWeight");
-            model.maximize(sumCapacityWeight);
+            // 优先级约束由系统自动处理，这里可以留空或添加其他逻辑
         }
 
         // private void rule2() {
