@@ -19,6 +19,7 @@ import com.jmix.executor.omodel.AttrFunConstant;
 import com.jmix.executor.omodel.ExtensibleProcess;
 import com.jmix.executor.omodel.InferParasPostProcess;
 import com.jmix.executor.omodel.InferParasReq;
+import com.jmix.executor.omodel.InferPartCategoryReq;
 import com.jmix.executor.omodel.ModuleInst;
 import com.jmix.executor.omodel.ParaInst;
 import com.jmix.executor.omodel.PartConstraintReq;
@@ -117,49 +118,16 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
             Module module = getModule(req.getModuleId(), req.getModuleCode());
             module.init();
 
-            // 执行约束推理
-            RunInferParasRsp result = runInferParas(module, req, false, new ArrayList<>());
-            CpSolverStatus status = result.getStatus();
-            ModuleInstSolutionCallBack cb = result.getSolutionCallBack();
-            // 如果模型无效，调用ValidateCpModel获取详细错误信息
-            if (status == CpSolverStatus.MODEL_INVALID) {
-                // 重新获取模型进行验证
-                ConstraintAlgImpl alg = initConstraintModel(module, req, false, new ArrayList<>());
-                CpModel model = alg.getModel().getCpModel();
-                String validationError = model.validate();
-                log.error("Model validation failed: {}", validationError);
-                return Result.failed("Model validation failed: " + validationError);
+            // 创建部件分类约束执行器
+            ModuleAlgClassLoader loader = getModuleClassLoader(module.getId());
+            if (loader == null) {
+                log.error("ModuleAlgClassLoader not found for module: {}", module.getId());
+                return Result.failed("ModuleAlgClassLoader not found for module: " + module.getId());
             }
-
-            if (status != CpSolverStatus.OPTIMAL && status != CpSolverStatus.FEASIBLE
-                    && status != CpSolverStatus.INFEASIBLE) {
-                return Result.failed("solver status: " + status);
-            }
-            if (status == CpSolverStatus.INFEASIBLE && config.isDebugByRelaxVar()) {
-                // 没有可行解，如果 debugByRelaxVar= true，则使用松弛变量检测冲突规则
-                Pair<List<RelaxVar>, RunInferParasRsp> rcResult = null;
-                List<RelaxVar> confictedRelaxs = new ArrayList<>();
-
-                // 第一次运行
-                rcResult = runCalcConfictRules(module, req, true, confictedRelaxs);
-                confictedRelaxs.addAll(rcResult.getFirst());
-
-                // 第二次运行，使用第一次的冲突结果
-                rcResult = runCalcConfictRules(module, req, true, confictedRelaxs);
-                confictedRelaxs.addAll(rcResult.getFirst());
-
-                Result<List<ModuleInst>> r = Result.noSolution(toConfictMessage(confictedRelaxs));
-
-                // 最后一次solution的解
-                List<ModuleInst> solutions = rcResult.getSecond().getSolutionCallBack().getAllSolutions();
-                r.setData(solutions);
-                return r;
-            }
-            // 执行后处理
-            List<ModuleInst> solutions = cb.getAllSolutions();
-            solutions = executePostProcess(module, solutions);
-
-            return Result.success(solutions);
+            PartCategoryConstraintExecutorImpl partCatagoryExcutor = new PartCategoryConstraintExecutorImpl(config,
+                    loader);
+            InferPartCategoryReq cReq = toInferPartCategoryReq(req);
+            return partCatagoryExcutor.processPartCategory(cReq, module, false, new ArrayList<>());
         } catch (AlgLoaderException | AlgExecutorException ex) {
             log.error("Failed to infer paras", ex);
             return Result.failed("exception: " + ex.getMessage());
@@ -389,6 +357,22 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
         if (req.getPartConstraintReqs() != null) {
             addPartConstraintReqs(alg, req.getPartCatagoryCode(), req.getPartConstraintReqs());
         }
+    }
+
+    /**
+     * 将InferParasReq转换为InferPartCategoryReq
+     * 
+     * @param req 参数反推请求
+     * @return 部件分类请求
+     */
+    private InferPartCategoryReq toInferPartCategoryReq(InferParasReq req) {
+        InferPartCategoryReq cReq = new InferPartCategoryReq();
+        cReq.setPreParaInsts(req.getPreParaInsts());
+        cReq.setPrePartInsts(req.getPrePartInsts());
+        cReq.setPartConstraintReqs(req.getPartConstraintReqs());
+        cReq.setEnumerateAllSolution(req.isEnumerateAllSolution());
+        cReq.setPartCatagoryCode(req.getPartCatagoryCode());
+        return cReq;
     }
 
     /**

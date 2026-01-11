@@ -941,13 +941,11 @@ Result<List<ModuleInst>> inferParas(InferParasReq req) {
 	module.init();
 	PartCategoryConstraintExecutorImpl partCatagoryExcutor= new ...
 	cReq = toInferPartCategoryReq(req);
-	partCatagoryExcutor.processPartCategory();
+	partCatagoryExcutor.processPartCategory(....);
 }
    
 2.2 增加函数 toInferPartCategoryReq(InferParasReq req) -->InferPartCategoryReq  {...}
-2.3 
-
-
+ 
 
 
 3、新建一个类PartCategoryConstraintExecutorImpl
@@ -1033,8 +1031,7 @@ Result<List<ModuleInst>> processPartCategory(InferPartCategoryReq partCatagoryRe
 
 
 
-
-}
+ 
 
 
 TODO: 约束冲突的问题
