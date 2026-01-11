@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 部件分类
@@ -385,6 +387,35 @@ public class PartCategory extends Part implements IModule {
         for (PartCategory subCategory : category.getPartCategoryMap().values()) {
             collectLeafParts(subCategory, leafParts);
         }
+    }
+
+    /**
+     * 计算未过滤的叶子部件
+     * 遍历 allPartCategory 本身的 parts 及其子 PartCategory 的 parts，
+     * 如果不在 filterLeafParts 中，添加到结果列表
+     *
+     * @param allPartCategory 所有部件分类
+     * @param filterLeafParts 已过滤的叶子部件列表
+     * @return 未过滤的叶子部件列表
+     */
+    @JsonIgnore
+    public static List<Part> calcUnFilterLeafParts(PartCategory allPartCategory, List<Part> filterLeafParts) {
+        List<Part> unFilterLeafParts = new ArrayList<>();
+        List<Part> allLeafParts = allPartCategory.getAllLeafParts();
+
+        // 使用 Set 来快速查找，提高性能
+        Set<String> filterPartCodes = filterLeafParts.stream()
+                .map(Part::getCode)
+                .collect(Collectors.toSet());
+
+        // 遍历所有叶子部件，如果不在 filterLeafParts 中，添加到 unFilterLeafParts
+        for (Part part : allLeafParts) {
+            if (!filterPartCodes.contains(part.getCode())) {
+                unFilterLeafParts.add(part);
+            }
+        }
+
+        return unFilterLeafParts;
     }
 
     /**
