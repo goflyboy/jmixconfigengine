@@ -70,18 +70,15 @@ public class PartCategoryConstraintExecutorImpl {
                 log.error("PartCategory not found: {}", partCatagoryReq.getPartCatagoryCode());
                 return Result.failed("PartCategory not found: " + partCatagoryReq.getPartCatagoryCode());
             }
-
+            log.info("orginal aparts: {}", originalCategory.getAtomicPartShortString());
             // 遍历所有部件约束请求，逐步过滤
             PartCategory filteredCategory = originalCategory;
-            if (partCatagoryReq.getPartConstraintReqs() != null) {
-                for (PartConstraintReq partConstraintReq : partCatagoryReq.getPartConstraintReqs()) {
-                    // 查询满足条件的PartCategory
-                    filteredCategory = filteredCategory.query(partConstraintReq);
-                }
+            for (PartConstraintReq partConstraintReq : partCatagoryReq.getPartConstraintReqs()) {
+                // 查询满足条件的PartCategory
+                filteredCategory = filteredCategory.query(partConstraintReq);
+                log.info("filtered aparts: {} by {}", filteredCategory.getAtomicPartShortString(),
+                        partConstraintReq.toShortString());
             }
-            // 创建CP模型
-            // CpModel model = new CpModel();
-            // alg.initModel(model, filteredCategory, isAttachRelax, confictedRelaxs);
 
             // 检查是否有优先级规则，如果有则使用分级求解
             if (filteredCategory.hasPriorityRule()) {
