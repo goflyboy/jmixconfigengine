@@ -9900,3 +9900,942 @@ Output mode: content
 
 ---
 
+
+添加 `atomicParts` 字段，并优化 `getAtomicParts()` 方法：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/imodel/Module.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/imodel/Module.java</summary>
+
+**Chunk 1**
+Lines added: 3, lines removed: undefined
+
+```diff
+@@ -79,4 +79,7 @@
+      @JsonIgnore
+      private Map&lt;String, Part&gt; partMap = new HashMap&lt;&gt;();
++ 
++     @JsonIgnore
++     private List&lt;Part&gt; atomicParts;
+  
+      @JsonIgnore
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/imodel/Module.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+Model supplied an ambiguous edit
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/imodel/Module.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -226,4 +226,5 @@
+      /**
+       * 获取原子部件列表
++      * 如果 atomicParts 为 null，则构建它
+       * 
+       * @return 原子部件列表（partType为ATOMIC的部件）
+```
+
+**Chunk 2**
+Lines added: 11, lines removed: 6
+
+```diff
+@@ -232,10 +233,15 @@
+      @JsonIgnore
+      public List&lt;Part&gt; getAtomicParts() {
+-         if (parts == null) {
+-             return new ArrayList&lt;&gt;();
+-         }
+-         return parts.stream()
+-                 .filter(part -&gt; part.getPartType() == PartType.ATOMIC)
+-                 .collect(java.util.stream.Collectors.toList());
++         if (atomicParts == null) {
++             if (parts == null) {
++                 atomicParts = new ArrayList&lt;&gt;();
++             } else {
++                 atomicParts = parts.stream()
++                         .filter(part -&gt; part.getPartType() == PartType.ATOMIC)
++                         .collect(java.util.stream.Collectors.toList());
++                 atomicParts.sort(Comparator.comparing(Part::getShortCode));
++             }
++         }
++         return atomicParts;
+      }
+  
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="generic" data-tool-name="read_lints">
+<details>
+          <summary>Tool use: **read_lints** • Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/executor/imodel/Module.java`
+
+Lint results
+
+Lint errors for `src/main/java/com/jmix/executor/imodel/Module.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| Comparator cannot be resolved | 242:34-242:44 | DIAGNOSTIC_SEVERITY_ERROR |
+
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+修复导入问题：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/imodel/Module.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/imodel/Module.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -13,4 +13,5 @@
+  
+  import java.util.ArrayList;
++ import java.util.Comparator;
+  import java.util.HashMap;
+  import java.util.LinkedHashMap;
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="generic" data-tool-name="read_lints">
+<details>
+          <summary>Tool use: **read_lints** • Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/executor/imodel/Module.java`
+
+Lint results
+
+
+**No lint errors found**
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+验证修改是否正确：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/imodel/Module.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/imodel/Module.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+查看完整的 `getAtomicParts` 方法：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/imodel/Module.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/imodel/Module.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+验证所有修改是否完成：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/imodel/Module.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+所有修改已完成。总结如下：
+
+## 完成的修改
+
+### 1. 添加了 `atomicParts` 字段
+
+在 `Module` 类中添加了带 `@JsonIgnore` 注解的字段：
+
+```83:84:src/main/java/com/jmix/executor/imodel/Module.java
+    @JsonIgnore
+    private List<Part> atomicParts;
+```
+
+### 2. 添加了 `Comparator` 导入
+
+```14:19:src/main/java/com/jmix/executor/imodel/Module.java
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+```
+
+### 3. 优化了 `getAtomicParts()` 方法
+
+参考 `PartCategory` 的实现，添加了缓存逻辑和排序：
+
+```235:247:src/main/java/com/jmix/executor/imodel/Module.java
+    public List<Part> getAtomicParts() {
+        if (atomicParts == null) {
+            if (parts == null) {
+                atomicParts = new ArrayList<>();
+            } else {
+                atomicParts = parts.stream()
+                        .filter(part -> part.getPartType() == PartType.ATOMIC)
+                        .collect(java.util.stream.Collectors.toList());
+                atomicParts.sort(Comparator.comparing(Part::getShortCode));
+            }
+        }
+        return atomicParts;
+    }
+```
+
+### 主要改进
+
+- 性能优化：使用缓存，避免重复过滤和收集
+- 延迟初始化：仅在首次调用时构建列表
+- 排序：按 `shortCode` 排序，与 `PartCategory` 保持一致
+- 空值处理：当 `parts` 为 null 时返回空列表
+
+代码已修改完成，编译通过，无错误。现在 `Module` 类的 `getAtomicParts()` 方法与 `PartCategory` 的实现保持一致，都使用了缓存机制和排序。
+
+---
+
+_**User (2026-01-12 11:02Z)**_
+
+@ModuleInstSolutionCallBack.java (36)  添加成员变量 List<PriorityAttrValueImpl> optimalValues= new ArrayList..  , 构造函数也添加 2、processPriorityValues方法中的 priorityRuleMap.entrySet() 改成optimalValues  
+
+---
+
+_**Agent (model default, mode Agent)**_
+
+
+
+---
+
+
+查看 `ModuleInstSolutionCallBack` 类的当前实现：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/ModuleInstSolutionCallBack.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+查看 `PartCategoryConstraintExecutorImpl` 中 `optimalValues` 的创建和使用：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+修改 `ModuleInstSolutionCallBack` 类：
+
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/impl/ModuleInstSolutionCallBack.java</summary>
+
+**Chunk 1**
+Lines added: 3, lines removed: undefined
+
+```diff
+@@ -50,4 +50,7 @@
+      // 约束算法实现，用于查询优先级约束
+      private ConstraintAlgImpl alg;
++ 
++     // 优先级属性最优值列表
++     private List&lt;PriorityAttrValueImpl&gt; optimalValues = new ArrayList&lt;&gt;();
+  
+      // 常量定义
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/impl/ModuleInstSolutionCallBack.java</summary>
+
+**Chunk 1**
+Lines added: 15, lines removed: undefined
+
+```diff
+@@ -95,4 +95,19 @@
+          this.alg = alg;
+      }
++ 
++     /**
++      * 构造函数
++      * 
++      * @param module        模块对象
++      * @param vars          变量列表
++      * @param otherVarMap   其他变量映射
++      * @param alg           约束算法实现
++      * @param optimalValues 优先级属性最优值列表
++      */
++     public ModuleInstSolutionCallBack(Module module, List&lt;Var&lt;?&gt;&gt; vars, Map&lt;String, OtherVar&gt; otherVarMap,
++             ConstraintAlgImpl alg, List&lt;PriorityAttrValueImpl&gt; optimalValues) {
++         this(module, vars, otherVarMap, alg);
++         this.optimalValues = optimalValues != null ? optimalValues : new ArrayList&lt;&gt;();
++     }
+  
+      @Override
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/impl/ModuleInstSolutionCallBack.java</summary>
+
+**Chunk 1**
+Lines added: 4, lines removed: 5
+
+```diff
+@@ -224,14 +224,13 @@
+       */
+      private void processPriorityValues(ModuleInst moduleInst) {
+-         if (alg == null) {
+-             log.warn("ConstraintAlgImpl is null, cannot process priority values");
++         if (optimalValues == null || optimalValues.isEmpty()) {
++             log.warn("optimalValues is null or empty, cannot process priority values");
+              return;
+          }
+  
+          List&lt;PriorityAttrValue&gt; priorityAttrValues = new ArrayList&lt;&gt;();
+-         Map&lt;String, PriorityConstraint&gt; priorityRuleMap = alg.getPriorityRuleMap();
+  
+-         for (Map.Entry&lt;String, PriorityConstraint&gt; entry : priorityRuleMap.entrySet()) {
+-             PriorityConstraint pConstraint = entry.getValue();
++         for (PriorityAttrValueImpl optimalValue : optimalValues) {
++             PriorityConstraint pConstraint = optimalValue.getPConstraint();
+              if (pConstraint == null || pConstraint.getExprVariables() == null) {
+                  continue;
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/ModuleInstSolutionCallBack.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+更新 `PartCategoryConstraintExecutorImpl` 中创建 `ModuleInstSolutionCallBack` 的地方，传入 `optimalValues`：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -287,5 +287,5 @@
+  
+              ModuleInstSolutionCallBack multiCb = new ModuleInstSolutionCallBack(module, multiAlg.getVars(),
+-                     multiAlg.getOtherVarMap(), multiAlg);
++                     multiAlg.getOtherVarMap(), multiAlg, optimalValues);
+              CpSolverStatus multiStatus = multiSolver.solve(multiModel, multiCb);
+  
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="generic" data-tool-name="read_lints">
+<details>
+          <summary>Tool use: **read_lints** • Read lints for 2 files</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/executor/impl/ModuleInstSolutionCallBack.java`
+- `src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java`
+
+Lint results
+
+Lint errors for `src/main/java/com/jmix/executor/impl/ModuleInstSolutionCallBack.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| The value of the field ModuleInstSolutionCallBack.alg is not used | 51:31-51:34 | DIAGNOSTIC_SEVERITY_WARNING |
+| Duplicate local variable optimalValue | 265:20-265:32 | DIAGNOSTIC_SEVERITY_ERROR |
+
+
+Lint errors for `src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| “VARIABLE_DEF”之前应该有一个空白行。 | 44:5-45:1 | DIAGNOSTIC_SEVERITY_WARNING |
+| TODO块： 'TODO:' 。 | 329:11-330:1 | DIAGNOSTIC_SEVERITY_WARNING |
+
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+修复变量名冲突：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/ModuleInstSolutionCallBack.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/impl/ModuleInstSolutionCallBack.java</summary>
+
+**Chunk 1**
+Lines added: 2, lines removed: 2
+
+```diff
+@@ -263,10 +263,10 @@
+  
+              // 计算最优值
+-             double optimalValue = PriorityConstraint.calcToString(pConstraint, exprVariablesValues);
++             double calculatedValue = PriorityConstraint.calcToString(pConstraint, exprVariablesValues);
+  
+              // 创建 PriorityAttrValueImpl
+              PriorityAttrValueImpl priorityAttrValue = new PriorityAttrValueImpl();
+              priorityAttrValue.setAttrCode(pConstraint.getAttrCode());
+-             priorityAttrValue.setOptimalValue(optimalValue);
++             priorityAttrValue.setOptimalValue(calculatedValue);
+              priorityAttrValue.setPConstraint(pConstraint);
+  
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="generic" data-tool-name="read_lints">
+<details>
+          <summary>Tool use: **read_lints** • Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/executor/impl/ModuleInstSolutionCallBack.java`
+
+Lint results
+
+Lint errors for `src/main/java/com/jmix/executor/impl/ModuleInstSolutionCallBack.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| The value of the field ModuleInstSolutionCallBack.alg is not used | 51:31-51:34 | DIAGNOSTIC_SEVERITY_WARNING |
+
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+验证修改是否正确：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/ModuleInstSolutionCallBack.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/ModuleInstSolutionCallBack.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+所有修改已完成。总结如下：
+
+## 完成的修改
+
+### 1. 添加了成员变量 `optimalValues`
+
+```53:54:src/main/java/com/jmix/executor/impl/ModuleInstSolutionCallBack.java
+    // 优先级属性最优值列表
+    private List<PriorityAttrValueImpl> optimalValues = new ArrayList<>();
+```
+
+### 2. 添加了新的构造函数
+
+添加了接收 `optimalValues` 参数的构造函数：
+
+```100:111:src/main/java/com/jmix/executor/impl/ModuleInstSolutionCallBack.java
+    /**
+     * 构造函数
+     * 
+     * @param module        模块对象
+     * @param vars          变量列表
+     * @param otherVarMap   其他变量映射
+     * @param alg           约束算法实现
+     * @param optimalValues 优先级属性最优值列表
+     */
+    public ModuleInstSolutionCallBack(Module module, List<Var<?>> vars, Map<String, OtherVar> otherVarMap,
+            ConstraintAlgImpl alg, List<PriorityAttrValueImpl> optimalValues) {
+        this(module, vars, otherVarMap, alg);
+        this.optimalValues = optimalValues != null ? optimalValues : new ArrayList<>();
+    }
+```
+
+### 3. 修改了 `processPriorityValues` 方法
+
+将 `priorityRuleMap.entrySet()` 改为使用 `optimalValues`：
+
+```225:274:src/main/java/com/jmix/executor/impl/ModuleInstSolutionCallBack.java
+    private void processPriorityValues(ModuleInst moduleInst) {
+        if (optimalValues == null || optimalValues.isEmpty()) {
+            log.warn("optimalValues is null or empty, cannot process priority values");
+            return;
+        }
+
+        List<PriorityAttrValue> priorityAttrValues = new ArrayList<>();
+
+        for (PriorityAttrValueImpl optimalValue : optimalValues) {
+            PriorityConstraint pConstraint = optimalValue.getPConstraint();
+            // ... 处理逻辑
+        }
+    }
+```
+
+### 4. 更新了 `PartCategoryConstraintExecutorImpl`
+
+在创建 `ModuleInstSolutionCallBack` 时传入 `optimalValues`：
+
+```288:289:src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java
+            ModuleInstSolutionCallBack multiCb = new ModuleInstSolutionCallBack(module, multiAlg.getVars(),
+                    multiAlg.getOtherVarMap(), multiAlg, optimalValues);
+```
+
+### 主要改进
+
+- 数据来源明确：直接使用 `optimalValues`，不再从 `alg.getPriorityRuleMap()` 获取
+- 数据一致性：使用步骤1中计算的最优值列表
+- 代码简化：直接遍历 `optimalValues`，逻辑更清晰
+
+代码已修改完成，编译通过。仅有一个警告（`alg` 字段未使用），可忽略，因为现在使用 `optimalValues` 作为数据源。
+
+---
+
+_**User (2026-01-12 11:02Z)**_
+
+@src/main/java/com/jmix/executor/imodel/PriorityConstraint.java:21 添加2个函数	 
+	... getPriorityType() {...}
+	... getPriorityStrategy {...}
+
+---
+
+_**Agent (model default, mode Agent)**_
+
+
+
+---
+
+
+查看 `PriorityConstraint` 类的当前结构，添加这两个方法：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/imodel/PriorityConstraint.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/imodel/rule/PriorityRuleSchema.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+在 `PriorityConstraint` 类中添加这两个方法：
+
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/imodel/PriorityConstraint.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -2,4 +2,5 @@
+  
+  import com.jmix.executor.impl.util.ExpressionCalculator;
++ import com.jmix.executor.imodel.rule.PriorityRuleSchema;
+  
+  import com.google.ortools.sat.LinearExpr;
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/imodel/PriorityConstraint.java</summary>
+
+**Chunk 1**
+Lines added: 30, lines removed: undefined
+
+```diff
+@@ -101,4 +101,34 @@
+          return String.format(exprTemplate, objectValues);
+      }
++ 
++     /**
++      * 获取优先级类型
++      * 
++      * @return 优先级类型，如果无法获取则返回null
++      */
++     public PriorityType getPriorityType() {
++         if (rule == null || rule.getRawCode() == null) {
++             return null;
++         }
++         if (rule.getRawCode() instanceof PriorityRuleSchema) {
++             return ((PriorityRuleSchema) rule.getRawCode()).getPriorityType();
++         }
++         return null;
++     }
++ 
++     /**
++      * 获取优先级策略
++      * 
++      * @return 优先级策略，如果无法获取则返回null
++      */
++     public PriorityStrategy getPriorityStrategy() {
++         if (rule == null || rule.getRawCode() == null) {
++             return null;
++         }
++         if (rule.getRawCode() instanceof PriorityRuleSchema) {
++             return ((PriorityRuleSchema) rule.getRawCode()).getPriorityStrategy();
++         }
++         return null;
++     }
+  
+      /**
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="generic" data-tool-name="read_lints">
+<details>
+          <summary>Tool use: **read_lints** • Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/executor/imodel/PriorityConstraint.java`
+
+Lint results
+
+
+**No lint errors found**
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+验证修改是否正确：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/imodel/PriorityConstraint.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+已添加两个方法。总结如下：
+
+## 完成的修改
+
+### 1. 添加了 `getPriorityType()` 方法
+
+```109:117:src/main/java/com/jmix/executor/imodel/PriorityConstraint.java
+    public PriorityType getPriorityType() {
+        if (rule == null || rule.getRawCode() == null) {
+            return null;
+        }
+        if (rule.getRawCode() instanceof PriorityRuleSchema) {
+            return ((PriorityRuleSchema) rule.getRawCode()).getPriorityType();
+        }
+        return null;
+    }
+```
+
+### 2. 添加了 `getPriorityStrategy()` 方法
+
+```124:132:src/main/java/com/jmix/executor/imodel/PriorityConstraint.java
+    public PriorityStrategy getPriorityStrategy() {
+        if (rule == null || rule.getRawCode() == null) {
+            return null;
+        }
+        if (rule.getRawCode() instanceof PriorityRuleSchema) {
+            return ((PriorityRuleSchema) rule.getRawCode()).getPriorityStrategy();
+        }
+        return null;
+    }
+```
+
+### 3. 添加了必要的导入
+
+```3:4:src/main/java/com/jmix/executor/imodel/PriorityConstraint.java
+import com.jmix.executor.impl.util.ExpressionCalculator;
+import com.jmix.executor.imodel.rule.PriorityRuleSchema;
+```
+
+### 主要特点
+
+- 封装：直接从 `PriorityConstraint` 获取类型和策略，无需手动转换
+- 安全性：包含空值检查，避免空指针异常
+- 一致性：与 `PriorityAttrValueImpl` 中的方法保持一致
+- 简化：可在 `ModuleInstSolutionCallBack` 等地方直接使用 `pConstraint.getPriorityType()` 和 `pConstraint.getPriorityStrategy()`
+
+代码已修改完成，编译通过，无错误。现在可以直接通过 `PriorityConstraint` 对象获取优先级类型和策略，无需手动访问 `rule.getRawCode()`。
+
+---
+

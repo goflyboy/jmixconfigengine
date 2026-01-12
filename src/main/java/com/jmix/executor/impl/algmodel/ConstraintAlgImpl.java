@@ -305,10 +305,15 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
             // 构建表达式字符串部分
             String shortCode = partVar.getBase().getShortCode();
-            exprStrParts.add(shortCode + "." + varName + "*" + attrValue);
-            exprTemplateParts.add("%d*" + attrValue);
-            exprTemplateStrParts.add(shortCode + "." + varName + "_%d*" + attrValue);
-
+            if (attrValue != 1) {
+                exprStrParts.add(shortCode + "." + varName + "*" + attrValue);
+                exprTemplateParts.add("%d*" + attrValue);
+                exprTemplateStrParts.add(shortCode + "." + varName + "_%d*" + attrValue);
+            } else {
+                exprStrParts.add(shortCode + "." + varName);
+                exprTemplateParts.add("%d");
+                exprTemplateStrParts.add(shortCode + "." + varName + "_%d");
+            }
             index++;
         }
 

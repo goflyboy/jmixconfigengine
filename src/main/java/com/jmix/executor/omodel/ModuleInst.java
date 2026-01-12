@@ -1,5 +1,7 @@
 package com.jmix.executor.omodel;
 
+import com.jmix.executor.imodel.PriorityAttrValue;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
@@ -96,7 +98,7 @@ public class ModuleInst {
      * 优先级属性值列表
      * 每个约束的值
      */
-    private List<com.jmix.executor.imodel.PriorityAttrValue> priorityAttrValues = new ArrayList<>();
+    private List<PriorityAttrValue> priorityAttrValues = new ArrayList<>();
 
     /**
      * 优先级排序号
@@ -115,7 +117,7 @@ public class ModuleInst {
      * @param partCode 部件代码
      * @return 部件实例，如果不存在则返回null
      */
-    public com.jmix.executor.omodel.PartInst queryPart(String partCode) {
+    public PartInst queryPart(String partCode) {
         if (partCode == null || partCode.isEmpty()) {
             return null;
         }

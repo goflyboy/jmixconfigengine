@@ -286,7 +286,7 @@ public class PartCategoryConstraintExecutorImpl {
             multiSolver.getParameters().setNumSearchWorkers(1);
 
             ModuleInstSolutionCallBack multiCb = new ModuleInstSolutionCallBack(module, multiAlg.getVars(),
-                    multiAlg.getOtherVarMap(), multiAlg);
+                    multiAlg.getOtherVarMap(), multiAlg, optimalValues);
             CpSolverStatus multiStatus = multiSolver.solve(multiModel, multiCb);
 
             if (multiStatus == CpSolverStatus.OPTIMAL || multiStatus == CpSolverStatus.FEASIBLE) {

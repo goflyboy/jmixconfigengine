@@ -49,6 +49,9 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
     // 约束算法实现，用于查询优先级约束
     private ConstraintAlgImpl alg;
 
+    // 优先级属性最优值列表
+    private List<PriorityAttrValueImpl> optimalValues = new ArrayList<>();
+
     // 常量定义
     private static final String OTHER_VARIABLES_VALUE_KEY = "OTHER_VARIABLES_VALUE";
 
@@ -89,6 +92,21 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
             ConstraintAlgImpl alg) {
         this(module, vars, otherVarMap);
         this.alg = alg;
+    }
+
+    /**
+     * 构造函数
+     * 
+     * @param module        模块对象
+     * @param vars          变量列表
+     * @param otherVarMap   其他变量映射
+     * @param alg           约束算法实现
+     * @param optimalValues 优先级属性最优值列表
+     */
+    public ModuleInstSolutionCallBack(Module module, List<Var<?>> vars, Map<String, OtherVar> otherVarMap,
+            ConstraintAlgImpl alg, List<PriorityAttrValueImpl> optimalValues) {
+        this(module, vars, otherVarMap, alg);
+        this.optimalValues = optimalValues != null ? optimalValues : new ArrayList<>();
     }
 
     @Override
@@ -204,30 +222,17 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
      * @param moduleInst 模块实例
      */
     private void processPriorityValues(ModuleInst moduleInst) {
-        if (alg == null) {
-            log.warn("ConstraintAlgImpl is null, cannot process priority values");
+        if (optimalValues == null || optimalValues.isEmpty()) {
+            log.info("optimalValues is null or empty, cannot process priority values");
             return;
         }
 
         List<PriorityAttrValue> priorityAttrValues = new ArrayList<>();
-        Map<String, PriorityConstraint> priorityRuleMap = alg.getPriorityRuleMap();
 
-        for (Map.Entry<String, PriorityConstraint> entry : priorityRuleMap.entrySet()) {
-            PriorityConstraint pConstraint = entry.getValue();
-            if (pConstraint == null || pConstraint.getExprVariables() == null) {
-                continue;
-            }
-
+        for (PriorityAttrValueImpl optimalValue : optimalValues) {
+            PriorityConstraint pConstraint = optimalValue.getPConstraint();
             List<Integer> exprVariablesValues = new ArrayList<>();
-            PriorityType priorityType = null;
-
-            // 获取优先级类型
-            if (pConstraint.getRule() != null
-                    && pConstraint.getRule().getRawCode() instanceof com.jmix.executor.imodel.rule.PriorityRuleSchema) {
-                com.jmix.executor.imodel.rule.PriorityRuleSchema schema = (com.jmix.executor.imodel.rule.PriorityRuleSchema) pConstraint
-                        .getRule().getRawCode();
-                priorityType = schema.getPriorityType();
-            }
+            PriorityType priorityType = pConstraint.getPriorityType();
 
             // 遍历表达式变量
             for (PriorityConstraint.PartTerm exprVariable : pConstraint.getExprVariables()) {
@@ -244,15 +249,16 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
             }
 
             // 计算最优值
-            double optimalValue = PriorityConstraint.calcToString(pConstraint, exprVariablesValues);
+            double calculatedValue = PriorityConstraint.calcToString(pConstraint, exprVariablesValues);
 
             // 创建 PriorityAttrValueImpl
-            PriorityAttrValueImpl priorityAttrValue = new PriorityAttrValueImpl();
+            PriorityAttrValue priorityAttrValue = new PriorityAttrValue();
             priorityAttrValue.setAttrCode(pConstraint.getAttrCode());
-            priorityAttrValue.setOptimalValue(optimalValue);
-            priorityAttrValue.setPConstraint(pConstraint);
-
+            priorityAttrValue.setOptimalValue(calculatedValue);
             priorityAttrValues.add(priorityAttrValue);
+            log.info("Priority:PA_{}: {} = {}", optimalValue.getAttrCode(),
+                    PriorityConstraint.instanceExprTemplateStr(pConstraint.getExprTemplateStr(), exprVariablesValues),
+                    calculatedValue);
         }
 
         // 设置到 ModuleInst

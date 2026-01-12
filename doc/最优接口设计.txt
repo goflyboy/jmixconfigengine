@@ -1351,9 +1351,7 @@ void  processPriorityValues(moduleInst) {
  
 	moduleInst。priorityOverallValue  = 对priorityAttrValues.optimalValue 取平均值
 }
-
-
-
+ 
 
 
 PriorityConstraint

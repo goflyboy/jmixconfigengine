@@ -1,5 +1,6 @@
 package com.jmix.executor.imodel;
 
+import com.jmix.executor.imodel.rule.PriorityRuleSchema;
 import com.jmix.executor.impl.util.ExpressionCalculator;
 
 import com.google.ortools.sat.LinearExpr;
@@ -98,6 +99,36 @@ public class PriorityConstraint {
     public static String instanceExprTemplate(String exprTemplate, List<Integer> exprVariables) {
         Object[] objectValues = buildObjectValues(exprVariables);
         return String.format(exprTemplate, objectValues);
+    }
+
+    /**
+     * 获取优先级类型
+     * 
+     * @return 优先级类型，如果无法获取则返回null
+     */
+    public PriorityType getPriorityType() {
+        if (rule == null || rule.getRawCode() == null) {
+            return null;
+        }
+        if (rule.getRawCode() instanceof PriorityRuleSchema) {
+            return ((PriorityRuleSchema) rule.getRawCode()).getPriorityType();
+        }
+        return null;
+    }
+
+    /**
+     * 获取优先级策略
+     * 
+     * @return 优先级策略，如果无法获取则返回null
+     */
+    public PriorityStrategy getPriorityStrategy() {
+        if (rule == null || rule.getRawCode() == null) {
+            return null;
+        }
+        if (rule.getRawCode() instanceof PriorityRuleSchema) {
+            return ((PriorityRuleSchema) rule.getRawCode()).getPriorityStrategy();
+        }
+        return null;
     }
 
     /**
