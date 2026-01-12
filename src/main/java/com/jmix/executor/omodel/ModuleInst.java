@@ -242,6 +242,40 @@ public class ModuleInst {
             first = false;
         }
         sb.append(")");
+        sb.append(" PO:").append(priorityOverallValue);
+        sb.append(" PS:").append(prioritySortNo);
+    }
+
+    /**
+     * 获取优先级属性短编码字符串
+     * 输出 attrCode 和 shortCode 的关系
+     * 
+     * @return 优先级属性短编码字符串，格式：shortCode:attrCode，多个用逗号分隔
+     */
+    @JsonIgnore
+    public String getPriorityAttrShortCodeStr() {
+        if (priorityAttrValues == null || priorityAttrValues.isEmpty()) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append("PAs:priorityAttrValues ").append("PO:priorityOverallValue ")
+                .append("PS:prioritySortNo");
+        sb.append(" (");
+        boolean first = true;
+        for (PriorityAttrValue priorityAttrValue : priorityAttrValues) {
+            String attrCode = priorityAttrValue.getAttrCode();
+            if (attrCode == null || attrCode.isEmpty()) {
+                continue;
+            }
+            if (!first) {
+                sb.append(",");
+            }
+            String shortCode = toAttrShortCode(attrCode);
+            sb.append(shortCode).append(":").append(attrCode);
+            first = false;
+        }
+        sb.append(")");
+        return sb.toString();
     }
 
     /**

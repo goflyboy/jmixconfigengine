@@ -55,6 +55,10 @@ public final class SolutionUtils {
         sb.append("1.3. Other Variable shortName:").append(System.lineSeparator());
         printOthers(solutions, sb);
 
+        // 4. Priority Attribute shortName
+        sb.append("1.4. Priority Attribute shortName:").append(solutions.get(0).getPriorityAttrShortCodeStr())
+                .append(System.lineSeparator());
+
         sb.append("2.Solutions:").append(System.lineSeparator());
         // 打印解
         printSolutionList(solutions, isSimple, sb);
