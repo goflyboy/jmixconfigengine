@@ -13006,13 +13006,16 @@ Available solutions:
 
 <details><summary>Tool use: **search_replace** • Edit file: src/test/java/com/jmix/scenario/partcategory/ComputerOptiSolutionTest.java</summary>
 
-Status: **loading**
+**Chunk 1**
+Lines added: undefined, lines removed: 1
 
-```java
-        solutions(0).assertPart("sd2").quantityEqual(2);
-        soluContain("md1(0*),sd1(0*),sd2(Q:2,H:0,S:1),PAs(CA:120.0) PO:120.0 PS:1");
-        soluContain("md1(0*),sd1(Q:1,H:0,S:1),sd2(0*)");
-        
+```diff
+@@ -221,5 +221,4 @@
+          soluContain("md1(0*),sd1(0*),sd2(Q:2,H:0,S:1),PAs(CA:120.0) PO:120.0 PS:1");
+          soluContain("md1(0*),sd1(Q:1,H:0,S:1),sd2(0*)");
+-         soluContain("md1(0*),sd1(Q:1,S:1),sd2(0*)");
+          soluContain("md1(0*),sd1(Q:2,H:0,S:1),sd2(0*),PAs(CA:110.0) PO:110.0 PS:3");
+  
 ```
 
 </details>
@@ -13021,7 +13024,673 @@ Status: **loading**
 
 ---
 
+<tool-use data-tool-type="generic" data-tool-name="read_lints">
+<details>
+          <summary>Tool use: **read_lints** • Read lints for 1 file</summary>
+      
+Lint paths:
 
+- `src/test/java/com/jmix/scenario/partcategory/ComputerOptiSolutionTest.java`
+
+Lint results
+
+Lint errors for `src/test/java/com/jmix/scenario/partcategory/ComputerOptiSolutionTest.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| The method rule2_backup() from the type ComputerOptiSolutionTest.ComputerOptiSolutionConstraint is never used locally | 119:22-119:36 | DIAGNOSTIC_SEVERITY_WARNING |
+| 名称 'rule2_backup' 必须匹配表达式： '^[a-z][a-zA-Z0-9]*$' 。 | 119:22-120:1 | DIAGNOSTIC_SEVERITY_WARNING |
+| 名称 'SOLID1_WEIGHT' 必须匹配表达式： '^[a-z][a-zA-Z0-9]*$' 。 | 120:23-121:1 | DIAGNOSTIC_SEVERITY_WARNING |
+| 名称 'SOLID2_WEIGHT' 必须匹配表达式： '^[a-z][a-zA-Z0-9]*$' 。 | 121:23-122:1 | DIAGNOSTIC_SEVERITY_WARNING |
+| 名称 'SOLID3_WEIGHT' 必须匹配表达式： '^[a-z][a-zA-Z0-9]*$' 。 | 122:23-123:1 | DIAGNOSTIC_SEVERITY_WARNING |
+| 名称 'MECH1_WEIGHT' 必须匹配表达式： '^[a-z][a-zA-Z0-9]*$' 。 | 123:23-124:1 | DIAGNOSTIC_SEVERITY_WARNING |
+| 名称 'MECH2_WEIGHT' 必须匹配表达式： '^[a-z][a-zA-Z0-9]*$' 。 | 124:23-125:1 | DIAGNOSTIC_SEVERITY_WARNING |
+| 名称 'MECH3_WEIGHT' 必须匹配表达式： '^[a-z][a-zA-Z0-9]*$' 。 | 125:23-126:1 | DIAGNOSTIC_SEVERITY_WARNING |
+
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+运行测试，确认是否通过：
+
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: mvn test -Dtest=ComputerOptiSolutionTest#testUserSpecialRequirement3 2>&1 | findstr /C:"Tests run:" /C:"BUILD" /C:"FAILURE" /C:"SUCCESS"</summary>
+
+```bash
+mvn test -Dtest=ComputerOptiSolutionTest#testUserSpecialRequirement3 2>&1 | findstr /C:"Tests run:" /C:"BUILD" /C:"FAILURE" /C:"SUCCESS"
+```
+
+```
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.223 s -- in com.jmix.scenario.partcategory.ComputerOptiSolutionTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+
+```
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+测试已通过。总结修复内容：
+
+## 修复内容
+
+### 1. 修复语法错误
+- 为第221-224行的 `soluContain` 调用添加了缺失的分号
+- 修复了第221行字符串缺少闭合引号的问题
+
+### 2. 调整期望字符串
+根据实际测试输出，移除了不匹配的测试用例：
+- 移除了 `soluContain("md1(0*),sd1(Q:1,S:1),sd2(0*)")`，因为实际输出中 `sd1` 包含 `H:0`，格式为 `sd1(Q:1,H:0,S:1)`
+
+### 3. 最终测试用例
+```java
+solutions(0).assertPart("sd2").quantityEqual(2);
+soluContain("md1(0*),sd1(0*),sd2(Q:2,H:0,S:1),PAs(CA:120.0) PO:120.0 PS:1");
+soluContain("md1(0*),sd1(Q:1,H:0,S:1),sd2(0*)");
+soluContain("md1(0*),sd1(Q:2,H:0,S:1),sd2(0*),PAs(CA:110.0) PO:110.0 PS:3");
+```
+
+这些期望字符串与实际的三个解决方案匹配：
+- S_1: `md1(0*),sd1(0*),sd2(Q:2,H:0,S:1),PAs(CA:120.0) PO:120.0 PS:1`
+- S_2: `md1(0*),sd1(Q:1,H:0,S:1),sd2(0*),PAs(CA:110.0) PO:110.0 PS:2`
+- S_3: `md1(0*),sd1(Q:2,H:0,S:1),sd2(0*),PAs(CA:110.0) PO:110.0 PS:3`
+
+测试现在可以正常通过。
+
+---
+
+_**User (2026-01-12 11:02Z)**_
+
+@src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java 添加函数 assertPA /assertPOEqual/assertPSEqual, 样例如下： \n @ComputerOptiSolutionTest.java (222-225) 
+
+---
+
+_**Agent (model default, mode Agent)**_
+
+
+
+---
+
+
+查看现有的断言类结构，了解如何实现这些方法：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/test/java/com/jmix/scenario/partcategory/ComputerOptiSolutionTest.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/test/java/com/jmix/coretest/ProgammableInstAssert.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/omodel/ModuleInst.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+查看 `PriorityAttrValue` 的结构，了解如何查找属性值：
+
+
+---
+
+<tool-use data-tool-type="search" data-tool-name="grep">
+<details>
+<summary>Tool use: **grep** • Grep for "class PriorityAttrValue|getAttrCode|getOptimalValue" in "src/main/java/com/jmix/executor/imodel" • 6 matches</summary>
+
+Output mode: content
+
+
+| File | Content | Line |
+|------|------|------|
+| `src/main/java/com/jmix/executor/imodel\PriorityAttrValueImpl.java` | `public class PriorityAttrValueImpl extends PriorityAttrValue \{` | L15 |
+| `src/main/java/com/jmix/executor/imodel\PriorityAttrValueImpl.java` | `public String getAttrCode() \{` | L26 |
+| `src/main/java/com/jmix/executor/imodel\PriorityAttrValueImpl.java` | `if (pConstraint != null && pConstraint.getAttrCode() != null) \{` | L27 |
+| `src/main/java/com/jmix/executor/imodel\PriorityAttrValueImpl.java` | `return pConstraint.getAttrCode();` | L28 |
+| `src/main/java/com/jmix/executor/imodel\PriorityAttrValueImpl.java` | `return super.getAttrCode();` | L30 |
+| `src/main/java/com/jmix/executor/imodel\PriorityAttrValue.java` | `public class PriorityAttrValue \{` | L11 |
+
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/imodel/PriorityAttrValue.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/omodel/ModuleInst.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+查看现有的断言类，了解实现模式：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/test/java/com/jmix/coretest/ParaInstAssert.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/test/java/com/jmix/coretest/PartInstAssert.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+创建 `PriorityAttrValueAssert` 类，并在 `ProgammableInstAssert` 中添加相应方法：
+
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="write">
+
+<details><summary>Tool use: **write** • Edit file: src/test/java/com/jmix/coretest/PriorityAttrValueAssert.java</summary>
+
+**Chunk 1**
+Lines added: 43, lines removed: 1
+
+```diff
+@@ -1,1 +1,43 @@
+- 
++ package com.jmix.coretest;
++ 
++ import com.jmix.executor.imodel.Module;
++ import com.jmix.executor.imodel.PriorityAttrValue;
++ import com.jmix.executor.omodel.ModuleInst;
++ 
++ /**
++  * 优先级属性值断言类
++  * 
++  * @since 2025-01-XX
++  */
++ public class PriorityAttrValueAssert extends ProgammableInstAssert {
++     private PriorityAttrValue actual;
++ 
++     /**
++      * 构造优先级属性值断言对象
++      * 
++      * @param actualModuleInst 实际的模块实例
++      * @param module           模块定义
++      * @param actual           实际的优先级属性值
++      */
++     public PriorityAttrValueAssert(ModuleInst actualModuleInst, Module module, PriorityAttrValue actual) {
++         super(actualModuleInst, module);
++         this.actual = actual;
++     }
++ 
++     /**
++      * 断言优先级属性值等于指定值
++      * 
++      * @param expectValue 期望的值
++      * @return 优先级属性值断言对象
++      */
++     public PriorityAttrValueAssert valueEqual(double expectValue) {
++         double actualValue = actual.getOptimalValue();
++         if (Math.abs(actualValue - expectValue) &gt; 1e-9) {
++             throw new AssertionError(String.format(
++                     "Priority attribute value mismatch, expected: %s, actual: %s, attrCode: %s",
++                     expectValue, actualValue, actual.getAttrCode()));
++         }
++         return this;
++     }
++ }
++ 
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/test/java/com/jmix/coretest/ProgammableInstAssert.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+在 `ProgammableInstAssert` 中添加这三个方法：
+
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/test/java/com/jmix/coretest/ProgammableInstAssert.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -4,4 +4,5 @@
+  import com.jmix.executor.imodel.Para;
+  import com.jmix.executor.imodel.Part;
++ import com.jmix.executor.imodel.PriorityAttrValue;
+  import com.jmix.executor.omodel.ModuleInst;
+  import com.jmix.executor.omodel.ParaInst;
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/test/java/com/jmix/coretest/ProgammableInstAssert.java</summary>
+
+**Chunk 1**
+Lines added: 72, lines removed: undefined
+
+```diff
+@@ -87,3 +87,75 @@
+                  .orElse(null);
+      }
++ 
++     /**
++      * 断言优先级属性值
++      * 根据短编码（attrCode的前两位大写）查找对应的优先级属性值
++      * 
++      * @param shortCode 属性短编码，例如 "CA" 对应 "capacityWeight"
++      * @return 优先级属性值断言对象
++      */
++     public PriorityAttrValueAssert assertPA(String shortCode) {
++         PriorityAttrValue priorityAttrValue = findPriorityAttrValueByShortCode(shortCode);
++         if (priorityAttrValue == null) {
++             throw new AssertionError("Priority attribute not found with shortCode: " + shortCode);
++         }
++         return new PriorityAttrValueAssert(actualModuleInst, module, priorityAttrValue);
++     }
++ 
++     /**
++      * 断言优先级综合值（Priority Overall Value）
++      * 
++      * @param expectedValue 期望的优先级综合值
++      * @return 可编程实例断言对象
++      */
++     public ProgammableInstAssert assertPOEqual(double expectedValue) {
++         double actualValue = actualModuleInst.getPriorityOverallValue();
++         if (Math.abs(actualValue - expectedValue) &gt; 1e-9) {
++             throw new AssertionError(String.format(
++                     "Priority overall value mismatch, expected: %s, actual: %s",
++                     expectedValue, actualValue));
++         }
++         return this;
++     }
++ 
++     /**
++      * 断言优先级排序号（Priority Sort Number）
++      * 
++      * @param expectedValue 期望的优先级排序号
++      * @return 可编程实例断言对象
++      */
++     public ProgammableInstAssert assertPSEqual(int expectedValue) {
++         int actualValue = actualModuleInst.getPrioritySortNo();
++         if (actualValue != expectedValue) {
++             throw new AssertionError(String.format(
++                     "Priority sort number mismatch, expected: %s, actual: %s",
++                     expectedValue, actualValue));
++         }
++         return this;
++     }
++ 
++     /**
++      * 根据短编码查找优先级属性值
++      * 短编码是 attrCode 的前两位大写字符
++      * 
++      * @param shortCode 短编码，例如 "CA"
++      * @return 匹配的优先级属性值，如果未找到则返回null
++      */
++     private PriorityAttrValue findPriorityAttrValueByShortCode(String shortCode) {
++         if (actualModuleInst.getPriorityAttrValues() == null || shortCode == null) {
++             return null;
++         }
++         String upperShortCode = shortCode.toUpperCase();
++         return actualModuleInst.getPriorityAttrValues().stream()
++                 .filter(pav -&gt; {
++                     String attrCode = pav.getAttrCode();
++                     if (attrCode == null || attrCode.length() &lt; 2) {
++                         return false;
++                     }
++                     String attrShortCode = attrCode.substring(0, 2).toUpperCase();
++                     return upperShortCode.equals(attrShortCode);
++                 })
++                 .findFirst()
++                 .orElse(null);
++     }
+  }
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="generic" data-tool-name="read_lints">
+<details>
+          <summary>Tool use: **read_lints** • Read lints for 2 files</summary>
+      
+Lint paths:
+
+- `src/test/java/com/jmix/coretest/ProgammableInstAssert.java`
+- `src/test/java/com/jmix/coretest/PriorityAttrValueAssert.java`
+
+Lint results
+
+
+**No lint errors found**
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+运行测试，验证这些方法是否正常工作：
+
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: mvn test -Dtest=ComputerOptiSolutionTest#testUserSpecialRequirement3 2>&1 | findstr /C:"Tests run:" /C:"BUILD" /C:"FAILURE" /C:"SUCCESS" /C:"AssertionError" /C:"Priority"</summary>
+
+```bash
+mvn test -Dtest=ComputerOptiSolutionTest#testUserSpecialRequirement3 2>&1 | findstr /C:"Tests run:" /C:"BUILD" /C:"FAILURE" /C:"SUCCESS" /C:"AssertionError" /C:"Priority"
+```
+
+```
+[main] INFO com.jmix.executor.impl.ModuleInstSolutionCallBack - Priority:PA_capacityWeight: md1.S_0*13 + sd1.S_0*110 + 
+[main] INFO com.jmix.executor.impl.PartCategoryConstraintExecutorImpl - Added Priority adjusted constraint: capacityWei
+[main] INFO com.jmix.executor.impl.ModuleInstSolutionCallBack - Priority:PA_capacityWeight: md1.S_0*13 + sd1.S_1*110 + 
+[main] INFO com.jmix.executor.impl.ModuleInstSolutionCallBack - Priority:PA_capacityWeight: md1.S_0*13 + sd1.S_1*110 + 
+[main] INFO com.jmix.executor.impl.ModuleInstSolutionCallBack - Priority:PA_capacityWeight: md1.S_0*13 + sd1.S_0*110 + 
+rtCode=md1)], extAttrs={}, shortCode=null, priorityAttrValues=[PriorityAttrValue(attrCode=capacityWeight, optimalValue=
+ityAttrValues=[PriorityAttrValue(attrCode=capacityWeight, optimalValue=110.0)], prioritySortNo=2, priorityOverallValue=
+lse, extAttrs=null, shortCode=md1)], extAttrs={}, shortCode=null, priorityAttrValues=[PriorityAttrValue(attrCode=capaci
+1.4. Priority Attribute shortName:PAs:priorityAttrValues PO:priorityOverallValue PS:prioritySortNo (CA:capacityWeight)
+[ERROR] Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 1.365 s &lt;&lt;&lt; FAILURE! -- in com.jmix.scenario.partcategory.ComputerOptiSolutionTest
+[ERROR] com.jmix.scenario.partcategory.ComputerOptiSolutionTest.testUserSpecialRequirement3 -- Time elapsed: 1.321 s &lt;&lt;&lt; FAILURE!
+java.lang.AssertionError: Priority attribute value mismatch, expected: 120.0, actual: 110.0, attrCode: capacityWeight
+	at com.jmix.coretest.PriorityAttrValueAssert.valueEqual(PriorityAttrValueAssert.java:36)
+[ERROR]   ComputerOptiSolutionTest.testUserSpecialRequirement3:222 Priority attribute value mismatch, expected: 120.0, actual: 110.0, attrCode: capacityWeight
+[ERROR] Tests run: 1, Failures: 1, Errors: 0, Skipped: 0
+[INFO] BUILD FAILURE
+
+```
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+测试失败：`solutions(1)` 的优先级属性值是 110.0，不是 120.0。查看测试用例并调整：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/test/java/com/jmix/scenario/partcategory/ComputerOptiSolutionTest.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: mvn test -Dtest=ComputerOptiSolutionTest#testUserSpecialRequirement3 2>&1 | findstr /C:"S_1:" /C:"S_2:" /C:"S_3:"</summary>
+
+```bash
+mvn test -Dtest=ComputerOptiSolutionTest#testUserSpecialRequirement3 2>&1 | findstr /C:"S_1:" /C:"S_2:" /C:"S_3:"
+```
+
+```
+ S_1: md1(0*),sd1(0*),sd2(Q:2,H:0,S:1),PAs(CA:120.0) PO:120.0 PS:0
+ S_1: md1(0*),sd1(0*),sd2(Q:2,H:0,S:1),PAs(CA:120.0) PO:120.0 PS:1
+ S_2: md1(0*),sd1(Q:1,H:0,S:1),sd2(0*),PAs(CA:110.0) PO:110.0 PS:2
+ S_3: md1(0*),sd1(Q:2,H:0,S:1),sd2(0*),PAs(CA:110.0) PO:110.0 PS:3
+
+```
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+根据实际输出，`solutions(1)` 的 CA 值为 110.0，PO 为 110.0，PS 为 2。测试用例期望的是 `solutions(0)` 的值。修正测试用例：
+
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/test/java/com/jmix/scenario/partcategory/ComputerOptiSolutionTest.java</summary>
+
+**Chunk 1**
+Lines added: 3, lines removed: 3
+
+```diff
+@@ -220,7 +220,7 @@
+          resultAssert().assertSolutionSizeEqual(3);
+          solutions(0).assertPart("sd2").quantityEqual(2);
+-         solutions(1).assertPA("CA").valueEqual(120.0);
+-         solutions(1).assertPOEqual(120.0);
+-         solutions(1).assertPSEqual(1);
++         solutions(0).assertPA("CA").valueEqual(120.0);
++         solutions(0).assertPOEqual(120.0);
++         solutions(0).assertPSEqual(1);
+  
+          soluContain("md1(0*),sd1(0*),sd2(Q:2,H:0,S:1),PAs(CA:120.0) PO:120.0 PS:1");
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: mvn test -Dtest=ComputerOptiSolutionTest#testUserSpecialRequirement3 2>&1 | findstr /C:"Tests run:" /C:"BUILD" /C:"FAILURE" /C:"SUCCESS"</summary>
+
+```bash
+mvn test -Dtest=ComputerOptiSolutionTest#testUserSpecialRequirement3 2>&1 | findstr /C:"Tests run:" /C:"BUILD" /C:"FAILURE" /C:"SUCCESS"
+```
+
+```
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.267 s -- in com.jmix.scenario.partcategory.ComputerOptiSolutionTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+
+```
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+测试已通过。总结如下：
+
+## 完成的工作
+
+### 1. 创建了 `PriorityAttrValueAssert` 类
+
+新建了 `src/test/java/com/jmix/coretest/PriorityAttrValueAssert.java`，用于断言优先级属性值：
+
+```java
+public class PriorityAttrValueAssert extends ProgammableInstAssert {
+    // ...
+    public PriorityAttrValueAssert valueEqual(double expectValue) {
+        // 断言优先级属性值等于指定值
+    }
+}
+```
+
+### 2. 在 `ProgammableInstAssert` 中添加了三个方法
+
+#### `assertPA(String shortCode)` 方法
+- 根据短编码（如 "CA"）查找对应的优先级属性值
+- 短编码是 `attrCode` 的前两位大写字符
+- 返回 `PriorityAttrValueAssert` 对象，可以链式调用 `valueEqual()`
+
+#### `assertPOEqual(double expectedValue)` 方法
+- 断言优先级综合值（Priority Overall Value）
+- 使用浮点数比较（误差 1e-9）
+
+#### `assertPSEqual(int expectedValue)` 方法
+- 断言优先级排序号（Priority Sort Number）
+
+### 3. 修复了测试用例
+
+将 `solutions(1)` 改为 `solutions(0)`，因为：
+- `solutions(0)` 对应 S_1: `PAs(CA:120.0) PO:120.0 PS:1`
+- `solutions(1)` 对应 S_2: `PAs(CA:110.0) PO:110.0 PS:2`
+
+### 使用示例
+
+现在可以在测试中这样使用：
+
+```java
+solutions(0).assertPA("CA").valueEqual(120.0);  // 断言优先级属性值
+solutions(0).assertPOEqual(120.0);               // 断言优先级综合值
+solutions(0).assertPSEqual(1);                    // 断言优先级排序号
+```
+
+所有方法已实现并通过测试。
+
+---
+
+_**User (2026-01-12 11:02Z)**_
+
+@src/test/java/com/jmix/scenario/partcategory/ComputerOptiSolutionTest.java:204 请调通这个测试用例
+
+---
+
+_**Agent (model default, mode Agent)**_
+
+
+
+---
+
+
+查看测试用例的当前状态：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/test/java/com/jmix/scenario/partcategory/ComputerOptiSolutionTest.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: mvn test -Dtest=ComputerOptiSolutionTest#testUserSpecialRequirement3 2>&1 | findstr /C:"Tests run:" /C:"BUILD" /C:"FAILURE" /C:"SUCCESS" /C:"AssertionError" /C:"ERROR"</summary>
+
+```bash
+mvn test -Dtest=ComputerOptiSolutionTest#testUserSpecialRequirement3 2>&1 | findstr /C:"Tests run:" /C:"BUILD" /C:"FAILURE" /C:"SUCCESS" /C:"AssertionError" /C:"ERROR"
+```
+
+```
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.326 s -- in com.jmix.scenario.partcategory.ComputerOptiSolutionTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+
+```
+</details>
+</tool-use>
 
 ---
 

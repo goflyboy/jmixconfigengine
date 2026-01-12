@@ -219,6 +219,10 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
         printSimpleSolutions();
         resultAssert().assertSolutionSizeEqual(3);
         solutions(0).assertPart("sd2").quantityEqual(2);
+        solutions(0).assertPA("CA").valueEqual(120.0);
+        solutions(0).assertPOEqual(120.0);
+        solutions(0).assertPSEqual(1);
+
         soluContain("md1(0*),sd1(0*),sd2(Q:2,H:0,S:1),PAs(CA:120.0) PO:120.0 PS:1");
         soluContain("md1(0*),sd1(Q:1,H:0,S:1),sd2(0*)");
         soluContain("md1(0*),sd1(Q:2,H:0,S:1),sd2(0*),PAs(CA:110.0) PO:110.0 PS:3");

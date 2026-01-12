@@ -3,6 +3,7 @@ package com.jmix.coretest;
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.Para;
 import com.jmix.executor.imodel.Part;
+import com.jmix.executor.imodel.PriorityAttrValue;
 import com.jmix.executor.omodel.ModuleInst;
 import com.jmix.executor.omodel.ParaInst;
 import com.jmix.executor.omodel.PartInst;
@@ -82,6 +83,78 @@ public class ProgammableInstAssert {
         }
         return actualModuleInst.getParts().stream()
                 .filter(p -> code.equals(p.getCode()))
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
+     * 断言优先级属性值
+     * 根据短编码（attrCode的前两位大写）查找对应的优先级属性值
+     * 
+     * @param shortCode 属性短编码，例如 "CA" 对应 "capacityWeight"
+     * @return 优先级属性值断言对象
+     */
+    public PriorityAttrValueAssert assertPA(String shortCode) {
+        PriorityAttrValue priorityAttrValue = findPriorityAttrValueByShortCode(shortCode);
+        if (priorityAttrValue == null) {
+            throw new AssertionError("Priority attribute not found with shortCode: " + shortCode);
+        }
+        return new PriorityAttrValueAssert(actualModuleInst, module, priorityAttrValue);
+    }
+
+    /**
+     * 断言优先级综合值（Priority Overall Value）
+     * 
+     * @param expectedValue 期望的优先级综合值
+     * @return 可编程实例断言对象
+     */
+    public ProgammableInstAssert assertPOEqual(double expectedValue) {
+        double actualValue = actualModuleInst.getPriorityOverallValue();
+        if (Math.abs(actualValue - expectedValue) > 1e-9) {
+            throw new AssertionError(String.format(
+                    "Priority overall value mismatch, expected: %s, actual: %s",
+                    expectedValue, actualValue));
+        }
+        return this;
+    }
+
+    /**
+     * 断言优先级排序号（Priority Sort Number）
+     * 
+     * @param expectedValue 期望的优先级排序号
+     * @return 可编程实例断言对象
+     */
+    public ProgammableInstAssert assertPSEqual(int expectedValue) {
+        int actualValue = actualModuleInst.getPrioritySortNo();
+        if (actualValue != expectedValue) {
+            throw new AssertionError(String.format(
+                    "Priority sort number mismatch, expected: %s, actual: %s",
+                    expectedValue, actualValue));
+        }
+        return this;
+    }
+
+    /**
+     * 根据短编码查找优先级属性值
+     * 短编码是 attrCode 的前两位大写字符
+     * 
+     * @param shortCode 短编码，例如 "CA"
+     * @return 匹配的优先级属性值，如果未找到则返回null
+     */
+    private PriorityAttrValue findPriorityAttrValueByShortCode(String shortCode) {
+        if (actualModuleInst.getPriorityAttrValues() == null || shortCode == null) {
+            return null;
+        }
+        String upperShortCode = shortCode.toUpperCase();
+        return actualModuleInst.getPriorityAttrValues().stream()
+                .filter(pav -> {
+                    String attrCode = pav.getAttrCode();
+                    if (attrCode == null || attrCode.length() < 2) {
+                        return false;
+                    }
+                    String attrShortCode = attrCode.substring(0, 2).toUpperCase();
+                    return upperShortCode.equals(attrShortCode);
+                })
                 .findFirst()
                 .orElse(null);
     }
