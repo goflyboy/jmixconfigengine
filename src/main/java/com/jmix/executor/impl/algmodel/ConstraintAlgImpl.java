@@ -270,6 +270,53 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     }
 
     /**
+     * 构建优先级约束的表达式字符串和模板
+     * 
+     * @param pConstraint 优先级约束对象
+     * @param attrCode    属性代码
+     * @param varName     变量名称（"S" 或 "Q"）
+     */
+    private void buildPriorityConstraintExpressions(PriorityConstraint pConstraint, String attrCode, String varName) {
+        List<Part> atomicParts = module.getAtomicParts();
+        List<String> exprStrParts = new ArrayList<>();
+        List<String> exprTemplateParts = new ArrayList<>();
+        List<String> exprTemplateStrParts = new ArrayList<>();
+        List<PriorityConstraint.PartTerm> exprVariables = new ArrayList<>();
+        boolean isWithoutAttr = attrCode == null || attrCode.isEmpty();
+
+        int index = 0;
+        for (Part part : atomicParts) {
+            PartVar partVar = getPartVar(part.getCode());
+            int attrValue = isWithoutAttr ? 1 : Integer.parseInt(part.getAttr(attrCode));
+
+            // 创建 PartTerm
+            PriorityConstraint.PartTerm term = new PriorityConstraint.PartTerm();
+            term.setIndex(index);
+            term.setPartCode(part.getCode());
+            // termValue 将在求解后设置，这里先设为 null
+            term.setTermValue(null);
+            exprVariables.add(term);
+
+            // 构建表达式字符串部分
+            String shortCode = partVar.getBase().getShortCode();
+            exprStrParts.add(shortCode + "." + varName + "*" + attrValue);
+            exprTemplateParts.add("%d*" + attrValue);
+            exprTemplateStrParts.add(shortCode + "." + varName + "_%d*" + attrValue);
+
+            index++;
+        }
+
+        // 设置表达式字符串
+        pConstraint.setExprStr(String.join(" + ", exprStrParts));
+        pConstraint.setExprTemplate(String.join(" + ", exprTemplateParts));
+        pConstraint.setExprTemplateStr(String.join(" + ", exprTemplateStrParts));
+        pConstraint.setExprVariables(exprVariables);
+
+        log.info("Built priority constraint expressions: exprStr={}, exprTemplate={}",
+                pConstraint.getExprStr(), pConstraint.getExprTemplate());
+    }
+
+    /**
      * 构建优先级约束
      * 
      * @param rule 规则对象
@@ -293,18 +340,10 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         pConstraint.setAttrCode(attrCode);
         pConstraint.setType(schema.getPriorityType());
 
-        // 根据类型构建表达式
+        // 根据类型构建表达式字符串和模板
         PriorityType type = schema.getPriorityType();
-        if (type == PriorityType.SELECT) {
-            // 选择性，使用 sum4Selected
-            pConstraint.setExpr(sum4Selected(attrCode));
-        } else if (type == PriorityType.SUMARIZE) {
-            // 汇总性，使用 sum4Quantity
-            pConstraint.setExpr(sum4Quantity(attrCode));
-        } else {
-            log.warn("Unknown PriorityType: {} for rule: {}", type, rule.getCode());
-            return;
-        }
+        String varName = (type == PriorityType.SELECT) ? "S" : "Q";
+        buildPriorityConstraintExpressions(pConstraint, attrCode, varName);
 
         // 存储到 priorityRuleMap，使用 attrCode 作为 key
         priorityRuleMap.put(attrCode, pConstraint);

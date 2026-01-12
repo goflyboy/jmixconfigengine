@@ -234,7 +234,7 @@ public class PartCategoryConstraintExecutorImpl {
                 objValue.setOptimalValue(optimalValue);
                 optimalValues.add(objValue);
                 log.info("Optimal solution: {}", SolutionUtils.toSolutionString(optCb.getAllSolutions()));
-                log.info("Optimal value for attrCode {}: {}", attrCode, optimalValue);
+                log.info("Optimal value for      {}: {}", attrCode, optimalValue);
             } else {
                 log.warn("Failed to find optimal solution for attrCode: {}, status: {}", attrCode, optStatus);
             }
