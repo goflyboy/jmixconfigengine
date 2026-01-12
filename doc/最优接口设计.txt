@@ -1304,6 +1304,11 @@ queryPriorityConstraint(String attrCode) {
 	
   }
 
+5.2 sortSolutionsByPriority
+  根据solutions中每个ModuleInst.priorityOverallValue进行排序，然后 
+  对ModuleInst.prioritySortNo 进行赋值
+
+
 
 6、对类ModuleInstSolutionCallBack做下列增强
 6.1 增加成员变量
@@ -1346,6 +1351,8 @@ void  processPriorityValues(moduleInst) {
  
 	moduleInst。priorityOverallValue  = 对priorityAttrValues.optimalValue 取平均值
 }
+
+
 
 
 

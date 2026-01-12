@@ -93,6 +93,41 @@ public class ModuleInst {
     private String shortCode;
 
     /**
+     * 优先级属性值列表
+     * 每个约束的值
+     */
+    private List<com.jmix.executor.imodel.PriorityAttrValue> priorityAttrValues = new ArrayList<>();
+
+    /**
+     * 优先级排序号
+     */
+    private int prioritySortNo = 0;
+
+    /**
+     * 优先级综合值
+     * 最后综合的值
+     */
+    private double priorityOverallValue;
+
+    /**
+     * 根据部件代码查询部件实例
+     * 
+     * @param partCode 部件代码
+     * @return 部件实例，如果不存在则返回null
+     */
+    public com.jmix.executor.omodel.PartInst queryPart(String partCode) {
+        if (partCode == null || partCode.isEmpty()) {
+            return null;
+        }
+        for (PartInst partInst : parts) {
+            if (partCode.equals(partInst.getCode())) {
+                return partInst;
+            }
+        }
+        return null;
+    }
+
+    /**
      * 添加参数实例
      * 
      * @param paraInst 参数实例

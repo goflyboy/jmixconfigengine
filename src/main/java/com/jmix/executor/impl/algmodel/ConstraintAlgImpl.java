@@ -770,6 +770,19 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     }
 
     /**
+     * 根据属性代码查询优先级约束
+     * 
+     * @param attrCode 属性代码
+     * @return 优先级约束，如果不存在则返回null
+     */
+    public PriorityConstraint queryPriorityConstraint(String attrCode) {
+        if (attrCode == null || attrCode.isEmpty()) {
+            return null;
+        }
+        return priorityRuleMap.get(attrCode);
+    }
+
+    /**
      * 创建参数变量
      * 
      * @param code 参数代码

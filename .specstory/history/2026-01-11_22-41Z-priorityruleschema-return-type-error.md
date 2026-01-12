@@ -8007,3 +8007,236 @@ Lint results
 
 ---
 
+_**User (2026-01-12 11:02Z)**_
+
+按下列设计做开发 \ n 
+1、对类ModuleInst做下列增强
+  添加字段
+  List<PriorityAttrValue> priorityAttrValues; //每个约束的值
+  int prioritySortNo = 0;//排序号
+  double priorityOverallValue;//最后综合的值
+
+
+
+2、在ModuleInst所在的package增加下列类
+@Data
+class PriorityAttrValue {
+
+    /**
+     * 属性代码
+     */
+    private String attrCode;
+
+    /**
+     * 最优值
+     */
+    private double optimalValue;
+}
+
+
+3、类PriorityAttrObjValue改成PriorityAttrValueImpl
+定义如下
+@Data
+public class PriorityAttrValueImpl extends PriorityAttrValue { 
+
+	PriorityConstraint pConstraint;
+	
+	String getAttrCode() {...}
+	... getPriorityType() {...}
+	... getPriorityStrategy {...}
+}
+
+
+4、对ConstraintAlgImpl做下列增强
+
+queryPriorityConstraint(String attrCode) {
+...
+}
+
+
+5、对类PartCategoryConstraintExecutorImpl做下列增强
+5.1 方法solveWithPriorityConstraints
+修改前：
+  ...solveWithPriorityConstraints(...) {
+	....
+	         // 重新构建目标函数表达式（使用新的alg实例）
+            LinearExpr objectiveExpr;
+            if (priorityType == PriorityType.SELECT) {
+                objectiveExpr = optAlg.sum4Selected(attrCode);
+            } else {
+                objectiveExpr = optAlg.sum4Quantity(attrCode);
+            }
+	....
+	....
+	
+  }
+
+修改后：
+  ...solveWithPriorityConstraints(...) {
+	....
+	   PriorityConstraint pConstraint= optAlg.queryPriorityConstraint(attrCode);
+		objectiveExpr = pConstraint.expr;
+
+	....
+		objValue.pConstraint = pConstraint
+	....
+	
+  }
+
+5.2 sortSolutionsByPriority
+  根据solutions中每个ModuleInst.priorityOverallValue进行排序，然后 
+  对ModuleInst.prioritySortNo 进行赋值
+
+
+
+6、对类ModuleInstSolutionCallBack做下列增强
+6.1 增加成员变量
+List<PriorityAttrValueImpl> priorityAttrValues;
+6.2 现有方法onSolutionCallback(
+修改前：
+ public void onSolutionCallback() {
+	....
+        // 处理其他变量
+        processOtherVariables(moduleInst);
+
+        allSolutions.add(moduleInst);
+}
+修改后：
+ public void onSolutionCallback() {
+	....
+        // 处理其他变量
+        processOtherVariables(moduleInst);
+
+        allSolutions.add(moduleInst);
+}
+
+6.3 增加方法processPriorityValues()
+void  processPriorityValues(moduleInst) {
+	List<PriorityAttrValue> priorityAttrValues = ...
+	for(priorityAttrValue:priorityAttrValues) {
+		List<Integer> exprVariablesValues = ...
+		for(exprVariable: priorityAttrValue.pConstraint.exprVariables) {
+			PartInst pInst = moduleInst.queryPart(exprVariable.partCode);
+			如果pInst== null,则exprVariablesValues.add(0);
+			否则：
+				如果priorityAttrValue.getPriorityType() == PriorityType.SELECT 则  exprVariablesValues.add(1);
+				否则  exprVariablesValues.add(pInst.getQty()); 
+			
+		}
+		double optimalValue = PriorityConstraint.calcToString(priorityAttrValue.pConstraint，exprVariablesValues);
+		priorityAttrValues.add(...optimalValue);
+	}
+	moduleInst.priorityAttrValues = priorityAttrValues;
+ 
+	moduleInst。priorityOverallValue  = 对priorityAttrValues.optimalValue 取平均值
+}
+
+
+
+
+---
+
+_**Agent (model default, mode Agent)**_
+
+
+
+---
+
+
+按设计逐步实现这些修改。先查看相关文件：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/omodel/ModuleInst.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/algmodel/ConstraintAlgImpl.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+<tool-use data-tool-type="task" data-tool-name="todo_write">
+<details><summary>Tool use: **todo_write** • Error parsing todo list data</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace**</summary>
+
+Status: **loading**
+
+</details>
+
+</tool-use>
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
