@@ -68,10 +68,6 @@ public class PriorityConstraint {
         // 调用公式计算机器计算 calcStr 的值 calcResult，基于 Apache Commons JEXL 3.4.0 实现
         String calcExprStr = instanceExprTemplate(pc.getExprTemplate(), exprVariables);
         double calcResult = ExpressionCalculator.calculate(calcExprStr);
-
-        // 打印 printStr = calcResult
-        String printStr = instanceExprTemplateStr(pc.getExprTemplateStr(), exprVariables);
-        log.info("printStr: {}", printStr);
         return calcResult;
     }
 

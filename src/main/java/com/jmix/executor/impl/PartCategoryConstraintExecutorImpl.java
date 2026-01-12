@@ -30,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -217,23 +218,23 @@ public class PartCategoryConstraintExecutorImpl {
             } else {
                 optModel.minimize(objectiveExpr);
             }
-
+            PriorityAttrValueImpl objValue = new PriorityAttrValueImpl();
+            objValue.setAttrCode(attrCode);
+            objValue.setPConstraint(pConstraint);
             // 求解最优解
             CpSolver optSolver = new CpSolver();
             optSolver.getParameters().setNumSearchWorkers(1);
             ModuleInstSolutionCallBack optCb = new ModuleInstSolutionCallBack(module, optAlg.getVars(),
-                    optAlg.getOtherVarMap(), optAlg);
+                    optAlg.getOtherVarMap(), optAlg, Arrays.asList(objValue));
             CpSolverStatus optStatus = optSolver.solve(optModel, optCb);
 
             if (optStatus == CpSolverStatus.OPTIMAL || optStatus == CpSolverStatus.FEASIBLE) {
                 double optimalValue = optSolver.objectiveValue();
-                PriorityAttrValueImpl objValue = new PriorityAttrValueImpl();
-                objValue.setAttrCode(attrCode);
                 objValue.setOptimalValue(optimalValue);
-                objValue.setPConstraint(pConstraint);
                 optimalValues.add(objValue);
                 log.info("Optimal solution: {}", SolutionUtils.toSolutionString(optCb.getAllSolutions()));
-                log.info("Optimal value for      {}: {}", attrCode, optimalValue);
+                log.info("Optimal value for  {}: {}", attrCode, optimalValue);
+
             } else {
                 log.warn("Failed to find optimal solution for attrCode: {}, status: {}", attrCode, optStatus);
             }

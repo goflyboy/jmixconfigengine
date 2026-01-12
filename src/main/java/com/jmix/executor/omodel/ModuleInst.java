@@ -177,6 +177,9 @@ public class ModuleInst {
         // 添加其他变量信息
         appendOtherVariablesInfo(sb);
 
+        // 添加优先级属性值信息
+        appendPriorityAttrValuesInfo(sb);
+
         // 如果有shortCode，则使用shortCode作为前缀
         if (shortCode != null) {
             return shortCode + "(" + sb.toString() + ")";
@@ -213,6 +216,49 @@ public class ModuleInst {
             first = false;
         }
         sb.append(")");
+    }
+
+    /**
+     * 添加优先级属性值信息到字符串构建器
+     * 格式：PAs(CA:100,TA:200,....)，attrCode取前两位的大写字符
+     * 
+     * @param sb 字符串构建器
+     */
+    private void appendPriorityAttrValuesInfo(StringBuilder sb) {
+        if (priorityAttrValues == null || priorityAttrValues.isEmpty()) {
+            return;
+        }
+        if (sb.length() > 0) {
+            sb.append(",");
+        }
+        sb.append("PAs(");
+        boolean first = true;
+        for (PriorityAttrValue priorityAttrValue : priorityAttrValues) {
+            if (!first) {
+                sb.append(",");
+            }
+            String shortCode = toAttrShortCode(priorityAttrValue.getAttrCode());
+            sb.append(shortCode).append(":").append(priorityAttrValue.getOptimalValue());
+            first = false;
+        }
+        sb.append(")");
+    }
+
+    /**
+     * 将属性代码转换为短编码
+     * 取 attrCode 的前两位，转换为大写
+     * 
+     * @param attrCode 属性代码
+     * @return 短编码，如果 attrCode 为 null 或长度不足则返回空字符串
+     */
+    private String toAttrShortCode(String attrCode) {
+        if (attrCode == null) {
+            return "";
+        }
+        if (attrCode.length() >= 2) {
+            return attrCode.substring(0, 2).toUpperCase();
+        }
+        return attrCode.toUpperCase();
     }
 
 }

@@ -1371,7 +1371,7 @@ PriorityAttrObjValue
 TODO:产品有多个Priv值怎么办？ ***
 
 
-
+ @src/main/java/com/jmix/executor/impl/SolutionUtils.java:55-56  打印 "1.4 Priority Attribute shortName:  printPriorityAttribute(...)   , 直接 @src/main/java/com/jmix/executor/omodel/ModuleInst.java:177-183 
 
 
 OptiStrategyReq optiStrategy;
