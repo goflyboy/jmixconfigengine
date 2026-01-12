@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -116,7 +117,10 @@ public class ModuleInst {
      */
     public String toShortString(boolean isSimple) {
         StringBuilder sb = new StringBuilder();
-
+        // 对paras按code升序排序
+        Collections.sort(paras, (a, b) -> a.getCode().compareTo(b.getCode()));
+        // 对parts按code升序排序
+        Collections.sort(parts, (a, b) -> a.getCode().compareTo(b.getCode()));
         // 添加参数信息
         for (ParaInst para : paras) {
             if (sb.length() > 0) {

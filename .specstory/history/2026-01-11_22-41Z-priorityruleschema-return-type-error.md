@@ -2706,14 +2706,27 @@ Output mode: content
 ---
 
 
+修复剩余的 `priorityRuleMap` 引用：
+
 
 ---
 
 <tool-use data-tool-type="write" data-tool-name="search_replace">
 
-<details><summary>Tool use: **search_replace**</summary>
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
 
-Status: **loading**
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -296,5 +296,5 @@
+          // 步骤3：对解按优先级排序
+          if (!allSolutions.isEmpty()) {
+-             sortSolutionsByPriority(allSolutions, priorityRuleMap, alg);
++             sortSolutionsByPriority(allSolutions, priorityRules, alg);
+          }
+  
+```
 
 </details>
 
@@ -2721,47 +2734,26 @@ Status: **loading**
 
 ---
 
-
-
----
-
-
-
----
-
-
-
----
-
-<tool-use data-tool-type="write" data-tool-name="search_replace">
-
-<details><summary>Tool use: **search_replace**</summary>
-
-Status: **loading**
-
-</details>
-
-</tool-use>
-
----
-
-
-
----
-
-
-
----
-
-
-
----
-
-<tool-use data-tool-type="unknown" data-tool-name="read_file">
+<tool-use data-tool-type="generic" data-tool-name="read_lints">
 <details>
-<summary>Tool use: **read_file**</summary>
+          <summary>Tool use: **read_lints** • Read lints for 1 file</summary>
+      
+Lint paths:
 
-Status: **loading**
+- `src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java`
+
+Lint results
+
+Lint errors for `src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| The import com.jmix.executor.imodel.PriorityConstraint is never used | 8:8-8:51 | DIAGNOSTIC_SEVERITY_WARNING |
+| TODO: 实现具体的排序逻辑，根据优先级规则计算每个解的得分并排序 | 325:12-325:46 | DIAGNOSTIC_SEVERITY_INFORMATION |
+| 无用导入 - com.jmix.executor.imodel.PriorityConstraint 。 | 8:8-9:1 | DIAGNOSTIC_SEVERITY_WARNING |
+| “VARIABLE_DEF”之前应该有一个空白行。 | 46:5-47:1 | DIAGNOSTIC_SEVERITY_WARNING |
+| TODO块： 'TODO:' 。 | 325:11-326:1 | DIAGNOSTIC_SEVERITY_WARNING |
 
 
 </details>
@@ -2774,6 +2766,1442 @@ Status: **loading**
 ---
 
 
+移除未使用的导入，并验证修改：
+
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
+
+**Chunk 1**
+Lines added: undefined, lines removed: 1
+
+```diff
+@@ -6,5 +6,4 @@
+  import com.jmix.executor.imodel.Part;
+  import com.jmix.executor.imodel.PartCategory;
+- import com.jmix.executor.imodel.PriorityConstraint;
+  import com.jmix.executor.imodel.PriorityStrategy;
+  import com.jmix.executor.imodel.PriorityType;
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+验证步骤2的代码：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+所有修改已完成。总结如下：
+
+## 完成的修改
+
+### 1. 将循环从 `priorityRuleMap` 改为使用 `filteredCategory.queryPriorityRules()`
+
+**步骤1的循环：**
+```184:221:src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java
+        for (Rule rule : priorityRules) {
+            if (rule.getRawCode() == null || !(rule.getRawCode() instanceof PriorityRuleSchema)) {
+                log.warn("Rule rawCode is not PriorityRuleSchema for rule: {}", rule.getCode());
+                continue;
+            }
+
+            PriorityRuleSchema schema = (PriorityRuleSchema) rule.getRawCode();
+            String attrCode = schema.getAttrCode();
+            if (attrCode == null || attrCode.isEmpty()) {
+                log.warn("PriorityRuleSchema attrCode is empty for rule: {}", rule.getCode());
+                continue;
+            }
+
+            PriorityType priorityType = schema.getPriorityType();
+            PriorityStrategy priorityStrategy = schema.getPriorityStrategy();
+
+            log.info("Step 1: Optimizing priority constraint for attrCode: {}", attrCode);
+            // ... 后续代码使用 priorityType 和 priorityStrategy
+```
+
+### 2. 更新了步骤2，从优先级规则列表中获取第一个规则
+```240:293:src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java
+        if (!optimalValues.isEmpty() && !priorityRules.isEmpty()) {
+            // 获取第一个优先级规则（最高优先级）
+            Rule firstRule = priorityRules.get(0);
+            if (firstRule.getRawCode() != null && firstRule.getRawCode() instanceof PriorityRuleSchema) {
+                PriorityRuleSchema firstSchema = (PriorityRuleSchema) firstRule.getRawCode();
+                String firstAttrCode = firstSchema.getAttrCode();
+                PriorityType firstPriorityType = firstSchema.getPriorityType();
+                // ... 后续代码
+```
+
+### 3. 更新了 `sortSolutionsByPriority` 方法的签名
+将参数从 `Map<String, PriorityConstraint> priorityRuleMap` 改为 `List<Rule> priorityRules`
+
+### 4. 添加了必要的导入
+- `PriorityType`
+- `Rule`
+- `PriorityRuleSchema`
+
+### 5. 移除了未使用的导入
+- `PriorityConstraint`
+
+代码已改为使用 `filteredCategory.queryPriorityRules()` 来循环处理优先级规则，不再依赖 `alg.getPriorityRuleMap()`。编译通过，只有一些代码风格警告，不影响功能。
+
+---
+
+_**User (2026-01-09 14:37Z)**_
+
+@src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java:183 这个改成 List<PriorityAttrObjValue>  optimalValues;  \n  @src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java:238-242 改成对optimalValues的变量，重写addGreaterOrEqual或addLessOrEqual，最后再调用multiSolver.solve  \n   class PriorityAttrObjValue {
+{
+	String attrCode;
+	PriorityRuleSchema schema;
+	double optimalValue; 
+
+}
+
+
+---
+
+_**Agent (model default, mode Agent)**_
+
+
+
+---
+
+
+查看相关代码，准备实现修改：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="search" data-tool-name="codebase_search">
+<details>
+                <summary>Tool use: **codebase_search** • Searched codebase "Where are model classes or value objects defined in the imodel package?" • **15** results</summary>
+            
+| File | Lines |
+|------|-------|
+| `src/main/java/com/jmix/executor/imodel/ProgrammableObject.java` | L57 |
+| `src/main/java/com/jmix/executor/imodel/Module.java` | L92 |
+| `src/main/java/com/jmix/executor/imodel/Para.java` | L71 |
+| `src/main/java/com/jmix/executor/imodel/Rule.java` | L92 |
+| `src/main/java/com/jmix/executor/imodel/DynamicAttribute.java` | L60 |
+| `src/main/java/com/jmix/executor/imodel/IModule.java` | L60 |
+| `src/main/java/com/jmix/executor/imodel/Extensible.java` | L48 |
+| `src/main/java/com/jmix/executor/imodel/BaseType.java` | L56 |
+| `src/main/java/com/jmix/executor/imodel/Part.java` | L97 |
+| `src/main/java/com/jmix/executor/imodel/AttrSchema.java` | L31 |
+| `src/main/java/com/jmix/executor/imodel/anno/PartAnno.java` | L93 |
+| `src/main/java/com/jmix/executor/imodel/Programmable.java` | L15 |
+| `src/main/java/com/jmix/executor/imodel/ModuleType.java` | L68 |
+| `src/main/java/com/jmix/executor/imodel/PartType.java` | L68 |
+| `src/main/java/com/jmix/executor/imodel/ExtSchema.java` | L23 |
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+创建 `PriorityAttrObjValue` 类，并修改相关代码：
+
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="write">
+
+<details><summary>Tool use: **write** • Edit file: src/main/java/com/jmix/executor/imodel/PriorityAttrObjValue.java</summary>
+
+**Chunk 1**
+Lines added: 30, lines removed: 1
+
+```diff
+@@ -1,1 +1,30 @@
+- 
++ package com.jmix.executor.imodel;
++ 
++ import com.jmix.executor.imodel.rule.PriorityRuleSchema;
++ 
++ import lombok.Data;
++ 
++ /**
++  * 优先级属性最优值对象
++  * 用于存储优先级规则的最优值信息
++  * 
++  * @since 2025-01-XX
++  */
++ @Data
++ public class PriorityAttrObjValue {
++     /**
++      * 属性代码
++      */
++     private String attrCode;
++ 
++     /**
++      * 优先级规则Schema
++      */
++     private PriorityRuleSchema schema;
++ 
++     /**
++      * 最优值
++      */
++     private double optimalValue;
++ }
++ 
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -6,4 +6,5 @@
+  import com.jmix.executor.imodel.Part;
+  import com.jmix.executor.imodel.PartCategory;
++ import com.jmix.executor.imodel.PriorityAttrObjValue;
+  import com.jmix.executor.imodel.PriorityStrategy;
+  import com.jmix.executor.imodel.PriorityType;
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -182,5 +182,5 @@
+  
+          // 步骤1：对每个优先级规则优化求解最优解
+-         Map&lt;String, Double&gt; optimalValues = new HashMap&lt;&gt;();
++         List&lt;PriorityAttrObjValue&gt; optimalValues = new ArrayList&lt;&gt;();
+          for (Rule rule : priorityRules) {
+              if (rule.getRawCode() == null || !(rule.getRawCode() instanceof PriorityRuleSchema)) {
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
+
+**Chunk 1**
+Lines added: 5, lines removed: 1
+
+```diff
+@@ -229,5 +229,9 @@
+              if (optStatus == CpSolverStatus.OPTIMAL || optStatus == CpSolverStatus.FEASIBLE) {
+                  double optimalValue = optSolver.objectiveValue();
+-                 optimalValues.put(attrCode, optimalValue);
++                 PriorityAttrObjValue objValue = new PriorityAttrObjValue();
++                 objValue.setAttrCode(attrCode);
++                 objValue.setSchema(schema);
++                 objValue.setOptimalValue(optimalValue);
++                 optimalValues.add(objValue);
+                  log.info("Optimal value for attrCode {}: {}", attrCode, optimalValue);
+              } else {
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
+
+**Chunk 1**
+Lines added: 46, lines removed: 46
+
+```diff
+@@ -241,57 +241,57 @@
+  
+          // 步骤2：在保持高优先级目标接近最优的前提下，寻找多个解
+-         if (!optimalValues.isEmpty() &amp;&amp; !priorityRules.isEmpty()) {
+-             // 获取第一个优先级规则（最高优先级）
+-             Rule firstRule = priorityRules.get(0);
+-             if (firstRule.getRawCode() != null &amp;&amp; firstRule.getRawCode() instanceof PriorityRuleSchema) {
+-                 PriorityRuleSchema firstSchema = (PriorityRuleSchema) firstRule.getRawCode();
+-                 String firstAttrCode = firstSchema.getAttrCode();
+-                 PriorityType firstPriorityType = firstSchema.getPriorityType();
+-                 Double firstOptimalValue = optimalValues.get(firstAttrCode);
+- 
+-                 if (firstAttrCode != null &amp;&amp; !firstAttrCode.isEmpty() &amp;&amp; firstOptimalValue != null) {
+-                     log.info("Step 2: Finding multiple solutions with priority constraint for attrCode: {}",
+-                             firstAttrCode);
++         if (!optimalValues.isEmpty()) {
++             log.info("Step 2: Finding multiple solutions with priority constraints");
+  
+-                     // 创建新的算法实例和模型
+-                     ConstraintAlgImpl multiAlg = createConstraintAlg(module.getId(), module.getCode());
+-                     CpModel multiModel = new CpModel();
+-                     multiAlg.initModel(multiModel, filteredCategory, isAttachRelax, confictedRelaxs);
+-                     initModelByReq(filteredCategory, partCatagoryReq, multiAlg);
+-                     multiAlg.addRelaxObjectFunction();
++             // 创建新的算法实例和模型
++             ConstraintAlgImpl multiAlg = createConstraintAlg(module.getId(), module.getCode());
++             CpModel multiModel = new CpModel();
++             multiAlg.initModel(multiModel, filteredCategory, isAttachRelax, confictedRelaxs);
++             initModelByReq(filteredCategory, partCatagoryReq, multiAlg);
++             multiAlg.addRelaxObjectFunction();
+  
+-                     // 添加约束：保持高优先级目标在最优值的30%范围内
+-                     double threshold = 0.3;
+-                     double minValue = firstOptimalValue * (1 - threshold);
+-                     double maxValue = firstOptimalValue * (1 + threshold);
++             // 对每个最优值添加约束：保持高优先级目标在最优值的30%范围内
++             double threshold = 0.3;
++             for (PriorityAttrObjValue objValue : optimalValues) {
++                 String attrCode = objValue.getAttrCode();
++                 PriorityRuleSchema schema = objValue.getSchema();
++                 double optimalValue = objValue.getOptimalValue();
++ 
++                 if (attrCode == null || attrCode.isEmpty() || schema == null) {
++                     log.warn("Invalid PriorityAttrObjValue, skipping: attrCode={}", attrCode);
++                     continue;
++                 }
++ 
++                 PriorityType priorityType = schema.getPriorityType();
++                 double minValue = optimalValue * (1 - threshold);
++                 double maxValue = optimalValue * (1 + threshold);
+  
+-                     // 重新构建表达式（使用新的alg实例）
+-                     LinearExpr firstExpr;
+-                     if (firstPriorityType == PriorityType.SELECT) {
+-                         firstExpr = multiAlg.sum4Selected(firstAttrCode);
+-                     } else {
+-                         firstExpr = multiAlg.sum4Quantity(firstAttrCode);
+-                     }
+-                     multiModel.addGreaterOrEqual(firstExpr, (long) minValue);
+-                     multiModel.addLessOrEqual(firstExpr, (long) maxValue);
++                 // 重新构建表达式（使用新的alg实例）
++                 LinearExpr expr;
++                 if (priorityType == PriorityType.SELECT) {
++                     expr = multiAlg.sum4Selected(attrCode);
++                 } else {
++                     expr = multiAlg.sum4Quantity(attrCode);
++                 }
++                 multiModel.addGreaterOrEqual(expr, (long) minValue);
++                 multiModel.addLessOrEqual(expr, (long) maxValue);
+  
+-                     log.info("Added constraint: {} &lt;= {} &lt;= {}", (long) minValue, firstAttrCode, (long) maxValue);
++                 log.info("Added constraint: {} &lt;= {} &lt;= {}", (long) minValue, attrCode, (long) maxValue);
++             }
+  
+-                     // 求解多个解
+-                     CpSolver multiSolver = new CpSolver();
+-                     multiSolver.getParameters().setEnumerateAllSolutions(true);
+-                     multiSolver.getParameters().setNumSearchWorkers(1);
++             // 求解多个解
++             CpSolver multiSolver = new CpSolver();
++             multiSolver.getParameters().setEnumerateAllSolutions(true);
++             multiSolver.getParameters().setNumSearchWorkers(1);
+  
+-                     ModuleInstSolutionCallBack multiCb = new ModuleInstSolutionCallBack(module, multiAlg.getVars(),
+-                             multiAlg.getOtherVarMap());
+-                     CpSolverStatus multiStatus = multiSolver.solve(multiModel, multiCb);
++             ModuleInstSolutionCallBack multiCb = new ModuleInstSolutionCallBack(module, multiAlg.getVars(),
++                     multiAlg.getOtherVarMap());
++             CpSolverStatus multiStatus = multiSolver.solve(multiModel, multiCb);
+  
+-                     if (multiStatus == CpSolverStatus.OPTIMAL || multiStatus == CpSolverStatus.FEASIBLE) {
+-                         allSolutions.addAll(multiCb.getAllSolutions());
+-                         log.info("Found {} solutions with priority constraints", allSolutions.size());
+-                     } else {
+-                         log.warn("Failed to find multiple solutions, status: {}", multiStatus);
+-                     }
+-                 }
++             if (multiStatus == CpSolverStatus.OPTIMAL || multiStatus == CpSolverStatus.FEASIBLE) {
++                 allSolutions.addAll(multiCb.getAllSolutions());
++                 log.info("Found {} solutions with priority constraints", allSolutions.size());
++             } else {
++                 log.warn("Failed to find multiple solutions, status: {}", multiStatus);
+              }
+          }
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="generic" data-tool-name="read_lints">
+<details>
+          <summary>Tool use: **read_lints** • Read lints for 2 files</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/executor/imodel/PriorityAttrObjValue.java`
+- `src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java`
+
+Lint results
+
+Lint errors for `src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| TODO: 实现具体的排序逻辑，根据优先级规则计算每个解的得分并排序 | 328:12-328:46 | DIAGNOSTIC_SEVERITY_INFORMATION |
+| “VARIABLE_DEF”之前应该有一个空白行。 | 44:5-45:1 | DIAGNOSTIC_SEVERITY_WARNING |
+| TODO块： 'TODO:' 。 | 328:11-329:1 | DIAGNOSTIC_SEVERITY_WARNING |
+
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+验证修改是否正确：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="search" data-tool-name="grep">
+<details>
+<summary>Tool use: **grep** • Grep for "import.*HashMap|import.*Map" in "src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java" • 0 matches</summary>
+
+Output mode: content
+
+
+_No matches found_
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+验证新创建的类：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/imodel/PriorityAttrObjValue.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+所有修改已完成。总结如下：
+
+## 完成的修改
+
+### 1. 创建了新的类 `PriorityAttrObjValue`
+```13:29:src/main/java/com/jmix/executor/imodel/PriorityAttrObjValue.java
+@Data
+public class PriorityAttrObjValue {
+    /**
+     * 属性代码
+     */
+    private String attrCode;
+
+    /**
+     * 优先级规则Schema
+     */
+    private PriorityRuleSchema schema;
+
+    /**
+     * 最优值
+     */
+    private double optimalValue;
+}
+```
+
+### 2. 将 `optimalValues` 从 `Map<String, Double>` 改为 `List<PriorityAttrObjValue>`
+```182:182:src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java
+        List<PriorityAttrObjValue> optimalValues = new ArrayList<>();
+```
+
+### 3. 修改了步骤1，将最优值存储到 `PriorityAttrObjValue` 对象中
+```229:236:src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java
+            if (optStatus == CpSolverStatus.OPTIMAL || optStatus == CpSolverStatus.FEASIBLE) {
+                double optimalValue = optSolver.objectiveValue();
+                PriorityAttrObjValue objValue = new PriorityAttrObjValue();
+                objValue.setAttrCode(attrCode);
+                objValue.setSchema(schema);
+                objValue.setOptimalValue(optimalValue);
+                optimalValues.add(objValue);
+```
+
+### 4. 修改了步骤2，遍历 `optimalValues` 列表，对每个值添加约束，最后统一调用 `multiSolver.solve()`
+```242:295:src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java
+        // 步骤2：在保持高优先级目标接近最优的前提下，寻找多个解
+        if (!optimalValues.isEmpty()) {
+            log.info("Step 2: Finding multiple solutions with priority constraints");
+
+            // 创建新的算法实例和模型
+            ConstraintAlgImpl multiAlg = createConstraintAlg(module.getId(), module.getCode());
+            CpModel multiModel = new CpModel();
+            multiAlg.initModel(multiModel, filteredCategory, isAttachRelax, confictedRelaxs);
+            initModelByReq(filteredCategory, partCatagoryReq, multiAlg);
+            multiAlg.addRelaxObjectFunction();
+
+            // 对每个最优值添加约束：保持高优先级目标在最优值的30%范围内
+            double threshold = 0.3;
+            for (PriorityAttrObjValue objValue : optimalValues) {
+                // ... 为每个值添加约束
+                multiModel.addGreaterOrEqual(expr, (long) minValue);
+                multiModel.addLessOrEqual(expr, (long) maxValue);
+            }
+
+            // 求解多个解
+            CpSolver multiSolver = new CpSolver();
+            // ... 最后统一调用 solve
+            CpSolverStatus multiStatus = multiSolver.solve(multiModel, multiCb);
+```
+
+代码已重构为使用 `List<PriorityAttrObjValue>` 存储最优值，并在步骤2中遍历所有最优值添加约束，最后统一调用 `multiSolver.solve()`。编译通过，只有一些代码风格警告，不影响功能。
+
+---
+
+_**User (2026-01-09 14:37Z)**_
+
+@src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java:568-628 抽取到一个独立的类 SolutionUtils, 是静态方法
+
+---
+
+_**Agent (model default, mode Agent)**_
+
+
+
+---
+
+
+查看相关代码，了解这些方法的依赖关系：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="search" data-tool-name="grep">
+<details>
+<summary>Tool use: **grep** • Grep for "import.*ModuleInst|import.*OtherVar|import.*Module" in "src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java" • 7 matches</summary>
+
+Output mode: content
+
+
+| File | Content | Line |
+|------|------|------|
+| `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java` | `import com.jmix.executor.ModuleConstraintExecutor;` | L3 |
+| `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java` | `import com.jmix.executor.imodel.Module;` | L5 |
+| `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java` | `import com.jmix.executor.impl.ModuleConstraintExecutorImpl;` | L8 |
+| `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java` | `import com.jmix.executor.impl.algmodel.OtherVar;` | L9 |
+| `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java` | `import com.jmix.executor.omodel.ModuleInst;` | L14 |
+| `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java` | `import com.jmix.tool.impl.ModuleGenneratorByAnno;` | L19 |
+| `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java` | `import com.jmix.tool.impl.ModulePacker;` | L20 |
+
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="search" data-tool-name="grep">
+<details>
+<summary>Tool use: **grep** • Grep for "result\.getMessage|result" in "src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java" • 15 matches</summary>
+
+Output mode: content
+
+
+| File | Content | Line |
+|------|------|------|
+| `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java` | `private Result<List<ModuleInst>> result;` | L74 |
+| `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java` | `Result<List<ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(req);` | L205 |
+| `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java` | `log.info("Inference result: \{}", result);` | L206 |
+| `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java` | `setResult(result);` | L207 |
+| `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java` | `setSolutions(result.getData());` | L208 |
+| `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java` | `Result<List<ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(req);` | L227 |
+| `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java` | `setResult(result);` | L228 |
+| `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java` | `setSolutions(result.getData());` | L229 |
+| `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java` | `protected ResultAssert resultAssert() \{` | L265 |
+| `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java` | `throw new IllegalStateException("Inference not executed yet, cannot get result assertion");` | L267 |
+| `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java` | `sb.append(result.getMessage()).append(System.lineSeparator());` | L604 |
+| `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java` | `Result<List<ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(req);` | L702 |
+| `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java` | `log.info("Inference recommend result: \{}", result);` | L703 |
+| `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java` | `setResult(result);` | L704 |
+| `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java` | `setSolutions(result.getData());` | L705 |
+
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+查看 `result` 字段的使用情况：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="search" data-tool-name="codebase_search">
+<details>
+                <summary>Tool use: **codebase_search** • Searched codebase "What is the Result class and its getMessage method?" • **15** results</summary>
+            
+| File | Lines |
+|------|-------|
+| `src/main/java/com/jmix/executor/omodel/Result.java` | L98 |
+| `src/test/java/com/jmix/tool/extensibleDemo/DCResult.java` | L85 |
+| `src/test/java/com/jmix/coretest/ResultAssert.java` | L186-241 |
+| `src/main/java/com/jmix/executor/omodel/Result.java` | L87-104 |
+| `src/test/java/com/jmix/coretest/ResultAssert.java` | L143-195 |
+| `src/test/java/com/jmix/coretest/ResultAssert.java` | L57 |
+| `src/test/java/com/jmix/coretest/ResultAssert.java` | L231-287 |
+| `src/test/java/com/jmix/tool/extensibleDemo/DCResult.java` | L75-158 |
+| `src/test/java/com/jmix/tool/extensibleDemo/DCResult.java` | L149-186 |
+| `src/main/java/com/jmix/tool/impl/LLMInvokerImpl.java` | L62 |
+| `src/main/java/com/jmix/executor/omodel/ExtensibleProcess.java` | L68 |
+| `src/main/java/com/jmix/tool/impl/ModuleRunner.java` | L114-149 |
+| `doc/扩展性功能实现总结.md` | L47-117 |
+| `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java` | L164-198 |
+| `src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java` | L137-174 |
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="generic" data-tool-name="list_dir">
+<details>
+            <summary>Tool use: **list_dir** • Listed directory, 0 results</summary>
+        
+No results found
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+创建 `SolutionUtils` 类，并将这两个方法抽取为静态方法：
+
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="write">
+
+<details><summary>Tool use: **write** • Edit file: src/test/java/com/jmix/coretest/SolutionUtils.java</summary>
+
+**Chunk 1**
+Lines added: 88, lines removed: 1
+
+```diff
+@@ -1,1 +1,88 @@
+- 
++ package com.jmix.coretest;
++ 
++ import com.jmix.executor.imodel.Module;
++ import com.jmix.executor.impl.algmodel.OtherVar;
++ import com.jmix.executor.omodel.ModuleInst;
++ import com.jmix.executor.omodel.Result;
++ 
++ import lombok.extern.slf4j.Slf4j;
++ 
++ import java.util.List;
++ import java.util.Map;
++ 
++ /**
++  * 解决方案工具类
++  * 提供打印解决方案相关的静态方法
++  * 
++  * @since 2025-01-XX
++  */
++ @Slf4j
++ public class SolutionUtils {
++ 
++     /**
++      * 打印短格式解信息
++      * 
++      * @param module    模块
++      * @param solutions 解列表
++      * @param isSimple  是否使用简单格式
++      * @param result    结果对象，用于获取消息
++      */
++     public static void printSolutions(Module module, List&lt;ModuleInst&gt; solutions, boolean isSimple,
++             Result&lt;List&lt;ModuleInst&gt;&gt; result) {
++         if (solutions == null || solutions.isEmpty()) {
++             log.info("No solutions found");
++             return;
++         }
++ 
++         StringBuilder sb = new StringBuilder();
++         sb.append(System.lineSeparator()).append("******************************************")
++                 .append(System.lineSeparator());
++         // 打印缩语解释
++         sb.append("1.Abbreviation explanation:").append(System.lineSeparator());
++ 
++         // 1. shortCodes(P1:Size, P2:Color,PT1:part1)
++         sb.append("1.1. ").append(module.getProgObjShortCodeMemo()).append(System.lineSeparator());
++         // 2. Attrs(V:value, H:isHidden, Q:qty)
++         sb.append("1.2. Attrs(V:value, H:isHidden, Q:qty,S:isSelected)").append(System.lineSeparator());
++         // 3. Other Variable shortName
++         sb.append("1.3. Other Variable shortName:").append(System.lineSeparator());
++         printOthers(solutions, sb);
++ 
++         sb.append("2.Solutions:").append(System.lineSeparator());
++         // 打印解
++         for (int i = 0; i &lt; solutions.size(); i++) {
++             sb.append(" S_").append(i + 1).append(": ").append(solutions.get(i).toShortString(isSimple))
++                     .append(System.lineSeparator());
++         }
++         sb.append(System.lineSeparator()).append("******************************************")
++                 .append(System.lineSeparator());
++         sb.append("3.Messages:").append(System.lineSeparator());
++         if (result != null) {
++             sb.append(result.getMessage()).append(System.lineSeparator());
++         }
++         log.info(sb.toString());
++     }
++ 
++     /**
++      * 打印其他变量的短名称信息
++      *
++      * @param solutions 解决方案列表
++      * @param sb        字符串构建器
++      */
++     private static void printOthers(List&lt;ModuleInst&gt; solutions, StringBuilder sb) {
++         if (!solutions.isEmpty()) {
++             ModuleInst firstSolution = solutions.get(0);
++             Object otherVarsMemo = firstSolution.getExtAttrs().get(ModuleInst.OTHER_VARIABLES_MEMO_KEY);
++             if (otherVarsMemo instanceof Map) {
++                 @SuppressWarnings("unchecked")
++                 Map&lt;String, OtherVar&gt; otherVarMap = (Map&lt;String, OtherVar&gt;) otherVarsMemo;
++                 for (Map.Entry&lt;String, OtherVar&gt; entry : otherVarMap.entrySet()) {
++                     OtherVar otherVar = entry.getValue();
++                     sb.append(" ").append(otherVar.getShortCode()).append(":").append(otherVar.getCode())
++                             .append(System.lineSeparator());
++                 }
++             }
++         }
++     }
++ }
++ 
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: 52
+
+```diff
+@@ -574,56 +574,5 @@
+       */
+      protected void printSolutions(Module module, List&lt;ModuleInst&gt; solutions, boolean isSimple) {
+-         if (solutions == null || solutions.isEmpty()) {
+-             log.info("No solutions found");
+-             return;
+-         }
+- 
+-         StringBuilder sb = new StringBuilder();
+-         sb.append(System.lineSeparator()).append("******************************************")
+-                 .append(System.lineSeparator());
+-         // 打印缩语解释
+-         sb.append("1.Abbreviation explanation:").append(System.lineSeparator());
+- 
+-         // 1. shortCodes(P1:Size, P2:Color,PT1:part1)
+-         sb.append("1.1. ").append(module.getProgObjShortCodeMemo()).append(System.lineSeparator());
+-         // 2. Attrs(V:value, H:isHidden, Q:qty)
+-         sb.append("1.2. Attrs(V:value, H:isHidden, Q:qty,S:isSelected)").append(System.lineSeparator());
+-         // 3. Other Variable shortName
+-         sb.append("1.3. Other Variable shortName:").append(System.lineSeparator());
+-         printOthers(solutions, sb);
+- 
+-         sb.append("2.Solutions:").append(System.lineSeparator());
+-         // 打印解
+-         for (int i = 0; i &lt; solutions.size(); i++) {
+-             sb.append(" S_").append(i + 1).append(": ").append(solutions.get(i).toShortString(isSimple))
+-                     .append(System.lineSeparator());
+-         }
+-         sb.append(System.lineSeparator()).append("******************************************")
+-                 .append(System.lineSeparator());
+-         sb.append("3.Messages:").append(System.lineSeparator());
+-         sb.append(result.getMessage()).append(System.lineSeparator());
+-         log.info(sb.toString());
+-     }
+- 
+-     /**
+-      * 打印其他变量的短名称信息
+-      *
+-      * @param solutions 解决方案列表
+-      * @param sb        字符串构建器
+-      */
+-     private void printOthers(List&lt;ModuleInst&gt; solutions, StringBuilder sb) {
+-         if (!solutions.isEmpty()) {
+-             ModuleInst firstSolution = solutions.get(0);
+-             Object otherVarsMemo = firstSolution.getExtAttrs().get(ModuleInst.OTHER_VARIABLES_MEMO_KEY);
+-             if (otherVarsMemo instanceof Map) {
+-                 @SuppressWarnings("unchecked")
+-                 Map&lt;String, OtherVar&gt; otherVarMap = (Map&lt;String, OtherVar&gt;) otherVarsMemo;
+-                 for (Map.Entry&lt;String, OtherVar&gt; entry : otherVarMap.entrySet()) {
+-                     OtherVar otherVar = entry.getValue();
+-                     sb.append(" ").append(otherVar.getShortCode()).append(":").append(otherVar.getCode())
+-                             .append(System.lineSeparator());
+-                 }
+-             }
+-         }
++         SolutionUtils.printSolutions(module, solutions, isSimple, result);
+      }
+  
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="generic" data-tool-name="read_lints">
+<details>
+          <summary>Tool use: **read_lints** • Read lints for 2 files</summary>
+      
+Lint paths:
+
+- `src/test/java/com/jmix/coretest/SolutionUtils.java`
+- `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java`
+
+Lint results
+
+Lint errors for `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| The import com.jmix.executor.impl.algmodel.OtherVar is never used | 9:8-9:48 | DIAGNOSTIC_SEVERITY_WARNING |
+| 无用导入 - com.jmix.executor.impl.algmodel.OtherVar 。 | 9:8-10:1 | DIAGNOSTIC_SEVERITY_WARNING |
+
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+移除未使用的导入：
+
+
+---
+
+<tool-use data-tool-type="search" data-tool-name="grep">
+<details>
+<summary>Tool use: **grep** • Grep for "OtherVar" in "src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java" • 1 match</summary>
+
+Output mode: content
+
+
+| File | Content | Line |
+|------|------|------|
+| `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java` | `import com.jmix.executor.impl.algmodel.OtherVar;` | L9 |
+
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java</summary>
+
+**Chunk 1**
+Lines added: undefined, lines removed: 1
+
+```diff
+@@ -7,5 +7,4 @@
+  import com.jmix.executor.imodel.Part;
+  import com.jmix.executor.impl.ModuleConstraintExecutorImpl;
+- import com.jmix.executor.impl.algmodel.OtherVar;
+  import com.jmix.executor.impl.util.CommHelper;
+  import com.jmix.executor.impl.util.ParaTypeHandler;
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="generic" data-tool-name="read_lints">
+<details>
+          <summary>Tool use: **read_lints** • Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java`
+
+Lint results
+
+
+**No lint errors found**
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+验证修改是否正确：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/test/java/com/jmix/coretest/SolutionUtils.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+查看完整的修改后的方法：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+所有修改已完成。总结如下：
+
+## 完成的修改
+
+### 1. 创建了新的工具类 `SolutionUtils`
+```19:87:src/test/java/com/jmix/coretest/SolutionUtils.java
+@Slf4j
+public class SolutionUtils {
+
+    /**
+     * 打印短格式解信息
+     * 
+     * @param module    模块
+     * @param solutions 解列表
+     * @param isSimple  是否使用简单格式
+     * @param result    结果对象，用于获取消息
+     */
+    public static void printSolutions(Module module, List<ModuleInst> solutions, boolean isSimple,
+            Result<List<ModuleInst>> result) {
+        // ... 实现代码
+    }
+
+    /**
+     * 打印其他变量的短名称信息
+     *
+     * @param solutions 解决方案列表
+     * @param sb        字符串构建器
+     */
+    private static void printOthers(List<ModuleInst> solutions, StringBuilder sb) {
+        // ... 实现代码
+    }
+}
+```
+
+### 2. 修改了 `ModuleScenarioTestBase` 类
+- 将 `printSolutions` 方法改为调用 `SolutionUtils.printSolutions()` 静态方法
+- 移除了 `printOthers` 私有方法（已移至 `SolutionUtils`）
+- 移除了未使用的 `OtherVar` 导入
+
+```574:576:src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java
+    protected void printSolutions(Module module, List<ModuleInst> solutions, boolean isSimple) {
+        SolutionUtils.printSolutions(module, solutions, isSimple, result);
+    }
+```
+
+### 3. 主要改进
+- 代码复用：`SolutionUtils` 的静态方法可在其他测试类中使用
+- 职责分离：打印逻辑从测试基类中分离
+- 参数化：`printSolutions` 方法接收 `Result` 对象作为参数，便于在不同场景使用
+
+代码已重构，编译通过，无错误。`SolutionUtils` 类提供了可复用的静态方法，便于在其他测试类中使用。
+
+---
+
+_**User (2026-01-09 14:38Z)**_
+
+@src/main/java/com/jmix/executor/impl/SolutionUtils.java:53-56  抽取一个独立方法
+
+---
+
+_**Agent (model default, mode Agent)**_
+
+
+
+---
+
+
+查看相关代码，准备将这段代码抽取为独立方法：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/SolutionUtils.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+将这段代码抽取为独立方法：
+
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/impl/SolutionUtils.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: 4
+
+```diff
+@@ -51,8 +51,5 @@
+          sb.append("2.Solutions:").append(System.lineSeparator());
+          // 打印解
+-         for (int i = 0; i &lt; solutions.size(); i++) {
+-             sb.append(" S_").append(i + 1).append(": ").append(solutions.get(i).toShortString(isSimple))
+-                     .append(System.lineSeparator());
+-         }
++         printSolutionList(solutions, isSimple, sb);
+          sb.append(System.lineSeparator()).append("******************************************")
+                  .append(System.lineSeparator());
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/impl/SolutionUtils.java</summary>
+
+**Chunk 1**
+Lines added: 14, lines removed: undefined
+
+```diff
+@@ -60,4 +60,18 @@
+          log.info(sb.toString());
+      }
++ 
++     /**
++      * 打印解决方案列表
++      *
++      * @param solutions 解决方案列表
++      * @param isSimple  是否使用简单格式
++      * @param sb        字符串构建器
++      */
++     private static void printSolutionList(List&lt;ModuleInst&gt; solutions, boolean isSimple, StringBuilder sb) {
++         for (int i = 0; i &lt; solutions.size(); i++) {
++             sb.append(" S_").append(i + 1).append(": ").append(solutions.get(i).toShortString(isSimple))
++                     .append(System.lineSeparator());
++         }
++     }
+  
+      /**
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="generic" data-tool-name="read_lints">
+<details>
+          <summary>Tool use: **read_lints** • Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/executor/impl/SolutionUtils.java`
+
+Lint results
+
+Lint errors for `src/main/java/com/jmix/executor/impl/SolutionUtils.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| 工具类应隐藏 public 构造器。 | 19:1-20:1 | DIAGNOSTIC_SEVERITY_WARNING |
+
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+添加私有构造函数以符合工具类规范：
+
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/impl/SolutionUtils.java</summary>
+
+**Chunk 1**
+Lines added: 7, lines removed: undefined
+
+```diff
+@@ -19,4 +19,11 @@
+  @Slf4j
+  public class SolutionUtils {
++ 
++     /**
++      * 私有构造函数，防止实例化
++      */
++     private SolutionUtils() {
++         // 工具类，不允许实例化
++     }
+  
+      /**
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/SolutionUtils.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+验证修改是否正确：
+
+
+---
+
+<tool-use data-tool-type="generic" data-tool-name="read_lints">
+<details>
+          <summary>Tool use: **read_lints** • Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/executor/impl/SolutionUtils.java`
+
+Lint results
+
+Lint errors for `src/main/java/com/jmix/executor/impl/SolutionUtils.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| 类 SolutionUtils 应定义为 final 的。 | 19:1-20:1 | DIAGNOSTIC_SEVERITY_WARNING |
+
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+将类声明为 final：
+
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/impl/SolutionUtils.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -18,5 +18,5 @@
+   */
+  @Slf4j
+- public class SolutionUtils {
++ public final class SolutionUtils {
+  
+      /**
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="generic" data-tool-name="read_lints">
+<details>
+          <summary>Tool use: **read_lints** • Read lints for 1 file</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/executor/impl/SolutionUtils.java`
+
+Lint results
+
+
+**No lint errors found**
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+所有修改已完成。总结如下：
+
+## 完成的修改
+
+### 1. 抽取了独立方法 `printSolutionList`
+将原来第 53-56 行的循环代码抽取为独立的私有静态方法：
+
+```70:82:src/main/java/com/jmix/executor/impl/SolutionUtils.java
+    /**
+     * 打印解决方案列表
+     *
+     * @param solutions 解决方案列表
+     * @param isSimple  是否使用简单格式
+     * @param sb        字符串构建器
+     */
+    private static void printSolutionList(List<ModuleInst> solutions, boolean isSimple, StringBuilder sb) {
+        for (int i = 0; i < solutions.size(); i++) {
+            sb.append(" S_").append(i + 1).append(": ").append(solutions.get(i).toShortString(isSimple))
+                    .append(System.lineSeparator());
+        }
+    }
+```
+
+### 2. 更新了 `printSolutions` 方法
+将原来的循环代码替换为对新方法的调用：
+
+```58:60:src/main/java/com/jmix/executor/impl/SolutionUtils.java
+        sb.append("2.Solutions:").append(System.lineSeparator());
+        // 打印解
+        printSolutionList(solutions, isSimple, sb);
+```
+
+### 3. 改进了工具类规范
+- 添加了私有构造函数，防止实例化
+- 将类声明为 `final`，符合工具类规范
+
+代码已重构，职责更清晰，方法更易维护和测试。编译通过，无错误。
 
 ---
 

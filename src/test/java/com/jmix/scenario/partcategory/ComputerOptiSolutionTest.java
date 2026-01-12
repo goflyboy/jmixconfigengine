@@ -38,9 +38,9 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
         @DAttrAnno3(code = "Capacity", optionExtSchema = "IntegerUnit", options = { "Capacity_1T:1:T",
                 "Capacity_2T:2:T",
                 "Capacity_4T:4:T" }, instType = 0)
-        @DAttrAnno4(code = "capacityWeight", optionExtSchema = "IntegerUnit", options = { "CW_10:10", "CW_20:20",
-                "CW_30:30",
-                "CW_100:100", "CW_200:200", "CW_300:300" }, instType = 0) // 不同点：带点实现
+        @DAttrAnno4(code = "capacityWeight", optionExtSchema = "IntegerUnit", options = { "CW_11:11", "CW_12:12",
+                "CW_13:13",
+                "CW_110:110", "CW_120:120", "CW_130:130" }, instType = 0) // 不同点：带点实现, 权总考虑的30%，建议是15%左右
         private PartCategoryVar driveVar;
 
         // 固态硬盘部件分类，继承driveVar并重写属性
@@ -56,32 +56,32 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
         private PartCategoryVar md;
 
         // 固态硬盘实例1
-        @PartAnno(fatherCode = "sd", attrs = { "8", "100" }, attrsInst1 = {
+        @PartAnno(fatherCode = "sd", attrs = { "8", "110" }, attrsInst1 = {
                 "5400",
                 "2" }, attrsInst2 = { "7200/5400", "4" })
         private PartVar sd1;
 
         // 固态硬盘实例2
-        @PartAnno(fatherCode = "sd", attrs = { "8", "200" }, attrsInst1 = {
+        @PartAnno(fatherCode = "sd", attrs = { "8", "120" }, attrsInst1 = {
                 "7200/5400", "4" })
         private PartVar sd2;
 
         // 固态硬盘实例3
-        @PartAnno(fatherCode = "sd", attrs = { "8", "300" }, attrsInst1 = {
+        @PartAnno(fatherCode = "sd", attrs = { "8", "130" }, attrsInst1 = {
                 "9000",
                 "4" })
         private PartVar sd3;
 
         // 机械硬盘实例1
-        @PartAnno(fatherCode = "md", attrs = { "5400", "2", "30" })
+        @PartAnno(fatherCode = "md", attrs = { "5400", "2", "13" })
         private PartVar md1;
 
         // 机械硬盘实例2
-        @PartAnno(fatherCode = "md", attrs = { "7200", "2", "20" })
+        @PartAnno(fatherCode = "md", attrs = { "7200", "2", "12" })
         private PartVar md2;
 
         // 机械硬盘实例3
-        @PartAnno(fatherCode = "md", attrs = { "9000", "2", "10" })
+        @PartAnno(fatherCode = "md", attrs = { "9000", "2", "11" })
         private PartVar md3;
 
         // rule1://固态硬盘必须配置同一种，并且最多配置2块
@@ -202,7 +202,19 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
     // 要求5400速率的固态硬盘2块
     @Test
     public void testUserSpecialRequirement3() {
-        inferRecommend("drive", "sd:sum.Capacity >=5 where Speed like %5400%");
+
+        // drive:sum.Capacity >=5 where Speed like %5400%"-> sd1.Q*6 + sd2.Q*4 + md1.Q*2
+        // >= 5
+        // rule11: sd1.isSelected + sd2.isSelected + sd3.isSelected <= 1
+        // rule12: sd1.qty + sd2.qty + sd3.qty <= 2
+        // rule2: expr= sd1.S*110 +sd2.S*120 + md1.S*13
+        // rule2-step1: maximum(expr) -> md1(0*)sd1(0*),sd2(Q:2,S:1)=120
+        // rule2-step2: expr >= 200*(1-30%) = 84
+        // S_1: md1(0*),sd1(Q:1,H:0,S:1),sd2(0*)
+        // S_2: md1(0*),sd1(Q:2,H:0,S:1),sd2(0*)
+        // S_3: md1(0*),sd1(0*),sd2(Q:2,H:0,S:1)
+
+        inferRecommend("drive", "drive:sum.Capacity >=5 where Speed like %5400%");
         // Print solutions for debugging
         printSimpleSolutions();
         // resultAssert()

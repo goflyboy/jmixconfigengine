@@ -5,6 +5,7 @@ import com.jmix.executor.imodel.DynamicAttribute;
 import com.jmix.executor.imodel.Module;
 import com.jmix.executor.imodel.Part;
 import com.jmix.executor.imodel.PartCategory;
+import com.jmix.executor.imodel.PriorityAttrObjValue;
 import com.jmix.executor.imodel.PriorityStrategy;
 import com.jmix.executor.imodel.PriorityType;
 import com.jmix.executor.imodel.Rule;
@@ -29,9 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 部件分类约束执行器实现类
@@ -180,7 +179,7 @@ public class PartCategoryConstraintExecutorImpl {
         List<ModuleInst> allSolutions = new ArrayList<>();
 
         // 步骤1：对每个优先级规则优化求解最优解
-        Map<String, Double> optimalValues = new HashMap<>();
+        List<PriorityAttrObjValue> optimalValues = new ArrayList<>();
         for (Rule rule : priorityRules) {
             if (rule.getRawCode() == null || !(rule.getRawCode() instanceof PriorityRuleSchema)) {
                 log.warn("Rule rawCode is not PriorityRuleSchema for rule: {}", rule.getCode());
@@ -229,7 +228,12 @@ public class PartCategoryConstraintExecutorImpl {
 
             if (optStatus == CpSolverStatus.OPTIMAL || optStatus == CpSolverStatus.FEASIBLE) {
                 double optimalValue = optSolver.objectiveValue();
-                optimalValues.put(attrCode, optimalValue);
+                PriorityAttrObjValue objValue = new PriorityAttrObjValue();
+                objValue.setAttrCode(attrCode);
+                objValue.setSchema(schema);
+                objValue.setOptimalValue(optimalValue);
+                optimalValues.add(objValue);
+                log.info("Optimal solution: {}", SolutionUtils.toSolutionString(optCb.getAllSolutions()));
                 log.info("Optimal value for attrCode {}: {}", attrCode, optimalValue);
             } else {
                 log.warn("Failed to find optimal solution for attrCode: {}, status: {}", attrCode, optStatus);
@@ -237,59 +241,59 @@ public class PartCategoryConstraintExecutorImpl {
         }
 
         // 步骤2：在保持高优先级目标接近最优的前提下，寻找多个解
-        if (!optimalValues.isEmpty() && !priorityRules.isEmpty()) {
-            // 获取第一个优先级规则（最高优先级）
-            Rule firstRule = priorityRules.get(0);
-            if (firstRule.getRawCode() != null && firstRule.getRawCode() instanceof PriorityRuleSchema) {
-                PriorityRuleSchema firstSchema = (PriorityRuleSchema) firstRule.getRawCode();
-                String firstAttrCode = firstSchema.getAttrCode();
-                PriorityType firstPriorityType = firstSchema.getPriorityType();
-                Double firstOptimalValue = optimalValues.get(firstAttrCode);
+        if (!optimalValues.isEmpty()) {
+            log.info("Step 2: Finding multiple solutions with priority constraints");
 
-                if (firstAttrCode != null && !firstAttrCode.isEmpty() && firstOptimalValue != null) {
-                    log.info("Step 2: Finding multiple solutions with priority constraint for attrCode: {}",
-                            firstAttrCode);
+            // 创建新的算法实例和模型
+            ConstraintAlgImpl multiAlg = createConstraintAlg(module.getId(), module.getCode());
+            CpModel multiModel = new CpModel();
+            multiAlg.initModel(multiModel, filteredCategory, isAttachRelax, confictedRelaxs);
+            initModelByReq(filteredCategory, partCatagoryReq, multiAlg);
+            multiAlg.addRelaxObjectFunction();
 
-                    // 创建新的算法实例和模型
-                    ConstraintAlgImpl multiAlg = createConstraintAlg(module.getId(), module.getCode());
-                    CpModel multiModel = new CpModel();
-                    multiAlg.initModel(multiModel, filteredCategory, isAttachRelax, confictedRelaxs);
-                    initModelByReq(filteredCategory, partCatagoryReq, multiAlg);
-                    multiAlg.addRelaxObjectFunction();
+            // 对每个最优值添加约束：保持高优先级目标在最优值的30%范围内
+            double threshold = 0.3;
+            for (PriorityAttrObjValue objValue : optimalValues) {
+                String attrCode = objValue.getAttrCode();
+                PriorityRuleSchema schema = objValue.getSchema();
+                double optimalValue = objValue.getOptimalValue();
 
-                    // 添加约束：保持高优先级目标在最优值的30%范围内
-                    double threshold = 0.3;
-                    double minValue = firstOptimalValue * (1 - threshold);
-                    double maxValue = firstOptimalValue * (1 + threshold);
-
-                    // 重新构建表达式（使用新的alg实例）
-                    LinearExpr firstExpr;
-                    if (firstPriorityType == PriorityType.SELECT) {
-                        firstExpr = multiAlg.sum4Selected(firstAttrCode);
-                    } else {
-                        firstExpr = multiAlg.sum4Quantity(firstAttrCode);
-                    }
-                    multiModel.addGreaterOrEqual(firstExpr, (long) minValue);
-                    multiModel.addLessOrEqual(firstExpr, (long) maxValue);
-
-                    log.info("Added constraint: {} <= {} <= {}", (long) minValue, firstAttrCode, (long) maxValue);
-
-                    // 求解多个解
-                    CpSolver multiSolver = new CpSolver();
-                    multiSolver.getParameters().setEnumerateAllSolutions(true);
-                    multiSolver.getParameters().setNumSearchWorkers(1);
-
-                    ModuleInstSolutionCallBack multiCb = new ModuleInstSolutionCallBack(module, multiAlg.getVars(),
-                            multiAlg.getOtherVarMap());
-                    CpSolverStatus multiStatus = multiSolver.solve(multiModel, multiCb);
-
-                    if (multiStatus == CpSolverStatus.OPTIMAL || multiStatus == CpSolverStatus.FEASIBLE) {
-                        allSolutions.addAll(multiCb.getAllSolutions());
-                        log.info("Found {} solutions with priority constraints", allSolutions.size());
-                    } else {
-                        log.warn("Failed to find multiple solutions, status: {}", multiStatus);
-                    }
+                if (attrCode == null || attrCode.isEmpty() || schema == null) {
+                    log.warn("Invalid PriorityAttrObjValue, skipping: attrCode={}", attrCode);
+                    continue;
                 }
+                // 重新构建表达式（使用新的alg实例）
+                LinearExpr expr;
+                if (schema.getPriorityType() == PriorityType.SELECT) {
+                    expr = multiAlg.sum4Selected(attrCode);
+                } else {
+                    expr = multiAlg.sum4Quantity(attrCode);
+                }
+                if (schema.getPriorityStrategy() == PriorityStrategy.MAX) {
+                    double minValue = optimalValue * (1 - threshold);
+                    multiModel.addGreaterOrEqual(expr, (long) minValue);
+                    log.info("Added Priority adjusted constraint: {} >= {}", attrCode, (long) minValue);
+                } else {
+                    double maxValue = optimalValue * (1 + threshold);
+                    multiModel.addLessOrEqual(expr, (long) maxValue);
+                    log.info("Added Priority adjusted constraint: {} <= {}", attrCode, (long) maxValue);
+                }
+            }
+
+            // 求解多个解
+            CpSolver multiSolver = new CpSolver();
+            multiSolver.getParameters().setEnumerateAllSolutions(true);
+            multiSolver.getParameters().setNumSearchWorkers(1);
+
+            ModuleInstSolutionCallBack multiCb = new ModuleInstSolutionCallBack(module, multiAlg.getVars(),
+                    multiAlg.getOtherVarMap());
+            CpSolverStatus multiStatus = multiSolver.solve(multiModel, multiCb);
+
+            if (multiStatus == CpSolverStatus.OPTIMAL || multiStatus == CpSolverStatus.FEASIBLE) {
+                allSolutions.addAll(multiCb.getAllSolutions());
+                log.info("Found {} solutions with priority constraints", allSolutions.size());
+            } else {
+                log.warn("Failed to find multiple solutions, status: {}", multiStatus);
             }
         }
 
