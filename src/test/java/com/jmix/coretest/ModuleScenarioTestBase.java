@@ -648,7 +648,11 @@ public abstract class ModuleScenarioTestBase {
         req.setPartCatagoryCode(partCategoryCode);
         req.setPartConstraintReqs(partConstraintReqs);
 
+        long startTime = System.currentTimeMillis();
         Result<List<ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(req);
+        long endTime = System.currentTimeMillis();
+        long executionTime = endTime - startTime;
+        log.info("Inference recommend execution time: {} ms", executionTime);
         log.info("Inference recommend result: {}", result);
         setResult(result);
         setSolutions(result.getData());
