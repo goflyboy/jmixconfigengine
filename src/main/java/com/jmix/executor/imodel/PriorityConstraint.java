@@ -2,6 +2,8 @@ package com.jmix.executor.imodel;
 
 import com.jmix.executor.impl.util.ExpressionCalculator;
 
+import com.google.ortools.sat.LinearExpr;
+
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -23,7 +25,7 @@ public class PriorityConstraint {
     /**
      * 线性表达式
      */
-    // private LinearExpr expr; // 约束求解器里的表达式
+    private LinearExpr expr;
 
     /**
      * 表达式字符串，如：sd1.S*110 + sd2.S*120 + md1.S*13

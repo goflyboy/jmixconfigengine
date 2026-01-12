@@ -6515,3 +6515,347 @@ Output mode: content
 
 ---
 
+_**User (2026-01-12 11:02Z)**_
+
+在PriorityConstraint增加 字段: LinearExpr expr;  增强buildPriorityConstraintExpressions，sum4Parts的方法改调用buildPriorityConstraintExpressions
+
+---
+
+_**Agent (model default, mode Agent)**_
+
+
+
+---
+
+
+查看相关代码，准备修改：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/imodel/PriorityConstraint.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/algmodel/ConstraintAlgImpl.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/algmodel/ConstraintAlgImpl.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+修改代码：在 `PriorityConstraint` 中添加 `LinearExpr expr` 字段，增强 `buildPriorityConstraintExpressions`，并让 `sum4Parts` 调用它。
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/algmodel/ConstraintAlgImpl.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/imodel/PriorityConstraint.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -1,4 +1,5 @@
+  package com.jmix.executor.imodel;
+  
++ import com.google.ortools.sat.LinearExpr;
+  import com.jmix.executor.impl.util.ExpressionCalculator;
+  
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/imodel/PriorityConstraint.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -25,5 +25,5 @@
+       * 线性表达式
+       */
+-     // private LinearExpr expr; // 约束求解器里的表达式
++     private LinearExpr expr;
+  
+      /**
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/impl/algmodel/ConstraintAlgImpl.java</summary>
+
+**Chunk 1**
+Lines added: 5, lines removed: 1
+
+```diff
+@@ -276,7 +276,11 @@
+       * @param attrCode    属性代码
+       * @param varName     变量名称（"S" 或 "Q"）
++      * @param varGetter   从PartVar获取LinearArgument的函数（如getIsSelected或getQty）
++      * @return 构建的LinearExpr表达式
+       */
+-     private void buildPriorityConstraintExpressions(PriorityConstraint pConstraint, String attrCode, String varName) {
++     private LinearExpr buildPriorityConstraintExpressions(PriorityConstraint pConstraint, String attrCode, 
++             String varName, java.util.function.Function&lt;PartVar, LinearArgument&gt; varGetter) {
+          List&lt;Part&gt; atomicParts = module.getAtomicParts();
++         List&lt;LinearExpr&gt; sumTerms = new ArrayList&lt;&gt;();
+          List&lt;String&gt; exprStrParts = new ArrayList&lt;&gt;();
+          List&lt;String&gt; exprTemplateParts = new ArrayList&lt;&gt;();
+```
+
+**Chunk 2**
+Lines added: 3, lines removed: undefined
+
+```diff
+@@ -289,4 +293,7 @@
+              PartVar partVar = getPartVar(part.getCode());
+              int attrValue = isWithoutAttr ? 1 : Integer.parseInt(part.getAttr(attrCode));
++ 
++             // 构建LinearExpr项
++             sumTerms.add(LinearExpr.term(varGetter.apply(partVar), attrValue));
+  
+              // 创建 PartTerm
+```
+
+**Chunk 3**
+Lines added: 5, lines removed: 1
+
+```diff
+@@ -307,5 +314,9 @@
+          }
+  
+-         // 设置表达式字符串
++         // 构建LinearExpr
++         LinearExpr expr = LinearExpr.sum(sumTerms.toArray(new LinearExpr[0]));
++ 
++         // 设置表达式字符串和LinearExpr
++         pConstraint.setExpr(expr);
+          pConstraint.setExprStr(String.join(" + ", exprStrParts));
+          pConstraint.setExprTemplate(String.join(" + ", exprTemplateParts));
+```
+
+**Chunk 4**
+Lines added: 2, lines removed: undefined
+
+```diff
+@@ -315,4 +326,6 @@
+          log.info("Built priority constraint expressions: exprStr={}, exprTemplate={}",
+                  pConstraint.getExprStr(), pConstraint.getExprTemplate());
++         
++         return expr;
+      }
+  
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/impl/algmodel/ConstraintAlgImpl.java</summary>
+
+**Chunk 1**
+Lines added: 3, lines removed: 1
+
+```diff
+@@ -355,5 +355,7 @@
+          PriorityType type = schema.getPriorityType();
+          String varName = (type == PriorityType.SELECT) ? "S" : "Q";
+-         buildPriorityConstraintExpressions(pConstraint, attrCode, varName);
++         java.util.function.Function&lt;PartVar, LinearArgument&gt; varGetter = 
++                 (type == PriorityType.SELECT) ? PartVar::getIsSelected : PartVar::getQty;
++         buildPriorityConstraintExpressions(pConstraint, attrCode, varName, varGetter);
+  
+          // 存储到 priorityRuleMap，使用 attrCode 作为 key
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/impl/algmodel/ConstraintAlgImpl.java</summary>
+
+**Chunk 1**
+Lines added: 5, lines removed: 15
+
+```diff
+@@ -926,19 +926,9 @@
+      private LinearExpr sum4Parts(String cofAttrCode,
+              java.util.function.Function&lt;PartVar, LinearArgument&gt; varGetter, String varName) {
+-         List&lt;Part&gt; atomicParts = module.getAtomicParts();
+-         List&lt;LinearExpr&gt; sumTerms = new ArrayList&lt;&gt;();
+-         List&lt;String&gt; sumTermStrings = new ArrayList&lt;&gt;();
+-         boolean isWithoutAttr = cofAttrCode == null || cofAttrCode.isEmpty();
+- 
+-         for (Part part : atomicParts) {
+-             PartVar partVar = getPartVar(part.getCode());
+-             int attrValue = isWithoutAttr ? 1 : Integer.parseInt(part.getAttr(cofAttrCode));
+-             sumTerms.add(LinearExpr.term(varGetter.apply(partVar), attrValue));
+-             sumTermStrings.add(partVar.getBase().getShortCode() + "." + varName + "*" + attrValue);
+-         }
+- 
+-         String sumFormulaBase = String.join(" + ", sumTermStrings);
+-         log.info("Sum formula: {}", sumFormulaBase);
+-         return LinearExpr.sum(sumTerms.toArray(new LinearExpr[0]));
++         // 创建一个临时的PriorityConstraint对象来复用构建逻辑
++         PriorityConstraint tempConstraint = new PriorityConstraint();
++         LinearExpr expr = buildPriorityConstraintExpressions(tempConstraint, cofAttrCode, varName, varGetter);
++         log.info("Sum formula: {}", tempConstraint.getExprStr());
++         return expr;
+      }
+  
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="unknown" data-tool-name="read_lints">
+<details>
+<summary>Tool use: **read_lints**</summary>
+
+Status: **loading**
+
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+
+---
+
+<tool-use data-tool-type="unknown" data-tool-name="read_file">
+<details>
+<summary>Tool use: **read_file**</summary>
+
+Status: **loading**
+
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+<tool-use data-tool-type="unknown" data-tool-name="read_file">
+<details>
+<summary>Tool use: **read_file**</summary>
+
+Status: **loading**
+
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+<tool-use data-tool-type="unknown" data-tool-name="read_file">
+<details>
+<summary>Tool use: **read_file**</summary>
+
+Status: **loading**
+
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+

@@ -275,9 +275,13 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @param pConstraint 优先级约束对象
      * @param attrCode    属性代码
      * @param varName     变量名称（"S" 或 "Q"）
+     * @param varGetter   从PartVar获取LinearArgument的函数（如getIsSelected或getQty）
+     * @return 构建的LinearExpr表达式
      */
-    private void buildPriorityConstraintExpressions(PriorityConstraint pConstraint, String attrCode, String varName) {
+    private LinearExpr buildPriorityConstraintExpressions(PriorityConstraint pConstraint, String attrCode,
+            String varName, java.util.function.Function<PartVar, LinearArgument> varGetter) {
         List<Part> atomicParts = module.getAtomicParts();
+        List<LinearExpr> sumTerms = new ArrayList<>();
         List<String> exprStrParts = new ArrayList<>();
         List<String> exprTemplateParts = new ArrayList<>();
         List<String> exprTemplateStrParts = new ArrayList<>();
@@ -288,6 +292,9 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         for (Part part : atomicParts) {
             PartVar partVar = getPartVar(part.getCode());
             int attrValue = isWithoutAttr ? 1 : Integer.parseInt(part.getAttr(attrCode));
+
+            // 构建LinearExpr项
+            sumTerms.add(LinearExpr.term(varGetter.apply(partVar), attrValue));
 
             // 创建 PartTerm
             PriorityConstraint.PartTerm term = new PriorityConstraint.PartTerm();
@@ -306,7 +313,11 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             index++;
         }
 
-        // 设置表达式字符串
+        // 构建LinearExpr
+        LinearExpr expr = LinearExpr.sum(sumTerms.toArray(new LinearExpr[0]));
+
+        // 设置表达式字符串和LinearExpr
+        pConstraint.setExpr(expr);
         pConstraint.setExprStr(String.join(" + ", exprStrParts));
         pConstraint.setExprTemplate(String.join(" + ", exprTemplateParts));
         pConstraint.setExprTemplateStr(String.join(" + ", exprTemplateStrParts));
@@ -314,6 +325,8 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
         log.info("Built priority constraint expressions: exprStr={}, exprTemplate={}",
                 pConstraint.getExprStr(), pConstraint.getExprTemplate());
+
+        return expr;
     }
 
     /**
@@ -341,7 +354,10 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         // 根据类型构建表达式字符串和模板
         PriorityType type = schema.getPriorityType();
         String varName = (type == PriorityType.SELECT) ? "S" : "Q";
-        buildPriorityConstraintExpressions(pConstraint, attrCode, varName);
+        java.util.function.Function<PartVar, LinearArgument> varGetter = (type == PriorityType.SELECT)
+                ? PartVar::getIsSelected
+                : PartVar::getQty;
+        buildPriorityConstraintExpressions(pConstraint, attrCode, varName, varGetter);
 
         // 存储到 priorityRuleMap，使用 attrCode 作为 key
         priorityRuleMap.put(attrCode, pConstraint);
@@ -910,21 +926,11 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      */
     private LinearExpr sum4Parts(String cofAttrCode,
             java.util.function.Function<PartVar, LinearArgument> varGetter, String varName) {
-        List<Part> atomicParts = module.getAtomicParts();
-        List<LinearExpr> sumTerms = new ArrayList<>();
-        List<String> sumTermStrings = new ArrayList<>();
-        boolean isWithoutAttr = cofAttrCode == null || cofAttrCode.isEmpty();
-
-        for (Part part : atomicParts) {
-            PartVar partVar = getPartVar(part.getCode());
-            int attrValue = isWithoutAttr ? 1 : Integer.parseInt(part.getAttr(cofAttrCode));
-            sumTerms.add(LinearExpr.term(varGetter.apply(partVar), attrValue));
-            sumTermStrings.add(partVar.getBase().getShortCode() + "." + varName + "*" + attrValue);
-        }
-
-        String sumFormulaBase = String.join(" + ", sumTermStrings);
-        log.info("Sum formula: {}", sumFormulaBase);
-        return LinearExpr.sum(sumTerms.toArray(new LinearExpr[0]));
+        // 创建一个临时的PriorityConstraint对象来复用构建逻辑
+        PriorityConstraint tempConstraint = new PriorityConstraint();
+        LinearExpr expr = buildPriorityConstraintExpressions(tempConstraint, cofAttrCode, varName, varGetter);
+        log.info("Sum formula: {}", tempConstraint.getExprStr());
+        return expr;
     }
 
     /**
