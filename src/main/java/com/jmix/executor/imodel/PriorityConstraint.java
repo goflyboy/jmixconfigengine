@@ -5,6 +5,7 @@ import com.jmix.executor.impl.util.ExpressionCalculator;
 import com.google.ortools.sat.LinearExpr;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.List;
  * @since 2025-01-XX
  */
 @Data
+@Slf4j
 public class PriorityConstraint {
     /**
      * 规则对象
@@ -53,29 +55,65 @@ public class PriorityConstraint {
     private String attrCode;
 
     /**
-     * 计算并转换为字符串
-     * 根据 exprVariables 中 termValue 构建 objectValues，然后格式化表达式并计算结果
+     * 计算表达式结果
+     * 根据 exprVariables 中的值构建 objectValues，然后格式化表达式并计算结果
      * 
      * @param pc            优先级约束对象
-     * @param exprVariables 表达式变量列表
-     * @return 格式化的计算结果字符串
+     * @param exprVariables 表达式变量值列表
+     * @return 计算结果
      */
-    public static String calcToString(PriorityConstraint pc, List<PartTerm> exprVariables) {
-        // 根据 exprVariables 中 termValue 构建 objectValues
-        Object[] objectValues = new Object[exprVariables.size()];
-        for (int i = 0; i < exprVariables.size(); i++) {
-            PartTerm term = exprVariables.get(i);
-            // termValue 可能为 null，使用 0 作为默认值
-            objectValues[i] = term.getTermValue() != null ? term.getTermValue() : 0;
-        }
+    public static double calcToString(PriorityConstraint pc, List<Integer> exprVariables) {
 
         // 调用公式计算机器计算 calcStr 的值 calcResult，基于 Apache Commons JEXL 3.4.0 实现
-        String calcExprStr = String.format(pc.getExprTemplate(), objectValues);
+        String calcExprStr = instanceExprTemplate(pc.getExprTemplate(), exprVariables);
         double calcResult = ExpressionCalculator.calculate(calcExprStr);
 
         // 打印 printStr = calcResult
-        String printStr = String.format(pc.getExprTemplateStr(), objectValues);
-        return printStr + " = " + calcResult;
+        String printStr = instanceExprTemplateStr(pc.getExprTemplateStr(), exprVariables);
+        log.info("printStr: {}", printStr);
+        return calcResult;
+    }
+
+    /**
+     * 实例化表达式模板字符串
+     * 根据 exprVariables 中的值替换模板字符串中的占位符
+     * 
+     * @param exprTemplateStr 表达式模板字符串，如：sd1.S_%d*110 + sd2.S_%d*120 + md1.S_%d*13
+     * @param exprVariables   表达式变量值列表
+     * @return 实例化后的表达式字符串
+     */
+    public static String instanceExprTemplateStr(String exprTemplateStr, List<Integer> exprVariables) {
+        Object[] objectValues = buildObjectValues(exprVariables);
+        return String.format(exprTemplateStr, objectValues);
+    }
+
+    /**
+     * 实例化表达式模板
+     * 根据 exprVariables 中的值替换模板中的占位符
+     * 
+     * @param exprTemplate  表达式模板，如：%d*110 + %d*120 + %d*13
+     * @param exprVariables 表达式变量值列表
+     * @return 实例化后的表达式字符串
+     */
+    public static String instanceExprTemplate(String exprTemplate, List<Integer> exprVariables) {
+        Object[] objectValues = buildObjectValues(exprVariables);
+        return String.format(exprTemplate, objectValues);
+    }
+
+    /**
+     * 根据 exprVariables 构建 objectValues 数组
+     * 
+     * @param exprVariables 表达式变量值列表
+     * @return objectValues 数组
+     */
+    private static Object[] buildObjectValues(List<Integer> exprVariables) {
+        Object[] objectValues = new Object[exprVariables.size()];
+        for (int i = 0; i < exprVariables.size(); i++) {
+            Integer value = exprVariables.get(i);
+            // value 可能为 null，使用 0 作为默认值
+            objectValues[i] = value != null ? value : 0;
+        }
+        return objectValues;
     }
 
     /**

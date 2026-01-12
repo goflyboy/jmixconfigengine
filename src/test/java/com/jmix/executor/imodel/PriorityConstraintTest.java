@@ -95,37 +95,15 @@ public class PriorityConstraintTest {
         constraint.setExprTemplate("%d*110 + %d*120 + %d*13");
         constraint.setExprTemplateStr("sd1.S_%d*110 + sd2.S_%d*120 + md1.S_%d*13");
 
-        List<PriorityConstraint.PartTerm> exprVariables = new ArrayList<>();
+        List<Integer> exprVariables = new ArrayList<>();
+        exprVariables.add(1);
+        exprVariables.add(2);
+        exprVariables.add(3);
 
-        PriorityConstraint.PartTerm term1 = new PriorityConstraint.PartTerm();
-        term1.setIndex(0);
-        term1.setPartCode("sd1");
-        term1.setTermValue(1);
-        exprVariables.add(term1);
-
-        PriorityConstraint.PartTerm term2 = new PriorityConstraint.PartTerm();
-        term2.setIndex(1);
-        term2.setPartCode("sd2");
-        term2.setTermValue(2);
-        exprVariables.add(term2);
-
-        PriorityConstraint.PartTerm term3 = new PriorityConstraint.PartTerm();
-        term3.setIndex(2);
-        term3.setPartCode("md1");
-        term3.setTermValue(3);
-        exprVariables.add(term3);
-
-        String result = PriorityConstraint.calcToString(constraint, exprVariables);
-
-        // 验证结果格式：printStr = calcResult
-        assertNotNull(result);
-        assertTrue(result.contains("sd1.S_1*110"));
-        assertTrue(result.contains("sd2.S_2*120"));
-        assertTrue(result.contains("md1.S_3*13"));
-        assertTrue(result.contains("="));
+        double result = PriorityConstraint.calcToString(constraint, exprVariables);
 
         // 验证计算结果：1*110 + 2*120 + 3*13 = 110 + 240 + 39 = 389
-        assertTrue(result.contains("389"));
+        assertEquals(389.0, result, 0.001);
     }
 
     /**
@@ -137,29 +115,14 @@ public class PriorityConstraintTest {
         constraint.setExprTemplate("%d*110 + %d*120");
         constraint.setExprTemplateStr("sd1.S_%d*110 + sd2.S_%d*120");
 
-        List<PriorityConstraint.PartTerm> exprVariables = new ArrayList<>();
+        List<Integer> exprVariables = new ArrayList<>();
+        exprVariables.add(1);
+        exprVariables.add(null); // null值应该被替换为0
 
-        PriorityConstraint.PartTerm term1 = new PriorityConstraint.PartTerm();
-        term1.setIndex(0);
-        term1.setPartCode("sd1");
-        term1.setTermValue(1);
-        exprVariables.add(term1);
-
-        PriorityConstraint.PartTerm term2 = new PriorityConstraint.PartTerm();
-        term2.setIndex(1);
-        term2.setPartCode("sd2");
-        term2.setTermValue(null); // null值应该被替换为0
-        exprVariables.add(term2);
-
-        String result = PriorityConstraint.calcToString(constraint, exprVariables);
-
-        assertNotNull(result);
-        assertTrue(result.contains("sd1.S_1*110"));
-        assertTrue(result.contains("sd2.S_0*120"));
-        assertTrue(result.contains("="));
+        double result = PriorityConstraint.calcToString(constraint, exprVariables);
 
         // 验证计算结果：1*110 + 0*120 = 110
-        assertTrue(result.contains("110"));
+        assertEquals(110.0, result, 0.001);
     }
 
     /**
@@ -171,27 +134,15 @@ public class PriorityConstraintTest {
         constraint.setExprTemplate("%d*100 + %d*200 + %d*300 + %d*50");
         constraint.setExprTemplateStr("p1.S_%d*100 + p2.S_%d*200 + p3.S_%d*300 + p4.S_%d*50");
 
-        List<PriorityConstraint.PartTerm> exprVariables = new ArrayList<>();
-
+        List<Integer> exprVariables = new ArrayList<>();
         for (int i = 0; i < 4; i++) {
-            PriorityConstraint.PartTerm term = new PriorityConstraint.PartTerm();
-            term.setIndex(i);
-            term.setPartCode("p" + (i + 1));
-            term.setTermValue(i + 1);
-            exprVariables.add(term);
+            exprVariables.add(i + 1);
         }
 
-        String result = PriorityConstraint.calcToString(constraint, exprVariables);
-
-        assertNotNull(result);
-        assertTrue(result.contains("p1.S_1*100"));
-        assertTrue(result.contains("p2.S_2*200"));
-        assertTrue(result.contains("p3.S_3*300"));
-        assertTrue(result.contains("p4.S_4*50"));
-        assertTrue(result.contains("="));
+        double result = PriorityConstraint.calcToString(constraint, exprVariables);
 
         // 验证计算结果：1*100 + 2*200 + 3*300 + 4*50 = 100 + 400 + 900 + 200 = 1600
-        assertTrue(result.contains("1600"));
+        assertEquals(1600.0, result, 0.001);
     }
 
     /**
@@ -203,20 +154,13 @@ public class PriorityConstraintTest {
         constraint.setExprTemplate("%d*500");
         constraint.setExprTemplateStr("part1.S_%d*500");
 
-        List<PriorityConstraint.PartTerm> exprVariables = new ArrayList<>();
+        List<Integer> exprVariables = new ArrayList<>();
+        exprVariables.add(5);
 
-        PriorityConstraint.PartTerm term = new PriorityConstraint.PartTerm();
-        term.setIndex(0);
-        term.setPartCode("part1");
-        term.setTermValue(5);
-        exprVariables.add(term);
+        double result = PriorityConstraint.calcToString(constraint, exprVariables);
 
-        String result = PriorityConstraint.calcToString(constraint, exprVariables);
-
-        assertNotNull(result);
-        assertTrue(result.contains("part1.S_5*500"));
-        assertTrue(result.contains("="));
-        assertTrue(result.contains("2500")); // 5*500 = 2500
+        // 验证计算结果：5*500 = 2500
+        assertEquals(2500.0, result, 0.001);
     }
 
     /**
@@ -228,12 +172,12 @@ public class PriorityConstraintTest {
         constraint.setExprTemplate("");
         constraint.setExprTemplateStr("");
 
-        List<PriorityConstraint.PartTerm> exprVariables = new ArrayList<>();
+        List<Integer> exprVariables = new ArrayList<>();
 
-        String result = PriorityConstraint.calcToString(constraint, exprVariables);
+        double result = PriorityConstraint.calcToString(constraint, exprVariables);
 
-        assertNotNull(result);
-        assertTrue(result.contains("="));
+        // 空表达式应该返回0
+        assertEquals(0.0, result, 0.001);
     }
 
     /**
@@ -261,6 +205,68 @@ public class PriorityConstraintTest {
         assertEquals(2, constraint.getExprVariables().size());
         assertEquals("part1", constraint.getExprVariables().get(0).getPartCode());
         assertEquals("part2", constraint.getExprVariables().get(1).getPartCode());
+    }
+
+    /**
+     * 测试instanceExprTemplateStr方法
+     */
+    @Test
+    public void testInstanceExprTemplateStr() {
+        String exprTemplateStr = "sd1.S_%d*110 + sd2.S_%d*120 + md1.S_%d*13";
+        List<Integer> exprVariables = new ArrayList<>();
+        exprVariables.add(1);
+        exprVariables.add(2);
+        exprVariables.add(3);
+
+        String result = PriorityConstraint.instanceExprTemplateStr(exprTemplateStr, exprVariables);
+
+        assertEquals("sd1.S_1*110 + sd2.S_2*120 + md1.S_3*13", result);
+    }
+
+    /**
+     * 测试instanceExprTemplateStr方法 - 包含null值
+     */
+    @Test
+    public void testInstanceExprTemplateStrWithNull() {
+        String exprTemplateStr = "sd1.S_%d*110 + sd2.S_%d*120";
+        List<Integer> exprVariables = new ArrayList<>();
+        exprVariables.add(1);
+        exprVariables.add(null);
+
+        String result = PriorityConstraint.instanceExprTemplateStr(exprTemplateStr, exprVariables);
+
+        assertEquals("sd1.S_1*110 + sd2.S_0*120", result);
+    }
+
+    /**
+     * 测试instanceExprTemplate方法
+     */
+    @Test
+    public void testInstanceExprTemplate() {
+        String exprTemplate = "%d*110 + %d*120 + %d*13";
+        List<Integer> exprVariables = new ArrayList<>();
+        exprVariables.add(1);
+        exprVariables.add(2);
+        exprVariables.add(3);
+
+        String result = PriorityConstraint.instanceExprTemplate(exprTemplate, exprVariables);
+
+        assertEquals("1*110 + 2*120 + 3*13", result);
+    }
+
+    /**
+     * 测试instanceExprTemplate方法 - 包含null值
+     */
+    @Test
+    public void testInstanceExprTemplateWithNull() {
+        String exprTemplate = "%d*110 + %d*120";
+        List<Integer> exprVariables = new ArrayList<>();
+        exprVariables.add(1);
+        exprVariables.add(null);
+
+        String result = PriorityConstraint.instanceExprTemplate(exprTemplate, exprVariables);
+
+        assertEquals("1*110 + 0*120", result);
     }
 
     /**
