@@ -270,6 +270,39 @@ public abstract class ModuleScenarioTestBase {
     }
 
     /**
+     * 检查解决方案列表中是否包含指定的字符串
+     * 遍历所有解决方案的 toShortString 输出，检查是否包含指定的子字符串
+     * 如果找不到匹配的解决方案，则抛出 AssertionError
+     * 
+     * @param expectedStr 期望包含的字符串
+     * @throws AssertionError 如果找不到包含指定字符串的解决方案
+     */
+    protected void soluContain(String expectedStr) {
+        if (getSolutions() == null || getSolutions().isEmpty()) {
+            throw new AssertionError("No solutions found, cannot check if contains: " + expectedStr);
+        }
+        if (expectedStr == null || expectedStr.isEmpty()) {
+            return;
+        }
+        for (ModuleInst solution : getSolutions()) {
+            String solutionStr = solution.toShortString(true);
+            if (solutionStr != null && solutionStr.contains(expectedStr)) {
+                log.info("Found solution containing '{}': {}", expectedStr, solutionStr);
+                return;
+            }
+        }
+        // 构建错误消息，包含所有解决方案的字符串表示
+        StringBuilder errorMsg = new StringBuilder();
+        errorMsg.append("No solution found containing: ").append(expectedStr);
+        errorMsg.append("\nAvailable solutions:");
+        for (int i = 0; i < getSolutions().size(); i++) {
+            String solutionStr = getSolutions().get(i).toShortString(true);
+            errorMsg.append("\n  S_").append(i + 1).append(": ").append(solutionStr);
+        }
+        throw new AssertionError(errorMsg.toString());
+    }
+
+    /**
      * 校验满足条件conditionExpr解的个数是否等于expectSolutionNum
      * 
      * @param conditionExpr     条件表达式，格式如："Color:Red,TShirt1:2"

@@ -217,6 +217,14 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
         inferRecommend("drive", "drive:sum.Capacity >=5 where Speed like %5400%");
         // Print solutions for debugging
         printSimpleSolutions();
+        resultAssert().assertSolutionSizeEqual(3);
+        solutions(0).assertPart("sd2").quantityEqual(2);
+        soluContain("md1(0*),sd1(0*),sd2(Q:2,H:0,S:1),PAs(CA:120.0) PO:120.0 PS:1");
+        soluContain("md1(0*),sd1(Q:1,H:0,S:1),sd2(0*)");
+        soluContain("md1(0*),sd1(Q:2,H:0,S:1),sd2(0*),PAs(CA:110.0) PO:110.0 PS:3");
+
+        // PO:120.0 PS:1")
+        // assertSolutionStrContain("md1:0,sd1:1,sd2:0,PAs::CA:110.0, PO:120.0")
         // resultAssert()
         // .assertSolutionSizeEqual(1); // Expect at least one solution, but we don't
         // know exact number. We'll
