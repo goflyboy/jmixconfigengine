@@ -19,7 +19,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         
         <!-- Dependency Versions -->
-        <langchain4j.version>0.27.1</langchain4j.version>
+        <spring.ai.version>1.0.0-M6</spring.ai.version>
         <ortools.version>9.12.4544</ortools.version>
         <freemarker.version>2.3.33</freemarker.version>
         <lombok.version>1.18.36</lombok.version>
@@ -36,16 +36,16 @@
     </properties>
 
     <dependencies>
-         <!-- LangChain4j -->
-         <dependency>
-            <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j</artifactId>
-            <version>${langchain4j.version}</version>
+        <!-- Spring AI -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-openai-spring-boot-starter</artifactId>
+            <version>${spring.ai.version}</version>
         </dependency>
         <dependency>
-            <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j-open-ai</artifactId>
-            <version>${langchain4j.version}</version>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-core</artifactId>
+            <version>${spring.ai.version}</version>
         </dependency>
         
         <!-- OR-Tools -->
@@ -122,11 +122,32 @@
             <version>${slf4j.version}</version>      
         </dependency>
         
-        <!-- Spring Core -->
+        <!-- Spring WebFlux (required by Spring AI 1.0.0-M6) -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webflux</artifactId>
+            <version>6.1.0</version>
+        </dependency>
+        
+        <!-- Spring Core (updated version for Spring AI compatibility) -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>${spring.version}</version>
+            <version>6.1.0</version>
+        </dependency>
+        
+        <!-- Spring Context (required by Spring WebFlux) -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>6.1.0</version>
+        </dependency>
+        
+        <!-- Reactor Core (required by Spring WebFlux) -->
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-core</artifactId>
+            <version>3.6.0</version>
         </dependency>
         
         <!-- Apache Commons JEXL -->
