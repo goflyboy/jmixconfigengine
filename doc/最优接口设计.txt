@@ -1198,7 +1198,7 @@ public class PriorityConstraint {
     /**
      * 线性表达式
      */
-    //private LinearExpr expr;//约束求解器里的表达式
+     private LinearExpr expr;//约束求解器里的表达式
 
 
 	private String exprStr;//如： sd1.S*110  +sd2.S*120 + md1.S*13

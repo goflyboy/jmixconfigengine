@@ -335,10 +335,8 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         }
 
         PriorityConstraint pConstraint = new PriorityConstraint();
-        pConstraint.setRuleCode(rule.getCode());
-        pConstraint.setStrategy(schema.getPriorityStrategy());
+        pConstraint.setRule(rule);
         pConstraint.setAttrCode(attrCode);
-        pConstraint.setType(schema.getPriorityType());
 
         // 根据类型构建表达式字符串和模板
         PriorityType type = schema.getPriorityType();

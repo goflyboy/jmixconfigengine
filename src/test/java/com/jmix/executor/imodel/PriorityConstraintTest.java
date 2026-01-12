@@ -4,6 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.jmix.executor.imodel.rule.PriorityRuleSchema;
+import com.jmix.executor.imodel.rule.RuleTypeConstants;
+
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -23,23 +26,48 @@ public class PriorityConstraintTest {
     public void testPriorityConstraintCreation() {
         PriorityConstraint constraint = new PriorityConstraint();
 
-        // 设置基本属性
-        constraint.setRuleCode("rule1");
+        // 创建Rule对象
+        Rule rule = createTestRule("rule1", PriorityType.SELECT, PriorityStrategy.MAX, "capacity");
+        constraint.setRule(rule);
         constraint.setAttrCode("capacity");
-        constraint.setType(PriorityType.SELECT);
-        constraint.setStrategy(PriorityStrategy.MAX);
         constraint.setExprStr("sd1.S*110 + sd2.S*120 + md1.S*13");
         constraint.setExprTemplate("%d*110 + %d*120 + %d*13");
         constraint.setExprTemplateStr("sd1.S_%d*110 + sd2.S_%d*120 + md1.S_%d*13");
 
         // 验证属性设置
-        assertEquals("rule1", constraint.getRuleCode());
+        assertNotNull(constraint.getRule());
+        assertEquals("rule1", constraint.getRule().getCode());
         assertEquals("capacity", constraint.getAttrCode());
-        assertEquals(PriorityType.SELECT, constraint.getType());
-        assertEquals(PriorityStrategy.MAX, constraint.getStrategy());
+        PriorityRuleSchema schema = (PriorityRuleSchema) constraint.getRule().getRawCode();
+        assertEquals(PriorityType.SELECT, schema.getPriorityType());
+        assertEquals(PriorityStrategy.MAX, schema.getPriorityStrategy());
         assertEquals("sd1.S*110 + sd2.S*120 + md1.S*13", constraint.getExprStr());
         assertEquals("%d*110 + %d*120 + %d*13", constraint.getExprTemplate());
         assertEquals("sd1.S_%d*110 + sd2.S_%d*120 + md1.S_%d*13", constraint.getExprTemplateStr());
+    }
+
+    /**
+     * 创建测试用的Rule对象
+     * 
+     * @param ruleCode 规则代码
+     * @param type     优先级类型
+     * @param strategy 优先级策略
+     * @param attrCode 属性代码
+     * @return Rule对象
+     */
+    private Rule createTestRule(String ruleCode, PriorityType type, PriorityStrategy strategy, String attrCode) {
+        Rule rule = new Rule();
+        rule.setCode(ruleCode);
+        rule.setRuleSchemaTypeFullName(RuleTypeConstants.PRIORITY_RULE_FULL_NAME);
+
+        PriorityRuleSchema schema = new PriorityRuleSchema();
+        schema.setPriorityType(type);
+        schema.setPriorityStrategy(strategy);
+        schema.setAttrCode(attrCode);
+        schema.setVersion("1.0");
+
+        rule.setRawCode(schema);
+        return rule;
     }
 
     /**
@@ -240,26 +268,36 @@ public class PriorityConstraintTest {
      */
     @Test
     public void testPriorityTypeAndStrategy() {
-        PriorityConstraint constraint = new PriorityConstraint();
-
         // 测试SELECT + MAX
-        constraint.setType(PriorityType.SELECT);
-        constraint.setStrategy(PriorityStrategy.MAX);
-        assertEquals(PriorityType.SELECT, constraint.getType());
-        assertEquals(PriorityStrategy.MAX, constraint.getStrategy());
+        Rule rule1 = createTestRule("rule1", PriorityType.SELECT, PriorityStrategy.MAX, "attr1");
+        PriorityConstraint constraint1 = new PriorityConstraint();
+        constraint1.setRule(rule1);
+        PriorityRuleSchema schema1 = (PriorityRuleSchema) constraint1.getRule().getRawCode();
+        assertEquals(PriorityType.SELECT, schema1.getPriorityType());
+        assertEquals(PriorityStrategy.MAX, schema1.getPriorityStrategy());
 
         // 测试SELECT + MIN
-        constraint.setStrategy(PriorityStrategy.MIN);
-        assertEquals(PriorityStrategy.MIN, constraint.getStrategy());
+        Rule rule2 = createTestRule("rule2", PriorityType.SELECT, PriorityStrategy.MIN, "attr2");
+        PriorityConstraint constraint2 = new PriorityConstraint();
+        constraint2.setRule(rule2);
+        PriorityRuleSchema schema2 = (PriorityRuleSchema) constraint2.getRule().getRawCode();
+        assertEquals(PriorityType.SELECT, schema2.getPriorityType());
+        assertEquals(PriorityStrategy.MIN, schema2.getPriorityStrategy());
 
         // 测试SUMARIZE + MAX
-        constraint.setType(PriorityType.SUMARIZE);
-        constraint.setStrategy(PriorityStrategy.MAX);
-        assertEquals(PriorityType.SUMARIZE, constraint.getType());
-        assertEquals(PriorityStrategy.MAX, constraint.getStrategy());
+        Rule rule3 = createTestRule("rule3", PriorityType.SUMARIZE, PriorityStrategy.MAX, "attr3");
+        PriorityConstraint constraint3 = new PriorityConstraint();
+        constraint3.setRule(rule3);
+        PriorityRuleSchema schema3 = (PriorityRuleSchema) constraint3.getRule().getRawCode();
+        assertEquals(PriorityType.SUMARIZE, schema3.getPriorityType());
+        assertEquals(PriorityStrategy.MAX, schema3.getPriorityStrategy());
 
         // 测试SUMARIZE + MIN
-        constraint.setStrategy(PriorityStrategy.MIN);
-        assertEquals(PriorityStrategy.MIN, constraint.getStrategy());
+        Rule rule4 = createTestRule("rule4", PriorityType.SUMARIZE, PriorityStrategy.MIN, "attr4");
+        PriorityConstraint constraint4 = new PriorityConstraint();
+        constraint4.setRule(rule4);
+        PriorityRuleSchema schema4 = (PriorityRuleSchema) constraint4.getRule().getRawCode();
+        assertEquals(PriorityType.SUMARIZE, schema4.getPriorityType());
+        assertEquals(PriorityStrategy.MIN, schema4.getPriorityStrategy());
     }
 }

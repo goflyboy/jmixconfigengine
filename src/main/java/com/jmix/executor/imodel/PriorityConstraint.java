@@ -16,9 +16,9 @@ import java.util.List;
 @Data
 public class PriorityConstraint {
     /**
-     * 规则代码
+     * 规则对象
      */
-    private String ruleCode;
+    private Rule rule;
 
     /**
      * 线性表达式
@@ -46,19 +46,9 @@ public class PriorityConstraint {
     private List<PartTerm> exprVariables = new ArrayList<>();
 
     /**
-     * 优先级策略
-     */
-    private PriorityStrategy strategy;
-
-    /**
      * 属性代码
      */
     private String attrCode;
-
-    /**
-     * 优先级类型
-     */
-    private PriorityType type;
 
     /**
      * 计算并转换为字符串
