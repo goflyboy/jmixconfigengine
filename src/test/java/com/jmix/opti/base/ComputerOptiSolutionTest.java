@@ -1,4 +1,4 @@
-package com.jmix.scenario.partcategory;
+package com.jmix.opti.base;
 
 import com.jmix.coretest.ConstraintAlgImplTestBase;
 import com.jmix.coretest.ModuleScenarioTestBase;
@@ -199,7 +199,7 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
         // solutions(1).assertPara("sd1");
     }
 
-    // 要求5400速率的固态硬盘2块
+    // 要求5400速率的硬盘2块
     @Test
     public void testUserSpecialRequirement3() {
 
@@ -227,11 +227,5 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
         soluContain("md1(0*),sd1(Q:1,H:0,S:1),sd2(0*)");
         soluContain("md1(0*),sd1(Q:2,H:0,S:1),sd2(0*),PAs(CA:110.0) PO:110.0 PS:3");
 
-        // PO:120.0 PS:1")
-        // assertSolutionStrContain("md1:0,sd1:1,sd2:0,PAs::CA:110.0, PO:120.0")
-        // resultAssert()
-        // .assertSolutionSizeEqual(1); // Expect at least one solution, but we don't
-        // know exact number. We'll
-        // solutions(1).assertPara("sd1");
     }
 }

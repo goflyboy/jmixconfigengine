@@ -1,4 +1,4 @@
-package com.jmix.scenario.partcategory;
+package com.jmix.opti.base;
 
 import com.jmix.tool.ModelHelperTestBase;
 
