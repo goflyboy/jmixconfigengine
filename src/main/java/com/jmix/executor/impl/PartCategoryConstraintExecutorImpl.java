@@ -182,15 +182,15 @@ public class PartCategoryConstraintExecutorImpl {
         List<PriorityAttrValueImpl> optimalValues = new ArrayList<>();
         for (Rule rule : priorityRules) {
             if (rule.getRawCode() == null || !(rule.getRawCode() instanceof PriorityRuleSchema)) {
-                log.warn("Rule rawCode is not PriorityRuleSchema for rule: {}", rule.getCode());
-                continue;
+                log.error("Rule rawCode is not PriorityRuleSchema for rule: {}", rule.getCode());
+                return Result.failed("Rule rawCode is not PriorityRuleSchema for rule: " + rule.getCode());
             }
 
             PriorityRuleSchema schema = (PriorityRuleSchema) rule.getRawCode();
             String attrCode = schema.getAttrCode();
             if (attrCode == null || attrCode.isEmpty()) {
-                log.warn("PriorityRuleSchema attrCode is empty for rule: {}", rule.getCode());
-                continue;
+                log.error("PriorityRuleSchema attrCode is empty for rule: {}", rule.getCode());
+                return Result.failed("PriorityRuleSchema attrCode is empty for rule: " + rule.getCode());
             }
 
             PriorityStrategy priorityStrategy = schema.getPriorityStrategy();
@@ -207,8 +207,8 @@ public class PartCategoryConstraintExecutorImpl {
             // 重新构建目标函数表达式（使用新的alg实例）
             PriorityConstraint pConstraint = optAlg.queryPriorityConstraint(attrCode);
             if (pConstraint == null) {
-                log.warn("PriorityConstraint not found for attrCode: {}", attrCode);
-                continue;
+                log.error("PriorityConstraint not found for attrCode: {}", attrCode);
+                return Result.failed("PriorityConstraint not found for attrCode: " + attrCode);
             }
             LinearExpr objectiveExpr = pConstraint.getExpr();
 
@@ -258,14 +258,14 @@ public class PartCategoryConstraintExecutorImpl {
                 double optimalValue = objValue.getOptimalValue();
 
                 if (attrCode == null || attrCode.isEmpty() || pConstraint == null) {
-                    log.warn("Invalid PriorityAttrValueImpl, skipping: attrCode={}", attrCode);
-                    continue;
+                    log.error("Invalid PriorityAttrValueImpl, skipping: attrCode={}", attrCode);
+                    return Result.failed("Invalid PriorityAttrValueImpl, skipping: attrCode=" + attrCode);
                 }
                 // 重新构建表达式（使用新的alg实例）
                 PriorityConstraint multiPConstraint = multiAlg.queryPriorityConstraint(attrCode);
                 if (multiPConstraint == null) {
-                    log.warn("PriorityConstraint not found for attrCode: {}", attrCode);
-                    continue;
+                    log.error("PriorityConstraint not found for attrCode: {}", attrCode);
+                    return Result.failed("PriorityConstraint not found for attrCode: " + attrCode);
                 }
                 LinearExpr expr = multiPConstraint.getExpr();
                 PriorityStrategy priorityStrategy = objValue.getPriorityStrategy();

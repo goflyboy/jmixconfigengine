@@ -15,6 +15,7 @@ import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +52,9 @@ public class PartCategory extends Part implements IModule {
 
     @JsonIgnore
     private Map<String, Para> paraMap = new HashMap<>();
+
+    @JsonIgnore
+    private List<Part> atomicParts;
 
     public PartCategory() {
         super();
@@ -604,8 +608,11 @@ public class PartCategory extends Part implements IModule {
     @JsonIgnore
     @Override
     public List<Part> getAtomicParts() {
-        List<Part> atomicParts = new ArrayList<>();
-        collectAtomicParts(this, atomicParts);
+        if (atomicParts == null) {
+            atomicParts = new ArrayList<>();
+            collectAtomicParts(this, atomicParts);
+            atomicParts.sort(Comparator.comparing(Part::getShortCode));
+        }
         return atomicParts;
     }
 

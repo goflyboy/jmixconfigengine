@@ -287,7 +287,6 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         List<String> exprTemplateStrParts = new ArrayList<>();
         List<PriorityConstraint.PartTerm> exprVariables = new ArrayList<>();
         boolean isWithoutAttr = attrCode == null || attrCode.isEmpty();
-
         int index = 0;
         for (Part part : atomicParts) {
             PartVar partVar = getPartVar(part.getCode());

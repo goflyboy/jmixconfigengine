@@ -12,6 +12,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -78,6 +79,9 @@ public class Module extends ProgrammableObject<Integer> implements IModule {
 
     @JsonIgnore
     private Map<String, Part> partMap = new HashMap<>();
+
+    @JsonIgnore
+    private List<Part> atomicParts;
 
     @JsonIgnore
     private Map<String, Object> errorMap = new HashMap<>();
@@ -222,18 +226,24 @@ public class Module extends ProgrammableObject<Integer> implements IModule {
 
     /**
      * 获取原子部件列表
+     * 如果 atomicParts 为 null，则构建它
      * 
      * @return 原子部件列表（partType为ATOMIC的部件）
      */
     @Override
     @JsonIgnore
     public List<Part> getAtomicParts() {
-        if (parts == null) {
-            return new ArrayList<>();
+        if (atomicParts == null) {
+            if (parts == null) {
+                atomicParts = new ArrayList<>();
+            } else {
+                atomicParts = parts.stream()
+                        .filter(part -> part.getPartType() == PartType.ATOMIC)
+                        .collect(java.util.stream.Collectors.toList());
+                atomicParts.sort(Comparator.comparing(Part::getShortCode));
+            }
         }
-        return parts.stream()
-                .filter(part -> part.getPartType() == PartType.ATOMIC)
-                .collect(java.util.stream.Collectors.toList());
+        return atomicParts;
     }
 
     /**
