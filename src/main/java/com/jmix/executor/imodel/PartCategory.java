@@ -35,11 +35,6 @@ import java.util.stream.Collectors;
 public class PartCategory extends Part implements IModule {
 
     /**
-     * 原子部件短字符串中最多显示的代码数量
-     */
-    private static final int MAX_DISPLAY_CODES = 6;
-
-    /**
      * 规则列表
      */
     private List<Rule> rules = new ArrayList<>();
@@ -600,26 +595,7 @@ public class PartCategory extends Part implements IModule {
     @JsonIgnore
     public String getAtomicPartShortString() {
         List<Part> atomicParts = getAtomicParts();
-        int size = atomicParts.size();
-        StringBuilder sb = new StringBuilder();
-        sb.append("Size:").append(size);
-
-        if (size > 0) {
-            sb.append(" Codes: ");
-            int maxCodes = Math.min(size, MAX_DISPLAY_CODES);
-            for (int i = 0; i < maxCodes; i++) {
-                if (i > 0) {
-                    sb.append(",");
-                }
-                Part part = atomicParts.get(i);
-                String code = part.getCode();
-                if (code != null && !code.isEmpty()) {
-                    sb.append(code);
-                }
-            }
-        }
-
-        return sb.toString();
+        return PartUtils.toShortString(atomicParts);
     }
 
     /**

@@ -1402,6 +1402,46 @@ sumFunConstraint(List<Part> sumParts, ParConstraint partConstraint)
 
  
 
+设计122：
+1、ConstraintAlgImpl类做下列增强
+1.1  所有sum4Selected、sum4Quantity、sum4Parts方法都增加 filtedConditionStr
+1.2 buildPriorityConstraintExpressions增加入参：List<Part> atomicParts
+1.3 方法 sum4Parts
+修改前：
+   ... sum4Parts(...) {
+		...
+		buildPriorityConstraintExpressions(tempConstraint, cofAttrCode, varName, varGetter);
+		....
+	
+	}
+修改后：
+   ... sum4Parts(...) {
+		...
+		List<Part> atomicParts = module.getAtomicParts();
+		调用 FilterExpressionExecutor.doSelect(atomicParts,filtedConditionStr);
+		调用PartUtils.toShortString打印
+		buildPriorityConstraintExpressions(tempConstraint, cofAttrCode, varName, varGetter);
+		.... 
+	}
+
+4、类ComputerOptiSolutionTest 
+4.1 方法rule1
+修改前：
+void rule1() {
+	...  sum4Selected();
+	...
+	...
+	...
+
+}
+修改后：
+
+
+List<Part> atomicParts = module.getAtomicParts(
+List<Part> atomicParts = module.getAtomicParts(
+
+
+
 
 TODO:产品有多个Priv值怎么办？ ***
 
