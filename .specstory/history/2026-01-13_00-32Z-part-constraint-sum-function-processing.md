@@ -1810,14 +1810,130 @@ _**Agent (model default, mode Agent)**_
 ---
 
 
+查看 `getAtomicParts` 的实现，并查找所有使用 `getAllLeafParts` 的地方：
+
 
 ---
 
-<tool-use data-tool-type="unknown" data-tool-name="grep">
+<tool-use data-tool-type="search" data-tool-name="grep">
 <details>
-<summary>Tool use: **grep**</summary>
+<summary>Tool use: **grep** • Grep for "getAllLeafParts" • 8 matches</summary>
 
-Status: **loading**
+Output mode: content
+
+
+| File | Content | Line |
+|------|------|------|
+| `.\src\main\java\com\jmix\executor\impl\PartCategoryConstraintExecutorImpl.java` | `List<Part> filterParts = filteredCategory.getAllLeafParts();` | L382 |
+| `.\src\main\java\com\jmix\executor\imodel\PartCategory.java` | `public List<Part> getAllLeafParts() \{` | L377 |
+| `.\src\main\java\com\jmix\executor\imodel\PartCategory.java` | `List<Part> allLeafParts = allPartCategory.getAllLeafParts();` | L412 |
+| `.\src\main\java\com\jmix\executor\impl\ModuleConstraintExecutorImpl.java` | `List<Part> filterParts = filteredCategory.getAllLeafParts();` | L465 |
+| `.\doc\最优接口设计.txt` | `List<Part> filterParts = getAllLeafParts(filteredCategory);` | L607 |
+| `.\doc\最优接口设计.txt` | `List<Part> filterParts = getAllLeafParts(filteredCategory);` | L617 |
+| `.\doc\最优接口设计.txt` | `List<Part> filterParts = filteredCategory.getAllLeafParts();` | L1012 |
+| `.\doc\最优接口设计.txt` | `List<Part> filterParts = filteredCategory.getAllLeafParts();` | L1402 |
+
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="search" data-tool-name="grep">
+<details>
+<summary>Tool use: **grep** • Grep for "getAtomicParts" • 7 matches</summary>
+
+Output mode: content
+
+
+| File | Content | Line |
+|------|------|------|
+| `.\src\main\java\com\jmix\executor\impl\algmodel\ConstraintAlgImpl.java` | `List<Part> atomicParts = module.getAtomicParts();` | L285 |
+| `.\src\main\java\com\jmix\executor\impl\algmodel\ConstraintAlgImpl.java` | `// 构建表达式，但使用传入的 sumParts 而不是 module.getAtomicParts()` | L911 |
+| `.\src\main\java\com\jmix\executor\imodel\PartCategory.java` | `public List<Part> getAtomicParts() \{` | L615 |
+| `.\src\main\java\com\jmix\executor\imodel\PartCategory.java` | `List<Part> atomicParts = getAtomicParts();` | L632 |
+| `.\src\main\java\com\jmix\executor\imodel\Module.java` | `public List<Part> getAtomicParts() \{` | L235 |
+| `.\src\main\java\com\jmix\executor\imodel\IModule.java` | `List<Part> getAtomicParts();` | L55 |
+| `.\src\test\java\com\jmix\coretest\ConstraintAlgImplTestBase.java` | `// List<Part> atomicParts = super.getModule().getAtomicParts();` | L166 |
+
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/imodel/PartCategory.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+查看 `getAtomicParts` 的实现，并查看使用 `getAllLeafParts` 的代码：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/imodel/PartCategory.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/imodel/PartCategory.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+查看 `collectAtomicParts` 的实现，确认与 `collectLeafParts` 是否相同：
+
+
+---
+
+<tool-use data-tool-type="search" data-tool-name="grep">
+<details>
+<summary>Tool use: **grep** • Grep for "collectAtomicParts" in "src/main/java/com/jmix/executor/imodel/PartCategory.java" • 3 matches</summary>
+
+Output mode: content
+
+
+| File | Content | Line |
+|------|------|------|
+| `src/main/java/com/jmix/executor/imodel/PartCategory.java` | `collectAtomicParts(this, atomicParts);` | L618 |
+| `src/main/java/com/jmix/executor/imodel/PartCategory.java` | `private void collectAtomicParts(PartCategory category, List<Part> atomicParts) \{` | L662 |
+| `src/main/java/com/jmix/executor/imodel/PartCategory.java` | `collectAtomicParts(subCategory, atomicParts);` | L674 |
 
 
 </details>
@@ -1830,77 +1946,162 @@ Status: **loading**
 ---
 
 
-
----
-
-
-
----
-
-
-
----
-
-<tool-use data-tool-type="unknown" data-tool-name="read_file">
-<details>
-<summary>Tool use: **read_file**</summary>
-
-Status: **loading**
-
-
-</details>
-</tool-use>
-
----
-
-
-
----
-
-
-
----
-
-
-
----
-
-
-
----
-
-
-
----
-
-<tool-use data-tool-type="unknown" data-tool-name="grep">
-<details>
-<summary>Tool use: **grep**</summary>
-
-Status: **loading**
-
-
-</details>
-</tool-use>
-
----
-
-
-
----
-
+替换所有 `getAllLeafParts` 调用为 `getAtomicParts`，然后删除相关方法：
 
 
 ---
 
 <tool-use data-tool-type="write" data-tool-name="search_replace">
 
-<details><summary>Tool use: **search_replace**</summary>
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
 
-Status: **loading**
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -380,5 +380,5 @@
+      private void initModelByPriorityConstraints(PartCategory filteredCategory,
+              List&lt;ParConstraint&gt; partConstraintFromReqs, ConstraintAlgImpl alg) {
+-         List&lt;Part&gt; filterParts = filteredCategory.getAllLeafParts();
++         List&lt;Part&gt; filterParts = filteredCategory.getAtomicParts();
+          for (ParConstraint partConstraint : partConstraintFromReqs) {
+              alg.sumFunConstraint(filterParts, partConstraint);
+```
 
 </details>
 
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -463,5 +463,5 @@
+  
+              // 获取所有叶子部件
+-             List&lt;Part&gt; filterParts = filteredCategory.getAllLeafParts();
++             List&lt;Part&gt; filterParts = filteredCategory.getAtomicParts();
+              log.info("filterParts size: {} after filter req.whereCondition: {}", filterParts.size(),
+                      partConstraintReq.getAttrWhereCondition());
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/imodel/PartCategory.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -411,5 +411,5 @@
+      public static List&lt;Part&gt; calcUnFilterLeafParts(PartCategory allPartCategory, List&lt;Part&gt; filterLeafParts) {
+          List&lt;Part&gt; unFilterLeafParts = new ArrayList&lt;&gt;();
+-         List&lt;Part&gt; allLeafParts = allPartCategory.getAllLeafParts();
++         List&lt;Part&gt; allLeafParts = allPartCategory.getAtomicParts();
+  
+          // 使用 Set 来快速查找，提高性能
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/imodel/PartCategory.java</summary>
+
+**Chunk 1**
+Lines added: undefined, lines removed: 30
+
+```diff
+@@ -368,34 +368,4 @@
+      }
+  
+-     /**
+-      * 获取PartCategory中的所有叶子部件
+-      * 递归收集所有子分类中的叶子部件（不包括子分类本身）
+-      *
+-      * @return 所有叶子部件列表
+-      */
+-     @JsonIgnore
+-     public List&lt;Part&gt; getAllLeafParts() {
+-         List&lt;Part&gt; leafParts = new ArrayList&lt;&gt;();
+-         collectLeafParts(this, leafParts);
+-        
+-         return leafParts;
+-     }
+- 
+-     /**
+-      * 递归收集叶子部件
+-      *
+-      * @param category  部件分类
+-      * @param leafParts 叶子部件列表
+-      */
+-     @JsonIgnore
+-     private void collectLeafParts(PartCategory category, List&lt;Part&gt; leafParts) {
+-         // 添加直接的部件
+-         leafParts.addAll(category.getPartMap().values());
+- 
+-         // 递归处理子分类
+-         for (PartCategory subCategory : category.getPartCategoryMap().values()) {
+-             collectLeafParts(subCategory, leafParts);
+-         }
+-     }
+  
+      /**
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="generic" data-tool-name="read_lints">
+<details>
+          <summary>Tool use: **read_lints** • Read lints for 3 files</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/executor/imodel/PartCategory.java`
+- `src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java`
+- `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java`
+
+Lint results
+
+Lint errors for `src/main/java/com/jmix/executor/imodel/PartCategory.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| TODO 后续参数值可能会有变化 | 94:58-94:74 | DIAGNOSTIC_SEVERITY_INFORMATION |
+| ';' 后应有空格。 | 94:54-95:1 | DIAGNOSTIC_SEVERITY_WARNING |
+
+
+Lint errors for `src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| “VARIABLE_DEF”之前应该有一个空白行。 | 44:5-45:1 | DIAGNOSTIC_SEVERITY_WARNING |
+| TODO块： 'TODO:' 。 | 329:11-330:1 | DIAGNOSTIC_SEVERITY_WARNING |
+
+
+</details>
 </tool-use>
 
 ---
@@ -1910,6 +2111,36 @@ Status: **loading**
 ---
 
 
+验证是否还有遗漏的调用：
+
+
+---
+
+<tool-use data-tool-type="search" data-tool-name="grep">
+<details>
+<summary>Tool use: **grep** • Grep for "getAllLeafParts" • 4 matches</summary>
+
+Output mode: content
+
+
+| File | Content | Line |
+|------|------|------|
+| `.\doc\最优接口设计.txt` | `List<Part> filterParts = getAllLeafParts(filteredCategory);` | L607 |
+| `.\doc\最优接口设计.txt` | `List<Part> filterParts = getAllLeafParts(filteredCategory);` | L617 |
+| `.\doc\最优接口设计.txt` | `List<Part> filterParts = filteredCategory.getAllLeafParts();` | L1012 |
+| `.\doc\最优接口设计.txt` | `List<Part> filterParts = filteredCategory.getAllLeafParts();` | L1402 |
+
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/imodel/PartCategory.java</summary>
+
+</details>
+</tool-use>
 
 ---
 
@@ -1918,10 +2149,38 @@ Status: **loading**
 ---
 
 
+所有代码中的 `getAllLeafParts` 调用已替换为 `getAtomicParts`，相关方法已删除。验证修改：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/imodel/PartCategory.java</summary>
+
+</details>
+</tool-use>
 
 ---
 
 
+
+---
+
+
+修改已完成。总结如下：
+
+## 完成的修改
+
+### 1. 删除了 `getAllLeafParts` 相关方法
+- 删除了 `getAllLeafParts()` 方法（第377-382行）
+- 删除了 `collectLeafParts()` 私有方法（第384-399行）
+
+### 2. 替换了所有调用
+- `PartCategoryConstraintExecutorImpl.initModelByPriorityConstraints`：将 `filteredCategory.getAllLeafParts()` 替换为 `filteredCategory.getAtomicParts()`
+- `ModuleConstraintExecutorImpl.addPartConstraintReqs`：将 `filteredCategory.getAllLeafParts()` 替换为 `filteredCategory.getAtomicParts()`
+- `PartCategory.calcUnFilterLeafParts`：将 `allPartCategory.getAllLeafParts()` 替换为 `allPartCategory.getAtomicParts()`
+
+所有代码中的 `getAllLeafParts` 调用已替换为 `getAtomicParts`，重复方法已删除。代码已通过 linter 检查（仅有一些不影响功能的格式警告）。
 
 ---
 

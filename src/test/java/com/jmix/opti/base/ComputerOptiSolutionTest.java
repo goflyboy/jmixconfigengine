@@ -199,17 +199,24 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
         // solutions(1).assertPara("sd1");
     }
 
-    // 要求5400速率的硬盘2块
+    // 要求5400速率的硬盘容量>=5T
     @Test
-    public void testUserSpecialRequirement3() {
+    public void testUserSpecialRequirement_sample() {
+        // reqRuleA-natuarl: 要求5400速率的硬盘容量>=5T
+        // reqRuleA-dsl: drive:sum.Capacity >=5 where Speed like %5400%
+        // reqRuleA1-fRule: select * drive where Speed like %5400% -> md1,sd1,sd2
+        // reqRuleA2-cRule: md1.Q*2 + sd1.Q*6 + sd2.Q*4 >= 5
 
-        // drive:sum.Capacity >=5 where Speed like %5400%"-> sd1.Q*6 + sd2.Q*4 + md1.Q*2
-        // >= 5
-        // rule11: sd1.isSelected + sd2.isSelected + sd3.isSelected <= 1
-        // rule12: sd1.qty + sd2.qty + sd3.qty <= 2
-        // rule2: expr= sd1.S*110 +sd2.S*120 + md1.S*13
-        // rule2-step1: maximum(expr) -> md1(0*)sd1(0*),sd2(Q:2,S:1)=120
-        // rule2-step2: expr >= 200*(1-30%) = 84
+        // proRule1-natuarl: 固态硬盘必须配置同一种，并且最多配置2块
+        // proRule11-cRule: sd1.S + sd2.S <=1
+        // proRule12-cRule: sd1.Q + sd2.Q <= 2
+
+        // proRule2-natuarl: 固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量
+        // proRule2-expr: sd1.S*110 +sd2.S*120 + md1.S*13
+        // proRule2-step1: maximum(expr) ->
+        // proRule2-step2: expr >= 200*(1-30%) = 84
+
+        // 可能的解
         // S_1: md1(0*),sd1(Q:1,H:0,S:1),sd2(0*)
         // S_2: md1(0*),sd1(Q:2,H:0,S:1),sd2(0*)
         // S_3: md1(0*),sd1(0*),sd2(Q:2,H:0,S:1)
