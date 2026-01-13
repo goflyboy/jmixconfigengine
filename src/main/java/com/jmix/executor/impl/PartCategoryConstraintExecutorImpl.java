@@ -407,6 +407,7 @@ public class PartCategoryConstraintExecutorImpl {
         fromReq.setSumAttrCode(result.getFirst().getCode());
         fromReq.setComparator(partConstraintReq.getAttrComparator());
         fromReq.setLeftValue(Integer.parseInt(partConstraintReq.getAttrValue()));
+        fromReq.setOrgReq(partConstraintReq);
         partConstraintFromReqs.add(fromReq);
     }
 

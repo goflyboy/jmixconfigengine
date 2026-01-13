@@ -7,7 +7,7 @@ import com.jmix.executor.imodel.DynamicAttributerOption;
 import com.jmix.executor.imodel.Extensible;
 import com.jmix.executor.imodel.Part;
 import com.jmix.executor.impl.ModuleBuilder;
-import com.jmix.tool.impl.FilterExpressionExecutor;
+import com.jmix.executor.impl.util.FilterExpressionExecutor;
 
 import org.junit.jupiter.api.Test;
 

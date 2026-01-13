@@ -1,4 +1,4 @@
-package com.jmix.tool.impl;
+package com.jmix.executor.impl.util;
 
 import com.jmix.executor.imodel.Extensible;
 import com.jmix.executor.imodel.InstanceDynAttrValueItem;

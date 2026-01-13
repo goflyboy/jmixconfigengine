@@ -281,7 +281,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @return 构建的LinearExpr表达式
      */
     private LinearExpr buildPriorityConstraintExpressions(PriorityConstraint pConstraint, String attrCode,
-            String varName, java.util.function.Function<PartVar, LinearArgument> varGetter) {
+            String varName, Function<PartVar, LinearArgument> varGetter) {
         List<Part> atomicParts = module.getAtomicParts();
         List<LinearExpr> sumTerms = new ArrayList<>();
         List<String> exprStrParts = new ArrayList<>();
@@ -360,7 +360,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         // 根据类型构建表达式字符串和模板
         PriorityType type = schema.getPriorityType();
         String varName = (type == PriorityType.SELECT) ? "S" : "Q";
-        java.util.function.Function<PartVar, LinearArgument> varGetter = (type == PriorityType.SELECT)
+        Function<PartVar, LinearArgument> varGetter = (type == PriorityType.SELECT)
                 ? PartVar::getIsSelected
                 : PartVar::getQty;
         buildPriorityConstraintExpressions(pConstraint, attrCode, varName, varGetter);
@@ -917,7 +917,8 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         operator.applyConstraint(model.getCpModel(), sumFunExpr, partConstraint.getLeftValue());
         String sumFormula = operator.getFormulaString(sumFormulaBase, partConstraint.getLeftValue());
 
-        log.info("Added sum constraint: {}", sumFormula);
+        log.info("Priority-Added sum constraint: {} for {}", sumFormula,
+                partConstraint.getOrgReq() != null ? partConstraint.getOrgReq().toString() : "null");
     }
 
     /**
@@ -1007,7 +1008,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         // 创建一个临时的PriorityConstraint对象来复用构建逻辑
         PriorityConstraint tempConstraint = new PriorityConstraint();
         LinearExpr expr = buildPriorityConstraintExpressions(tempConstraint, cofAttrCode, varName, varGetter);
-        log.info("Sum formula: {}", tempConstraint.getExprStr());
+        log.info("Priority-Sum formula: {}", tempConstraint.getExprStr());
         return expr;
     }
 

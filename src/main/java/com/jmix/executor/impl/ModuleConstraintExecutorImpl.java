@@ -477,6 +477,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
                 parConstraint.setSumAttrCode(result.getFirst().getCode());
                 parConstraint.setComparator(partConstraintReq.getAttrComparator());
                 parConstraint.setLeftValue(Integer.parseInt(partConstraintReq.getAttrValue()));
+                parConstraint.setOrgReq(partConstraintReq);
                 alg.sumFunConstraint(filterParts, parConstraint);
                 alg.setPartUnSelected(unFilterParts);
             }

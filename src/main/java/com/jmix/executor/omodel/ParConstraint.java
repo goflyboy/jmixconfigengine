@@ -24,5 +24,9 @@ public class ParConstraint {
      * 左值
      */
     private int leftValue;
-}
 
+    /**
+     * 原始部件约束请求
+     */
+    private PartConstraintReq orgReq;
+}

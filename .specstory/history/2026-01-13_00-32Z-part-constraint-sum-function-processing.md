@@ -1298,6 +1298,214 @@ SLF4J(W): See https://www.slf4j.org/codes.html#multiple_bindings for an explanat
 08:50:43.556 [main] INFO com.jmix.executor.impl.ModuleConstraintExecutorImpl -- Module constraint executor initialized
 SLF4J(I): Actual provider is of type [ch.qos.logback.classic.spi.LogbackServiceProvider@752325ad]
 08:50:43.566 [main] INFO com.jmix.tool.impl.ModuleGenneratorByAnno -- Detected inner class: com.jmix.opti.base.ComputerOptiSolutionTest$ComputerOptiSolutionConstraint, parent class: com.jmix.opti.base.ComputerOptiSolutionTest
+08:50:43.867 [main] INFO com.jmix.tool.impl.ModuleGenneratorByAnno -- Rule 'rule1' added to PartCategory 'drive'
+08:50:43.867 [main] INFO com.jmix.tool.impl.ModuleGenneratorByAnno -- Rule 'rule2' added to PartCategory 'drive'
+08:50:43.876 [main] INFO com.jmix.executor.impl.util.ModuleUtils -- Serializing Module to JSON file: D:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\opti\base\tempResource\ComputerOptiSolution.base.json
+08:50:43.940 [main] INFO com.jmix.executor.impl.util.ModuleUtils -- Successfully serialized Module to JSON file: D:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\opti\base\tempResource\ComputerOptiSolution.base.json
+08:50:43.941 [main] INFO com.jmix.tool.impl.ModuleGenneratorByAnno -- Module saved to: D:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\opti\base\tempResource\ComputerOptiSolution.base.json
+08:50:43.942 [main] INFO com.jmix.executor.impl.ModuleAlgClassLoader -- Loaded class from local project: com.jmix.opti.base.ComputerOptiSolutionTest$ComputerOptiSolutionConstraint
+08:50:43.943 [main] INFO com.jmix.executor.impl.ModuleConstraintExecutorImpl -- Added modules: 1
+08:50:44.792 [main] INFO com.jmix.executor.impl.PartCategoryConstraintExecutorImpl -- Priority-orginal aparts: Size:6 Codes: md1,md2,md3,sd1,sd2,sd3
+08:50:44.793 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Starting filter expression execution, object count: 0, filter expression: Speed like %5400%
+08:50:44.793 [main] WARN com.jmix.tool.impl.FilterExpressionExecutor -- Invalid input parameters, returning original object list
+08:50:44.829 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Starting filter expression execution, object count: 1, filter expression: Speed like %5400%
+08:50:44.829 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Filter expression parsed successfully - field: Speed, operator: like, value: %5400%
+08:50:44.829 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Getting field value from InstanceDynAttrValueItem attributes - field: Speed, value: 7200/5400
+08:50:44.829 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Evaluating condition - field: Speed, operator: like, field value: 7200/5400, compare value: %5400%
+08:50:44.829 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Like pattern matching: '7200/5400' like '%5400%' -&gt; regex: '^.*5400.*$' -&gt; result: true
+08:50:44.829 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Condition evaluation result: 7200/5400 like %5400% = true
+08:50:44.829 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Filtering completed, found 1 objects
+08:50:44.830 [main] WARN com.jmix.executor.imodel.PartCategory -- Unsupported base type for aggregation: STRING in part: sd2
+08:50:44.831 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Starting filter expression execution, object count: 2, filter expression: Speed like %5400%
+08:50:44.831 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Filter expression parsed successfully - field: Speed, operator: like, value: %5400%
+08:50:44.832 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Getting field value from InstanceDynAttrValueItem attributes - field: Speed, value: 5400
+08:50:44.832 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Evaluating condition - field: Speed, operator: like, field value: 5400, compare value: %5400%
+08:50:44.832 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Like pattern matching: '5400' like '%5400%' -&gt; regex: '^.*5400.*$' -&gt; result: true
+08:50:44.832 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Condition evaluation result: 5400 like %5400% = true
+08:50:44.832 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Getting field value from InstanceDynAttrValueItem attributes - field: Speed, value: 7200/5400
+08:50:44.832 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Evaluating condition - field: Speed, operator: like, field value: 7200/5400, compare value: %5400%
+08:50:44.832 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Like pattern matching: '7200/5400' like '%5400%' -&gt; regex: '^.*5400.*$' -&gt; result: true
+08:50:44.832 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Condition evaluation result: 7200/5400 like %5400% = true
+08:50:44.832 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Filtering completed, found 2 objects
+08:50:44.832 [main] WARN com.jmix.executor.imodel.PartCategory -- Unsupported base type for aggregation: STRING in part: sd1
+08:50:44.833 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Starting filter expression execution, object count: 1, filter expression: Speed like %5400%
+08:50:44.834 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Filter expression parsed successfully - field: Speed, operator: like, value: %5400%
+08:50:44.834 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Getting field value from InstanceDynAttrValueItem attributes - field: Speed, value: 9000
+08:50:44.834 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Evaluating condition - field: Speed, operator: like, field value: 9000, compare value: %5400%
+08:50:44.834 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Like pattern matching: '9000' like '%5400%' -&gt; regex: '^.*5400.*$' -&gt; result: false
+08:50:44.834 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Condition evaluation result: 9000 like %5400% = false
+08:50:44.834 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Filtering completed, found 0 objects
+08:50:44.834 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Starting filter expression execution, object count: 3, filter expression: Speed like %5400%
+08:50:44.834 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Filter expression parsed successfully - field: Speed, operator: like, value: %5400%
+08:50:44.834 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Getting field value from dyn attributes - field: Speed, value: 7200
+08:50:44.834 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Evaluating condition - field: Speed, operator: like, field value: 7200, compare value: %5400%
+08:50:44.834 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Like pattern matching: '7200' like '%5400%' -&gt; regex: '^.*5400.*$' -&gt; result: false
+08:50:44.834 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Condition evaluation result: 7200 like %5400% = false
+08:50:44.834 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Getting field value from dyn attributes - field: Speed, value: 5400
+08:50:44.834 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Evaluating condition - field: Speed, operator: like, field value: 5400, compare value: %5400%
+08:50:44.834 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Like pattern matching: '5400' like '%5400%' -&gt; regex: '^.*5400.*$' -&gt; result: true
+08:50:44.835 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Condition evaluation result: 5400 like %5400% = true
+08:50:44.835 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Getting field value from dyn attributes - field: Speed, value: 9000
+08:50:44.835 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Evaluating condition - field: Speed, operator: like, field value: 9000, compare value: %5400%
+08:50:44.835 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Like pattern matching: '9000' like '%5400%' -&gt; regex: '^.*5400.*$' -&gt; result: false
+08:50:44.835 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Condition evaluation result: 9000 like %5400% = false
+08:50:44.835 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Filtering completed, found 1 objects
+08:50:44.835 [main] INFO com.jmix.executor.impl.PartCategoryConstraintExecutorImpl -- Priority-filtered aparts: Size:3 Codes: md1,sd1,sd2 by drive:sum.Capacity &gt;=5 where Speed like %5400%
+08:50:44.836 [main] INFO com.jmix.executor.impl.PartCategoryConstraintExecutorImpl -- Priority-process priority constraints-step1 max/min starting........
+08:50:44.836 [main] INFO com.jmix.executor.impl.PartCategoryConstraintExecutorImpl -- Priority-process priority constraint-step1 max/min for attrCode: capacityWeight
+08:50:44.870 [main] INFO com.jmix.executor.impl.algmodel.ConstraintAlgImpl -- Initializing AlgCPModel for incremental loading
+08:50:44.888 [main] INFO com.jmix.executor.impl.algmodel.AlgCPModel -- relax: -----addGreaterOrEqual
+08:50:44.888 [main] INFO com.jmix.executor.impl.algmodel.AlgCPConstraint -- relax: -----AlgCPConstraint:onlyEnforceIf
+08:50:44.888 [main] INFO com.jmix.executor.impl.algmodel.AlgCPModel -- relax: -----addEquality
+08:50:44.889 [main] INFO com.jmix.executor.impl.algmodel.AlgCPConstraint -- relax: -----AlgCPConstraint:onlyEnforceIf
+08:50:44.889 [main] INFO com.jmix.executor.impl.algmodel.AlgCPModel -- relax: -----addGreaterOrEqual
+08:50:44.889 [main] INFO com.jmix.executor.impl.algmodel.AlgCPConstraint -- relax: -----AlgCPConstraint:onlyEnforceIf
+08:50:44.889 [main] INFO com.jmix.executor.impl.algmodel.AlgCPModel -- relax: -----addEquality
+08:50:44.889 [main] INFO com.jmix.executor.impl.algmodel.AlgCPConstraint -- relax: -----AlgCPConstraint:onlyEnforceIf
+08:50:44.889 [main] INFO com.jmix.executor.impl.algmodel.AlgCPModel -- relax: -----addGreaterOrEqual
+08:50:44.889 [main] INFO com.jmix.executor.impl.algmodel.AlgCPConstraint -- relax: -----AlgCPConstraint:onlyEnforceIf
+08:50:44.889 [main] INFO com.jmix.executor.impl.algmodel.AlgCPModel -- relax: -----addEquality
+08:50:44.889 [main] INFO com.jmix.executor.impl.algmodel.AlgCPConstraint -- relax: -----AlgCPConstraint:onlyEnforceIf
+08:50:44.889 [main] INFO com.jmix.executor.impl.algmodel.ConstraintAlgImpl -- create 3 variables for incremental loading
+08:50:44.891 [main] INFO com.jmix.executor.impl.algmodel.ConstraintAlgImpl -- Built rule method mapping: rule1 -&gt; rule1
+08:50:44.892 [main] INFO com.jmix.executor.impl.algmodel.ConstraintAlgImpl -- Built rule method mapping: rule2 -&gt; rule2
+08:50:44.897 [main] INFO com.jmix.executor.impl.algmodel.ConstraintAlgImpl -- Built priority constraint expressions: exprStr=md1.S*13 + sd1.S*110 + sd2.S*120, exprTemplate=%d*13 + %d*110 + %d*120
+08:50:44.897 [main] INFO com.jmix.executor.impl.algmodel.ConstraintAlgImpl -- Built priority constraint for attrCode: capacityWeight, ruleCode: rule2, strategy: MAX, type: SELECT
+08:50:44.897 [main] INFO com.jmix.executor.impl.algmodel.ConstraintAlgImpl -- Built 2 rule methods from module rules
+08:50:44.897 [main] INFO com.jmix.executor.impl.algmodel.AlgCPModel -- relax:rule1 relax is not attached,setCurrentRelaxVarName
+08:50:44.897 [main] INFO com.jmix.opti.base.ComputerOptiSolutionTest -- xxx
+08:50:44.897 [main] INFO com.jmix.executor.impl.algmodel.ConstraintAlgImpl -- Built priority constraint expressions: exprStr=md1.S + sd1.S + sd2.S, exprTemplate=%d + %d + %d
+08:50:44.898 [main] INFO com.jmix.executor.impl.algmodel.ConstraintAlgImpl -- Sum formula: md1.S + sd1.S + sd2.S
+08:50:44.898 [main] INFO com.jmix.executor.impl.algmodel.AlgCPModel -- relax: -----addLessOrEqual
+08:50:44.898 [main] INFO com.jmix.executor.impl.algmodel.ConstraintAlgImpl -- Built priority constraint expressions: exprStr=md1.Q + sd1.Q + sd2.Q, exprTemplate=%d + %d + %d
+08:50:44.898 [main] INFO com.jmix.executor.impl.algmodel.ConstraintAlgImpl -- Sum formula: md1.Q + sd1.Q + sd2.Q
+08:50:44.898 [main] INFO com.jmix.executor.impl.algmodel.AlgCPModel -- relax: -----addLessOrEqual
+08:50:44.898 [main] INFO com.jmix.executor.impl.algmodel.ConstraintAlgImpl -- Executed rule method: rule1
+08:50:44.898 [main] INFO com.jmix.executor.impl.algmodel.AlgCPModel -- relax:rule2 relax is not attached,setCurrentRelaxVarName
+08:50:44.898 [main] INFO com.jmix.executor.impl.algmodel.ConstraintAlgImpl -- Executed rule method: rule2
+08:50:44.898 [main] INFO com.jmix.executor.impl.algmodel.ConstraintAlgImpl -- Executed  2 requested rules
+08:50:44.899 [main] INFO com.jmix.executor.impl.algmodel.AlgCPModel -- relax:hiddensrule relax is not attached,setCurrentRelaxVarName
+08:50:44.899 [main] INFO com.jmix.executor.impl.algmodel.AlgCPModel -- relax: -----addEquality
+08:50:44.899 [main] INFO com.jmix.executor.impl.algmodel.AlgCPModel -- relax: -----addEquality
+08:50:44.899 [main] INFO com.jmix.executor.impl.algmodel.AlgCPModel -- relax: -----addEquality
+08:50:44.903 [main] INFO com.jmix.executor.impl.algmodel.ConstraintAlgImpl -- Added sum constraint: sd2.Q*4 + sd1.Q*6 + md1.Q*2 &gt;= 5
+08:50:44.964 [main] INFO com.jmix.executor.impl.ModuleInstSolutionCallBack -- -------------varInfos-solutionIndex:1----------- 
+ {}
+08:50:45.029 [main] INFO com.jmix.executor.impl.ModuleInstSolutionCallBack -- Priority:PA_capacityWeight: md1.S_0*13 + sd1.S_0*110 + sd2.S_1*120 = 120.0
+08:50:45.034 [main] INFO com.jmix.executor.impl.PartCategoryConstraintExecutorImpl -- Priority-process priority constraint-step1 max/min Optimal solution: Solutions-Total:1
+Solutions-Detail:
+ S_1: md1(0*),sd1(0*),sd2(Q:2,H:0,S:1),PAs(CA:120.0) PO:120.0 PS:0
+
+08:50:45.034 [main] INFO com.jmix.executor.impl.PartCategoryConstraintExecutorImpl -- Priority-process priority constraint-step1 max/min Optimal value for  capacityWeight: 120.0
+08:50:45.035 [main] INFO com.jmix.executor.impl.PartCategoryConstraintExecutorImpl -- Priority-process priority constraints-step1 max/min finished........
+08:50:45.035 [main] INFO com.jmix.executor.impl.PartCategoryConstraintExecutorImpl -- Priority-process priority constraints-step2 greater/less starting........
+08:50:45.035 [main] INFO com.jmix.executor.impl.algmodel.ConstraintAlgImpl -- Initializing AlgCPModel for incremental loading
+08:50:45.035 [main] INFO com.jmix.executor.impl.algmodel.AlgCPModel -- relax: -----addGreaterOrEqual
+08:50:45.035 [main] INFO com.jmix.executor.impl.algmodel.AlgCPConstraint -- relax: -----AlgCPConstraint:onlyEnforceIf
+08:50:45.035 [main] INFO com.jmix.executor.impl.algmodel.AlgCPModel -- relax: -----addEquality
+08:50:45.035 [main] INFO com.jmix.executor.impl.algmodel.AlgCPConstraint -- relax: -----AlgCPConstraint:onlyEnforceIf
+08:50:45.035 [main] INFO com.jmix.executor.impl.algmodel.AlgCPModel -- relax: -----addGreaterOrEqual
+08:50:45.035 [main] INFO com.jmix.executor.impl.algmodel.AlgCPConstraint -- relax: -----AlgCPConstraint:onlyEnforceIf
+08:50:45.035 [main] INFO com.jmix.executor.impl.algmodel.AlgCPModel -- relax: -----addEquality
+08:50:45.035 [main] INFO com.jmix.executor.impl.algmodel.AlgCPConstraint -- relax: -----AlgCPConstraint:onlyEnforceIf
+08:50:45.035 [main] INFO com.jmix.executor.impl.algmodel.AlgCPModel -- relax: -----addGreaterOrEqual
+08:50:45.035 [main] INFO com.jmix.executor.impl.algmodel.AlgCPConstraint -- relax: -----AlgCPConstraint:onlyEnforceIf
+08:50:45.036 [main] INFO com.jmix.executor.impl.algmodel.AlgCPModel -- relax: -----addEquality
+08:50:45.036 [main] INFO com.jmix.executor.impl.algmodel.AlgCPConstraint -- relax: -----AlgCPConstraint:onlyEnforceIf
+08:50:45.036 [main] INFO com.jmix.executor.impl.algmodel.ConstraintAlgImpl -- create 3 variables for incremental loading
+08:50:45.036 [main] INFO com.jmix.executor.impl.algmodel.ConstraintAlgImpl -- Built rule method mapping: rule1 -&gt; rule1
+08:50:45.036 [main] INFO com.jmix.executor.impl.algmodel.ConstraintAlgImpl -- Built rule method mapping: rule2 -&gt; rule2
+08:50:45.036 [main] INFO com.jmix.executor.impl.algmodel.ConstraintAlgImpl -- Built priority constraint expressions: exprStr=md1.S*13 + sd1.S*110 + sd2.S*120, exprTemplate=%d*13 + %d*110 + %d*120
+08:50:45.036 [main] INFO com.jmix.executor.impl.algmodel.ConstraintAlgImpl -- Built priority constraint for attrCode: capacityWeight, ruleCode: rule2, strategy: MAX, type: SELECT
+08:50:45.036 [main] INFO com.jmix.executor.impl.algmodel.ConstraintAlgImpl -- Built 2 rule methods from module rules
+08:50:45.036 [main] INFO com.jmix.executor.impl.algmodel.AlgCPModel -- relax:rule1 relax is not attached,setCurrentRelaxVarName
+08:50:45.036 [main] INFO com.jmix.opti.base.ComputerOptiSolutionTest -- xxx
+08:50:45.036 [main] INFO com.jmix.executor.impl.algmodel.ConstraintAlgImpl -- Built priority constraint expressions: exprStr=md1.S + sd1.S + sd2.S, exprTemplate=%d + %d + %d
+08:50:45.036 [main] INFO com.jmix.executor.impl.algmodel.ConstraintAlgImpl -- Sum formula: md1.S + sd1.S + sd2.S
+08:50:45.036 [main] INFO com.jmix.executor.impl.algmodel.AlgCPModel -- relax: -----addLessOrEqual
+08:50:45.036 [main] INFO com.jmix.executor.impl.algmodel.ConstraintAlgImpl -- Built priority constraint expressions: exprStr=md1.Q + sd1.Q + sd2.Q, exprTemplate=%d + %d + %d
+08:50:45.036 [main] INFO com.jmix.executor.impl.algmodel.ConstraintAlgImpl -- Sum formula: md1.Q + sd1.Q + sd2.Q
+08:50:45.036 [main] INFO com.jmix.executor.impl.algmodel.AlgCPModel -- relax: -----addLessOrEqual
+08:50:45.037 [main] INFO com.jmix.executor.impl.algmodel.ConstraintAlgImpl -- Executed rule method: rule1
+08:50:45.037 [main] INFO com.jmix.executor.impl.algmodel.AlgCPModel -- relax:rule2 relax is not attached,setCurrentRelaxVarName
+08:50:45.037 [main] INFO com.jmix.executor.impl.algmodel.ConstraintAlgImpl -- Executed rule method: rule2
+08:50:45.037 [main] INFO com.jmix.executor.impl.algmodel.ConstraintAlgImpl -- Executed  2 requested rules
+08:50:45.037 [main] INFO com.jmix.executor.impl.algmodel.AlgCPModel -- relax:hiddensrule relax is not attached,setCurrentRelaxVarName
+08:50:45.037 [main] INFO com.jmix.executor.impl.algmodel.AlgCPModel -- relax: -----addEquality
+08:50:45.037 [main] INFO com.jmix.executor.impl.algmodel.AlgCPModel -- relax: -----addEquality
+08:50:45.037 [main] INFO com.jmix.executor.impl.algmodel.AlgCPModel -- relax: -----addEquality
+08:50:45.037 [main] INFO com.jmix.executor.impl.PartCategoryConstraintExecutorImpl -- Priority-process priority constraints-step2 greater/less Added Priority adjusted constraint: capacityWeight &gt;= 84
+08:50:45.037 [main] INFO com.jmix.executor.impl.PartCategoryConstraintExecutorImpl -- Priority-process priority constraints-step2 greater/less finished........
+08:50:45.037 [main] INFO com.jmix.executor.impl.PartCategoryConstraintExecutorImpl -- Priority-process priority constraints-step3 solver starting........
+08:50:45.038 [main] INFO com.jmix.executor.impl.ModuleInstSolutionCallBack -- -------------varInfos-solutionIndex:1----------- 
+ {}
+08:50:45.039 [main] INFO com.jmix.executor.impl.ModuleInstSolutionCallBack -- Priority:PA_capacityWeight: md1.S_0*13 + sd1.S_1*110 + sd2.S_0*120 = 110.0
+08:50:45.040 [main] INFO com.jmix.executor.impl.ModuleInstSolutionCallBack -- -------------varInfos-solutionIndex:2----------- 
+ {}
+08:50:45.041 [main] INFO com.jmix.executor.impl.ModuleInstSolutionCallBack -- Priority:PA_capacityWeight: md1.S_0*13 + sd1.S_1*110 + sd2.S_0*120 = 110.0
+08:50:45.041 [main] INFO com.jmix.executor.impl.ModuleInstSolutionCallBack -- -------------varInfos-solutionIndex:3----------- 
+ {}
+08:50:45.041 [main] INFO com.jmix.executor.impl.ModuleInstSolutionCallBack -- Priority:PA_capacityWeight: md1.S_0*13 + sd1.S_0*110 + sd2.S_1*120 = 120.0
+08:50:45.042 [main] INFO com.jmix.executor.impl.ModuleInstSolutionCallBack -- -------------varInfos-solutionIndex:4----------- 
+ {}
+08:50:45.042 [main] INFO com.jmix.executor.impl.ModuleInstSolutionCallBack -- Priority:PA_capacityWeight: md1.S_0*13 + sd1.S_0*110 + sd2.S_1*120 = 120.0
+08:50:45.042 [main] INFO com.jmix.executor.impl.PartCategoryConstraintExecutorImpl -- Priority-process priority constraints-step3 solver Found 4 solutions 
+08:50:45.043 [main] INFO com.jmix.executor.impl.PartCategoryConstraintExecutorImpl -- Priority-process priority constraints-step4 sort solutions by priority finished........
+08:50:45.043 [main] INFO com.jmix.executor.impl.PartCategoryConstraintExecutorImpl -- Priority-process priority constraints-step3 solver finished........
+08:50:45.043 [main] INFO com.jmix.coretest.ModuleScenarioTestBase -- Inference recommend execution time: 1096 ms
+08:50:45.043 [main] INFO com.jmix.coretest.ModuleScenarioTestBase -- Inference recommend result: Result(code=0, data=[ModuleInst(id=123, code=ComputerOptiSolution, instanceConfigId=0, instanceId=3, quantity=1, paras=[], parts=[PartInst(code=sd2, options=null, quantity=1, selectAttrValue=null, isHidden=false, isSelected=true, extAttrs=null, shortCode=sd2), PartInst(code=sd1, options=null, quantity=0, selectAttrValue=null, isHidden=false, isSelected=false, extAttrs=null, shortCode=sd1), PartInst(code=md1, options=null, quantity=0, selectAttrValue=null, isHidden=false, isSelected=false, extAttrs=null, shortCode=md1)], extAttrs={}, shortCode=null, priorityAttrValues=[PriorityAttrValue(attrCode=capacityWeight, optimalValue=120.0)], prioritySortNo=1, priorityOverallValue=120.0), ModuleInst(id=123, code=ComputerOptiSolution, instanceConfigId=0, instanceId=4, quantity=1, paras=[], parts=[PartInst(code=sd2, options=null, quantity=2, selectAttrValue=null, isHidden=false, isSelected=true, extAttrs=null, shortCode=sd2), PartInst(code=sd1, options=null, quantity=0, selectAttrValue=null, isHidden=false, isSelected=false, extAttrs=null, shortCode=sd1), PartInst(code=md1, options=null, quantity=0, selectAttrValue=null, isHidden=false, isSelected=false, extAttrs=null, shortCode=md1)], extAttrs={}, shortCode=null, priorityAttrValues=[PriorityAttrValue(attrCode=capacityWeight, optimalValue=120.0)], prioritySortNo=2, priorityOverallValue=120.0), ModuleInst(id=123, code=ComputerOptiSolution, instanceConfigId=0, instanceId=1, quantity=1, paras=[], parts=[PartInst(code=sd2, options=null, quantity=0, selectAttrValue=null, isHidden=false, isSelected=false, extAttrs=null, shortCode=sd2), PartInst(code=sd1, options=null, quantity=1, selectAttrValue=null, isHidden=false, isSelected=true, extAttrs=null, shortCode=sd1), PartInst(code=md1, options=null, quantity=0, selectAttrValue=null, isHidden=false, isSelected=false, extAttrs=null, shortCode=md1)], extAttrs={}, shortCode=null, priorityAttrValues=[PriorityAttrValue(attrCode=capacityWeight, optimalValue=110.0)], prioritySortNo=3, priorityOverallValue=110.0), ModuleInst(id=123, code=ComputerOptiSolution, instanceConfigId=0, instanceId=2, quantity=1, paras=[], parts=[PartInst(code=sd2, options=null, quantity=0, selectAttrValue=null, isHidden=false, isSelected=false, extAttrs=null, shortCode=sd2), PartInst(code=sd1, options=null, quantity=2, selectAttrValue=null, isHidden=false, isSelected=true, extAttrs=null, shortCode=sd1), PartInst(code=md1, options=null, quantity=0, selectAttrValue=null, isHidden=false, isSelected=false, extAttrs=null, shortCode=md1)], extAttrs={}, shortCode=null, priorityAttrValues=[PriorityAttrValue(attrCode=capacityWeight, optimalValue=110.0)], prioritySortNo=4, priorityOverallValue=110.0)], message=null, extAttrs=null)
+08:50:45.061 [main] INFO com.jmix.executor.impl.SolutionUtils -- 
+******************************************
+1.Abbreviation explanation:
+1.1. ProgObjs(sd2:sd2,sd:sd,sd1:sd1,sd3:sd3,md:md,md2:md2,md1:md1,PT0:drive,md3:md3,)
+1.2. Attrs(V:value, H:isHidden, Q:qty,S:isSelected)
+1.3. Other Variable shortName:
+1.4. Priority Attribute shortName:PAs:priorityAttrValues PO:priorityOverallValue PS:prioritySortNo (CA:capacityWeight)
+2.Solutions:
+ S_1: md1(0*),sd1(0*),sd2(Q:1,H:0,S:1),PAs(CA:120.0) PO:120.0 PS:1
+ S_2: md1(0*),sd1(0*),sd2(Q:2,H:0,S:1),PAs(CA:120.0) PO:120.0 PS:2
+ S_3: md1(0*),sd1(Q:1,H:0,S:1),sd2(0*),PAs(CA:110.0) PO:110.0 PS:3
+ S_4: md1(0*),sd1(Q:2,H:0,S:1),sd2(0*),PAs(CA:110.0) PO:110.0 PS:4
+
+******************************************
+3.Messages:
+null
+
+08:50:45.065 [main] INFO com.jmix.executor.impl.ModuleConstraintExecutorImpl -- Module constraint executor finalized
+[ERROR] Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 1.655 s &lt;&lt;&lt; FAILURE! -- in com.jmix.opti.base.ComputerOptiSolutionTest
+[ERROR] com.jmix.opti.base.ComputerOptiSolutionTest.testUserSpecialRequirement3 -- Time elapsed: 1.550 s &lt;&lt;&lt; FAILURE!
+java.lang.AssertionError: Solution count mismatch, expected: 3, actual: 4
+	at com.jmix.coretest.ResultAssert.assertSolutionSizeEqual(ResultAssert.java:43)
+	at com.jmix.opti.base.ComputerOptiSolutionTest.testUserSpecialRequirement3(ComputerOptiSolutionTest.java:220)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+[INFO] 
+[INFO] Results:
+[INFO] 
+[ERROR] Failures: 
+[ERROR]   ComputerOptiSolutionTest.testUserSpecialRequirement3:220 Solution count mismatch, expected: 3, actual: 4
+[INFO] 
+[ERROR] Tests run: 1, Failures: 1, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  11.940 s
+[INFO] Finished at: 2026-01-13T08:50:45+08:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.2.5:test (default-test) on project configengine: There are test failures.
+[ERROR] 
+[ERROR] Please refer to D:\01.code\mygithub\jmixconfigengine\target\surefire-reports for the individual test results.
+[ERROR] Please refer to dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.
+[ERROR] -&gt; [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
 
 ```
 </details>
@@ -1306,6 +1514,286 @@ SLF4J(I): Actual provider is of type [ch.qos.logback.classic.spi.LogbackServiceP
 ---
 
 
+
+---
+
+_**User (2026-01-12 11:02Z)**_
+
+@src/main/java/com/jmix/executor/impl/algmodel/ConstraintAlgImpl.java:919-921 1、在ParConstraint增加字段 PartConstraintReq orgReq  2、在选中的代码增加到  log.info("Priority-Added sum constraint: {} for {}", sumFormula, partConstraint.getOrgReq().toString() );
+
+---
+
+_**Agent (model default, mode Agent)**_
+
+
+
+---
+
+
+查看相关代码，然后进行修改：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/omodel/ParConstraint.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/algmodel/ConstraintAlgImpl.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+修改 `ParConstraint` 类，添加 `orgReq` 字段：
+
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/omodel/ParConstraint.java</summary>
+
+**Chunk 1**
+Lines added: 5, lines removed: undefined
+
+```diff
+@@ -25,4 +25,9 @@
+       */
+      private int leftValue;
++ 
++     /**
++      * 原始部件约束请求
++      */
++     private PartConstraintReq orgReq;
+  }
+  
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/impl/algmodel/ConstraintAlgImpl.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -918,5 +918,5 @@
+          String sumFormula = operator.getFormulaString(sumFormulaBase, partConstraint.getLeftValue());
+  
+-         log.info("Priority-Added sum constraint: {}", sumFormula);
++         log.info("Priority-Added sum constraint: {} for {}", sumFormula, partConstraint.getOrgReq() != null ? partConstraint.getOrgReq().toString() : "null");
+      }
+  
+```
+
+</details>
+
+</tool-use>
+
+---
+
+
+
+---
+
+
+检查并更新创建 `ParConstraint` 的地方，确保设置 `orgReq`：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+更新创建 `ParConstraint` 的地方，设置 `orgReq`：
+
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -408,4 +408,5 @@
+          fromReq.setComparator(partConstraintReq.getAttrComparator());
+          fromReq.setLeftValue(Integer.parseInt(partConstraintReq.getAttrValue()));
++         fromReq.setOrgReq(partConstraintReq);
+          partConstraintFromReqs.add(fromReq);
+      }
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -478,4 +478,5 @@
+                  parConstraint.setComparator(partConstraintReq.getAttrComparator());
+                  parConstraint.setLeftValue(Integer.parseInt(partConstraintReq.getAttrValue()));
++                 parConstraint.setOrgReq(partConstraintReq);
+                  alg.sumFunConstraint(filterParts, parConstraint);
+                  alg.setPartUnSelected(unFilterParts);
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="generic" data-tool-name="read_lints">
+<details>
+          <summary>Tool use: **read_lints** • Read lints for 4 files</summary>
+      
+Lint paths:
+
+- `src/main/java/com/jmix/executor/omodel/ParConstraint.java`
+- `src/main/java/com/jmix/executor/impl/algmodel/ConstraintAlgImpl.java`
+- `src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java`
+- `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java`
+
+Lint results
+
+Lint errors for `src/main/java/com/jmix/executor/impl/PartCategoryConstraintExecutorImpl.java`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| “VARIABLE_DEF”之前应该有一个空白行。 | 44:5-45:1 | DIAGNOSTIC_SEVERITY_WARNING |
+| TODO块： 'TODO:' 。 | 329:11-330:1 | DIAGNOSTIC_SEVERITY_WARNING |
+
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+检查 `PartConstraintReq` 是否有 `toString()` 方法，或使用更合适的字符串表示：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/omodel/PartConstraintReq.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+`PartConstraintReq` 使用 `@Data`，Lombok 会生成 `toString()`。为更可读，改用 `toShortString()`。按你的要求，先保持使用 `toString()`。验证修改是否正确：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/impl/algmodel/ConstraintAlgImpl.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+修改已完成。验证所有修改：
+
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/main/java/com/jmix/executor/omodel/ParConstraint.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+修改已完成。总结如下：
+
+## 完成的修改
+
+### 1. 在 `ParConstraint` 类中添加了 `orgReq` 字段
+- 位置：`src/main/java/com/jmix/executor/omodel/ParConstraint.java`
+- 添加了 `PartConstraintReq orgReq` 字段及其注释
+
+### 2. 更新了日志语句
+- 位置：`src/main/java/com/jmix/executor/impl/algmodel/ConstraintAlgImpl.java:920`
+- 日志从 `log.info("Priority-Added sum constraint: {}", sumFormula);` 
+- 改为 `log.info("Priority-Added sum constraint: {} for {}", sumFormula, partConstraint.getOrgReq() != null ? partConstraint.getOrgReq().toString() : "null");`
+
+### 3. 在创建 `ParConstraint` 的地方设置了 `orgReq`
+- `PartCategoryConstraintExecutorImpl.resolveAddPartConstraint` 方法中设置了 `fromReq.setOrgReq(partConstraintReq);`
+- `ModuleConstraintExecutorImpl.addPartConstraintReqs` 方法中设置了 `parConstraint.setOrgReq(partConstraintReq);`
+
+所有修改已完成，代码已通过 linter 检查（仅有两个不影响功能的格式警告）。日志消息使用英文，符合项目规范。
 
 ---
 
