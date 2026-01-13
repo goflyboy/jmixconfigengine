@@ -368,36 +368,6 @@ public class PartCategory extends Part implements IModule {
     }
 
     /**
-     * 获取PartCategory中的所有叶子部件
-     * 递归收集所有子分类中的叶子部件（不包括子分类本身）
-     *
-     * @return 所有叶子部件列表
-     */
-    @JsonIgnore
-    public List<Part> getAllLeafParts() {
-        List<Part> leafParts = new ArrayList<>();
-        collectLeafParts(this, leafParts);
-        return leafParts;
-    }
-
-    /**
-     * 递归收集叶子部件
-     *
-     * @param category  部件分类
-     * @param leafParts 叶子部件列表
-     */
-    @JsonIgnore
-    private void collectLeafParts(PartCategory category, List<Part> leafParts) {
-        // 添加直接的部件
-        leafParts.addAll(category.getPartMap().values());
-
-        // 递归处理子分类
-        for (PartCategory subCategory : category.getPartCategoryMap().values()) {
-            collectLeafParts(subCategory, leafParts);
-        }
-    }
-
-    /**
      * 计算未过滤的叶子部件
      * 遍历 allPartCategory 本身的 parts 及其子 PartCategory 的 parts，
      * 如果不在 filterLeafParts 中，添加到结果列表
@@ -409,7 +379,7 @@ public class PartCategory extends Part implements IModule {
     @JsonIgnore
     public static List<Part> calcUnFilterLeafParts(PartCategory allPartCategory, List<Part> filterLeafParts) {
         List<Part> unFilterLeafParts = new ArrayList<>();
-        List<Part> allLeafParts = allPartCategory.getAllLeafParts();
+        List<Part> allLeafParts = allPartCategory.getAtomicParts();
 
         // 使用 Set 来快速查找，提高性能
         Set<String> filterPartCodes = filterLeafParts.stream()

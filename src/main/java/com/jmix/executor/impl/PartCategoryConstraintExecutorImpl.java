@@ -379,7 +379,7 @@ public class PartCategoryConstraintExecutorImpl {
      */
     private void initModelByPriorityConstraints(PartCategory filteredCategory,
             List<ParConstraint> partConstraintFromReqs, ConstraintAlgImpl alg) {
-        List<Part> filterParts = filteredCategory.getAllLeafParts();
+        List<Part> filterParts = filteredCategory.getAtomicParts();
         for (ParConstraint partConstraint : partConstraintFromReqs) {
             alg.sumFunConstraint(filterParts, partConstraint);
         }
