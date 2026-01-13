@@ -1352,20 +1352,58 @@ void  processPriorityValues(moduleInst) {
 	moduleInst。priorityOverallValue  = 对priorityAttrValues.optimalValue 取平均值
 }
  
+ 
 
+设计121：
 
-PriorityConstraint
+1、定义一个数据类
+class ParConstraint{
+	String sumAttrCode
+    String comparator
+	int leftValue
+}
 
-List<PartTerm> exprVariables
+2、类PartCategoryConstraintExecutorImpl增强如下；
+2.1 方法 processPartCategory增强 
+修改前：
+ ... processPartCategory(...) {
+	...
+	filteredCategory = filteredCategory.query(partConstraintReq);
 
+	...
+ }
 
+修改后：
+... processPartCategory(...) {
+	List<ParConstraint> partConstraintFromReqs = ....
+	...
+	filteredCategory = filteredCategory.query(partConstraintReq);
+	resolveAddPartConstraint(...)
+	...
+ }
+2.2 增加函数
+void resolveAddPartConstraint(filteredCategory,partConstraintReq，partConstraintFromReqs)
 
-PriorityConstraint
+	            // 解析属性
+              Pair<DynamicAttribute, String> result = filteredCategory.parseAttribute(
+                    partConstraintReq.getAttrCode(),
+                    filteredCategory.getDynAttrSchemas());
+			  if (!AttrFunConstant.FUN_PREFIX_SUM.equals(result.getSecond())) {
+					return;
+			  
+			  根据partConstraintReq构造ParConstraint ->fromReq
+               partConstraintFromReqs.add(fromReq)
+}
 
+3.ConstraintAlgImpl增强如下
+3.1 方法sumFunConstraint
+3.1.1 
+sumFunConstraint(List<Part> sumParts, String sumAttrCode, String comparator, int leftValue) 
+改成：
+sumFunConstraint(List<Part> sumParts, ParConstraint partConstraint)
+3.1.2  内部实现尽量使用buildPriorityConstraintExpressions
 
-PriorityAttrObjValue
-
-要求：
+ 
 
 
 TODO:产品有多个Priv值怎么办？ ***
@@ -1470,7 +1508,10 @@ Priority
 
 TODO: 约束冲突的问题
             if (status == CpSolverStatus.INFEASIBLE && config.isDebugByRelaxVar()) {
+TODO:       // 一条partConstraintReq会被拆分两条规则，一条是过滤规则（根据where条件过滤），一条是约束规则（根据attrCode,
+                // attrComparator, attrValue构建约束表达式）  
 
+ 这么拆分可能也问题，约束对某些部件来说的，但是对同一个？PartCategory? 要论证
    
 
 

@@ -74,6 +74,8 @@ public class PartCategoryConstraintExecutorImpl {
             // 遍历所有部件约束请求，逐步过滤
             PartCategory filteredCategory = originalCategory;
             for (PartConstraintReq partConstraintReq : partCatagoryReq.getPartConstraintReqs()) {
+                // 一条partConstraintReq会被拆分两条规则，一条是过滤规则（根据where条件过滤），一条是约束规则（根据attrCode,
+                // attrComparator, attrValue构建约束表达式）
                 // 查询满足条件的PartCategory
                 filteredCategory = filteredCategory.query(partConstraintReq);
                 log.info("Priority-filtered aparts: {} by {}", filteredCategory.getAtomicPartShortString(),
@@ -115,7 +117,7 @@ public class PartCategoryConstraintExecutorImpl {
         alg.initModel(model, filteredCategory, isAttachRelax, confictedRelaxs);
 
         // 根据请求初始化约束模型
-        initModelByReq(filteredCategory, partCatagoryReq, alg);
+        initModelByReq(partCatagoryReq, alg);
 
         // 添加松弛目标函数, 方便调试
         alg.addRelaxObjectFunction();
@@ -200,7 +202,8 @@ public class PartCategoryConstraintExecutorImpl {
             ConstraintAlgImpl optAlg = createConstraintAlg(module.getId(), module.getCode());
             CpModel optModel = new CpModel();
             optAlg.initModel(optModel, filteredCategory, isAttachRelax, confictedRelaxs);
-            initModelByReq(filteredCategory, partCatagoryReq, optAlg);
+            initModelByReq(partCatagoryReq, optAlg);
+            initModelByPriorityConstraints(filteredCategory, partCatagoryReq.getPartConstraintReqs(), optAlg);
             optAlg.addRelaxObjectFunction();
 
             // 重新构建目标函数表达式（使用新的alg实例）
@@ -250,7 +253,7 @@ public class PartCategoryConstraintExecutorImpl {
             ConstraintAlgImpl multiAlg = createConstraintAlg(module.getId(), module.getCode());
             CpModel multiModel = new CpModel();
             multiAlg.initModel(multiModel, filteredCategory, isAttachRelax, confictedRelaxs);
-            initModelByReq(filteredCategory, partCatagoryReq, multiAlg);
+            initModelByReq(partCatagoryReq, multiAlg);
             multiAlg.addRelaxObjectFunction();
 
             // 对每个最优值添加约束：保持高优先级目标在最优值的30%范围内
@@ -346,11 +349,10 @@ public class PartCategoryConstraintExecutorImpl {
     /**
      * 根据请求初始化约束模型
      * 
-     * @param filteredCategory 过滤后的部件分类
-     * @param req              部件分类请求
-     * @param alg              约束算法实现
+     * @param req 部件分类请求
+     * @param alg 约束算法实现
      */
-    private void initModelByReq(PartCategory filteredCategory, InferPartCategoryReq req, ConstraintAlgImpl alg) {
+    private void initModelByReq(InferPartCategoryReq req, ConstraintAlgImpl alg) {
         if (req.getPreParaInsts() != null) {
             for (ParaInst paraInst : req.getPreParaInsts()) {
                 alg.addParaEquality(paraInst.getCode(), paraInst.getValue());
@@ -361,32 +363,35 @@ public class PartCategoryConstraintExecutorImpl {
                 alg.addPartEquality(partInst.getCode(), partInst.getQuantity());
             }
         }
+    }
 
-        if (req.getPartConstraintReqs() != null && !req.getPartConstraintReqs().isEmpty()) {
+    /**
+     * 根据请求初始化约束模型
+     * 
+     * @param filteredCategory 过滤后的部件分类
+     * @param req              部件分类请求
+     * @param alg              约束算法实现
+     */
+    private void initModelByPriorityConstraints(PartCategory filteredCategory,
+            List<PartConstraintReq> partConstraintReqs, ConstraintAlgImpl alg) {
+        for (PartConstraintReq partConstraintReq : partConstraintReqs) {// 多个约束是不是有问题？TODO
             // 获取所有叶子部件
             List<Part> filterParts = filteredCategory.getAllLeafParts();
 
-            // 处理最后一个约束请求
-            PartConstraintReq lastPartConstraintReq = req.getPartConstraintReqs()
-                    .get(req.getPartConstraintReqs().size() - 1);
-
-            log.info("filterParts size: {} after filter req.whereCondition: {}", filterParts.size(),
-                    lastPartConstraintReq.getAttrWhereCondition());
-
             // 解析属性
             Pair<DynamicAttribute, String> result = filteredCategory.parseAttribute(
-                    lastPartConstraintReq.getAttrCode(),
+                    partConstraintReq.getAttrCode(),
                     filteredCategory.getDynAttrSchemas());
 
             // 根据result.second构建约束表达式
             if (AttrFunConstant.FUN_PREFIX_SUM.equals(result.getSecond())) {
                 alg.sumFunConstraint(filterParts, result.getFirst().getCode(),
-                        lastPartConstraintReq.getAttrComparator(),
-                        Integer.parseInt(lastPartConstraintReq.getAttrValue()));
+                        partConstraintReq.getAttrComparator(),
+                        Integer.parseInt(partConstraintReq.getAttrValue()));
                 // alg.setPartUnSelected(unFilterParts);
             }
-
         }
+
     }
 
     /**

@@ -38,6 +38,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * 约束算法实现基类
@@ -942,7 +943,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @return 求和后的LinearExpr表达式
      */
     private LinearExpr sum4Parts(String cofAttrCode,
-            java.util.function.Function<PartVar, LinearArgument> varGetter, String varName) {
+            Function<PartVar, LinearArgument> varGetter, String varName) {
         // 创建一个临时的PriorityConstraint对象来复用构建逻辑
         PriorityConstraint tempConstraint = new PriorityConstraint();
         LinearExpr expr = buildPriorityConstraintExpressions(tempConstraint, cofAttrCode, varName, varGetter);
