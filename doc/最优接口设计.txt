@@ -1168,18 +1168,7 @@ private void rule2() {
 	//对解按优先级排序
 	  
 }
-  
-
-sd2.Q*4 + sd1.Q*6 + md1.Q*2 >= 5
-
-sd2.S*200 + sd1.S*100 + md1.S*30
-
- [main] INFO com.jmix.executor.impl.PartCategoryConstraintExecutorImpl - Optimal solution: Solutions-Total:1
-Solutions-Detail:
- S_1: sd2(Q:2,H:0,S:1),sd1(0*),md1(0*)
-
-[main] INFO com.jmix.executor.impl.PartCategoryConstraintExecutorImpl - Optimal value for attrCode capacityWeight: 200.0
-
+ 
 设计112：
 
 
@@ -1504,6 +1493,8 @@ class PriorityStrategy {
  
 
 2026-1-11：
+
+TODO：画一个约束模型等？ --**  Part selected  qty 
 
 TODO: moduleInst 和PartCategoryInst  总体的调度框架
 

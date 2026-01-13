@@ -259,6 +259,8 @@ public class PartCategoryConstraintExecutorImpl {
             CpModel multiModel = new CpModel();
             multiAlg.initModel(multiModel, filteredCategory, isAttachRelax, confictedRelaxs);
             initModelByReq(partCatagoryReq, multiAlg);
+            initModelByPriorityConstraints(filteredCategory, partConstraintFromReqs,
+                    multiAlg);
             multiAlg.addRelaxObjectFunction();
 
             // 对每个最优值添加约束：保持高优先级目标在最优值的30%范围内

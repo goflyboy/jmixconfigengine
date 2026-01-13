@@ -15,7 +15,6 @@ import com.jmix.executor.imodel.anno.ModuleAnno;
 import com.jmix.executor.imodel.anno.PartAnno;
 import com.jmix.executor.imodel.anno.PriorityRuleAnno;
 
-import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.LinearExpr;
 
 import lombok.extern.slf4j.Slf4j;
@@ -85,22 +84,15 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
         private PartVar md3;
 
         // rule1://固态硬盘必须配置同一种，并且最多配置2块
-        @CodeRuleAnno(fatherCode = "drive", normalNaturalCode = "sd1.isSelected + sd2.isSelected + sd3.isSelected <= 1\n "
-                +
-                "sd1.qty + sd2.qty + sd3.qty <= 2\n if(sd1.isSelected ==1) then sd1.qty >= 0")
+        @CodeRuleAnno(fatherCode = "drive", normalNaturalCode = "固态硬盘必须配置同一种，并且最多配置2块")
         private void rule1() {
-            log.info("xxx");
-            // Constraint: At most one type of solid drive can be selected
-            // sd1.isSelected + sd2.isSelected + sd3.isSelected <= 1
-            // LinearExpr sumSelected = LinearExpr
-            // .sum(new BoolVar[] { sd1.isSelected, sd2.isSelected, sd3.isSelected });
+            // proRule1-natuarl: 固态硬盘必须配置同一种，并且最多配置2块
+            // proRule1-dsl: 拆分为proRule11和proRule11两条约束（和isSelected(S)、qty(Q)相关）
+            // proRule11-cRule: sd1.S + sd2.S <=1
             LinearExpr sumSelected = sum4Selected();
             model.addLessOrEqual(sumSelected, 1);
 
-            // Constraint: Total quantity of solid drives <= 2
-            // sd1.qty + sd2.qty + sd3.qty <= 2
-            // LinearExpr sumQty = LinearExpr.sum(new IntVar[] { sd1.qty, sd2.qty, sd3.qty
-            // });
+            // proRule12-cRule: sd1.Q + sd2.Q <= 2
             LinearExpr sumQty = sum4Quantity();
             model.addLessOrEqual(sumQty, 2);
         }
@@ -108,63 +100,11 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
         // rule2://固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量
         @PriorityRuleAnno(fatherCode = "drive", normalNaturalCode = "固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量", attrCode = "capacityWeight", strategy = PriorityStrategy.MAX, type = PriorityType.SELECT)
         private void rule2() {
-            // 优先级约束由系统自动处理，这里可以留空或添加其他逻辑 rawCode="选择的部件capacityWeight总和越大越好"
-        }
-
-        // private void rule2() {
-        // LinearExpr sumCapacityWeight = sum4Selected("capacityWeight");
-        // model.maximize(sumCapacityWeight);
-        // }
-
-        private void rule2_backup() {
-            final int SOLID1_WEIGHT = 100;
-            final int SOLID2_WEIGHT = 200;
-            final int SOLID3_WEIGHT = 300;
-            final int MECH1_WEIGHT = 30;
-            final int MECH2_WEIGHT = 20;
-            final int MECH3_WEIGHT = 10;
-
-            // Create contribution variables for solid drives
-            IntVar solid1Contrib = model.newIntVar(0, SOLID1_WEIGHT, "solid1Contrib");
-            IntVar solid2Contrib = model.newIntVar(0, SOLID2_WEIGHT, "solid2Contrib");
-            IntVar solid3Contrib = model.newIntVar(0, SOLID3_WEIGHT, "solid3Contrib");
-
-            // Link contribution to isSelected: contrib = weight * isSelected
-            // Implement as: contrib == weight * isSelected
-            // Since isSelected is BoolVar, we can add:
-            // isSelected => contrib == weight, and not isSelected => contrib == 0
-            model.addEquality(solid1Contrib, SOLID1_WEIGHT).onlyEnforceIf(sd1.isSelected);
-            model.addEquality(solid1Contrib, 0).onlyEnforceIf(sd1.isSelected.not());
-
-            model.addEquality(solid2Contrib, SOLID2_WEIGHT).onlyEnforceIf(sd2.isSelected);
-            model.addEquality(solid2Contrib, 0).onlyEnforceIf(sd2.isSelected.not());
-
-            model.addEquality(solid3Contrib, SOLID3_WEIGHT).onlyEnforceIf(sd3.isSelected);
-            model.addEquality(solid3Contrib, 0).onlyEnforceIf(sd3.isSelected.not());
-
-            // Create contribution variables for mechanical drives
-            IntVar mech1Contrib = model.newIntVar(0, MECH1_WEIGHT, "mech1Contrib");
-            IntVar mech2Contrib = model.newIntVar(0, MECH2_WEIGHT, "mech2Contrib");
-            IntVar mech3Contrib = model.newIntVar(0, MECH3_WEIGHT, "mech3Contrib");
-
-            model.addEquality(mech1Contrib, MECH1_WEIGHT).onlyEnforceIf(md1.isSelected);
-            model.addEquality(mech1Contrib, 0).onlyEnforceIf(md1.isSelected.not());
-
-            model.addEquality(mech2Contrib, MECH2_WEIGHT).onlyEnforceIf(md2.isSelected);
-            model.addEquality(mech2Contrib, 0).onlyEnforceIf(md2.isSelected.not());
-
-            model.addEquality(mech3Contrib, MECH3_WEIGHT).onlyEnforceIf(md3.isSelected);
-            model.addEquality(mech3Contrib, 0).onlyEnforceIf(md3.isSelected.not());
-
-            // Total capacity weight
-            IntVar totalCapacityWeight = model.newIntVar(0,
-                    SOLID1_WEIGHT + SOLID2_WEIGHT + SOLID3_WEIGHT + MECH1_WEIGHT + MECH2_WEIGHT + MECH3_WEIGHT,
-                    "totalCapacityWeight");
-            model.addEquality(totalCapacityWeight, LinearExpr.sum(new IntVar[] { solid1Contrib, solid2Contrib,
-                    solid3Contrib, mech1Contrib, mech2Contrib, mech3Contrib }));
-
-            // Minimize total capacity weight (this is an objective)
-            model.maximize(totalCapacityWeight);
+            // proRule2-natuarl: 固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量
+            // proRule2-dsl: 选择的部件capacityWeight总和越大越好( 和qty(Q) * capacityWeight 相关)
+            // proRule2-expr: sd1.S*110 +sd2.S*120 + md1.S*13
+            // proRule2-step1: maximum(expr) ->
+            // proRule2-step2: expr >= 200*(1-30%) = 84
         }
     }
     // ---------------模型的定义end----------------------------------------
@@ -179,11 +119,6 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
         inferRecommend("drive", "drive:sum.Quantity ==2 where Speed=5400");
         // Print solutions for debugging
         printSimpleSolutions();
-        // resultAssert()
-        // .assertSuccess()
-        // .assertSolutionSizeEqual(2); // Expect at least one solution, but we don't
-        // know exact number. We'll
-        // // check later.
 
     }
 
@@ -193,10 +128,6 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
         inferRecommend("drive", "sd:sum.Quantity ==2 where Speed like %5400%");
         // Print solutions for debugging
         printSimpleSolutions();
-        // resultAssert()
-        // .assertSolutionSizeEqual(1); // Expect at least one solution, but we don't
-        // know exact number. We'll
-        // solutions(1).assertPara("sd1");
     }
 
     // 要求5400速率的硬盘容量>=5T
