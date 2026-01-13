@@ -70,13 +70,13 @@ public class PartCategoryConstraintExecutorImpl {
                 log.error("PartCategory not found: {}", partCatagoryReq.getPartCatagoryCode());
                 return Result.failed("PartCategory not found: " + partCatagoryReq.getPartCatagoryCode());
             }
-            log.info("orginal aparts: {}", originalCategory.getAtomicPartShortString());
+            log.info("Priority-orginal aparts: {}", originalCategory.getAtomicPartShortString());
             // 遍历所有部件约束请求，逐步过滤
             PartCategory filteredCategory = originalCategory;
             for (PartConstraintReq partConstraintReq : partCatagoryReq.getPartConstraintReqs()) {
                 // 查询满足条件的PartCategory
                 filteredCategory = filteredCategory.query(partConstraintReq);
-                log.info("filtered aparts: {} by {}", filteredCategory.getAtomicPartShortString(),
+                log.info("Priority-filtered aparts: {} by {}", filteredCategory.getAtomicPartShortString(),
                         partConstraintReq.toShortString());
             }
 
@@ -175,6 +175,7 @@ public class PartCategoryConstraintExecutorImpl {
             InferPartCategoryReq partCatagoryReq, Module module) {
         List<Rule> priorityRules = filteredCategory.queryPriorityRules();
         List<ModuleInst> allSolutions = new ArrayList<>();
+        log.info("Priority-process priority constraints-step1 max/min starting........");
 
         // 步骤1：对每个优先级规则优化求解最优解
         List<PriorityAttrValueImpl> optimalValues = new ArrayList<>();
@@ -193,7 +194,7 @@ public class PartCategoryConstraintExecutorImpl {
 
             PriorityStrategy priorityStrategy = schema.getPriorityStrategy();
 
-            log.info("Step 1: Optimizing priority constraint for attrCode: {}", attrCode);
+            log.info("Priority-process priority constraint-step1 max/min for attrCode: {}", attrCode);
 
             // 创建新的算法实例和模型
             ConstraintAlgImpl optAlg = createConstraintAlg(module.getId(), module.getCode());
@@ -229,17 +230,21 @@ public class PartCategoryConstraintExecutorImpl {
                 double optimalValue = optSolver.objectiveValue();
                 objValue.setOptimalValue(optimalValue);
                 optimalValues.add(objValue);
-                log.info("Optimal solution: {}", SolutionUtils.toSolutionString(optCb.getAllSolutions()));
-                log.info("Optimal value for  {}: {}", attrCode, optimalValue);
+                log.info("Priority-process priority constraint-step1 max/min Optimal solution: {}",
+                        SolutionUtils.toSolutionString(optCb.getAllSolutions()));
+                log.info("Priority-process priority constraint-step1 max/min Optimal value for  {}: {}", attrCode,
+                        optimalValue);
 
             } else {
-                log.warn("Failed to find optimal solution for attrCode: {}, status: {}", attrCode, optStatus);
+                log.warn(
+                        "Priority-process priority constraint-step1 max/min Failed to find optimal solution for attrCode: {}, status: {}",
+                        attrCode, optStatus);
             }
         }
-
+        log.info("Priority-process priority constraints-step1 max/min finished........");
         // 步骤2：在保持高优先级目标接近最优的前提下，寻找多个解
         if (!optimalValues.isEmpty()) {
-            log.info("Step 2: Finding multiple solutions with priority constraints");
+            log.info("Priority-process priority constraints-step2 greater/less starting........");
 
             // 创建新的算法实例和模型
             ConstraintAlgImpl multiAlg = createConstraintAlg(module.getId(), module.getCode());
@@ -270,14 +275,19 @@ public class PartCategoryConstraintExecutorImpl {
                 if (priorityStrategy == PriorityStrategy.MAX) {
                     double minValue = optimalValue * (1 - threshold);
                     multiModel.addGreaterOrEqual(expr, (long) minValue);
-                    log.info("Added Priority adjusted constraint: {} >= {}", attrCode, (long) minValue);
+                    log.info(
+                            "Priority-process priority constraints-step2 greater/less Added Priority adjusted constraint: {} >= {}",
+                            attrCode, (long) minValue);
                 } else {
                     double maxValue = optimalValue * (1 + threshold);
                     multiModel.addLessOrEqual(expr, (long) maxValue);
-                    log.info("Added Priority adjusted constraint: {} <= {}", attrCode, (long) maxValue);
+                    log.info(
+                            "Priority-process priority constraints-step2 greater/less Added Priority adjusted constraint: {} <= {}",
+                            attrCode, (long) maxValue);
                 }
             }
-
+            log.info("Priority-process priority constraints-step2 greater/less finished........");
+            log.info("Priority-process priority constraints-step3 solver starting........");
             // 求解多个解
             CpSolver multiSolver = new CpSolver();
             multiSolver.getParameters().setEnumerateAllSolutions(true);
@@ -289,15 +299,19 @@ public class PartCategoryConstraintExecutorImpl {
 
             if (multiStatus == CpSolverStatus.OPTIMAL || multiStatus == CpSolverStatus.FEASIBLE) {
                 allSolutions.addAll(multiCb.getAllSolutions());
-                log.info("Found {} solutions with priority constraints", allSolutions.size());
+                log.info("Priority-process priority constraints-step3 solver Found {} solutions ", allSolutions.size());
             } else {
-                log.warn("Failed to find multiple solutions, status: {}", multiStatus);
+                log.warn(
+                        "Priority-process priority constraints-step3 solver Failed to find multiple solutions, status: {}",
+                        multiStatus);
             }
+
         }
 
         // 步骤3：对解按优先级排序
         if (!allSolutions.isEmpty()) {
             sortSolutionsByPriority(allSolutions, priorityRules, alg);
+            log.info("Priority-process priority constraints-step4 sort solutions by priority finished........");
         }
 
         // 限制解的数量
@@ -306,7 +320,7 @@ public class PartCategoryConstraintExecutorImpl {
             allSolutions = allSolutions.subList(0, maxSolutionNum);
             log.info("Limited solutions to {} as requested", maxSolutionNum);
         }
-
+        log.info("Priority-process priority constraints-step3 solver finished........");
         return Result.success(allSolutions);
     }
 
@@ -320,8 +334,6 @@ public class PartCategoryConstraintExecutorImpl {
      */
     private void sortSolutionsByPriority(List<ModuleInst> solutions, List<Rule> priorityRules,
             ConstraintAlgImpl alg) {
-        log.info("Sorting {} solutions by priority", solutions.size());
-
         // 根据 priorityOverallValue 进行排序（降序，值越大优先级越高）
         solutions.sort((a, b) -> Double.compare(b.getPriorityOverallValue(), a.getPriorityOverallValue()));
 
@@ -329,8 +341,6 @@ public class PartCategoryConstraintExecutorImpl {
         for (int i = 0; i < solutions.size(); i++) {
             solutions.get(i).setPrioritySortNo(i + 1);
         }
-
-        log.info("Sorted {} solutions by priority, sortNo range: 1-{}", solutions.size(), solutions.size());
     }
 
     /**
