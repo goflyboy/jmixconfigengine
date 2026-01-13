@@ -16,6 +16,7 @@ import com.jmix.executor.impl.util.Pair;
 import com.jmix.executor.omodel.AttrFunConstant;
 import com.jmix.executor.omodel.InferPartCategoryReq;
 import com.jmix.executor.omodel.ModuleInst;
+import com.jmix.executor.omodel.ParConstraint;
 import com.jmix.executor.omodel.ParaInst;
 import com.jmix.executor.omodel.PartConstraintReq;
 import com.jmix.executor.omodel.PartInst;
@@ -41,6 +42,7 @@ import java.util.List;
  */
 @Slf4j
 public class PartCategoryConstraintExecutorImpl {
+
     private final ConstraintConfig config;
     private final ModuleAlgClassLoader moduleAlgClassLoader;
 
@@ -73,6 +75,7 @@ public class PartCategoryConstraintExecutorImpl {
             log.info("Priority-orginal aparts: {}", originalCategory.getAtomicPartShortString());
             // 遍历所有部件约束请求，逐步过滤
             PartCategory filteredCategory = originalCategory;
+            List<ParConstraint> partConstraintFromReqs = new ArrayList<>();
             for (PartConstraintReq partConstraintReq : partCatagoryReq.getPartConstraintReqs()) {
                 // 一条partConstraintReq会被拆分两条规则，一条是过滤规则（根据where条件过滤），一条是约束规则（根据attrCode,
                 // attrComparator, attrValue构建约束表达式）
@@ -80,12 +83,13 @@ public class PartCategoryConstraintExecutorImpl {
                 filteredCategory = filteredCategory.query(partConstraintReq);
                 log.info("Priority-filtered aparts: {} by {}", filteredCategory.getAtomicPartShortString(),
                         partConstraintReq.toShortString());
+                resolveAddPartConstraint(filteredCategory, partConstraintReq, partConstraintFromReqs);
             }
 
             // 检查是否有优先级规则，如果有则使用分级求解
             if (filteredCategory.hasPriorityRule()) {
                 return solveWithPriorityConstraints(alg, filteredCategory, isAttachRelax, confictedRelaxs,
-                        partCatagoryReq, module);
+                        partCatagoryReq, module, partConstraintFromReqs);
             }
 
             return solveConstraintModel(alg, filteredCategory, isAttachRelax, confictedRelaxs, partCatagoryReq, module);
@@ -164,17 +168,18 @@ public class PartCategoryConstraintExecutorImpl {
     /**
      * 使用优先级约束进行分级求解
      * 
-     * @param alg              约束算法实现
-     * @param filteredCategory 过滤后的部件分类
-     * @param isAttachRelax    是否附加松弛变量
-     * @param confictedRelaxs  冲突松弛变量列表
-     * @param partCatagoryReq  部件分类请求
-     * @param module           模块对象
+     * @param alg                    约束算法实现
+     * @param filteredCategory       过滤后的部件分类
+     * @param isAttachRelax          是否附加松弛变量
+     * @param confictedRelaxs        冲突松弛变量列表
+     * @param partCatagoryReq        部件分类请求
+     * @param module                 模块对象
+     * @param partConstraintFromReqs 部件约束列表
      * @return 求解结果
      */
     private Result<List<ModuleInst>> solveWithPriorityConstraints(ConstraintAlgImpl alg,
             PartCategory filteredCategory, boolean isAttachRelax, List<RelaxVar> confictedRelaxs,
-            InferPartCategoryReq partCatagoryReq, Module module) {
+            InferPartCategoryReq partCatagoryReq, Module module, List<ParConstraint> partConstraintFromReqs) {
         List<Rule> priorityRules = filteredCategory.queryPriorityRules();
         List<ModuleInst> allSolutions = new ArrayList<>();
         log.info("Priority-process priority constraints-step1 max/min starting........");
@@ -203,7 +208,7 @@ public class PartCategoryConstraintExecutorImpl {
             CpModel optModel = new CpModel();
             optAlg.initModel(optModel, filteredCategory, isAttachRelax, confictedRelaxs);
             initModelByReq(partCatagoryReq, optAlg);
-            initModelByPriorityConstraints(filteredCategory, partCatagoryReq.getPartConstraintReqs(), optAlg);
+            initModelByPriorityConstraints(filteredCategory, partConstraintFromReqs, optAlg);
             optAlg.addRelaxObjectFunction();
 
             // 重新构建目标函数表达式（使用新的alg实例）
@@ -368,30 +373,41 @@ public class PartCategoryConstraintExecutorImpl {
     /**
      * 根据请求初始化约束模型
      * 
-     * @param filteredCategory 过滤后的部件分类
-     * @param req              部件分类请求
-     * @param alg              约束算法实现
+     * @param filteredCategory       过滤后的部件分类
+     * @param partConstraintFromReqs 部件约束列表
+     * @param alg                    约束算法实现
      */
     private void initModelByPriorityConstraints(PartCategory filteredCategory,
-            List<PartConstraintReq> partConstraintReqs, ConstraintAlgImpl alg) {
-        for (PartConstraintReq partConstraintReq : partConstraintReqs) {// 多个约束是不是有问题？TODO
-            // 获取所有叶子部件
-            List<Part> filterParts = filteredCategory.getAllLeafParts();
+            List<ParConstraint> partConstraintFromReqs, ConstraintAlgImpl alg) {
+        List<Part> filterParts = filteredCategory.getAllLeafParts();
+        for (ParConstraint partConstraint : partConstraintFromReqs) {
+            alg.sumFunConstraint(filterParts, partConstraint);
+        }
+    }
 
-            // 解析属性
-            Pair<DynamicAttribute, String> result = filteredCategory.parseAttribute(
-                    partConstraintReq.getAttrCode(),
-                    filteredCategory.getDynAttrSchemas());
-
-            // 根据result.second构建约束表达式
-            if (AttrFunConstant.FUN_PREFIX_SUM.equals(result.getSecond())) {
-                alg.sumFunConstraint(filterParts, result.getFirst().getCode(),
-                        partConstraintReq.getAttrComparator(),
-                        Integer.parseInt(partConstraintReq.getAttrValue()));
-                // alg.setPartUnSelected(unFilterParts);
-            }
+    /**
+     * 解析并添加部件约束
+     * 
+     * @param filteredCategory       过滤后的部件分类
+     * @param partConstraintReq      部件约束请求
+     * @param partConstraintFromReqs 部件约束列表
+     */
+    private void resolveAddPartConstraint(PartCategory filteredCategory, PartConstraintReq partConstraintReq,
+            List<ParConstraint> partConstraintFromReqs) {
+        // 解析属性
+        Pair<DynamicAttribute, String> result = filteredCategory.parseAttribute(
+                partConstraintReq.getAttrCode(),
+                filteredCategory.getDynAttrSchemas());
+        if (!AttrFunConstant.FUN_PREFIX_SUM.equals(result.getSecond())) {
+            return;
         }
 
+        // 根据partConstraintReq构造ParConstraint
+        ParConstraint fromReq = new ParConstraint();
+        fromReq.setSumAttrCode(result.getFirst().getCode());
+        fromReq.setComparator(partConstraintReq.getAttrComparator());
+        fromReq.setLeftValue(Integer.parseInt(partConstraintReq.getAttrValue()));
+        partConstraintFromReqs.add(fromReq);
     }
 
     /**

@@ -1394,6 +1394,14 @@ void resolveAddPartConstraint(filteredCategory,partConstraintReq，partConstrain
 			  根据partConstraintReq构造ParConstraint ->fromReq
                partConstraintFromReqs.add(fromReq)
 }
+2.3 函数solveWithPriorityConstraints 增加入参 partConstraintFromReqs
+2.4 函数 initModelByPriorityConstraints改成
+
+initModelByPriorityConstraints(PartCategory filteredCategory,
+            List<ParConstraint> partConstraintFromReqs, ConstraintAlgImpl alg) {
+	  List<Part> filterParts = filteredCategory.getAllLeafParts();
+	  遍历partConstraintFromReqs，调用alg.sumFunConstraint
+}
 
 3.ConstraintAlgImpl增强如下
 3.1 方法sumFunConstraint

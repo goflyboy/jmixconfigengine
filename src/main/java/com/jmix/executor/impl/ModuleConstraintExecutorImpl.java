@@ -22,6 +22,7 @@ import com.jmix.executor.omodel.InferParasReq;
 import com.jmix.executor.omodel.InferPartCategoryReq;
 import com.jmix.executor.omodel.ModuleInst;
 import com.jmix.executor.omodel.ParaInst;
+import com.jmix.executor.omodel.ParConstraint;
 import com.jmix.executor.omodel.PartConstraintReq;
 import com.jmix.executor.omodel.PartInst;
 import com.jmix.executor.omodel.Result;
@@ -472,8 +473,11 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
 
             // 根据result.second构建约束表达式
             if (AttrFunConstant.FUN_PREFIX_SUM.equals(result.getSecond())) {
-                alg.sumFunConstraint(filterParts, result.getFirst().getCode(), partConstraintReq.getAttrComparator(),
-                        Integer.parseInt(partConstraintReq.getAttrValue()));
+                ParConstraint parConstraint = new ParConstraint();
+                parConstraint.setSumAttrCode(result.getFirst().getCode());
+                parConstraint.setComparator(partConstraintReq.getAttrComparator());
+                parConstraint.setLeftValue(Integer.parseInt(partConstraintReq.getAttrValue()));
+                alg.sumFunConstraint(filterParts, parConstraint);
                 alg.setPartUnSelected(unFilterParts);
             }
         }

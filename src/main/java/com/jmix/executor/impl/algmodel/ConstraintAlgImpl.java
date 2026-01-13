@@ -12,6 +12,7 @@ import com.jmix.executor.imodel.rule.PriorityRuleSchema;
 import com.jmix.executor.imodel.rule.RefProgObjSchema;
 import com.jmix.executor.imodel.rule.RuleTypeConstants;
 import com.jmix.executor.omodel.AlgLoaderException;
+import com.jmix.executor.omodel.ParConstraint;
 import com.jmix.executor.omodel.PartConstantAttr;
 
 import com.google.ortools.Loader;
@@ -890,48 +891,107 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     /**
      * 添加求和函数约束
      *
-     * @param sumParts    求和的部件列表
-     * @param sumAttrCode 求和属性代码
-     * @param comparator  比较符
-     * @param leftValue   左值
+     * @param sumParts       求和的部件列表
+     * @param partConstraint 部件约束对象
      */
-    public void sumFunConstraint(List<Part> sumParts, String sumAttrCode, String comparator, int leftValue) {
+    public void sumFunConstraint(List<Part> sumParts, ParConstraint partConstraint) {
+        if (sumParts == null || sumParts.isEmpty()) {
+            log.warn("No parts found for sum constraint with attrCode: {}, comparator: {}, leftValue: {}",
+                    partConstraint.getSumAttrCode(), partConstraint.getComparator(), partConstraint.getLeftValue());
+            return;
+        }
+
+        // 使用 buildPriorityConstraintExpressions 的逻辑构建表达式
+        // 创建一个临时的 PriorityConstraint 对象来复用构建逻辑
+        PriorityConstraint tempConstraint = new PriorityConstraint();
+        String attrCode = partConstraint.getSumAttrCode();
+        String varName = "Q";
+        java.util.function.Function<PartVar, LinearArgument> varGetter = PartVar::getQty;
+
+        // 构建表达式，但使用传入的 sumParts 而不是 module.getAtomicParts()
+        LinearExpr sumFunExpr = buildSumConstraintExpressions(tempConstraint, sumParts, attrCode, varName, varGetter);
+        String sumFormulaBase = tempConstraint.getExprStr();
+
+        // 应用约束
+        ComparisonOperator operator = ComparisonOperator.fromSymbol(partConstraint.getComparator());
+        operator.applyConstraint(model.getCpModel(), sumFunExpr, partConstraint.getLeftValue());
+        String sumFormula = operator.getFormulaString(sumFormulaBase, partConstraint.getLeftValue());
+
+        log.info("Added sum constraint: {}", sumFormula);
+    }
+
+    /**
+     * 构建求和约束表达式（基于 buildPriorityConstraintExpressions 的逻辑）
+     * 
+     * @param pConstraint 优先级约束对象（用于存储表达式信息）
+     * @param sumParts    求和的部件列表
+     * @param attrCode    属性代码
+     * @param varName     变量名称（"S" 或 "Q"）
+     * @param varGetter   从PartVar获取LinearArgument的函数（如getIsSelected或getQty）
+     * @return 构建的LinearExpr表达式
+     */
+    private LinearExpr buildSumConstraintExpressions(PriorityConstraint pConstraint, List<Part> sumParts,
+            String attrCode, String varName, java.util.function.Function<PartVar, LinearArgument> varGetter) {
         List<LinearExpr> sumTerms = new ArrayList<>();
-        List<String> sumTermStrings = new ArrayList<>();
+        List<String> exprStrParts = new ArrayList<>();
+        List<String> exprTemplateParts = new ArrayList<>();
+        List<String> exprTemplateStrParts = new ArrayList<>();
+        List<PriorityConstraint.PartTerm> exprVariables = new ArrayList<>();
+        boolean isWithoutAttr = attrCode == null || attrCode.isEmpty();
+        int index = 0;
 
         for (Part part : sumParts) {
             PartVar partVar = getPartVar(part.getCode());
-            if (partVar.getQty() != null) {
-                int attrValue = 0;
-                if (PartConstantAttr.Quantity.getCode().equals(sumAttrCode)) {
-                    attrValue = 1;
-                } else {
-                    attrValue = Integer.parseInt(part.getAttr(sumAttrCode));
-                }
-                sumTerms.add(LinearExpr.term(partVar.getQty(), attrValue));
-                sumTermStrings.add(partVar.getBase().getShortCode() + ".Q*" + attrValue);
-            } else {
+            if (partVar.getQty() == null) {
                 log.error("PartVar quantity is null for part code: {}, cannot create sum constraint", part.getCode());
                 throw new AlgLoaderException("PartVar quantity is null for part code: " + part.getCode()
                         + ", cannot create sum constraint");
             }
+
+            int attrValue = 0;
+            if (isWithoutAttr) {
+                attrValue = 1;
+            } else if (PartConstantAttr.Quantity.getCode().equals(attrCode)) {
+                attrValue = 1;
+            } else {
+                attrValue = Integer.parseInt(part.getAttr(attrCode));
+            }
+
+            // 构建LinearExpr项
+            sumTerms.add(LinearExpr.term(varGetter.apply(partVar), attrValue));
+
+            // 创建 PartTerm
+            PriorityConstraint.PartTerm term = new PriorityConstraint.PartTerm();
+            term.setIndex(index);
+            term.setPartCode(part.getCode());
+            term.setTermValue(null);
+            exprVariables.add(term);
+
+            // 构建表达式字符串部分
+            String shortCode = partVar.getBase().getShortCode();
+            if (attrValue != 1) {
+                exprStrParts.add(shortCode + "." + varName + "*" + attrValue);
+                exprTemplateParts.add("%d*" + attrValue);
+                exprTemplateStrParts.add(shortCode + "." + varName + "_%d*" + attrValue);
+            } else {
+                exprStrParts.add(shortCode + "." + varName);
+                exprTemplateParts.add("%d");
+                exprTemplateStrParts.add(shortCode + "." + varName + "_%d");
+            }
+            index++;
         }
 
-        if (sumTerms.isEmpty()) {
-            log.warn("No valid parts found for sum constraint with attrCode: {}, comparator: {}, leftValue: {}",
-                    sumAttrCode, comparator, leftValue);
-            return;
-        }
+        // 构建LinearExpr
+        LinearExpr expr = LinearExpr.sum(sumTerms.toArray(new LinearExpr[0]));
 
-        LinearExpr sumFunExpr = LinearExpr.sum(sumTerms.toArray(new LinearExpr[0]));
-        String sumFormulaBase = String.join(" + ", sumTermStrings);
+        // 设置表达式字符串和LinearExpr
+        pConstraint.setExpr(expr);
+        pConstraint.setExprStr(String.join(" + ", exprStrParts));
+        pConstraint.setExprTemplate(String.join(" + ", exprTemplateParts));
+        pConstraint.setExprTemplateStr(String.join(" + ", exprTemplateStrParts));
+        pConstraint.setExprVariables(exprVariables);
 
-        ComparisonOperator operator = ComparisonOperator.fromSymbol(comparator);
-        operator.applyConstraint(model.getCpModel(), sumFunExpr, leftValue);
-        String sumFormula = operator.getFormulaString(sumFormulaBase, leftValue);
-
-        log.info("Added sum constraint: {}", sumFormula);
-
+        return expr;
     }
 
     /**
