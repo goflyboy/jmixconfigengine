@@ -182,7 +182,7 @@ public class PartCategoryConstraintExecutorImpl {
             InferPartCategoryReq partCatagoryReq, Module module, List<ParConstraint> partConstraintFromReqs) {
         List<Rule> priorityRules = filteredCategory.queryPriorityRules();
         List<ModuleInst> allSolutions = new ArrayList<>();
-        log.info("Priority-process priority constraints-step1 max/min starting........");
+        log.info(" Priority-process pconstraint-step1 max/min starting........");
 
         // 步骤1：对每个优先级规则优化求解最优解
         List<PriorityAttrValueImpl> optimalValues = new ArrayList<>();
@@ -201,7 +201,7 @@ public class PartCategoryConstraintExecutorImpl {
 
             PriorityStrategy priorityStrategy = schema.getPriorityStrategy();
 
-            log.info("Priority-process priority constraint-step1 max/min for attrCode: {}", attrCode);
+            log.info("Priority-process pconstraint-step1 max/min for attrCode: {}", attrCode);
 
             // 创建新的算法实例和模型
             ConstraintAlgImpl optAlg = createConstraintAlg(module.getId(), module.getCode());
@@ -238,21 +238,21 @@ public class PartCategoryConstraintExecutorImpl {
                 double optimalValue = optSolver.objectiveValue();
                 objValue.setOptimalValue(optimalValue);
                 optimalValues.add(objValue);
-                log.info("Priority-process priority constraint-step1 max/min Optimal solution: {}",
+                log.info("Priority-process pconstraint-step1 max/min Optimal solution: {}",
                         SolutionUtils.toSolutionString(optCb.getAllSolutions()));
-                log.info("Priority-process priority constraint-step1 max/min Optimal value for  {}: {}", attrCode,
+                log.info("Priority-process pconstraint-step1 max/min Optimal value for  {}: {}", attrCode,
                         optimalValue);
 
             } else {
                 log.warn(
-                        "Priority-process priority constraint-step1 max/min Failed to find optimal solution for attrCode: {}, status: {}",
+                        "Priority-process pconstraint-step1 max/min Failed to find optimal solution for attrCode: {}, status: {}",
                         attrCode, optStatus);
             }
         }
-        log.info("Priority-process priority constraints-step1 max/min finished........");
+        log.info(" Priority-process pconstraint-step1 max/min finished........");
         // 步骤2：在保持高优先级目标接近最优的前提下，寻找多个解
         if (!optimalValues.isEmpty()) {
-            log.info("Priority-process priority constraints-step2 greater/less starting........");
+            log.info(" Priority-process pconstraint-step2 greater/less starting........");
 
             // 创建新的算法实例和模型
             ConstraintAlgImpl multiAlg = createConstraintAlg(module.getId(), module.getCode());
@@ -286,18 +286,18 @@ public class PartCategoryConstraintExecutorImpl {
                     double minValue = optimalValue * (1 - threshold);
                     multiModel.addGreaterOrEqual(expr, (long) minValue);
                     log.info(
-                            "Priority-process priority constraints-step2 greater/less Added Priority adjusted constraint: {} >= {}",
+                            " Priority-process pconstraint-step2 greater/less Added Priority adjusted constraint: {} >= {}",
                             attrCode, (long) minValue);
                 } else {
                     double maxValue = optimalValue * (1 + threshold);
                     multiModel.addLessOrEqual(expr, (long) maxValue);
                     log.info(
-                            "Priority-process priority constraints-step2 greater/less Added Priority adjusted constraint: {} <= {}",
+                            " Priority-process pconstraint-step2 greater/less Added Priority adjusted constraint: {} <= {}",
                             attrCode, (long) maxValue);
                 }
             }
-            log.info("Priority-process priority constraints-step2 greater/less finished........");
-            log.info("Priority-process priority constraints-step3 solver starting........");
+            log.info(" Priority-process pconstraint-step2 greater/less finished........");
+            log.info(" Priority-process pconstraint-step3 solver starting........");
             // 求解多个解
             CpSolver multiSolver = new CpSolver();
             multiSolver.getParameters().setEnumerateAllSolutions(true);
@@ -309,10 +309,10 @@ public class PartCategoryConstraintExecutorImpl {
 
             if (multiStatus == CpSolverStatus.OPTIMAL || multiStatus == CpSolverStatus.FEASIBLE) {
                 allSolutions.addAll(multiCb.getAllSolutions());
-                log.info("Priority-process priority constraints-step3 solver Found {} solutions ", allSolutions.size());
+                log.info(" Priority-process pconstraint-step3 solver Found {} solutions ", allSolutions.size());
             } else {
                 log.warn(
-                        "Priority-process priority constraints-step3 solver Failed to find multiple solutions, status: {}",
+                        " Priority-process pconstraint-step3 solver Failed to find multiple solutions, status: {}",
                         multiStatus);
             }
 
@@ -321,7 +321,7 @@ public class PartCategoryConstraintExecutorImpl {
         // 步骤3：对解按优先级排序
         if (!allSolutions.isEmpty()) {
             sortSolutionsByPriority(allSolutions, priorityRules, alg);
-            log.info("Priority-process priority constraints-step4 sort solutions by priority finished........");
+            log.info(" Priority-process pconstraint-step4 sort solutions by priority finished........");
         }
 
         // 限制解的数量
@@ -330,7 +330,7 @@ public class PartCategoryConstraintExecutorImpl {
             allSolutions = allSolutions.subList(0, maxSolutionNum);
             log.info("Limited solutions to {} as requested", maxSolutionNum);
         }
-        log.info("Priority-process priority constraints-step3 solver finished........");
+        log.info(" Priority-process pconstraint-step3 solver finished........");
         return Result.success(allSolutions);
     }
 

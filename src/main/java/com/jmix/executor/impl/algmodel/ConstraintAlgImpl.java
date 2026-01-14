@@ -330,10 +330,6 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         pConstraint.setExprTemplate(String.join(" + ", exprTemplateParts));
         pConstraint.setExprTemplateStr(String.join(" + ", exprTemplateStrParts));
         pConstraint.setExprVariables(exprVariables);
-
-        log.info("Built priority constraint expressions: exprStr={}, exprTemplate={}",
-                pConstraint.getExprStr(), pConstraint.getExprTemplate());
-
         return expr;
     }
 
@@ -369,8 +365,6 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
         // 存储到 priorityRuleMap，使用 attrCode 作为 key
         priorityRuleMap.put(attrCode, pConstraint);
-        log.info("Built priority constraint for attrCode: {}, ruleCode: {}, strategy: {}, type: {}",
-                attrCode, rule.getCode(), schema.getPriorityStrategy(), type);
     }
 
     /**
@@ -1015,12 +1009,12 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         // 如果提供了过滤条件，则先过滤部件
         if (filtedConditionStr != null && !filtedConditionStr.trim().isEmpty()) {
             atomicParts = FilterExpressionExecutor.doSelect(atomicParts, filtedConditionStr);
-            log.info("Priority-Filtered parts: {}", PartUtils.toShortString(atomicParts));
+            log.info("Priority-Filtered parts: {} in sum4Parts", PartUtils.toShortString(atomicParts));
         }
 
         LinearExpr expr = buildPriorityConstraintExpressions(tempConstraint, cofAttrCode, varName, varGetter,
                 atomicParts);
-        log.info("Priority-Sum formula: {}", tempConstraint.getExprStr());
+        log.info("Priority-Sum formula in sum4Parts: {}", tempConstraint.getExprStr());
         return expr;
     }
 

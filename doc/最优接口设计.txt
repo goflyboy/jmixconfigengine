@@ -1442,12 +1442,9 @@ void rule1() {
 	...
 
 }
+ 
 
-List<Part> atomicParts = module.getAtomicParts(
-List<Part> atomicParts = module.getAtomicParts(
-
-
-
+TODO: 最大解个数设置错了，需要优化？
 
 TODO:产品有多个Priv值怎么办？ ***
 

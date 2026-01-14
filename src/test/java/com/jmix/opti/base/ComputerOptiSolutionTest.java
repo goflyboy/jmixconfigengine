@@ -143,8 +143,8 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
         // proRule12-cRule: sd1.Q + sd2.Q <= 2
 
         // proRule2-natuarl: 固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量
-        // proRule2-expr: sd1.S*110 +sd2.S*120 + md1.S*13
-        // proRule2-step1: maximum(expr) ->
+        // proRule2-expr: md1.S*13+sd1.S*110+sd2.S*120
+        // proRule2-step1: maximum(expr)->md1.S_1*13+sd1.S_0*110+sd2.S_1*120=133.0
         // proRule2-step2: expr >= 200*(1-30%) = 84
 
         // 可能的解
