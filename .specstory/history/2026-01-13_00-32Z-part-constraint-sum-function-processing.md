@@ -4069,3 +4069,787 @@ null
 
 ---
 
+_**User (2026-01-12 11:02Z)**_
+
+@src/test/java/com/jmix/opti/base/ComputerOptiSolutionTest.java:24 打印的日志既要在console打印，也要在文件打印，请帮忙配置
+
+---
+
+_**Agent (model default, mode Agent)**_
+
+
+
+---
+
+
+检查项目的日志配置，确保日志同时输出到控制台和文件：
+
+
+---
+
+<tool-use data-tool-type="generic" data-tool-name="glob_file_search">
+<details>
+<summary>Tool use: **glob_file_search** • Searched codebase "**/logback*.xml" • **0** result in **1** directory</summary>
+
+Directory: **d:\01.code\mygithub\jmixconfigengine** (0 file)
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="generic" data-tool-name="glob_file_search">
+<details>
+<summary>Tool use: **glob_file_search** • Searched codebase "**/log4j*.xml" • **0** result in **1** directory</summary>
+
+Directory: **d:\01.code\mygithub\jmixconfigengine** (0 file)
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="generic" data-tool-name="glob_file_search">
+<details>
+<summary>Tool use: **glob_file_search** • Searched codebase "**/log4j*.properties" • **0** result in **1** directory</summary>
+
+Directory: **d:\01.code\mygithub\jmixconfigengine** (0 file)
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="generic" data-tool-name="list_dir">
+<details>
+            <summary>Tool use: **list_dir** • Listed directory, 0 results</summary>
+        
+No results found
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="generic" data-tool-name="list_dir">
+<details>
+            <summary>Tool use: **list_dir** • Listed directory, 0 results</summary>
+        
+No results found
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+检查项目的日志依赖，确认使用的日志框架：
+
+
+---
+
+<tool-use data-tool-type="search" data-tool-name="grep">
+<details>
+<summary>Tool use: **grep** • Grep for "slf4j|logback|log4j" in "pom.xml" • 9 matches</summary>
+
+Output mode: content
+
+
+| File | Content | Line |
+|------|------|------|
+| `pom.xml` | `<slf4j.version>2.0.16</slf4j.version>` | L29 |
+| `pom.xml` | `<!-- SLF4J API -->` | L111 |
+| `pom.xml` | `<groupId>org.slf4j</groupId>` | L113 |
+| `pom.xml` | `<artifactId>slf4j-api</artifactId>` | L114 |
+| `pom.xml` | `<version>$\{slf4j.version\}</version>` | L115 |
+| `pom.xml` | `<!-- SLF4J Simple Implementation -->` | L118 |
+| `pom.xml` | `<groupId>org.slf4j</groupId>` | L120 |
+| `pom.xml` | `<artifactId>slf4j-simple</artifactId>` | L121 |
+| `pom.xml` | `<version>$\{slf4j.version\}</version>` | L122 |
+
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: pom.xml</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+项目使用 `slf4j-simple`，功能有限。改用 Logback 以支持文件输出。创建 Logback 配置文件：
+
+
+---
+
+<tool-use data-tool-type="search" data-tool-name="grep">
+<details>
+<summary>Tool use: **grep** • Grep for "logback" in "pom.xml" • 0 matches</summary>
+
+Output mode: content
+
+
+_No matches found_
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="write">
+
+<details><summary>Tool use: **write** • Edit file: src/test/resources/logback-test.xml</summary>
+
+**Chunk 1**
+Lines added: 50, lines removed: 1
+
+```diff
+@@ -1,1 +1,50 @@
+- 
++ &lt;?xml version="1.0" encoding="UTF-8"?&gt;
++ &lt;configuration&gt;
++     &lt;!-- 定义日志文件输出路径 --&gt;
++     &lt;property name="LOG_FILE" value="${LOG_FILE:-target/test-logs/test.log}"/&gt;
++     &lt;property name="LOG_DIR" value="${LOG_DIR:-target/test-logs}"/&gt;
++ 
++     &lt;!-- 控制台输出 --&gt;
++     &lt;appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender"&gt;
++         &lt;encoder&gt;
++             &lt;pattern&gt;%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n&lt;/pattern&gt;
++             &lt;charset&gt;UTF-8&lt;/charset&gt;
++         &lt;/encoder&gt;
++     &lt;/appender&gt;
++ 
++     &lt;!-- 文件输出 --&gt;
++     &lt;appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender"&gt;
++         &lt;file&gt;${LOG_FILE}&lt;/file&gt;
++         &lt;encoder&gt;
++             &lt;pattern&gt;%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n&lt;/pattern&gt;
++             &lt;charset&gt;UTF-8&lt;/charset&gt;
++         &lt;/encoder&gt;
++         &lt;!-- 滚动策略：按日期和大小滚动 --&gt;
++         &lt;rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy"&gt;
++             &lt;!-- 日志文件命名模式 --&gt;
++             &lt;fileNamePattern&gt;${LOG_DIR}/test-%d{yyyy-MM-dd}.%i.log&lt;/fileNamePattern&gt;
++             &lt;!-- 单个日志文件最大大小 --&gt;
++             &lt;maxFileSize&gt;10MB&lt;/maxFileSize&gt;
++             &lt;!-- 保留天数 --&gt;
++             &lt;maxHistory&gt;30&lt;/maxHistory&gt;
++             &lt;!-- 总日志文件大小限制 --&gt;
++             &lt;totalSizeCap&gt;1GB&lt;/totalSizeCap&gt;
++         &lt;/rollingPolicy&gt;
++     &lt;/appender&gt;
++ 
++     &lt;!-- 根日志级别 --&gt;
++     &lt;root level="INFO"&gt;
++         &lt;appender-ref ref="CONSOLE"/&gt;
++         &lt;appender-ref ref="FILE"/&gt;
++     &lt;/root&gt;
++ 
++     &lt;!-- 特定包的日志级别 --&gt;
++     &lt;logger name="com.jmix" level="DEBUG"/&gt;
++     &lt;logger name="com.jmix.opti.base" level="DEBUG"/&gt;
++     &lt;logger name="com.jmix.executor" level="DEBUG"/&gt;
++     
++     &lt;!-- 减少第三方库的日志输出 --&gt;
++     &lt;logger name="org.springframework" level="WARN"/&gt;
++     &lt;logger name="com.google.ortools" level="WARN"/&gt;
++ &lt;/configuration&gt;
++ 
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: pom.xml</summary>
+
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+将 `slf4j-simple` 替换为 `logback-classic`，以支持文件输出：
+
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="search_replace">
+
+<details><summary>Tool use: **search_replace** • Edit file: pom.xml</summary>
+
+**Chunk 1**
+Lines added: 4, lines removed: 4
+
+```diff
+@@ -116,9 +116,9 @@
+          &lt;/dependency&gt;
+          
+-         &lt;!-- SLF4J Simple Implementation --&gt;
++         &lt;!-- Logback Classic (SLF4J Implementation) --&gt;
+          &lt;dependency&gt;
+-             &lt;groupId&gt;org.slf4j&lt;/groupId&gt;
+-             &lt;artifactId&gt;slf4j-simple&lt;/artifactId&gt;
+-             &lt;version&gt;${slf4j.version}&lt;/version&gt;      
++             &lt;groupId&gt;ch.qos.logback&lt;/groupId&gt;
++             &lt;artifactId&gt;logback-classic&lt;/artifactId&gt;
++             &lt;version&gt;1.5.0&lt;/version&gt;
+          &lt;/dependency&gt;
+          
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: mvn test -Dtest=ComputerOptiSolutionTest#testUserSpecialRequirementConstantAttr -q</summary>
+
+```bash
+mvn test -Dtest=ComputerOptiSolutionTest#testUserSpecialRequirementConstantAttr -q
+```
+
+```
+[ERROR] Unable to create test class 'com.jmix.opti.base.ComputerOptiSolutionTest'
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.2.5:test (default-test) on project configengine: 
+[ERROR] 
+[ERROR] Please refer to D:\01.code\mygithub\jmixconfigengine\target\surefire-reports for the individual test results.
+[ERROR] Please refer to dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.
+[ERROR] There was an error in the forked process
+[ERROR] Unable to create test class 'com.jmix.opti.base.ComputerOptiSolutionTest'
+[ERROR] org.apache.maven.surefire.booter.SurefireBooterForkException: There was an error in the forked process
+[ERROR] Unable to create test class 'com.jmix.opti.base.ComputerOptiSolutionTest'
+[ERROR] 	at org.apache.maven.plugin.surefire.booterclient.ForkStarter.fork(ForkStarter.java:628)
+[ERROR] 	at org.apache.maven.plugin.surefire.booterclient.ForkStarter.run(ForkStarter.java:285)
+[ERROR] 	at org.apache.maven.plugin.surefire.booterclient.ForkStarter.run(ForkStarter.java:250)
+[ERROR] 	at org.apache.maven.plugin.surefire.AbstractSurefireMojo.executeProvider(AbstractSurefireMojo.java:1241)
+[ERROR] 	at org.apache.maven.plugin.surefire.AbstractSurefireMojo.executeAfterPreconditionsChecked(AbstractSurefireMojo.java:1090)
+[ERROR] 	at org.apache.maven.plugin.surefire.AbstractSurefireMojo.execute(AbstractSurefireMojo.java:910)
+[ERROR] 	at org.apache.maven.plugin.DefaultBuildPluginManager.executeMojo(DefaultBuildPluginManager.java:126)
+[ERROR] 	at org.apache.maven.lifecycle.internal.MojoExecutor.doExecute2(MojoExecutor.java:328)
+[ERROR] 	at org.apache.maven.lifecycle.internal.MojoExecutor.doExecute(MojoExecutor.java:316)
+[ERROR] 	at org.apache.maven.lifecycle.internal.MojoExecutor.execute(MojoExecutor.java:212)
+[ERROR] 	at org.apache.maven.lifecycle.internal.MojoExecutor.execute(MojoExecutor.java:174)
+[ERROR] 	at org.apache.maven.lifecycle.internal.MojoExecutor.access$000(MojoExecutor.java:75)
+[ERROR] 	at org.apache.maven.lifecycle.internal.MojoExecutor$1.run(MojoExecutor.java:162)
+[ERROR] 	at org.apache.maven.plugin.DefaultMojosExecutionStrategy.execute(DefaultMojosExecutionStrategy.java:39)
+[ERROR] 	at org.apache.maven.lifecycle.internal.MojoExecutor.execute(MojoExecutor.java:159)
+[ERROR] 	at org.apache.maven.lifecycle.internal.LifecycleModuleBuilder.buildProject(LifecycleModuleBuilder.java:105)
+[ERROR] 	at org.apache.maven.lifecycle.internal.LifecycleModuleBuilder.buildProject(LifecycleModuleBuilder.java:73)
+[ERROR] 	at org.apache.maven.lifecycle.internal.builder.singlethreaded.SingleThreadedBuilder.build(SingleThreadedBuilder.java:53)
+[ERROR] 	at org.apache.maven.lifecycle.internal.LifecycleStarter.execute(LifecycleStarter.java:118)
+[ERROR] 	at org.apache.maven.DefaultMaven.doExecute(DefaultMaven.java:261)
+[ERROR] 	at org.apache.maven.DefaultMaven.doExecute(DefaultMaven.java:173)
+[ERROR] 	at org.apache.maven.DefaultMaven.execute(DefaultMaven.java:101)
+[ERROR] 	at org.apache.maven.cli.MavenCli.execute(MavenCli.java:906)
+[ERROR] 	at org.apache.maven.cli.MavenCli.doMain(MavenCli.java:283)
+[ERROR] 	at org.apache.maven.cli.MavenCli.main(MavenCli.java:206)
+[ERROR] 	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+[ERROR] 	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+[ERROR] 	at org.codehaus.plexus.classworlds.launcher.Launcher.launchEnhanced(Launcher.java:255)
+[ERROR] 	at org.codehaus.plexus.classworlds.launcher.Launcher.launch(Launcher.java:201)
+[ERROR] 	at org.codehaus.plexus.classworlds.launcher.Launcher.mainWithExitCode(Launcher.java:361)
+[ERROR] 	at org.codehaus.plexus.classworlds.launcher.Launcher.main(Launcher.java:314)
+[ERROR] 
+[ERROR] -&gt; [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException
+
+```
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+先编译项目，查看具体错误：
+
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: mvn clean compile -q</summary>
+
+```bash
+mvn clean compile -q
+```
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+编译成功。运行测试验证日志配置：
+
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: mvn test -Dtest=ComputerOptiSolutionTest#testUserSpecialRequirementConstantAttr 2>&1 | head -50</summary>
+
+```bash
+mvn test -Dtest=ComputerOptiSolutionTest#testUserSpecialRequirementConstantAttr 2>&1 | head -50
+```
+
+```
+head : �޷�����head����ʶ��Ϊ cmdlet���������ű��ļ�������г�������ơ��������Ƶ�ƴд���������·������ȷ��·����ȷ��Ȼ��
+����һ�Ρ�
+����λ�� C:\Users\Administrator\AppData\Local\Temp\ps-script-d8c36380-c0d8-4752-9d1c-ef5308fe3d5d.ps1:95 �ַ�: 88
++ ... tiSolutionTest#testUserSpecialRequirementConstantAttr 2&gt;&amp;1 | head -50
++                                                                  ~~~~
+    + CategoryInfo          : ObjectNotFound: (head:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+
+```
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: if exist target\test-logs\test.log (type target\test-logs\test.log | findstr /C:"Priority" | head -10) else (echo Log file not found)</summary>
+
+```bash
+if exist target\test-logs\test.log (type target\test-logs\test.log | findstr /C:"Priority" | head -10) else (echo Log file not found)
+```
+
+```
+����λ�� C:\Users\Administrator\AppData\Local\Temp\ps-script-60737b36-7457-4dda-8c86-07e665a06bb5.ps1:95 �ַ�: 3
++ if exist target\test-logs\test.log (type target\test-logs\test.log |  ...
++   ~
+if ����еġ�if������ȱ�١�(����
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : MissingOpenParenthesisInIfStatement
+ 
+
+```
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+使用 PowerShell 语法检查日志文件：
+
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: mvn test -Dtest=ComputerOptiSolutionTest#testUserSpecialRequirementConstantAttr</summary>
+
+```bash
+mvn test -Dtest=ComputerOptiSolutionTest#testUserSpecialRequirementConstantAttr
+```
+
+```
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------------&lt; com.jmix:configengine &gt;------------------------
+[INFO] Building JMix Config Engine 1.0.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ configengine ---
+[INFO] Copying 3 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.8.1:compile (default-compile) @ configengine ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ configengine ---
+[INFO] Copying 4 resources from src\test\resources to target\test-classes
+[INFO] 
+[INFO] --- compiler:3.8.1:testCompile (default-testCompile) @ configengine ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 70 source files to D:\01.code\mygithub\jmixconfigengine\target\test-classes
+[INFO] 
+[INFO] --- surefire:3.2.5:test (default-test) @ configengine ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.jmix.opti.base.ComputerOptiSolutionTest
+2026-01-14 08:07:28.423 [main] INFO  c.j.e.i.ModuleConstraintExecutorImpl - Module constraint executor initialized
+2026-01-14 08:07:28.432 [main] INFO  c.j.tool.impl.ModuleGenneratorByAnno - Detected inner class: com.jmix.opti.base.ComputerOptiSolutionTest$ComputerOptiSolutionConstraint, parent class: com.jmix.opti.base.ComputerOptiSolutionTest
+2026-01-14 08:07:28.647 [main] INFO  c.j.tool.impl.ModuleGenneratorByAnno - Rule 'rule1' added to PartCategory 'drive'
+2026-01-14 08:07:28.648 [main] INFO  c.j.tool.impl.ModuleGenneratorByAnno - Rule 'rule2' added to PartCategory 'drive'
+2026-01-14 08:07:28.654 [main] INFO  c.j.executor.impl.util.ModuleUtils - Serializing Module to JSON file: D:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\opti\base\tempResource\ComputerOptiSolution.base.json
+2026-01-14 08:07:28.696 [main] INFO  c.j.executor.impl.util.ModuleUtils - Successfully serialized Module to JSON file: D:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\opti\base\tempResource\ComputerOptiSolution.base.json
+2026-01-14 08:07:28.696 [main] INFO  c.j.tool.impl.ModuleGenneratorByAnno - Module saved to: D:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\opti\base\tempResource\ComputerOptiSolution.base.json
+2026-01-14 08:07:28.696 [main] INFO  c.j.e.impl.ModuleAlgClassLoader - Loaded class from local project: com.jmix.opti.base.ComputerOptiSolutionTest$ComputerOptiSolutionConstraint
+2026-01-14 08:07:28.696 [main] INFO  c.j.e.i.ModuleConstraintExecutorImpl - Added modules: 1
+2026-01-14 08:07:29.341 [main] INFO  c.j.e.i.PartCategoryConstraintExecutorImpl - Priority-orginal aparts: Size:6 Codes: md1,md2,md3,sd1,sd2,sd3
+2026-01-14 08:07:29.352 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Starting filter expression execution, object count: 0, filter expression: Speed=5400
+2026-01-14 08:07:29.352 [main] WARN  c.j.e.i.u.FilterExpressionExecutor - Invalid input parameters, returning original object list
+2026-01-14 08:07:29.387 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Starting filter expression execution, object count: 1, filter expression: Speed=5400
+2026-01-14 08:07:29.387 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Filter expression parsed successfully - field: Speed, operator: =, value: 5400
+2026-01-14 08:07:29.387 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Getting field value from InstanceDynAttrValueItem attributes - field: Speed, value: 7200/5400
+2026-01-14 08:07:29.387 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Evaluating condition - field: Speed, operator: =, field value: 7200/5400, compare value: 5400
+2026-01-14 08:07:29.388 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Condition evaluation result: 7200/5400 = 5400 = false
+2026-01-14 08:07:29.388 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Filtering completed, found 0 objects
+2026-01-14 08:07:29.389 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Starting filter expression execution, object count: 2, filter expression: Speed=5400
+2026-01-14 08:07:29.389 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Filter expression parsed successfully - field: Speed, operator: =, value: 5400
+2026-01-14 08:07:29.389 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Getting field value from InstanceDynAttrValueItem attributes - field: Speed, value: 5400
+2026-01-14 08:07:29.390 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Evaluating condition - field: Speed, operator: =, field value: 5400, compare value: 5400
+2026-01-14 08:07:29.390 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Condition evaluation result: 5400 = 5400 = true
+2026-01-14 08:07:29.390 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Getting field value from InstanceDynAttrValueItem attributes - field: Speed, value: 7200/5400
+2026-01-14 08:07:29.390 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Evaluating condition - field: Speed, operator: =, field value: 7200/5400, compare value: 5400
+2026-01-14 08:07:29.390 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Condition evaluation result: 7200/5400 = 5400 = false
+2026-01-14 08:07:29.390 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Filtering completed, found 1 objects
+2026-01-14 08:07:29.391 [main] WARN  c.jmix.executor.imodel.PartCategory - Unsupported base type for aggregation: STRING in part: sd1
+2026-01-14 08:07:29.394 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Starting filter expression execution, object count: 1, filter expression: Speed=5400
+2026-01-14 08:07:29.395 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Filter expression parsed successfully - field: Speed, operator: =, value: 5400
+2026-01-14 08:07:29.395 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Getting field value from InstanceDynAttrValueItem attributes - field: Speed, value: 9000
+2026-01-14 08:07:29.395 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Evaluating condition - field: Speed, operator: =, field value: 9000, compare value: 5400
+2026-01-14 08:07:29.395 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Condition evaluation result: 9000 = 5400 = false
+2026-01-14 08:07:29.395 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Filtering completed, found 0 objects
+2026-01-14 08:07:29.395 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Starting filter expression execution, object count: 3, filter expression: Speed=5400
+2026-01-14 08:07:29.395 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Filter expression parsed successfully - field: Speed, operator: =, value: 5400
+2026-01-14 08:07:29.396 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Getting field value from dyn attributes - field: Speed, value: 7200
+2026-01-14 08:07:29.396 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Evaluating condition - field: Speed, operator: =, field value: 7200, compare value: 5400
+2026-01-14 08:07:29.396 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Condition evaluation result: 7200 = 5400 = false
+2026-01-14 08:07:29.396 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Getting field value from dyn attributes - field: Speed, value: 5400
+2026-01-14 08:07:29.396 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Evaluating condition - field: Speed, operator: =, field value: 5400, compare value: 5400
+2026-01-14 08:07:29.396 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Condition evaluation result: 5400 = 5400 = true
+2026-01-14 08:07:29.396 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Getting field value from dyn attributes - field: Speed, value: 9000
+2026-01-14 08:07:29.396 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Evaluating condition - field: Speed, operator: =, field value: 9000, compare value: 5400
+2026-01-14 08:07:29.396 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Condition evaluation result: 9000 = 5400 = false
+2026-01-14 08:07:29.396 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Filtering completed, found 1 objects
+2026-01-14 08:07:29.396 [main] INFO  c.j.e.i.PartCategoryConstraintExecutorImpl - Priority-filtered aparts: Size:2 Codes: md1,sd1 by drive:sum.Quantity ==2 where Speed=5400
+2026-01-14 08:07:29.398 [main] INFO  c.j.e.i.PartCategoryConstraintExecutorImpl - Priority-process priority constraints-step1 max/min starting........
+2026-01-14 08:07:29.398 [main] INFO  c.j.e.i.PartCategoryConstraintExecutorImpl - Priority-process priority constraint-step1 max/min for attrCode: capacityWeight
+2026-01-14 08:07:29.421 [main] INFO  c.j.e.i.algmodel.ConstraintAlgImpl - Initializing AlgCPModel for incremental loading
+2026-01-14 08:07:29.448 [main] INFO  c.j.e.impl.algmodel.AlgCPModel - relax: -----addGreaterOrEqual
+2026-01-14 08:07:29.448 [main] INFO  c.j.e.impl.algmodel.AlgCPConstraint - relax: -----AlgCPConstraint:onlyEnforceIf
+2026-01-14 08:07:29.449 [main] INFO  c.j.e.impl.algmodel.AlgCPModel - relax: -----addEquality
+2026-01-14 08:07:29.449 [main] INFO  c.j.e.impl.algmodel.AlgCPConstraint - relax: -----AlgCPConstraint:onlyEnforceIf
+2026-01-14 08:07:29.450 [main] INFO  c.j.e.impl.algmodel.AlgCPModel - relax: -----addGreaterOrEqual
+2026-01-14 08:07:29.450 [main] INFO  c.j.e.impl.algmodel.AlgCPConstraint - relax: -----AlgCPConstraint:onlyEnforceIf
+2026-01-14 08:07:29.450 [main] INFO  c.j.e.impl.algmodel.AlgCPModel - relax: -----addEquality
+2026-01-14 08:07:29.450 [main] INFO  c.j.e.impl.algmodel.AlgCPConstraint - relax: -----AlgCPConstraint:onlyEnforceIf
+2026-01-14 08:07:29.450 [main] INFO  c.j.e.i.algmodel.ConstraintAlgImpl - create 2 variables for incremental loading
+2026-01-14 08:07:29.451 [main] INFO  c.j.e.i.algmodel.ConstraintAlgImpl - Built rule method mapping: rule1 -&gt; rule1
+2026-01-14 08:07:29.451 [main] INFO  c.j.e.i.algmodel.ConstraintAlgImpl - Built rule method mapping: rule2 -&gt; rule2
+2026-01-14 08:07:29.456 [main] INFO  c.j.e.i.algmodel.ConstraintAlgImpl - Built priority constraint expressions: exprStr=md1.S*13 + sd1.S*110, exprTemplate=%d*13 + %d*110
+2026-01-14 08:07:29.456 [main] INFO  c.j.e.i.algmodel.ConstraintAlgImpl - Built priority constraint for attrCode: capacityWeight, ruleCode: rule2, strategy: MAX, type: SELECT
+2026-01-14 08:07:29.457 [main] INFO  c.j.e.i.algmodel.ConstraintAlgImpl - Built 2 rule methods from module rules
+2026-01-14 08:07:29.457 [main] INFO  c.j.e.impl.algmodel.AlgCPModel - relax:rule1 relax is not attached,setCurrentRelaxVarName
+2026-01-14 08:07:29.457 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Starting filter expression execution, object count: 2, filter expression: fatherCode=sd
+2026-01-14 08:07:29.457 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Filter expression parsed successfully - field: fatherCode, operator: =, value: sd
+2026-01-14 08:07:29.465 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Field fatherCode found and cached for class Part
+2026-01-14 08:07:29.465 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Getting field value through reflection - field: fatherCode, value: md, class: ProgrammableObject
+2026-01-14 08:07:29.465 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Evaluating condition - field: fatherCode, operator: =, field value: md, compare value: sd
+2026-01-14 08:07:29.465 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Condition evaluation result: md = sd = false
+2026-01-14 08:07:29.465 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Getting field value through reflection - field: fatherCode, value: sd, class: ProgrammableObject
+2026-01-14 08:07:29.465 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Evaluating condition - field: fatherCode, operator: =, field value: sd, compare value: sd
+2026-01-14 08:07:29.465 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Condition evaluation result: sd = sd = true
+2026-01-14 08:07:29.465 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Filtering completed, found 1 objects
+2026-01-14 08:07:29.465 [main] INFO  c.j.e.i.algmodel.ConstraintAlgImpl - Priority-Filtered parts: Size:1 Codes: sd1
+2026-01-14 08:07:29.466 [main] INFO  c.j.e.i.algmodel.ConstraintAlgImpl - Built priority constraint expressions: exprStr=sd1.S, exprTemplate=%d
+2026-01-14 08:07:29.466 [main] INFO  c.j.e.i.algmodel.ConstraintAlgImpl - Priority-Sum formula: sd1.S
+2026-01-14 08:07:29.466 [main] INFO  c.j.e.impl.algmodel.AlgCPModel - relax: -----addLessOrEqual
+2026-01-14 08:07:29.466 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Starting filter expression execution, object count: 2, filter expression: fatherCode=sd
+2026-01-14 08:07:29.466 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Filter expression parsed successfully - field: fatherCode, operator: =, value: sd
+2026-01-14 08:07:29.466 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Getting field value through reflection - field: fatherCode, value: md, class: ProgrammableObject
+2026-01-14 08:07:29.466 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Evaluating condition - field: fatherCode, operator: =, field value: md, compare value: sd
+2026-01-14 08:07:29.466 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Condition evaluation result: md = sd = false
+2026-01-14 08:07:29.466 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Getting field value through reflection - field: fatherCode, value: sd, class: ProgrammableObject
+2026-01-14 08:07:29.467 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Evaluating condition - field: fatherCode, operator: =, field value: sd, compare value: sd
+2026-01-14 08:07:29.467 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Condition evaluation result: sd = sd = true
+2026-01-14 08:07:29.467 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Filtering completed, found 1 objects
+2026-01-14 08:07:29.467 [main] INFO  c.j.e.i.algmodel.ConstraintAlgImpl - Priority-Filtered parts: Size:1 Codes: sd1
+2026-01-14 08:07:29.467 [main] INFO  c.j.e.i.algmodel.ConstraintAlgImpl - Built priority constraint expressions: exprStr=sd1.Q, exprTemplate=%d
+2026-01-14 08:07:29.467 [main] INFO  c.j.e.i.algmodel.ConstraintAlgImpl - Priority-Sum formula: sd1.Q
+2026-01-14 08:07:29.467 [main] INFO  c.j.e.impl.algmodel.AlgCPModel - relax: -----addLessOrEqual
+2026-01-14 08:07:29.467 [main] INFO  c.j.e.i.algmodel.ConstraintAlgImpl - Executed rule method: rule1
+2026-01-14 08:07:29.467 [main] INFO  c.j.e.impl.algmodel.AlgCPModel - relax:rule2 relax is not attached,setCurrentRelaxVarName
+2026-01-14 08:07:29.467 [main] INFO  c.j.e.i.algmodel.ConstraintAlgImpl - Executed rule method: rule2
+2026-01-14 08:07:29.467 [main] INFO  c.j.e.i.algmodel.ConstraintAlgImpl - Executed  2 requested rules
+2026-01-14 08:07:29.467 [main] INFO  c.j.e.impl.algmodel.AlgCPModel - relax:hiddensrule relax is not attached,setCurrentRelaxVarName
+2026-01-14 08:07:29.467 [main] INFO  c.j.e.impl.algmodel.AlgCPModel - relax: -----addEquality
+2026-01-14 08:07:29.468 [main] INFO  c.j.e.impl.algmodel.AlgCPModel - relax: -----addEquality
+2026-01-14 08:07:29.471 [main] INFO  c.j.e.i.algmodel.ConstraintAlgImpl - Priority-Added sum constraint: md1.Q + sd1.Q == 2 for PartConstraintReq(attrCode=sum.Quantity, attrComparator===, attrValue=2, attrWhereCondition=Speed=5400, partCatagoryCode=drive)
+2026-01-14 08:07:29.525 [main] INFO  c.j.e.i.ModuleInstSolutionCallBack - -------------varInfos-solutionIndex:1----------- 
+ {}
+2026-01-14 08:07:29.591 [main] INFO  c.j.e.i.ModuleInstSolutionCallBack - Priority:PA_capacityWeight: md1.S_1*13 + sd1.S_1*110 = 123.0
+2026-01-14 08:07:29.603 [main] INFO  c.j.e.i.PartCategoryConstraintExecutorImpl - Priority-process priority constraint-step1 max/min Optimal solution: Solutions-Total:1
+Solutions-Detail:
+ S_1: md1(Q:1,H:0,S:1),sd1(Q:1,H:0,S:1),PAs(CA:123.0) PO:123.0 PS:0
+
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.PartCategoryConstraintExecutorImpl - Priority-process priority constraint-step1 max/min Optimal value for  capacityWeight: 123.0
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.PartCategoryConstraintExecutorImpl - Priority-process priority constraints-step1 max/min finished........
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.PartCategoryConstraintExecutorImpl - Priority-process priority constraints-step2 greater/less starting........
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.algmodel.ConstraintAlgImpl - Initializing AlgCPModel for incremental loading
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.impl.algmodel.AlgCPModel - relax: -----addGreaterOrEqual
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.impl.algmodel.AlgCPConstraint - relax: -----AlgCPConstraint:onlyEnforceIf
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.impl.algmodel.AlgCPModel - relax: -----addEquality
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.impl.algmodel.AlgCPConstraint - relax: -----AlgCPConstraint:onlyEnforceIf
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.impl.algmodel.AlgCPModel - relax: -----addGreaterOrEqual
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.impl.algmodel.AlgCPConstraint - relax: -----AlgCPConstraint:onlyEnforceIf
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.impl.algmodel.AlgCPModel - relax: -----addEquality
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.impl.algmodel.AlgCPConstraint - relax: -----AlgCPConstraint:onlyEnforceIf
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.algmodel.ConstraintAlgImpl - create 2 variables for incremental loading
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.algmodel.ConstraintAlgImpl - Built rule method mapping: rule1 -&gt; rule1
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.algmodel.ConstraintAlgImpl - Built rule method mapping: rule2 -&gt; rule2
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.algmodel.ConstraintAlgImpl - Built priority constraint expressions: exprStr=md1.S*13 + sd1.S*110, exprTemplate=%d*13 + %d*110
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.algmodel.ConstraintAlgImpl - Built priority constraint for attrCode: capacityWeight, ruleCode: rule2, strategy: MAX, type: SELECT
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.algmodel.ConstraintAlgImpl - Built 2 rule methods from module rules
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.impl.algmodel.AlgCPModel - relax:rule1 relax is not attached,setCurrentRelaxVarName
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Starting filter expression execution, object count: 2, filter expression: fatherCode=sd
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Filter expression parsed successfully - field: fatherCode, operator: =, value: sd
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Getting field value through reflection - field: fatherCode, value: md, class: ProgrammableObject
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Evaluating condition - field: fatherCode, operator: =, field value: md, compare value: sd
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Condition evaluation result: md = sd = false
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Getting field value through reflection - field: fatherCode, value: sd, class: ProgrammableObject
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Evaluating condition - field: fatherCode, operator: =, field value: sd, compare value: sd
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Condition evaluation result: sd = sd = true
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Filtering completed, found 1 objects
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.algmodel.ConstraintAlgImpl - Priority-Filtered parts: Size:1 Codes: sd1
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.algmodel.ConstraintAlgImpl - Built priority constraint expressions: exprStr=sd1.S, exprTemplate=%d
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.algmodel.ConstraintAlgImpl - Priority-Sum formula: sd1.S
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.impl.algmodel.AlgCPModel - relax: -----addLessOrEqual
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Starting filter expression execution, object count: 2, filter expression: fatherCode=sd
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Filter expression parsed successfully - field: fatherCode, operator: =, value: sd
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Getting field value through reflection - field: fatherCode, value: md, class: ProgrammableObject
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Evaluating condition - field: fatherCode, operator: =, field value: md, compare value: sd
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Condition evaluation result: md = sd = false
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Getting field value through reflection - field: fatherCode, value: sd, class: ProgrammableObject
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Evaluating condition - field: fatherCode, operator: =, field value: sd, compare value: sd
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Condition evaluation result: sd = sd = true
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Filtering completed, found 1 objects
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.algmodel.ConstraintAlgImpl - Priority-Filtered parts: Size:1 Codes: sd1
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.algmodel.ConstraintAlgImpl - Built priority constraint expressions: exprStr=sd1.Q, exprTemplate=%d
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.algmodel.ConstraintAlgImpl - Priority-Sum formula: sd1.Q
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.impl.algmodel.AlgCPModel - relax: -----addLessOrEqual
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.algmodel.ConstraintAlgImpl - Executed rule method: rule1
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.impl.algmodel.AlgCPModel - relax:rule2 relax is not attached,setCurrentRelaxVarName
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.algmodel.ConstraintAlgImpl - Executed rule method: rule2
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.algmodel.ConstraintAlgImpl - Executed  2 requested rules
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.impl.algmodel.AlgCPModel - relax:hiddensrule relax is not attached,setCurrentRelaxVarName
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.impl.algmodel.AlgCPModel - relax: -----addEquality
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.impl.algmodel.AlgCPModel - relax: -----addEquality
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.algmodel.ConstraintAlgImpl - Priority-Added sum constraint: md1.Q + sd1.Q == 2 for PartConstraintReq(attrCode=sum.Quantity, attrComparator===, attrValue=2, attrWhereCondition=Speed=5400, partCatagoryCode=drive)
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.PartCategoryConstraintExecutorImpl - Priority-process priority constraints-step2 greater/less Added Priority adjusted constraint: capacityWeight &gt;= 86
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.PartCategoryConstraintExecutorImpl - Priority-process priority constraints-step2 greater/less finished........
+2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.PartCategoryConstraintExecutorImpl - Priority-process priority constraints-step3 solver starting........
+2026-01-14 08:07:29.610 [main] INFO  c.j.e.i.ModuleInstSolutionCallBack - -------------varInfos-solutionIndex:1----------- 
+ {}
+2026-01-14 08:07:29.612 [main] INFO  c.j.e.i.ModuleInstSolutionCallBack - Priority:PA_capacityWeight: md1.S_0*13 + sd1.S_1*110 = 110.0
+2026-01-14 08:07:29.613 [main] INFO  c.j.e.i.ModuleInstSolutionCallBack - -------------varInfos-solutionIndex:2----------- 
+ {}
+2026-01-14 08:07:29.614 [main] INFO  c.j.e.i.ModuleInstSolutionCallBack - Priority:PA_capacityWeight: md1.S_1*13 + sd1.S_1*110 = 123.0
+2026-01-14 08:07:29.614 [main] INFO  c.j.e.i.PartCategoryConstraintExecutorImpl - Priority-process priority constraints-step3 solver Found 2 solutions 
+2026-01-14 08:07:29.615 [main] INFO  c.j.e.i.PartCategoryConstraintExecutorImpl - Priority-process priority constraints-step4 sort solutions by priority finished........
+2026-01-14 08:07:29.615 [main] INFO  c.j.e.i.PartCategoryConstraintExecutorImpl - Priority-process priority constraints-step3 solver finished........
+2026-01-14 08:07:29.615 [main] INFO  c.j.coretest.ModuleScenarioTestBase - Inference recommend execution time: 914 ms
+2026-01-14 08:07:29.615 [main] INFO  c.j.coretest.ModuleScenarioTestBase - Inference recommend result: Result(code=0, data=[ModuleInst(id=123, code=ComputerOptiSolution, instanceConfigId=0, instanceId=2, quantity=1, paras=[], parts=[PartInst(code=sd1, options=null, quantity=1, selectAttrValue=null, isHidden=false, isSelected=true, extAttrs=null, shortCode=sd1), PartInst(code=md1, options=null, quantity=1, selectAttrValue=null, isHidden=false, isSelected=true, extAttrs=null, shortCode=md1)], extAttrs={}, shortCode=null, priorityAttrValues=[PriorityAttrValue(attrCode=capacityWeight, optimalValue=123.0)], prioritySortNo=1, priorityOverallValue=123.0), ModuleInst(id=123, code=ComputerOptiSolution, instanceConfigId=0, instanceId=1, quantity=1, paras=[], parts=[PartInst(code=sd1, options=null, quantity=2, selectAttrValue=null, isHidden=false, isSelected=true, extAttrs=null, shortCode=sd1), PartInst(code=md1, options=null, quantity=0, selectAttrValue=null, isHidden=false, isSelected=false, extAttrs=null, shortCode=md1)], extAttrs={}, shortCode=null, priorityAttrValues=[PriorityAttrValue(attrCode=capacityWeight, optimalValue=110.0)], prioritySortNo=2, priorityOverallValue=110.0)], message=null, extAttrs=null)
+2026-01-14 08:07:29.630 [main] INFO  c.jmix.executor.impl.SolutionUtils - 
+******************************************
+1.Abbreviation explanation:
+1.1. ProgObjs(sd2:sd2,sd:sd,sd1:sd1,sd3:sd3,md:md,md2:md2,md1:md1,PT0:drive,md3:md3,)
+1.2. Attrs(V:value, H:isHidden, Q:qty,S:isSelected)
+1.3. Other Variable shortName:
+1.4. Priority Attribute shortName:PAs:priorityAttrValues PO:priorityOverallValue PS:prioritySortNo (CA:capacityWeight)
+2.Solutions:
+ S_1: md1(Q:1,H:0,S:1),sd1(Q:1,H:0,S:1),PAs(CA:123.0) PO:123.0 PS:1
+ S_2: md1(0*),sd1(Q:2,H:0,S:1),PAs(CA:110.0) PO:110.0 PS:2
+
+******************************************
+3.Messages:
+null
+
+2026-01-14 08:07:29.633 [main] INFO  c.j.e.i.ModuleConstraintExecutorImpl - Module constraint executor finalized
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.456 s -- in com.jmix.opti.base.ComputerOptiSolutionTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  7.678 s
+[INFO] Finished at: 2026-01-14T08:07:29+08:00
+[INFO] ------------------------------------------------------------------------
+
+```
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+检查日志文件是否已生成：
+
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: dir target\test-logs 2>$null</summary>
+
+```bash
+dir target\test-logs 2>$null
+```
+
+```
+
+
+    Ŀ¼: D:\01.code\mygithub\jmixconfigengine\target\test-logs
+
+
+Mode                 LastWriteTime         Length Name                                                                 
+----                 -------------         ------ ----                                                                 
+-a----         2026/1/14      8:07          25301 test.log                                                             
+
+```
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: if (Test-Path target\test-logs\test.log) { Get-Content target\test-logs\test.log -TotalCount 20 } else { Write-Host "Log file not found" }</summary>
+
+```bash
+if (Test-Path target\test-logs\test.log) { Get-Content target\test-logs\test.log -TotalCount 20 } else { Write-Host "Log file not found" }
+```
+
+```
+2026-01-14 08:07:28.423 [main] INFO  c.j.e.i.ModuleConstraintExecutorImpl - Module constraint executor initialized
+2026-01-14 08:07:28.432 [main] INFO  c.j.tool.impl.ModuleGenneratorByAnno - Detected inner class: com.jmix.opti.base.ComputerOptiSolutionTest$ComputerOptiSolutionConstraint, parent class: com.jmix.opti.base.ComputerOptiSolutionTest
+2026-01-14 08:07:28.647 [main] INFO  c.j.tool.impl.ModuleGenneratorByAnno - Rule 'rule1' added to PartCategory 'drive'
+2026-01-14 08:07:28.648 [main] INFO  c.j.tool.impl.ModuleGenneratorByAnno - Rule 'rule2' added to PartCategory 'drive'
+2026-01-14 08:07:28.654 [main] INFO  c.j.executor.impl.util.ModuleUtils - Serializing Module to JSON file: D:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\opti\base\tempResource\ComputerOptiSolution.base.json
+2026-01-14 08:07:28.696 [main] INFO  c.j.executor.impl.util.ModuleUtils - Successfully serialized Module to JSON file: D:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\opti\base\tempResource\ComputerOptiSolution.base.json
+2026-01-14 08:07:28.696 [main] INFO  c.j.tool.impl.ModuleGenneratorByAnno - Module saved to: D:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\opti\base\tempResource\ComputerOptiSolution.base.json
+2026-01-14 08:07:28.696 [main] INFO  c.j.e.impl.ModuleAlgClassLoader - Loaded class from local project: com.jmix.opti.base.ComputerOptiSolutionTest$ComputerOptiSolutionConstraint
+2026-01-14 08:07:28.696 [main] INFO  c.j.e.i.ModuleConstraintExecutorImpl - Added modules: 1
+2026-01-14 08:07:29.341 [main] INFO  c.j.e.i.PartCategoryConstraintExecutorImpl - Priority-orginal aparts: Size:6 Codes: md1,md2,md3,sd1,sd2,sd3
+2026-01-14 08:07:29.352 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Starting filter expression execution, object count: 0, filter expression: Speed=5400
+2026-01-14 08:07:29.352 [main] WARN  c.j.e.i.u.FilterExpressionExecutor - Invalid input parameters, returning original object list
+2026-01-14 08:07:29.387 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Starting filter expression execution, object count: 1, filter expression: Speed=5400
+2026-01-14 08:07:29.387 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Filter expression parsed successfully - field: Speed, operator: =, value: 5400
+2026-01-14 08:07:29.387 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Getting field value from InstanceDynAttrValueItem attributes - field: Speed, value: 7200/5400
+2026-01-14 08:07:29.387 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Evaluating condition - field: Speed, operator: =, field value: 7200/5400, compare value: 5400
+2026-01-14 08:07:29.388 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Condition evaluation result: 7200/5400 = 5400 = false
+2026-01-14 08:07:29.388 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Filtering completed, found 0 objects
+2026-01-14 08:07:29.389 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Starting filter expression execution, object count: 2, filter expression: Speed=5400
+2026-01-14 08:07:29.389 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Filter expression parsed successfully - field: Speed, operator: =, value: 5400
+
+```
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+验证日志文件是否包含测试相关日志：
+
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **run_terminal_cmd** • Run command: Select-String -Path target\test-logs\test.log -Pattern "Priority-Filtered parts" | Select-Object -First 3</summary>
+
+```bash
+Select-String -Path target\test-logs\test.log -Pattern "Priority-Filtered parts" | Select-Object -First 3
+```
+
+```
+
+target\test-logs\test.log:76:2026-01-14 08:07:29.465 [main] INFO  c.j.e.i.algmodel.ConstraintAlgImpl - Priority-Filtere
+d parts: Size:1 Codes: sd1
+target\test-logs\test.log:89:2026-01-14 08:07:29.467 [main] INFO  c.j.e.i.algmodel.ConstraintAlgImpl - Priority-Filtere
+d parts: Size:1 Codes: sd1
+target\test-logs\test.log:136:2026-01-14 08:07:29.604 [main] INFO  c.j.e.i.algmodel.ConstraintAlgImpl - Priority-Filter
+ed parts: Size:1 Codes: sd1
+
+```
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+
+日志配置已完成。总结如下：
+
+## 完成的配置
+
+### 1. 更新了 Maven 依赖
+- 将 `slf4j-simple` 替换为 `logback-classic`（版本 1.5.0）
+- Logback 支持同时输出到控制台和文件
+
+### 2. 创建了 Logback 测试配置文件
+- 位置：`src/test/resources/logback-test.xml`
+- 配置了两个 Appender：
+  - CONSOLE：输出到控制台
+  - FILE：输出到文件 `target/test-logs/test.log`
+- 日志滚动策略：
+  - 按日期和大小滚动
+  - 单个文件最大 10MB
+  - 保留 30 天
+  - 总大小限制 1GB
+
+### 3. 验证结果
+- 控制台输出正常
+- 日志文件已生成：`target/test-logs/test.log`（25KB）
+- 日志内容正确，包含所有测试相关日志
+
+### 日志文件位置
+- 测试日志文件：`target/test-logs/test.log`
+- 滚动日志文件：`target/test-logs/test-YYYY-MM-DD.i.log`
+
+日志已同时输出到控制台和文件，便于调试和问题追踪。
+
+---
+
