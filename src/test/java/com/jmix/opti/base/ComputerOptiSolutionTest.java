@@ -89,11 +89,11 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
             // proRule1-natuarl: 固态硬盘必须配置同一种，并且最多配置2块
             // proRule1-dsl: 拆分为proRule11和proRule11两条约束（和isSelected(S)、qty(Q)相关）
             // proRule11-cRule: sd1.S + sd2.S <=1
-            LinearExpr sumSelected = sum4Selected();
+            LinearExpr sumSelected = sum4Selected("fatherCode=sd");
             model.addLessOrEqual(sumSelected, 1);
 
             // proRule12-cRule: sd1.Q + sd2.Q <= 2
-            LinearExpr sumQty = sum4Quantity();
+            LinearExpr sumQty = sum4Quantity("fatherCode=sd");
             model.addLessOrEqual(sumQty, 2);
         }
 

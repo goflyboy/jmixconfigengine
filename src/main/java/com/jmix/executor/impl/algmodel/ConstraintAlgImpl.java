@@ -5,12 +5,14 @@ import com.jmix.executor.imodel.IModule;
 import com.jmix.executor.imodel.Para;
 import com.jmix.executor.imodel.Part;
 import com.jmix.executor.imodel.PartCategory;
+import com.jmix.executor.imodel.PartUtils;
 import com.jmix.executor.imodel.PriorityConstraint;
 import com.jmix.executor.imodel.PriorityType;
 import com.jmix.executor.imodel.Rule;
 import com.jmix.executor.imodel.rule.PriorityRuleSchema;
 import com.jmix.executor.imodel.rule.RefProgObjSchema;
 import com.jmix.executor.imodel.rule.RuleTypeConstants;
+import com.jmix.executor.impl.util.FilterExpressionExecutor;
 import com.jmix.executor.omodel.AlgLoaderException;
 import com.jmix.executor.omodel.ParConstraint;
 import com.jmix.executor.omodel.PartConstantAttr;
@@ -278,11 +280,11 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @param attrCode    属性代码
      * @param varName     变量名称（"S" 或 "Q"）
      * @param varGetter   从PartVar获取LinearArgument的函数（如getIsSelected或getQty）
+     * @param atomicParts 原子部件列表
      * @return 构建的LinearExpr表达式
      */
     private LinearExpr buildPriorityConstraintExpressions(PriorityConstraint pConstraint, String attrCode,
-            String varName, Function<PartVar, LinearArgument> varGetter) {
-        List<Part> atomicParts = module.getAtomicParts();
+            String varName, Function<PartVar, LinearArgument> varGetter, List<Part> atomicParts) {
         List<LinearExpr> sumTerms = new ArrayList<>();
         List<String> exprStrParts = new ArrayList<>();
         List<String> exprTemplateParts = new ArrayList<>();
@@ -363,7 +365,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         Function<PartVar, LinearArgument> varGetter = (type == PriorityType.SELECT)
                 ? PartVar::getIsSelected
                 : PartVar::getQty;
-        buildPriorityConstraintExpressions(pConstraint, attrCode, varName, varGetter);
+        buildPriorityConstraintExpressions(pConstraint, attrCode, varName, varGetter, module.getAtomicParts());
 
         // 存储到 priorityRuleMap，使用 attrCode 作为 key
         priorityRuleMap.put(attrCode, pConstraint);
@@ -998,16 +1000,26 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     /**
      * 通用的部件求和方法，根据指定的变量获取函数计算总和
      * 
-     * @param cofAttrCode 属性代码，如果为null或空则使用默认值1
-     * @param varGetter   从PartVar获取LinearArgument的函数（如getIsSelected或getQty）
-     * @param varName     变量名称（如"isSelected"或"qty"），用于构建字符串表达式
+     * @param cofAttrCode        属性代码，如果为null或空则使用默认值1
+     * @param varGetter          从PartVar获取LinearArgument的函数（如getIsSelected或getQty）
+     * @param varName            变量名称（如"isSelected"或"qty"），用于构建字符串表达式
+     * @param filtedConditionStr 过滤条件字符串
      * @return 求和后的LinearExpr表达式
      */
     private LinearExpr sum4Parts(String cofAttrCode,
-            Function<PartVar, LinearArgument> varGetter, String varName) {
+            Function<PartVar, LinearArgument> varGetter, String varName, String filtedConditionStr) {
         // 创建一个临时的PriorityConstraint对象来复用构建逻辑
         PriorityConstraint tempConstraint = new PriorityConstraint();
-        LinearExpr expr = buildPriorityConstraintExpressions(tempConstraint, cofAttrCode, varName, varGetter);
+        List<Part> atomicParts = module.getAtomicParts();
+
+        // 如果提供了过滤条件，则先过滤部件
+        if (filtedConditionStr != null && !filtedConditionStr.trim().isEmpty()) {
+            atomicParts = FilterExpressionExecutor.doSelect(atomicParts, filtedConditionStr);
+            log.info("Priority-Filtered parts: {}", PartUtils.toShortString(atomicParts));
+        }
+
+        LinearExpr expr = buildPriorityConstraintExpressions(tempConstraint, cofAttrCode, varName, varGetter,
+                atomicParts);
         log.info("Priority-Sum formula: {}", tempConstraint.getExprStr());
         return expr;
     }
@@ -1015,39 +1027,43 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     /**
      * 对选中的部件求和（带属性系数）
      * 
-     * @param cofAttrCode 属性代码，如果为null或空则使用默认值1
+     * @param cofAttrCode        属性代码，如果为null或空则使用默认值1
+     * @param filtedConditionStr 过滤条件字符串
      * @return 求和后的LinearExpr表达式
      */
-    public LinearExpr sum4Selected(String cofAttrCode) {
-        return sum4Parts(cofAttrCode, PartVar::getIsSelected, "S");
+    public LinearExpr sum4Selected(String cofAttrCode, String filtedConditionStr) {
+        return sum4Parts(cofAttrCode, PartVar::getIsSelected, "S", filtedConditionStr);
     }
 
     /**
      * 对选中的部件求和（不带属性系数）
      * 
+     * @param filtedConditionStr 过滤条件字符串
      * @return 求和后的LinearExpr表达式
      */
-    public LinearExpr sum4Selected() {
-        return sum4Selected(null);
+    public LinearExpr sum4Selected(String filtedConditionStr) {
+        return sum4Selected(null, filtedConditionStr);
     }
 
     /**
      * 对数量的部件求和（带属性系数）
      * 
-     * @param cofAttrCode 属性代码，如果为null或空则使用默认值1
+     * @param cofAttrCode        属性代码，如果为null或空则使用默认值1
+     * @param filtedConditionStr 过滤条件字符串
      * @return 求和后的LinearExpr表达式
      */
-    public LinearExpr sum4Quantity(String cofAttrCode) {
-        return sum4Parts(cofAttrCode, PartVar::getQty, "Q");
+    public LinearExpr sum4Quantity(String cofAttrCode, String filtedConditionStr) {
+        return sum4Parts(cofAttrCode, PartVar::getQty, "Q", filtedConditionStr);
     }
 
     /**
      * 对数量的部件求和（不带属性系数）
      * 
+     * @param filtedConditionStr 过滤条件字符串
      * @return 求和后的LinearExpr表达式
      */
-    public LinearExpr sum4Quantity() {
-        return sum4Quantity(null);
+    public LinearExpr sum4Quantity(String filtedConditionStr) {
+        return sum4Quantity(null, filtedConditionStr);
     }
 
     /**

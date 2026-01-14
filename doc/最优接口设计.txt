@@ -1402,7 +1402,7 @@ sumFunConstraint(List<Part> sumParts, ParConstraint partConstraint)
 
  
 
-设计122：
+设计122：按下列设计写代码，并调通ComputerOptiSolutionTest
 1、ConstraintAlgImpl类做下列增强
 1.1  所有sum4Selected、sum4Quantity、sum4Parts方法都增加 filtedConditionStr
 1.2 buildPriorityConstraintExpressions增加入参：List<Part> atomicParts
@@ -1430,12 +1430,18 @@ sumFunConstraint(List<Part> sumParts, ParConstraint partConstraint)
 void rule1() {
 	...  sum4Selected();
 	...
-	...
+	... sum4Quantity();
 	...
 
 }
 修改后：
+void rule1() {
+	...  sum4Selected("fatherCode=sd");
+	...
+	... sum4Quantity("fatherCode=sd");
+	...
 
+}
 
 List<Part> atomicParts = module.getAtomicParts(
 List<Part> atomicParts = module.getAtomicParts(
