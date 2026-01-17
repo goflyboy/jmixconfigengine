@@ -36,8 +36,10 @@ public final class FilterExpressionExecutor {
     public static final String OP_GREATER_EQUALS = ">=";
     public static final String OP_LESS_EQUALS = "<=";
     public static final String OP_LIKE = "like";
+    public static final String OP_NOT_LIKE = "not like";
 
-    private static final Pattern FILTER_PATTERN = Pattern.compile("(\\w+)\\s*([=!<>]+|like)\\s*\"?([^\"]*)\"?");
+    private static final Pattern FILTER_PATTERN = Pattern
+            .compile("(\\w+)\\s*([=!<>]+|not\\s+like|like)\\s*\"?([^\"]*)\"?");
 
     // Class field cache to improve performance
     private static final Map<Class<?>, Map<String, java.lang.reflect.Field>> FIELD_CACHE = new ConcurrentHashMap<>();
@@ -120,6 +122,88 @@ public final class FilterExpressionExecutor {
     }
 
     /**
+     * 将扣除条件转换为过滤条件（取反操作符）
+     * 例如：deductCondition.operator = "=" 转换为 filterCondition.operator = "!="
+     * 
+     * @param deductCondition 扣除条件
+     * @return 取反后的过滤条件
+     */
+    private static FilterCondition negateFilterCondition(FilterCondition deductCondition) {
+        if (deductCondition == null) {
+            return null;
+        }
+
+        String negatedOperator;
+        String operator = deductCondition.getOperator();
+
+        switch (operator) {
+            case OP_EQUALS:
+            case OP_EQUALS_DOUBLE:
+                negatedOperator = OP_NOT_EQUALS;
+                break;
+            case OP_NOT_EQUALS:
+                negatedOperator = OP_EQUALS;
+                break;
+            case OP_GREATER_THAN:
+                negatedOperator = OP_LESS_EQUALS;
+                break;
+            case OP_LESS_THAN:
+                negatedOperator = OP_GREATER_EQUALS;
+                break;
+            case OP_GREATER_EQUALS:
+                negatedOperator = OP_LESS_THAN;
+                break;
+            case OP_LESS_EQUALS:
+                negatedOperator = OP_GREATER_THAN;
+                break;
+            case OP_LIKE:
+                negatedOperator = OP_NOT_LIKE;
+                break;
+            case OP_NOT_LIKE:
+                negatedOperator = OP_LIKE;
+                break;
+            default:
+                log.warn("Unsupported operator for negation: {}, returning original condition", operator);
+                negatedOperator = operator;
+                break;
+        }
+
+        return new FilterCondition(deductCondition.getFieldName(), negatedOperator, deductCondition.getValue());
+    }
+
+    /**
+     * 根据扣除表达式获得扣除后的对象列表，例如:
+     * partCode speed capacity
+     * part1 5400 1T
+     * part2 7200 2T
+     * part3 9000 4T
+     * deductExpr = speed 5400,则返回结果 part2，part3
+     * 
+     * @param objects    要扣除对象列表-全
+     * @param deductExpr 扣除表达式
+     * @param <T>        对象类型，必须继承自Extensible
+     * @return 扣除后的对象列表
+     */
+    public static <T extends Extensible> List<T> doDeduct(List<T> objects, String deductExpr) {
+        log.info("Starting deduct expression execution, object count: {}, deduct expression: {}",
+                objects != null ? objects.size() : 0, deductExpr);
+
+        if (objects == null || objects.isEmpty() || deductExpr == null || deductExpr.trim().isEmpty()) {
+            log.warn("Invalid input parameters, returning original object list");
+            return objects;
+        }
+
+        Optional<FilterCondition> deductCondition = parseFilterExpression(deductExpr);
+        if (!deductCondition.isPresent()) {
+            log.warn("Failed to parse deduct expression: {}, returning original object list", deductExpr);
+            return objects;
+        }
+
+        FilterCondition filterCondition = negateFilterCondition(deductCondition.get());
+        return doSelect(objects, filterCondition);
+    }
+
+    /**
      * Parse filter expression once and return FilterCondition
      * 
      * @param filterExpr 过滤表达式字符串
@@ -130,8 +214,13 @@ public final class FilterExpressionExecutor {
             Matcher matcher = FILTER_PATTERN.matcher(filterExpr);
             if (matcher.find()) {
                 String fieldName = matcher.group(1);
-                String operator = matcher.group(2);
+                String operator = matcher.group(2).trim();
                 String value = matcher.group(3);
+
+                // Normalize "not like" operator
+                if (operator.equalsIgnoreCase("not like")) {
+                    operator = OP_NOT_LIKE;
+                }
 
                 return Optional.of(new FilterCondition(fieldName, operator, value));
             } else {
@@ -209,6 +298,9 @@ public final class FilterExpressionExecutor {
                     break;
                 case OP_LIKE:
                     result = matchesLikePattern(fieldValueStr, value);
+                    break;
+                case OP_NOT_LIKE:
+                    result = !matchesLikePattern(fieldValueStr, value);
                     break;
                 default:
                     log.warn("Unsupported operator: {}", operator);

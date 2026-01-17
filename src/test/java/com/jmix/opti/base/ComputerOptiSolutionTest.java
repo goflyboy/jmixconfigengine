@@ -32,6 +32,7 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
         @DAttrAnno2(code = "Speed", dynAttrType = DynamicAttributeType.E_STRING, optionExtSchema = "StringUnit", options = {
                 "Speed_5400:5400:转",
                 "Speed_9000:9000:转",
+                "Speed_9900:9900:转",
                 "Speed_7200a5400:7200/5400:转",
                 "Speed_7200:7200:转" }, instType = 0)
         @DAttrAnno3(code = "Capacity", optionExtSchema = "IntegerUnit", options = { "Capacity_1T:1:T",
@@ -82,6 +83,10 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
         // 机械硬盘实例3
         @PartAnno(fatherCode = "md", attrs = { "9000", "2", "11" })
         private PartVar md3;
+
+        // 机械硬盘实例3
+        @PartAnno(fatherCode = "md", attrs = { "9900", "4", "10" })
+        private PartVar md4;
 
         // rule1://固态硬盘必须配置同一种，并且最多配置2块
         @CodeRuleAnno(fatherCode = "drive", normalNaturalCode = "固态硬盘必须配置同一种，并且最多配置2块")

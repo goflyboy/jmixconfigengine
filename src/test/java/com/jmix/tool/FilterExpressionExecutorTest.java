@@ -232,6 +232,158 @@ public class FilterExpressionExecutorTest {
         assertEquals("cotton", result.get(0).getExtAttr("material"));
     }
 
+    // ========== doDeduct 测试用例 ==========
+
+    @Test
+    public void testDoDeductWithEqualsOperator() {
+        // 准备测试数据 - 根据用户示例
+        List<TestPart> parts = Arrays.asList(
+                createTestPart("part1", "5400", "1T"),
+                createTestPart("part2", "7200", "2T"),
+                createTestPart("part3", "9000", "4T"));
+
+        // 测试扣除 speed = 5400，应该返回 part2 和 part3
+        List<TestPart> result = FilterExpressionExecutor.doDeduct(parts, "speed=5400");
+
+        assertEquals(2, result.size());
+        assertTrue(result.stream().anyMatch(p -> "part2".equals(p.getCode())));
+        assertTrue(result.stream().anyMatch(p -> "part3".equals(p.getCode())));
+        assertTrue(result.stream().noneMatch(p -> "part1".equals(p.getCode())));
+    }
+
+    @Test
+    public void testDoDeductWithNotEqualsOperator() {
+        // 准备测试数据
+        List<TestObject> objects = Arrays.asList(
+                new TestObject("para11", "para11 description", 1, "3G", "1"),
+                new TestObject("para12", "para12 description", 2, "4G", "2"),
+                new TestObject("para31", "para31 description", 2, "5G", "3"));
+
+        // 测试扣除 sortNo != 2，应该返回 sortNo = 2 的对象
+        List<TestObject> result = FilterExpressionExecutor.doDeduct(objects, "sortNo!=2");
+
+        assertEquals(2, result.size());
+        assertTrue(result.stream().allMatch(obj -> obj.getSortNo() == 2));
+    }
+
+    @Test
+    public void testDoDeductWithGreaterThanOperator() {
+        // 准备测试数据
+        List<TestObject> objects = Arrays.asList(
+                new TestObject("para11", "para11 description", 1, "3G", "1"),
+                new TestObject("para12", "para12 description", 2, "4G", "2"),
+                new TestObject("para31", "para31 description", 3, "5G", "3"),
+                new TestObject("para32", "para32 description", 4, "6G", "4"));
+
+        // 测试扣除 sortNo > 2，应该返回 sortNo <= 2 的对象
+        List<TestObject> result = FilterExpressionExecutor.doDeduct(objects, "sortNo>2");
+
+        assertEquals(2, result.size());
+        assertTrue(result.stream().allMatch(obj -> obj.getSortNo() <= 2));
+    }
+
+    @Test
+    public void testDoDeductWithLessThanOperator() {
+        // 准备测试数据
+        List<TestObject> objects = Arrays.asList(
+                new TestObject("para11", "para11 description", 1, "3G", "1"),
+                new TestObject("para12", "para12 description", 2, "4G", "2"),
+                new TestObject("para31", "para31 description", 3, "5G", "3"));
+
+        // 测试扣除 sortNo < 3，应该返回 sortNo >= 3 的对象
+        List<TestObject> result = FilterExpressionExecutor.doDeduct(objects, "sortNo<3");
+
+        assertEquals(1, result.size());
+        assertEquals(3, result.get(0).getSortNo());
+    }
+
+    @Test
+    public void testDoDeductWithGreaterEqualsOperator() {
+        // 准备测试数据
+        List<TestObject> objects = Arrays.asList(
+                new TestObject("para11", "para11 description", 1, "3G", "1"),
+                new TestObject("para12", "para12 description", 2, "4G", "2"),
+                new TestObject("para31", "para31 description", 3, "5G", "3"));
+
+        // 测试扣除 sortNo >= 2，应该返回 sortNo < 2 的对象
+        List<TestObject> result = FilterExpressionExecutor.doDeduct(objects, "sortNo>=2");
+
+        assertEquals(1, result.size());
+        assertEquals(1, result.get(0).getSortNo());
+    }
+
+    @Test
+    public void testDoDeductWithLessEqualsOperator() {
+        // 准备测试数据
+        List<TestObject> objects = Arrays.asList(
+                new TestObject("para11", "para11 description", 1, "3G", "1"),
+                new TestObject("para12", "para12 description", 2, "4G", "2"),
+                new TestObject("para31", "para31 description", 3, "5G", "3"));
+
+        // 测试扣除 sortNo <= 2，应该返回 sortNo > 2 的对象
+        List<TestObject> result = FilterExpressionExecutor.doDeduct(objects, "sortNo<=2");
+
+        assertEquals(1, result.size());
+        assertEquals(3, result.get(0).getSortNo());
+    }
+
+    @Test
+    public void testDoDeductWithLikeOperator() {
+        // 准备测试数据
+        List<TestObject> objects = Arrays.asList(
+                new TestObject("para11", "para11 description", 1, "3G", "1"),
+                new TestObject("para12", "para12 description", 2, "4G", "2"),
+                new TestObject("para31", "para31 description", 2, "5G", "3"),
+                new TestObject("para32", "para32 description", 3, "6G", "4"));
+
+        // 测试扣除 code like "para1%"，应该返回 code 不以 "para1" 开头的对象
+        List<TestObject> result = FilterExpressionExecutor.doDeduct(objects, "code like \"para1%\"");
+
+        assertEquals(2, result.size());
+        assertTrue(result.stream().allMatch(obj -> !obj.getCode().startsWith("para1")));
+    }
+
+    @Test
+    public void testDoDeductWithNotLikeOperator() {
+        // 准备测试数据
+        List<TestObject> objects = Arrays.asList(
+                new TestObject("para11", "para11 description", 1, "3G", "1"),
+                new TestObject("para12", "para12 description", 2, "4G", "2"),
+                new TestObject("para31", "para31 description", 2, "5G", "3"),
+                new TestObject("para32", "para32 description", 3, "6G", "4"));
+
+        // 测试扣除 code not like "para1%"，应该返回 code 以 "para1" 开头的对象
+        List<TestObject> result = FilterExpressionExecutor.doDeduct(objects, "code not like \"para1%\"");
+
+        assertEquals(2, result.size());
+        assertTrue(result.stream().allMatch(obj -> obj.getCode().startsWith("para1")));
+    }
+
+    @Test
+    public void testDoDeductWithEmptyList() {
+        List<TestObject> objects = Arrays.asList();
+        List<TestObject> result = FilterExpressionExecutor.doDeduct(objects, "code=\"test\"");
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    public void testDoDeductWithNullFilter() {
+        List<TestObject> objects = Arrays.asList(
+                new TestObject("para11", "para11 description", 1, "3G", "1"));
+        List<TestObject> result = FilterExpressionExecutor.doDeduct(objects, (String) null);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    public void testDoDeductWithInvalidExpression() {
+        List<TestObject> objects = Arrays.asList(
+                new TestObject("para11", "para11 description", 1, "3G", "1"),
+                new TestObject("para12", "para12 description", 2, "4G", "2"));
+        // 无效的表达式，应该返回原始列表
+        List<TestObject> result = FilterExpressionExecutor.doDeduct(objects, "invalid expression");
+        assertEquals(2, result.size());
+    }
+
     /**
      * 测试用的对象类
      */
@@ -318,5 +470,39 @@ public class FilterExpressionExecutorTest {
                 .attr("thickness", thickness)
                 .attr("elasticity", elasticity)
                 .build();
+    }
+
+    /**
+     * 测试用的Part对象类，用于doDeduct测试
+     */
+    private static class TestPart extends Extensible {
+        private String code;
+        private String speed;
+        private String capacity;
+
+        public TestPart(String code, String speed, String capacity) {
+            this.code = code;
+            this.speed = speed;
+            this.capacity = capacity;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public String getSpeed() {
+            return speed;
+        }
+
+        public String getCapacity() {
+            return capacity;
+        }
+    }
+
+    /**
+     * 创建测试用的Part对象
+     */
+    private TestPart createTestPart(String code, String speed, String capacity) {
+        return new TestPart(code, speed, capacity);
     }
 }
