@@ -98,6 +98,9 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
         }
 
         // rule2://固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量
+        // @PriorityRuleAnno(fatherCode = "drive", normalNaturalCode =
+        // "固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量", attrCode = "capacityWeight", strategy =
+        // PriorityStrategy.MAX, type = PriorityType.SELECT)
         @PriorityRuleAnno(fatherCode = "drive", normalNaturalCode = "固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量", attrCode = "capacityWeight", strategy = PriorityStrategy.MAX, type = PriorityType.SELECT)
         private void rule2() {
             // proRule2-natuarl: 固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量
@@ -119,7 +122,18 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
         inferRecommend("drive", "drive:sum.Quantity ==2 where Speed=5400");
         // Print solutions for debugging
         printSimpleSolutions();
+        // S_1: md1(Q:1,H:0,S:1),sd1(Q:1,H:0,S:1),PAs(CA:123.0) PO:123.0 PS:1
+        // S_2: md1(0*),sd1(Q:2,H:0,S:1),PAs(CA:110.0) PO:110.0 PS:2
+        // reqRuleA2-cRule: md1.Q* + sd1.Q* == 2
 
+        // proRule1-natuarl: 固态硬盘必须配置同一种，并且最多配置2块
+        // sd1.S =1
+        // sd1.Q <= 2
+
+        // proRule2-expr: md1.S_1*13 + sd1.S_1*110 ==错的
+        // proRule2-expr: md1.S_0*13 + sd1.S_2*110 =240
+        // proRule2-step1: maximum(expr) ->
+        // 也有没有数据
     }
 
     // 要求5400速率的固态硬盘2块
@@ -155,15 +169,15 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
         inferRecommend("drive", "drive:sum.Capacity >=5 where Speed like %5400%");
         // Print solutions for debugging
         printSimpleSolutions();
-        // resultAssert().assertSolutionSizeEqual(3);
-        // solutions(0).assertPart("sd2").quantityEqual(2);
-        // solutions(0).assertPA("CA").valueEqual(120.0);
-        // solutions(0).assertPOEqual(120.0);
-        // solutions(0).assertPSEqual(1);
+        resultAssert().assertSolutionSizeEqual(3);
+        solutions(0).assertPart("sd2").quantityEqual(2);
+        solutions(0).assertPA("CA").valueEqual(120.0);
+        solutions(0).assertPOEqual(120.0);
+        solutions(0).assertPSEqual(1);
 
-        // soluContain("md1(0*),sd1(0*),sd2(Q:2,H:0,S:1),PAs(CA:120.0) PO:120.0 PS:1");
-        // soluContain("md1(0*),sd1(Q:1,H:0,S:1),sd2(0*)");
-        // soluContain("md1(0*),sd1(Q:2,H:0,S:1),sd2(0*),PAs(CA:110.0) PO:110.0 PS:3");
+        soluContain("md1(0*),sd1(0*),sd2(Q:2,H:0,S:1),PAs(CA:120.0) PO:120.0 PS:1");
+        soluContain("md1(0*),sd1(Q:1,H:0,S:1),sd2(0*)");
+        soluContain("md1(0*),sd1(Q:2,H:0,S:1),sd2(0*),PAs(CA:110.0) PO:110.0 PS:3");
 
     }
 }

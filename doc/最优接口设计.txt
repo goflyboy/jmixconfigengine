@@ -1536,6 +1536,17 @@ class PriorityStrategy {
  
 
 2026-1-11：
+TODO： 133.0  设置max，没有达到最大数量怎么办？
+
+TODO：先忙着物理上的约束的多解，在满足的  其它维度的多解？  现满足基本要求？  再是其它的解？ 
+---成本，Profit， 简单算法？ --- 
+---多维度求解？   
+---两个物理上约束的最优解，然后是获取、成本等，最优解？ ***
+一个partCategoy有多个吗？ 
+
+---多个在一起，怎么计算是？  ---放在一起？ --- （要放在一起计算） 
+---
+
 
 TODO：画一个约束模型等？ --**  Part selected  qty 
 
@@ -1905,7 +1916,134 @@ public class Para extends DynamicAttribute {
 }
 
 
+设计x11:先过滤再计算  过滤采用的 筛选法，还是筛选法？ ---
 
+1、扣除法     
+deductPartCodes
+
+
+1、类FilterExpressionExecutor
+增加一个函数
+    /**
+     * 根据扣除表达式获得扣除后的对象列表，例如:
+     * partCode speed capacity
+     * part1 5400 1T
+     * part2 7200 2T
+     * part3 9000 4T
+     * deductExpr = speed 5400,则返回结果 part2，part3
+     * 
+     * @param objects    要扣除对象列表-全
+     * @param deductExpr 扣除表达式
+     * @param <T>        对象类型，必须继承自Extensible
+     * @return 扣除后的对象列表
+     */
+    public static <T extends Extensible> List<T> doDeduct(List<T> objects, String deductExpr) {
+		Optional<FilterCondition> deductCondition = parseFilterExpression(deductExpr);
+		将deductCondition转化过滤表达式 filterCondition = !deductCondition ---写一个函数,并补充相应的测试用例
+          --根据operator来， 如果deductCondition.opereator = "=" ,则 filterCondition.opereator ="!=" 
+          --根据operator来， 如果deductCondition.opereator = "=" ,则 filterCondition.opereator ="!=" 
+		  
+	}
+
+
+
+PartCategory  
+
+---分类1 
+
+
+先过滤再计算 ---
+
+  计算---
+
+
+
+
+TODO：
+1、是不是把小的sqlite引入进来  doSelect
+1、实现多个条件排序？
+2、多个目标值求解？ 有一个的 --排序 
+一次只能有个目标函数？ 
+---最大，最小？
+
+---先标准化？    --放到同一个全局
+ 
+---写一个例子处理？ --文档，处理？ 
+
+标准化，在加权总
+ 
+100   
+Relax  ---10
+
+Product -- 1
+Level5  --1
+Level4  --0.9
+Levle5  --0.8
+Levle4 ---0.7
+Level5----0.
+最多同时支持5个;
+
+
+TODO：where 条件复杂化？ 
+
+TODO: 计算一个最大值乎， >=, 需要normal 把他均匀化，方便能搜索到？ ---**   = PriorityType.SELECT)  如何数量 --- 如果 
+
+TODO： 价格优先 ，可能物理约束不一定度满足？  --***
+ ---为什么不能算后，再按 多维去的排序？ ---因为有 优先条件，可能价格的因素考到？ 
+----优先使用？ 
+
+
+TODO：多解？ ---**
+---多个用户的过滤条件？ 
+---
+---CPU和电脑组合的问题？ ---**
+
+-----未来组合是不是两种？ 
+-----子模块，和子模块自己的约束？ ---> 先计算一个范围和结果？ 
+
+
+---方案1：
+ ---分层？  --产品级？ ---先把维度减少?  做参数直接相关过滤？ 
+
+ ---方案，放在一起  ---
+  ---关键分类直接的计算---》  放在电脑层级？ ————
+
+
+
+
+     part1A，
+---数量计算，这个很麻烦？ ---？
+
+各种案例？ ---
+
+  分类和分类直接有 属性直接的约束  变成 部件集合1  部件集合2 的关系？ 
+   如果 CPU配置了 dell，则硬盘 智能是 5400转的、
+  分类数量和分类数量直接的直接的约束？   硬盘的数量= CPU的数量
+  分类数据和 另外一个分类属性的关系   电脑的数量  = CPU的接口数  *2  
+  混合： 
+维度1： 和类型相关
+维度2： 表达是的复杂度，简单表达式还是复杂的 while 等？ 
+
+
+  单选的分类
+  多选分类 --- select的关系？ ————-
+
+
+--
+---先过滤（筛选法，扣除法），在求解
+
+---分层计算？ **--参数和参数直接？ ---
+
+--- --TODO：
+---性能模型？  ---5个分类，每个分类有300个铺分类，每个分类 10个条约束，产品  ---  reqCon 100% req  30%过滤量， 性能分别是多少？ --** 单最优解， 5个推荐解 10个推荐解多长时间？ ***
+---没和都已经先提前计算好？  
+----参数和参数之间？ ---性能--对这块的算法？ ***
+
+
+TODO：提取标准化和 最大化标准化有什么区别？ 
+提取标准化：
+part1...P100
+  --ListPrice  --1,10,100,50000  --< (01,
 
 
 TODO:

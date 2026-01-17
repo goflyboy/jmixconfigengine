@@ -64,7 +64,12 @@ public final class FilterExpressionExecutor {
     }
 
     /**
-     * 根据过滤表达式过滤对象列表
+     * 根据过滤表达式过滤对象列表，例如:
+     * partCode speed capacity
+     * part1 5400 1T
+     * part2 7200 2T
+     * part3 9000 4T
+     * filterExpr = speed 5400,则返回结果 part1
      * 
      * @param objects    要过滤的对象列表
      * @param filterExpr 过滤表达式

@@ -52,6 +52,9 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
     // 优先级属性最优值列表
     private List<PriorityAttrValueImpl> optimalValues = new ArrayList<>();
 
+    // 最大解数量限制，0表示无限制
+    private int maxSolutionNum = 0;
+
     // 常量定义
     private static final String OTHER_VARIABLES_VALUE_KEY = "OTHER_VARIABLES_VALUE";
 
@@ -109,6 +112,22 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
         this.optimalValues = optimalValues != null ? optimalValues : new ArrayList<>();
     }
 
+    /**
+     * 构造函数
+     * 
+     * @param module         模块对象
+     * @param vars           变量列表
+     * @param otherVarMap    其他变量映射
+     * @param alg            约束算法实现
+     * @param optimalValues  优先级属性最优值列表
+     * @param maxSolutionNum 最大解数量限制，0表示无限制
+     */
+    public ModuleInstSolutionCallBack(Module module, List<Var<?>> vars, Map<String, OtherVar> otherVarMap,
+            ConstraintAlgImpl alg, List<PriorityAttrValueImpl> optimalValues, int maxSolutionNum) {
+        this(module, vars, otherVarMap, alg, optimalValues);
+        this.maxSolutionNum = maxSolutionNum;
+    }
+
     @Override
     public void onSolutionCallback() {
         // 后续考虑多线程，需要解决对相同解重复遍历（如：通过校验), this.stopSearch()
@@ -139,6 +158,12 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
         processPriorityValues(moduleInst);
 
         allSolutions.add(moduleInst);
+
+        // 如果达到最大解数量限制，停止搜索
+        if (maxSolutionNum > 0 && allSolutions.size() >= maxSolutionNum) {
+            log.info("Reached maximum solution limit: {}, stopping search", maxSolutionNum);
+            stopSearch();
+        }
     }
 
     /**

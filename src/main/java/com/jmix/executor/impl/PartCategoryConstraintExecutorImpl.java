@@ -137,8 +137,9 @@ public class PartCategoryConstraintExecutorImpl {
         solver.getParameters().setNumSearchWorkers(1); // 单线程搜索，防止有重复解
         log.info("solver parameters:\n" + solver.getParameters().toString());
         // 可按需设置更多参数
+        int maxSolutionNum = partCatagoryReq.getMaxSolutionNum() > 0 ? partCatagoryReq.getMaxSolutionNum() : 10;
         ModuleInstSolutionCallBack cb = new ModuleInstSolutionCallBack(module, alg.getVars(),
-                alg.getOtherVarMap());
+                alg.getOtherVarMap(), null, null, maxSolutionNum);
         CpSolverStatus status = solver.solve(alg.getModel().getCpModel(), cb);
 
         // 如果模型无效，调用ValidateCpModel获取详细错误信息
@@ -303,8 +304,10 @@ public class PartCategoryConstraintExecutorImpl {
             multiSolver.getParameters().setEnumerateAllSolutions(true);
             multiSolver.getParameters().setNumSearchWorkers(1);
 
+            // 获取最大解数量限制
+            int maxSolutionNum = partCatagoryReq.getMaxSolutionNum() > 0 ? partCatagoryReq.getMaxSolutionNum() : 10;
             ModuleInstSolutionCallBack multiCb = new ModuleInstSolutionCallBack(module, multiAlg.getVars(),
-                    multiAlg.getOtherVarMap(), multiAlg, optimalValues);
+                    multiAlg.getOtherVarMap(), multiAlg, optimalValues, maxSolutionNum);
             CpSolverStatus multiStatus = multiSolver.solve(multiModel, multiCb);
 
             if (multiStatus == CpSolverStatus.OPTIMAL || multiStatus == CpSolverStatus.FEASIBLE) {
@@ -322,13 +325,6 @@ public class PartCategoryConstraintExecutorImpl {
         if (!allSolutions.isEmpty()) {
             sortSolutionsByPriority(allSolutions, priorityRules, alg);
             log.info(" Priority-process pconstraint-step4 sort solutions by priority finished........");
-        }
-
-        // 限制解的数量
-        int maxSolutionNum = partCatagoryReq.getMaxSolutionNum() > 0 ? partCatagoryReq.getMaxSolutionNum() : 10;
-        if (allSolutions.size() > maxSolutionNum) {
-            allSolutions = allSolutions.subList(0, maxSolutionNum);
-            log.info("Limited solutions to {} as requested", maxSolutionNum);
         }
         log.info(" Priority-process pconstraint-step3 solver finished........");
         return Result.success(allSolutions);
