@@ -30,15 +30,17 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
         // 硬盘部件分类定义--严格按层级结构定义（顺序很重要），部件的attrs也要按定义的顺序来
         @PartAnno(code = "drive")
         @DAttrAnno2(code = "Speed", dynAttrType = DynamicAttributeType.E_STRING, optionExtSchema = "StringUnit", options = {
-                "Speed_5400:5400:转",
+                "Speed_3000:3000:转",
                 "Speed_9000:9000:转",
+                "Speed_5400:5400:转",
                 "Speed_9900:9900:转",
                 "Speed_7200a5400:7200/5400:转",
                 "Speed_7200:7200:转" }, instType = 0)
         @DAttrAnno3(code = "Capacity", optionExtSchema = "IntegerUnit", options = { "Capacity_1T:1:T",
                 "Capacity_2T:2:T",
                 "Capacity_4T:4:T" }, instType = 0)
-        @DAttrAnno4(code = "capacityWeight", optionExtSchema = "IntegerUnit", options = { "CW_11:11", "CW_12:12",
+        @DAttrAnno4(code = "capacityWeight", optionExtSchema = "IntegerUnit", options = { "CW_10:10", "CW_11:11",
+                "CW_12:12",
                 "CW_13:13",
                 "CW_110:110", "CW_120:120", "CW_130:130" }, instType = 0) // 不同点：带点实现, 权总考虑的30%，建议是15%左右
         private PartCategoryVar driveVar;
@@ -174,7 +176,7 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
         inferRecommend("drive", "drive:sum.Capacity >=5 where Speed like %5400%");
         // Print solutions for debugging
         printSimpleSolutions();
-        resultAssert().assertSolutionSizeEqual(3);
+        resultAssert().assertSolutionSizeEqual(10);
         solutions(0).assertPart("sd2").quantityEqual(2);
         solutions(0).assertPA("CA").valueEqual(120.0);
         solutions(0).assertPOEqual(120.0);
@@ -184,5 +186,12 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
         soluContain("md1(0*),sd1(Q:1,H:0,S:1),sd2(0*)");
         soluContain("md1(0*),sd1(Q:2,H:0,S:1),sd2(0*),PAs(CA:110.0) PO:110.0 PS:3");
 
+    }
+
+    // 要求5400速率的固态硬盘2块
+    @Test
+    public void testNoSpeedRequirement() {
+        inferRecommend("drive", "drive:sum.Quantity ==2 where Speed=3000");
+        resultAssert().assertSolutionSizeEqual(0);
     }
 }

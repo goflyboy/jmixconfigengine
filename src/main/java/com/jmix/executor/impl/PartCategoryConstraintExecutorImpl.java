@@ -32,7 +32,11 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 部件分类约束执行器实现类
@@ -88,7 +92,9 @@ public class PartCategoryConstraintExecutorImpl {
 
             // 检查是否有优先级规则，如果有则使用分级求解
             if (filteredCategory.hasPriorityRule()) {
-                return solveWithPriorityConstraints(alg, filteredCategory, isAttachRelax, confictedRelaxs,
+                PartCategory mergedFilteredCategory = buildMergedFilteredCategory(originalCategory,
+                        partConstraintFromReqs);
+                return solveWithPriorityConstraints(alg, mergedFilteredCategory, isAttachRelax, confictedRelaxs,
                         partCatagoryReq, module, partConstraintFromReqs);
             }
 
@@ -209,7 +215,7 @@ public class PartCategoryConstraintExecutorImpl {
             CpModel optModel = new CpModel();
             optAlg.initModel(optModel, filteredCategory, isAttachRelax, confictedRelaxs);
             initModelByReq(partCatagoryReq, optAlg);
-            initModelByPriorityConstraints(filteredCategory, partConstraintFromReqs, optAlg);
+            initModelByPriorityConstraints(partConstraintFromReqs, optAlg);
             optAlg.addRelaxObjectFunction();
 
             // 重新构建目标函数表达式（使用新的alg实例）
@@ -260,8 +266,7 @@ public class PartCategoryConstraintExecutorImpl {
             CpModel multiModel = new CpModel();
             multiAlg.initModel(multiModel, filteredCategory, isAttachRelax, confictedRelaxs);
             initModelByReq(partCatagoryReq, multiAlg);
-            initModelByPriorityConstraints(filteredCategory, partConstraintFromReqs,
-                    multiAlg);
+            initModelByPriorityConstraints(partConstraintFromReqs, multiAlg);
             multiAlg.addRelaxObjectFunction();
 
             // 对每个最优值添加约束：保持高优先级目标在最优值的30%范围内
@@ -369,17 +374,70 @@ public class PartCategoryConstraintExecutorImpl {
     }
 
     /**
+     * 构建合并后的过滤分类
+     * 仅支持两层结果，不构建结构
+     * 使用扣除法原则：
+     * - 含有父分类，则求并集
+     * - 不含有父分类，补充没有在里面的子分类的部件
+     * 
+     * @param originalCategory       原始部件分类
+     * @param partConstraintFromReqs 部件约束列表
+     * @return 合并后的过滤分类
+     */
+    private PartCategory buildMergedFilteredCategory(PartCategory originalCategory,
+            List<ParConstraint> partConstraintFromReqs) {
+        // <partCode, Part>
+        Map<String, Part> mergedAtomicParts = new HashMap<>();
+        Set<String> allPartCategoryCodes = new HashSet<>();
+
+        // 收集所有约束请求的分类代码和原子部件
+        for (ParConstraint partConstraint : partConstraintFromReqs) {
+            String categoryCode = partConstraint.getOrgReq().getPartCatagoryCode();
+            if (categoryCode != null) {
+                allPartCategoryCodes.add(categoryCode);
+            }
+            // 合并原子部件
+            if (partConstraint.getFilteredCategory() != null) {
+                List<Part> atomicParts = partConstraint.getFilteredCategory().getAtomicParts();
+                for (Part part : atomicParts) {
+                    mergedAtomicParts.put(part.getCode(), part);
+                }
+            }
+        }
+
+        // 判断父分类是否包含在allPartCategoryCodes中
+        if (!allPartCategoryCodes.contains(originalCategory.getCode())) {
+            // 要把没有包含的子分类的部件补充上
+            Map<String, PartCategory> partCategoryMap = originalCategory.getPartCategoryMap();
+            if (partCategoryMap != null) {
+                for (PartCategory subPartCategory : partCategoryMap.values()) {
+                    if (!allPartCategoryCodes.contains(subPartCategory.getCode())) {
+                        // 补充未包含的子分类的所有原子部件
+                        List<Part> subAtomicParts = subPartCategory.getAtomicParts();
+                        for (Part part : subAtomicParts) {
+                            mergedAtomicParts.put(part.getCode(), part);
+                        }
+                    }
+                }
+            }
+        }
+
+        // 克隆原始分类并添加合并的部件
+        PartCategory resultCategory = originalCategory.clone();
+        resultCategory.addParts(new ArrayList<>(mergedAtomicParts.values()));
+        return resultCategory;
+    }
+
+    /**
      * 根据请求初始化约束模型
      * 
-     * @param filteredCategory       过滤后的部件分类
      * @param partConstraintFromReqs 部件约束列表
      * @param alg                    约束算法实现
      */
-    private void initModelByPriorityConstraints(PartCategory filteredCategory,
+    private void initModelByPriorityConstraints(
             List<ParConstraint> partConstraintFromReqs, ConstraintAlgImpl alg) {
-        List<Part> filterParts = filteredCategory.getAtomicParts();
         for (ParConstraint partConstraint : partConstraintFromReqs) {
-            alg.sumFunConstraint(filterParts, partConstraint);
+            alg.sumFunConstraint(partConstraint.getFilteredCategory().getAtomicParts(), partConstraint);
         }
     }
 
@@ -406,6 +464,7 @@ public class PartCategoryConstraintExecutorImpl {
         fromReq.setComparator(partConstraintReq.getAttrComparator());
         fromReq.setLeftValue(Integer.parseInt(partConstraintReq.getAttrValue()));
         fromReq.setOrgReq(partConstraintReq);
+        fromReq.setFilteredCategory(filteredCategory);
         partConstraintFromReqs.add(fromReq);
     }
 

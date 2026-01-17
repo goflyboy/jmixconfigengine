@@ -160,7 +160,7 @@ public class PartCategory extends Part implements IModule {
                 if (instValues.isEmpty()) {
                     continue;
                 }
-                Part cPart = part.clone();
+                Part cPart = part.clone();// 带有实例属性，通过clone的方法，把属性的多实例值进行汇总，存储起来，方便后续调用。
                 List<DynamicAttribute> instAttrsList = category.queryDynAttrSchemas4Inst();
                 for (DynamicAttribute instAttr : instAttrsList) {
                     String sumAttrValue = null;
@@ -350,6 +350,22 @@ public class PartCategory extends Part implements IModule {
         for (Part part : subParts) {
             addSubPart(part);
         }
+    }
+
+    /**
+     * 添加部件列表（不构建结构，直接添加到partMap）
+     *
+     * @param parts 部件列表
+     */
+    public void addParts(List<? extends Part> parts) {
+        if (parts == null) {
+            return;
+        }
+        for (Part part : parts) {
+            this.partMap.put(part.getCode(), part);
+        }
+        // 清空atomicParts缓存，因为添加了新部件
+        this.atomicParts = null;
     }
 
     /**

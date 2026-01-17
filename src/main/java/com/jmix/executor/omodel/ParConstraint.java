@@ -1,5 +1,7 @@
 package com.jmix.executor.omodel;
 
+import com.jmix.executor.imodel.PartCategory;
+
 import lombok.Data;
 
 /**
@@ -29,4 +31,9 @@ public class ParConstraint {
      * 原始部件约束请求
      */
     private PartConstraintReq orgReq;
+
+    /**
+     * 过滤后的部件分类
+     */
+    private PartCategory filteredCategory;
 }

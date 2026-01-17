@@ -1950,9 +1950,110 @@ deductPartCodes
  public static final String OP_NOT_LIKE = "not like";
 
 
+设计xxx1
 
-对PartCategory做下列增强
-1、参考
+ 
+
+1、对类ParConstraint做系列增强：
+增加属性 
+  PartCategory filteredCategory
+
+2、对类PartCategoryConstraintExecutorImpl做下列增强
+2.1 方法initModelByPriorityConstraints
+改前:
+    private void initModelByPriorityConstraints(PartCategory filteredCategory,
+            List<ParConstraint> partConstraintFromReqs, ConstraintAlgImpl alg) { 
+	...
+	 alg.sumFunConstraint(filterParts, partConstraint);
+	...
+}
+改后：
+    private void initModelByPriorityConstraints( 
+            List<ParConstraint> partConstraintFromReqs, ConstraintAlgImpl alg) { 
+	...
+	 alg.sumFunConstraint(partConstraint.getFilteredCategory().getAtomicParts(), partConstraint);
+	...
+}
+
+2.2 增加函数
+PartCategory buildMergedFilteredCategory(PartCategory originalCategory,List<ParConstraint> partConstraintFromReqs) {
+	//仅支持两层结果，不构建结构
+	//扣除法的原则
+//实现案例
+ //--drive PC 
+ //----sd  PC 
+ //-------sd1 part 
+ //-------sd2 part 
+ //-------sd3 part 
+ //----md  PC 
+ //-------md1 part 
+ //-------md2 part 
+ //-------md3 part 
+
+//含有父，则求并集
+//input1: req1:{sd->sd1,sd2} req2:{drive-> md1} --> mReq={sd1,sd2,md1} 
+//input1: req1:{sd->sd1,sd2} req2:{drive-> sd1} --> mReq={sd1,sd2} 
+---不还原其层次结构
+
+//不含有父，补充没有在里面的子分类的部件
+//input1: req1:{sd->sd1,sd2} req2:{md->md1} --> mReq={sd1,sd2,md1}  // 各个孩子都有
+//input2: req1:{sd->sd1,sd2} req2:{sd->sd1} --> mReq={sd1,sd2,md1,md2,md3} //部分 各个孩子都有 ***求交集？
+   
+
+	//<partCode,Part>
+	Map<String,Part> meregedAtomicParts = ...
+	Set<String> allPartCatagoryCodes = ...
+	for(partConstraintFromReq: partConstraintFromReqs) { 
+		allPartCatagoryCodes.add(partConstraintFromReq.orgReq.getPartCatagoryCode())
+		meregedAtomicParts.putAll(partConstraint.getFilteredCategory().getAtomicParts()); 
+	}
+	//判断父是否包含
+	if(!allPartCatagoryCodes.contains(originalCategory.getCode()) {
+	{
+		//要把没有包含的补充上
+		for(subPartCategory,allPartCatagoryCodes.getpartCategoryMap().values)
+		{
+			if(!allPartCatagoryCodes.contains(subPartCategory.getCode()) {
+				meregedAtomicParts.addAll(subPartCategory.getAtomicParts);
+			}
+		}
+	} 
+	resultCategory = originalCategory.clone();
+	resultCategory.addParts(meregedAtomicParts);//不构建结构
+	return resultCategory；
+}
+
+
+2.3 方法processPartCategory修复如下：
+改前：
+ ...processPartCategory(...)
+ {
+	...
+	...
+	solveWithPriorityConstraints(alg, filteredCategory, isAttachRelax, confictedRelaxs,
+							partCatagoryReq, module, partConstraintFromReqs)
+	...
+  }
+改后：
+ ...processPartCategory(...)
+ {
+	...
+	...
+	mergedFilteredCategorg = buildMergedFilteredCategory(originalCategory, partConstraintFromReqs);
+	solveWithPriorityConstraints(alg, mergedFilteredCategorg, isAttachRelax, confictedRelaxs,
+							partCatagoryReq, module, partConstraintFromReqs)
+	...
+  }
+
+
+
+
+如果是带CPU的案例，组合类型，先求关键？ 
+
+
+
+
+
 
 req1: 
 
@@ -1961,6 +2062,7 @@ req1:
 
 req1 
   分类1：
+  
   filterPartCodes //过滤后的partCods
 
 req2
@@ -1970,23 +2072,75 @@ req2
 
 几种情况：
 案例：
- req1：  要求3000速率的硬盘是2块，没有慢慢找
+req1:  没有满足要求的？
+ req1：  要求3000速率的硬盘是2块，没有满足要求，直接无解？ 
+
+
+TODO：这两边的代码合并在一起，使用claude看一下，是否可以？   把本体结构构建起来？ ***
+--三个代码？ ---
+--单层？
+
+---先求关键part
+
+TODO: 在把yuzhi的例子搞进来 ?**
+
 
 场景1：
 分类之间是包含关系   req2=sd,sd3  --> req1->    md1,sd1,sd2,sd3  --大很少？ 有一个边没有 
-    // req1 要求9900速率的硬盘容量>=8T(其它容量不限制？）     req1=drive, md4,
-	//
+    // req1 要求9900速率的硬盘容量>=8T(其它容量不限制？）     req1=drive, md4,   md4.Q * 4 >=8   全量有
+	// req2 要求5400速率的固态硬盘数量是2个  req2    req2=sd sd1,sd2     其它不限制？  sd1.Q + sd2.Q = 2  
+每个part都有变量的  和在一起？  ==》  md4,sd1,sd2  
+
+场景1： 
+    
+TODO:考虑属性的多实例？ 
+  req2： 要求5400速率的固态硬盘的总容量大于=8%？
+  为什么要使用Part clone？ *** ，  如果没有多inst ,就不需要赋值？
+   
+
+
+
+req1 和 req2两种理解？ ---一种是的 and， 一种或
+
+
 
 分类之间是包含关系    req1=drive, md1,sd1,sd2  req2=sd,sd3  --> req1->    md1,sd1,sd2,sd3  --按分类相加
 分类之间的并列关系    req1=md, md1   req2=sd,sd3  --> req1->  md1，sd3
 分类之间
 维度，同一个分类？ 
 
-TODO：不同分类的也不同？ ---**
+单个，但是没有包括另外半边 
+req1 = 9900速率的机械硬盘容量>=8T  md4:4T   md4.Q*4 >=8  最少配吧？  md1~md3也是可以配置的？  汇总的数量**  rule1的的规则没有名字，使用过滤法是不行的？
+req2 = 总容量大量16T    sd1.Q*1 + sd2. Q  **       最优解？   卡一下？ 
+
+
+
+---另外版本没有算法
+
+TODO：“固态硬盘必须配置同一种” ---单选PartCategory ***
+  
+
+
+
+
+
+
+---req=“
+
+TODO：不同分类的也不同？ ---**  同类产品，不同类产品的？  过滤的规则怎么写？ 
 按分类相加
+---硬盘 
+----机械硬盘  
+----固态硬盘
+
+---CPU 
+----cpu11
+----cpu11
 
 TODO：搞一个简单的例子
 
+
+多条件组合的问题?  *** 
 
 --分类1：
 
