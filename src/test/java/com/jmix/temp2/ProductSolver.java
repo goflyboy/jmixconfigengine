@@ -1,15 +1,15 @@
 package com.jmix.temp2;
 
 import com.jmix.executor.imodel.Extensible;
-import com.jmix.executor.omodel.PartConstraintReq;
 import com.jmix.executor.impl.util.FilterExpressionExecutor;
+import com.jmix.executor.omodel.PartConstraintReq;
 
 import com.google.ortools.Loader;
 import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.CpModel;
 import com.google.ortools.sat.CpSolver;
-import com.google.ortools.sat.CpSolverStatus;
 import com.google.ortools.sat.CpSolverSolutionCallback;
+import com.google.ortools.sat.CpSolverStatus;
 import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.LinearExpr;
 import com.google.ortools.sat.LinearExprBuilder;
@@ -179,6 +179,9 @@ public class ProductSolver {
 
     /**
      * 过滤部件
+     * 根据 ProductRule2：固态硬盘优先匹配高速率容量
+     * - 对于固态硬盘（sd）：不受 Speed 过滤条件限制，所有固态硬盘都参与求解
+     * - 对于机械硬盘（md）：需要满足 Speed 过滤条件
      */
     private List<Part> filterParts(PartConstraintReq req) {
         if (req.getAttrWhereCondition() == null || req.getAttrWhereCondition().trim().isEmpty()) {
@@ -191,13 +194,37 @@ public class ProductSolver {
             extensibleParts.add(new ExtensiblePart(part));
         }
 
-        List<ExtensiblePart> filteredExtensibleParts = FilterExpressionExecutor.doSelect(extensibleParts,
+        // 根据 ProductRule2，固态硬盘优先匹配高速率容量
+        // 所有固态硬盘都参与求解（不受 Speed 过滤限制）
+        // 机械硬盘需要满足 Speed 过滤条件
+        List<Part> filteredParts = new ArrayList<>();
+
+        // 先添加所有固态硬盘
+        for (Part part : allParts) {
+            if ("sd".equals(part.getType())) {
+                filteredParts.add(part);
+            }
+        }
+
+        // 对机械硬盘应用过滤条件
+        List<ExtensiblePart> mdParts = new ArrayList<>();
+        for (ExtensiblePart extensiblePart : extensibleParts) {
+            if ("md".equals(extensiblePart.getPart().getType())) {
+                mdParts.add(extensiblePart);
+            }
+        }
+
+        List<ExtensiblePart> filteredMdParts = FilterExpressionExecutor.doSelect(mdParts,
                 req.getAttrWhereCondition());
 
-        List<Part> filteredParts = new ArrayList<>();
-        for (ExtensiblePart extensiblePart : filteredExtensibleParts) {
+        // 添加满足条件的机械硬盘
+        for (ExtensiblePart extensiblePart : filteredMdParts) {
             filteredParts.add(extensiblePart.getPart());
         }
+
+        log.info("Filtered parts: {} SD parts (all) + {} MD parts (filtered by: {})",
+                allParts.stream().filter(p -> "sd".equals(p.getType())).count(),
+                filteredMdParts.size(), req.getAttrWhereCondition());
 
         return filteredParts;
     }
@@ -336,6 +363,8 @@ public class ProductSolver {
 
         if (status == CpSolverStatus.OPTIMAL || status == CpSolverStatus.FEASIBLE) {
             log.info("Solver found {} solutions", solutions.size());
+            // 对解按优先级规则排序
+            sortSolutionsByPriority(solutions, partVars);
             return ProductResult.success(solutions);
         } else if (status == CpSolverStatus.INFEASIBLE) {
             log.warn("No feasible solution found");
@@ -344,6 +373,96 @@ public class ProductSolver {
             log.error("Solver failed with status: {}", status);
             return ProductResult.failed("Solver failed with status: " + status);
         }
+    }
+
+    /**
+     * 对解按优先级规则排序
+     * 根据 ProductRule2：固态硬盘优先匹配高速率容量
+     * 排序规则：
+     * 1. 优先使用固态硬盘（sd）而非机械硬盘（md）
+     * 2. 优先使用高速率、高容量的固态硬盘
+     * 3. 尽量少使用机械硬盘
+     */
+    private void sortSolutionsByPriority(List<List<ProductResult.PartVarSolution>> solutions,
+            List<PartVar> partVars) {
+        // 创建 partVar 映射，方便查找
+        Map<String, PartVar> partVarMap = new HashMap<>();
+        for (PartVar partVar : partVars) {
+            partVarMap.put(partVar.getCode(), partVar);
+        }
+
+        solutions.sort((s1, s2) -> {
+            // 计算解的优先级分数
+            int score1 = calculateSolutionScore(s1, partVarMap);
+            int score2 = calculateSolutionScore(s2, partVarMap);
+            // 降序排列，分数高的在前
+            return Integer.compare(score2, score1);
+        });
+    }
+
+    /**
+     * 计算解的优先级分数
+     * 分数越高，优先级越高
+     * 
+     * @param solution   解
+     * @param partVarMap 部件变量映射
+     * @return 优先级分数
+     */
+    private int calculateSolutionScore(List<ProductResult.PartVarSolution> solution,
+            Map<String, PartVar> partVarMap) {
+        int score = 0;
+        int totalSdCapacity = 0;
+
+        int totalSdSpeed = 0;
+
+        int totalMdQty = 0;
+
+        int totalSdQty = 0;
+
+        for (ProductResult.PartVarSolution partSolution : solution) {
+            PartVar partVar = partVarMap.get(partSolution.getCode());
+            if (partVar == null) {
+                continue;
+            }
+
+            int qty = partSolution.getQty();
+            if (qty <= 0) {
+                continue;
+            }
+
+            String type = partVar.getPart().getType();
+            if ("sd".equals(type)) {
+                // 固态硬盘：容量和速率越高，分数越高
+                totalSdCapacity += partVar.getCapacity() * qty;
+                totalSdSpeed += Integer.parseInt(partVar.getSpeed()) * qty;
+                totalSdQty += qty;
+            } else if ("md".equals(type)) {
+                // 机械硬盘：使用越少越好，所以扣分
+                totalMdQty += qty;
+            }
+        }
+
+        // 计算分数：
+        // 根据 ProductRule2：固态硬盘优先匹配高速率容量
+        // 排序规则：
+        // 1. 优先使用固态硬盘而非机械硬盘（如果使用了机械硬盘，大幅扣分）
+        // 2. 固态硬盘的速率越高越好（优先匹配高速率）
+        // 3. 固态硬盘的容量越高越好（优先匹配高容量）
+        // 4. 固态硬盘数量越少越好（在满足容量要求的前提下，用更少的块数更好）
+
+        if (totalMdQty > 0) {
+            // 如果使用了机械硬盘，大幅扣分
+            score = -1000000 + totalSdSpeed * 100 + totalSdCapacity * 10 - totalMdQty * 1000;
+        } else {
+            // 只使用固态硬盘，按速率和容量排序
+            // 速率权重更高，因为优先匹配高速率
+            score = totalSdSpeed * 1000 + totalSdCapacity * 100 - totalSdQty;
+        }
+
+        log.debug("Solution score: {} (sdCapacity: {}, sdSpeed: {}, sdQty: {}, mdQty: {})", score,
+                totalSdCapacity, totalSdSpeed, totalSdQty, totalMdQty);
+
+        return score;
     }
 
     /**
@@ -406,4 +525,3 @@ public class ProductSolver {
 
     }
 }
-

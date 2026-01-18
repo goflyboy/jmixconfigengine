@@ -2044,17 +2044,17 @@ PartCategory buildMergedFilteredCategory(PartCategory originalCategory,List<ParC
 							partCatagoryReq, module, partConstraintFromReqs)
 	...
   }
-
-当前实现下列求解器，请实现：
 仅在下列package创建代码，不能修改其它地方的代码
 package com.jmix.temp2;
 
 
+请按下列设计，实现优先类规则的求解 
+要求使用java 的ortools-java 
 ##1、设计 
 ###1.1、核心类
 class ProductSolver {
 {
-	//要求5400速率的硬盘容量>=5T-->strReq ="drive:sum.Capacity >=5 where Speed like %5400%"
+	//要求5400速率的硬盘容量>=5T-->strReq =" Capacity >=5 where Speed = 5400"
 	ProductResult solve(String strReq) {
 		将strReq转换为req：PartConstraintReq
 		加载所有的parts:List<Part>
@@ -2062,7 +2062,7 @@ class ProductSolver {
         根据filterdParts构建约束变量 partVars:List<PartVar> 
 		根据req和partVars来构造约束  //如：sd1.qty* 3 + md1.qty* 2 >=5
 		根据proRule2/proRule1和partVars构建约束  
-		进行求解 
+		进行求解,对解进行排序
 	}
 }		 
 
