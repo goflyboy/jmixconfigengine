@@ -686,7 +686,6 @@ public abstract class ModuleScenarioTestBase {
         long endTime = System.currentTimeMillis();
         long executionTime = endTime - startTime;
         log.info("Inference recommend execution time: {} ms", executionTime);
-        log.info("Inference recommend result: {}", result);
         setResult(result);
         setSolutions(result.getData());
         return getSolutions();

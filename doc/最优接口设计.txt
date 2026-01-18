@@ -2045,7 +2045,149 @@ PartCategory buildMergedFilteredCategory(PartCategory originalCategory,List<ParC
 	...
   }
 
+当前实现下列求解器，请实现：
+仅在下列package创建代码，不能修改其它地方的代码
+package com.jmix.temp2;
 
+
+##1、设计 
+###1.1、核心类
+class ProductSolver {
+{
+	//要求5400速率的硬盘容量>=5T-->strReq ="drive:sum.Capacity >=5 where Speed like %5400%"
+	ProductResult solve(String strReq) {
+		将strReq转换为req：PartConstraintReq
+		加载所有的parts:List<Part>
+        调用FilterExpressionExecutor.doSelect(parts,req.attrWhereCondition) 得到 filterdParts;//如：md1，sd1 
+        根据filterdParts构建约束变量 partVars:List<PartVar> 
+		根据req和partVars来构造约束  //如：sd1.qty* 3 + md1.qty* 2 >=5
+		根据proRule2/proRule1和partVars构建约束  
+		进行求解 
+	}
+}		 
+
+@Data
+public class PartConstraintReq {
+
+    /**
+     * 属性代码
+     */
+    private String attrCode;
+
+    /**
+     * 属性比较符
+     */
+    private String attrComparator;
+
+    /**
+     * 属性值
+     */
+    private String attrValue;
+
+    /**
+     * 属性过滤条件
+     */
+    private String attrWhereCondition;
+
+}
+
+
+ 
+1、优先类规则：固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量 
+解读1：如果指定了容量诉求，优先使用固态品牌满足，如果固态硬盘容量已足够，限制机械硬盘使用
+解决2：如果没有指定容量诉求，尽量用固态硬盘满足，限制机械硬盘使用
+
+使用权重法实现这个优选类规则，   如果需要没有明确指定对容量的要求，怎么实现“如果固态硬盘容量已足够，限制机械硬盘使用 ”    ，例如：要求5400速率的固态硬盘2块,    \n 固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量  ，   // 约束4: SSD优先使用
+        addSsdPriorityConstraint();
+
+
+##2.产品的模型：
+###2.1 模型定义
+class Part {
+	String code；
+	BoolVar isSelected；//isSelect"（是否选中）
+	IntVar qty;//配置数量“
+    String speed;
+	int capacity;
+}
+class PartVar   {
+	Part part；
+	String code；
+	BoolVar isSelected；//isSelect"（是否选中）
+	IntVar qty;//配置数量“
+	getSpeed(){...}
+	getCapacity(){...}
+}
+###2.2 产品优先类规则
+proRule1:优先类规则：固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量 
+解读1：如果指定了容量诉求，优先使用固态品牌满足，如果固态硬盘容量已足够，限制机械硬盘使用
+解决2：如果没有指定容量诉求，尽量用固态硬盘满足，限制机械硬盘使用
+
+proRule2:固态硬盘必须配置同一种，并且最多配置2块
+
+###2.3 产品样例数据        
+        // ----sd PC  --固态硬盘 	 是否选中）  数量  speed  类型  容量 
+        // -------sd1 			.isSelect .qty   5400   sd   3
+        // -------sd2 			.isSelect .qty	 7200	sd   6
+        // -------sd3 			.isSelect .qty   9000	sd   9
+        // ----md    机械硬盘 	 是否选中）  数量  speed  类型 容量 	
+        // -------md1 			.isSelect .qty	 5400   md  1
+        // -------md2 			.isSelect .qty   7200	md  2
+        // -------md3 			.isSelect .qty   9000	md  3
+	                                                        	
+
+
+###典型案例：
+
+构建测试用例：
+用例0： 测试点，解读1 
+	输入：
+	  strReq =  " Capacity >=6 where Speed = 5400"
+	输出： 
+	  解1： sd2.qty=1 //优先匹配高速率容量
+	  解2： sd1.qty=2    
+	  解3： sd1.qty=1     md1.qty=3   //增配低速率容量 
+	  ...
+	     
+
+用例1： 测试点，解读1 
+	输入：
+	  strReq =  " Capacity >=5 where Speed = 5400"
+	输出： 
+	 解1： sd1.qty=2  
+	 解2： sd1.qty=1 md2.qty=1 
+	 ...
+
+用例2： 测试点，解读1 
+	输入：
+	  strReq =  " Capacity >=7 where Speed = 5400"
+	输出：
+	  sd1.qty=2   md1.qty=1 (固态硬盘容量不够，使用机械硬盘补充）
+用例3： 测试点，解读2 
+	输入：
+	  strReq =  " Qty >=2 where Speed Speed = 5400"
+	输出：
+	  sd1.qty=2  
+
+用例4： 测试点，解读2 
+	输入：
+	  strReq =  " Qty >=3 where Speed Speed = 5400"
+	输出：
+	  sd1.qty=2  md1.qty=1 (固态硬盘容量不够，使用机械硬盘补充）
+
+用例5： 测试点，解读1 -固态硬盘优先匹配高速率容量
+	输入：
+	  strReq =  " Capacity >=5  "
+	输出： 
+	 解1： sd2.qty=1  
+	 解2： sd1.qty=2  
+
+
+ 
+
+	
+
+TODO：开放一个模块来做这个事情？ --- 一个模型不能完全表达这个意思
 
 
 如果是带CPU的案例，组合类型，先求关键？ 
@@ -2075,6 +2217,9 @@ req2
 req1:  没有满足要求的？
  req1：  要求3000速率的硬盘是2块，没有满足要求，直接无解？ 
 
+
+TODO: 多个优选规则的是否有冲突？ ---？ --怎么办？ **8
+  % 百分不好用
 
 TODO：这两边的代码合并在一起，使用claude看一下，是否可以？   把本体结构构建起来？ ***
 --三个代码？ ---

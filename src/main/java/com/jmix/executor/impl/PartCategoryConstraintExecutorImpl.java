@@ -374,6 +374,18 @@ public class PartCategoryConstraintExecutorImpl {
     }
 
     /**
+     * 将部件列表添加到合并的原子部件Map中
+     * 
+     * @param mergedAtomicParts 合并的原子部件Map
+     * @param parts             部件列表
+     */
+    private void addPartsToMap(Map<String, Part> mergedAtomicParts, List<Part> parts) {
+        for (Part part : parts) {
+            mergedAtomicParts.put(part.getCode(), part);
+        }
+    }
+
+    /**
      * 构建合并后的过滤分类
      * 仅支持两层结果，不构建结构
      * 使用扣除法原则：
@@ -386,42 +398,50 @@ public class PartCategoryConstraintExecutorImpl {
      */
     private PartCategory buildMergedFilteredCategory(PartCategory originalCategory,
             List<ParConstraint> partConstraintFromReqs) {
-        // <partCode, Part>
+        // 实现案例
+        // --drive PC
+        // ----sd PC
+        // -------sd1 part
+        // -------sd2 part
+        // -------sd3 part
+        // ----md PC
+        // -------md1 part
+        // -------md2 part
+        // -------md3 part
+
+        // 含有父，则求并集
+        // input1: req1:{sd->sd1,sd2} req2:{drive-> md1} --> mReq={sd1,sd2,md1}
+        // input1: req1:{sd->sd1,sd2} req2:{drive-> sd1} --> mReq={sd1,sd2}
+        // 不还原其层次结构
+
+        // 不含有父，补充没有在里面的子分类的部件
+        // input1: req1:{sd->sd1,sd2} req2:{md->md1} --> mReq={sd1,sd2,md1} // 各个孩子都有
+        // *input2: req1:{sd->sd1,sd2} req2:{sd->sd1} --> mReq={sd1,sd2,md1,md2,md3} 补充
+
         Map<String, Part> mergedAtomicParts = new HashMap<>();
         Set<String> allPartCategoryCodes = new HashSet<>();
 
         // 收集所有约束请求的分类代码和原子部件
         for (ParConstraint partConstraint : partConstraintFromReqs) {
             String categoryCode = partConstraint.getOrgReq().getPartCatagoryCode();
-            if (categoryCode != null) {
-                allPartCategoryCodes.add(categoryCode);
-            }
+            allPartCategoryCodes.add(categoryCode);
             // 合并原子部件
-            if (partConstraint.getFilteredCategory() != null) {
-                List<Part> atomicParts = partConstraint.getFilteredCategory().getAtomicParts();
-                for (Part part : atomicParts) {
-                    mergedAtomicParts.put(part.getCode(), part);
-                }
-            }
+            List<Part> atomicParts = partConstraint.getFilteredCategory().getAtomicParts();
+            addPartsToMap(mergedAtomicParts, atomicParts);
         }
 
         // 判断父分类是否包含在allPartCategoryCodes中
         if (!allPartCategoryCodes.contains(originalCategory.getCode())) {
             // 要把没有包含的子分类的部件补充上
             Map<String, PartCategory> partCategoryMap = originalCategory.getPartCategoryMap();
-            if (partCategoryMap != null) {
-                for (PartCategory subPartCategory : partCategoryMap.values()) {
-                    if (!allPartCategoryCodes.contains(subPartCategory.getCode())) {
-                        // 补充未包含的子分类的所有原子部件
-                        List<Part> subAtomicParts = subPartCategory.getAtomicParts();
-                        for (Part part : subAtomicParts) {
-                            mergedAtomicParts.put(part.getCode(), part);
-                        }
-                    }
+            for (PartCategory subPartCategory : partCategoryMap.values()) {
+                if (!allPartCategoryCodes.contains(subPartCategory.getCode())) {
+                    // 补充未包含的子分类的所有原子部件
+                    List<Part> subAtomicParts = subPartCategory.getAtomicParts();
+                    addPartsToMap(mergedAtomicParts, subAtomicParts);
                 }
             }
         }
-
         // 克隆原始分类并添加合并的部件
         PartCategory resultCategory = originalCategory.clone();
         resultCategory.addParts(new ArrayList<>(mergedAtomicParts.values()));

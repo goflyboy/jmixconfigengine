@@ -90,7 +90,7 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
         @PartAnno(fatherCode = "md", attrs = { "9900", "4", "10" })
         private PartVar md4;
 
-        // rule1://固态硬盘必须配置同一种，并且最多配置2块
+        // proRule1:固态硬盘必须配置同一种，并且最多配置2块
         @CodeRuleAnno(fatherCode = "drive", normalNaturalCode = "固态硬盘必须配置同一种，并且最多配置2块")
         private void rule1() {
             // proRule1-natuarl: 固态硬盘必须配置同一种，并且最多配置2块
@@ -104,10 +104,7 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
             model.addLessOrEqual(sumQty, 2);
         }
 
-        // rule2://固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量
-        // @PriorityRuleAnno(fatherCode = "drive", normalNaturalCode =
-        // "固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量", attrCode = "capacityWeight", strategy =
-        // PriorityStrategy.MAX, type = PriorityType.SELECT)
+        // proRule2:固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量
         @PriorityRuleAnno(fatherCode = "drive", normalNaturalCode = "固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量", attrCode = "capacityWeight", strategy = PriorityStrategy.MAX, type = PriorityType.SELECT)
         private void rule2() {
             // proRule2-natuarl: 固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量
@@ -115,7 +112,7 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
             // proRule2-expr: sd1.S*110 +sd2.S*120 + md1.S*13
             // proRule2-step1: maximum(expr) ->
             // proRule2-step2: expr >= 200*(1-30%) = 84
-        }
+        } // 优先使用固态硬盘：如果固态硬盘容量已足够，限制机械硬盘使用 TODO，怎么表达
     }
     // ---------------模型的定义end----------------------------------------
 
@@ -125,35 +122,63 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
 
     // 要求5400速率的硬盘2块
     @Test
-    public void testUserSpecialRequirementConstantAttr() {
+    public void correct_test_father_category_req() {
+        // 测试点：父层category，=表达式
         inferRecommend("drive", "drive:sum.Quantity ==2 where Speed=5400");
         // Print solutions for debugging
         printSimpleSolutions();
-        // S_1: md1(Q:1,H:0,S:1),sd1(Q:1,H:0,S:1),PAs(CA:123.0) PO:123.0 PS:1
-        // S_2: md1(0*),sd1(Q:2,H:0,S:1),PAs(CA:110.0) PO:110.0 PS:2
-        // reqRuleA2-cRule: md1.Q* + sd1.Q* == 2
 
-        // proRule1-natuarl: 固态硬盘必须配置同一种，并且最多配置2块
-        // sd1.S =1
+        resultAssert().assertSolutionSizeEqual(2);
+        soluContain("md1(Q:1,H:0,S:1),sd1(Q:1,H:0,S:1),PAs(CA:123.0) PO:123.0 PS:1");
+        soluContain("md1(0*),sd1(Q:2,H:0,S:1),PAs(CA:110.0) PO:110.0 PS:2");
+
+        // Req:
+        // drive:sum.Quantity ==2 where Speed=5400
+        // md1.Q* + sd1.Q* == 2
+
+        // proRule1:固态硬盘必须配置同一种，并且最多配置2块
+        // sd1.S <= 1
         // sd1.Q <= 2
 
-        // proRule2-expr: md1.S_1*13 + sd1.S_1*110 ==错的
-        // proRule2-expr: md1.S_0*13 + sd1.S_2*110 =240
-        // proRule2-step1: maximum(expr) ->
-        // 也有没有数据
+        // proRule2-固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量
+        // PA_capacityWeight: md1.S_1*13 + sd1.S_1*110 = 123.0
+
+        // 最优解：
     }
 
-    // 要求5400速率的固态硬盘2块
+    // 要求5400速率的固态硬盘2块,
     @Test
-    public void testUserSpecialRequirement2() {
+    public void correct_test_child_category_req_priority_rule() { // rule2不正确
+        // 测试点：子category
         inferRecommend("drive", "sd:sum.Quantity ==2 where Speed like %5400%");
         // Print solutions for debugging
         printSimpleSolutions();
+
+        // resultAssert().assertSolutionSizeEqual(2);
+        // soluContain("md1(Q:1,H:0,S:1),sd1(Q:1,H:0,S:1),PAs(CA:123.0) PO:123.0 PS:1");
+        // soluContain("md1(0*),sd1(Q:2,H:0,S:1),PAs(CA:110.0) PO:110.0 PS:2");
+
+        // Req:
+        // sd:sum.Quantity ==2 where Speed like %5400%
+        // sd1.Q + sd2.Q == 2
+
+        // proRule1:固态硬盘必须配置同一种，并且最多配置2块
+        // sd1.S + sd2.S <= 1
+        // sd1.Q + sd2.Q <= 2
+
+        // proRule2-固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量 --关键1：
+        // PA_capacityWeight: md1.S_1*13 + md2.S_1*12 + md3.S_1*11 + md4.S_1*10 +
+        // sd1.S_0*110 + sd2.S_1*120 = 166.0
+        // 这个感觉，尽量要配置机械硬盘，和实际的语义不同
+
     }
 
     // 要求5400速率的硬盘容量>=5T
     @Test
-    public void testUserSpecialRequirement_sample() {
+    public void corrent_test_father_category() {
+
+        // 测试点， “固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量”没有满足，由于的0.3的权重，最优解没有出现
+        // 如果有多个 优先类规则，就不好办了？
         // reqRuleA-natuarl: 要求5400速率的硬盘容量>=5T
         // reqRuleA-dsl: drive:sum.Capacity >=5 where Speed like %5400%
         // reqRuleA1-fRule: select * drive where Speed like %5400% -> md1,sd1,sd2
