@@ -5,10 +5,10 @@ import static com.jmix.executor.bmodel.ModuleAlgArtifact.ALG_PACKAGE;
 import static com.jmix.executor.bmodel.ModuleAlgArtifact.ALG_PARA_CLASS;
 import static com.jmix.executor.bmodel.ModuleAlgArtifact.ALG_PART_CLASS;
 
-import com.jmix.executor.bmodel.ConstraintConfig;
 import com.jmix.executor.bmodel.ModuleAlgArtifact;
 import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
 import com.jmix.executor.omodel.AlgLoaderException;
+import com.jmix.executor.omodel.ConstraintConfig;
 
 import lombok.extern.slf4j.Slf4j;
 

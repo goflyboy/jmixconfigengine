@@ -1,6 +1,6 @@
 package com.jmix.tool.artbuilder.impl;
 
-import com.jmix.executor.bmodel.DynamicAttributerOption;
+import com.jmix.executor.bmodel.attr.DynamicAttributerOption;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

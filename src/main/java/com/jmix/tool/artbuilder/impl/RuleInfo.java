@@ -1,7 +1,7 @@
 package com.jmix.tool.artbuilder.impl;
 
-import com.jmix.executor.bmodel.Extensible;
-import com.jmix.executor.bmodel.rule.RuleTypeConstants;
+import com.jmix.executor.bmodel.base.Extensible;
+import com.jmix.executor.bmodel.logic.RuleTypeConstants;
 
 import lombok.Data;
 

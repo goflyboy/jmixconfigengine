@@ -2,7 +2,7 @@ package com.jmix.tool.autoruletest;
 
 import com.jmix.coretest.ConstraintAlgImplTestBase;
 import com.jmix.coretest.ModuleScenarioTestBase;
-import com.jmix.executor.bmodel.ConstraintConfig;
+import com.jmix.executor.omodel.ConstraintConfig;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
 import com.jmix.tool.bbuilder.anno.CompatiableRuleAnno;
 import com.jmix.tool.bbuilder.anno.ModuleAnno;

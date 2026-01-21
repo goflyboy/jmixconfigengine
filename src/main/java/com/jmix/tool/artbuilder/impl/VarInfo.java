@@ -1,6 +1,6 @@
 package com.jmix.tool.artbuilder.impl;
 
-import com.jmix.executor.bmodel.Extensible;
+import com.jmix.executor.bmodel.base.Extensible;
 
 import lombok.Data;
 

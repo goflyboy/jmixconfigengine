@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import com.jmix.executor.bmodel.Module;
-import com.jmix.executor.bmodel.Rule;
+import com.jmix.executor.bmodel.logic.Rule;
 import com.jmix.executor.impl.util.CommHelper;
 import com.jmix.tool.artbuilder.ModuleAlgArtifactGenerator;
 import com.jmix.tool.artbuilder.impl.ModuleVarInfo;

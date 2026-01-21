@@ -1,7 +1,7 @@
 package com.jmix.tool.bbuilder.anno;
 
-import com.jmix.executor.bmodel.Para;
-import com.jmix.executor.bmodel.ParaType;
+import com.jmix.executor.bmodel.para.Para;
+import com.jmix.executor.bmodel.para.ParaType;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

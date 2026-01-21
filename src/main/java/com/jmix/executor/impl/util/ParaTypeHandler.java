@@ -1,8 +1,8 @@
 package com.jmix.executor.impl.util;
 
-import com.jmix.executor.bmodel.DynamicAttributerOption;
-import com.jmix.executor.bmodel.Para;
-import com.jmix.executor.bmodel.ParaType;
+import com.jmix.executor.bmodel.attr.DynamicAttributerOption;
+import com.jmix.executor.bmodel.para.Para;
+import com.jmix.executor.bmodel.para.ParaType;
 import com.jmix.executor.omodel.AlgLoaderException;
 
 import lombok.extern.slf4j.Slf4j;

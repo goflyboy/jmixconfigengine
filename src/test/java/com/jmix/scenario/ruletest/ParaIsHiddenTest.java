@@ -2,8 +2,8 @@ package com.jmix.scenario.ruletest;
 
 import com.jmix.coretest.ConstraintAlgImplTestBase;
 import com.jmix.coretest.ModuleScenarioTestBase;
-import com.jmix.executor.bmodel.ConstraintConfig;
-import com.jmix.executor.bmodel.ParaType;
+import com.jmix.executor.bmodel.para.ParaType;
+import com.jmix.executor.omodel.ConstraintConfig;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
 import com.jmix.tool.bbuilder.anno.ModuleAnno;
 import com.jmix.tool.bbuilder.anno.ParaAnno;

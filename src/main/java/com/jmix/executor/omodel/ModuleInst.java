@@ -1,7 +1,5 @@
 package com.jmix.executor.omodel;
 
-import com.jmix.executor.bmodel.PriorityAttrValue;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;

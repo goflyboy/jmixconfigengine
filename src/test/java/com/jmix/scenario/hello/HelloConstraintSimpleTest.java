@@ -4,9 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.jmix.executor.ModuleConstraintExecutor;
-import com.jmix.executor.bmodel.ConstraintConfig;
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.impl.util.CommHelper;
+import com.jmix.executor.omodel.ConstraintConfig;
 import com.jmix.executor.omodel.InferParasReq;
 import com.jmix.executor.omodel.ModuleInst;
 import com.jmix.executor.omodel.ParaInst;

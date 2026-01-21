@@ -7,8 +7,8 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import com.jmix.coretest.ConstraintAlgImplTestBase;
 import com.jmix.executor.bmodel.Module;
-import com.jmix.executor.bmodel.ParaType;
-import com.jmix.executor.bmodel.Rule;
+import com.jmix.executor.bmodel.logic.Rule;
+import com.jmix.executor.bmodel.para.ParaType;
 import com.jmix.executor.impl.util.CommHelper;
 import com.jmix.tool.bbuilder.ModuleGenneratorByAnno;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;

@@ -1,5 +1,9 @@
 package com.jmix.executor.bmodel;
 
+import com.jmix.executor.bmodel.attr.DynamicAttribute;
+import com.jmix.executor.bmodel.attr.InstanceDynAttrValue;
+import com.jmix.executor.bmodel.base.ProgrammableObject;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;

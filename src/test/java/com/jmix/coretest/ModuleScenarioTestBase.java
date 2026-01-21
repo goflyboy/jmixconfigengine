@@ -1,15 +1,15 @@
 package com.jmix.coretest;
 
 import com.jmix.executor.ModuleConstraintExecutor;
-import com.jmix.executor.bmodel.ConstraintConfig;
 import com.jmix.executor.bmodel.Module;
-import com.jmix.executor.bmodel.Para;
 import com.jmix.executor.bmodel.Part;
+import com.jmix.executor.bmodel.para.Para;
 import com.jmix.executor.impl.ModuleConstraintExecutorImpl;
 import com.jmix.executor.impl.SolutionUtils;
 import com.jmix.executor.impl.util.CommHelper;
 import com.jmix.executor.impl.util.ParaTypeHandler;
 import com.jmix.executor.omodel.AlgLoaderException;
+import com.jmix.executor.omodel.ConstraintConfig;
 import com.jmix.executor.omodel.InferParasReq;
 import com.jmix.executor.omodel.ModuleInst;
 import com.jmix.executor.omodel.ParaInst;

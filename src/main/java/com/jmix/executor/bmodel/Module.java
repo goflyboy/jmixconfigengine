@@ -1,7 +1,11 @@
 package com.jmix.executor.bmodel;
 
-import com.jmix.executor.bmodel.rule.RefProgObjSchema;
-import com.jmix.executor.bmodel.rule.RuleTypeConstants;
+import com.jmix.executor.bmodel.base.Pair;
+import com.jmix.executor.bmodel.base.ProgrammableObject;
+import com.jmix.executor.bmodel.logic.RefProgObjSchema;
+import com.jmix.executor.bmodel.logic.Rule;
+import com.jmix.executor.bmodel.logic.RuleTypeConstants;
+import com.jmix.executor.bmodel.para.Para;
 import com.jmix.executor.impl.ModuleRefRelationGraph;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;

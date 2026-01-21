@@ -1,7 +1,7 @@
 package com.jmix.tool;
 
 import com.jmix.executor.bmodel.Module;
-import com.jmix.executor.bmodel.Rule;
+import com.jmix.executor.bmodel.logic.Rule;
 import com.jmix.executor.impl.algmodel.ConstraintAlg;
 import com.jmix.executor.impl.util.CommHelper;
 import com.jmix.executor.omodel.AlgLoaderException;

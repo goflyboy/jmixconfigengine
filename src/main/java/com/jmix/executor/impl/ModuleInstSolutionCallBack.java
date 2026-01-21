@@ -1,9 +1,7 @@
 package com.jmix.executor.impl;
 
 import com.jmix.executor.bmodel.Module;
-import com.jmix.executor.bmodel.PriorityAttrValue;
-import com.jmix.executor.bmodel.PriorityAttrValueImpl;
-import com.jmix.executor.bmodel.PriorityType;
+import com.jmix.executor.bmodel.logic.PriorityType;
 import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
 import com.jmix.executor.impl.algmodel.OtherVar;
 import com.jmix.executor.impl.algmodel.ParaVar;
@@ -13,6 +11,7 @@ import com.jmix.executor.omodel.AlgLoaderException;
 import com.jmix.executor.omodel.ModuleInst;
 import com.jmix.executor.omodel.ParaInst;
 import com.jmix.executor.omodel.PartInst;
+import com.jmix.executor.omodel.PriorityAttrValue;
 
 import com.google.ortools.sat.CpSolverSolutionCallback;
 

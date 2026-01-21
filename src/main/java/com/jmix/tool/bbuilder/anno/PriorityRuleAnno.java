@@ -1,7 +1,7 @@
 package com.jmix.tool.bbuilder.anno;
 
-import com.jmix.executor.bmodel.PriorityStrategy;
-import com.jmix.executor.bmodel.PriorityType;
+import com.jmix.executor.bmodel.logic.PriorityStrategy;
+import com.jmix.executor.bmodel.logic.PriorityType;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

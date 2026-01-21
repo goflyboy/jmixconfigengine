@@ -1,14 +1,13 @@
 package com.jmix.executor.impl;
 
 import com.jmix.executor.ModuleConstraintExecutor;
-import com.jmix.executor.bmodel.ConstraintConfig;
-import com.jmix.executor.bmodel.DynamicAttribute;
 import com.jmix.executor.bmodel.IModule;
 import com.jmix.executor.bmodel.Module;
-import com.jmix.executor.bmodel.Pair;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartCategory;
-import com.jmix.executor.bmodel.rule.RefProgObjSchema;
+import com.jmix.executor.bmodel.attr.DynamicAttribute;
+import com.jmix.executor.bmodel.base.Pair;
+import com.jmix.executor.bmodel.logic.RefProgObjSchema;
 import com.jmix.executor.impl.algmodel.AlgCPModel;
 import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
 import com.jmix.executor.impl.algmodel.RelaxVar;
@@ -16,6 +15,7 @@ import com.jmix.executor.impl.util.ReqUtils;
 import com.jmix.executor.omodel.AlgExecutorException;
 import com.jmix.executor.omodel.AlgLoaderException;
 import com.jmix.executor.omodel.AttrFunConstant;
+import com.jmix.executor.omodel.ConstraintConfig;
 import com.jmix.executor.omodel.ExtensibleProcess;
 import com.jmix.executor.omodel.InferParasPostProcess;
 import com.jmix.executor.omodel.InferParasReq;

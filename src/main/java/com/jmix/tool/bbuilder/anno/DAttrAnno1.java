@@ -1,6 +1,6 @@
 package com.jmix.tool.bbuilder.anno;
 
-import com.jmix.executor.bmodel.DynamicAttributeType;
+import com.jmix.executor.bmodel.attr.DynamicAttributeType;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -1,9 +1,9 @@
 package com.jmix.executor.impl;
 
-import com.jmix.executor.bmodel.PriorityStrategy;
-import com.jmix.executor.bmodel.PriorityType;
-import com.jmix.executor.bmodel.Rule;
-import com.jmix.executor.bmodel.rule.PriorityRuleSchema;
+import com.jmix.executor.bmodel.logic.PriorityRuleSchema;
+import com.jmix.executor.bmodel.logic.PriorityStrategy;
+import com.jmix.executor.bmodel.logic.PriorityType;
+import com.jmix.executor.bmodel.logic.Rule;
 import com.jmix.executor.impl.util.ExpressionCalculator;
 
 import com.google.ortools.sat.LinearExpr;

@@ -1,5 +1,8 @@
 package com.jmix.executor.bmodel;
 
+import com.jmix.executor.bmodel.logic.Rule;
+import com.jmix.executor.bmodel.para.Para;
+
 import java.util.List;
 import java.util.Optional;
 

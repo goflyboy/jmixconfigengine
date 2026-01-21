@@ -1,8 +1,8 @@
 package com.jmix.executor.impl.util;
 
-import com.jmix.executor.bmodel.Extensible;
 import com.jmix.executor.bmodel.InstanceDynAttrValueItem;
 import com.jmix.executor.bmodel.Part;
+import com.jmix.executor.bmodel.base.Extensible;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

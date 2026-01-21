@@ -3,7 +3,7 @@ package com.jmix.tool;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.jmix.executor.bmodel.Extensible;
+import com.jmix.executor.bmodel.base.Extensible;
 import com.jmix.executor.impl.util.FilterExpressionExecutor;
 
 import org.junit.jupiter.api.Test;

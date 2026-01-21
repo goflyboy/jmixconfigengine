@@ -1,18 +1,17 @@
 package com.jmix.executor.impl;
 
-import com.jmix.executor.bmodel.ConstraintConfig;
-import com.jmix.executor.bmodel.DynamicAttribute;
 import com.jmix.executor.bmodel.Module;
-import com.jmix.executor.bmodel.Pair;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartCategory;
-import com.jmix.executor.bmodel.PriorityAttrValueImpl;
-import com.jmix.executor.bmodel.PriorityStrategy;
-import com.jmix.executor.bmodel.Rule;
-import com.jmix.executor.bmodel.rule.PriorityRuleSchema;
+import com.jmix.executor.bmodel.attr.DynamicAttribute;
+import com.jmix.executor.bmodel.base.Pair;
+import com.jmix.executor.bmodel.logic.PriorityRuleSchema;
+import com.jmix.executor.bmodel.logic.PriorityStrategy;
+import com.jmix.executor.bmodel.logic.Rule;
 import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
 import com.jmix.executor.impl.algmodel.RelaxVar;
 import com.jmix.executor.omodel.AttrFunConstant;
+import com.jmix.executor.omodel.ConstraintConfig;
 import com.jmix.executor.omodel.InferPartCategoryReq;
 import com.jmix.executor.omodel.ModuleInst;
 import com.jmix.executor.omodel.ParConstraint;

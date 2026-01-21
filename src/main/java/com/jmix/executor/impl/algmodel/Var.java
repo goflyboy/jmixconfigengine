@@ -1,6 +1,6 @@
 package com.jmix.executor.impl.algmodel;
 
-import com.jmix.executor.bmodel.Programmable;
+import com.jmix.executor.bmodel.base.Programmable;
 
 import com.google.ortools.sat.CpSolverSolutionCallback;
 

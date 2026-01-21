@@ -2,9 +2,9 @@ package com.jmix.opti.base;
 
 import com.jmix.coretest.ConstraintAlgImplTestBase;
 import com.jmix.coretest.ModuleScenarioTestBase;
-import com.jmix.executor.bmodel.DynamicAttributeType;
-import com.jmix.executor.bmodel.PriorityStrategy;
-import com.jmix.executor.bmodel.PriorityType;
+import com.jmix.executor.bmodel.attr.DynamicAttributeType;
+import com.jmix.executor.bmodel.logic.PriorityStrategy;
+import com.jmix.executor.bmodel.logic.PriorityType;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
 import com.jmix.tool.bbuilder.anno.DAttrAnno1;
 import com.jmix.tool.bbuilder.anno.DAttrAnno2;

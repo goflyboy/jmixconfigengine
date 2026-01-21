@@ -1,7 +1,7 @@
 package com.jmix.tool.packtest;
 
 import com.jmix.coretest.ModuleScenarioTestBase;
-import com.jmix.executor.bmodel.ConstraintConfig;
+import com.jmix.executor.omodel.ConstraintConfig;
 import com.jmix.scenario.hello.HelloConstraint;
 
 import lombok.extern.slf4j.Slf4j;

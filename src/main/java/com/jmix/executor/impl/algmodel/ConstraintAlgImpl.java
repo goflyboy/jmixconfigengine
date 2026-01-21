@@ -1,16 +1,16 @@
 package com.jmix.executor.impl.algmodel;
 
-import com.jmix.executor.bmodel.DynamicAttributerOption;
 import com.jmix.executor.bmodel.IModule;
-import com.jmix.executor.bmodel.Para;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartCategory;
 import com.jmix.executor.bmodel.PartUtils;
-import com.jmix.executor.bmodel.PriorityType;
-import com.jmix.executor.bmodel.Rule;
-import com.jmix.executor.bmodel.rule.PriorityRuleSchema;
-import com.jmix.executor.bmodel.rule.RefProgObjSchema;
-import com.jmix.executor.bmodel.rule.RuleTypeConstants;
+import com.jmix.executor.bmodel.attr.DynamicAttributerOption;
+import com.jmix.executor.bmodel.logic.PriorityRuleSchema;
+import com.jmix.executor.bmodel.logic.PriorityType;
+import com.jmix.executor.bmodel.logic.RefProgObjSchema;
+import com.jmix.executor.bmodel.logic.Rule;
+import com.jmix.executor.bmodel.logic.RuleTypeConstants;
+import com.jmix.executor.bmodel.para.Para;
 import com.jmix.executor.impl.PriorityConstraint;
 import com.jmix.executor.impl.util.FilterExpressionExecutor;
 import com.jmix.executor.omodel.AlgLoaderException;

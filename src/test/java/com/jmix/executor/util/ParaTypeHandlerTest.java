@@ -5,9 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.jmix.executor.bmodel.DynamicAttributerOption;
-import com.jmix.executor.bmodel.Para;
-import com.jmix.executor.bmodel.ParaType;
+import com.jmix.executor.bmodel.attr.DynamicAttributerOption;
+import com.jmix.executor.bmodel.para.Para;
+import com.jmix.executor.bmodel.para.ParaType;
 import com.jmix.executor.impl.util.ParaTypeHandler;
 
 import org.junit.jupiter.api.Test;
