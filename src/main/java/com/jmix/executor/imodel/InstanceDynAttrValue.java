@@ -7,8 +7,6 @@ import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 多实例类型属性值
@@ -22,29 +20,6 @@ public class InstanceDynAttrValue {
      * 实例属性值列表
      */
     private List<InstanceDynAttrValueItem> instsValues = new ArrayList<>();
-
-    /**
-     * 根据条件查询实例属性值
-     * 支持精确匹配：fieldName = value，例如：Capacity =8T
-     * 支持模糊匹配：fieldName like %value%，例如：Speed like %5400%
-     *
-     * @param whereCondition 查询条件表达式
-     * @return 匹配的实例属性值列表
-     */
-    public List<InstanceDynAttrValueItem> query(String whereCondition) {
-        // 将实例属性值转换为属性映射列表
-        List<Map<String, String>> attrMaps = instsValues.stream()
-                .map(InstanceDynAttrValueItem::getInstAttrs)
-                .collect(Collectors.toList());
-
-        // 使用工具类进行查询
-        List<Map<String, String>> filteredAttrs = FilterUtils.query(attrMaps, whereCondition);
-
-        // 将过滤后的属性映射转换回实例属性值对象
-        return instsValues.stream()
-                .filter(item -> filteredAttrs.contains(item.getInstAttrs()))
-                .collect(Collectors.toList());
-    }
 
     /**
      * 将对象转换为JSON字符串
