@@ -3,7 +3,6 @@ package com.jmix.executor.bmodel;
 import com.jmix.executor.bmodel.rule.RuleTypeConstants;
 import com.jmix.executor.impl.util.FilterExpressionExecutor;
 import com.jmix.executor.impl.util.FilterExpressionExecutor.FilterCondition;
-import com.jmix.executor.impl.util.Pair;
 import com.jmix.executor.omodel.AttrFunConstant;
 import com.jmix.executor.omodel.PartConstantAttr;
 import com.jmix.executor.omodel.PartConstraintReq;

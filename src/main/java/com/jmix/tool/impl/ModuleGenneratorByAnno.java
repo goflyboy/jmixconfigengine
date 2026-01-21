@@ -7,6 +7,7 @@ import com.jmix.executor.bmodel.InstanceDynAttrValue;
 import com.jmix.executor.bmodel.InstanceDynAttrValueItem;
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.ModuleAlgArtifact;
+import com.jmix.executor.bmodel.Pair;
 import com.jmix.executor.bmodel.Para;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartCategory;
@@ -38,7 +39,6 @@ import com.jmix.executor.impl.algmodel.ParaVar;
 import com.jmix.executor.impl.algmodel.PartCategoryVar;
 import com.jmix.executor.impl.algmodel.PartVar;
 import com.jmix.executor.impl.util.ModuleUtils;
-import com.jmix.executor.impl.util.Pair;
 import com.jmix.executor.omodel.AlgLoaderException;
 
 import com.google.common.base.Strings;

@@ -3,7 +3,6 @@ package com.jmix.executor.impl;
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.PriorityAttrValue;
 import com.jmix.executor.bmodel.PriorityAttrValueImpl;
-import com.jmix.executor.bmodel.PriorityConstraint;
 import com.jmix.executor.bmodel.PriorityType;
 import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
 import com.jmix.executor.impl.algmodel.OtherVar;

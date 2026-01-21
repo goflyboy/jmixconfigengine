@@ -3,6 +3,7 @@ package com.jmix.tool.artifact;
 import com.jmix.executor.bmodel.DynamicAttributerOption;
 import com.jmix.executor.bmodel.Extensible;
 import com.jmix.executor.bmodel.Module;
+import com.jmix.executor.bmodel.Pair;
 import com.jmix.executor.bmodel.Para;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.ProgrammableObject;
@@ -13,7 +14,6 @@ import com.jmix.executor.bmodel.rule.RefProgObjSchema;
 import com.jmix.executor.bmodel.rule.RuleSchema;
 import com.jmix.executor.bmodel.rule.RuleTypeConstants;
 import com.jmix.executor.impl.util.FilterExpressionExecutor;
-import com.jmix.executor.impl.util.Pair;
 import com.jmix.executor.omodel.AlgLoaderException;
 
 import lombok.extern.slf4j.Slf4j;

@@ -1,4 +1,4 @@
-package com.jmix.executor.impl.util;
+package com.jmix.executor.bmodel;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

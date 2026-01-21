@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import com.jmix.executor.bmodel.DynamicAttributerOption;
 import com.jmix.executor.bmodel.Extensible;
 import com.jmix.executor.bmodel.Module;
+import com.jmix.executor.bmodel.Pair;
 import com.jmix.executor.bmodel.Para;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.Rule;
@@ -19,7 +20,6 @@ import com.jmix.executor.bmodel.rule.ExprSchema;
 import com.jmix.executor.bmodel.rule.RefProgObjSchema;
 import com.jmix.executor.bmodel.rule.RuleTypeConstants;
 import com.jmix.executor.bmodel.rule.SelectRuleSchema;
-import com.jmix.executor.impl.util.Pair;
 
 import lombok.extern.slf4j.Slf4j;
 

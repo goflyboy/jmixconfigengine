@@ -3,7 +3,6 @@ package com.jmix.executor.bmodel;
 import com.jmix.executor.bmodel.rule.RefProgObjSchema;
 import com.jmix.executor.bmodel.rule.RuleTypeConstants;
 import com.jmix.executor.impl.ModuleRefRelationGraph;
-import com.jmix.executor.impl.util.Pair;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Strings;

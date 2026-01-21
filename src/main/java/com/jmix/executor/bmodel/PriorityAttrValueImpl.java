@@ -1,6 +1,7 @@
 package com.jmix.executor.bmodel;
 
 import com.jmix.executor.bmodel.rule.PriorityRuleSchema;
+import com.jmix.executor.impl.PriorityConstraint;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
