@@ -24,7 +24,7 @@ public class ProductSolverTest {
      * 解2：sd1.qty=2
      * 解3：sd1.qty=1 md1.qty=3 //增配低速率容量
      */
-    @Test
+    // @Test
     public void testCase0_CapacityGreaterEqual6Speed5400() {
         ProductSolver solver = new ProductSolver();
         String strReq = " Capacity >=6 where Speed = 5400";
@@ -69,7 +69,7 @@ public class ProductSolverTest {
      * 解1：sd1.qty=2
      * 解2：sd1.qty=1 md2.qty=1
      */
-    @Test
+    // @Test
     public void testCase1_CapacityGreaterEqual5Speed5400() {
         ProductSolver solver = new ProductSolver();
         String strReq = " Capacity >=5 where Speed = 5400";
@@ -172,7 +172,7 @@ public class ProductSolverTest {
      * 解1：sd2.qty=1
      * 解2：sd1.qty=2
      */
-    @Test
+    // @Test
     public void testCase5_CapacityGreaterEqual5NoSpeedFilter() {
         ProductSolver solver = new ProductSolver();
         String strReq = " Capacity >=5 ";

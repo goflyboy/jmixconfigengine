@@ -114,7 +114,8 @@
         } ] ]
       }
     },
-    "ruleSchemaTypeFullName" : "CDSL.V5.Struct.TestRule"
+    "ruleSchemaTypeFullName" : "CDSL.V5.Struct.TestRule",
+    "fatherCode" : ""
   } ] ],
   "alg" : null
 }
