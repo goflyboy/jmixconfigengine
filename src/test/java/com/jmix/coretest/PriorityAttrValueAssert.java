@@ -1,7 +1,7 @@
 package com.jmix.coretest;
 
-import com.jmix.executor.imodel.Module;
-import com.jmix.executor.imodel.PriorityAttrValue;
+import com.jmix.executor.bmodel.Module;
+import com.jmix.executor.bmodel.PriorityAttrValue;
 import com.jmix.executor.omodel.ModuleInst;
 
 /**

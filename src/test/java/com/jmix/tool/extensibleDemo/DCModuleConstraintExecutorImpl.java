@@ -1,8 +1,8 @@
 package com.jmix.tool.extensibleDemo;
 
 import com.jmix.executor.ModuleConstraintExecutor;
-import com.jmix.executor.imodel.ConstraintConfig;
-import com.jmix.executor.imodel.Module;
+import com.jmix.executor.bmodel.ConstraintConfig;
+import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.omodel.ExtensibleProcess;
 import com.jmix.executor.omodel.InferParasReq;
 import com.jmix.executor.omodel.ModuleInst;

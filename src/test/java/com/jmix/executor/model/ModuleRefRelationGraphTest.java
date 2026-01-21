@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import com.jmix.executor.imodel.rule.RefProgObjSchema;
+import com.jmix.executor.bmodel.rule.RefProgObjSchema;
 import com.jmix.executor.impl.ModuleRefRelationGraph;
 import com.jmix.executor.impl.util.Pair;
 

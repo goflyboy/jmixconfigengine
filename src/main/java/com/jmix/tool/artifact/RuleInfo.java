@@ -1,7 +1,7 @@
 package com.jmix.tool.artifact;
 
-import com.jmix.executor.imodel.Extensible;
-import com.jmix.executor.imodel.rule.RuleTypeConstants;
+import com.jmix.executor.bmodel.Extensible;
+import com.jmix.executor.bmodel.rule.RuleTypeConstants;
 
 import lombok.Data;
 

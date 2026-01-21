@@ -1,7 +1,5 @@
 package com.jmix.executor.impl.algmodel;
 
-import com.jmix.executor.imodel.PartCategory;
-
 /**
  * 部件分类变量
  * 表示约束求解中的部件分类变量

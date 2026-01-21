@@ -1,6 +1,6 @@
 package com.jmix.tool.artifact;
 
-import com.jmix.executor.imodel.DynamicAttributerOption;
+import com.jmix.executor.bmodel.DynamicAttributerOption;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

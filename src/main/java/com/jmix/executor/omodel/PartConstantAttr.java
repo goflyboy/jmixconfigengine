@@ -1,6 +1,6 @@
 package com.jmix.executor.omodel;
 
-import com.jmix.executor.imodel.DynamicAttribute;
+import com.jmix.executor.bmodel.DynamicAttribute;
 
 /**
  * 部件常量属性

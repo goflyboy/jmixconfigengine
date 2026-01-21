@@ -1,6 +1,6 @@
 package com.jmix.executor.impl.algmodel;
 
-import com.jmix.executor.imodel.DynamicAttributerOption;
+import com.jmix.executor.bmodel.DynamicAttributerOption;
 
 import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.CpSolverSolutionCallback;

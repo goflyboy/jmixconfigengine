@@ -2,9 +2,9 @@ package com.jmix.executor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.jmix.executor.imodel.ConstraintConfig;
-import com.jmix.executor.imodel.Module;
-import com.jmix.executor.imodel.ModuleAlgArtifact;
+import com.jmix.executor.bmodel.ConstraintConfig;
+import com.jmix.executor.bmodel.Module;
+import com.jmix.executor.bmodel.ModuleAlgArtifact;
 import com.jmix.executor.impl.util.CommHelper;
 import com.jmix.executor.impl.util.ModuleUtils;
 import com.jmix.executor.omodel.InferParasReq;

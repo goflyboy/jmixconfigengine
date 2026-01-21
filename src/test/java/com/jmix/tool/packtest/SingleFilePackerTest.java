@@ -1,7 +1,7 @@
 package com.jmix.tool.packtest;
 
 import com.jmix.coretest.ModuleScenarioTestBase;
-import com.jmix.executor.imodel.ConstraintConfig;
+import com.jmix.executor.bmodel.ConstraintConfig;
 import com.jmix.scenario.ruletest.ParaIsHiddenTest;
 
 import lombok.extern.slf4j.Slf4j;

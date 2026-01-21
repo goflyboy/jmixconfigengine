@@ -1,9 +1,9 @@
 package com.jmix.coretest;
 
-import com.jmix.executor.imodel.Module;
-import com.jmix.executor.imodel.Para;
-import com.jmix.executor.imodel.Part;
-import com.jmix.executor.imodel.PriorityAttrValue;
+import com.jmix.executor.bmodel.Module;
+import com.jmix.executor.bmodel.Para;
+import com.jmix.executor.bmodel.Part;
+import com.jmix.executor.bmodel.PriorityAttrValue;
 import com.jmix.executor.omodel.ModuleInst;
 import com.jmix.executor.omodel.ParaInst;
 import com.jmix.executor.omodel.PartInst;

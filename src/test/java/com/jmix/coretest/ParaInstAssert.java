@@ -1,8 +1,8 @@
 package com.jmix.coretest;
 
-import com.jmix.executor.imodel.DynamicAttributerOption;
-import com.jmix.executor.imodel.Module;
-import com.jmix.executor.imodel.Para;
+import com.jmix.executor.bmodel.DynamicAttributerOption;
+import com.jmix.executor.bmodel.Module;
+import com.jmix.executor.bmodel.Para;
 import com.jmix.executor.impl.util.ParaTypeHandler;
 import com.jmix.executor.omodel.ModuleInst;
 import com.jmix.executor.omodel.ParaInst;

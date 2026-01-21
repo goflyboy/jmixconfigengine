@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.jmix.executor.imodel.Module;
+import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.impl.util.ModuleUtils;
 import com.jmix.executor.omodel.AlgLoaderException;
 import com.jmix.tool.artifact.ModuleAlgArtifactGenerator;

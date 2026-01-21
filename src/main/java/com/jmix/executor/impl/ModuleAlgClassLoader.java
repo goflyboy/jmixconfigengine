@@ -1,12 +1,12 @@
 package com.jmix.executor.impl;
 
-import static com.jmix.executor.imodel.ModuleAlgArtifact.ALG_BASE_CLASS;
-import static com.jmix.executor.imodel.ModuleAlgArtifact.ALG_PACKAGE;
-import static com.jmix.executor.imodel.ModuleAlgArtifact.ALG_PARA_CLASS;
-import static com.jmix.executor.imodel.ModuleAlgArtifact.ALG_PART_CLASS;
+import static com.jmix.executor.bmodel.ModuleAlgArtifact.ALG_BASE_CLASS;
+import static com.jmix.executor.bmodel.ModuleAlgArtifact.ALG_PACKAGE;
+import static com.jmix.executor.bmodel.ModuleAlgArtifact.ALG_PARA_CLASS;
+import static com.jmix.executor.bmodel.ModuleAlgArtifact.ALG_PART_CLASS;
 
-import com.jmix.executor.imodel.ConstraintConfig;
-import com.jmix.executor.imodel.ModuleAlgArtifact;
+import com.jmix.executor.bmodel.ConstraintConfig;
+import com.jmix.executor.bmodel.ModuleAlgArtifact;
 import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
 import com.jmix.executor.omodel.AlgLoaderException;
 

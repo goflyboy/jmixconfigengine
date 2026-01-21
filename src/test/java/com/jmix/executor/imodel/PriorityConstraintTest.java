@@ -4,8 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.jmix.executor.imodel.rule.PriorityRuleSchema;
-import com.jmix.executor.imodel.rule.RuleTypeConstants;
+import com.jmix.executor.bmodel.PriorityConstraint;
+import com.jmix.executor.bmodel.PriorityStrategy;
+import com.jmix.executor.bmodel.PriorityType;
+import com.jmix.executor.bmodel.Rule;
+import com.jmix.executor.bmodel.rule.PriorityRuleSchema;
+import com.jmix.executor.bmodel.rule.RuleTypeConstants;
 
 import org.junit.jupiter.api.Test;
 

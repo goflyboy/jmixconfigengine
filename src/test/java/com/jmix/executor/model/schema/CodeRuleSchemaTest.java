@@ -4,9 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.jmix.executor.imodel.rule.CodeRuleSchema;
-import com.jmix.executor.imodel.rule.RefProgObjSchema;
-import com.jmix.executor.imodel.rule.RuleSchema;
+import com.jmix.executor.bmodel.rule.CodeRuleSchema;
+import com.jmix.executor.bmodel.rule.RefProgObjSchema;
+import com.jmix.executor.bmodel.rule.RuleSchema;
 
 import org.junit.jupiter.api.Test;
 

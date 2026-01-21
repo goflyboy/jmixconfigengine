@@ -1,6 +1,6 @@
 package com.jmix.executor.impl.algmodel;
 
-import com.jmix.executor.imodel.Para;
+import com.jmix.executor.bmodel.Para;
 import com.jmix.executor.omodel.AlgLoaderException;
 
 import com.google.ortools.sat.BoolVar;

@@ -1,6 +1,6 @@
 package com.jmix.executor.impl;
 
-import com.jmix.executor.imodel.rule.RefProgObjSchema;
+import com.jmix.executor.bmodel.rule.RefProgObjSchema;
 import com.jmix.executor.impl.util.Pair;
 
 import lombok.extern.slf4j.Slf4j;

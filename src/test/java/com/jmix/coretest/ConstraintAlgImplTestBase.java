@@ -1,7 +1,7 @@
 package com.jmix.coretest;
 
-import com.jmix.executor.imodel.Para;
-import com.jmix.executor.imodel.Part;
+import com.jmix.executor.bmodel.Para;
+import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
 import com.jmix.executor.impl.algmodel.ParaOptionVar;
 import com.jmix.executor.impl.algmodel.Var;

@@ -1,8 +1,8 @@
 package com.jmix.tool.extensibleDemo;
 
-import com.jmix.executor.imodel.Module;
-import com.jmix.executor.imodel.Part;
-import com.jmix.executor.imodel.PartType;
+import com.jmix.executor.bmodel.Module;
+import com.jmix.executor.bmodel.Part;
+import com.jmix.executor.bmodel.PartType;
 import com.jmix.executor.omodel.AlgLoaderException;
 import com.jmix.executor.omodel.ExtensibleProcess;
 import com.jmix.executor.omodel.InferParasPostProcess;

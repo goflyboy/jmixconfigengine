@@ -2,12 +2,12 @@ package com.jmix.scenario.ruletest;
 
 import com.jmix.coretest.ConstraintAlgImplTestBase;
 import com.jmix.coretest.ModuleScenarioTestBase;
-import com.jmix.executor.imodel.ConstraintConfig;
-import com.jmix.executor.imodel.ParaType;
-import com.jmix.executor.imodel.anno.CodeRuleAnno;
-import com.jmix.executor.imodel.anno.ModuleAnno;
-import com.jmix.executor.imodel.anno.ParaAnno;
-import com.jmix.executor.imodel.anno.PartAnno;
+import com.jmix.executor.bmodel.ConstraintConfig;
+import com.jmix.executor.bmodel.ParaType;
+import com.jmix.executor.bmodel.anno.CodeRuleAnno;
+import com.jmix.executor.bmodel.anno.ModuleAnno;
+import com.jmix.executor.bmodel.anno.ParaAnno;
+import com.jmix.executor.bmodel.anno.PartAnno;
 
 import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.IntVar;

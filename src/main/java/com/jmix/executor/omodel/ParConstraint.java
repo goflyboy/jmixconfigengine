@@ -1,6 +1,6 @@
 package com.jmix.executor.omodel;
 
-import com.jmix.executor.imodel.PartCategory;
+import com.jmix.executor.bmodel.PartCategory;
 
 import lombok.Data;
 

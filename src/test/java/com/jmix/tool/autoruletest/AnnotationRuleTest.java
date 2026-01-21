@@ -6,14 +6,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import com.jmix.coretest.ConstraintAlgImplTestBase;
-import com.jmix.executor.imodel.Module;
-import com.jmix.executor.imodel.ParaType;
-import com.jmix.executor.imodel.Rule;
-import com.jmix.executor.imodel.anno.CodeRuleAnno;
-import com.jmix.executor.imodel.anno.CompatiableRuleAnno;
-import com.jmix.executor.imodel.anno.ModuleAnno;
-import com.jmix.executor.imodel.anno.ParaAnno;
-import com.jmix.executor.imodel.anno.PartAnno;
+import com.jmix.executor.bmodel.Module;
+import com.jmix.executor.bmodel.ParaType;
+import com.jmix.executor.bmodel.Rule;
+import com.jmix.executor.bmodel.anno.CodeRuleAnno;
+import com.jmix.executor.bmodel.anno.CompatiableRuleAnno;
+import com.jmix.executor.bmodel.anno.ModuleAnno;
+import com.jmix.executor.bmodel.anno.ParaAnno;
+import com.jmix.executor.bmodel.anno.PartAnno;
 import com.jmix.executor.impl.util.CommHelper;
 import com.jmix.tool.impl.ModuleGenneratorByAnno;
 

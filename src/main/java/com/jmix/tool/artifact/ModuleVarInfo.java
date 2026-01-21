@@ -1,6 +1,6 @@
 package com.jmix.tool.artifact;
 
-import com.jmix.executor.imodel.Module;
+import com.jmix.executor.bmodel.Module;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

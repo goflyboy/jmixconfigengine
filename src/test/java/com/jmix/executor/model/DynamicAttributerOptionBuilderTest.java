@@ -2,7 +2,7 @@ package com.jmix.executor.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.jmix.executor.imodel.DynamicAttributerOption;
+import com.jmix.executor.bmodel.DynamicAttributerOption;
 import com.jmix.executor.impl.ModuleBuilder;
 
 import org.junit.jupiter.api.Test;

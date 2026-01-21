@@ -1,6 +1,6 @@
 package com.jmix.tool.artifact;
 
-import com.jmix.executor.imodel.Para;
+import com.jmix.executor.bmodel.Para;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

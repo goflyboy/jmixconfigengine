@@ -1,6 +1,6 @@
 package com.jmix.executor.impl;
 
-import com.jmix.executor.imodel.Module;
+import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.impl.algmodel.OtherVar;
 import com.jmix.executor.omodel.ModuleInst;
 import com.jmix.executor.omodel.Result;

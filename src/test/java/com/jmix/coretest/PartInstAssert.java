@@ -1,11 +1,11 @@
 package com.jmix.coretest;
 
-import java.util.Objects;
-
-import com.jmix.executor.imodel.Module;
-import com.jmix.executor.imodel.Part;
+import com.jmix.executor.bmodel.Module;
+import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.omodel.ModuleInst;
 import com.jmix.executor.omodel.PartInst;
+
+import java.util.Objects;
 
 /**
  * 部件实例断言类

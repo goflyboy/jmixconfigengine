@@ -1,6 +1,6 @@
 package com.jmix.executor.omodel;
 
-import com.jmix.executor.imodel.PriorityAttrValue;
+import com.jmix.executor.bmodel.PriorityAttrValue;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

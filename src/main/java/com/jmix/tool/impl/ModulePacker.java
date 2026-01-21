@@ -1,7 +1,7 @@
 package com.jmix.tool.impl;
 
-import com.jmix.executor.imodel.Module;
-import com.jmix.executor.imodel.ModuleAlgArtifact;
+import com.jmix.executor.bmodel.Module;
+import com.jmix.executor.bmodel.ModuleAlgArtifact;
 import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
 import com.jmix.executor.impl.util.CommHelper;
 import com.jmix.executor.impl.util.ModuleUtils;

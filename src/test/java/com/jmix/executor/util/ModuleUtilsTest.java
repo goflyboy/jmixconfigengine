@@ -5,17 +5,17 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.jmix.executor.imodel.DynamicAttributerOption;
-import com.jmix.executor.imodel.Module;
-import com.jmix.executor.imodel.ModuleType;
-import com.jmix.executor.imodel.Para;
-import com.jmix.executor.imodel.ParaType;
-import com.jmix.executor.imodel.Part;
-import com.jmix.executor.imodel.PartType;
-import com.jmix.executor.imodel.Rule;
-import com.jmix.executor.imodel.rule.CompatiableRuleSchema;
-import com.jmix.executor.imodel.rule.ExprSchema;
-import com.jmix.executor.imodel.rule.RefProgObjSchema;
+import com.jmix.executor.bmodel.DynamicAttributerOption;
+import com.jmix.executor.bmodel.Module;
+import com.jmix.executor.bmodel.ModuleType;
+import com.jmix.executor.bmodel.Para;
+import com.jmix.executor.bmodel.ParaType;
+import com.jmix.executor.bmodel.Part;
+import com.jmix.executor.bmodel.PartType;
+import com.jmix.executor.bmodel.Rule;
+import com.jmix.executor.bmodel.rule.CompatiableRuleSchema;
+import com.jmix.executor.bmodel.rule.ExprSchema;
+import com.jmix.executor.bmodel.rule.RefProgObjSchema;
 import com.jmix.executor.impl.util.ModuleUtils;
 
 import lombok.extern.slf4j.Slf4j;

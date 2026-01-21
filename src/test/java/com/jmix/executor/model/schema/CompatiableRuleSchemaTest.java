@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.jmix.executor.imodel.rule.CompatiableRuleSchema;
+import com.jmix.executor.bmodel.rule.CompatiableRuleSchema;
 
 import org.junit.jupiter.api.Test;
 

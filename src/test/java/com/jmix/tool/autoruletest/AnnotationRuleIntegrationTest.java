@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import com.jmix.executor.imodel.Module;
-import com.jmix.executor.imodel.Rule;
+import com.jmix.executor.bmodel.Module;
+import com.jmix.executor.bmodel.Rule;
 import com.jmix.executor.impl.util.CommHelper;
 import com.jmix.tool.artifact.ModuleAlgArtifactGenerator;
 import com.jmix.tool.artifact.ModuleVarInfo;

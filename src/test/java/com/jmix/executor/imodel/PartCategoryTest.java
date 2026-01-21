@@ -7,6 +7,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.jmix.executor.bmodel.DynamicAttribute;
+import com.jmix.executor.bmodel.DynamicAttributeType;
+import com.jmix.executor.bmodel.InstanceDynAttrValue;
+import com.jmix.executor.bmodel.InstanceDynAttrValueItem;
+import com.jmix.executor.bmodel.Part;
+import com.jmix.executor.bmodel.PartCategory;
 import com.jmix.executor.impl.util.Pair;
 import com.jmix.executor.omodel.PartConstantAttr;
 import com.jmix.executor.omodel.PartConstraintReq;

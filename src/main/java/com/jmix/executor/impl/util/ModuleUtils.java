@@ -1,6 +1,6 @@
 package com.jmix.executor.impl.util;
 
-import com.jmix.executor.imodel.Module;
+import com.jmix.executor.bmodel.Module;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;

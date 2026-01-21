@@ -3,9 +3,9 @@ package com.jmix.tool;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.jmix.executor.imodel.DynamicAttributerOption;
-import com.jmix.executor.imodel.Extensible;
-import com.jmix.executor.imodel.Part;
+import com.jmix.executor.bmodel.DynamicAttributerOption;
+import com.jmix.executor.bmodel.Extensible;
+import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.impl.ModuleBuilder;
 import com.jmix.executor.impl.util.FilterExpressionExecutor;
 
