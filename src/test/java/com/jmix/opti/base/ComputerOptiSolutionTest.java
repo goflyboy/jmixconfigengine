@@ -5,15 +5,15 @@ import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.executor.bmodel.DynamicAttributeType;
 import com.jmix.executor.bmodel.PriorityStrategy;
 import com.jmix.executor.bmodel.PriorityType;
-import com.jmix.executor.bmodel.anno.CodeRuleAnno;
-import com.jmix.executor.bmodel.anno.DAttrAnno1;
-import com.jmix.executor.bmodel.anno.DAttrAnno2;
-import com.jmix.executor.bmodel.anno.DAttrAnno3;
-import com.jmix.executor.bmodel.anno.DAttrAnno4;
-import com.jmix.executor.bmodel.anno.DAttrInherit;
-import com.jmix.executor.bmodel.anno.ModuleAnno;
-import com.jmix.executor.bmodel.anno.PartAnno;
-import com.jmix.executor.bmodel.anno.PriorityRuleAnno;
+import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
+import com.jmix.tool.bbuilder.anno.DAttrAnno1;
+import com.jmix.tool.bbuilder.anno.DAttrAnno2;
+import com.jmix.tool.bbuilder.anno.DAttrAnno3;
+import com.jmix.tool.bbuilder.anno.DAttrAnno4;
+import com.jmix.tool.bbuilder.anno.DAttrInherit;
+import com.jmix.tool.bbuilder.anno.ModuleAnno;
+import com.jmix.tool.bbuilder.anno.PartAnno;
+import com.jmix.tool.bbuilder.anno.PriorityRuleAnno;
 
 import com.google.ortools.sat.LinearExpr;
 

@@ -1,4 +1,4 @@
-package com.jmix.executor.bmodel.anno;
+package com.jmix.tool.bbuilder.anno;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

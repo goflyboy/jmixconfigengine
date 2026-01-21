@@ -1,4 +1,4 @@
-package com.jmix.executor.bmodel.anno;
+package com.jmix.tool.bbuilder.anno;
 
 import com.jmix.executor.bmodel.DynamicAttributeType;
 
@@ -8,14 +8,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 动态属性注解1
+ * 动态属性注解2
  * 用于标记动态属性定义
  *
  * @since 2025-12-27
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface DAttrAnno1 {
+public @interface DAttrAnno2 {
     /**
      * 属性编码
      */

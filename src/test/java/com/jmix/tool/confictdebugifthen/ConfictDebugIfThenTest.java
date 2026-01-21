@@ -2,9 +2,9 @@ package com.jmix.tool.confictdebugifthen;
 
 import com.jmix.coretest.ConstraintAlgImplTestBase;
 import com.jmix.coretest.ModuleScenarioTestBase;
-import com.jmix.executor.bmodel.anno.CodeRuleAnno;
-import com.jmix.executor.bmodel.anno.ModuleAnno;
-import com.jmix.executor.bmodel.anno.PartAnno;
+import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
+import com.jmix.tool.bbuilder.anno.ModuleAnno;
+import com.jmix.tool.bbuilder.anno.PartAnno;
 
 import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.IntVar;

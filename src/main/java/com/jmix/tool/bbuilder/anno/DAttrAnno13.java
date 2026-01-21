@@ -1,4 +1,4 @@
-package com.jmix.executor.bmodel.anno;
+package com.jmix.tool.bbuilder.anno;
 
 import com.jmix.executor.bmodel.DynamicAttributeType;
 

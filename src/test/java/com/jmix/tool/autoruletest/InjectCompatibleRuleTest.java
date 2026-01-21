@@ -3,10 +3,10 @@ package com.jmix.tool.autoruletest;
 import com.jmix.coretest.ConstraintAlgImplTestBase;
 import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.executor.bmodel.ConstraintConfig;
-import com.jmix.executor.bmodel.anno.CodeRuleAnno;
-import com.jmix.executor.bmodel.anno.CompatiableRuleAnno;
-import com.jmix.executor.bmodel.anno.ModuleAnno;
-import com.jmix.executor.bmodel.anno.ParaAnno;
+import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
+import com.jmix.tool.bbuilder.anno.CompatiableRuleAnno;
+import com.jmix.tool.bbuilder.anno.ModuleAnno;
+import com.jmix.tool.bbuilder.anno.ParaAnno;
 
 import lombok.extern.slf4j.Slf4j;
 

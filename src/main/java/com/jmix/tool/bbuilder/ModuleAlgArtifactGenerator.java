@@ -1,4 +1,4 @@
-package com.jmix.tool.artifact;
+package com.jmix.tool.bbuilder;
 
 import com.jmix.executor.bmodel.DynamicAttributerOption;
 import com.jmix.executor.bmodel.Extensible;
@@ -15,6 +15,12 @@ import com.jmix.executor.bmodel.rule.RuleSchema;
 import com.jmix.executor.bmodel.rule.RuleTypeConstants;
 import com.jmix.executor.impl.util.FilterExpressionExecutor;
 import com.jmix.executor.omodel.AlgLoaderException;
+import com.jmix.tool.bbuilder.impl.ModuleVarInfo;
+import com.jmix.tool.bbuilder.impl.ParaOptionVarInfo;
+import com.jmix.tool.bbuilder.impl.ParaVarInfo;
+import com.jmix.tool.bbuilder.impl.PartVarInfo;
+import com.jmix.tool.bbuilder.impl.RuleInfo;
+import com.jmix.tool.bbuilder.impl.VarInfo;
 
 import lombok.extern.slf4j.Slf4j;
 

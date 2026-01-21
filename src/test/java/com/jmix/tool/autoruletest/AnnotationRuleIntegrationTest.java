@@ -8,8 +8,8 @@ import static org.junit.jupiter.api.Assertions.fail;
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.Rule;
 import com.jmix.executor.impl.util.CommHelper;
-import com.jmix.tool.artifact.ModuleAlgArtifactGenerator;
-import com.jmix.tool.artifact.ModuleVarInfo;
+import com.jmix.tool.bbuilder.ModuleAlgArtifactGenerator;
+import com.jmix.tool.bbuilder.impl.ModuleVarInfo;
 import com.jmix.tool.impl.ModuleGenneratorByAnno;
 import com.jmix.tool.impl.StructCodeInjector;
 

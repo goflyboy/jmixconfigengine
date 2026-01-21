@@ -20,6 +20,10 @@ import com.jmix.executor.bmodel.rule.ExprSchema;
 import com.jmix.executor.bmodel.rule.RefProgObjSchema;
 import com.jmix.executor.bmodel.rule.RuleTypeConstants;
 import com.jmix.executor.bmodel.rule.SelectRuleSchema;
+import com.jmix.tool.bbuilder.ModuleAlgArtifactGenerator;
+import com.jmix.tool.bbuilder.impl.ModuleVarInfo;
+import com.jmix.tool.bbuilder.impl.RuleInfo;
+import com.jmix.tool.bbuilder.impl.VarInfo;
 
 import lombok.extern.slf4j.Slf4j;
 

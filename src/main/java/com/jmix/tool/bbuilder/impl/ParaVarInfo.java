@@ -1,4 +1,4 @@
-package com.jmix.tool.artifact;
+package com.jmix.tool.bbuilder.impl;
 
 import com.jmix.executor.bmodel.Para;
 
