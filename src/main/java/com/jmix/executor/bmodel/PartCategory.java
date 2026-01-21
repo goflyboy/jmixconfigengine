@@ -39,24 +39,11 @@ import java.util.stream.Collectors;
 @Slf4j
 public class PartCategory extends Part implements IModule {
 
-    /**
-     * 规则列表
-     */
-    private List<Rule> rules = new ArrayList<>();
-
-    /**
-     * 参数列表
-     */
-    private List<Para> paras = new ArrayList<>();
-
     @JsonIgnore
     private Map<String, PartCategory> partCategoryMap = new HashMap<>();
 
     @JsonIgnore
     private Map<String, Part> partMap = new HashMap<>();
-
-    @JsonIgnore
-    private Map<String, Para> paraMap = new HashMap<>();
 
     @JsonIgnore
     private List<Part> atomicParts;
@@ -95,21 +82,6 @@ public class PartCategory extends Part implements IModule {
 
         // 不复制partCategoryMap和partMap，这些将在init方法中重新初始化
         return pc;
-    }
-
-    /**
-     * 初始化方法
-     * 对partCategoryMap、partMap、paraMap进行初始化
-     */
-    @JsonIgnore
-    public void init() {
-        // 初始化 paraMap
-        if (paras != null) {
-            for (Para para : paras) {
-                paraMap.put(para.getCode(), para);
-            }
-        }
-        // 其他初始化逻辑将在Module的init方法中实现
     }
 
     /**
@@ -511,11 +483,7 @@ public class PartCategory extends Part implements IModule {
     @JsonIgnore
     @Override
     public Optional<Para> getPara(String code) {
-        if (code == null || paraMap.isEmpty()) {
-            return Optional.empty();
-        }
-        Para para = paraMap.get(code);
-        return para != null ? Optional.of(para) : Optional.empty();
+        return super.queryPara(code);
     }
 
     /**
@@ -548,26 +516,6 @@ public class PartCategory extends Part implements IModule {
             }
         }
         return Optional.empty();
-    }
-
-    /**
-     * 获取规则列表
-     * 
-     * @return 规则列表
-     */
-    @Override
-    public List<Rule> getRules() {
-        return rules != null ? rules : new ArrayList<>();
-    }
-
-    /**
-     * 获取参数列表
-     * 
-     * @return 参数列表
-     */
-    @Override
-    public List<Para> getParas() {
-        return paras != null ? paras : new ArrayList<>();
     }
 
     /**
@@ -654,10 +602,7 @@ public class PartCategory extends Part implements IModule {
     @JsonIgnore
     public List<Rule> queryPriorityRules() {
         List<Rule> priorityRules = new ArrayList<>();
-        if (rules == null || rules.isEmpty()) {
-            return priorityRules;
-        }
-        for (Rule rule : rules) {
+        for (Rule rule : super.getRules()) {
             if (RuleTypeConstants.isPriorityRule(rule.getRuleSchemaTypeFullName())) {
                 priorityRules.add(rule);
             }

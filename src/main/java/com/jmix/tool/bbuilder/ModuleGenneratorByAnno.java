@@ -1,7 +1,5 @@
 package com.jmix.tool.bbuilder;
 
-import com.jmix.executor.bmodel.InstanceDynAttrValue;
-import com.jmix.executor.bmodel.InstanceDynAttrValueItem;
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.ModuleAlgArtifact;
 import com.jmix.executor.bmodel.Part;
@@ -10,6 +8,8 @@ import com.jmix.executor.bmodel.PartType;
 import com.jmix.executor.bmodel.attr.DynamicAttribute;
 import com.jmix.executor.bmodel.attr.DynamicAttributeType;
 import com.jmix.executor.bmodel.attr.DynamicAttributerOption;
+import com.jmix.executor.bmodel.attr.InstanceDynAttrValue;
+import com.jmix.executor.bmodel.attr.InstanceDynAttrValueItem;
 import com.jmix.executor.bmodel.base.Pair;
 import com.jmix.executor.bmodel.logic.CodeRuleSchema;
 import com.jmix.executor.bmodel.logic.CompatiableRuleSchema;

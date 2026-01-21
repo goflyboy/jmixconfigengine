@@ -1,7 +1,5 @@
 package com.jmix.executor.bmodel;
 
-import com.jmix.executor.bmodel.attr.DynamicAttribute;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
@@ -9,7 +7,6 @@ import lombok.EqualsAndHashCode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * 部件定义
@@ -91,44 +88,4 @@ public class Part extends Onto {
         return pc;
     }
 
-    /**
-     * 查询实例类型的动态属性定义
-     *
-     * @return 实例类型(instType=1)的动态属性列表
-     */
-    @JsonIgnore
-    public List<DynamicAttribute> queryDynAttrSchemas4Inst() {
-        return getDynAttrSchemas().stream()
-                .filter(attr -> attr.getInstType() == 1)
-                .toList();
-    }
-
-    /**
-     * 查询非实例类型的动态属性定义
-     *
-     * @return 非实例类型(instType=0)的动态属性列表
-     */
-    @JsonIgnore
-    public List<DynamicAttribute> queryDynAttrSchemas4NotInst() {
-        return getDynAttrSchemas().stream()
-                .filter(attr -> attr.getInstType() == 0)
-                .toList();
-    }
-
-    /**
-     * 根据属性代码查询动态属性定义
-     *
-     * @param code 属性代码
-     * @return 找到的动态属性定义，如果未找到则返回null
-     */
-    @JsonIgnore
-    public DynamicAttribute queryDynAttrSchemas(String code) {
-        if (code == null || code.trim().isEmpty()) {
-            return null;
-        }
-        return getDynAttrSchemas().stream()
-                .filter(attr -> code.equals(attr.getCode()))
-                .findFirst()
-                .orElse(null);
-    }
 }
