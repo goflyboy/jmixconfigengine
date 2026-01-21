@@ -1,7 +1,6 @@
 package com.jmix.executor.bmodel;
 
 import com.jmix.executor.bmodel.base.Pair;
-import com.jmix.executor.bmodel.base.ProgrammableObject;
 import com.jmix.executor.bmodel.logic.RefProgObjSchema;
 import com.jmix.executor.bmodel.logic.Rule;
 import com.jmix.executor.bmodel.logic.RuleTypeConstants;
@@ -30,7 +29,7 @@ import java.util.Optional;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class Module extends ProgrammableObject<Integer> implements IModule {
+public class Module extends Onto implements IModule {
 
     /**
      * 默认版本号常量
@@ -58,27 +57,14 @@ public class Module extends ProgrammableObject<Integer> implements IModule {
     private ModuleType type = ModuleType.GENERAL;
 
     /**
-     * 参数列表
-     */
-    private List<Para> paras = new ArrayList<>();
-
-    /**
      * 部件列表
      */
     private List<Part> parts = new ArrayList<>();
 
     /**
-     * 规则列表
-     */
-    private List<Rule> rules = new ArrayList<>();
-
-    /**
      * 算法制品描述信息
      */
     private ModuleAlgArtifact alg;
-
-    @JsonIgnore
-    private Map<String, Para> paraMap = new HashMap<>();
 
     @JsonIgnore
     private Map<String, Part> partMap = new HashMap<>();
@@ -100,9 +86,9 @@ public class Module extends ProgrammableObject<Integer> implements IModule {
      */
     @JsonIgnore
     public void init() {
-        if (paras != null) {
-            for (Para para : paras) {
-                paraMap.put(para.getCode(), para);
+        if (getParas() != null) {
+            for (Para para : getParas()) {
+                getParaMap().put(para.getCode(), para);
             }
         }
 
@@ -118,7 +104,7 @@ public class Module extends ProgrammableObject<Integer> implements IModule {
 
     private void initShortCode() {
         int index = 0;
-        for (Para para : paras) {
+        for (Para para : getParas()) {
             if (para.getCode().length() <= 3) { // 如果编码长度小于等于3，则直接使用编码
                 para.setShortCode(para.getCode());
             } else {
@@ -147,7 +133,7 @@ public class Module extends ProgrammableObject<Integer> implements IModule {
         // 2、shortCodes(P1:Size, P2:Color,PT1:part1,PT2:part2)
         StringBuilder sb = new StringBuilder();
         sb.append("ProgObjs(");
-        for (Para para : paras) {
+        for (Para para : getParas()) {
             sb.append(para.getShortCode()).append(":").append(para.getCode()).append(",");
         }
         for (Part part : parts) {
@@ -175,10 +161,10 @@ public class Module extends ProgrammableObject<Integer> implements IModule {
      */
     @JsonIgnore
     public Optional<Para> getPara(String code) {
-        if (code == null || paraMap.isEmpty()) {
+        if (code == null || getParaMap().isEmpty()) {
             return Optional.empty();
         }
-        Para para = paraMap.get(code);
+        Para para = getParaMap().get(code);
         return para != null ? Optional.of(para) : Optional.empty();
     }
 
@@ -204,6 +190,7 @@ public class Module extends ProgrammableObject<Integer> implements IModule {
      */
     @Override
     public List<Rule> getRules() {
+        List<Rule> rules = super.getRules();
         return rules != null ? rules : new ArrayList<>();
     }
 
@@ -214,6 +201,7 @@ public class Module extends ProgrammableObject<Integer> implements IModule {
      */
     @Override
     public List<Para> getParas() {
+        List<Para> paras = super.getParas();
         return paras != null ? paras : new ArrayList<>();
     }
 
@@ -290,7 +278,7 @@ public class Module extends ProgrammableObject<Integer> implements IModule {
      */
     @JsonIgnore
     public boolean hasPara(String code) {
-        return code != null && paraMap.containsKey(code);
+        return code != null && getParaMap().containsKey(code);
     }
 
     /**
@@ -329,6 +317,7 @@ public class Module extends ProgrammableObject<Integer> implements IModule {
     private void initRefRelationGraph() {
         refRelationGraph = new ModuleRefRelationGraph();
 
+        List<Rule> rules = getRules();
         if (rules == null || rules.isEmpty()) {
             return;
         }
@@ -412,6 +401,7 @@ public class Module extends ProgrammableObject<Integer> implements IModule {
     @JsonIgnore
     public List<Rule> queryPriorityRules() {
         List<Rule> priorityRules = new ArrayList<>();
+        List<Rule> rules = getRules();
         if (rules == null || rules.isEmpty()) {
             return priorityRules;
         }
