@@ -6,6 +6,7 @@ import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
 import com.jmix.executor.impl.util.CommHelper;
 import com.jmix.executor.impl.util.ModuleUtils;
 import com.jmix.executor.omodel.AlgLoaderException;
+import com.jmix.tool.bbuilder.ModuleGenneratorByAnno;
 
 import lombok.extern.slf4j.Slf4j;
 

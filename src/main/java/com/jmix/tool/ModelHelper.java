@@ -5,12 +5,12 @@ import com.jmix.executor.bmodel.Rule;
 import com.jmix.executor.impl.algmodel.ConstraintAlg;
 import com.jmix.executor.impl.util.CommHelper;
 import com.jmix.executor.omodel.AlgLoaderException;
-import com.jmix.tool.bbuilder.ModuleAlgArtifactGenerator;
-import com.jmix.tool.bbuilder.impl.ModuleVarInfo;
+import com.jmix.tool.artbuilder.ModuleAlgArtifactGenerator;
+import com.jmix.tool.artbuilder.impl.ModuleVarInfo;
+import com.jmix.tool.bbuilder.ModuleGenneratorByAnno;
 import com.jmix.tool.impl.ModelGenneratorException;
 import com.jmix.tool.impl.ModuleCompiler;
 import com.jmix.tool.impl.ModuleGenerator;
-import com.jmix.tool.impl.ModuleGenneratorByAnno;
 import com.jmix.tool.impl.ModuleRunner;
 import com.jmix.tool.impl.StructCodeInjector;
 

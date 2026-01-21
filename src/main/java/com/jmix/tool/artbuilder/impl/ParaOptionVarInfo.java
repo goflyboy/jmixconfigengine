@@ -1,4 +1,4 @@
-package com.jmix.tool.bbuilder.impl;
+package com.jmix.tool.artbuilder.impl;
 
 import com.jmix.executor.bmodel.DynamicAttributerOption;
 

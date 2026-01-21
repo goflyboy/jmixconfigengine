@@ -8,9 +8,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.Rule;
 import com.jmix.executor.impl.util.CommHelper;
-import com.jmix.tool.bbuilder.ModuleAlgArtifactGenerator;
-import com.jmix.tool.bbuilder.impl.ModuleVarInfo;
-import com.jmix.tool.impl.ModuleGenneratorByAnno;
+import com.jmix.tool.artbuilder.ModuleAlgArtifactGenerator;
+import com.jmix.tool.artbuilder.impl.ModuleVarInfo;
+import com.jmix.tool.bbuilder.ModuleGenneratorByAnno;
 import com.jmix.tool.impl.StructCodeInjector;
 
 import lombok.extern.slf4j.Slf4j;

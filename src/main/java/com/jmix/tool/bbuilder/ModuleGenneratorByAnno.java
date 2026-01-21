@@ -1,4 +1,4 @@
-package com.jmix.tool.impl;
+package com.jmix.tool.bbuilder;
 
 import com.jmix.executor.bmodel.DynamicAttribute;
 import com.jmix.executor.bmodel.DynamicAttributeType;
@@ -40,6 +40,7 @@ import com.jmix.tool.bbuilder.anno.ModuleAnno;
 import com.jmix.tool.bbuilder.anno.ParaAnno;
 import com.jmix.tool.bbuilder.anno.PartAnno;
 import com.jmix.tool.bbuilder.anno.PriorityRuleAnno;
+import com.jmix.tool.impl.ProgObject;
 
 import com.google.common.base.Strings;
 

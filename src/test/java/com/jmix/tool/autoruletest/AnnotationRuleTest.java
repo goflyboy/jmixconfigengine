@@ -10,12 +10,12 @@ import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.ParaType;
 import com.jmix.executor.bmodel.Rule;
 import com.jmix.executor.impl.util.CommHelper;
+import com.jmix.tool.bbuilder.ModuleGenneratorByAnno;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
 import com.jmix.tool.bbuilder.anno.CompatiableRuleAnno;
 import com.jmix.tool.bbuilder.anno.ModuleAnno;
 import com.jmix.tool.bbuilder.anno.ParaAnno;
 import com.jmix.tool.bbuilder.anno.PartAnno;
-import com.jmix.tool.impl.ModuleGenneratorByAnno;
 
 import lombok.extern.slf4j.Slf4j;
 

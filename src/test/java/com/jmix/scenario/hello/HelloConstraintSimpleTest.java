@@ -12,7 +12,7 @@ import com.jmix.executor.omodel.ModuleInst;
 import com.jmix.executor.omodel.ParaInst;
 import com.jmix.executor.omodel.PartInst;
 import com.jmix.executor.omodel.Result;
-import com.jmix.tool.impl.ModuleGenneratorByAnno;
+import com.jmix.tool.bbuilder.ModuleGenneratorByAnno;
 
 import lombok.extern.slf4j.Slf4j;
 
