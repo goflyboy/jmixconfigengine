@@ -5,6 +5,8 @@ import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.CpModel;
 import com.google.ortools.sat.CpSolver;
 import com.google.ortools.sat.CpSolverSolutionCallback;
+import com.google.ortools.sat.CpSolverStatus;
+import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.LinearExpr;
 import com.google.ortools.sat.LinearExprBuilder;
 
@@ -12,6 +14,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -43,19 +47,40 @@ public class ProductSolver {
         PartConstraintReq req = new PartConstraintReq();
 
         try {
-            String[] mainParts = strReq.split("where");
-            String constraint = mainParts[0].trim();
+            // 查找 "where" 的位置（不区分大小写）
+            int whereIndex = strReq.toLowerCase().indexOf("where");
 
-            if (mainParts.length > 1) {
-                req.setAttrWhereCondition(mainParts[1].trim());
+            String constraint;
+            String whereCondition = null;
+
+            if (whereIndex >= 0) {
+                // 分割为约束部分和 where 条件部分，保留原始格式
+                constraint = strReq.substring(0, whereIndex).trim();
+                whereCondition = strReq.substring(whereIndex + 5).trim(); // "where" 长度为 5
+            } else {
+                constraint = strReq;
             }
 
-            // 解析约束部分，如 "Capacity >=5" 或 "Qty >=2"
-            String[] constraintParts = constraint.split("\\s+");
-            if (constraintParts.length >= 3) {
-                req.setAttrCode(constraintParts[0]);
-                req.setAttrComparator(constraintParts[1]);
-                req.setAttrValue(constraintParts[2]);
+            if (whereCondition != null) {
+                req.setAttrWhereCondition(whereCondition);
+            }
+
+            // 使用正则表达式匹配比较符，支持 >=, <=, >, <, =
+            // 优先匹配长的比较符（>=, <=），然后再匹配单个字符（>, <, =）
+            Pattern pattern = Pattern.compile("(.*?)(>=|<=|>|<|=)(.*)");
+            Matcher matcher = pattern.matcher(constraint);
+
+            if (matcher.matches()) {
+                // attrCode: 去掉前面的空格，保留后面的空格
+                String attrCode = matcher.group(1);
+                // 使用正则表达式去掉前导空格，但保留尾部空格
+                attrCode = attrCode.replaceFirst("^\\s+", "");
+                req.setAttrCode(attrCode.trim());
+
+                req.setAttrComparator(matcher.group(2).trim()); // 比较符
+
+                // attrValue: 去掉前后空格
+                req.setAttrValue(matcher.group(3).trim());
             }
         } catch (Exception e) {
             System.err.println("Failed to parse requirement string: " + strReq);
@@ -94,12 +119,20 @@ public class ProductSolver {
         // 8. 求解
         CpSolver solver = new CpSolver();
         solver.getParameters().setMaxTimeInSeconds(10);
-        solver.getParameters().setNumSearchWorkers(8);
+        solver.getParameters().setEnumerateAllSolutions(true);
+        solver.getParameters().setNumSearchWorkers(1); // 单线程搜索，防止有重复解
 
         // 收集多个解
         List<Map<String, Integer>> allSolutions = new ArrayList<>();
         SolutionCollector cb = new SolutionCollector(partVars, allSolutions);
-        solver.searchAllSolutions(model, cb);
+        CpSolverStatus status = solver.solve(model, cb);
+
+        // 检查求解状态
+        if (status != CpSolverStatus.OPTIMAL && status != CpSolverStatus.FEASIBLE
+                && status != CpSolverStatus.INFEASIBLE) {
+            // 求解失败，返回空解
+            return new ProductResult(new ArrayList<>());
+        }
 
         // 9. 排序解
         sortSolutions(allSolutions);
@@ -179,18 +212,19 @@ public class ProductSolver {
             }
         }
 
-        // 机械硬盘数量限制（可选）
-        List<PartVar> mechanicalParts = partVars.stream()
-                .filter(pv -> !pv.isSolidState())
-                .collect(Collectors.toList());
+        // // 机械硬盘数量限制（可选）
+        // List<PartVar> mechanicalParts = partVars.stream()
+        // .filter(pv -> !pv.isSolidState())
+        // .collect(Collectors.toList());
 
-        for (PartVar pv : mechanicalParts) {
-            model.addLessOrEqual(pv.qty, 3); // 假设最多3块
-        }
+        // for (PartVar pv : mechanicalParts) {
+        // model.addLessOrEqual(pv.qty, 3); // 假设最多3块
+        // }
     }
 
-    // 应用优先规则（通过约束实现）
-    private void applyPriorityRule(CpModel model, List<PartVar> partVars, PartConstraintReq req) {
+    // 规则1: 固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量
+    private static void applyPriorityRule(CpModel model, List<PartVar> partVars,
+            PartConstraintReq req) {
         // 分离固态硬盘和机械硬盘
         List<PartVar> solidStateParts = partVars.stream()
                 .filter(PartVar::isSolidState)
@@ -204,22 +238,189 @@ public class ProductSolver {
             return;
         }
 
-        // 计算固态硬盘提供的总容量
-        LinearExprBuilder ssCapacity = LinearExpr.newBuilder();
+        // 创建固态硬盘总容量表达式
+        LinearExprBuilder ssTotalCapacity = LinearExpr.newBuilder();
         for (PartVar pv : solidStateParts) {
-            ssCapacity.addTerm(pv.qty, pv.getCapacity());
+            ssTotalCapacity.addTerm(pv.qty, pv.getCapacity());
         }
 
-        // 计算机械硬盘提供的总容量
-        LinearExprBuilder mechCapacity = LinearExpr.newBuilder();
+        // 创建机械硬盘总容量表达式
+        LinearExprBuilder mechTotalCapacity = LinearExpr.newBuilder();
         for (PartVar pv : mechanicalParts) {
-            mechCapacity.addTerm(pv.qty, pv.getCapacity());
+            mechTotalCapacity.addTerm(pv.qty, pv.getCapacity());
         }
 
-        // 规则：如果固态硬盘容量已足够，则限制机械硬盘使用
-        // 这里通过约束来限制机械硬盘的使用
-        // 注意：这是一个简化实现，完整实现需要更复杂的逻辑
+        // 如果是容量需求
+        if ("Capacity".equals(req.getAttrCode())) {
+            int requiredCapacity = Integer.parseInt(req.getAttrValue());
+
+            // 创建固态硬盘是否足够的布尔变量
+            BoolVar ssSufficient = model.newBoolVar("ss_sufficient");
+
+            // 定义：如果固态硬盘容量 >= 需求容量，则 ssSufficient = true
+            model.addGreaterOrEqual(ssTotalCapacity, requiredCapacity)
+                    .onlyEnforceIf(ssSufficient);
+            model.addLessThan(ssTotalCapacity, requiredCapacity)
+                    .onlyEnforceIf(ssSufficient.not());
+
+            // 规则1.1: 如果固态硬盘足够，则禁止使用机械硬盘
+            for (PartVar pv : mechanicalParts) {
+                model.addEquality(pv.qty, 0).onlyEnforceIf(ssSufficient);
+            }
+            // 步骤5: 核心约束 - 如果SSD足够，限制HDD使用
+            // 使用大惩罚权重在目标函数中实现
+            LinearExprBuilder objective = LinearExpr.newBuilder();
+
+            // 基础目标: 最大化SSD使用（负权重）
+            objective.addTerm(ssTotalCapacity.build(), -10000); // 最大化SSD容量
+
+            // 关键: 动态惩罚HDD使用 - 当SSD足够时惩罚更大
+            IntVar hddPenaltyFactor = model.newIntVar(0, 1000000, "hdd_penalty_factor");
+
+            // 计算惩罚系数: 如果SSD足够，惩罚系数很大；否则惩罚系数小
+            // 惩罚系数 = 1000000 * ssdSufficient + 1000 * (1 - ssdSufficient)
+            model.addEquality(
+                    hddPenaltyFactor,
+                    LinearExpr.newBuilder()
+                            .addTerm(ssSufficient, 1000000 - 1000) // 当ssdSufficient=1时，999000
+                            .addTerm(LinearExpr.constant(1000), 1) // 基础惩罚
+                            .build());
+
+            // HDD惩罚 = HDD容量 * 惩罚系数
+            objective.addTerm(
+                    LinearExpr.newBuilder()
+                            .addTerm(mechTotalCapacity.build(), 1)
+                            .addTerm(hddPenaltyFactor, 1)
+                            .build(),
+                    1);
+
+            // 步骤6: 添加其他权重目标
+            // objective.addTerm(calculateSsdHighSpeedCapacity().build(), -5000); // 鼓励高速SSD
+
+            model.minimize(objective.build());
+        }
     }
+
+    // 规则1: 固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量
+    private static void applyPriorityRule_method1(CpModel model, List<PartVar> partVars,
+            PartConstraintReq req) {// 不行，使用add解出不来？
+        // 分离固态硬盘和机械硬盘
+        List<PartVar> solidStateParts = partVars.stream()
+                .filter(PartVar::isSolidState)
+                .collect(Collectors.toList());
+
+        List<PartVar> mechanicalParts = partVars.stream()
+                .filter(pv -> !pv.isSolidState())
+                .collect(Collectors.toList());
+
+        if (solidStateParts.isEmpty() || mechanicalParts.isEmpty()) {
+            return;
+        }
+
+        // 创建固态硬盘总容量表达式
+        LinearExprBuilder ssTotalCapacity = LinearExpr.newBuilder();
+        for (PartVar pv : solidStateParts) {
+            ssTotalCapacity.addTerm(pv.qty, pv.getCapacity());
+        }
+
+        // 创建机械硬盘总容量表达式
+        LinearExprBuilder mechTotalCapacity = LinearExpr.newBuilder();
+        for (PartVar pv : mechanicalParts) {
+            mechTotalCapacity.addTerm(pv.qty, pv.getCapacity());
+        }
+
+        // 如果是容量需求
+        if ("Capacity".equals(req.getAttrCode())) {
+            int requiredCapacity = Integer.parseInt(req.getAttrValue());
+
+            // 创建固态硬盘是否足够的布尔变量
+            BoolVar ssSufficient = model.newBoolVar("ss_sufficient");
+
+            // 定义：如果固态硬盘容量 >= 需求容量，则 ssSufficient = true
+            model.addGreaterOrEqual(ssTotalCapacity, requiredCapacity)
+                    .onlyEnforceIf(ssSufficient);
+            model.addLessThan(ssTotalCapacity, requiredCapacity)
+                    .onlyEnforceIf(ssSufficient.not());
+
+            // 规则1.1: 如果固态硬盘足够，则禁止使用机械硬盘
+            for (PartVar pv : mechanicalParts) {
+                model.addEquality(pv.qty, 0).onlyEnforceIf(ssSufficient);
+            }
+
+            // 规则1.2: 如果固态硬盘不足，机械硬盘只能补充不足的部分
+            // 创建总容量表达式
+            LinearExprBuilder totalCapacity = LinearExpr.newBuilder();
+            totalCapacity.add(ssTotalCapacity);
+            totalCapacity.add(mechTotalCapacity);
+
+            // 确保总容量满足需求
+            if (">=".equals(req.getAttrComparator())) {
+                model.addGreaterOrEqual(totalCapacity, requiredCapacity);
+            }
+
+            // 关键约束：当固态硬盘不足时，机械硬盘容量 ≤ (需求容量 - 固态硬盘容量)
+            // 而不是原来的 (需求容量 - 1)
+            // 这里需要使用一个中间变量来表示固态硬盘实际容量
+            // 但由于固态硬盘容量是变量，我们需要更复杂的处理
+
+            // 方法：创建一个变量表示固态硬盘的实际容量
+            IntVar ssActualCapacity = model.newIntVar(0, 1000, "ss_actual_capacity");
+            model.addEquality(ssActualCapacity, ssTotalCapacity);
+
+            // 创建一个变量表示不足的容量
+            IntVar deficit = model.newIntVar(0, 1000, "capacity_deficit");
+
+            // 计算不足的容量：deficit = max(0, requiredCapacity - ssActualCapacity)
+            // 这里使用线性约束来近似
+            // 约束1: deficit >= requiredCapacity - ssActualCapacity
+            model.addGreaterOrEqual(deficit,
+                    LinearExpr.newBuilder()
+                            .add(requiredCapacity)
+                            .addTerm(ssActualCapacity, -1)
+                            .build());
+
+            // 约束2: deficit >= 0
+            model.addGreaterOrEqual(deficit, 0);
+
+            // 约束3: 当固态硬盘不足时，机械硬盘容量不超过deficit
+            // 但注意：当固态硬盘足够时，我们已经通过ssSufficient约束将机械硬盘设为0
+            // 所以这里只需要在ssSufficient为false时约束机械硬盘容量
+            model.addLessOrEqual(mechTotalCapacity, deficit)
+                    .onlyEnforceIf(ssSufficient.not());
+        }
+    }
+    // // 应用优先规则（通过约束实现）
+    // private void applyPriorityRule(CpModel model, List<PartVar> partVars,
+    // PartConstraintReq req) {
+    // // 分离固态硬盘和机械硬盘
+    // List<PartVar> solidStateParts = partVars.stream()
+    // .filter(PartVar::isSolidState)
+    // .collect(Collectors.toList());
+
+    // List<PartVar> mechanicalParts = partVars.stream()
+    // .filter(pv -> !pv.isSolidState())
+    // .collect(Collectors.toList());
+
+    // if (solidStateParts.isEmpty() || mechanicalParts.isEmpty()) {
+    // return;
+    // }
+
+    // // 计算固态硬盘提供的总容量
+    // LinearExprBuilder ssCapacity = LinearExpr.newBuilder();
+    // for (PartVar pv : solidStateParts) {
+    // ssCapacity.addTerm(pv.qty, pv.getCapacity());
+    // }
+
+    // // 计算机械硬盘提供的总容量
+    // LinearExprBuilder mechCapacity = LinearExpr.newBuilder();
+    // for (PartVar pv : mechanicalParts) {
+    // mechCapacity.addTerm(pv.qty, pv.getCapacity());
+    // }
+
+    // // 规则：如果固态硬盘容量已足够，则限制机械硬盘使用
+    // // 这里通过约束来限制机械硬盘的使用
+    // // 注意：这是一个简化实现，完整实现需要更复杂的逻辑
+    // }
 
     // 设置目标函数（优化目标）
     private void setObjectiveFunction(CpModel model, List<PartVar> partVars) {
@@ -228,44 +429,102 @@ public class ProductSolver {
 
         LinearExprBuilder objective = LinearExpr.newBuilder();
 
+        // for (PartVar pv : partVars) {
+        // int weight = 0;
+        // if (pv.isSolidState()) {
+        // // 固态硬盘：速度越高，权重越小（越优先）
+        // weight = 1000 - pv.getSpeed(); // 高速固态硬盘权重小
+        // } else {
+        // // 机械硬盘：在固态硬盘之后考虑
+        // weight = 2000 - pv.getSpeed(); // 机械硬盘权重大
+        // }
+
+        // // 同时考虑数量，数量越少越好
+        // objective.addTerm(pv.qty, weight);
+        // }
+
         for (PartVar pv : partVars) {
             int weight = 0;
             if (pv.isSolidState()) {
                 // 固态硬盘：速度越高，权重越小（越优先）
-                weight = 1000 - pv.getSpeed(); // 高速固态硬盘权重小
+                weight = -pv.getSpeed() / 100; // 高速固态硬盘权重小
             } else {
                 // 机械硬盘：在固态硬盘之后考虑
-                weight = 2000 - pv.getSpeed(); // 机械硬盘权重大
+                weight = pv.getSpeed() / 1000; // 机械硬盘权重大
             }
 
             // 同时考虑数量，数量越少越好
             objective.addTerm(pv.qty, weight);
         }
+        // exp = sd1.Q * (-54) + md1.Q * (5.4)
+        // min= -54*2 = -108 = sd1.Q_2* (-54) + md1.Q_0*(54) = -108
+        // min2 = sd.Q_1* (-54) + md1.Q_1*(5.4) = -49.6
+        // avalue = -108 *(1-0.3) = -75.6
+        // model.addGreaterOrEqual(objective.build(), (long) (-108));
+        // model.addLessOrEqual(objective.build(), (long) (-75.6));
 
-        model.minimize(objective);
+        // model.addLessOrEqual(objective.build(), (long) (-40));
+
+        // model.minimize(objective);
+        // model.minimize(objective);
     }
 
     // 排序解决方案
     private void sortSolutions(List<Map<String, Integer>> solutions) {
         // 排序规则：
-        // 1. 优先固态硬盘数量多的
-        // 2. 固态硬盘数量相同时，总零件数量少的优先
+        // 1. 优先高速率固态硬盘（speed 高的优先）
+        // 2. 然后低速率固态硬盘
+        // 3. 最后机械硬盘
+        // 4. 在相同类型内，数量少的优先
 
         solutions.sort((sol1, sol2) -> {
-            // 计算固态硬盘总数量
-            int ssCount1 = getSolidStateCount(sol1);
-            int ssCount2 = getSolidStateCount(sol2);
+            // 计算最高速固态硬盘速度
+            int maxSpeed1 = getMaxSolidStateSpeed(sol1);
+            int maxSpeed2 = getMaxSolidStateSpeed(sol2);
 
-            if (ssCount1 != ssCount2) {
-                return Integer.compare(ssCount2, ssCount1); // 降序
+            if (maxSpeed1 != maxSpeed2) {
+                return Integer.compare(maxSpeed2, maxSpeed1); // 降序，高速优先
+            }
+
+            // 计算是否有机械硬盘
+            boolean hasMech1 = hasMechanicalDrive(sol1);
+            boolean hasMech2 = hasMechanicalDrive(sol2);
+
+            if (hasMech1 != hasMech2) {
+                return Boolean.compare(hasMech1, hasMech2); // 有机械硬盘的排在后面
             }
 
             // 计算总零件数量
             int totalCount1 = getTotalCount(sol1);
             int totalCount2 = getTotalCount(sol2);
 
-            return Integer.compare(totalCount1, totalCount2); // 升序
+            return Integer.compare(totalCount1, totalCount2); // 升序，数量少的优先
         });
+    }
+
+    private int getMaxSolidStateSpeed(Map<String, Integer> solution) {
+        int maxSpeed = 0;
+        for (Map.Entry<String, Integer> entry : solution.entrySet()) {
+            if (entry.getKey().startsWith("sd") && entry.getValue() > 0) {
+                // 查找对应的 Part 来获取 speed
+                for (Part part : allParts) {
+                    if (part.code.equals(entry.getKey())) {
+                        maxSpeed = Math.max(maxSpeed, part.speed);
+                        break;
+                    }
+                }
+            }
+        }
+        return maxSpeed;
+    }
+
+    private boolean hasMechanicalDrive(Map<String, Integer> solution) {
+        for (Map.Entry<String, Integer> entry : solution.entrySet()) {
+            if (entry.getKey().startsWith("md") && entry.getValue() > 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private int getSolidStateCount(Map<String, Integer> solution) {
