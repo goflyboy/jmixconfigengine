@@ -33,7 +33,7 @@ public class Onto extends ProgrammableObject<Integer> {
     public static final String INSTANCE_ATTRS = "instanceAttrs";
 
     /**
-     * 参数列表
+     * 参数列表，为了兼容老的，保留参数
      */
     private List<Para> paras = new ArrayList<>();
 
@@ -46,12 +46,12 @@ public class Onto extends ProgrammableObject<Integer> {
     private Map<String, Para> paraMap = new HashMap<>();
 
     /**
-     * 原子Part的规格属性(动态属性值）
+     * 动态属性值，
      */
     private Map<String, String> dynAttr = new HashMap<>();
 
     /**
-     * Part分类的规格描述(动态属性定义,partCategoryAttrValues)
+     * 动态属性定义
      */
     private List<DynamicAttribute> dynAttrSchemas = new ArrayList<>();
 
