@@ -16,7 +16,7 @@ import java.util.HashMap;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class Part extends Onto {
+public class Part extends Onto implements IPart {
     /**
      * 部件最大数量限制
      */

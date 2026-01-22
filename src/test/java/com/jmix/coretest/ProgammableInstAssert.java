@@ -1,5 +1,6 @@
 package com.jmix.coretest;
 
+import com.jmix.executor.bmodel.IPart;
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.para.Para;
@@ -59,11 +60,11 @@ public class ProgammableInstAssert {
         if (partInst == null) {
             throw new AssertionError("Part not found: " + code);
         }
-        java.util.Optional<Part> partOpt = module.getPart(code);
-        if (!partOpt.isPresent()) {
+        IPart partOpt = module.getPart(code);
+        if (partOpt == null) {
             throw new AssertionError("Part not found in module: " + code);
         }
-        Part part = partOpt.get();
+        Part part = (Part) partOpt;
         return new PartInstAssert(actualModuleInst, module, partInst, part);
     }
 

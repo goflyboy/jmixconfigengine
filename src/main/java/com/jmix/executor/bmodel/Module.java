@@ -8,13 +8,11 @@ import com.jmix.executor.bmodel.para.Para;
 import com.jmix.executor.impl.ModuleRefRelationGraph;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.common.base.Strings;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -29,7 +27,7 @@ import java.util.Optional;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class Module extends Onto implements IModule {
+public class Module extends ModuleBase implements IModule {
 
     /**
      * 默认版本号常量
@@ -57,20 +55,9 @@ public class Module extends Onto implements IModule {
     private ModuleType type = ModuleType.GENERAL;
 
     /**
-     * 部件列表
-     */
-    private List<Part> parts = new ArrayList<>();
-
-    /**
      * 算法制品描述信息
      */
     private ModuleAlgArtifact alg;
-
-    @JsonIgnore
-    private Map<String, Part> partMap = new HashMap<>();
-
-    @JsonIgnore
-    private List<Part> atomicParts;
 
     @JsonIgnore
     private Map<String, Object> errorMap = new HashMap<>();
@@ -86,41 +73,8 @@ public class Module extends Onto implements IModule {
      */
     @JsonIgnore
     public void init() {
-        if (getParas() != null) {
-            for (Para para : getParas()) {
-                getParaMap().put(para.getCode(), para);
-            }
-        }
-
-        if (parts != null) {
-            for (Part part : parts) {
-                partMap.put(part.getCode(), part);
-            }
-        }
         initShortCode();
         initRefRelationGraph();
-        initSubParts();
-    }
-
-    private void initShortCode() {
-        int index = 0;
-        for (Para para : getParas()) {
-            if (para.getCode().length() <= 3) { // 如果编码长度小于等于3，则直接使用编码
-                para.setShortCode(para.getCode());
-            } else {
-                para.setShortCode(Para.SHORT_CODE_PREFIX + index);
-                index++;
-            }
-        }
-        index = 0;
-        for (Part part : parts) {
-            if (part.getCode().length() <= 3) { // 如果编码长度小于等于3，则直接使用编码
-                part.setShortCode(part.getCode());
-            } else {
-                part.setShortCode(Part.SHORT_CODE_PREFIX + index);
-                index++;
-            }
-        }
     }
 
     /**
@@ -136,7 +90,7 @@ public class Module extends Onto implements IModule {
         for (Para para : getParas()) {
             sb.append(para.getShortCode()).append(":").append(para.getCode()).append(",");
         }
-        for (Part part : parts) {
+        for (IPart part : getAllParts()) {
             sb.append(part.getShortCode()).append(":").append(part.getCode()).append(",");
         }
         sb.append(")");
@@ -169,21 +123,6 @@ public class Module extends Onto implements IModule {
     }
 
     /**
-     * 根据编码获取部件对象
-     * 
-     * @param code 部件编码
-     * @return 部件对象，如果不存在则返回Optional.empty()
-     */
-    @JsonIgnore
-    public Optional<Part> getPart(String code) {
-        if (code == null || partMap.isEmpty()) {
-            return Optional.empty();
-        }
-        Part part = partMap.get(code);
-        return part != null ? Optional.of(part) : Optional.empty();
-    }
-
-    /**
      * 获取规则列表
      * 
      * @return 规则列表
@@ -201,8 +140,7 @@ public class Module extends Onto implements IModule {
      */
     @Override
     public List<Para> getParas() {
-        List<Para> paras = super.getParas();
-        return paras != null ? paras : new ArrayList<>();
+        return super.getParas();
     }
 
     /**
@@ -211,104 +149,8 @@ public class Module extends Onto implements IModule {
      * @return 部件列表
      */
     @Override
-    public List<Part> getParts() {
-        return parts != null ? parts : new ArrayList<>();
-    }
-
-    /**
-     * 获取原子部件列表
-     * 如果 atomicParts 为 null，则构建它
-     * 
-     * @return 原子部件列表（partType为ATOMIC的部件）
-     */
-    @Override
-    @JsonIgnore
-    public List<Part> getAtomicParts() {
-        if (atomicParts == null) {
-            if (parts == null) {
-                atomicParts = new ArrayList<>();
-            } else {
-                atomicParts = parts.stream()
-                        .filter(part -> part.getPartType() == PartType.ATOMIC)
-                        .collect(java.util.stream.Collectors.toList());
-                atomicParts.sort(Comparator.comparing(Part::getShortCode));
-            }
-        }
-        return atomicParts;
-    }
-
-    /**
-     * 根据父部件编码获取子部件列表
-     * 
-     * @param fatherCode 父部件编码
-     * @return 子部件列表
-     */
-    @JsonIgnore
-    public List<Part> getChildrenPart(String fatherCode) {
-        if (fatherCode == null || parts == null) {
-            return new ArrayList<>();
-        }
-
-        return parts.stream()
-                .filter(part -> fatherCode.equals(part.getFatherCode()))
-                .collect(java.util.stream.Collectors.toList());
-    }
-
-    /**
-     * 获取所有顶级部件（没有父部件的部件）
-     * 
-     * @return 顶级部件列表
-     */
-    @JsonIgnore
-    public List<Part> getTopLevelParts() {
-        if (parts == null) {
-            return new ArrayList<>();
-        }
-
-        return parts.stream()
-                .filter(part -> part.getFatherCode() == null || part.getFatherCode().isEmpty())
-                .collect(java.util.stream.Collectors.toList());
-    }
-
-    /**
-     * 检查是否包含指定编码的参数
-     * 
-     * @param code 参数编码
-     * @return 如果包含则返回true，否则返回false
-     */
-    @JsonIgnore
-    public boolean hasPara(String code) {
-        return code != null && getParaMap().containsKey(code);
-    }
-
-    /**
-     * 检查是否包含指定编码的部件
-     * 
-     * @param code 部件编码
-     * @return 如果包含则返回true，否则返回false
-     */
-    @JsonIgnore
-    public boolean hasPart(String code) {
-        return code != null && partMap.containsKey(code);
-    }
-
-    /**
-     * 从模块中查找部件分类
-     *
-     * @param categoryCode 分类代码
-     * @return 找到的PartCategory，如果未找到则返回null
-     */
-    @JsonIgnore
-    public PartCategory findPartCategory(String categoryCode) {
-        if (categoryCode == null || parts == null) {
-            return null;
-        }
-        for (Part part : parts) {
-            if (part instanceof PartCategory && part.getCode().equals(categoryCode)) {
-                return (PartCategory) part;
-            }
-        }
-        return null;
+    public List<IPart> getAllParts() {
+        return super.getAllParts();
     }
 
     /**
@@ -328,29 +170,6 @@ public class Module extends Onto implements IModule {
             List<RefProgObjSchema> toRightProgObjs = trimDuplicateRefProgObjs(rule.getToRightProgObjs());
             // 调用refRelationGraph.add(rule.getCode(),fromLeftProgObjs,toRightProgObjs.get(0))
             refRelationGraph.add(rule.getCode(), fromLeftProgObjs, toRightProgObjs);
-        }
-    }
-
-    /**
-     * 初始化单个PartCategory
-     * 将子部件添加到其父PartCategory中
-     */
-    private void initSubParts() {
-        // 初始化partCategoryMap（子分类）
-        for (Part part : parts) {
-            if (Strings.isNullOrEmpty(part.getFatherCode())) {
-                continue;
-            }
-            if (part.getFatherCode().equals(this.getCode())) {
-                continue;
-            }
-            Part fatherPart = this.partMap.get(part.getFatherCode());
-            if (fatherPart instanceof PartCategory) {
-                ((PartCategory) fatherPart).addSubPart(part);
-            } else {
-                throw new IllegalStateException("Father part '" + part.getFatherCode()
-                        + "' is not a PartCategory, cannot add subpart '" + part.getCode() + ")");
-            }
         }
     }
 

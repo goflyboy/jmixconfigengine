@@ -1,6 +1,6 @@
 package com.jmix.executor.impl.algmodel;
 
-import com.jmix.executor.bmodel.Part;
+import com.jmix.executor.bmodel.IPart;
 
 import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.CpSolverSolutionCallback;
@@ -22,7 +22,7 @@ import java.util.Map;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class PartVar extends Var<Part> {
+public class PartVar extends Var<IPart> {
     /**
      * 部件变量命名模式常量
      */

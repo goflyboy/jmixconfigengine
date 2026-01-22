@@ -1,5 +1,6 @@
 package com.jmix.tool.bbuilder;
 
+import com.jmix.executor.bmodel.IPart;
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.ModuleAlgArtifact;
 import com.jmix.executor.bmodel.Part;
@@ -104,9 +105,9 @@ public final class ModuleGenneratorByAnno {
         buildExtAttr(moduleAnno, module);
 
         // 2. 遍历成员变量，创建Para和Part
-        Pair<List<Para>, List<Part>> paraParts = buildParaParts(moduleAlgClazz);
+        Pair<List<Para>, List<IPart>> paraParts = buildParaParts(moduleAlgClazz);
         module.setParas(paraParts.getFirst());
-        module.setParts(paraParts.getSecond());
+        module.addParts(paraParts.getSecond());
         module.init(); // 保证后续能使用getPara等函数
         // 4. 生成规则
         List<Rule> rules = createRulesFromMethods(moduleAlgClazz, module);
@@ -179,64 +180,72 @@ public final class ModuleGenneratorByAnno {
         return Optional.of(para);
     }
 
-    private static Optional<Part> createPartFromField(Field field, Map<String, Part> partMap) {
+    private static Optional<IPart> createPartFromField(Field field, Map<String, IPart> partMap) {
         PartAnno partAnno = field.getAnnotation(PartAnno.class);
         if (partAnno == null) {
             return Optional.empty();
         }
 
         // 根据字段类型决定部件类型
-        Part part;
+        IPart ipart = null;
         if (field.getType().getSimpleName().equals("PartCategoryVar")) {
-            part = new PartCategory();
+            PartCategory part = new PartCategory();
+            ipart = part;
             part.setPartType(PartType.CATEGORY);
+            part.setDefaultValue(0); // Part的默认值类型是Integer
+            part.setDescription(partAnno.description());
+            part.setSortNo(partAnno.sortNo());
+            // part.setMaxQuantity(partAnno.maxQuantity());
+            // part.setPrice(partAnno.price());
+            part.setExtSchema(partAnno.extSchema());
         } else {
             // PartVar 对应 ATOMIC 类型，不应该有 dynAttrSchemas
-            part = new Part();
+            Part part = new Part();
+            ipart = part;
             part.setPartType(PartType.ATOMIC);
             // 确保 ATOMIC 类型的部件没有 dynAttrSchemas
             part.setDynAttrSchemas(new ArrayList<>());
+            part.setDefaultValue(0); // Part的默认值类型是Integer
+            part.setDescription(partAnno.description());
+            part.setSortNo(partAnno.sortNo());
+            part.setMaxQuantity(partAnno.maxQuantity());
+            part.setPrice(partAnno.price());
+            part.setExtSchema(partAnno.extSchema());
         }
 
         // 生成Part.code
         String fieldName = field.getName();
         String code = fieldName.replace("Var", "");
-        part.setCode(code);
+        ipart.setCode(code);
 
         // 设置其他属性
-        part.setFatherCode(partAnno.fatherCode());
-        part.setDefaultValue(0); // Part的默认值类型是Integer
-        part.setDescription(partAnno.description());
-        part.setSortNo(partAnno.sortNo());
-        part.setMaxQuantity(partAnno.maxQuantity());
-        part.setPrice(partAnno.price());
-        part.setExtSchema(partAnno.extSchema());
+        ipart.setFatherCode(partAnno.fatherCode());
 
         // 处理规格属性
-        if (partAnno.attrs().length > 0 && part.getPartType() == PartType.ATOMIC && part.getFatherCode() != null) {
-            PartCategory fatherPartCategory = (PartCategory) partMap.get(part.getFatherCode());
+        if (partAnno.attrs().length > 0 && ipart.getPartType() == PartType.ATOMIC && ipart.getFatherCode() != null) {
+            PartCategory fatherPartCategory = (PartCategory) partMap.get(ipart.getFatherCode());
             Map<String, String> attrs = parseAttributes(partAnno.attrs(),
                     fatherPartCategory.queryDynAttrSchemas4NotInst());
-            part.setDynAttr(attrs);
+            ipart.setDynAttr(attrs);
 
             // 处理实例规格属性
-            processInstanceAttrs(part, partAnno, fatherPartCategory.queryDynAttrSchemas4Inst());
+            processInstanceAttrs(ipart, partAnno, fatherPartCategory.queryDynAttrSchemas4Inst());
         }
 
         // 处理扩展属性
         if (partAnno.extAttrs().length > 0) {
             Map<String, String> extAttrs = parseAttributes(partAnno.extAttrs(), new ArrayList<>());
-            part.setExtAttrs(extAttrs);
+            ipart.setExtAttrs(extAttrs);
         }
 
         // 处理动态属性注解（只有CATEGORY类型的部件才需要）
-        if (part.getPartType() == PartType.CATEGORY) {
-            processDynamicAttributeAnnotations(field, (PartCategory) part);
+        if (ipart.getPartType() == PartType.CATEGORY) {
+            processDynamicAttributeAnnotations(field, (PartCategory) ipart);
             // 继承的属性在后面，方便实例属性等处理
-            processInheritance(field, part, partMap);
+            processInheritance(field, ipart, partMap);
         }
 
-        return Optional.of(part);
+        return Optional.of(ipart);
     }
 
     /**
@@ -298,9 +307,9 @@ public final class ModuleGenneratorByAnno {
             moduleRules.add(rule);
         } else {
             // fatherCode 不为空，添加到对应的 PartCategory
-            Optional<Part> partOpt = module.getPart(fatherCode);
-            if (partOpt.isPresent() && partOpt.get() instanceof PartCategory) {
-                PartCategory partCategory = (PartCategory) partOpt.get();
+            IPart part = module.getPart(fatherCode);
+            if (part instanceof PartCategory) {
+                PartCategory partCategory = (PartCategory) part;
                 if (partCategory.getRules() == null) {
                     partCategory.setRules(new ArrayList<>());
                 }
@@ -455,7 +464,7 @@ public final class ModuleGenneratorByAnno {
             // 判断是Part还是Para
             if (currentModule.getPara(progObject.getObjCode()).isPresent()) {
                 refProgObjSchema.setProgObjType(RefProgObjSchema.PROG_OBJ_TYPE_PARA);
-            } else if (currentModule.getPart(progObject.getObjCode()).isPresent()) {
+            } else if (currentModule.getPart(progObject.getObjCode()) != null) {
                 refProgObjSchema.setProgObjType(RefProgObjSchema.PROG_OBJ_TYPE_PART);
             } else {
                 log.error("Object not found: {}", progObject.getObjCode());
@@ -581,10 +590,10 @@ public final class ModuleGenneratorByAnno {
      * @param moduleAlgClazz 模块算法类
      * @return 包含Para列表和Part列表的Pair
      */
-    private static Pair<List<Para>, List<Part>> buildParaParts(Class<?> moduleAlgClazz) {
+    private static Pair<List<Para>, List<IPart>> buildParaParts(Class<?> moduleAlgClazz) {
         List<Para> paras = new ArrayList<>();
 
-        Map<String, Part> partMap = new HashMap<>();
+        Map<String, IPart> partMap = new HashMap<>();
         // 首先收集所有字段，用于后续继承处理
         List<Field> partFields = new ArrayList<>();
         Map<String, String> fieldNameToPartCode = new HashMap<>();
@@ -596,7 +605,7 @@ public final class ModuleGenneratorByAnno {
                 }
             } else if (field.getType().getSimpleName().equals(PartVar.class.getSimpleName()) ||
                     field.getType().getSimpleName().equals(PartCategoryVar.class.getSimpleName())) {
-                Optional<Part> partOpt = createPartFromField(field, partMap);
+                Optional<IPart> partOpt = createPartFromField(field, partMap);
                 if (partOpt.isPresent()) {
                     partMap.put(partOpt.get().getCode(), partOpt.get());
                     fieldNameToPartCode.put(field.getName(), partOpt.get().getCode());
@@ -606,7 +615,7 @@ public final class ModuleGenneratorByAnno {
                 log.info("ignore field type: " + field.getType().getSimpleName());
             }
         }
-        List<Part> parts = new ArrayList<>(partMap.values());
+        List<IPart> parts = new ArrayList<>(partMap.values());
 
         return Pair.of(paras, parts);
     }
@@ -618,8 +627,8 @@ public final class ModuleGenneratorByAnno {
      * @param fieldNameToPartCode 字段名到部件编码的映射
      * @param partOverrideMap     部件重写映射
      */
-    private static void processInheritance(Field field, Part part,
-            Map<String, Part> partMap) {
+    private static void processInheritance(Field field, IPart part,
+            Map<String, IPart> partMap) {
         Map<String, String> overrideMap = new HashMap<>();
         // 处理继承注解，为partOverrideMap赋值
         DAttrInherit inheritAnno = field.getAnnotation(DAttrInherit.class);
@@ -638,7 +647,7 @@ public final class ModuleGenneratorByAnno {
         // 处理每个部件的继承
         if (part instanceof PartCategory && !Strings.isNullOrEmpty(part.getFatherCode())) {
             PartCategory partCategory = (PartCategory) part;
-            Part parentPart = partMap.get(part.getFatherCode());
+            IPart parentPart = partMap.get(part.getFatherCode());
             if (null == parentPart) {
                 log.error("Parent part not found,please check the order {}", part.getFatherCode());
                 throw new AlgLoaderException("Parent part not found:please check the order " + part.getFatherCode());
@@ -1082,7 +1091,7 @@ public final class ModuleGenneratorByAnno {
      * @param part     部件对象
      * @param partAnno 部件注解
      */
-    private static void processInstanceAttrs(Part part, PartAnno partAnno, List<DynamicAttribute> dynAttrSchemas) {
+    private static void processInstanceAttrs(IPart part, PartAnno partAnno, List<DynamicAttribute> dynAttrSchemas) {
         // 检查是否有实例属性
         if (partAnno.attrsInst1().length > 0 || partAnno.attrsInst2().length > 0 ||
                 partAnno.attrsInst3().length > 0 || partAnno.attrsInst4().length > 0) {

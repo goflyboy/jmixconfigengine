@@ -1,8 +1,8 @@
 package com.jmix.coretest;
 
 import com.jmix.executor.ModuleConstraintExecutor;
+import com.jmix.executor.bmodel.IPart;
 import com.jmix.executor.bmodel.Module;
-import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.para.Para;
 import com.jmix.executor.impl.ModuleConstraintExecutorImpl;
 import com.jmix.executor.impl.SolutionUtils;
@@ -394,8 +394,8 @@ public abstract class ModuleScenarioTestBase {
         }
 
         // 在module.parts中查找
-        java.util.Optional<Part> partOpt = getModule().getPart(key);
-        if (partOpt.isPresent()) {
+        IPart partOpt = getModule().getPart(key);
+        if (partOpt != null) {
             return createPartConditionElement(key, value);
         }
 
@@ -558,8 +558,8 @@ public abstract class ModuleScenarioTestBase {
             partInst.setCode(partCode);
 
             // 根据module.parts中
-            Optional<Part> partOpt = getModule().getPart(partCode);
-            if (!partOpt.isPresent()) {
+            IPart partOpt = getModule().getPart(partCode);
+            if (partOpt == null) {
                 throw new AlgLoaderException(String.format("Part %s does not exist", partCode));
             }
             partInst.setQuantity(Integer.parseInt(value));

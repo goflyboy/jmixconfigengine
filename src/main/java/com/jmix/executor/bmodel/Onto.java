@@ -1,6 +1,7 @@
 package com.jmix.executor.bmodel;
 
 import com.jmix.executor.bmodel.attr.DynamicAttribute;
+import com.jmix.executor.bmodel.attr.IDynamicAttributable;
 import com.jmix.executor.bmodel.attr.InstanceDynAttrValue;
 import com.jmix.executor.bmodel.base.ProgrammableObject;
 import com.jmix.executor.bmodel.logic.Rule;
@@ -25,7 +26,7 @@ import java.util.Optional;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class Onto extends ProgrammableObject<Integer> {
+public class Onto extends ProgrammableObject<Integer> implements IDynamicAttributable {
 
     /**
      * 实例属性键名
@@ -42,6 +43,9 @@ public class Onto extends ProgrammableObject<Integer> {
      */
     private List<Rule> rules = new ArrayList<>();
 
+    /**
+     * 参数映射表
+     */
     @JsonIgnore
     private Map<String, Para> paraMap = new HashMap<>();
 
@@ -73,6 +77,23 @@ public class Onto extends ProgrammableObject<Integer> {
             }
         }
         // 其他初始化逻辑将在Module的init方法中实现
+    }
+
+    /**
+     * 初始化短代码
+     */
+    @JsonIgnore
+    public void initShortCode() {
+        int index = 0;
+        for (Para para : getParas()) {
+            if (para.getCode().length() <= 3) { // 如果编码长度小于等于3，则直接使用编码
+                para.setShortCode(para.getCode());
+            } else {
+                para.setShortCode(Para.SHORT_CODE_PREFIX + index);
+                index++;
+            }
+        }
+
     }
 
     /**
@@ -161,9 +182,24 @@ public class Onto extends ProgrammableObject<Integer> {
     @JsonIgnore
     public Optional<Para> queryPara(String code) {
         if (code == null || paraMap.isEmpty()) {
-            return Optional.empty();
+            for (Para para : getParas()) {
+                paraMap.put(para.getCode(), para);
+            }
         }
         Para para = paraMap.get(code);
         return para != null ? Optional.of(para) : Optional.empty();
+    }
+
+    @Override
+    public DynamicAttribute getDynAttrSchema(String code) {
+        return getDynAttrSchemas().stream()
+                .filter(attr -> code.equals(attr.getCode()))
+                .findFirst()
+                .orElse(null);
+    }
+
+    @Override
+    public void setDynAttrSchema(String code, DynamicAttribute dynAttrSchema) {
+        getDynAttrSchemas().add(dynAttrSchema);
     }
 }

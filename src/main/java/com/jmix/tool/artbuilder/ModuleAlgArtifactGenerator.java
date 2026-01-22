@@ -4,6 +4,7 @@ import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.attr.DynamicAttributerOption;
 import com.jmix.executor.bmodel.base.Extensible;
+import com.jmix.executor.bmodel.base.IExtensible;
 import com.jmix.executor.bmodel.base.Pair;
 import com.jmix.executor.bmodel.base.ProgrammableObject;
 import com.jmix.executor.bmodel.logic.CompatiableRuleSchema;
@@ -128,8 +129,8 @@ public class ModuleAlgArtifactGenerator {
         }
 
         // 根据Part生成PartVarInfo
-        if (module.getParts() != null) {
-            List<PartVarInfo> partInfos = module.getParts().stream()
+        if (module.getAtomicParts() != null) {
+            List<PartVarInfo> partInfos = module.getAtomicParts().stream()
                     .map(this::buildPartInfo)
                     .collect(Collectors.toList());
             tmpModuleVarInfo.setParts(partInfos);
@@ -370,7 +371,7 @@ public class ModuleAlgArtifactGenerator {
         String progObjCode = refProgObj.getProgObjCode();
 
         VarInfo<? extends Extensible> targetObj = null;
-        List<? extends Extensible> objects = null;
+        List<? extends IExtensible> objects = null;
         String parsedRawCode = exprSchema.getRawCode();
 
         // 根据exprSchema.refProgObjs.progObjType = Para
@@ -405,7 +406,7 @@ public class ModuleAlgArtifactGenerator {
         }
 
         // 2. 调用FilterExpressionExecutor.doSelect进行过滤
-        List<? extends Extensible> filterObjects = FilterExpressionExecutor.doSelect(objects, parsedRawCode);
+        List<? extends IExtensible> filterObjects = FilterExpressionExecutor.doSelect(objects, parsedRawCode);
 
         // 3.根据filterObjects的code，生成filterObjectCodes(每个Extensible对象强制转化为ProgrammableObject)
         List<String> filterObjectCodes = filterObjects.stream()

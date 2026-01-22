@@ -3,6 +3,7 @@ package com.jmix.executor.impl.util;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.attr.InstanceDynAttrValueItem;
 import com.jmix.executor.bmodel.base.Extensible;
+import com.jmix.executor.bmodel.base.IExtensible;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -78,7 +79,7 @@ public final class FilterExpressionExecutor {
      * @param <T>        对象类型，必须继承自Extensible
      * @return 过滤后的对象列表
      */
-    public static <T extends Extensible> List<T> doSelect(List<T> objects, String filterExpr) {
+    public static <T extends IExtensible> List<T> doSelect(List<T> objects, String filterExpr) {
         log.info("Starting filter expression execution, object count: {}, filter expression: {}",
                 objects != null ? objects.size() : 0, filterExpr);
 
@@ -98,7 +99,7 @@ public final class FilterExpressionExecutor {
      * @param <T>             对象类型，必须继承自Extensible
      * @return 过滤后的对象列表
      */
-    public static <T extends Extensible> List<T> doSelect(List<T> objects, FilterCondition filterCondition) {
+    public static <T extends IExtensible> List<T> doSelect(List<T> objects, FilterCondition filterCondition) {
         if (filterCondition == null) {
             log.warn("Filter condition is null, returning original object list");
             return objects;
@@ -240,7 +241,7 @@ public final class FilterExpressionExecutor {
      * @param condition 过滤条件
      * @return 如果对象匹配条件则返回true，否则返回false
      */
-    private static <T extends Extensible> boolean matchesFilter(T object, FilterCondition condition) {
+    private static <T extends IExtensible> boolean matchesFilter(T object, FilterCondition condition) {
         try {
             return evaluateCondition(object, condition.getFieldName(), condition.getOperator(), condition.getValue());
         } catch (Exception e) {
@@ -259,7 +260,7 @@ public final class FilterExpressionExecutor {
      * @param value     比较值
      * @return 如果条件满足则返回true，否则返回false
      */
-    private static <T extends Extensible> boolean evaluateCondition(T object, String fieldName, String operator,
+    private static <T extends IExtensible> boolean evaluateCondition(T object, String fieldName, String operator,
             String value) {
         try {
             // Try to get field value through reflection

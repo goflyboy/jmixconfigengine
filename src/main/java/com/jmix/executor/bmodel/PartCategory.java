@@ -20,10 +20,8 @@ import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -37,16 +35,11 @@ import java.util.stream.Collectors;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Slf4j
-public class PartCategory extends Part implements IModule {
-
-    @JsonIgnore
-    private Map<String, PartCategory> partCategoryMap = new HashMap<>();
-
-    @JsonIgnore
-    private Map<String, Part> partMap = new HashMap<>();
-
-    @JsonIgnore
-    private List<Part> atomicParts;
+public class PartCategory extends ModuleBase implements IModule, IPart {
+    /**
+     * 部件类型
+     */
+    private PartType partType = PartType.ATOMIC;
 
     public PartCategory() {
         super();
@@ -71,8 +64,6 @@ public class PartCategory extends Part implements IModule {
 
         // 复制Part属性
         pc.setPartType(this.getPartType());
-        pc.setPrice(this.getPrice());
-        pc.setMaxQuantity(this.getMaxQuantity());
         pc.setDynAttr(new HashMap<>(this.getDynAttr()));
         pc.setDynAttrSchemas(this.getDynAttrSchemas());
         pc.setDynAttrSchema(this.getDynAttrSchema());
@@ -123,11 +114,11 @@ public class PartCategory extends Part implements IModule {
         List<Part> filterParts = new ArrayList<>();
         if (attrResult.getFirst().getInstType() == 0) { // 非实例属性
             // 过滤条件不涉及实例属性，直接在Part级别过滤
-            filterParts = FilterExpressionExecutor.doSelect(new ArrayList<>(category.partMap.values()),
+            filterParts = FilterExpressionExecutor.doSelect(new ArrayList<>(category.getAtomicParts()),
                     constraintReq.getAttrWhereCondition());
 
         } else { // 实例属性
-            for (Part part : category.partMap.values()) {
+            for (Part part : category.getAtomicParts()) {
                 InstanceDynAttrValue instAttrs = part.getInstanceAttrs();
                 if (instAttrs == null) {
                     throw new IllegalStateException("Instance attributes not found for part: " + part.getCode());
@@ -306,53 +297,12 @@ public class PartCategory extends Part implements IModule {
     }
 
     /**
-     * 添加子部件
-     *
-     * @param subPart 子部件（可以是Part或PartCategory）
-     */
-    public void addSubPart(Part subPart) {
-        if (subPart instanceof PartCategory) {
-            this.partCategoryMap.put(subPart.getCode(), (PartCategory) subPart);
-        } else {
-            this.partMap.put(subPart.getCode(), subPart);
-        }
-    }
-
-    /**
      * 添加子部件列表
      *
      * @param subParts 子部件列表（可以是Part或PartCategory）
      */
-    public void addSubParts(List<? extends Part> subParts) {
-        for (Part part : subParts) {
-            addSubPart(part);
-        }
-    }
-
-    /**
-     * 添加部件列表（不构建结构，直接添加到partMap）
-     *
-     * @param parts 部件列表
-     */
-    public void addParts(List<? extends Part> parts) {
-        if (parts == null) {
-            return;
-        }
-        for (Part part : parts) {
-            this.partMap.put(part.getCode(), part);
-        }
-        // 清空atomicParts缓存，因为添加了新部件
-        this.atomicParts = null;
-    }
-
-    /**
-     * 获取子部件列表
-     *
-     * @return 子部件列表
-     */
-    @JsonIgnore
-    public List<Part> getSubParts() {
-        return new ArrayList<>(this.partMap.values());
+    public void addSubParts(List<? extends IPart> subParts) {
+        super.addParts(subParts);
     }
 
     /**
@@ -487,55 +437,14 @@ public class PartCategory extends Part implements IModule {
     }
 
     /**
-     * 根据编码获取部件对象
-     * 
-     * @param code 部件编码
-     * @return 部件对象，如果不存在则返回Optional.empty()
-     */
-    @JsonIgnore
-    @Override
-    public Optional<Part> getPart(String code) {
-        if (code == null) {
-            return Optional.empty();
-        }
-        // 先在当前PartCategory的partMap中查找
-        Part part = partMap.get(code);
-        if (part != null) {
-            return Optional.of(part);
-        }
-        // 在子PartCategory中查找
-        PartCategory subCategory = partCategoryMap.get(code);
-        if (subCategory != null) {
-            return Optional.of(subCategory);
-        }
-        // 递归在子PartCategory中查找
-        for (PartCategory subPartCategory : partCategoryMap.values()) {
-            Optional<Part> found = subPartCategory.getPart(code);
-            if (found.isPresent()) {
-                return found;
-            }
-        }
-        return Optional.empty();
-    }
-
-    /**
      * 获取部件列表
      * 
      * @return 部件列表（包括子部件和子分类）
      */
     @JsonIgnore
     @Override
-    public List<Part> getParts() {
-        List<Part> allParts = new ArrayList<>();
-        // 添加所有子部件
-        if (partMap != null) {
-            allParts.addAll(partMap.values());
-        }
-        // 添加所有子分类
-        if (partCategoryMap != null) {
-            allParts.addAll(partCategoryMap.values());
-        }
-        return allParts;
+    public List<IPart> getAllParts() {
+        return super.getAllParts();
     }
 
     /**
@@ -547,12 +456,7 @@ public class PartCategory extends Part implements IModule {
     @JsonIgnore
     @Override
     public List<Part> getAtomicParts() {
-        if (atomicParts == null) {
-            atomicParts = new ArrayList<>();
-            collectAtomicParts(this, atomicParts);
-            atomicParts.sort(Comparator.comparing(Part::getShortCode));
-        }
-        return atomicParts;
+        return super.getAllAtomicParts();
     }
 
     /**
@@ -565,30 +469,6 @@ public class PartCategory extends Part implements IModule {
     public String getAtomicPartShortString() {
         List<Part> atomicParts = getAtomicParts();
         return PartUtils.toShortString(atomicParts);
-    }
-
-    /**
-     * 递归收集原子部件
-     * 
-     * @param category    部件分类
-     * @param atomicParts 原子部件列表
-     */
-    @JsonIgnore
-    private void collectAtomicParts(PartCategory category, List<Part> atomicParts) {
-        // 添加当前分类中的原子部件
-        if (category.partMap != null) {
-            for (Part part : category.partMap.values()) {
-                if (part.getPartType() == PartType.ATOMIC) {
-                    atomicParts.add(part);
-                }
-            }
-        }
-        // 递归处理子分类
-        if (category.partCategoryMap != null) {
-            for (PartCategory subCategory : category.partCategoryMap.values()) {
-                collectAtomicParts(subCategory, atomicParts);
-            }
-        }
     }
 
     @Override

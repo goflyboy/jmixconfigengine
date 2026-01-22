@@ -1,6 +1,7 @@
 package com.jmix.executor.impl.algmodel;
 
 import com.jmix.executor.bmodel.IModule;
+import com.jmix.executor.bmodel.IPart;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartCategory;
 import com.jmix.executor.bmodel.PartUtils;
@@ -122,7 +123,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         List<RefProgObjSchema> fullProgObjs = new ArrayList<>();
         RefProgObjSchema refProgObjSchema = null;
         // 根据module.parts,module.paras,创建RefProgObjSchema列表
-        for (Part part : tempModule.getParts()) {
+        for (Part part : tempModule.getAllAtomicParts()) {
             refProgObjSchema = new RefProgObjSchema(RefProgObjSchema.PROG_OBJ_TYPE_PART, part.getCode(), "");
             fullProgObjs.add(refProgObjSchema);
         }
@@ -361,7 +362,8 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         Function<PartVar, LinearArgument> varGetter = (type == PriorityType.SELECT)
                 ? PartVar::getIsSelected
                 : PartVar::getQty;
-        buildPriorityConstraintExpressions(pConstraint, attrCode, varName, varGetter, module.getAtomicParts());
+        // 仅考虑到单层
+        buildPriorityConstraintExpressions(pConstraint, attrCode, varName, varGetter, module.getAllAtomicParts());
 
         // 存储到 priorityRuleMap，使用 attrCode 作为 key
         priorityRuleMap.put(attrCode, pConstraint);
@@ -840,16 +842,15 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @throws AlgLoaderException 异常
      */
     protected PartVar createPartVar(String code) {
-        Optional<Part> partOpt = module != null ? module.getPart(code) : Optional.empty();
-        if (!partOpt.isPresent()) {
+        IPart part = module.getPart(code);
+        if (null == part) {
             log.error("Part not found for code: {}", code);
             throw new AlgLoaderException("Part not found for code: " + code);
         }
-        Part part = partOpt.get();
         if (part instanceof PartCategory) {
             return createPartCategoryVar((PartCategory) part);
         }
-        return createPartVar(part);
+        return createPartVar((Part) part);
     }
 
     protected PartVar createPartVar(Part part) {
@@ -875,7 +876,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     protected PartVar createPartCategoryVar(PartCategory categoryPart) {
         PartCategoryVar partCategoryVar = new PartCategoryVar();
         partCategoryVar.setBase(categoryPart);
-        for (Part part : categoryPart.getPartMap().values()) {
+        for (Part part : categoryPart.getAtomicParts()) {
             createPartVar(part);
         }
         for (PartCategory subCategory : categoryPart.getPartCategoryMap().values()) {
@@ -1004,7 +1005,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             Function<PartVar, LinearArgument> varGetter, String varName, String filtedConditionStr) {
         // 创建一个临时的PriorityConstraint对象来复用构建逻辑
         PriorityConstraint tempConstraint = new PriorityConstraint();
-        List<Part> atomicParts = module.getAtomicParts();
+        List<Part> atomicParts = module.getAllAtomicParts();
 
         // 如果提供了过滤条件，则先过滤部件
         if (filtedConditionStr != null && !filtedConditionStr.trim().isEmpty()) {

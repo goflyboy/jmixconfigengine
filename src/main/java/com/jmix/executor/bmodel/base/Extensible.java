@@ -14,7 +14,7 @@ import java.util.Map;
  * @since 2025-09-22
  */
 @Data
-public class Extensible {
+public class Extensible implements IExtensible {
     /**
      * 扩展属性schema
      */

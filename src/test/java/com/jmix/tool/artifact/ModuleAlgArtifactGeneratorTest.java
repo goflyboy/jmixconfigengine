@@ -1,12 +1,12 @@
 package com.jmix.tool.artifact;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import com.jmix.executor.bmodel.IPart;
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.attr.DynamicAttributerOption;
@@ -214,12 +214,12 @@ public class ModuleAlgArtifactGeneratorTest {
         assertEquals("Sleeve", sleevePart.getCode());
 
         // 测试getChildrenPart方法
-        List<Part> bodyChildren = module.getChildrenPart("Body");
+        List<IPart> bodyChildren = module.getChildrenPart("Body");
         assertNotNull(bodyChildren, "Body children should not be null");
         assertEquals(2, bodyChildren.size(), "Body should have 2 children");
 
         // 验证子部件的fatherCode设置
-        for (Part child : bodyChildren) {
+        for (IPart child : bodyChildren) {
             assertEquals("Body", child.getFatherCode(), "Child should have correct fatherCode");
         }
 
@@ -229,71 +229,7 @@ public class ModuleAlgArtifactGeneratorTest {
         assertEquals(1, topLevelParts.size(), "Should have 1 top level part");
         assertEquals("Body", topLevelParts.get(0).getCode(), "Top level part should be Body");
 
-        // 测试hasPara和hasPart方法
-        assertTrue(module.hasPara("Color"), "Should have Color para");
-        assertTrue(module.hasPara("Size"), "Should have Size para");
-        assertTrue(module.hasPart("Body"), "Should have Body part");
-        assertTrue(module.hasPart("Sleeve"), "Should have Sleeve part");
-
-        // 测试不存在的编码
-        assertFalse(module.hasPara("NonExistent"), "Should not have non-existent para");
-        assertFalse(module.hasPart("NonExistent"), "Should not have non-existent part");
-
         log.info("Module methods test passed successfully");
-    }
-
-    /**
-     * 创建兼容规则测试数据
-     */
-    private Rule createCompatiableRule() throws Exception {
-        Rule rule = new Rule();
-        rule.setCode("rule1");
-        rule.setName("颜色和尺寸兼容关系规则");
-        rule.setNormalNaturalCode("如果颜色选择红色，则尺寸必须选择大号或小号，不能选择中号");
-        rule.setRuleSchemaTypeFullName(RuleTypeConstants.COMPATIABLE_RULE_FULL_NAME);
-
-        // 构建rawCode - 使用CompatiableRuleSchema对象
-        // 构建rawCode - 使用CompatiableRuleSchema对象
-        CompatiableRuleSchema rawCode = new CompatiableRuleSchema();
-        rawCode.setType("CompatiableRule");
-        rawCode.setVersion("1.0");
-
-        // 左表达式
-        ExprSchema leftExpr = new ExprSchema();
-        leftExpr.setRawCode("Color=\"Red\"");
-
-        // 设置左表达式的引用对象
-        List<RefProgObjSchema> leftRefProgObjs = new ArrayList<>();
-        RefProgObjSchema leftRef = new RefProgObjSchema();
-        leftRef.setProgObjType("Para");
-        leftRef.setProgObjCode("Color");
-        leftRef.setProgObjField("value");
-        leftRefProgObjs.add(leftRef);
-        leftExpr.setRefProgObjs(leftRefProgObjs);
-
-        rawCode.setLeftExpr(leftExpr);
-
-        // 操作符
-        rawCode.setOperator("Requires");
-
-        // 右表达式
-        ExprSchema rightExpr = new ExprSchema();
-        rightExpr.setRawCode("Size!=\"Medium\"");
-
-        // 设置右表达式的引用对象
-        List<RefProgObjSchema> rightRefProgObjs = new ArrayList<>();
-        RefProgObjSchema rightRef = new RefProgObjSchema();
-        rightRef.setProgObjType("Para");
-        rightRef.setProgObjCode("Size");
-        rightRef.setProgObjField("value");
-        rightRefProgObjs.add(rightRef);
-        rightExpr.setRefProgObjs(rightRefProgObjs);
-
-        rawCode.setRightExpr(rightExpr);
-
-        rule.setRawCode(rawCode);
-
-        return rule;
     }
 
     /**
@@ -436,7 +372,7 @@ public class ModuleAlgArtifactGeneratorTest {
         Part bodyPart = new Part();
         bodyPart.setCode("Body");
         parts.add(bodyPart);
-        module.setParts(parts);
+        module.setAtomicParts(parts);
 
         // 创建规则
         List<Rule> rules = new ArrayList<>();
@@ -505,7 +441,7 @@ public class ModuleAlgArtifactGeneratorTest {
         collarPart.setFatherCode("Body"); // Body的子部件
         parts.add(collarPart);
 
-        module.setParts(parts);
+        module.setAtomicParts(parts);
 
         // 创建规则
         List<Rule> rules = new ArrayList<>();

@@ -27,7 +27,7 @@ public interface IModule {
      * @param code 部件编码
      * @return 部件对象，如果不存在则返回Optional.empty()
      */
-    Optional<Part> getPart(String code);
+    IPart getPart(String code);
 
     /**
      * 获取规则列表
@@ -48,14 +48,14 @@ public interface IModule {
      * 
      * @return 部件列表
      */
-    List<Part> getParts();
+    List<IPart> getAllParts();
 
     /**
      * 获取原子部件列表
      * 
      * @return 原子部件列表（partType为ATOMIC的部件）
      */
-    List<Part> getAtomicParts();
+    List<Part> getAllAtomicParts();
 
     /**
      * 检查是否有优先级规则
