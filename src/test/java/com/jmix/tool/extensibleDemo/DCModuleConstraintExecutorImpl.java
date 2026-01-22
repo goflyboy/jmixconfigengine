@@ -145,7 +145,7 @@ class DCModuleConstraintExecutorImpl implements DCModuleConstraintExecutor {
         module.setPackageName(dcModule.getPackageName());
         module.setType(dcModule.getType());
         module.setParas(dcModule.getParas());
-        module.setParts(dcModule.getParts());
+        module.addParts(dcModule.getAllParts());
         module.setRules(dcModule.getRules());
         module.setAlg(dcModule.getAlg());
         module.init();

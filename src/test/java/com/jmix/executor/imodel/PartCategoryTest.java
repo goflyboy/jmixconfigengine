@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.jmix.executor.bmodel.IPart;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartCategory;
 import com.jmix.executor.bmodel.attr.DynamicAttribute;
@@ -199,7 +200,7 @@ public class PartCategoryTest {
 
         PartCategory result = driveCategory.query(req);
 
-        List<Part> parts = new ArrayList<>(result.getPartMap().values());
+        List<IPart> parts = result.getAllParts();
 
         // 应该只返回5400转的硬盘，且容量总和>=5T
         assertEquals(2, parts.size(), "Should return 21 drive part");
@@ -236,7 +237,7 @@ public class PartCategoryTest {
 
         PartCategory results = solidDriveCategory.query(req);
 
-        assertEquals(1, results.getPartMap().values().size(), "Should return 1 solid drive part");
+        assertEquals(1, results.getAllParts().size(), "Should return 1 solid drive part");
     }
 
     /**
@@ -294,7 +295,7 @@ public class PartCategoryTest {
         assertNotSame(driveCategory, cloned, "Cloned object should be different instance");
 
         // partMap和partCategoryMap不应该被克隆
-        assertTrue(cloned.getPartMap().isEmpty(), "partMap should not be cloned");
+        assertTrue(cloned.getAllParts().isEmpty(), "partMap should not be cloned");
         assertTrue(cloned.getPartCategoryMap().isEmpty(), "partCategoryMap should not be cloned");
     }
 

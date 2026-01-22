@@ -64,8 +64,8 @@ public class AnnotationRuleIntegrationTest {
         assertEquals(2, module.getParas().size(), "Should have 2 paras");
 
         // 验证部件生成
-        assertNotNull(module.getParts(), "Module parts should not be null");
-        assertEquals(1, module.getParts().size(), "Should have 1 part");
+        assertNotNull(module.getAllParts(), "Module parts should not be null");
+        assertEquals(1, module.getAllParts().size(), "Should have 1 part");
 
         log.info("✓ Annotation rule generation test passed");
     }

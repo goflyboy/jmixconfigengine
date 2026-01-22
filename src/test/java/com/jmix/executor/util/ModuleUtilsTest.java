@@ -103,8 +103,8 @@ public class ModuleUtilsTest {
         assertEquals(testModule.getParas().size(), loadedModule.getParas().size(), "参数数量应该匹配");
 
         // 验证部件
-        assertNotNull(loadedModule.getParts(), "部件列表不应该为null");
-        assertEquals(testModule.getParts().size(), loadedModule.getParts().size(), "部件数量应该匹配");
+        assertNotNull(loadedModule.getAllParts(), "部件列表不应该为null");
+        assertEquals(testModule.getAllParts().size(), loadedModule.getAllParts().size(), "部件数量应该匹配");
 
         // 验证规则
         assertNotNull(loadedModule.getRules(), "规则列表不应该为null");
@@ -113,7 +113,7 @@ public class ModuleUtilsTest {
         log.info("✓ fromJsonFile test passed");
         log.info("  Loaded module: {}", loadedModule.getCode());
         log.info("  Parameter count: {}", loadedModule.getParas().size());
-        log.info("  Part count: {}", loadedModule.getParts().size());
+        log.info("  Part count: {}", loadedModule.getAllParts().size());
         log.info("  Rule count: {}", loadedModule.getRules().size());
     }
 
@@ -215,7 +215,7 @@ public class ModuleUtilsTest {
 
         // 设置模块属性
         module.setParas(java.util.Arrays.asList(testPara));
-        module.setParts(java.util.Arrays.asList(testPart));
+        module.addParts(java.util.Arrays.asList(testPart));
         module.setRules(java.util.Arrays.asList(testRule));
 
         return module;

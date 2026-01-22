@@ -1,5 +1,6 @@
 package com.jmix.tool.extensibleDemo;
 
+import com.jmix.executor.bmodel.IPart;
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartType;
@@ -99,12 +100,12 @@ public class DCDeliveryTypePostProcess extends ExtensibleProcess implements Infe
         }
 
         // 查找对应的Part定义
-        java.util.Optional<Part> partOpt = module.getPart(paraInst.getCode());
-        if (!partOpt.isPresent()) {
+        IPart partOpt = module.getPart(paraInst.getCode());
+        if (partOpt == null) {
             log.warn("Part not found for code: {}", paraInst.getCode());
             return "Standard";
         }
-        Part part = partOpt.get();
+        Part part = (Part) partOpt;
 
         // 查找对应的PartInst
         PartInst partInst = findPartInstByCode(solution, paraInst.getCode());

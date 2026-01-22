@@ -44,7 +44,7 @@ public class DCModule extends Module {
             this.setPackageName(module.getPackageName());
             this.setType(module.getType());
             this.setParas(module.getParas());
-            this.setParts(module.getParts());
+            this.addParts(module.getAllParts());
             this.setRules(module.getRules());
             this.setAlg(module.getAlg());
             this.init();

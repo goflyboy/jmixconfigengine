@@ -201,15 +201,15 @@ public class ModuleAlgArtifactGeneratorTest {
         assertEquals("Size", sizePara.getCode());
 
         // 测试getPart方法
-        java.util.Optional<Part> bodyPartOpt = module.getPart("Body");
-        assertTrue(bodyPartOpt.isPresent(), "Body part should be present");
-        Part bodyPart = bodyPartOpt.get();
+        IPart bodyPartOpt = module.getPart("Body");
+        assertTrue(bodyPartOpt != null, "Body part should be present");
+        Part bodyPart = (Part) bodyPartOpt;
         assertNotNull(bodyPart, "Body part should not be null");
         assertEquals("Body", bodyPart.getCode());
 
-        java.util.Optional<Part> sleevePartOpt = module.getPart("Sleeve");
-        assertTrue(sleevePartOpt.isPresent(), "Sleeve part should be present");
-        Part sleevePart = sleevePartOpt.get();
+        IPart sleevePartOpt = module.getPart("Sleeve");
+        assertTrue(sleevePartOpt != null, "Sleeve part should be present");
+        Part sleevePart = (Part) sleevePartOpt;
         assertNotNull(sleevePart, "Sleeve part should not be null");
         assertEquals("Sleeve", sleevePart.getCode());
 
@@ -224,7 +224,7 @@ public class ModuleAlgArtifactGeneratorTest {
         }
 
         // 测试getTopLevelParts方法
-        List<Part> topLevelParts = module.getTopLevelParts();
+        List<IPart> topLevelParts = module.getTopLevelParts();
         assertNotNull(topLevelParts, "Top level parts should not be null");
         assertEquals(1, topLevelParts.size(), "Should have 1 top level part");
         assertEquals("Body", topLevelParts.get(0).getCode(), "Top level part should be Body");

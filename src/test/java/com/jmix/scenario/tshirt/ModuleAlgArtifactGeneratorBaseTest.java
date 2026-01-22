@@ -82,12 +82,12 @@ public class ModuleAlgArtifactGeneratorBaseTest {
         assertNotNull(tshirtModule, "T恤衫模块应该创建成功");
         assertEquals("模块代码应该是TShirt", "TShirt", tshirtModule.getCode());
         assertNotNull(tshirtModule.getParas(), "参数列表不应该为空");
-        assertNotNull(tshirtModule.getParts(), "部件列表不应该为空");
+        assertNotNull(tshirtModule.getAllParts(), "部件列表不应该为空");
         assertNotNull(tshirtModule.getRules(), "规则列表不应该为空");
 
         log.info("✓ Module data validation passed");
         log.info("  Parameter count: {}", tshirtModule.getParas().size());
-        log.info("  Part count: {}", tshirtModule.getParts().size());
+        log.info("  Part count: {}", tshirtModule.getAllParts().size());
         log.info("  Rule count: {}", tshirtModule.getRules().size());
 
         // 调用buildConstraintRule方法
