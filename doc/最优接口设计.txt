@@ -2184,6 +2184,26 @@ proRule2:固态硬盘必须配置同一种，并且最多配置2块
 
 
  
+2026-1-24：
+
+参数上增加一个
+1、
+Parameter，是否
+bool  inputType;///看一下现在的crs？ ---？ 
+reletivePro:  capacity.sum  -->
+如果是输入类型  
+  
+TotalCapacity 
+
+有两种配置方式：
+1、直接告诉数量，直接算数量
+  做相关校验即可
+2、
+
+多种配置路径？
+
+
+
 
 	
 

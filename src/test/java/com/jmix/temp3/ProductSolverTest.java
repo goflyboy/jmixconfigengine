@@ -24,7 +24,7 @@ public class ProductSolverTest {
      * 解2：sd1.qty=2
      * 解3：sd1.qty=1 md1.qty=3 //增配低速率容量
      */
-    // @Test
+    @Test
     public void testCase0_CapacityGreaterEqual6Speed5400() {
         ProductSolver solver = new ProductSolver();
         String strReq = " Capacity >=6 where Speed = 5400";

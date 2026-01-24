@@ -11,10 +11,6 @@
   "defaultValue" : 1,
   "description" : "测试模块",
   "sortNo" : 1,
-  "id" : 999,
-  "version" : "1.0.0",
-  "packageName" : "com.jmix.executor.util",
-  "type" : "GENERAL",
   "paras" : [ "java.util.Arrays$ArrayList", [ {
     "@type" : "Para",
     "extSchema" : "TestParaSchema",
@@ -52,28 +48,6 @@
     "minValue" : "-1000",
     "maxValue" : "1000",
     "refSpecCode" : null
-  } ] ],
-  "parts" : [ "java.util.Arrays$ArrayList", [ {
-    "@type" : "Part",
-    "extSchema" : "TestPartSchema",
-    "extAttrs" : {
-      "@class" : "java.util.HashMap",
-      "partAttr" : "partValue"
-    },
-    "code" : "TestPart",
-    "fatherCode" : "",
-    "defaultValue" : 0,
-    "description" : null,
-    "sortNo" : 1,
-    "partType" : "ATOMIC",
-    "price" : 100,
-    "maxQuantity" : 20,
-    "dynAttr" : {
-      "@class" : "java.util.HashMap",
-      "partProperty" : "propertyValue"
-    },
-    "dynAttrSchemas" : [ "java.util.ArrayList", [ ] ],
-    "dynAttrSchema" : null
   } ] ],
   "rules" : [ "java.util.Arrays$ArrayList", [ {
     "@type" : "Rule",
@@ -117,5 +91,15 @@
     "ruleSchemaTypeFullName" : "CDSL.V5.Struct.TestRule",
     "fatherCode" : ""
   } ] ],
+  "dynAttr" : {
+    "@class" : "java.util.HashMap"
+  },
+  "dynAttrSchemas" : [ "java.util.ArrayList", [ ] ],
+  "dynAttrSchema" : null,
+  "partCategorys" : [ "java.util.ArrayList", [ ] ],
+  "id" : 999,
+  "version" : "1.0.0",
+  "packageName" : "com.jmix.executor.util",
+  "type" : "GENERAL",
   "alg" : null
 }
