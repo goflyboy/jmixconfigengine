@@ -7,6 +7,11 @@ import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.LinearArgument;
 import com.google.ortools.sat.LinearExpr;
 import com.google.ortools.sat.Literal;
+import com.google.ortools.sat.NotBoolVar;
+
+/**
+ * 由于TrackerConstraint在同一个包中，TrackedLinearExpr不需要显式导入
+ */
 
 /**
  * 约束的跟踪器，对Constraint进行包装
@@ -104,14 +109,16 @@ public class TrackerConstraint {
      * @param operator       操作符
      * @return 包装的约束对象
      */
-    public static TrackerConstraint build(Constraint constraint, LinearExpr leftExpr, LinearExpr rightExpr,
+    public static TrackerConstraint build(Constraint constraint,
+            LinearArgument leftExpr,
+            LinearArgument rightExpr,
             String constraintType, String operator) {
         TrackerConstraint tct = new TrackerConstraint();
         tct.ct = constraint;
         tct.name = constraintType;
-        tct.left = leftExpr.toString();
+        tct.left = toNameString(leftExpr);
         tct.operator = operator;
-        tct.right = rightExpr.toString();
+        tct.right = toNameString(rightExpr);
         return tct;
     }
 
@@ -175,8 +182,24 @@ public class TrackerConstraint {
             return ((BoolVar) lit).getName();
         } else if (lit instanceof IntVar) {
             return ((IntVar) lit).getName();
+        } else if (lit instanceof NotBoolVar) {
+            String str = lit.toString();
+            // str = not(sd1.S(0..1)) --> extract "sd1.S"
+            // Parse the string: "not(varName(range))" -> "varName"
+            if (str.startsWith("not(") && str.endsWith(")")) {
+                String inner = str.substring(4, str.length() - 1); // Remove "not(" and ")"
+                int parenIndex = inner.indexOf('(');
+                if (parenIndex > 0) {
+                    return inner.substring(0, parenIndex); // Extract variable name before "("
+                }
+            }
+            // Fallback: return the full string if parsing fails
+            return str;
         } else {
-            return lit.toString();
+            // Handle other unsupported Literal types
+            throw new UnsupportedOperationException(
+                    "Unsupported Literal type: " + lit.getClass().getSimpleName() +
+                            ". Only BoolVar, IntVar, and NotBoolVar are supported. Literal: " + lit);
         }
     }
 

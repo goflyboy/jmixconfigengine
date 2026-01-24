@@ -187,11 +187,11 @@ public class ProductSolver {
                 .filter(PartVar::isSolidState)
                 .collect(Collectors.toList());
 
-        // 如果选择了固态硬盘，只能选择一种
+        // 如果选择了固态硬盘，只能选择一种fvf
         if (!solidStateParts.isEmpty()) {
             // 创建一个变量表示是否选择了固态硬盘
             BoolVar hasSolidState = (BoolVar) model.newBoolVar(
-                    "Indicates if any solid-state drive is selected");
+                    "hasSolidState");
 
             // 如果有固态硬盘被选中，hasSolidState为true
             for (PartVar pv : solidStateParts) {
@@ -256,7 +256,7 @@ public class ProductSolver {
 
             // 创建固态硬盘是否足够的布尔变量
             BoolVar ssSufficient = (BoolVar) model.newBoolVar(
-                    "Indicates if SSD capacity is sufficient");
+                    "ssSufficient");
 
             // 定义：如果固态硬盘容量 >= 需求容量，则 ssSufficient = true
             model.addGreaterOrEqual(ssTotalCapacity, requiredCapacity).onlyEnforceIf(ssSufficient);
@@ -293,10 +293,10 @@ public class ProductSolver {
             TrackedLinearExpr objectiveExpr = model.newTrackedExpr("Objective");
 
             // 基础目标: 最大化SSD使用（负权重）
-            objectiveExpr.addExpr(ssTotalCapacity.build(), -10000, "Maximize SSD capacity");
+            objectiveExpr.addExpr(ssTotalCapacity, -10000);
 
             // HDD惩罚 = HDD容量 * 惩罚系数
-            objectiveExpr.addExpr(mechTotalCapacity.build(), 1, "Minimize HDD usage");
+            objectiveExpr.addExpr(mechTotalCapacity, 1);
 
             // 设置目标函数为最小化（因为SSD有负权重）
             model.setObjective(objectiveExpr, false, "Storage capacity optimization with priority rules");

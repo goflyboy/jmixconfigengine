@@ -256,8 +256,9 @@ public class CpModelTracker {
      */
     public TrackerConstraint addImplication(BoolVar condition, BoolVar implication) {
         Constraint ct = model.addImplication(condition, implication);
-        // 对于蕴含约束，我们使用常量0作为占位符，因为蕴含约束没有明确的左右表达式
-        TrackerConstraint tct = TrackerConstraint.build(ct, LinearExpr.constant(0), LinearExpr.constant(0),
+        TrackerConstraint tct = TrackerConstraint.build(ct,
+                condition,
+                implication,
                 "addImplication", "->");
         constraints.add(tct);
         return tct;

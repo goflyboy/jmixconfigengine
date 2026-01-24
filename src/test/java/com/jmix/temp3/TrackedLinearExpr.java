@@ -65,14 +65,11 @@ public class TrackedLinearExpr {
      * @param coefficient 系数
      * @param description 描述信息
      */
-    public void addExpr(LinearExpr expr, long coefficient, String description) {
+    public void addExpr(TrackedLinearExpr expr, long coefficient) {
         // 注意：这里我们无法直接将LinearExpr添加到builder中
         // 这是一个简化的实现，实际使用时需要根据具体需求调整
         String sign = coefficient >= 0 ? "+" : "-";
         String termStr = String.format("%s %d * (%s)", sign, Math.abs(coefficient), expr.toString());
-        if (description != null && !description.isEmpty()) {
-            termStr += "  // " + description;
-        }
         terms.add(termStr);
     }
 
@@ -111,8 +108,6 @@ public class TrackedLinearExpr {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(name).append(" = ");
-
         boolean first = true;
         for (String term : terms) {
             if (first) {
@@ -133,7 +128,7 @@ public class TrackedLinearExpr {
         if (terms.isEmpty()) {
             sb.append("0");
         }
-
+        // sb.append(name).append(" = ");
         return sb.toString();
     }
 }
