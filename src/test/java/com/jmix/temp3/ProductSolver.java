@@ -6,8 +6,12 @@ import com.google.ortools.sat.CpSolver;
 import com.google.ortools.sat.CpSolverSolutionCallback;
 import com.google.ortools.sat.CpSolverStatus;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -15,6 +19,7 @@ import java.util.stream.Collectors;
 /**
  * 主求解器类
  */
+@Slf4j
 public class ProductSolver {
 
     private List<Part> allParts;
@@ -118,7 +123,7 @@ public class ProductSolver {
 
         // 收集多个解
         List<Solution> allSolutions = new ArrayList<>();
-        SolutionCollector cb = new SolutionCollector(partVars, allSolutions);
+        SolutionCollector cb = new SolutionCollector(model, partVars, allSolutions);
         model.printModelSummary();
         CpSolverStatus status = solver.solve(model.getModel(), cb);
         model.printRunValue(solver, status);
@@ -126,13 +131,13 @@ public class ProductSolver {
         if (status != CpSolverStatus.OPTIMAL && status != CpSolverStatus.FEASIBLE
                 && status != CpSolverStatus.INFEASIBLE) {
             // 求解失败，返回空解
-            return new ProductResult(new ArrayList<>());
+            return new ProductResult(new ArrayList<>(), status.toString());
         }
 
         // 9. 排序解
         sortSolutions(allSolutions);
 
-        return new ProductResult(allSolutions);
+        return new ProductResult(allSolutions, status.toString());
     }
 
     // 构建主要约束
@@ -298,6 +303,7 @@ public class ProductSolver {
             objectiveExpr.addExpr(mechTotalCapacity, 1);
 
             model.addLessOrEqual(objectiveExpr, -1);
+            model.setObjectExpr(objectiveExpr);
             // model.minimize(objectiveExpr); // 设置目标函数为最小化（因为SSD有负权重）
 
         }
@@ -319,32 +325,38 @@ public class ProductSolver {
     // 排序解决方案
     private void sortSolutions(List<Solution> solutions) {
         // 排序规则：
-        // 1. 优先高速率固态硬盘（speed 高的优先）
-        // 2. 然后低速率固态硬盘
-        // 3. 最后机械硬盘
-        // 4. 在相同类型内，数量少的优先
+        // 1. 按目标值从小到大排序（目标值越小越好）
+        // 2. 如果目标值相同，优先高速率固态硬盘（speed 高的优先）
+        // 3. 如果速度相同，无机械硬盘的优先
+        // 4. 如果都相同，总零件数量少的优先
         solutions.sort((sol1, sol2) -> {
-            // 计算最高速固态硬盘速度
+            // 1. 按solution.objectValue从小到大排序（目标值越小越好）
+            int objCompare = Double.compare(sol1.getObjectValue(), sol2.getObjectValue());
+            if (objCompare != 0) {
+                return objCompare;
+            }
+
+            // 2. 如果目标值相同，按最高速固态硬盘速度降序（高速优先）
             int maxSpeed1 = getMaxSolidStateSpeed(sol1);
             int maxSpeed2 = getMaxSolidStateSpeed(sol2);
 
             if (maxSpeed1 != maxSpeed2) {
-                return Integer.compare(maxSpeed2, maxSpeed1); // 降序，高速优先
+                return Integer.compare(maxSpeed2, maxSpeed1);
             }
 
-            // 计算是否有机械硬盘
+            // 3. 如果速度相同，无机械硬盘的优先
             boolean hasMech1 = hasMechanicalDrive(sol1);
             boolean hasMech2 = hasMechanicalDrive(sol2);
 
             if (hasMech1 != hasMech2) {
-                return Boolean.compare(hasMech1, hasMech2); // 有机械硬盘的排在后面
+                return Boolean.compare(hasMech1, hasMech2);
             }
 
-            // 计算总零件数量
+            // 4. 如果都相同，总零件数量少的优先
             int totalCount1 = getTotalCount(sol1);
             int totalCount2 = getTotalCount(sol2);
 
-            return Integer.compare(totalCount1, totalCount2); // 升序，数量少的优先
+            return Integer.compare(totalCount1, totalCount2);
         });
     }
 
@@ -394,12 +406,13 @@ public class ProductSolver {
     // 解决方案收集器
 
     class SolutionCollector extends CpSolverSolutionCallback {
-
+        private CpModelTracker model;
         private final List<PartVar> partVars;
 
         private final List<Solution> allSolutions;
 
-        public SolutionCollector(List<PartVar> partVars, List<Solution> allSolutions) {
+        public SolutionCollector(CpModelTracker model, List<PartVar> partVars, List<Solution> allSolutions) {
+            this.model = model;
             this.partVars = partVars;
             this.allSolutions = allSolutions;
         }
@@ -407,20 +420,32 @@ public class ProductSolver {
         @Override
         public void onSolutionCallback() {
             List<PartResult> partResults = new ArrayList<>();
+            Map<String, Integer> partQtyMap = new HashMap<>();
             for (PartVar pv : partVars) {
                 int qty = (int) value(pv.qty);
+                partQtyMap.put(pv.getQtyVarName(), qty);
                 boolean isSelected = qty > 0;
                 partResults.add(new PartResult(pv.code, isSelected, qty));
             }
 
-            double objectValue = objectiveValue();
+            double objectValue = calcObjectValue(model.getObjectExpr(), partQtyMap);
             Solution solution = new Solution(partResults, objectValue);
             allSolutions.add(solution);
 
             // 限制最多收集100个解
-            if (allSolutions.size() >= 100) {
+            // if (allSolutions.size() >= 100) {
+            final int MAX_SOLUTION = 100;
+            if (allSolutions.size() >= MAX_SOLUTION) {
+                log.warn("Has reach the max:" + MAX_SOLUTION + " will stop!");
                 stopSearch();
             }
+        }
+
+        private double calcObjectValue(TrackedLinearExpr objectExp, Map<String, Integer> partQtyMap) {
+            if (objectExp == null) {
+                return 0.0;
+            }
+            return ExpressionCalculator.calculate(objectExp.toString(), partQtyMap);
         }
     }
 

@@ -25,4 +25,13 @@ class PartResult {
     public int getQty() {
         return qty;
     }
+
+    @Override
+    public String toString() {
+        return code + " S:" + (isSelected ? 1 : 0) + " Q:" + qty;
+    }
+
+    public String toShortString() {
+        return code + " Q:" + qty;
+    }
 }

@@ -23,15 +23,23 @@ class PartVar {
 
     CpModelTracker model;
 
+    public String getQtyVarName() {
+        return code + QUANTITY_SUFFIX;
+    }
+
+    public String getSelectVarName() {
+        return code + SELECTED_SUFFIX;
+    }
+
     public PartVar(CpModelTracker model, Part part) {
         this.model = model;
         this.part = part;
         this.code = part.code;
 
         // 创建布尔变量表示是否选中
-        this.isSelected = model.newBoolVar(code + SELECTED_SUFFIX);
+        this.isSelected = model.newBoolVar(getSelectVarName());
         // 创建数量变量，假设最大数量为10
-        this.qty = model.newIntVar(0, 10, code + QUANTITY_SUFFIX);
+        this.qty = model.newIntVar(0, 10, getQtyVarName());
 
         System.out.println("PartVar: Created variables for part " + code
                 + " - isSelected: " + isSelected.getName()

@@ -1,6 +1,5 @@
 package com.jmix.temp3;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -9,9 +8,11 @@ import java.util.List;
 class ProductResult {
 
     private List<Solution> solutions;
+    private String solverStatus;
 
-    public ProductResult(List<Solution> solutions) {
+    public ProductResult(List<Solution> solutions, String solverStatus) {
         this.solutions = solutions;
+        this.solverStatus = solverStatus;
     }
 
     public List<Solution> getSolutions() {
@@ -21,17 +22,22 @@ class ProductResult {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
+        sb.append("solverStatus:").append(solverStatus).append("\n");
+        sb.append("solutions size:").append(solutions.size()).append("\n");
         for (int i = 0; i < solutions.size(); i++) {
-            sb.append("解").append(i + 1).append(": ");
-            Solution sol = solutions.get(i);
-            List<String> parts = new ArrayList<>();
-            for (PartResult pr : sol.getParts()) {
-                if (pr.isSelected()) {
-                    parts.add(pr.getCode() + ".qty=" + pr.getQty());
-                }
-            }
-            sb.append(String.join("  ", parts));
-            sb.append(" 目标值: ").append(sol.getObjectValue()).append("\n");
+            sb.append("Solu").append(i + 1).append(": ");
+            sb.append(solutions.get(i).toString()).append("\n");
+        }
+        return sb.toString();
+    }
+
+    public String toShortString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("solverStatus:").append(solverStatus).append("\n");
+        sb.append("solutions size:").append(solutions.size()).append("\n");
+        for (int i = 0; i < solutions.size(); i++) {
+            sb.append("Solu").append(i + 1).append(": ");
+            sb.append(solutions.get(i).toShortString()).append("\n");
         }
         return sb.toString();
     }

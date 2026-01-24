@@ -21,4 +21,40 @@ class Solution {
     public double getObjectValue() {
         return objectValue;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        // sb.append("Solution{");
+        if (parts != null && !parts.isEmpty()) {
+            sb.append("parts=[");
+            for (int i = 0; i < parts.size(); i++) {
+                if (i > 0)
+                    sb.append(", ");
+                sb.append(parts.get(i).toString());
+            }
+            sb.append("]");
+        }
+        sb.append(", OV=").append(objectValue);
+        // sb.append("}");
+        return sb.toString();
+    }
+
+    public String toShortString() {
+        StringBuilder sb = new StringBuilder();
+        // sb.append("Solution{");
+        if (parts != null && !parts.isEmpty()) {
+            sb.append("parts=[");
+            for (int i = 0; i < parts.size(); i++) {
+                if (i > 0)
+                    sb.append(", ");
+                sb.append(parts.get(i).toShortString());
+            }
+            sb.append("]");
+        }
+        sb.append(", OV=").append(objectValue);
+        // sb.append("}");
+        return sb.toString();
+    }
+
 }

@@ -9,6 +9,8 @@ import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.LinearArgument;
 import com.google.ortools.sat.LinearExpr;
 
+import lombok.Data;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -19,11 +21,13 @@ import java.util.Map;
  * 模型跟踪器（核心解决方案）
  * 包装CpModel，提供变量、约束、目标函数的跟踪功能
  */
+@Data
 public class CpModelTracker {
     private CpModel model;
     private Map<String, IntVar> variables;
     private List<String> variableLogs;
     private List<TrackerConstraint> constraints;
+    private TrackedLinearExpr objectExpr;
 
     public CpModelTracker() {
         this.model = new CpModel();
@@ -53,7 +57,7 @@ public class CpModelTracker {
     public IntVar newIntVar(long lb, long ub, String name) {
         IntVar var = model.newIntVar(lb, ub, name);
         variables.put(name, var);
-        variableLogs.add(String.format("%s ∈ [%d, %d]  ",
+        variableLogs.add(String.format("%s in [%d, %d]  ",
                 name, lb, ub));
         return var;
     }
@@ -67,7 +71,7 @@ public class CpModelTracker {
     public BoolVar newBoolVar(String name) {
         BoolVar var = model.newBoolVar(name);
         variables.put(name, var);
-        variableLogs.add(String.format("%s ∈ {0, 1}",
+        variableLogs.add(String.format("%s in {0, 1}",
                 name));
         return var;
     }
@@ -347,6 +351,7 @@ public class CpModelTracker {
     }
 
     public void printRunValue(CpSolver cpSolver, CpSolverStatus status) {
+        System.out.println("\nCpSolverStatus:" + status + " ");
         System.out.println("\nVARIABLE VALUES (" + variables.size() + "):");
         System.out.println("-".repeat(80));
         for (IntVar var : variables.values()) {
