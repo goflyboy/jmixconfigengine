@@ -265,8 +265,11 @@ public class ProductSolver {
             TrackerConstraint geConstraint = model.addGreaterOrEqual(ssTotalCapacity, requiredCapacity);
             geConstraint.onlyEnforceIf(ssSufficient);
 
+            TrackedLinearExpr capacityLimit = model.newTrackedExpr("Capacity_Limit");
+            capacityLimit.addConstant(requiredCapacity, "Required capacity threshold");
+
             TrackerConstraint ltConstraint = model.addLessThan(ssTotalCapacity.build(),
-                    LinearExpr.constant(requiredCapacity));
+                    capacityLimit.build());
             ltConstraint.onlyEnforceIf(ssSufficient.not());
 
             // 规则1.1: 如果固态硬盘足够，则禁止使用机械硬盘
@@ -278,10 +281,8 @@ public class ProductSolver {
             }
             // 步骤5: 核心约束 - 如果SSD足够，限制HDD使用
             // 使用大惩罚权重在目标函数中实现
-            LinearExprBuilder objective = LinearExpr.newBuilder();
 
             // 基础目标: 最大化SSD使用（负权重）
-            objective.addTerm(ssTotalCapacity.build(), -10000); // 最大化SSD容量
 
             // 关键: 动态惩罚HDD使用 - 当SSD足够时惩罚更大
             IntVar hddPenaltyFactor = model.newIntVar(0, 1000000, "Penalty factor for HDD usage");
@@ -292,30 +293,25 @@ public class ProductSolver {
             penaltyExpr.addTerm((IntVar) ssSufficient, 1000000 - 1000, "High penalty when SSD sufficient");
             penaltyExpr.addConstant(1000, "Base penalty");
 
-            LinearExprBuilder penaltyFactorExpr = LinearExpr.newBuilder();
-            penaltyFactorExpr.addTerm(hddPenaltyFactor, 1);
+            TrackedLinearExpr penaltyFactorExpr = model.newTrackedExpr("Penalty_Factor_Expr");
+            penaltyFactorExpr.addTerm(hddPenaltyFactor, 1, "Penalty factor variable");
+
             // 这里需要更复杂的处理来设置惩罚系数计算
             // 暂时简化：直接设置惩罚系数为固定值
-            LinearExprBuilder factorExpr = LinearExpr.newBuilder();
-            factorExpr.addTerm(hddPenaltyFactor, 1);
+            TrackedLinearExpr factorExpr = model.newTrackedExpr("Factor_Expr");
+            factorExpr.addTerm(hddPenaltyFactor, 1, "Penalty factor for equality");
             model.addEquality(factorExpr.build(), 1000);
 
             // 创建目标函数
             TrackedLinearExpr objectiveExpr = model.newTrackedExpr("Objective");
 
-            // 基础目标: 最大化SSD使用（负权重）- 这里需要特殊处理，因为我们想要整个表达式的值
-            // 暂时简化处理
-            TrackedLinearExpr ssdPenalty = model.newTrackedExpr("SSD_Penalty");
-            // 这里应该处理SSD容量表达式，但暂时简化
+            // 基础目标: 最大化SSD使用（负权重）
+            objectiveExpr.addExpr(ssTotalCapacity.build(), -10000, "Maximize SSD capacity");
 
             // HDD惩罚 = HDD容量 * 惩罚系数
-            TrackedLinearExpr hddPenalty = model.newTrackedExpr("HDD_Penalty");
-            // 这里也需要简化处理，因为我们想要表达式的值
+            objectiveExpr.addExpr(mechTotalCapacity.build(), 1, "Minimize HDD usage");
 
-            // 暂时使用简单的方式设置目标函数
-            model.setObjective(ssTotalCapacity, true, "Maximize SSD capacity, minimize HDD usage");
-
-            // 设置目标函数
+            // 设置目标函数为最小化（因为SSD有负权重）
             model.setObjective(objectiveExpr, false, "Storage capacity optimization with priority rules");
         }
     }

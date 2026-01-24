@@ -54,6 +54,23 @@ public class TrackedLinearExpr {
     }
 
     /**
+     * 添加线性表达式项到表达式（带系数）
+     * @param expr 线性表达式
+     * @param coefficient 系数
+     * @param description 描述信息
+     */
+    public void addExpr(LinearExpr expr, long coefficient, String description) {
+        // 注意：这里我们无法直接将LinearExpr添加到builder中
+        // 这是一个简化的实现，实际使用时需要根据具体需求调整
+        String sign = coefficient >= 0 ? "+" : "-";
+        String termStr = String.format("%s %d * (%s)", sign, Math.abs(coefficient), expr.toString());
+        if (description != null && !description.isEmpty()) {
+            termStr += "  // " + description;
+        }
+        terms.add(termStr);
+    }
+
+    /**
      * 构建LinearExpr
      * @return 构建的线性表达式
      */

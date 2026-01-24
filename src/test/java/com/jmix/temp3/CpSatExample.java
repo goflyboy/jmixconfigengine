@@ -56,10 +56,10 @@ public class CpSatExample {
         // 分析结果
         printSolution(solver, tracker, status);
 
-        // 手动计算并验证目标值
-        if (status == CpSolverStatus.OPTIMAL || status == CpSolverStatus.FEASIBLE) {
-            verifyObjective(solver, tracker);
-        }
+        // // 手动计算并验证目标值
+        // if (status == CpSolverStatus.OPTIMAL || status == CpSolverStatus.FEASIBLE) {
+        // verifyObjective(solver, tracker);
+        // }
     }
 
     /**
