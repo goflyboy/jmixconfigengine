@@ -3,7 +3,10 @@ package com.jmix.temp3;
 import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.LinearExpr;
 import com.google.ortools.sat.LinearExprBuilder;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * 表达式构建器包装器
@@ -22,40 +25,43 @@ public class TrackedLinearExpr {
 
     /**
      * 添加变量项到表达式
-     * @param var 变量
+     * 
+     * @param var         变量
      * @param coefficient 系数
      * @param description 描述信息
      */
-    public void addTerm(IntVar var, long coefficient, String description) {
+    public void addTerm(IntVar var, long coefficient) {
         builder.addTerm(var, coefficient);
 
         String sign = coefficient >= 0 ? "+" : "-";
         String termStr = String.format("%s %d * %s", sign, Math.abs(coefficient), var.getName());
-        if (description != null && !description.isEmpty()) {
-            termStr += "  // " + description;
-        }
+        // if (description != null && !description.isEmpty()) {
+        // termStr += " // " + description;
+        // }
         terms.add(termStr);
     }
 
     /**
      * 添加常数项到表达式
-     * @param value 常数值
+     * 
+     * @param value       常数值
      * @param description 描述信息
      */
-    public void addConstant(long value, String description) {
+    public void addConstant(long value) {
         // 在 OR-Tools 9.12.4544 中，添加常数可能需要特殊处理
         // 通常我们通过创建一个固定变量来实现
         String sign = value >= 0 ? "+" : "-";
         String termStr = String.format("%s %d", sign, Math.abs(value));
-        if (description != null && !description.isEmpty()) {
-            termStr += "  // " + description;
-        }
+        // if (description != null && !description.isEmpty()) {
+        // termStr += " // " + description;
+        // }
         terms.add(termStr);
     }
 
     /**
      * 添加线性表达式项到表达式（带系数）
-     * @param expr 线性表达式
+     * 
+     * @param expr        线性表达式
      * @param coefficient 系数
      * @param description 描述信息
      */
@@ -72,6 +78,7 @@ public class TrackedLinearExpr {
 
     /**
      * 构建LinearExpr
+     * 
      * @return 构建的线性表达式
      */
     public LinearExpr build() {
@@ -80,6 +87,7 @@ public class TrackedLinearExpr {
 
     /**
      * 获取表达式名称
+     * 
      * @return 表达式名称
      */
     public String getName() {
@@ -88,6 +96,7 @@ public class TrackedLinearExpr {
 
     /**
      * 获取所有项的列表
+     * 
      * @return 不可修改的项列表
      */
     public List<String> getTerms() {
@@ -96,6 +105,7 @@ public class TrackedLinearExpr {
 
     /**
      * 返回表达式的字符串表示
+     * 
      * @return 格式化的表达式字符串
      */
     @Override

@@ -29,9 +29,9 @@ public class CpSatExample {
         TrackedLinearExpr objective = tracker.newTrackedExpr("Objective");
 
         // 添加目标项（每个项都有描述）
-        objective.addTerm(ssTotalCapacity, -10000, "Penalty for SS capacity");
-        objective.addTerm(mechTotalCapacity, 1, "Cost of mechanical capacity");
-        objective.addTerm(ssdHighSpeedCapacity, -5000, "Bonus for high-speed SSD capacity");
+        objective.addTerm(ssTotalCapacity, -10000);
+        objective.addTerm(mechTotalCapacity, 1);
+        objective.addTerm(ssdHighSpeedCapacity, -5000);
 
         // 设置目标函数
         tracker.setObjective(objective, false, "Storage capacity optimization");
@@ -39,8 +39,8 @@ public class CpSatExample {
         // 添加约束
         // 创建约束表达式
         TrackedLinearExpr totalCapacityExpr = tracker.newTrackedExpr("TotalCapacity");
-        totalCapacityExpr.addTerm(ssTotalCapacity, 1, "SS capacity");
-        totalCapacityExpr.addTerm(mechTotalCapacity, 1, "Mechanical capacity");
+        totalCapacityExpr.addTerm(ssTotalCapacity, 1);
+        totalCapacityExpr.addTerm(mechTotalCapacity, 1);
 
         // 添加容量限制约束
         TrackerConstraint capacityConstraint = tracker.addGreaterOrEqual(totalCapacityExpr, 15000);

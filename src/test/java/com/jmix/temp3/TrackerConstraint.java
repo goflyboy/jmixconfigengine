@@ -52,6 +52,27 @@ public class TrackerConstraint {
      * @param operator       操作符
      * @return 包装的约束对象
      */
+    public static TrackerConstraint build(Constraint constraint, TrackedLinearExpr leftExpr, long rightValue,
+            String constraintType, String operator) {
+        TrackerConstraint tct = new TrackerConstraint();
+        tct.ct = constraint;
+        tct.name = constraintType;
+        tct.left = leftExpr.toString();
+        tct.operator = operator;
+        tct.right = String.valueOf(rightValue);
+        return tct;
+    }
+
+    /**
+     * 构建TrackerConstraint的静态方法
+     * 
+     * @param constraint     原始约束对象
+     * @param leftExpr       左侧表达式
+     * @param rightValue     右侧值
+     * @param constraintType 约束类型
+     * @param operator       操作符
+     * @return 包装的约束对象
+     */
     public static TrackerConstraint build(Constraint constraint, LinearExpr leftExpr, long rightValue,
             String constraintType, String operator) {
         TrackerConstraint tct = new TrackerConstraint();

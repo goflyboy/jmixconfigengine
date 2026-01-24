@@ -122,8 +122,8 @@ public class CpModelTracker {
      * @param value 右侧值
      * @return 包装的约束对象
      */
-    public TrackerConstraint addLessOrEqual(LinearExpr expr, long value) {
-        Constraint ct = model.addLessOrEqual(expr, value);
+    public TrackerConstraint addLessOrEqual(TrackedLinearExpr expr, long value) {
+        Constraint ct = model.addLessOrEqual(expr.build(), value);
         TrackerConstraint tct = TrackerConstraint.build(ct, expr, value, "addLessOrEqual", "<=");
         constraints.add(tct);
         return tct;
@@ -136,8 +136,22 @@ public class CpModelTracker {
      * @param value 右侧值
      * @return 包装的约束对象
      */
-    public TrackerConstraint addEquality(LinearExpr expr, long value) {
+    public TrackerConstraint addEquality(LinearArgument expr, long value) {
         Constraint ct = model.addEquality(expr, value);
+        TrackerConstraint tct = TrackerConstraint.build(ct, expr, value, "addEquality", "==");
+        constraints.add(tct);
+        return tct;
+    }
+
+    /**
+     * 添加相等约束
+     * 
+     * @param expr  左侧表达式
+     * @param value 右侧值
+     * @return 包装的约束对象
+     */
+    public TrackerConstraint addEquality(TrackedLinearExpr expr, long value) {
+        Constraint ct = model.addEquality(expr.build(), value);
         TrackerConstraint tct = TrackerConstraint.build(ct, expr, value, "addEquality", "==");
         constraints.add(tct);
         return tct;
@@ -150,9 +164,9 @@ public class CpModelTracker {
      * @param right 右侧表达式
      * @return 包装的约束对象
      */
-    public TrackerConstraint addLessThan(LinearExpr left, LinearExpr right) {
-        Constraint ct = model.addLessThan(left, right);
-        TrackerConstraint tct = TrackerConstraint.build(ct, left, right, "addLessThan", "<");
+    public TrackerConstraint addLessThan(TrackedLinearExpr left, long right) {
+        Constraint ct = model.addLessThan(left.build(), right);
+        TrackerConstraint tct = TrackerConstraint.build(ct, left.build(), right, "addLessThan", "<");
         constraints.add(tct);
         return tct;
     }
@@ -228,10 +242,10 @@ public class CpModelTracker {
      * @param maximize    是否最大化
      * @param description 描述信息
      */
-    public void setObjectiveDirect(IntVar var, long coefficient, boolean maximize, String description) {
+    public void setObjectiveDirect(IntVar var, long coefficient, boolean maximize) {
         TrackedLinearExpr expr = newTrackedExpr("Objective");
-        expr.addTerm(var, coefficient, description);
-        setObjective(expr, maximize, description);
+        expr.addTerm(var, coefficient);
+        setObjective(expr, maximize, "Objective");
     }
 
     /**
