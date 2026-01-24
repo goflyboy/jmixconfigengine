@@ -74,112 +74,189 @@ public class CpModelTracker {
     }
 
     /**
+     * 创建并记录约束的私有辅助方法（TrackedLinearExpr约束）
+     *
+     * @param constraint     原始约束对象
+     * @param leftExpr       左侧表达式
+     * @param rightValue     右侧值
+     * @param constraintName 约束名称
+     * @param operator       操作符
+     * @return 包装的约束对象
+     */
+    private TrackerConstraint createAndTrackConstraint(Constraint constraint, TrackedLinearExpr leftExpr,
+            long rightValue,
+            String constraintName, String operator) {
+        TrackerConstraint tct = TrackerConstraint.build(constraint, leftExpr, rightValue, constraintName, operator);
+        constraints.add(tct);
+        return tct;
+    }
+
+    /**
+     * 创建并记录约束的私有辅助方法（LinearArgument约束）
+     *
+     * @param constraint     原始约束对象
+     * @param leftExpr       左侧表达式
+     * @param rightValue     右侧值
+     * @param constraintName 约束名称
+     * @param operator       操作符
+     * @return 包装的约束对象
+     */
+    private TrackerConstraint createAndTrackConstraint(Constraint constraint, LinearArgument leftExpr, long rightValue,
+            String constraintName, String operator) {
+        TrackerConstraint tct = TrackerConstraint.build(constraint, leftExpr, rightValue, constraintName, operator);
+        constraints.add(tct);
+        return tct;
+    }
+
+    /**
+     * 创建并记录约束的私有辅助方法（TrackedLinearExpr表达式约束）
+     *
+     * @param constraint     原始约束对象
+     * @param leftExpr       左侧表达式
+     * @param rightExpr      右侧表达式
+     * @param constraintName 约束名称
+     * @param operator       操作符
+     * @return 包装的约束对象
+     */
+    private TrackerConstraint createAndTrackConstraint(Constraint constraint, TrackedLinearExpr leftExpr,
+            TrackedLinearExpr rightExpr,
+            String constraintName, String operator) {
+        TrackerConstraint tct = TrackerConstraint.build(constraint, leftExpr.build(), rightExpr.build(), constraintName,
+                operator);
+        constraints.add(tct);
+        return tct;
+    }
+
+    /**
      * 添加大于等于约束并记录
-     * 
+     *
      * @param expr  左侧表达式
      * @param value 右侧值
      * @return 包装的约束对象
      */
     public TrackerConstraint addGreaterOrEqual(TrackedLinearExpr expr, long value) {
         Constraint ct = model.addGreaterOrEqual(expr.build(), value);
-        TrackerConstraint tct = TrackerConstraint.build(ct, expr.build(), value, "addGreaterOrEqual", ">=");
-        constraints.add(tct);
-        return tct;
+        return createAndTrackConstraint(ct, expr, value, "addGreaterOrEqual", ">=");
+    }
+
+    /**
+     * 添加大于等于约束（接受IntVar）
+     *
+     * @param var   变量
+     * @param value 值
+     * @return 包装的约束对象
+     */
+    public TrackerConstraint addGreaterOrEqual(IntVar var, long value) {
+        Constraint ct = model.addGreaterOrEqual(var, value);
+        return createAndTrackConstraint(ct, var, value, "addGreaterOrEqual", ">=");
     }
 
     /**
      * 添加大于等于约束（直接使用LinearExpr）
-     * 
+     *
      * @param expr  左侧表达式
      * @param value 右侧值
      * @return 包装的约束对象
      */
     public TrackerConstraint addGreaterOrEqual(LinearArgument expr, long value) {
         Constraint ct = model.addGreaterOrEqual(expr, value);
-        TrackerConstraint tct = TrackerConstraint.build(ct, expr, value, "addGreaterOrEqual", ">=");
-        constraints.add(tct);
-        return tct;
+        return createAndTrackConstraint(ct, (LinearExpr) expr, value, "addGreaterOrEqual", ">=");
+    }
+
+    /**
+     * 添加小于等于约束（接受IntVar）
+     *
+     * @param var   变量
+     * @param value 值
+     * @return 包装的约束对象
+     */
+    public TrackerConstraint addLessOrEqual(IntVar var, long value) {
+        Constraint ct = model.addLessOrEqual(var, value);
+        return createAndTrackConstraint(ct, var, value, "addLessOrEqual", "<=");
     }
 
     /**
      * 添加小于等于约束
-     * 
+     *
      * @param expr  左侧表达式
      * @param value 右侧值
      * @return 包装的约束对象
      */
     public TrackerConstraint addLessOrEqual(LinearArgument expr, long value) {
         Constraint ct = model.addLessOrEqual(expr, value);
-        TrackerConstraint tct = TrackerConstraint.build(ct, expr, value, "addLessOrEqual", "<=");
-        constraints.add(tct);
-        return tct;
+        return createAndTrackConstraint(ct, (LinearExpr) expr, value, "addLessOrEqual", "<=");
     }
 
     /**
      * 添加小于等于约束
-     * 
+     *
      * @param expr  左侧表达式
      * @param value 右侧值
      * @return 包装的约束对象
      */
     public TrackerConstraint addLessOrEqual(TrackedLinearExpr expr, long value) {
         Constraint ct = model.addLessOrEqual(expr.build(), value);
-        TrackerConstraint tct = TrackerConstraint.build(ct, expr, value, "addLessOrEqual", "<=");
-        constraints.add(tct);
-        return tct;
+        return createAndTrackConstraint(ct, expr, value, "addLessOrEqual", "<=");
+    }
+
+    /**
+     * 添加相等约束（接受IntVar）
+     *
+     * @param var   变量
+     * @param value 值
+     * @return 包装的约束对象
+     */
+    public TrackerConstraint addEquality(IntVar var, long value) {
+        Constraint ct = model.addEquality(var, value);
+        return createAndTrackConstraint(ct, var, value, "addEquality", "==");
     }
 
     /**
      * 添加相等约束
-     * 
+     *
      * @param expr  左侧表达式
      * @param value 右侧值
      * @return 包装的约束对象
      */
     public TrackerConstraint addEquality(LinearArgument expr, long value) {
         Constraint ct = model.addEquality(expr, value);
-        TrackerConstraint tct = TrackerConstraint.build(ct, expr, value, "addEquality", "==");
-        constraints.add(tct);
-        return tct;
+        return createAndTrackConstraint(ct, (LinearExpr) expr, value, "addEquality", "==");
     }
 
     /**
      * 添加相等约束
-     * 
+     *
      * @param expr  左侧表达式
      * @param value 右侧值
      * @return 包装的约束对象
      */
     public TrackerConstraint addEquality(TrackedLinearExpr expr, long value) {
         Constraint ct = model.addEquality(expr.build(), value);
-        TrackerConstraint tct = TrackerConstraint.build(ct, expr, value, "addEquality", "==");
-        constraints.add(tct);
-        return tct;
+        return createAndTrackConstraint(ct, expr, value, "addEquality", "==");
     }
 
     /**
      * 添加小于约束
-     * 
+     *
      * @param left  左侧表达式
      * @param right 右侧表达式
      * @return 包装的约束对象
      */
     public TrackerConstraint addLessThan(TrackedLinearExpr left, long right) {
         Constraint ct = model.addLessThan(left.build(), right);
-        TrackerConstraint tct = TrackerConstraint.build(ct, left.build(), right, "addLessThan", "<");
-        constraints.add(tct);
-        return tct;
+        return createAndTrackConstraint(ct, left, right, "addLessThan", "<");
     }
 
     /**
      * 添加蕴含约束
-     * 
+     *
      * @param condition   条件
      * @param implication 蕴含
      * @return 包装的约束对象
      */
     public TrackerConstraint addImplication(BoolVar condition, BoolVar implication) {
         Constraint ct = model.addImplication(condition, implication);
+        // 对于蕴含约束，我们使用常量0作为占位符，因为蕴含约束没有明确的左右表达式
         TrackerConstraint tct = TrackerConstraint.build(ct, LinearExpr.constant(0), LinearExpr.constant(0),
                 "addImplication", "->");
         constraints.add(tct);
