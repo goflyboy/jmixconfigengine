@@ -4,6 +4,8 @@ import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.LinearExpr;
 import com.google.ortools.sat.LinearExprBuilder;
 
+import lombok.Data;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -12,6 +14,7 @@ import java.util.List;
  * 表达式构建器包装器
  * 用于跟踪构建线性表达式时的所有信息，以便于日志记录和调试
  */
+@Data
 public class TrackedLinearExpr {
     private LinearExprBuilder builder;
     private List<String> terms;
@@ -128,7 +131,7 @@ public class TrackedLinearExpr {
         if (terms.isEmpty()) {
             sb.append("0");
         }
-        // sb.append(name).append(" = ");
+        // sb.append(" : ").append(name);
         return sb.toString();
     }
 }

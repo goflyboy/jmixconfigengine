@@ -3,6 +3,7 @@ package com.jmix.temp3;
 import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.Constraint;
 import com.google.ortools.sat.CpModel;
+import com.google.ortools.sat.CpSolver;
 import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.LinearArgument;
 import com.google.ortools.sat.LinearExpr;
@@ -22,9 +23,6 @@ public class CpModelTracker {
     private Map<String, IntVar> variables;
     private List<String> variableLogs;
     private List<TrackerConstraint> constraints;
-    private TrackedLinearExpr objectiveExpr;
-    private boolean isMaximize;
-    private String objectiveDescription;
 
     public CpModelTracker() {
         this.model = new CpModel();
@@ -264,6 +262,38 @@ public class CpModelTracker {
         return tct;
     }
 
+    public void minimize(TrackedLinearExpr expr) {
+        model.minimize(expr.build());
+        TrackerConstraint tct = TrackerConstraint.build(null,
+                expr,
+                "minimize");
+        constraints.add(tct);
+    }
+
+    public void maximize(TrackedLinearExpr expr) {
+        model.maximize(expr.build());
+        TrackerConstraint tct = TrackerConstraint.build(null,
+                expr,
+                "maximize");
+        constraints.add(tct);
+    }
+
+    /**
+     * 设置目标函数（最小化或最大化）
+     *
+     * @param expr        目标函数表达式
+     * @param minimize    是否最小化（true为最小化，false为最大化）
+     * @param description 目标函数描述
+     */
+    public void setObjective(TrackedLinearExpr expr, boolean minimize, String description) {
+        if (minimize) {
+            model.minimize(expr.build());
+        } else {
+            model.maximize(expr.build());
+        }
+        // 这里可以记录目标函数信息，但暂时不添加到constraints列表
+    }
+
     /**
      * 获取变量
      * 
@@ -294,57 +324,6 @@ public class CpModelTracker {
     }
 
     /**
-     * 设置目标函数并记录
-     * 
-     * @param expr        目标函数表达式
-     * @param maximize    是否最大化
-     * @param description 描述信息
-     */
-    public void setObjective(TrackedLinearExpr expr, boolean maximize, String description) {
-        if (maximize) {
-            model.maximize(expr.build());
-        } else {
-            model.minimize(expr.build());
-        }
-
-        this.objectiveExpr = expr;
-        this.isMaximize = maximize;
-        this.objectiveDescription = description;
-    }
-
-    /**
-     * 直接设置目标函数（简单方式）
-     * 
-     * @param var         变量
-     * @param coefficient 系数
-     * @param maximize    是否最大化
-     * @param description 描述信息
-     */
-    public void setObjectiveDirect(IntVar var, long coefficient, boolean maximize) {
-        TrackedLinearExpr expr = newTrackedExpr("Objective");
-        expr.addTerm(var, coefficient);
-        setObjective(expr, maximize, "Objective");
-    }
-
-    /**
-     * 获取目标函数表达式
-     * 
-     * @return 目标函数表达式
-     */
-    public TrackedLinearExpr getObjectiveExpr() {
-        return objectiveExpr;
-    }
-
-    /**
-     * 是否为最大化问题
-     * 
-     * @return true为最大化，false为最小化
-     */
-    public boolean isMaximize() {
-        return isMaximize;
-    }
-
-    /**
      * 打印模型摘要
      */
     public void printModelSummary() {
@@ -363,25 +342,16 @@ public class CpModelTracker {
         for (int i = 0; i < constraints.size(); i++) {
             System.out.printf("%3d. %s%n", i + 1, constraints.get(i).toString());
         }
-
-        System.out.println("\nOBJECTIVE:");
-        System.out.println("-".repeat(80));
-        if (objectiveExpr != null) {
-            System.out.println("Type: " + (isMaximize ? "MAXIMIZE" : "MINIMIZE"));
-            System.out.println("Description: " + objectiveDescription);
-            System.out.println("\nExpression:");
-            System.out.println(objectiveExpr);
-
-            // 打印详细项
-            System.out.println("\nDetailed terms:");
-            List<String> terms = objectiveExpr.getTerms();
-            for (int i = 0; i < terms.size(); i++) {
-                System.out.printf("  %d. %s%n", i + 1, terms.get(i));
-            }
-        } else {
-            System.out.println("No objective (satisfaction problem)");
-        }
-
         System.out.println("\n" + "=".repeat(80));
+    }
+
+    public void printRunValue(CpSolver cpSolver) {
+        System.out.println("\nVARIABLE VALUES (" + variables.size() + "):");
+        System.out.println("-".repeat(80));
+        for (IntVar var : variables.values()) {
+            long value = cpSolver.value(var);
+            System.out.printf("  %-20s = %d%n", var.getName(), value);
+        }
+        System.out.println("-".repeat(80));
     }
 }

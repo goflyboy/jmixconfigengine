@@ -5,7 +5,6 @@ import com.google.ortools.sat.Constraint;
 import com.google.ortools.sat.ConstraintProto;
 import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.LinearArgument;
-import com.google.ortools.sat.LinearExpr;
 import com.google.ortools.sat.Literal;
 import com.google.ortools.sat.NotBoolVar;
 
@@ -24,6 +23,8 @@ public class TrackerConstraint {
     private String operator = ""; // 操作符
     private String right = ""; // 右表达式的str
     private String ifMemo = ""; // 条件信息
+    private String leftName = "";
+    private String rightName = "";
 
     /**
      * 构建TrackerConstraint的静态方法
@@ -63,6 +64,7 @@ public class TrackerConstraint {
         tct.ct = constraint;
         tct.name = constraintType;
         tct.left = leftExpr.toString();
+        tct.leftName = leftExpr.getName();
         tct.operator = operator;
         tct.right = String.valueOf(rightValue);
         return tct;
@@ -78,16 +80,37 @@ public class TrackerConstraint {
      * @param operator       操作符
      * @return 包装的约束对象
      */
-    public static TrackerConstraint build(Constraint constraint, LinearExpr leftExpr, long rightValue,
-            String constraintType, String operator) {
+    public static TrackerConstraint build(Constraint constraint, TrackedLinearExpr leftExpr, String constraintType) {
         TrackerConstraint tct = new TrackerConstraint();
         tct.ct = constraint;
         tct.name = constraintType;
         tct.left = leftExpr.toString();
-        tct.operator = operator;
-        tct.right = String.valueOf(rightValue);
+        tct.leftName = leftExpr.getName();
         return tct;
     }
+
+    // /**
+    // * 构建TrackerConstraint的静态方法
+    // *
+    // * @param constraint 原始约束对象
+    // * @param leftExpr 左侧表达式
+    // * @param rightValue 右侧值
+    // * @param constraintType 约束类型
+    // * @param operator 操作符
+    // * @return 包装的约束对象
+    // */
+    // public static TrackerConstraint build(Constraint constraint,
+    // TrackedLinearExpr leftExpr, long rightValue,
+    // String constraintType, String operator) {
+    // TrackerConstraint tct = new TrackerConstraint();
+    // tct.ct = constraint;
+    // tct.name = constraintType;
+    // tct.left = leftExpr.toString();
+    // tct.leftName = leftExpr.g
+    // tct.operator = operator;
+    // tct.right = String.valueOf(rightValue);
+    // return tct;
+    // }
 
     private static String toNameString(LinearArgument expr) {
         if (expr instanceof IntVar) {
@@ -180,9 +203,11 @@ public class TrackerConstraint {
     private String toNameString(Literal lit) {
         if (lit instanceof BoolVar) {
             return ((BoolVar) lit).getName();
-        } else if (lit instanceof IntVar) {
+        }
+        if (lit instanceof IntVar) {
             return ((IntVar) lit).getName();
-        } else if (lit instanceof NotBoolVar) {
+        }
+        if (lit instanceof NotBoolVar) {
             String str = lit.toString();
             // str = not(sd1.S(0..1)) --> extract "sd1.S"
             // Parse the string: "not(varName(range))" -> "varName"
@@ -190,17 +215,15 @@ public class TrackerConstraint {
                 String inner = str.substring(4, str.length() - 1); // Remove "not(" and ")"
                 int parenIndex = inner.indexOf('(');
                 if (parenIndex > 0) {
-                    return inner.substring(0, parenIndex); // Extract variable name before "("
+                    return "!" + inner.substring(0, parenIndex); // Extract variable name before "("
                 }
             }
-            // Fallback: return the full string if parsing fails
-            return str;
-        } else {
-            // Handle other unsupported Literal types
-            throw new UnsupportedOperationException(
-                    "Unsupported Literal type: " + lit.getClass().getSimpleName() +
-                            ". Only BoolVar, IntVar, and NotBoolVar are supported. Literal: " + lit);
         }
+        // Handle other unsupported Literal types
+        throw new UnsupportedOperationException(
+                "Unsupported Literal type: " + lit.getClass().getSimpleName() +
+                        ". Only BoolVar, IntVar, and NotBoolVar are supported. Literal: " + lit);
+
     }
 
     /**
@@ -210,7 +233,16 @@ public class TrackerConstraint {
      */
     @Override
     public String toString() {
-        return left + " " + operator + " " + right + ifMemo + " (" + name + ")";
+        StringBuffer sb = new StringBuffer();
+        sb.append(left).append(" ").append(operator).append(" ").append(right).append(ifMemo).append(" (").append(name)
+                .append(")");
+        if (!leftName.isEmpty()) {
+            sb.append(" L:").append(leftName);
+        }
+        if (!rightName.isEmpty()) {
+            sb.append(" R:").append(rightName);
+        }
+        return sb.toString();
     }
 
     /**

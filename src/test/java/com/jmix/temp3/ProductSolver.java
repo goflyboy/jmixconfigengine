@@ -5,7 +5,6 @@ import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.CpSolver;
 import com.google.ortools.sat.CpSolverSolutionCallback;
 import com.google.ortools.sat.CpSolverStatus;
-import com.google.ortools.sat.IntVar;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -124,7 +123,7 @@ public class ProductSolver {
         SolutionCollector cb = new SolutionCollector(partVars, allSolutions);
         model.printModelSummary();
         CpSolverStatus status = solver.solve(model.getModel(), cb);
-
+        model.printRunValue(solver);
         // 检查求解状态
         if (status != CpSolverStatus.OPTIMAL && status != CpSolverStatus.FEASIBLE
                 && status != CpSolverStatus.INFEASIBLE) {
@@ -187,7 +186,7 @@ public class ProductSolver {
                 .filter(PartVar::isSolidState)
                 .collect(Collectors.toList());
 
-        // 如果选择了固态硬盘，只能选择一种fvf
+        // 如果选择了固态硬盘，只能选择一种硬盘
         if (!solidStateParts.isEmpty()) {
             // 创建一个变量表示是否选择了固态硬盘
             BoolVar hasSolidState = (BoolVar) model.newBoolVar(
@@ -195,8 +194,13 @@ public class ProductSolver {
 
             // 如果有固态硬盘被选中，hasSolidState为true
             for (PartVar pv : solidStateParts) {
-                TrackerConstraint implication = model.addImplication(pv.isSelected, hasSolidState);
-                implication.onlyEnforceIf(pv.isSelected);
+                model.addImplication(pv.isSelected,
+                        hasSolidState);
+                // model.addImplication(pv.isSelected,
+                // hasSolidState).onlyEnforceIf(pv.isSelected);
+                // 6. sd1.S -> hasSolidState if sd1.S (addImplication) --解是错误的？
+                // 6. sd1.S -> hasSolidState (addImplication) 解也不对，为什么？
+                // https://chat.deepseek.com/a/chat/s/2ccd152c-6378-47c0-9bb8-3a3cb38efa53
             }
 
             // 最多只能有一种固态硬盘被选中
@@ -272,34 +276,35 @@ public class ProductSolver {
             // 基础目标: 最大化SSD使用（负权重）
 
             // 关键: 动态惩罚HDD使用 - 当SSD足够时惩罚更大
-            IntVar hddPenaltyFactor = model.newIntVar(0, 1000000, "hddPenaltyFactor");
+            // IntVar hddPenaltyFactor = model.newIntVar(0, 1000000, "hddPenaltyFactor");
 
             // 计算惩罚系数: 如果SSD足够，惩罚系数很大；否则惩罚系数小
             // 惩罚系数 = 1000000 * ssdSufficient + 1000 * (1 - ssdSufficient)
-            TrackedLinearExpr penaltyExpr = model.newTrackedExpr("Penalty_Calculation");
-            penaltyExpr.addTerm((IntVar) ssSufficient, 1000000 - 1000);
-            penaltyExpr.addConstant(1000);
+            // TrackedLinearExpr penaltyExpr = model.newTrackedExpr("Penalty_Calculation");
+            // penaltyExpr.addTerm((IntVar) ssSufficient, 1000000 - 1000);
+            // penaltyExpr.addConstant(1000);
 
-            TrackedLinearExpr penaltyFactorExpr = model.newTrackedExpr("Penalty_Factor_Expr");
-            penaltyFactorExpr.addTerm(hddPenaltyFactor, 1);
+            // TrackedLinearExpr penaltyFactorExpr =
+            // model.newTrackedExpr("Penalty_Factor_Expr");
+            // penaltyFactorExpr.addTerm(hddPenaltyFactor, 1);
 
             // 这里需要更复杂的处理来设置惩罚系数计算
             // 暂时简化：直接设置惩罚系数为固定值
-            TrackedLinearExpr factorExpr = model.newTrackedExpr("Factor_Expr");
-            factorExpr.addTerm(hddPenaltyFactor, 1);
-            model.addEquality(factorExpr, 1000);
+            // TrackedLinearExpr factorExpr = model.newTrackedExpr("Factor_Expr");
+            // factorExpr.addTerm(hddPenaltyFactor, 1);
+            // model.addEquality(factorExpr, 1000);
 
             // 创建目标函数
-            TrackedLinearExpr objectiveExpr = model.newTrackedExpr("Objective");
+            TrackedLinearExpr objectiveExpr = model.newTrackedExpr("ObjectiveFun");
 
             // 基础目标: 最大化SSD使用（负权重）
             objectiveExpr.addExpr(ssTotalCapacity, -10000);
 
-            // HDD惩罚 = HDD容量 * 惩罚系数
+            // HDD惩罚 = HDD容量 * 惩罚系数S
             objectiveExpr.addExpr(mechTotalCapacity, 1);
 
-            // 设置目标函数为最小化（因为SSD有负权重）
-            model.setObjective(objectiveExpr, false, "Storage capacity optimization with priority rules");
+            model.minimize(objectiveExpr); // 设置目标函数为最小化（因为SSD有负权重）
+
         }
     }
 
