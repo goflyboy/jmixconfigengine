@@ -52,6 +52,7 @@ public class TrackedLinearExpr {
      */
     public void addConstant(long value) {
         // 在 OR-Tools 9.12.4544 中，添加常数可能需要特殊处理
+        builder.add(value);
         // 通常我们通过创建一个固定变量来实现
         String sign = value >= 0 ? "+" : "-";
         String termStr = String.format("%s %d", sign, Math.abs(value));
@@ -69,8 +70,7 @@ public class TrackedLinearExpr {
      * @param description 描述信息
      */
     public void addExpr(TrackedLinearExpr expr, long coefficient) {
-        // 注意：这里我们无法直接将LinearExpr添加到builder中
-        // 这是一个简化的实现，实际使用时需要根据具体需求调整
+        builder.addTerm(expr.build(), coefficient);
         String sign = coefficient >= 0 ? "+" : "-";
         String termStr = String.format("%s %d * (%s)", sign, Math.abs(coefficient), expr.toString());
         terms.add(termStr);

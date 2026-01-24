@@ -10385,3 +10385,248 @@ public void setObjective(TrackedLinearExpr expr, boolean minimize, String descri
 
 ---
 
+_**User (2026-01-24 07:47Z)**_
+
+@src/test/java/com/jmix/temp3/CpModelTracker.java:354-356 为什么 
+Object Value =0.0 是0？
+
+---
+
+_**Agent (model default, mode Agent)**_
+
+<think><details><summary>Thought Process</summary>
+用户问为什么Object Value = 0.0是0。我需要分析一下代码。
+
+
+## Examining Code Behavior
+- The user asked why an object value equals 0.</details></think>
+
+---
+
+<tool-use data-tool-type="search" data-tool-name="grep">
+<details>
+<summary>Tool use: **grep** • Grep for "printRunValue" in "src/test/java/com/jmix/temp3/ProductSolver.java" • 1 match</summary>
+
+Output mode: content
+
+
+| File | Content | Line |
+|------|------|------|
+| `src/test/java/com/jmix/temp3/ProductSolver.java` | `model.printRunValue(solver);` | L126 |
+
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+让我看看ProductSolver中什么时候调用printRunValue，以及在调用之前是否设置了目标函数。</details></think>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/test/java/com/jmix/temp3/ProductSolver.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+我看到在ProductSolver中，printRunValue是在求解之后调用的。让我看看setObjectiveFunction方法是什么时候调用的。</details></think>
+
+---
+
+<tool-use data-tool-type="search" data-tool-name="grep">
+<details>
+<summary>Tool use: **grep** • Grep for "setObjectiveFunction" in "src/test/java/com/jmix/temp3/ProductSolver.java" • 2 matches</summary>
+
+Output mode: content
+
+
+| File | Content | Line |
+|------|------|------|
+| `src/test/java/com/jmix/temp3/ProductSolver.java` | `setObjectiveFunction(model, partVars);` | L113 |
+| `src/test/java/com/jmix/temp3/ProductSolver.java` | `private void setObjectiveFunction(CpModelTracker model, List<PartVar> partVars) \{` | L345 |
+
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+让我看看setObjectiveFunction是在什么时候调用的，以及它的实现。</details></think>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/test/java/com/jmix/temp3/ProductSolver.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+现在让我看看setObjectiveFunction方法的实现。</details></think>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/test/java/com/jmix/temp3/ProductSolver.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+啊，我看到了问题！setObjectiveFunction方法只是记录日志，并没有实际设置目标函数。注释说"目标函数现在在applyPriorityRule中设置"。
+</details></think>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/test/java/com/jmix/temp3/ProductSolver.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+让我继续查看applyPriorityRule方法，看看它是否设置了目标函数。</details></think>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/test/java/com/jmix/temp3/ProductSolver.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+我看到在applyPriorityRule方法中调用了`model.minimize(objectiveExpr);`，但这只在满足条件的情况下才会执行。让我看看这个条件是什么。</details></think>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/test/java/com/jmix/temp3/ProductSolver.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+现在我明白了！目标函数只在满足条件的情况下才设置：只有当`req.getAttrCode()`是"Capacity"时，才会设置目标函数。
+</details></think>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/test/java/com/jmix/temp3/ProductSolver.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+让我看看测试用例3和4，这些应该是不设置目标函数的，因为它们是"Qty >="。</details></think>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/test/java/com/jmix/temp3/ProductSolver.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+确实，测试用例3和4是"Qty >= X"，这些不设置目标函数，所以objectiveValue是0.0。
+</details></think>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: src/test/java/com/jmix/temp3/CpModelTracker.java</summary>
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+我现在明白了问题的原因：
+</details></think>
+
+---
+
+## 问题分析
+
+`Object Value = 0.0` 是 **正常现象**，原因如下：
+
+### 问题根源：可满足性问题 vs 优化问题
+
+在 `ProductSolver` 中，目标函数的设置是有条件的：
+
+```java
+// 在 applyPriorityRule 方法中
+if ("Capacity".equals(req.getAttrCode())) {
+    // 只有当属性是"Capacity"时，才设置目标函数
+    TrackedLinearExpr objectiveExpr = model.newTrackedExpr("ObjectiveFun");
+    objectiveExpr.addExpr(ssTotalCapacity, -10000);
+    objectiveExpr.addExpr(mechTotalCapacity, 1);
+    model.minimize(objectiveExpr);
+}
+```
+
+### 测试用例分类：
+
+1. **优化问题（设置目标函数）**：
+   - `Capacity >=6 where Speed = 5400` ✅
+   - `Capacity >=5 where Speed = 5400` ✅  
+   - `Capacity >=7 where Speed = 5400` ✅
+   - `Capacity >=5` ✅
+
+2. **可满足性问题（不设置目标函数）**：
+   - `Qty >=2 where Speed = 5400` ❌
+   - `Qty >=3 where Speed = 5400` ❌
+
+### 为什么是0.0？
+
+- **可满足性问题**：只要求找到满足约束的解，不涉及优化。当没有目标函数时，`cpSolver.objectiveValue()` 返回 `0.0`
+- **优化问题**：有目标函数，`objectiveValue()` 返回实际的目标函数值
+
+### 解决方案建议：
+
+如果需要为所有问题类型显示有意义的目标值，可以：
+
+1. **为可满足性问题设置默认目标函数**（如最小化零件总数）
+2. **在 `printRunValue` 中检查是否有目标函数**：
+
+```java
+public void printRunValue(CpSolver cpSolver) {
+    // ... 变量值打印 ...
+    
+    // 检查是否有目标函数
+    if (model.hasObjective()) {
+        System.out.println("\nObject Value = " + cpSolver.objectiveValue());
+    } else {
+        System.out.println("\nNo objective function (satisfaction problem)");
+    }
+    System.out.println("-".repeat(80));
+}
+```
+
+**结论**：`Object Value = 0.0` 不是错误，而是因为这些测试用例是可满足性问题，没有设置目标函数。这是正常行为。
+
+---
+

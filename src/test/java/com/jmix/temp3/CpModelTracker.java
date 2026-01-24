@@ -4,6 +4,7 @@ import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.Constraint;
 import com.google.ortools.sat.CpModel;
 import com.google.ortools.sat.CpSolver;
+import com.google.ortools.sat.CpSolverStatus;
 import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.LinearArgument;
 import com.google.ortools.sat.LinearExpr;
@@ -345,13 +346,19 @@ public class CpModelTracker {
         System.out.println("\n" + "=".repeat(80));
     }
 
-    public void printRunValue(CpSolver cpSolver) {
+    public void printRunValue(CpSolver cpSolver, CpSolverStatus status) {
         System.out.println("\nVARIABLE VALUES (" + variables.size() + "):");
         System.out.println("-".repeat(80));
         for (IntVar var : variables.values()) {
             long value = cpSolver.value(var);
             System.out.printf("  %-20s = %d%n", var.getName(), value);
         }
+        if (status == CpSolverStatus.OPTIMAL || status == CpSolverStatus.FEASIBLE) {
+            System.out.println("\nObject Value =" + cpSolver.objectiveValue());
+        } else {
+            System.out.println("\nObject Value =" + "not");
+        }
+
         System.out.println("-".repeat(80));
     }
 }
