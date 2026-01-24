@@ -9,6 +9,10 @@ import com.google.ortools.sat.IntVar;
  */
 class PartVar {
 
+    // 变量后缀常量
+    private static final String SELECTED_SUFFIX = "_S";
+    private static final String QUANTITY_SUFFIX = "_Q";
+
     Part part;
 
     String code;
@@ -25,9 +29,9 @@ class PartVar {
         this.code = part.code;
 
         // 创建布尔变量表示是否选中
-        this.isSelected = model.newBoolVar(code + ".S");
+        this.isSelected = model.newBoolVar(code + SELECTED_SUFFIX);
         // 创建数量变量，假设最大数量为10
-        this.qty = model.newIntVar(0, 10, code + ".Q");
+        this.qty = model.newIntVar(0, 10, code + QUANTITY_SUFFIX);
 
         System.out.println("PartVar: Created variables for part " + code
                 + " - isSelected: " + isSelected.getName()

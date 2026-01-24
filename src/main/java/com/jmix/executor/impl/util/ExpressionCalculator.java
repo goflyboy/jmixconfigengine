@@ -2,6 +2,11 @@ package com.jmix.executor.impl.util;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.jexl3.JexlBuilder;
+import org.apache.commons.jexl3.JexlContext;
+import org.apache.commons.jexl3.JexlExpression;
+import org.apache.commons.jexl3.MapContext;
+
 /**
  * 表达式计算器
  * 基于 Apache Commons JEXL 3.4.0 实现表达式计算
@@ -10,7 +15,8 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class ExpressionCalculator {
-    private static final org.apache.commons.jexl3.JexlEngine jexl = new org.apache.commons.jexl3.JexlBuilder().create();
+
+    private static final org.apache.commons.jexl3.JexlEngine jexl = new JexlBuilder().create();
 
     /**
      * 计算表达式
@@ -20,8 +26,8 @@ public class ExpressionCalculator {
      */
     public static double calculate(String expression) {
         try {
-            org.apache.commons.jexl3.JexlExpression expr = jexl.createExpression(expression);
-            org.apache.commons.jexl3.JexlContext context = new org.apache.commons.jexl3.MapContext();
+            JexlExpression expr = jexl.createExpression(expression);
+            JexlContext context = new MapContext();
             Object result = expr.evaluate(context);
 
             if (result instanceof Number) {

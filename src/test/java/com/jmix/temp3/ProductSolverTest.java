@@ -30,7 +30,7 @@ public class ProductSolverTest {
         String strReq = " Capacity >=6 where Speed = 5400";
 
         ProductResult result = solver.solve(strReq);
-        List<Map<String, Integer>> solutions = result.getSolutions();
+        List<Solution> solutions = result.getSolutions();
 
         assertFalse(solutions.isEmpty(), "Solutions should not be empty");
 
@@ -75,7 +75,7 @@ public class ProductSolverTest {
         String strReq = " Capacity >=5 where Speed = 5400";
 
         ProductResult result = solver.solve(strReq);
-        List<Map<String, Integer>> solutions = result.getSolutions();
+        List<Solution> solutions = result.getSolutions();
 
         assertFalse(solutions.isEmpty(), "Solutions should not be empty");
 
@@ -105,7 +105,7 @@ public class ProductSolverTest {
         String strReq = " Capacity >=7 where Speed = 5400";
 
         ProductResult result = solver.solve(strReq);
-        List<Map<String, Integer>> solutions = result.getSolutions();
+        List<Solution> solutions = result.getSolutions();
 
         assertFalse(solutions.isEmpty(), "Solutions should not be empty");
 
@@ -129,7 +129,7 @@ public class ProductSolverTest {
         String strReq = " Qty >=2 where Speed = 5400";
 
         ProductResult result = solver.solve(strReq);
-        List<Map<String, Integer>> solutions = result.getSolutions();
+        List<Solution> solutions = result.getSolutions();
 
         assertFalse(solutions.isEmpty(), "Solutions should not be empty");
 
@@ -152,7 +152,7 @@ public class ProductSolverTest {
         String strReq = " Qty >=3 where Speed = 5400";
 
         ProductResult result = solver.solve(strReq);
-        List<Map<String, Integer>> solutions = result.getSolutions();
+        List<Solution> solutions = result.getSolutions();
 
         assertFalse(solutions.isEmpty(), "Solutions should not be empty");
 
@@ -178,7 +178,7 @@ public class ProductSolverTest {
         String strReq = " Capacity >=5 ";
 
         ProductResult result = solver.solve(strReq);
-        List<Map<String, Integer>> solutions = result.getSolutions();
+        List<Solution> solutions = result.getSolutions();
 
         assertFalse(solutions.isEmpty(), "Solutions should not be empty");
 
@@ -203,7 +203,7 @@ public class ProductSolverTest {
      * @param actual   实际的解
      * @param message  错误消息
      */
-    private void assertSolutionEquals(Map<String, Integer> expected, Map<String, Integer> actual, String message) {
+    private void assertSolutionEquals(Map<String, Integer> expected, Solution actual, String message) {
         // 创建只包含非零值的期望映射
         Map<String, Integer> expectedFiltered = new HashMap<>();
         for (Map.Entry<String, Integer> entry : expected.entrySet()) {
@@ -212,11 +212,11 @@ public class ProductSolverTest {
             }
         }
 
-        // 创建只包含非零值的实际映射
+        // 创建只包含选中部件的实际映射
         Map<String, Integer> actualFiltered = new HashMap<>();
-        for (Map.Entry<String, Integer> entry : actual.entrySet()) {
-            if (entry.getValue() > 0) {
-                actualFiltered.put(entry.getKey(), entry.getValue());
+        for (PartResult pr : actual.getParts()) {
+            if (pr.isSelected()) {
+                actualFiltered.put(pr.getCode(), pr.getQty());
             }
         }
 

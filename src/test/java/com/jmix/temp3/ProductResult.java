@@ -2,19 +2,19 @@ package com.jmix.temp3;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 解决方案结果类
  */
 class ProductResult {
-    private List<Map<String, Integer>> solutions;
 
-    public ProductResult(List<Map<String, Integer>> solutions) {
+    private List<Solution> solutions;
+
+    public ProductResult(List<Solution> solutions) {
         this.solutions = solutions;
     }
 
-    public List<Map<String, Integer>> getSolutions() {
+    public List<Solution> getSolutions() {
         return solutions;
     }
 
@@ -23,14 +23,15 @@ class ProductResult {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < solutions.size(); i++) {
             sb.append("解").append(i + 1).append(": ");
-            Map<String, Integer> sol = solutions.get(i);
+            Solution sol = solutions.get(i);
             List<String> parts = new ArrayList<>();
-            for (Map.Entry<String, Integer> entry : sol.entrySet()) {
-                if (entry.getValue() > 0) {
-                    parts.add(entry.getKey() + ".qty=" + entry.getValue());
+            for (PartResult pr : sol.getParts()) {
+                if (pr.isSelected()) {
+                    parts.add(pr.getCode() + ".qty=" + pr.getQty());
                 }
             }
-            sb.append(String.join("  ", parts)).append("\n");
+            sb.append(String.join("  ", parts));
+            sb.append(" 目标值: ").append(sol.getObjectValue()).append("\n");
         }
         return sb.toString();
     }

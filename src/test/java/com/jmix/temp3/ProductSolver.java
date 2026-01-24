@@ -7,9 +7,7 @@ import com.google.ortools.sat.CpSolverSolutionCallback;
 import com.google.ortools.sat.CpSolverStatus;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -119,7 +117,7 @@ public class ProductSolver {
         solver.getParameters().setNumSearchWorkers(1); // 单线程搜索，防止有重复解
 
         // 收集多个解
-        List<Map<String, Integer>> allSolutions = new ArrayList<>();
+        List<Solution> allSolutions = new ArrayList<>();
         SolutionCollector cb = new SolutionCollector(partVars, allSolutions);
         model.printModelSummary();
         CpSolverStatus status = solver.solve(model.getModel(), cb);
@@ -299,39 +297,11 @@ public class ProductSolver {
             // HDD惩罚 = HDD容量 * 惩罚系数S
             objectiveExpr.addExpr(mechTotalCapacity, 1);
 
-            model.minimize(objectiveExpr); // 设置目标函数为最小化（因为SSD有负权重）
+            model.addLessOrEqual(objectiveExpr, -1);
+            // model.minimize(objectiveExpr); // 设置目标函数为最小化（因为SSD有负权重）
 
         }
     }
-
-    // // 应用优先规则（通过约束实现）
-    // private void applyPriorityRule(CpModel model, List<PartVar> partVars,
-    // PartConstraintReq req) {
-    // // 分离固态硬盘和机械硬盘
-    // List<PartVar> solidStateParts = partVars.stream()
-    // .filter(PartVar::isSolidState)
-    // .collect(Collectors.toList());
-
-    // List<PartVar> mechanicalParts = partVars.stream()
-    // .filter(pv -> !pv.isSolidState())
-    // .collect(Collectors.toList());
-
-    // if (solidStateParts.isEmpty() || mechanicalParts.isEmpty()) {
-    // return;
-    // }
-
-    // // 计算固态硬盘提供的总容量
-    // LinearExprBuilder ssCapacity = LinearExpr.newBuilder();
-    // for (PartVar pv : solidStateParts) {
-    // ssCapacity.addTerm(pv.qty, pv.getCapacity());
-    // }
-
-    // // 计算机械硬盘提供的总容量
-    // LinearExprBuilder mechCapacity = LinearExpr.newBuilder();
-    // for (PartVar pv : mechanicalParts) {
-    // mechCapacity.addTerm(pv.qty, pv.getCapacity());
-    // }
-
     // // 规则：如果固态硬盘容量已足够，则限制机械硬盘使用
     // // 这里通过约束来限制机械硬盘的使用
     // // 注意：这是一个简化实现，完整实现需要更复杂的逻辑
@@ -347,13 +317,12 @@ public class ProductSolver {
     }
 
     // 排序解决方案
-    private void sortSolutions(List<Map<String, Integer>> solutions) {
+    private void sortSolutions(List<Solution> solutions) {
         // 排序规则：
         // 1. 优先高速率固态硬盘（speed 高的优先）
         // 2. 然后低速率固态硬盘
         // 3. 最后机械硬盘
         // 4. 在相同类型内，数量少的优先
-
         solutions.sort((sol1, sol2) -> {
             // 计算最高速固态硬盘速度
             int maxSpeed1 = getMaxSolidStateSpeed(sol1);
@@ -379,13 +348,13 @@ public class ProductSolver {
         });
     }
 
-    private int getMaxSolidStateSpeed(Map<String, Integer> solution) {
+    private int getMaxSolidStateSpeed(Solution solution) {
         int maxSpeed = 0;
-        for (Map.Entry<String, Integer> entry : solution.entrySet()) {
-            if (entry.getKey().startsWith("sd") && entry.getValue() > 0) {
+        for (PartResult pr : solution.getParts()) {
+            if (pr.getCode().startsWith("sd") && pr.isSelected()) {
                 // 查找对应的 Part 来获取 speed
                 for (Part part : allParts) {
-                    if (part.code.equals(entry.getKey())) {
+                    if (part.code.equals(pr.getCode())) {
                         maxSpeed = Math.max(maxSpeed, part.speed);
                         break;
                     }
@@ -395,29 +364,29 @@ public class ProductSolver {
         return maxSpeed;
     }
 
-    private boolean hasMechanicalDrive(Map<String, Integer> solution) {
-        for (Map.Entry<String, Integer> entry : solution.entrySet()) {
-            if (entry.getKey().startsWith("md") && entry.getValue() > 0) {
+    private boolean hasMechanicalDrive(Solution solution) {
+        for (PartResult pr : solution.getParts()) {
+            if (pr.getCode().startsWith("md") && pr.isSelected()) {
                 return true;
             }
         }
         return false;
     }
 
-    private int getSolidStateCount(Map<String, Integer> solution) {
+    private int getSolidStateCount(Solution solution) {
         int count = 0;
-        for (Map.Entry<String, Integer> entry : solution.entrySet()) {
-            if (entry.getKey().startsWith("sd")) {
-                count += entry.getValue();
+        for (PartResult pr : solution.getParts()) {
+            if (pr.getCode().startsWith("sd")) {
+                count += pr.getQty();
             }
         }
         return count;
     }
 
-    private int getTotalCount(Map<String, Integer> solution) {
+    private int getTotalCount(Solution solution) {
         int total = 0;
-        for (int count : solution.values()) {
-            total += count;
+        for (PartResult pr : solution.getParts()) {
+            total += pr.getQty();
         }
         return total;
     }
@@ -428,22 +397,24 @@ public class ProductSolver {
 
         private final List<PartVar> partVars;
 
-        private final List<Map<String, Integer>> allSolutions;
+        private final List<Solution> allSolutions;
 
-        public SolutionCollector(List<PartVar> partVars, List<Map<String, Integer>> allSolutions) {
+        public SolutionCollector(List<PartVar> partVars, List<Solution> allSolutions) {
             this.partVars = partVars;
             this.allSolutions = allSolutions;
         }
 
         @Override
         public void onSolutionCallback() {
-            Map<String, Integer> solution = new HashMap<>();
+            List<PartResult> partResults = new ArrayList<>();
             for (PartVar pv : partVars) {
                 int qty = (int) value(pv.qty);
-                if (qty > 0) {
-                    solution.put(pv.code, qty);
-                }
+                boolean isSelected = qty > 0;
+                partResults.add(new PartResult(pv.code, isSelected, qty));
             }
+
+            double objectValue = objectiveValue();
+            Solution solution = new Solution(partResults, objectValue);
             allSolutions.add(solution);
 
             // 限制最多收集100个解
