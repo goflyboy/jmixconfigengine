@@ -240,20 +240,19 @@ public class ProductSolver {
             return;
         }
 
-        // 创建固态硬盘总容量表达式
-        TrackedLinearExpr ssTotalCapacity = model.newTrackedExpr("SS_Total_Capacity");
-        for (PartVar pv : solidStateParts) {
-            ssTotalCapacity.addTerm(pv.qty, pv.getCapacity());
-        }
-
-        // 创建机械硬盘总容量表达式
-        TrackedLinearExpr mechTotalCapacity = model.newTrackedExpr("Mech_Total_Capacity");
-        for (PartVar pv : mechanicalParts) {
-            mechTotalCapacity.addTerm(pv.qty, pv.getCapacity());
-        }
-
         // 如果是容量需求
         if ("Capacity".equals(req.getAttrCode())) {
+            // 创建固态硬盘总容量表达式
+            TrackedLinearExpr ssTotalCapacity = model.newTrackedExpr("SS_Total_Capacity");
+            for (PartVar pv : solidStateParts) {
+                ssTotalCapacity.addTerm(pv.qty, pv.getCapacity());
+            }
+
+            // 创建机械硬盘总容量表达式
+            TrackedLinearExpr mechTotalCapacity = model.newTrackedExpr("Mech_Total_Capacity");
+            for (PartVar pv : mechanicalParts) {
+                mechTotalCapacity.addTerm(pv.qty, pv.getCapacity());
+            }
             int requiredCapacity = Integer.parseInt(req.getAttrValue());
 
             // 创建固态硬盘是否足够的布尔变量
@@ -278,19 +277,9 @@ public class ProductSolver {
 
             // 计算惩罚系数: 如果SSD足够，惩罚系数很大；否则惩罚系数小
             // 惩罚系数 = 1000000 * ssdSufficient + 1000 * (1 - ssdSufficient)
-            // TrackedLinearExpr penaltyExpr = model.newTrackedExpr("Penalty_Calculation");
-            // penaltyExpr.addTerm((IntVar) ssSufficient, 1000000 - 1000);
-            // penaltyExpr.addConstant(1000);
-
-            // TrackedLinearExpr penaltyFactorExpr =
-            // model.newTrackedExpr("Penalty_Factor_Expr");
-            // penaltyFactorExpr.addTerm(hddPenaltyFactor, 1);
 
             // 这里需要更复杂的处理来设置惩罚系数计算
             // 暂时简化：直接设置惩罚系数为固定值
-            // TrackedLinearExpr factorExpr = model.newTrackedExpr("Factor_Expr");
-            // factorExpr.addTerm(hddPenaltyFactor, 1);
-            // model.addEquality(factorExpr, 1000);
 
             // 创建目标函数
             TrackedLinearExpr objectiveExpr = model.newTrackedExpr("ObjectiveFun");
@@ -301,6 +290,42 @@ public class ProductSolver {
 
             // HDD惩罚 = HDD容量 * 惩罚系数S
             objectiveExpr.addExpr(mechTotalCapacity, 1);
+
+            model.addLessOrEqual(objectiveExpr, -1);
+            model.setObjectExpr(objectiveExpr);
+            // model.minimize(objectiveExpr); // 设置目标函数为最小化（因为SSD有负权重）
+
+        } else {// 给的数量qty总数
+            // 创建固态硬盘总容量表达式
+            TrackedLinearExpr ssTotalQty = model.newTrackedExpr("ssTotalQty");
+            for (PartVar pv : solidStateParts) {
+                ssTotalQty.addTerm(pv.qty, 1);
+            }
+            // 创建机械硬盘总容量表达式
+            TrackedLinearExpr mechTotalQty = model.newTrackedExpr("mechTotalQty");
+            for (PartVar pv : mechanicalParts) {
+                mechTotalQty.addTerm(pv.qty, 1);
+            }
+            int requiredQty = Integer.parseInt(req.getAttrValue());
+            // 创建固态硬盘是否足够的布尔变量
+            BoolVar ssSufficientQty = (BoolVar) model.newBoolVar(
+                    "ssSufficientQty");
+            // 定义：如果固态硬盘容量 >= 需求容量，则 ssSufficient = true
+            model.addGreaterOrEqual(ssTotalQty, requiredQty).onlyEnforceIf(ssSufficientQty);
+            model.addLessThan(ssTotalQty, requiredQty).onlyEnforceIf(ssSufficientQty.not());
+            // 规则1.1: 如果固态硬盘足够，则禁止使用机械硬盘
+            for (PartVar pv : mechanicalParts) {
+                model.addEquality(pv.qty, 0).onlyEnforceIf(ssSufficientQty);
+            }
+
+            // 创建目标函数
+            TrackedLinearExpr objectiveExpr = model.newTrackedExpr("ObjectiveFunQty");
+
+            // 基础目标: 最大化SSD使用（负权重）
+            objectiveExpr.addExpr(ssTotalQty, -100);
+
+            // HDD惩罚 = HDD容量 * 惩罚系数S
+            objectiveExpr.addExpr(mechTotalQty, 1);
 
             model.addLessOrEqual(objectiveExpr, -1);
             model.setObjectExpr(objectiveExpr);

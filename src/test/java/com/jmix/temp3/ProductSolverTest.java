@@ -1,13 +1,11 @@
 package com.jmix.temp3;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -69,7 +67,8 @@ public class ProductSolverTest {
     public void testCase3_QtyGreaterEqual2Speed5400() {
         String strReq = " Qty >=2 where Speed = 5400";
         solve(strReq);
-        assertSoluEqual(1, "parts=[sd1 Q:2, md1 Q:1], OV=-599.0");
+        assertSoluEqual(1, "parts=[sd1 Q:2, md1 Q:0], OV=-200.0");
+        assertSoluEqual(2, "parts=[sd1 Q:1, md1 Q:1], OV=-99.0");
     }
 
     /**
@@ -79,21 +78,10 @@ public class ProductSolverTest {
      */
     @Test
     public void testCase4_QtyGreaterEqual3Speed5400() {
-        ProductSolver solver = new ProductSolver();
         String strReq = " Qty >=3 where Speed = 5400";
-
-        ProductResult result = solver.solve(strReq);
-        List<Solution> solutions = result.getSolutions();
-
-        assertFalse(solutions.isEmpty(), "Solutions should not be empty");
-
-        // 验证第一个解
-        if (solutions.size() >= 1) {
-            Map<String, Integer> expected1 = new HashMap<>();
-            expected1.put("sd1", 2);
-            expected1.put("md1", 1);
-            assertSolutionEquals(expected1, solutions.get(0), "Solution 1");
-        }
+        solve(strReq);
+        assertSoluEqual(1, "parts=[sd1 Q:2, md1 Q:1], OV=-199.0");
+        assertSoluContain("parts=[sd1 Q:2, md1 Q:2], OV=-198.0");
     }
 
     /**
@@ -103,28 +91,16 @@ public class ProductSolverTest {
      * 解1：sd2.qty=1
      * 解2：sd1.qty=2
      */
-    // @Test
+    @Test
     public void testCase5_CapacityGreaterEqual5NoSpeedFilter() {
-        ProductSolver solver = new ProductSolver();
         String strReq = " Capacity >=5 ";
-
-        ProductResult result = solver.solve(strReq);
-        List<Solution> solutions = result.getSolutions();
-
-        assertFalse(solutions.isEmpty(), "Solutions should not be empty");
-
-        // 验证前2个解的顺序和内容
-        if (solutions.size() >= 1) {
-            Map<String, Integer> expected1 = new HashMap<>();
-            expected1.put("sd2", 1);
-            assertSolutionEquals(expected1, solutions.get(0), "Solution 1");
-        }
-
-        if (solutions.size() >= 2) {
-            Map<String, Integer> expected2 = new HashMap<>();
-            expected2.put("sd1", 2);
-            assertSolutionEquals(expected2, solutions.get(1), "Solution 2");
-        }
+        solve(strReq);
+        assertSoluEqual(1, "parts=[sd1 Q:2, md1 Q:1], OV=-199.0");
+        assertSoluContain("parts=[sd1 Q:2, md1 Q:2], OV=-198.0");
+        // Solu1: parts=[sd1 Q:0, sd2 Q:0, sd3 Q:2, md1 Q:0, md2 Q:0, md3 Q:0],
+        // OV=-1800.0
+        // Solu2: parts=[sd1 Q:0, sd2 Q:0, sd3 Q:1, md1 Q:0, md2 Q:0, md3 Q:0],
+        // OV=-900.0
     }
 
     ProductResult result = null;
