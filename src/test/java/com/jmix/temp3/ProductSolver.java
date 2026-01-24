@@ -188,20 +188,20 @@ public class ProductSolver {
 
         // 如果选择了固态硬盘，只能选择一种硬盘
         if (!solidStateParts.isEmpty()) {
-            // 创建一个变量表示是否选择了固态硬盘
-            BoolVar hasSolidState = (BoolVar) model.newBoolVar(
-                    "hasSolidState");
+            // // 创建一个变量表示是否选择了固态硬盘
+            // BoolVar hasSolidState = (BoolVar) model.newBoolVar(
+            // "hasSolidState");
 
-            // 如果有固态硬盘被选中，hasSolidState为true
-            for (PartVar pv : solidStateParts) {
-                model.addImplication(pv.isSelected,
-                        hasSolidState);
-                // model.addImplication(pv.isSelected,
-                // hasSolidState).onlyEnforceIf(pv.isSelected);
-                // 6. sd1.S -> hasSolidState if sd1.S (addImplication) --解是错误的？
-                // 6. sd1.S -> hasSolidState (addImplication) 解也不对，为什么？
-                // https://chat.deepseek.com/a/chat/s/2ccd152c-6378-47c0-9bb8-3a3cb38efa53
-            }
+            // // 如果有固态硬盘被选中，hasSolidState为true
+            // for (PartVar pv : solidStateParts) {
+            // // model.addImplication(pv.isSelected,
+            // // hasSolidState);
+            // // model.addImplication(pv.isSelected,
+            // // hasSolidState).onlyEnforceIf(pv.isSelected);
+            // // 6. sd1.S -> hasSolidState if sd1.S (addImplication) --解是错误的？
+            // // 6. sd1.S -> hasSolidState (addImplication) 解也不对，为什么？
+            // // https://chat.deepseek.com/a/chat/s/2ccd152c-6378-47c0-9bb8-3a3cb38efa53
+            // }
 
             // 最多只能有一种固态硬盘被选中
             TrackedLinearExpr sumSelected = model.newTrackedExpr("SolidState_Count");
