@@ -5,6 +5,7 @@ import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.CpSolver;
 import com.google.ortools.sat.CpSolverSolutionCallback;
 import com.google.ortools.sat.CpSolverStatus;
+import com.google.ortools.sat.IntVar;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -122,8 +123,8 @@ public class ProductSolver {
         solver.getParameters().setNumSearchWorkers(1); // 单线程搜索，防止有重复解
 
         // 收集多个解
-        List<Solution> allSolutions = new ArrayList<>();
-        SolutionCollector cb = new SolutionCollector(model, partVars, allSolutions);
+        ProductResult pResult = new ProductResult();
+        SolutionCollector cb = new SolutionCollector(model, partVars, pResult);
         model.printModelSummary();
         CpSolverStatus status = solver.solve(model.getModel(), cb);
         model.printRunValue(solver, status);
@@ -131,13 +132,14 @@ public class ProductSolver {
         if (status != CpSolverStatus.OPTIMAL && status != CpSolverStatus.FEASIBLE
                 && status != CpSolverStatus.INFEASIBLE) {
             // 求解失败，返回空解
-            return new ProductResult(new ArrayList<>(), status.toString());
+            pResult.setSolverStatus(status.toString());
+            return pResult;
         }
 
         // 9. 排序解
-        sortSolutions(allSolutions);
-
-        return new ProductResult(allSolutions, status.toString());
+        sortSolutions(pResult);
+        pResult.setSolverStatus(status.toString());
+        return pResult;
     }
 
     // 构建主要约束
@@ -267,19 +269,6 @@ public class ProductSolver {
             for (PartVar pv : mechanicalParts) {
                 model.addEquality(pv.qty, 0).onlyEnforceIf(ssSufficient);
             }
-            // 步骤5: 核心约束 - 如果SSD足够，限制HDD使用
-            // 使用大惩罚权重在目标函数中实现
-
-            // 基础目标: 最大化SSD使用（负权重）
-
-            // 关键: 动态惩罚HDD使用 - 当SSD足够时惩罚更大
-            // IntVar hddPenaltyFactor = model.newIntVar(0, 1000000, "hddPenaltyFactor");
-
-            // 计算惩罚系数: 如果SSD足够，惩罚系数很大；否则惩罚系数小
-            // 惩罚系数 = 1000000 * ssdSufficient + 1000 * (1 - ssdSufficient)
-
-            // 这里需要更复杂的处理来设置惩罚系数计算
-            // 暂时简化：直接设置惩罚系数为固定值
 
             // 创建目标函数
             TrackedLinearExpr objectiveExpr = model.newTrackedExpr("ObjectiveFun");
@@ -291,9 +280,36 @@ public class ProductSolver {
             // HDD惩罚 = HDD容量 * 惩罚系数S
             objectiveExpr.addExpr(mechTotalCapacity, 1);
 
-            model.addLessOrEqual(objectiveExpr, -1);
+            // 3. 惩罚过度配置（重要！）
+            // 创建总容量变量
+            TrackedLinearExpr totalCapacityExpr = model.newTrackedExpr("Total_Capacity");
+            for (PartVar pv : partVars) {
+                totalCapacityExpr.addTerm(pv.qty, pv.getCapacity());
+            }
+
+            // 创建过度配置变量
+            // 约束：excessCapacity = totalCapacity - requiredCapacity
+            // IntVar excessCapacity = createSimpleExcessCapacityVar(model,
+            // totalCapacityExpr, requiredCapacity);
+            TrackedLinearExpr tExpr = model.newTrackedExpr("excessCapacityExpr");
+            tExpr.addExpr(totalCapacityExpr, 1);
+            tExpr.addConstant(-requiredCapacity);
+            // 2. 过度配置惩罚
+            objectiveExpr.addExpr(tExpr, 500); // 惩罚过度配置
+
+            // 4. 惩罚使用多个零件（鼓励简洁配置）
+            // 总零件数量惩罚
+            TrackedLinearExpr totalPartsExpr = model.newTrackedExpr("Total_Parts");
+            for (PartVar pv : partVars) {
+                totalPartsExpr.addTerm(pv.qty, 1);
+            }
+
+            objectiveExpr.addExpr(totalPartsExpr, 500); // 零件数量惩罚
+
+            // model.addLessOrEqual(objectiveExpr, 2000);
             model.setObjectExpr(objectiveExpr);
-            // model.minimize(objectiveExpr); // 设置目标函数为最小化（因为SSD有负权重）
+
+            model.minimize(objectiveExpr); // 设置目标函数为最小化（因为SSD有负权重）
 
         } else {// 给的数量qty总数
             // 创建固态硬盘总容量表达式
@@ -333,6 +349,26 @@ public class ProductSolver {
 
         }
     }
+
+    // 简化版本：假设容量需求总是被满足
+    public static IntVar createSimpleExcessCapacityVar(CpModelTracker model,
+            TrackedLinearExpr totalCapacityExpr,
+            int requiredCapacity) {
+
+        // 首先确保容量约束
+        model.addGreaterOrEqual(totalCapacityExpr, requiredCapacity);
+
+        // 创建过度容量变量
+        IntVar excessCapacity = model.newIntVar(0, 1000, "excess_capacity_simple");
+
+        TrackedLinearExpr tExpr = model.newTrackedExpr("excessCapacityExpr");
+        tExpr.addExpr(totalCapacityExpr, 1);
+        tExpr.addConstant(-requiredCapacity);
+        // 定义 excessCapacity = totalCapacity - requiredCapacity
+        model.addEquality(excessCapacity, tExpr);
+
+        return excessCapacity;
+    }
     // // 规则：如果固态硬盘容量已足够，则限制机械硬盘使用
     // // 这里通过约束来限制机械硬盘的使用
     // // 注意：这是一个简化实现，完整实现需要更复杂的逻辑
@@ -348,6 +384,10 @@ public class ProductSolver {
     }
 
     // 排序解决方案
+    private void sortSolutions(ProductResult pResult) {
+        sortSolutions(pResult.getSolutions());
+    }
+
     private void sortSolutions(List<Solution> solutions) {
         // 排序规则：
         // 1. 按目标值从小到大排序（目标值越小越好）
@@ -434,12 +474,14 @@ public class ProductSolver {
         private CpModelTracker model;
         private final List<PartVar> partVars;
 
-        private final List<Solution> allSolutions;
+        private final ProductResult productResult;
+        final int SEARCH_MAX = 100;// 搜索的最大解
 
-        public SolutionCollector(CpModelTracker model, List<PartVar> partVars, List<Solution> allSolutions) {
+        public SolutionCollector(CpModelTracker model, List<PartVar> partVars, ProductResult productResult) {
             this.model = model;
             this.partVars = partVars;
-            this.allSolutions = allSolutions;
+            this.productResult = productResult;
+            this.productResult.setSearchMax(SEARCH_MAX);
         }
 
         @Override
@@ -455,13 +497,14 @@ public class ProductSolver {
 
             double objectValue = calcObjectValue(model.getObjectExpr(), partQtyMap);
             Solution solution = new Solution(partResults, objectValue);
-            allSolutions.add(solution);
-
+            solution.searchStep = productResult.getSolutions().size() + 1;
+            productResult.getSolutions().add(solution);
+            log.info("Current Solution: " + productResult.getSolutions().size() + " OV=" + objectValue);
             // 限制最多收集100个解
-            // if (allSolutions.size() >= 100) {
-            final int MAX_SOLUTION = 100;
-            if (allSolutions.size() >= MAX_SOLUTION) {
-                log.warn("Has reach the max:" + MAX_SOLUTION + " will stop!");
+
+            if (productResult.getSolutions().size() >= SEARCH_MAX) {
+                log.warn("Has reach the max:" + SEARCH_MAX + " will stop!");
+                productResult.setHasSearchMax(true);
                 stopSearch();
             }
         }

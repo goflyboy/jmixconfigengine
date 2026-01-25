@@ -7,7 +7,8 @@ import java.util.List;
  */
 class Solution {
     List<PartResult> parts;
-    double objectValue;
+    double objectValue;// 目标函数的值
+    int searchStep;// 搜索到这个解的步骤序号
 
     public Solution(List<PartResult> parts, double objectValue) {
         this.parts = parts;
@@ -36,6 +37,7 @@ class Solution {
             sb.append("]");
         }
         sb.append(", OV=").append(objectValue);
+        sb.append(", SS=").append(searchStep);
         // sb.append("}");
         return sb.toString();
     }
@@ -53,6 +55,7 @@ class Solution {
             sb.append("]");
         }
         sb.append(", OV=").append(objectValue);
+        sb.append(", SS=").append(searchStep);
         // sb.append("}");
         return sb.toString();
     }

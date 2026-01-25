@@ -94,6 +94,15 @@ public class CpModelTracker {
         return tct;
     }
 
+    private TrackerConstraint createAndTrackConstraint2(Constraint constraint,
+            LinearArgument leftExpr,
+            TrackedLinearExpr rightValue,
+            String constraintName, String operator) {
+        TrackerConstraint tct = TrackerConstraint.build(constraint, leftExpr, rightValue, constraintName, operator);
+        constraints.add(tct);
+        return tct;
+    }
+
     /**
      * 创建并记录约束的私有辅助方法（LinearArgument约束）
      *
@@ -224,6 +233,18 @@ public class CpModelTracker {
     public TrackerConstraint addEquality(LinearArgument expr, long value) {
         Constraint ct = model.addEquality(expr, value);
         return createAndTrackConstraint(ct, (LinearExpr) expr, value, "addEquality", "==");
+    }
+
+    /**
+     * 添加相等约束
+     *
+     * @param expr  左侧表达式
+     * @param value 右侧值
+     * @return 包装的约束对象
+     */
+    public TrackerConstraint addEquality(LinearArgument expr, TrackedLinearExpr value) {
+        Constraint ct = model.addEquality(expr, value.build());
+        return createAndTrackConstraint2(ct, expr, value, "addEquality", "==");
     }
 
     /**

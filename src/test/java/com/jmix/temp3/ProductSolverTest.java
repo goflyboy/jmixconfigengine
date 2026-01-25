@@ -130,8 +130,10 @@ public class ProductSolverTest {
     }
 
     private void assertSoluEqual(int index, String expect) {
+        String msg = "Solution at index " + index + " should match expected string";
+        assertTrue(result.getSolutions().size() >= index, msg);
         assertEquals(expect, result.getSolutions().get(index - 1).toShortString(),
-                "Solution at index " + index + " should match expected string");
+                msg);
     }
 
     private void assertSoluContain(String expect) {

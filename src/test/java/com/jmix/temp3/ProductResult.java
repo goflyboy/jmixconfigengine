@@ -1,18 +1,22 @@
 package com.jmix.temp3;
 
+import lombok.Data;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * 解决方案结果类
  */
+@Data
 class ProductResult {
 
-    private List<Solution> solutions;
+    private List<Solution> solutions = new ArrayList<>();
     private String solverStatus;
+    private boolean hasSearchMax = false;// 是否达到搜索的最大值
+    private int searchMax = -1;// -1,表示没有设置，搜索的最大值
 
-    public ProductResult(List<Solution> solutions, String solverStatus) {
-        this.solutions = solutions;
-        this.solverStatus = solverStatus;
+    public ProductResult() {
     }
 
     public List<Solution> getSolutions() {
@@ -22,7 +26,7 @@ class ProductResult {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("solverStatus:").append(solverStatus).append("\n");
+        sb.append("searchMax:").append(searchMax).append(" hasSearchMax:").append(hasSearchMax).append("\n");
         sb.append("solutions size:").append(solutions.size()).append("\n");
         for (int i = 0; i < solutions.size(); i++) {
             sb.append("Solu").append(i + 1).append(": ");
@@ -33,6 +37,7 @@ class ProductResult {
 
     public String toShortString() {
         StringBuilder sb = new StringBuilder();
+        sb.append("searchMax:").append(searchMax).append(" hasSearchMax:").append(hasSearchMax).append("\n");
         sb.append("solverStatus:").append(solverStatus).append("\n");
         sb.append("solutions size:").append(solutions.size()).append("\n");
         for (int i = 0; i < solutions.size(); i++) {
