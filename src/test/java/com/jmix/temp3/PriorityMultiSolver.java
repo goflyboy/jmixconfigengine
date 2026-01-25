@@ -190,7 +190,6 @@ public class PriorityMultiSolver {
         int execTimes = 0;
         double baseAdjustCoeff = 0.5; // 基础调整系数
         double objectValue = result.getSolutions().get(0).getObjectValue();
-        boolean lastAdjustmentIncreased = false; // 上次调整是否增加了objectValue
         boolean needIncreased = true; // 是否需要增加objectvalue
 
         do {
@@ -224,13 +223,9 @@ public class PriorityMultiSolver {
 
             // 根据上一次调整方向决定本次调整
             if (!needIncreased) {
-                // 上次增加了，这次尝试减少
                 objectValue = getAdjustObjectValue(objectValue, -baseAdjustCoeff);
-                lastAdjustmentIncreased = false;
             } else {
-                // 上次减少了，这次尝试增加
                 objectValue = getAdjustObjectValue(objectValue, baseAdjustCoeff);
-                lastAdjustmentIncreased = true;
             }
 
             log.info("Iteration {}: adjusting objective value to {}", execTimes, objectValue);
@@ -238,7 +233,7 @@ public class PriorityMultiSolver {
 
         } while (execTimes < maxExecTimes
                 && result.getSolutions().size() <= availableSolutionNum);
-
+        result.setIterationTimes(execTimes);
         return result;
     }
 
