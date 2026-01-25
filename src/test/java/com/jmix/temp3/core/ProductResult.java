@@ -1,4 +1,4 @@
-package com.jmix.temp3;
+package com.jmix.temp3.core;
 
 import lombok.Data;
 
@@ -9,7 +9,7 @@ import java.util.List;
  * 解决方案结果类
  */
 @Data
-class ProductResult {
+public class ProductResult {
 
     private List<Solution> solutions = new ArrayList<>();
     private String solverStatus;

@@ -3,6 +3,10 @@ package com.jmix.temp3;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.jmix.temp3.core.PartResult;
+import com.jmix.temp3.core.ProductResult;
+import com.jmix.temp3.core.Solution;
+
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -13,7 +17,7 @@ import java.util.Map;
  * 
  * @since 2025-01-17
  */
-public class ProductSolverTest {
+public class PriorityBasicSolverTest {
 
     // 用例0： 测试点，解读1
     // 输入：
@@ -153,7 +157,7 @@ public class ProductSolverTest {
      * @return 解列表
      */
     private ProductResult solve(String strReq) {
-        ProductSolver solver = new ProductSolver();
+        PriorityBasicSolver solver = new PriorityBasicSolver();
 
         result = solver.solve(strReq);
         System.out.println("strReq:" + strReq);

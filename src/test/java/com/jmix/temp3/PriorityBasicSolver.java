@@ -1,5 +1,16 @@
 package com.jmix.temp3;
 
+import com.jmix.temp3.core.CpModelTracker;
+import com.jmix.temp3.core.ExpressionCalculator;
+import com.jmix.temp3.core.FilterExpressionExecutor;
+import com.jmix.temp3.core.Part;
+import com.jmix.temp3.core.PartConstraintReq;
+import com.jmix.temp3.core.PartResult;
+import com.jmix.temp3.core.PartVar;
+import com.jmix.temp3.core.ProductResult;
+import com.jmix.temp3.core.Solution;
+import com.jmix.temp3.core.TrackedLinearExpr;
+
 import com.google.ortools.Loader;
 import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.CpSolver;
@@ -21,11 +32,11 @@ import java.util.stream.Collectors;
  * 主求解器类
  */
 @Slf4j
-public class ProductSolver {
+public class PriorityBasicSolver {
 
     private List<Part> allParts;
 
-    public ProductSolver() {
+    public PriorityBasicSolver() {
         initParts();
     }
 
@@ -111,10 +122,11 @@ public class ProductSolver {
         buildMainConstraint(model, partVars, req);
 
         // 6. 构建产品规则约束
-        buildProductRules(model, partVars, req);
+        // ProRule2: 固态硬盘必须配置同一种，并且最多配置2块
+        applySolidStateRule(model, partVars);
 
-        // 7. 设置目标函数（优化目标）
-        setObjectiveFunction(model, partVars);
+        // ProRule1: 优先类规则（通过目标函数实现，这里只做约束限制）
+        applyPriorityRule(model, partVars, req);
 
         // 8. 求解
         CpSolver solver = new CpSolver();
@@ -174,15 +186,6 @@ public class ProductSolver {
                 model.addLessOrEqual(expr.build(), value);
                 break;
         }
-    }
-
-    // 构建产品规则约束
-    private void buildProductRules(CpModelTracker model, List<PartVar> partVars, PartConstraintReq req) {
-        // ProRule2: 固态硬盘必须配置同一种，并且最多配置2块
-        applySolidStateRule(model, partVars);
-
-        // ProRule1: 优先类规则（通过目标函数实现，这里只做约束限制）
-        applyPriorityRule(model, partVars, req);
     }
 
     // 应用固态硬盘规则
@@ -378,15 +381,6 @@ public class ProductSolver {
     // // 注意：这是一个简化实现，完整实现需要更复杂的逻辑
     // }
 
-    // 设置目标函数（优化目标）
-    private void setObjectiveFunction(CpModelTracker model, List<PartVar> partVars) {
-        // 注意：目标函数现在在applyPriorityRule中设置，这里仅用于记录日志
-        // 如果需要简单的目标函数，可以在这里设置
-
-        // 记录目标函数设置信息
-        System.out.println("Setting objective function for " + partVars.size() + " parts");
-    }
-
     // 排序解决方案
     private void sortSolutions(ProductResult pResult) {
         sortSolutions(pResult.getSolutions());
@@ -435,8 +429,8 @@ public class ProductSolver {
             if (pr.getCode().startsWith("sd") && pr.isSelected()) {
                 // 查找对应的 Part 来获取 speed
                 for (Part part : allParts) {
-                    if (part.code.equals(pr.getCode())) {
-                        maxSpeed = Math.max(maxSpeed, part.speed);
+                    if (part.getCode().equals(pr.getCode())) {
+                        maxSpeed = Math.max(maxSpeed, part.getSpeed());
                         break;
                     }
                 }
@@ -452,16 +446,6 @@ public class ProductSolver {
             }
         }
         return false;
-    }
-
-    private int getSolidStateCount(Solution solution) {
-        int count = 0;
-        for (PartResult pr : solution.getParts()) {
-            if (pr.getCode().startsWith("sd")) {
-                count += pr.getQty();
-            }
-        }
-        return count;
     }
 
     private int getTotalCount(Solution solution) {
@@ -501,7 +485,7 @@ public class ProductSolver {
 
             double objectValue = calcObjectValue(model.getObjectExpr(), partQtyMap);
             Solution solution = new Solution(partResults, objectValue);
-            solution.searchStep = productResult.getSolutions().size() + 1;
+            solution.setSearchStep(productResult.getSolutions().size() + 1);
             productResult.getSolutions().add(solution);
             log.info("Current Solution: " + productResult.getSolutions().size() + " OV=" + objectValue);
             // 限制最多收集100个解
@@ -523,7 +507,7 @@ public class ProductSolver {
 
     // 测试方法
     public static void main(String[] args) {
-        ProductSolver solver = new ProductSolver();
+        PriorityBasicSolver solver = new PriorityBasicSolver();
 
         System.out.println("=== 测试用例0 ===");
         System.out.println("需求: Capacity >=6 where Speed = 5400");

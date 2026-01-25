@@ -1,25 +1,29 @@
-package com.jmix.temp3;
+package com.jmix.temp3.core;
 
 import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.IntVar;
+
+import lombok.Data;
 
 /**
  * 产品变量类（用于CP-SAT求解）
  * 支持日志跟踪
  */
-class PartVar {
+
+@Data
+public class PartVar {
 
     // 变量后缀常量
     private static final String SELECTED_SUFFIX = "_S";
     private static final String QUANTITY_SUFFIX = "_Q";
 
-    Part part;
+    public Part part;
 
-    String code;
+    public String code;
 
-    BoolVar isSelected;
+    public BoolVar isSelected;
 
-    IntVar qty;
+    public IntVar qty;
 
     CpModelTracker model;
 

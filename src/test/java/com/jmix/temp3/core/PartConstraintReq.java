@@ -1,4 +1,4 @@
-package com.jmix.temp3;
+package com.jmix.temp3.core;
 
 import lombok.Data;
 
@@ -12,4 +12,3 @@ public class PartConstraintReq {
     private String attrValue;
     private String attrWhereCondition;
 }
-

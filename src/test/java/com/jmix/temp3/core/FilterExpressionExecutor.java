@@ -1,4 +1,4 @@
-package com.jmix.temp3;
+package com.jmix.temp3.core;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,7 +7,7 @@ import java.util.List;
  * 表达式执行器（简化实现）
  * 支持条件过滤并记录日志
  */
-final class FilterExpressionExecutor {
+final public class FilterExpressionExecutor {
     private FilterExpressionExecutor() {
         // 工具类，禁止实例化
     }

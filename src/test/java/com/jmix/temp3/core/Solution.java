@@ -1,11 +1,14 @@
-package com.jmix.temp3;
+package com.jmix.temp3.core;
+
+import lombok.Data;
 
 import java.util.List;
 
 /**
  * 解决方案类
  */
-class Solution {
+@Data
+public class Solution {
     List<PartResult> parts;
     double objectValue;// 目标函数的值
     int searchStep;// 搜索到这个解的步骤序号

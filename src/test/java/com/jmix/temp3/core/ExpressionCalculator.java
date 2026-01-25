@@ -1,4 +1,4 @@
-package com.jmix.temp3;
+package com.jmix.temp3.core;
 
 import lombok.extern.slf4j.Slf4j;
 

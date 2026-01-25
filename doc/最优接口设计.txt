@@ -2182,6 +2182,17 @@ proRule2:固态硬盘必须配置同一种，并且最多配置2块
 	 解1： sd2.qty=1  
 	 解2： sd1.qty=2  
 
+2026-1-25：
+  分2阶段求解
+  
+  基于数量进行归一化？ 
+  
+  支持多个目标值求解
+
+  动态可以调整？
+
+
+
 idea:
 现象：
 strReq: Capacity >=5 
@@ -2194,6 +2205,9 @@ Solu3: parts=[sd1 Q:0, sd2 Q:0, sd3 Q:0, md1 Q:0, md2 Q:0, md3 Q:2], OV=1506.0
  26. - 100 * (3 * sd1_Q + 6 * sd2_Q + 9 * sd3_Q) + 1 * (1 * md1_Q + 2 * md2_Q + 3 * md3_Q) + 500 * (1 * (3 * sd1_Q + 6 * sd2_Q + 9 * sd3_Q + 1 * md1_Q + 2 * md2_Q + 3 * md3_Q) - 5) + 500 * (1 * sd1_Q + 1 * sd2_Q + 1 * sd3_Q + 1 * md1_Q + 1 * md2_Q + 1 * md3_Q)   (minimize) L:ObjectiveFun
 
 
+
+idea: 
+ 最优解可能也有多个？
 sd1.qty=2  问题：存在求到最优解了，就终止掉了 --min
 
 CpSolverStatus:OPTIMAL 

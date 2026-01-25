@@ -1,4 +1,4 @@
-package com.jmix.temp3;
+package com.jmix.temp3.core;
 
 import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.LinearExpr;

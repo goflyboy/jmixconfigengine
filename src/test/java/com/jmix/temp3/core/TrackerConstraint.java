@@ -1,4 +1,4 @@
-package com.jmix.temp3;
+package com.jmix.temp3.core;
 
 import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.Constraint;
@@ -8,6 +8,8 @@ import com.google.ortools.sat.LinearArgument;
 import com.google.ortools.sat.Literal;
 import com.google.ortools.sat.NotBoolVar;
 
+import lombok.Data;
+
 /**
  * 由于TrackerConstraint在同一个包中，TrackedLinearExpr不需要显式导入
  */
@@ -16,6 +18,7 @@ import com.google.ortools.sat.NotBoolVar;
  * 约束的跟踪器，对Constraint进行包装
  * 用于记录约束的详细信息，便于日志输出和调试
  */
+@Data
 public class TrackerConstraint {
     private Constraint ct;
     private String name; // 如：addGreaterOrEqual

@@ -1,9 +1,12 @@
-package com.jmix.temp3;
+package com.jmix.temp3.core;
+
+import lombok.Data;
 
 /**
  * 部件结果类
  */
-class PartResult {
+@Data
+public class PartResult {
     String code;
     boolean isSelected;
     int qty;
