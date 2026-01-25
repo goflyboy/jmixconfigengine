@@ -2852,6 +2852,9 @@ TODO： 2*2 = 5    3*15 = 45？--总量，感觉不行***
             // objectValue设置太小，很多可用解没有挖掘出来, 系数需要往上调
             // objectValue设置太大，太多的解，导致的最优解都没有处理(result.hasSearchMax=false)，系数需要往下调
 
+框计算：
+https://www.toutiao.com/video/7598370786490974730/?from_scene=all&log_from=8956a2a665d3c_1769382567799
+
 
 
 idea: 

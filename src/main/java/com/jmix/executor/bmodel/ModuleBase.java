@@ -24,7 +24,6 @@ public class ModuleBase extends Onto {
     /**
      * 原子部件列表
      */
-    @JsonIgnore
     protected List<Part> atomicParts = new ArrayList<>();
 
     /**

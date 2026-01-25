@@ -115,11 +115,7 @@ public class Module extends ModuleBase implements IModule {
      */
     @JsonIgnore
     public Optional<Para> getPara(String code) {
-        if (code == null || getParaMap().isEmpty()) {
-            return Optional.empty();
-        }
-        Para para = getParaMap().get(code);
-        return para != null ? Optional.of(para) : Optional.empty();
+        return super.queryPara(code);
     }
 
     /**
