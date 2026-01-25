@@ -96,6 +96,30 @@
   },
   "dynAttrSchemas" : [ "java.util.ArrayList", [ ] ],
   "dynAttrSchema" : null,
+  "atomicParts" : [ "java.util.ArrayList", [ {
+    "@type" : "Part",
+    "extSchema" : "TestPartSchema",
+    "extAttrs" : {
+      "@class" : "java.util.HashMap",
+      "partAttr" : "partValue"
+    },
+    "code" : "TestPart",
+    "fatherCode" : "",
+    "defaultValue" : 0,
+    "description" : null,
+    "sortNo" : 1,
+    "paras" : [ "java.util.ArrayList", [ ] ],
+    "rules" : [ "java.util.ArrayList", [ ] ],
+    "dynAttr" : {
+      "@class" : "java.util.HashMap",
+      "partProperty" : "propertyValue"
+    },
+    "dynAttrSchemas" : [ "java.util.ArrayList", [ ] ],
+    "dynAttrSchema" : null,
+    "partType" : "ATOMIC",
+    "price" : 100,
+    "maxQuantity" : 20
+  } ] ],
   "partCategorys" : [ "java.util.ArrayList", [ ] ],
   "id" : 999,
   "version" : "1.0.0",

@@ -4,8 +4,8 @@ import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.attr.DynamicAttributerOption;
 import com.jmix.executor.bmodel.para.Para;
 import com.jmix.executor.impl.util.ParaTypeHandler;
-import com.jmix.executor.omodel.ModuleInst;
-import com.jmix.executor.omodel.ParaInst;
+import com.jmix.executor.cmodel.ModuleInst;
+import com.jmix.executor.cmodel.ParaInst;
 
 import java.util.Arrays;
 import java.util.HashSet;

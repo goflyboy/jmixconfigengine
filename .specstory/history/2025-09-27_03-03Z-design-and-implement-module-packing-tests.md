@@ -207,7 +207,7 @@ Lines added: 309, lines removed: 1
 + import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
 + import com.jmix.executor.impl.util.CommHelper;
 + import com.jmix.executor.impl.util.ModuleUtils;
-+ import com.jmix.executor.omodel.AlgLoaderException;
++ import com.jmix.executor.model.AlgLoaderException;
 + 
 + import lombok.extern.slf4j.Slf4j;
 + 
@@ -547,7 +547,7 @@ Lines added: 12, lines removed: undefined
 
 ```diff
 @@ -5,6 +5,18 @@
-  import com.jmix.executor.omodel.AlgLoaderException;
+  import com.jmix.executor.model.AlgLoaderException;
   
 + import lombok.extern.slf4j.Slf4j;
 + 
@@ -808,7 +808,7 @@ Lines added: 1, lines removed: undefined
 
 ```diff
 @@ -18,4 +18,5 @@
-  import com.jmix.executor.omodel.Result;
+  import com.jmix.executor.model.Result;
   import com.jmix.tool.impl.ModuleGenneratorByAnno;
 + import com.jmix.tool.impl.ModulePacker;
   
@@ -1923,7 +1923,7 @@ java.nio.file.InvalidPathException: Illegal char &lt;:&gt; at index 2: /D:/01.co
         at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
         at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
 [main] ERROR com.jmix.tool.impl.ModulePacker - Failed to pack module
-com.jmix.executor.omodel.AlgLoaderException: Failed to pack class jar
+com.jmix.executor.model.AlgLoaderException: Failed to pack class jar
         at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:87)
         at com.jmix.coretest.ModuleScenarioTestBase.init(ModuleScenarioTestBase.java:167)
         at com.jmix.tool.packtest.SingleFilePackerTest.testp0Value1p1HiddenPacked(SingleFilePackerTest.java:64)
@@ -2182,7 +2182,7 @@ java.nio.file.InvalidPathException: Illegal char &lt;:&gt; at index 2: /D:/01.co
         at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
         at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
 [main] ERROR com.jmix.tool.impl.ModulePacker - Failed to pack module
-com.jmix.executor.omodel.AlgLoaderException: Failed to pack class jar
+com.jmix.executor.model.AlgLoaderException: Failed to pack class jar
         at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:87)
         at com.jmix.coretest.ModuleScenarioTestBase.init(ModuleScenarioTestBase.java:167)
         at com.jmix.tool.packtest.SingleFilePackerTest.testp0Value2p2HiddenPacked(SingleFilePackerTest.java:88)
@@ -2259,82 +2259,82 @@ com.jmix.executor.omodel.AlgLoaderException: Failed to pack class jar
 [ERROR] Tests run: 7, Failures: 0, Errors: 7, Skipped: 0, Time elapsed: 1.316 s 
 &lt;&lt;&lt; FAILURE! -- in com.jmix.tool.packtest.SingleFilePackerTest
 [ERROR] com.jmix.tool.packtest.SingleFilePackerTest.testDebugVsPackedMode -- Time elapsed: 1.199 s &lt;&lt;&lt; ERROR!
-com.jmix.executor.omodel.AlgLoaderException: Failed to pack module: Failed to pack class jar
+com.jmix.executor.model.AlgLoaderException: Failed to pack module: Failed to pack class jar
         at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:101)
         at com.jmix.coretest.ModuleScenarioTestBase.init(ModuleScenarioTestBase.java:167)
         at com.jmix.tool.packtest.SingleFilePackerTest.testDebugVsPackedMode(SingleFilePackerTest.java:185)
         at java.lang.reflect.Method.invoke(Method.java:498)
         at java.util.ArrayList.forEach(ArrayList.java:1257)
         at java.util.ArrayList.forEach(ArrayList.java:1257)
-Caused by: com.jmix.executor.omodel.AlgLoaderException: Failed to pack class jar        at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:87)
+Caused by: com.jmix.executor.model.AlgLoaderException: Failed to pack class jar        at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:87)
         ... 5 more
 
 [ERROR] com.jmix.tool.packtest.SingleFilePackerTest.testp2Topart1Packed -- Time 
 elapsed: 0.033 s &lt;&lt;&lt; ERROR!
-com.jmix.executor.omodel.AlgLoaderException: Failed to pack module: Failed to pack class jar
+com.jmix.executor.model.AlgLoaderException: Failed to pack module: Failed to pack class jar
         at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:101)
         at com.jmix.coretest.ModuleScenarioTestBase.init(ModuleScenarioTestBase.java:167)
         at com.jmix.tool.packtest.SingleFilePackerTest.testp2Topart1Packed(SingleFilePackerTest.java:112)
         at java.lang.reflect.Method.invoke(Method.java:498)
         at java.util.ArrayList.forEach(ArrayList.java:1257)
         at java.util.ArrayList.forEach(ArrayList.java:1257)
-Caused by: com.jmix.executor.omodel.AlgLoaderException: Failed to pack class jar        at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:87)
+Caused by: com.jmix.executor.model.AlgLoaderException: Failed to pack class jar        at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:87)
         ... 5 more
 
 [ERROR] com.jmix.tool.packtest.SingleFilePackerTest.testp0Value0p1HiddenPacked -- Time elapsed: 0.016 s &lt;&lt;&lt; ERROR!
-com.jmix.executor.omodel.AlgLoaderException: Failed to pack module: Failed to pack class jar
+com.jmix.executor.model.AlgLoaderException: Failed to pack module: Failed to pack class jar
         at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:101)
         at com.jmix.coretest.ModuleScenarioTestBase.init(ModuleScenarioTestBase.java:167)
         at com.jmix.tool.packtest.SingleFilePackerTest.testp0Value0p1HiddenPacked(SingleFilePackerTest.java:40)
         at java.lang.reflect.Method.invoke(Method.java:498)
         at java.util.ArrayList.forEach(ArrayList.java:1257)
         at java.util.ArrayList.forEach(ArrayList.java:1257)
-Caused by: com.jmix.executor.omodel.AlgLoaderException: Failed to pack class jar        at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:87)
+Caused by: com.jmix.executor.model.AlgLoaderException: Failed to pack class jar        at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:87)
         ... 5 more
 
 [ERROR] com.jmix.tool.packtest.SingleFilePackerTest.testp1Topart1Packed -- Time 
 elapsed: 0.016 s &lt;&lt;&lt; ERROR!
-com.jmix.executor.omodel.AlgLoaderException: Failed to pack module: Failed to pack class jar
+com.jmix.executor.model.AlgLoaderException: Failed to pack module: Failed to pack class jar
         at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:101)
         at com.jmix.coretest.ModuleScenarioTestBase.init(ModuleScenarioTestBase.java:167)
         at com.jmix.tool.packtest.SingleFilePackerTest.testp1Topart1Packed(SingleFilePackerTest.java:136)
         at java.lang.reflect.Method.invoke(Method.java:498)
         at java.util.ArrayList.forEach(ArrayList.java:1257)
         at java.util.ArrayList.forEach(ArrayList.java:1257)
-Caused by: com.jmix.executor.omodel.AlgLoaderException: Failed to pack class jar        at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:87)
+Caused by: com.jmix.executor.model.AlgLoaderException: Failed to pack class jar        at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:87)
         ... 5 more
 
 [ERROR] com.jmix.tool.packtest.SingleFilePackerTest.testp1Topart1InvalidInputPacked -- Time elapsed: 0 s &lt;&lt;&lt; ERROR!
-com.jmix.executor.omodel.AlgLoaderException: Failed to pack module: Failed to pack class jar
+com.jmix.executor.model.AlgLoaderException: Failed to pack module: Failed to pack class jar
         at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:101)
         at com.jmix.coretest.ModuleScenarioTestBase.init(ModuleScenarioTestBase.java:167)
         at com.jmix.tool.packtest.SingleFilePackerTest.testp1Topart1InvalidInputPacked(SingleFilePackerTest.java:160)
         at java.lang.reflect.Method.invoke(Method.java:498)
         at java.util.ArrayList.forEach(ArrayList.java:1257)
         at java.util.ArrayList.forEach(ArrayList.java:1257)
-Caused by: com.jmix.executor.omodel.AlgLoaderException: Failed to pack class jar        at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:87)
+Caused by: com.jmix.executor.model.AlgLoaderException: Failed to pack class jar        at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:87)
         ... 5 more
 
 [ERROR] com.jmix.tool.packtest.SingleFilePackerTest.testp0Value1p1HiddenPacked -- Time elapsed: 0.019 s &lt;&lt;&lt; ERROR!
-com.jmix.executor.omodel.AlgLoaderException: Failed to pack module: Failed to pack class jar
+com.jmix.executor.model.AlgLoaderException: Failed to pack module: Failed to pack class jar
         at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:101)
         at com.jmix.coretest.ModuleScenarioTestBase.init(ModuleScenarioTestBase.java:167)
         at com.jmix.tool.packtest.SingleFilePackerTest.testp0Value1p1HiddenPacked(SingleFilePackerTest.java:64)
         at java.lang.reflect.Method.invoke(Method.java:498)
         at java.util.ArrayList.forEach(ArrayList.java:1257)
         at java.util.ArrayList.forEach(ArrayList.java:1257)
-Caused by: com.jmix.executor.omodel.AlgLoaderException: Failed to pack class jar        at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:87)
+Caused by: com.jmix.executor.model.AlgLoaderException: Failed to pack class jar        at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:87)
         ... 5 more
 
 [ERROR] com.jmix.tool.packtest.SingleFilePackerTest.testp0Value2p2HiddenPacked -- Time elapsed: 0 s &lt;&lt;&lt; ERROR!
-com.jmix.executor.omodel.AlgLoaderException: Failed to pack module: Failed to pack class jar
+com.jmix.executor.model.AlgLoaderException: Failed to pack module: Failed to pack class jar
         at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:101)
         at com.jmix.coretest.ModuleScenarioTestBase.init(ModuleScenarioTestBase.java:167)
         at com.jmix.tool.packtest.SingleFilePackerTest.testp0Value2p2HiddenPacked(SingleFilePackerTest.java:88)
         at java.lang.reflect.Method.invoke(Method.java:498)
         at java.util.ArrayList.forEach(ArrayList.java:1257)
         at java.util.ArrayList.forEach(ArrayList.java:1257)
-Caused by: com.jmix.executor.omodel.AlgLoaderException: Failed to pack class jar        at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:87)
+Caused by: com.jmix.executor.model.AlgLoaderException: Failed to pack class jar        at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:87)
         ... 5 more
 
 [INFO] 

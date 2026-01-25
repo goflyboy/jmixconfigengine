@@ -3,7 +3,7 @@ package com.jmix.executor.impl.util;
 import com.jmix.executor.bmodel.attr.DynamicAttributerOption;
 import com.jmix.executor.bmodel.para.Para;
 import com.jmix.executor.bmodel.para.ParaType;
-import com.jmix.executor.omodel.AlgLoaderException;
+import com.jmix.executor.model.AlgLoaderException;
 
 import lombok.extern.slf4j.Slf4j;
 

@@ -6,11 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jmix.executor.ModuleConstraintExecutor;
 import com.jmix.executor.bmodel.Module;
-import com.jmix.executor.omodel.ConstraintConfig;
-import com.jmix.executor.omodel.ModuleInst;
-import com.jmix.executor.omodel.ParaInst;
-import com.jmix.executor.omodel.PartInst;
-import com.jmix.executor.omodel.Result;
+import com.jmix.executor.model.ConstraintConfig;
+import com.jmix.executor.cmodel.ModuleInst;
+import com.jmix.executor.cmodel.ParaInst;
+import com.jmix.executor.cmodel.PartInst;
+import com.jmix.executor.model.Result;
 
 import lombok.extern.slf4j.Slf4j;
 

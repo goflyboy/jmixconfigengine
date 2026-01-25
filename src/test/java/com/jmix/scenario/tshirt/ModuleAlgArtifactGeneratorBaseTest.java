@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.impl.util.ModuleUtils;
-import com.jmix.executor.omodel.AlgLoaderException;
+import com.jmix.executor.model.AlgLoaderException;
 import com.jmix.tool.artbuilder.ModuleAlgArtifactGenerator;
 
 import lombok.extern.slf4j.Slf4j;

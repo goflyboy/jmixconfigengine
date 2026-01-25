@@ -7,11 +7,11 @@ import com.jmix.executor.impl.algmodel.OtherVar;
 import com.jmix.executor.impl.algmodel.ParaVar;
 import com.jmix.executor.impl.algmodel.PartVar;
 import com.jmix.executor.impl.algmodel.Var;
-import com.jmix.executor.omodel.AlgLoaderException;
-import com.jmix.executor.omodel.ModuleInst;
-import com.jmix.executor.omodel.ParaInst;
-import com.jmix.executor.omodel.PartInst;
-import com.jmix.executor.omodel.PriorityAttrValue;
+import com.jmix.executor.model.AlgLoaderException;
+import com.jmix.executor.cmodel.ModuleInst;
+import com.jmix.executor.cmodel.ParaInst;
+import com.jmix.executor.cmodel.PartInst;
+import com.jmix.executor.cmodel.PriorityAttrValue;
 
 import com.google.ortools.sat.CpSolverSolutionCallback;
 

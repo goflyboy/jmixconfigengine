@@ -1,4 +1,4 @@
-package com.jmix.executor.omodel;
+package com.jmix.executor.cmodel;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

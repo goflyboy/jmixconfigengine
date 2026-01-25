@@ -1,4 +1,4 @@
-package com.jmix.executor.omodel;
+package com.jmix.executor.model;
 
 import com.jmix.executor.bmodel.attr.DynamicAttribute;
 

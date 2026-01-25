@@ -1,6 +1,6 @@
 package com.jmix.tool.impl;
 
-import com.jmix.executor.omodel.AlgLoaderException;
+import com.jmix.executor.model.AlgLoaderException;
 
 import lombok.extern.slf4j.Slf4j;
 

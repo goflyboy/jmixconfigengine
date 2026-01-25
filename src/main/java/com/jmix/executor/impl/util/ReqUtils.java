@@ -1,8 +1,8 @@
 package com.jmix.executor.impl.util;
 
-import com.jmix.executor.omodel.InferParasReq;
-import com.jmix.executor.omodel.ParaInst;
-import com.jmix.executor.omodel.PartInst;
+import com.jmix.executor.model.InferParasReq;
+import com.jmix.executor.cmodel.ParaInst;
+import com.jmix.executor.cmodel.PartInst;
 
 import java.util.ArrayList;
 import java.util.List;

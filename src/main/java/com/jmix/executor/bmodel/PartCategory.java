@@ -9,9 +9,9 @@ import com.jmix.executor.bmodel.logic.RuleTypeConstants;
 import com.jmix.executor.bmodel.para.Para;
 import com.jmix.executor.impl.util.FilterExpressionExecutor;
 import com.jmix.executor.impl.util.FilterExpressionExecutor.FilterCondition;
-import com.jmix.executor.omodel.AttrFunConstant;
-import com.jmix.executor.omodel.PartConstantAttr;
-import com.jmix.executor.omodel.PartConstraintReq;
+import com.jmix.executor.model.AttrFunConstant;
+import com.jmix.executor.model.PartConstantAttr;
+import com.jmix.executor.model.PartConstraintReq;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

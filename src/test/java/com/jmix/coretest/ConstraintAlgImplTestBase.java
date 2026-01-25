@@ -5,7 +5,7 @@ import com.jmix.executor.bmodel.para.Para;
 import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
 import com.jmix.executor.impl.algmodel.ParaOptionVar;
 import com.jmix.executor.impl.algmodel.Var;
-import com.jmix.executor.omodel.AlgLoaderException;
+import com.jmix.executor.model.AlgLoaderException;
 
 import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.IntVar;

@@ -132,7 +132,7 @@ Output mode: content
 
 | File | Content | Line |
 |------|------|------|
-| `src/test/java/com/jmix/executor/imodel/PartCategoryTest.java` | `import com.jmix.executor.omodel.PartConstantAttr;` | L10 |
+| `src/test/java/com/jmix/executor/imodel/PartCategoryTest.java` | `import com.jmix.executor.model.PartConstantAttr;` | L10 |
 | `src/test/java/com/jmix/executor/imodel/PartCategoryTest.java` | `quantityAttr.setCode(PartConstantAttr.Quantity);` | L65 |
 | `src/test/java/com/jmix/executor/imodel/PartCategoryTest.java` | `drive1.setAttr(PartConstantAttr.Quantity, "1");` | L91 |
 | `src/test/java/com/jmix/executor/imodel/PartCategoryTest.java` | `drive2.setAttr(PartConstantAttr.Quantity, "1");` | L109 |
@@ -1191,7 +1191,7 @@ Lines added: 2, lines removed: undefined
 
 ```diff
 @@ -1,3 +1,5 @@
-  package com.jmix.executor.omodel;
+  package com.jmix.executor.model;
 + 
 + import com.jmix.executor.imodel.DynamicAttributeType;
   
@@ -1629,7 +1629,7 @@ Lines added: 1, lines removed: 1
 
 ```diff
 @@ -1,5 +1,5 @@
-  package com.jmix.executor.omodel;
+  package com.jmix.executor.model;
   
 - import com.jmix.executor.imodel.DynamicAttributeType;
 + import com.jmix.executor.imodel.DynamicAttribute;

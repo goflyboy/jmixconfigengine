@@ -1,7 +1,7 @@
 package com.jmix.tool;
 
 import com.jmix.executor.impl.util.CommHelper;
-import com.jmix.executor.omodel.AlgLoaderException;
+import com.jmix.executor.model.AlgLoaderException;
 import com.jmix.tool.autoruletest.InjectCompatibleRuleTest.InjectCompatibleRuleConstraint;
 import com.jmix.tool.impl.ModelGenneratorException;
 

@@ -4,13 +4,13 @@ import com.jmix.executor.bmodel.IPart;
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartType;
-import com.jmix.executor.omodel.AlgLoaderException;
-import com.jmix.executor.omodel.ExtensibleProcess;
-import com.jmix.executor.omodel.InferParasPostProcess;
-import com.jmix.executor.omodel.ModuleInst;
-import com.jmix.executor.omodel.ParaInst;
-import com.jmix.executor.omodel.PartInst;
-import com.jmix.executor.omodel.Result;
+import com.jmix.executor.model.AlgLoaderException;
+import com.jmix.executor.model.ExtensibleProcess;
+import com.jmix.executor.model.InferParasPostProcess;
+import com.jmix.executor.cmodel.ModuleInst;
+import com.jmix.executor.cmodel.ParaInst;
+import com.jmix.executor.cmodel.PartInst;
+import com.jmix.executor.model.Result;
 
 import lombok.extern.slf4j.Slf4j;
 

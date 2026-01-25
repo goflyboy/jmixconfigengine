@@ -1,6 +1,6 @@
 package com.jmix.tool.extensibleDemo;
 
-import com.jmix.executor.omodel.Result;
+import com.jmix.executor.model.Result;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

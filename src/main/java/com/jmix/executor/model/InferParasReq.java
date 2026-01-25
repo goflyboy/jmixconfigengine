@@ -1,17 +1,35 @@
-package com.jmix.executor.omodel;
+package com.jmix.executor.model;
 
+import com.jmix.executor.cmodel.ParaInst;
+import com.jmix.executor.cmodel.PartInst;
 import lombok.Data;
 
 import java.util.List;
 
 /**
- * 推理部件分类请求类
- * 包含部件分类推理所需的所有输入信息
+ * 推理参数请求类
+ * 包含参数推理所需的所有输入信息
  * 
- * @since 2025-01-XX
+ * @since 2025-09-22
  */
 @Data
-public class InferPartCategoryReq {
+public class InferParasReq {
+
+    /**
+     * 模块ID
+     */
+    private Long moduleId;
+
+    /**
+     * 模块编码
+     */
+    private String moduleCode;
+
+    /**
+     * 主部件实例
+     */
+    private PartInst mainPartInst;
+
     /**
      * 前置参数实例列表
      */
@@ -36,9 +54,4 @@ public class InferPartCategoryReq {
      * 部件分类代码
      */
     private String partCatagoryCode;
-
-    /**
-     * 最大solution的个数
-     */
-    private int maxSolutionNum = 10;
 }

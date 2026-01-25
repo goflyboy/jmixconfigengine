@@ -4,10 +4,10 @@ import com.jmix.executor.bmodel.IPart;
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.para.Para;
-import com.jmix.executor.omodel.ModuleInst;
-import com.jmix.executor.omodel.ParaInst;
-import com.jmix.executor.omodel.PartInst;
-import com.jmix.executor.omodel.PriorityAttrValue;
+import com.jmix.executor.cmodel.ModuleInst;
+import com.jmix.executor.cmodel.ParaInst;
+import com.jmix.executor.cmodel.PartInst;
+import com.jmix.executor.cmodel.PriorityAttrValue;
 
 /**
  * 可编程实例断言基类

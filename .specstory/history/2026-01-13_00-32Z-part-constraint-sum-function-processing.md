@@ -238,7 +238,7 @@ Lines added: 28, lines removed: 1
 ```diff
 @@ -1,1 +1,28 @@
 - 
-+ package com.jmix.executor.omodel;
++ package com.jmix.executor.model;
 + 
 + import lombok.Data;
 + 
@@ -308,11 +308,11 @@ Lines added: 1, lines removed: undefined
 
 ```diff
 @@ -18,4 +18,5 @@
-  import com.jmix.executor.omodel.ModuleInst;
-  import com.jmix.executor.omodel.ParaInst;
-+ import com.jmix.executor.omodel.ParConstraint;
-  import com.jmix.executor.omodel.PartConstraintReq;
-  import com.jmix.executor.omodel.PartInst;
+  import com.jmix.executor.cmodel.ModuleInst;
+  import com.jmix.executor.cmodel.ParaInst;
++ import com.jmix.executor.model.ParConstraint;
+  import com.jmix.executor.model.PartConstraintReq;
+  import com.jmix.executor.cmodel.PartInst;
 ```
 
 </details>
@@ -580,9 +580,9 @@ Lines added: 1, lines removed: undefined
 ```diff
 @@ -13,4 +13,5 @@
   import com.jmix.executor.imodel.rule.RuleTypeConstants;
-  import com.jmix.executor.omodel.AlgLoaderException;
-+ import com.jmix.executor.omodel.ParConstraint;
-  import com.jmix.executor.omodel.PartConstantAttr;
+  import com.jmix.executor.model.AlgLoaderException;
++ import com.jmix.executor.model.ParConstraint;
+  import com.jmix.executor.model.PartConstantAttr;
   
 ```
 
@@ -880,19 +880,19 @@ Output mode: content
 | `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java` | `import com.jmix.executor.impl.algmodel.RelaxVar;` | L13 |
 | `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java` | `import com.jmix.executor.impl.util.Pair;` | L14 |
 | `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java` | `import com.jmix.executor.impl.util.ReqUtils;` | L15 |
-| `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java` | `import com.jmix.executor.omodel.AlgExecutorException;` | L16 |
-| `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java` | `import com.jmix.executor.omodel.AlgLoaderException;` | L17 |
-| `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java` | `import com.jmix.executor.omodel.AttrFunConstant;` | L18 |
-| `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java` | `import com.jmix.executor.omodel.ExtensibleProcess;` | L19 |
-| `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java` | `import com.jmix.executor.omodel.InferParasPostProcess;` | L20 |
-| `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java` | `import com.jmix.executor.omodel.InferParasReq;` | L21 |
-| `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java` | `import com.jmix.executor.omodel.InferPartCategoryReq;` | L22 |
-| `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java` | `import com.jmix.executor.omodel.ModuleInst;` | L23 |
-| `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java` | `import com.jmix.executor.omodel.ParaInst;` | L24 |
-| `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java` | `import com.jmix.executor.omodel.PartConstraintReq;` | L25 |
-| `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java` | `import com.jmix.executor.omodel.PartInst;` | L26 |
-| `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java` | `import com.jmix.executor.omodel.Result;` | L27 |
-| `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java` | `import com.jmix.executor.omodel.RunInferParasRsp;` | L28 |
+| `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java` | `import com.jmix.executor.model.AlgExecutorException;` | L16 |
+| `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java` | `import com.jmix.executor.model.AlgLoaderException;` | L17 |
+| `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java` | `import com.jmix.executor.model.AttrFunConstant;` | L18 |
+| `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java` | `import com.jmix.executor.model.ExtensibleProcess;` | L19 |
+| `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java` | `import com.jmix.executor.model.InferParasPostProcess;` | L20 |
+| `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java` | `import com.jmix.executor.model.InferParasReq;` | L21 |
+| `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java` | `import com.jmix.executor.model.InferPartCategoryReq;` | L22 |
+| `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java` | `import com.jmix.executor.cmodel.ModuleInst;` | L23 |
+| `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java` | `import com.jmix.executor.cmodel.ParaInst;` | L24 |
+| `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java` | `import com.jmix.executor.model.PartConstraintReq;` | L25 |
+| `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java` | `import com.jmix.executor.cmodel.PartInst;` | L26 |
+| `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java` | `import com.jmix.executor.model.Result;` | L27 |
+| `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java` | `import com.jmix.executor.model.RunInferParasRsp;` | L28 |
 | `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java` | `import com.fasterxml.jackson.core.JsonProcessingException;` | L30 |
 | `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java` | `import com.fasterxml.jackson.databind.ObjectMapper;` | L31 |
 | `src/main/java/com/jmix/executor/impl/ModuleConstraintExecutorImpl.java` | `import com.fasterxml.jackson.databind.PropertyNamingStrategies;` | L32 |
@@ -933,11 +933,11 @@ Lines added: 1, lines removed: undefined
 
 ```diff
 @@ -23,4 +23,5 @@
-  import com.jmix.executor.omodel.ModuleInst;
-  import com.jmix.executor.omodel.ParaInst;
-+ import com.jmix.executor.omodel.ParConstraint;
-  import com.jmix.executor.omodel.PartConstraintReq;
-  import com.jmix.executor.omodel.PartInst;
+  import com.jmix.executor.cmodel.ModuleInst;
+  import com.jmix.executor.cmodel.ParaInst;
++ import com.jmix.executor.model.ParConstraint;
+  import com.jmix.executor.model.PartConstraintReq;
+  import com.jmix.executor.cmodel.PartInst;
 ```
 
 </details>
@@ -2875,8 +2875,8 @@ Lines added: 1, lines removed: undefined
   import com.jmix.executor.imodel.rule.RefProgObjSchema;
   import com.jmix.executor.imodel.rule.RuleTypeConstants;
 + import com.jmix.executor.impl.util.FilterExpressionExecutor;
-  import com.jmix.executor.omodel.AlgLoaderException;
-  import com.jmix.executor.omodel.ParConstraint;
+  import com.jmix.executor.model.AlgLoaderException;
+  import com.jmix.executor.model.ParConstraint;
 ```
 
 </details>

@@ -2625,10 +2625,10 @@ Lines added: 22, lines removed: 1
 + import com.jmix.executor.imodel.Module;
 + import com.jmix.executor.imodel.Part;
 + import com.jmix.executor.impl.util.CommHelper;
-+ import com.jmix.executor.omodel.InferParasReq;
-+ import com.jmix.executor.omodel.ModuleInst;
-+ import com.jmix.executor.omodel.PartInst;
-+ import com.jmix.executor.omodel.Result;
++ import com.jmix.executor.model.InferParasReq;
++ import com.jmix.executor.cmodel.ModuleInst;
++ import com.jmix.executor.cmodel.PartInst;
++ import com.jmix.executor.model.Result;
 + import com.jmix.tool.impl.ModuleGenneratorByAnno;
 + 
 + import lombok.extern.slf4j.Slf4j;

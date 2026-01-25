@@ -1323,9 +1323,9 @@ Lines added: 307, lines removed: 1
 + 
 + import static org.junit.jupiter.api.Assertions.*;
 + 
-+ import com.jmix.executor.omodel.PartConstraintReq;
-+ import com.jmix.executor.omodel.PartConstantAttr;
-+ import com.jmix.executor.omodel.AttrFunConstant;
++ import com.jmix.executor.model.PartConstraintReq;
++ import com.jmix.executor.model.PartConstantAttr;
++ import com.jmix.executor.model.AttrFunConstant;
 + import com.jmix.tool.impl.FilterExpressionExecutor;
 + 
 + import org.junit.jupiter.api.BeforeEach;
@@ -5561,8 +5561,8 @@ Lines added: 1, lines removed: undefined
   import static org.junit.jupiter.api.Assertions.assertTrue;
   
 + import com.jmix.executor.impl.util.Pair;
-  import com.jmix.executor.omodel.PartConstantAttr;
-  import com.jmix.executor.omodel.PartConstraintReq;
+  import com.jmix.executor.model.PartConstantAttr;
+  import com.jmix.executor.model.PartConstraintReq;
 ```
 
 </details>

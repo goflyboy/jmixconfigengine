@@ -1203,10 +1203,10 @@ Lines added: 116, lines removed: 1
 + import com.jmix.executor.ModuleConstraintExecutor;
 + import com.jmix.executor.imodel.ConstraintConfig;
 + import com.jmix.executor.imodel.Module;
-+ import com.jmix.executor.omodel.InferParasReq;
-+ import com.jmix.executor.omodel.ModuleInst;
-+ import com.jmix.executor.omodel.PartInst;
-+ import com.jmix.executor.omodel.Result;
++ import com.jmix.executor.model.InferParasReq;
++ import com.jmix.executor.cmodel.ModuleInst;
++ import com.jmix.executor.cmodel.PartInst;
++ import com.jmix.executor.model.Result;
 + import com.jmix.tool.impl.ModuleGenneratorByAnno;
 + import com.jmix.tool.impl.util.CommHelper;
 + 
@@ -1458,10 +1458,10 @@ Lines added: 2, lines removed: 1
 
 ```diff
 @@ -9,6 +9,7 @@
-  import com.jmix.executor.omodel.PartInst;
-  import com.jmix.executor.omodel.Result;
+  import com.jmix.executor.cmodel.PartInst;
+  import com.jmix.executor.model.Result;
 + import com.jmix.executor.impl.util.CommHelper;
-+ import com.jmix.executor.omodel.ParaInst;
++ import com.jmix.executor.cmodel.ParaInst;
   import com.jmix.tool.impl.ModuleGenneratorByAnno;
 - import com.jmix.tool.impl.util.CommHelper;
   

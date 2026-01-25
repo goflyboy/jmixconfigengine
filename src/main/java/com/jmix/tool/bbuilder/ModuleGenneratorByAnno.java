@@ -25,7 +25,7 @@ import com.jmix.executor.impl.algmodel.ParaVar;
 import com.jmix.executor.impl.algmodel.PartCategoryVar;
 import com.jmix.executor.impl.algmodel.PartVar;
 import com.jmix.executor.impl.util.ModuleUtils;
-import com.jmix.executor.omodel.AlgLoaderException;
+import com.jmix.executor.model.AlgLoaderException;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
 import com.jmix.tool.bbuilder.anno.CompatiableRuleAnno;
 import com.jmix.tool.bbuilder.anno.DAttrAnno1;

@@ -6481,7 +6481,7 @@ Lines added: 110, lines removed: 1
 + import com.google.ortools.sat.Constraint;
 + import com.google.ortools.sat.ConstraintProto;
 + import com.google.ortools.sat.Literal;
-+ import com.jmix.executor.omodel.AlgLoaderException;
++ import com.jmix.executor.model.AlgLoaderException;
 + import lombok.extern.slf4j.Slf4j;
 + 
 + /**
@@ -8683,10 +8683,10 @@ Lines added: 117, lines removed: 1
 + 
 + import com.jmix.executor.ModuleConstraintExecutor;
 + import com.jmix.executor.imodel.ConstraintConfig;
-+ import com.jmix.executor.omodel.InferParasReq;
-+ import com.jmix.executor.omodel.PartInst;
-+ import com.jmix.executor.omodel.ParaInst;
-+ import com.jmix.executor.omodel.Result;
++ import com.jmix.executor.model.InferParasReq;
++ import com.jmix.executor.cmodel.PartInst;
++ import com.jmix.executor.cmodel.ParaInst;
++ import com.jmix.executor.model.Result;
 + import com.jmix.tool.modelgentest.Hello2Test;
 + import org.junit.jupiter.api.BeforeEach;
 + import org.junit.jupiter.api.Test;
@@ -9255,10 +9255,10 @@ Lines added: 184, lines removed: 95
 + 
 + import com.jmix.executor.ModuleConstraintExecutor;
 + import com.jmix.executor.imodel.ConstraintConfig;
-+ import com.jmix.executor.omodel.InferParasReq;
-+ import com.jmix.executor.omodel.PartInst;
-+ import com.jmix.executor.omodel.ParaInst;
-+ import com.jmix.executor.omodel.Result;
++ import com.jmix.executor.model.InferParasReq;
++ import com.jmix.executor.cmodel.PartInst;
++ import com.jmix.executor.cmodel.ParaInst;
++ import com.jmix.executor.model.Result;
 + import com.jmix.tool.modelgentest.Hello2Test;
 + import org.junit.jupiter.api.BeforeEach;
 + import org.junit.jupiter.api.Test;
@@ -9907,10 +9907,10 @@ Lines added: 1, lines removed: 10
   
 - import com.jmix.executor.ModuleConstraintExecutor;
 - import com.jmix.executor.imodel.ConstraintConfig;
-- import com.jmix.executor.omodel.InferParasReq;
-- import com.jmix.executor.omodel.PartInst;
-- import com.jmix.executor.omodel.ParaInst;
-- import com.jmix.executor.omodel.Result;
+- import com.jmix.executor.model.InferParasReq;
+- import com.jmix.executor.cmodel.PartInst;
+- import com.jmix.executor.cmodel.ParaInst;
+- import com.jmix.executor.model.Result;
 - import com.jmix.tool.modelgentest.Hello2Test;
 - import org.junit.jupiter.api.BeforeEach;
 + import com.jmix.coretest.ModuleScenarioTestBase;
@@ -10933,8 +10933,8 @@ Lines added: undefined, lines removed: 1
   import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
   import com.jmix.executor.impl.util.Pair;
 - import com.jmix.executor.impl.util.Triple;
-  import com.jmix.executor.omodel.AlgExecutorException;
-  import com.jmix.executor.omodel.AlgLoaderException;
+  import com.jmix.executor.model.AlgExecutorException;
+  import com.jmix.executor.model.AlgLoaderException;
 ```
 
 </details>
@@ -12640,7 +12640,7 @@ Lines added: 1, lines removed: undefined
   import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
 + import com.jmix.executor.impl.algmodel.RelaxVar;
   import com.jmix.executor.impl.util.Pair;
-  import com.jmix.executor.omodel.AlgExecutorException;
+  import com.jmix.executor.model.AlgExecutorException;
 ```
 
 </details>

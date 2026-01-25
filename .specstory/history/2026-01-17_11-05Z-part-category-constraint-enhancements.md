@@ -267,7 +267,7 @@ Lines added: 1, lines removed: undefined
 
 ```diff
 @@ -1,4 +1,5 @@
-  package com.jmix.executor.omodel;
+  package com.jmix.executor.model;
   
 + import com.jmix.executor.imodel.PartCategory;
   import lombok.Data;

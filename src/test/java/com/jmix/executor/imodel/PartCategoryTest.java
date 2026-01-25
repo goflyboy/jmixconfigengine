@@ -15,8 +15,8 @@ import com.jmix.executor.bmodel.attr.DynamicAttributeType;
 import com.jmix.executor.bmodel.attr.InstanceDynAttrValue;
 import com.jmix.executor.bmodel.attr.InstanceDynAttrValueItem;
 import com.jmix.executor.bmodel.base.Pair;
-import com.jmix.executor.omodel.PartConstantAttr;
-import com.jmix.executor.omodel.PartConstraintReq;
+import com.jmix.executor.model.PartConstantAttr;
+import com.jmix.executor.model.PartConstraintReq;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -2,8 +2,8 @@ package com.jmix.coretest;
 
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.Part;
-import com.jmix.executor.omodel.ModuleInst;
-import com.jmix.executor.omodel.PartInst;
+import com.jmix.executor.cmodel.ModuleInst;
+import com.jmix.executor.cmodel.PartInst;
 
 import java.util.Objects;
 

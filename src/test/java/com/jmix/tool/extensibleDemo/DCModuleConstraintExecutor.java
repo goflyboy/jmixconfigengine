@@ -1,7 +1,7 @@
 package com.jmix.tool.extensibleDemo;
 
-import com.jmix.executor.omodel.ConstraintConfig;
-import com.jmix.executor.omodel.ExtensibleProcess;
+import com.jmix.executor.model.ConstraintConfig;
+import com.jmix.executor.model.ExtensibleProcess;
 
 import lombok.Data;
 

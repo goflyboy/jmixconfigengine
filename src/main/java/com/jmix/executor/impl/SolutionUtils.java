@@ -2,8 +2,8 @@ package com.jmix.executor.impl;
 
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.impl.algmodel.OtherVar;
-import com.jmix.executor.omodel.ModuleInst;
-import com.jmix.executor.omodel.Result;
+import com.jmix.executor.cmodel.ModuleInst;
+import com.jmix.executor.model.Result;
 
 import lombok.extern.slf4j.Slf4j;
 

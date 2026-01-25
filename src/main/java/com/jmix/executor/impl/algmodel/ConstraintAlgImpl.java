@@ -14,9 +14,9 @@ import com.jmix.executor.bmodel.logic.RuleTypeConstants;
 import com.jmix.executor.bmodel.para.Para;
 import com.jmix.executor.impl.PriorityConstraint;
 import com.jmix.executor.impl.util.FilterExpressionExecutor;
-import com.jmix.executor.omodel.AlgLoaderException;
-import com.jmix.executor.omodel.ParConstraint;
-import com.jmix.executor.omodel.PartConstantAttr;
+import com.jmix.executor.model.AlgLoaderException;
+import com.jmix.executor.model.ParConstraint;
+import com.jmix.executor.model.PartConstantAttr;
 
 import com.google.ortools.Loader;
 import com.google.ortools.sat.BoolVar;

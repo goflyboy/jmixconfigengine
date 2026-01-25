@@ -1,6 +1,6 @@
 package com.jmix.tool.extensibleDemo;
 
-import com.jmix.executor.omodel.ParaInst;
+import com.jmix.executor.cmodel.ParaInst;
 
 import lombok.extern.slf4j.Slf4j;
 

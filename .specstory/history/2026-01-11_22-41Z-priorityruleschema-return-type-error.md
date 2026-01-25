@@ -1692,7 +1692,7 @@ Lines added: 1, lines removed: undefined
   
 + import com.jmix.executor.imodel.rule.RuleTypeConstants;
   import com.jmix.executor.impl.util.Pair;
-  import com.jmix.executor.omodel.AttrFunConstant;
+  import com.jmix.executor.model.AttrFunConstant;
 ```
 
 </details>
@@ -3412,7 +3412,7 @@ Output mode: content
 | `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java` | `import com.jmix.executor.imodel.Module;` | L5 |
 | `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java` | `import com.jmix.executor.impl.ModuleConstraintExecutorImpl;` | L8 |
 | `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java` | `import com.jmix.executor.impl.algmodel.OtherVar;` | L9 |
-| `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java` | `import com.jmix.executor.omodel.ModuleInst;` | L14 |
+| `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java` | `import com.jmix.executor.cmodel.ModuleInst;` | L14 |
 | `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java` | `import com.jmix.tool.impl.ModuleGenneratorByAnno;` | L19 |
 | `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java` | `import com.jmix.tool.impl.ModulePacker;` | L20 |
 
@@ -3530,8 +3530,8 @@ Lines added: 88, lines removed: 1
 + 
 + import com.jmix.executor.imodel.Module;
 + import com.jmix.executor.impl.algmodel.OtherVar;
-+ import com.jmix.executor.omodel.ModuleInst;
-+ import com.jmix.executor.omodel.Result;
++ import com.jmix.executor.cmodel.ModuleInst;
++ import com.jmix.executor.model.Result;
 + 
 + import lombok.extern.slf4j.Slf4j;
 + 
@@ -8299,7 +8299,7 @@ Lines added: 35, lines removed: undefined
 +      * @param partCode 部件代码
 +      * @return 部件实例，如果不存在则返回null
 +      */
-+     public com.jmix.executor.omodel.PartInst queryPart(String partCode) {
++     public com.jmix.executor.cmodel.PartInst queryPart(String partCode) {
 +         if (partCode == null || partCode.isEmpty()) {
 +             return null;
 +         }
@@ -11193,7 +11193,7 @@ Lines added: 4, lines removed: undefined
 + import com.jmix.executor.imodel.PartCategory;
 + import com.jmix.executor.imodel.PriorityAttrValue;
   import com.jmix.executor.impl.algmodel.OtherVar;
-  import com.jmix.executor.omodel.ModuleInst;
+  import com.jmix.executor.cmodel.ModuleInst;
 ```
 
 </details>
@@ -13264,7 +13264,7 @@ Lines added: 43, lines removed: 1
 + 
 + import com.jmix.executor.imodel.Module;
 + import com.jmix.executor.imodel.PriorityAttrValue;
-+ import com.jmix.executor.omodel.ModuleInst;
++ import com.jmix.executor.cmodel.ModuleInst;
 + 
 + /**
 +  * 优先级属性值断言类
@@ -13341,8 +13341,8 @@ Lines added: 1, lines removed: undefined
   import com.jmix.executor.imodel.Para;
   import com.jmix.executor.imodel.Part;
 + import com.jmix.executor.imodel.PriorityAttrValue;
-  import com.jmix.executor.omodel.ModuleInst;
-  import com.jmix.executor.omodel.ParaInst;
+  import com.jmix.executor.cmodel.ModuleInst;
+  import com.jmix.executor.cmodel.ParaInst;
 ```
 
 </details>

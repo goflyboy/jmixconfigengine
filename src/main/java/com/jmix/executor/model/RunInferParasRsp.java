@@ -1,4 +1,4 @@
-package com.jmix.executor.omodel;
+package com.jmix.executor.model;
 
 import com.jmix.executor.impl.algmodel.AlgCPModel;
 import com.jmix.executor.impl.ModuleInstSolutionCallBack;

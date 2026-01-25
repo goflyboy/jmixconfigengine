@@ -1,8 +1,8 @@
 package com.jmix.coretest;
 
 import com.jmix.executor.bmodel.Module;
-import com.jmix.executor.omodel.ModuleInst;
-import com.jmix.executor.omodel.PriorityAttrValue;
+import com.jmix.executor.cmodel.ModuleInst;
+import com.jmix.executor.cmodel.PriorityAttrValue;
 
 /**
  * 优先级属性值断言类

@@ -1,17 +1,17 @@
-package com.jmix.executor.omodel;
+package com.jmix.executor.model;
 
 /**
- * 算法加载器异常
- * 当算法加载过程中发生错误时抛出此异常
+ * 算法执行器异常
+ * 当算法执行过程中发生错误时抛出此异常
  * 
  * @since 1.0
  */
-public class AlgLoaderException extends RuntimeException {
+public class AlgExecutorException extends RuntimeException {
 
     /**
      * 构造方法
      */
-    public AlgLoaderException() {
+    public AlgExecutorException() {
         super();
     }
 
@@ -20,7 +20,7 @@ public class AlgLoaderException extends RuntimeException {
      * 
      * @param message 异常消息
      */
-    public AlgLoaderException(String message) {
+    public AlgExecutorException(String message) {
         super(message);
     }
 
@@ -30,7 +30,7 @@ public class AlgLoaderException extends RuntimeException {
      * @param message 异常消息
      * @param cause   原因异常
      */
-    public AlgLoaderException(String message, Throwable cause) {
+    public AlgExecutorException(String message, Throwable cause) {
         super(message, cause);
     }
 
@@ -39,7 +39,7 @@ public class AlgLoaderException extends RuntimeException {
      * 
      * @param cause 原因异常
      */
-    public AlgLoaderException(Throwable cause) {
+    public AlgExecutorException(Throwable cause) {
         super(cause);
     }
 }

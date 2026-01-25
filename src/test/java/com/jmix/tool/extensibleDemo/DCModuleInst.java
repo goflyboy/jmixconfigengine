@@ -1,6 +1,6 @@
 package com.jmix.tool.extensibleDemo;
 
-import com.jmix.executor.omodel.ModuleInst;
+import com.jmix.executor.cmodel.ModuleInst;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

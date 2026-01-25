@@ -3,7 +3,7 @@ package com.jmix.executor.impl;
 import com.jmix.executor.bmodel.logic.PriorityRuleSchema;
 import com.jmix.executor.bmodel.logic.PriorityStrategy;
 import com.jmix.executor.bmodel.logic.PriorityType;
-import com.jmix.executor.omodel.PriorityAttrValue;
+import com.jmix.executor.cmodel.PriorityAttrValue;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

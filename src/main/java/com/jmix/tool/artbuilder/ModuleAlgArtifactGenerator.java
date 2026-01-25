@@ -15,7 +15,7 @@ import com.jmix.executor.bmodel.logic.RuleSchema;
 import com.jmix.executor.bmodel.logic.RuleTypeConstants;
 import com.jmix.executor.bmodel.para.Para;
 import com.jmix.executor.impl.util.FilterExpressionExecutor;
-import com.jmix.executor.omodel.AlgLoaderException;
+import com.jmix.executor.model.AlgLoaderException;
 import com.jmix.tool.artbuilder.impl.ModuleVarInfo;
 import com.jmix.tool.artbuilder.impl.ParaOptionVarInfo;
 import com.jmix.tool.artbuilder.impl.ParaVarInfo;

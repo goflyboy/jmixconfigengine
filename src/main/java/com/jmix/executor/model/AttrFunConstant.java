@@ -1,4 +1,4 @@
-package com.jmix.executor.omodel;
+package com.jmix.executor.model;
 
 /**
  * 属性函数常量

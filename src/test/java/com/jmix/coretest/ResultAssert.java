@@ -1,6 +1,6 @@
 package com.jmix.coretest;
 
-import com.jmix.executor.omodel.Result;
+import com.jmix.executor.model.Result;
 
 import lombok.extern.slf4j.Slf4j;
 

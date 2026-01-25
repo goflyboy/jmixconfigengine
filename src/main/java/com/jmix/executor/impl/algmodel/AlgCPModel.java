@@ -1,6 +1,6 @@
 package com.jmix.executor.impl.algmodel;
 
-import com.jmix.executor.omodel.AlgLoaderException;
+import com.jmix.executor.model.AlgLoaderException;
 
 import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.Constraint;

@@ -98,8 +98,8 @@ Output mode: content
 
 | File | Content | Line |
 |------|------|------|
-| `src/main/java/com/jmix/executor/bmodel\PartCategory.java` | `import com.jmix.executor.omodel.PartConstantAttr;` | L8 |
-| `src/main/java/com/jmix/executor/bmodel\PartCategory.java` | `import com.jmix.executor.omodel.PartConstraintReq;` | L9 |
+| `src/main/java/com/jmix/executor/bmodel\PartCategory.java` | `import com.jmix.executor.model.PartConstantAttr;` | L8 |
+| `src/main/java/com/jmix/executor/bmodel\PartCategory.java` | `import com.jmix.executor.model.PartConstraintReq;` | L9 |
 | `src/main/java/com/jmix/executor/bmodel\anno\PartAnno.java` | `import com.jmix.executor.bmodel.Part;` | L3 |
 | `src/main/java/com/jmix/executor/bmodel\anno\PartAnno.java` | `import com.jmix.executor.bmodel.PartType;` | L4 |
 

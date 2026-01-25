@@ -778,7 +778,7 @@ Lines added: 1, lines removed: undefined
   import com.jmix.executor.imodel.anno.PriorityRuleAnno;
 + import com.jmix.executor.imodel.rule.PriorityRuleSchema;
   import com.jmix.executor.imodel.rule.RefProgObjSchema;
-  import com.jmix.executor.omodel.AlgLoaderException;
+  import com.jmix.executor.model.AlgLoaderException;
 ```
 
 </details>
@@ -1195,8 +1195,8 @@ Lines added: 1, lines removed: undefined
   import com.jmix.executor.imodel.rule.PriorityRuleSchema;
   import com.jmix.executor.imodel.rule.RefProgObjSchema;
 + import com.jmix.executor.imodel.rule.RuleTypeConstants;
-  import com.jmix.executor.omodel.AlgLoaderException;
-  import com.jmix.executor.omodel.PartConstantAttr;
+  import com.jmix.executor.model.AlgLoaderException;
+  import com.jmix.executor.model.PartConstantAttr;
 ```
 
 </details>

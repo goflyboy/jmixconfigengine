@@ -1,6 +1,7 @@
-package com.jmix.executor.omodel;
+package com.jmix.executor.model;
 
 import com.jmix.executor.bmodel.Module;
+import com.jmix.executor.cmodel.ModuleInst;
 
 import java.util.List;
 

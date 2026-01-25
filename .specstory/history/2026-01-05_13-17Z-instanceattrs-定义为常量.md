@@ -189,7 +189,7 @@ Lint errors for `src/test/java/com/jmix/executor/imodel/PartCategoryTest.java`
 | Message | Range | Severity |
 |-------|-------|----------|
 | 不应使用 '.*' 形式的导入 - org.junit.jupiter.api.Assertions.* 。 | 3:47-4:1 | DIAGNOSTIC_SEVERITY_WARNING |
-| 无用导入 - com.jmix.executor.omodel.AttrFunConstant 。 | 7:8-8:1 | DIAGNOSTIC_SEVERITY_WARNING |
+| 无用导入 - com.jmix.executor.model.AttrFunConstant 。 | 7:8-8:1 | DIAGNOSTIC_SEVERITY_WARNING |
 | 无用导入 - com.jmix.tool.impl.FilterExpressionExecutor 。 | 8:8-9:1 | DIAGNOSTIC_SEVERITY_WARNING |
 | 不应使用 '.*' 形式的导入 - java.util.* 。 | 13:17-14:1 | DIAGNOSTIC_SEVERITY_WARNING |
 | “VARIABLE_DEF”之前应该有一个空白行。 | 24:5-25:1 | DIAGNOSTIC_SEVERITY_WARNING |
@@ -1329,7 +1329,7 @@ Lint errors for `src/test/java/com/jmix/executor/imodel/PartCategoryTest.java`
 | Message | Range | Severity |
 |-------|-------|----------|
 | 不应使用 '.*' 形式的导入 - org.junit.jupiter.api.Assertions.* 。 | 3:47-4:1 | DIAGNOSTIC_SEVERITY_WARNING |
-| 无用导入 - com.jmix.executor.omodel.AttrFunConstant 。 | 7:8-8:1 | DIAGNOSTIC_SEVERITY_WARNING |
+| 无用导入 - com.jmix.executor.model.AttrFunConstant 。 | 7:8-8:1 | DIAGNOSTIC_SEVERITY_WARNING |
 | 无用导入 - com.jmix.tool.impl.FilterExpressionExecutor 。 | 8:8-9:1 | DIAGNOSTIC_SEVERITY_WARNING |
 | 不应使用 '.*' 形式的导入 - java.util.* 。 | 13:17-14:1 | DIAGNOSTIC_SEVERITY_WARNING |
 | “VARIABLE_DEF”之前应该有一个空白行。 | 24:5-25:1 | DIAGNOSTIC_SEVERITY_WARNING |

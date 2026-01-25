@@ -971,7 +971,7 @@ java.io.FileNotFoundException: D:\01.code\mygithub\jmixconfigengine\..\cproot\cp
         at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
         at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
 [main] ERROR com.jmix.tool.impl.ModulePacker - Failed to pack module
-com.jmix.executor.omodel.AlgLoaderException: Failed to pack class jar
+com.jmix.executor.model.AlgLoaderException: Failed to pack class jar
         at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:87)
         at com.jmix.coretest.ModuleScenarioTestBase.init(ModuleScenarioTestBase.java:146)
         at com.jmix.coretest.ModuleScenarioTestBase.setUp(ModuleScenarioTestBase.java:92)
@@ -1052,14 +1052,14 @@ com.jmix.executor.omodel.AlgLoaderException: Failed to pack class jar
 [ERROR] Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.305 s 
 &lt;&lt;&lt; FAILURE! -- in com.jmix.tool.packtest.SingleFilePackerTest
 [ERROR] com.jmix.tool.packtest.SingleFilePackerTest.testp2Topart1 -- Time elapsed: 0.271 s &lt;&lt;&lt; ERROR!
-com.jmix.executor.omodel.AlgLoaderException: Failed to pack module: Failed to pack class jar
+com.jmix.executor.model.AlgLoaderException: Failed to pack module: Failed to pack class jar
         at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:101)
         at com.jmix.coretest.ModuleScenarioTestBase.init(ModuleScenarioTestBase.java:146)
         at com.jmix.coretest.ModuleScenarioTestBase.setUp(ModuleScenarioTestBase.java:92)
         at java.lang.reflect.Method.invoke(Method.java:498)
         at java.util.ArrayList.forEach(ArrayList.java:1257)
         at java.util.ArrayList.forEach(ArrayList.java:1257)
-Caused by: com.jmix.executor.omodel.AlgLoaderException: Failed to pack class jar        at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:87)
+Caused by: com.jmix.executor.model.AlgLoaderException: Failed to pack class jar        at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:87)
         ... 5 more
 
 [INFO] 
@@ -1147,7 +1147,7 @@ mvn test -Dtest=SingleFilePackerTest
         at org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
         at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
 [main] ERROR com.jmix.tool.impl.ModulePacker - Failed to pack module
-com.jmix.executor.omodel.AlgLoaderException: Failed to pack class jar
+com.jmix.executor.model.AlgLoaderException: Failed to pack class jar
         at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:87)
         at com.jmix.coretest.ModuleScenarioTestBase.init(ModuleScenarioTestBase.java:146)
         at com.jmix.coretest.ModuleScenarioTestBase.setUp(ModuleScenarioTestBase.java:92)
@@ -1228,14 +1228,14 @@ com.jmix.executor.omodel.AlgLoaderException: Failed to pack class jar
 [ERROR] Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.338 s 
 &lt;&lt;&lt; FAILURE! -- in com.jmix.tool.packtest.SingleFilePackerTest
 [ERROR] com.jmix.tool.packtest.SingleFilePackerTest.testp2Topart1 -- Time elapsed: 0.293 s &lt;&lt;&lt; ERROR!
-com.jmix.executor.omodel.AlgLoaderException: Failed to pack module: Failed to pack class jar
+com.jmix.executor.model.AlgLoaderException: Failed to pack module: Failed to pack class jar
         at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:101)
         at com.jmix.coretest.ModuleScenarioTestBase.init(ModuleScenarioTestBase.java:146)
         at com.jmix.coretest.ModuleScenarioTestBase.setUp(ModuleScenarioTestBase.java:92)
         at java.lang.reflect.Method.invoke(Method.java:498)
         at java.util.ArrayList.forEach(ArrayList.java:1257)
         at java.util.ArrayList.forEach(ArrayList.java:1257)
-Caused by: com.jmix.executor.omodel.AlgLoaderException: Failed to pack class jar        at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:87)
+Caused by: com.jmix.executor.model.AlgLoaderException: Failed to pack class jar        at com.jmix.tool.impl.ModulePacker.pack(ModulePacker.java:87)
         ... 5 more
 
 [INFO] 
