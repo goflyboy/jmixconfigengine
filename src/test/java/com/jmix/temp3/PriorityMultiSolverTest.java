@@ -47,7 +47,9 @@ public class PriorityMultiSolverTest {
         String strReq = " Capacity >=5 where Speed = 5400";
         solve(strReq);
         assertSoluContain(1, "parts=[sd1 Q:2, md1 Q:0]");
-        assertSoluContain("sd1 Q:1, md1 Q:0");// 这个不正确，不能满足Capacity>=5
+        // assertSoluContain("sd1 Q:1, md1 Q:0");// 这个不正确，不能满足Capacity>=5
+        // ---Capacity没有标准化，但是标准化没有考虑到数量issue1
+        // assertSoluSizeEqual(2);//仅有一个解，调整objectValue也没有用 issue2
     }
 
     /**
@@ -60,6 +62,7 @@ public class PriorityMultiSolverTest {
         String strReq = " Capacity >=7 where Speed = 5400";
         solve(strReq);
         assertSoluContain(1, "parts=[sd1 Q:2, md1 Q:1], OV=901.0, SS=1");
+        // 标准化为0，导致结果不正确 issue3: 5. 25 * sd1_Q + 0 * md1_Q >= 75 (addGreaterOrEqual)
     }
 
     /**

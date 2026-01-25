@@ -378,6 +378,9 @@ public class CpModelTracker {
 
     public void printRunValue(CpSolver cpSolver, CpSolverStatus status) {
         System.out.println("\nCpSolverStatus:" + status + " ");
+        if (status == CpSolverStatus.INFEASIBLE) {
+            return;
+        }
         System.out.println("\nVARIABLE VALUES (" + variables.size() + "):");
         System.out.println("-".repeat(80));
         for (IntVar var : variables.values()) {

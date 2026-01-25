@@ -11,4 +11,6 @@ public class PartConstraintReq {
     private String attrComparator;
     private String attrValue;
     private String attrWhereCondition;
+
+    private Object normalizeAttrValue;
 }

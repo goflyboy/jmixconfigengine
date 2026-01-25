@@ -22,7 +22,6 @@ import com.google.ortools.sat.IntVar;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,7 +79,8 @@ public class PriorityMultiSolver {
         // 配置各种属性的归一化方法
         NormalizationProcessor.NormalizationConfig capacityConfig = new NormalizationProcessor.NormalizationConfig(
                 Part.ATTR_CAPACITY);
-        capacityConfig.setMethod(NormalizationProcessor.NormalizationMethod.LINEAR);
+        // capacityConfig.setMethod(NormalizationProcessor.NormalizationMethod.LINEAR);
+        capacityConfig.setMethod(NormalizationProcessor.NormalizationMethod.LOG);
         configs.add(capacityConfig);
 
         NormalizationProcessor.NormalizationConfig priceConfig = new NormalizationProcessor.NormalizationConfig(
@@ -179,6 +179,9 @@ public class PriorityMultiSolver {
     // 主求解方法
     public ProductResult solve(String strReq) {
         ProductResult result = solveReq(strReq, null);
+        if (result.getSolutions().size() <= 0) {
+            return result;
+        }
         double objectValue = result.getSolutions().get(0).getObjectValue();// * (1 + 0.5);
         int cResult = Double.compare(objectValue, 0.0);
         if (cResult < 0) {
@@ -188,7 +191,7 @@ public class PriorityMultiSolver {
         } else {
             objectValue = objectValue * (1 + 0.5);
         }
-        // objectValue = 0;
+        // objectValue = 1500;
         result = solveReq(strReq, objectValue);
         return result;
     }
@@ -275,6 +278,7 @@ public class PriorityMultiSolver {
         if (req.getAttrCode().equals("Capacity")) {
             double normalizedValue = normalizationProcessor.normalizeValue(value, Part.ATTR_CAPACITY);
             value = (int) Math.round(normalizedValue);
+            req.setNormalizeAttrValue(value);
         }
 
         switch (req.getAttrComparator()) {
@@ -343,7 +347,12 @@ public class PriorityMultiSolver {
 
         // 创建目标配置列表
         List<ObjectiveExpressionBuilder.ObjectiveConfig> objectives = new ArrayList<>();
-        objectives.addAll(Arrays.asList(commonObjectives));
+        for (ObjectiveExpressionBuilder.ObjectiveConfig config : commonObjectives) {
+            if (config.getAttrName().equals(Part.ATTR_CAPACITY)) {
+                objectives.add(config);
+            }
+        }
+        // objectives.addAll(Arrays.asList(commonObjectives));
 
         // 根据需求类型调整权重
         if ("Capacity".equals(req.getAttrCode())) {
@@ -396,7 +405,8 @@ public class PriorityMultiSolver {
         }
 
         if ("Capacity".equals(req.getAttrCode())) {
-            int requiredCapacity = Integer.parseInt(req.getAttrValue());
+            // int requiredCapacity = Integer.parseInt(req.getAttgetrValue());
+            int requiredCapacity = (Integer) (req.getNormalizeAttrValue());
 
             // 创建固态硬盘是否足够的布尔变量
             BoolVar ssSufficient = (BoolVar) model.newBoolVar("ssSufficient");
@@ -433,7 +443,7 @@ public class PriorityMultiSolver {
     private void addExcessConfigurationPenalty(CpModelTracker model, List<PartVar> partVars,
             PartConstraintReq req, TrackedLinearExpr objectiveExpr) {
         if ("Capacity".equals(req.getAttrCode())) {
-            int requiredValue = Integer.parseInt(req.getAttrValue());
+            int requiredValue = (Integer) (req.getNormalizeAttrValue());
 
             // 创建总容量表达式
             TrackedLinearExpr totalCapacityExpr = model.newTrackedExpr("Total_Capacity");
