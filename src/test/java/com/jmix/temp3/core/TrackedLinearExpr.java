@@ -6,9 +6,11 @@ import com.google.ortools.sat.LinearExprBuilder;
 
 import lombok.Data;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 表达式构建器包装器
@@ -17,7 +19,7 @@ import java.util.List;
 @Data
 public class TrackedLinearExpr {
     private LinearExprBuilder builder;
-    private List<String> terms;
+    private List<Map.Entry<String, String>> terms;
     private String name;
 
     public TrackedLinearExpr(String name) {
@@ -41,7 +43,7 @@ public class TrackedLinearExpr {
         // if (description != null && !description.isEmpty()) {
         // termStr += " // " + description;
         // }
-        terms.add(termStr);
+        terms.add(new AbstractMap.SimpleEntry<>(termStr, ""));
     }
 
     /**
@@ -59,7 +61,7 @@ public class TrackedLinearExpr {
         // if (description != null && !description.isEmpty()) {
         // termStr += " // " + description;
         // }
-        terms.add(termStr);
+        terms.add(new AbstractMap.SimpleEntry<>(termStr, ""));
     }
 
     /**
@@ -71,9 +73,10 @@ public class TrackedLinearExpr {
      */
     public void addExpr(TrackedLinearExpr expr, long coefficient) {
         builder.addTerm(expr.build(), coefficient);
+
         String sign = coefficient >= 0 ? "+" : "-";
         String termStr = String.format("%s %d * (%s)", sign, Math.abs(coefficient), expr.toString());
-        terms.add(termStr);
+        terms.add(new AbstractMap.SimpleEntry<>(termStr, expr.getName()));
     }
 
     /**
@@ -96,11 +99,15 @@ public class TrackedLinearExpr {
 
     /**
      * 获取所有项的列表
-     * 
+     *
      * @return 不可修改的项列表
      */
     public List<String> getTerms() {
-        return Collections.unmodifiableList(terms);
+        List<String> termStrings = new ArrayList<>();
+        for (Map.Entry<String, String> term : terms) {
+            termStrings.add(term.getKey());
+        }
+        return Collections.unmodifiableList(termStrings);
     }
 
     /**
@@ -112,20 +119,60 @@ public class TrackedLinearExpr {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         boolean first = true;
-        for (String term : terms) {
+        for (Map.Entry<String, String> term : terms) {
+            String termStr = term.getKey();
             if (first) {
                 // 处理第一个项的符号
-                if (term.startsWith("+ ")) {
-                    sb.append(term.substring(2));
-                } else if (term.startsWith("- ")) {
-                    sb.append(term);
+                if (termStr.startsWith("+ ")) {
+                    sb.append(termStr.substring(2));
+                } else if (termStr.startsWith("- ")) {
+                    sb.append(termStr);
                 } else {
-                    sb.append(term);
+                    sb.append(termStr);
                 }
                 first = false;
             } else {
-                sb.append(" ").append(term);
+                sb.append(" ").append(termStr);
             }
+        }
+
+        if (terms.isEmpty()) {
+            sb.append("0");
+        }
+        // sb.append(" : ").append(name);
+        return sb.toString();
+    }
+
+    /**
+     * 返回表达式的字符串表示
+     * 
+     * @return 格式化的表达式字符串
+     */
+    public String toDetailString() {
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
+        for (Map.Entry<String, String> term : terms) {
+            String termStr = term.getKey();
+            String exprName = term.getValue();
+            // 打印 term.second（表达式名称）
+            if (!exprName.isEmpty()) {
+                sb.append("\n");
+                sb.append("  ").append(exprName).append(": ");
+            }
+            if (first) {
+                // 处理第一个项的符号
+                if (termStr.startsWith("+ ")) {
+                    sb.append(termStr.substring(2));
+                } else if (termStr.startsWith("- ")) {
+                    sb.append(termStr);
+                } else {
+                    sb.append(termStr);
+                }
+                first = false;
+            } else {
+                sb.append(" ").append(termStr);
+            }
+
         }
 
         if (terms.isEmpty()) {

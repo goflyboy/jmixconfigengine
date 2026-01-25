@@ -2,9 +2,11 @@ package com.jmix.temp3;
 
 import com.jmix.temp3.core.Part;
 
-import lombok.Data;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 归一化处理器 - 负责将原始属性归一化到[0,100]范围
@@ -12,34 +14,43 @@ import java.util.*;
  */
 public class NormalizationProcessor {
 
+    // 缓存
+    private Map<String, NormalizationConfig> configMap = new HashMap<>();
+    private Map<String, NormalizationRange> rangeMap = new HashMap<>();
+
     // 归一化配置
     public static class NormalizationConfig {
         public String attrName;
         public NormalizationMethod method = NormalizationMethod.LINEAR;
-        public double minValue;      // 可选：自定义最小值
-        public double maxValue;      // 可选：自定义最大值
+        public double minValue; // 可选：自定义最小值
+        public double maxValue; // 可选：自定义最大值
         public boolean isQuantityRelated = true; // 是否与数量相关
-        public double power = 1.0;   // 幂律归一化的指数
-        public int numBins = 10;     // 分箱数量（用于分位数归一化）
+        public double power = 1.0; // 幂律归一化的指数
+        public int numBins = 10; // 分箱数量（用于分位数归一化）
 
         public NormalizationConfig(String attrName) {
             this.attrName = attrName;
         }
 
-        public String getAttrName() { return attrName; }
-        public void setMethod(NormalizationMethod method) { this.method = method; }
+        public String getAttrName() {
+            return attrName;
+        }
+
+        public void setMethod(NormalizationMethod method) {
+            this.method = method;
+        }
     }
 
     // 归一化方法枚举
     public enum NormalizationMethod {
-        LINEAR,      // 线性归一化
-        LOG,         // 对数归一化
-        LOG10,       // 以10为底的对数
-        POWER,       // 幂律归一化
-        QUANTILE,    // 分位数归一化
-        RANK,        // 排名归一化
-        PIECEWISE,   // 分段线性
-        Z_SCORE      // Z-score归一化
+        LINEAR, // 线性归一化
+        LOG, // 对数归一化
+        LOG10, // 以10为底的对数
+        POWER, // 幂律归一化
+        QUANTILE, // 分位数归一化
+        RANK, // 排名归一化
+        PIECEWISE, // 分段线性
+        Z_SCORE // Z-score归一化
     }
 
     // 归一化范围
@@ -59,15 +70,37 @@ public class NormalizationProcessor {
             return maxValue - minValue;
         }
 
-        public double getMinValue() { return minValue; }
-        public double getMaxValue() { return maxValue; }
-        public double getMeanValue() { return meanValue; }
-        public double getStdValue() { return stdValue; }
-        public List<Double> getSortedValues() { return sortedValues; }
+        public double getMinValue() {
+            return minValue;
+        }
 
-        public void setMeanValue(double meanValue) { this.meanValue = meanValue; }
-        public void setStdValue(double stdValue) { this.stdValue = stdValue; }
-        public void setSortedValues(List<Double> sortedValues) { this.sortedValues = sortedValues; }
+        public double getMaxValue() {
+            return maxValue;
+        }
+
+        public double getMeanValue() {
+            return meanValue;
+        }
+
+        public double getStdValue() {
+            return stdValue;
+        }
+
+        public List<Double> getSortedValues() {
+            return sortedValues;
+        }
+
+        public void setMeanValue(double meanValue) {
+            this.meanValue = meanValue;
+        }
+
+        public void setStdValue(double stdValue) {
+            this.stdValue = stdValue;
+        }
+
+        public void setSortedValues(List<Double> sortedValues) {
+            this.sortedValues = sortedValues;
+        }
     }
 
     // 归一化结果
@@ -90,8 +123,13 @@ public class NormalizationProcessor {
             return normalizedValues.getOrDefault(partCode, 50.0); // 默认50
         }
 
-        public void setRange(NormalizationRange range) { this.range = range; }
-        public void setMethod(NormalizationMethod method) { this.method = method; }
+        public void setRange(NormalizationRange range) {
+            this.range = range;
+        }
+
+        public void setMethod(NormalizationMethod method) {
+            this.method = method;
+        }
     }
 
     // 主归一化方法
@@ -101,6 +139,10 @@ public class NormalizationProcessor {
 
         // 计算范围
         NormalizationRange range = calculateRange(rawValues, config);
+
+        // 缓存配置和范围
+        configMap.put(config.attrName, config);
+        rangeMap.put(config.attrName, range);
 
         // 应用归一化方法
         return applyNormalization(parts, config, range);
@@ -156,51 +198,19 @@ public class NormalizationProcessor {
 
     // 应用归一化
     private NormalizationResult applyNormalization(List<Part> parts,
-                                                  NormalizationConfig config,
-                                                  NormalizationRange range) {
+            NormalizationConfig config,
+            NormalizationRange range) {
         NormalizationResult result = new NormalizationResult(config.attrName);
         result.setRange(range);
         result.setMethod(config.method);
 
         for (Part part : parts) {
             if (!part.hasAttr(config.attrName)) {
-                continue;
+                throw new IllegalArgumentException("cannot find attr !" + config.attrName);
             }
 
             double rawValue = part.getAttr(config.attrName);
-            double normalizedValue;
-
-            switch (config.method) {
-                case LINEAR:
-                    normalizedValue = linearNormalize(rawValue, range);
-                    break;
-                case LOG:
-                    normalizedValue = logNormalize(rawValue, range);
-                    break;
-                case LOG10:
-                    normalizedValue = log10Normalize(rawValue, range);
-                    break;
-                case POWER:
-                    normalizedValue = powerNormalize(rawValue, range, config.power);
-                    break;
-                case QUANTILE:
-                    normalizedValue = quantileNormalize(rawValue, range, config.numBins);
-                    break;
-                case RANK:
-                    normalizedValue = rankNormalize(rawValue, range);
-                    break;
-                case PIECEWISE:
-                    normalizedValue = piecewiseNormalize(rawValue, range);
-                    break;
-                case Z_SCORE:
-                    normalizedValue = zScoreNormalize(rawValue, range);
-                    break;
-                default:
-                    normalizedValue = linearNormalize(rawValue, range);
-            }
-
-            // 确保在[0, 100]范围内
-            normalizedValue = Math.max(0, Math.min(100, normalizedValue));
+            double normalizedValue = normalizeValue(rawValue, config, range);
 
             // 存储结果
             result.addNormalizedValue(part.code, normalizedValue);
@@ -212,31 +222,49 @@ public class NormalizationProcessor {
         return result;
     }
 
+    // 执行单个值的归一化
+    private double normalizeValue(double rawValue, NormalizationConfig config, NormalizationRange range) {
+
+    // 执行单个值的归一化（使用缓存的配置和范围）
+    public double normalizeValue(double rawValue, String partAttrName) {
+        NormalizationConfig config = configMap.get(partAttrName);
+        NormalizationRange range = rangeMap.get(partAttrName);
+        if (config == null || range == null) {
+            throw new IllegalArgumentException("No cached config or range found for attribute: " + partAttrName);
+        }
+        return normalizeValue(rawValue, config, range);
+    }
+
     // 线性归一化
     private double linearNormalize(double value, NormalizationRange range) {
-        if (range.getRange() == 0) return 50.0;
+        if (range.getRange() == 0)
+            return 50.0;
         return ((value - range.getMinValue()) / range.getRange()) * 100;
     }
 
     // 对数归一化
     private double logNormalize(double value, NormalizationRange range) {
-        if (value <= 0) value = 0.1; // 避免log(0)
+        if (value <= 0)
+            value = 0.1; // 避免log(0)
         double logValue = Math.log(value + 1);
         double logMin = Math.log(range.getMinValue() + 1);
         double logMax = Math.log(range.getMaxValue() + 1);
 
-        if (logMax - logMin == 0) return 50.0;
+        if (logMax - logMin == 0)
+            return 50.0;
         return ((logValue - logMin) / (logMax - logMin)) * 100;
     }
 
     // 以10为底的对数归一化
     private double log10Normalize(double value, NormalizationRange range) {
-        if (value <= 0) value = 0.1;
+        if (value <= 0)
+            value = 0.1;
         double log10Value = Math.log10(value + 1);
         double log10Min = Math.log10(range.getMinValue() + 1);
         double log10Max = Math.log10(range.getMaxValue() + 1);
 
-        if (log10Max - log10Min == 0) return 50.0;
+        if (log10Max - log10Min == 0)
+            return 50.0;
         return ((log10Value - log10Min) / (log10Max - log10Min)) * 100;
     }
 
@@ -246,14 +274,16 @@ public class NormalizationProcessor {
         double poweredMin = Math.pow(range.getMinValue(), power);
         double poweredMax = Math.pow(range.getMaxValue(), power);
 
-        if (poweredMax - poweredMin == 0) return 50.0;
+        if (poweredMax - poweredMin == 0)
+            return 50.0;
         return ((poweredValue - poweredMin) / (poweredMax - poweredMin)) * 100;
     }
 
     // 分位数归一化
     private double quantileNormalize(double value, NormalizationRange range, int numBins) {
         List<Double> sortedValues = range.getSortedValues();
-        if (sortedValues == null || sortedValues.isEmpty()) return 50.0;
+        if (sortedValues == null || sortedValues.isEmpty())
+            return 50.0;
 
         // 找到value在排序列表中的位置
         int index = Collections.binarySearch(sortedValues, value);
@@ -269,12 +299,14 @@ public class NormalizationProcessor {
     // 排名归一化
     private double rankNormalize(double value, NormalizationRange range) {
         List<Double> sortedValues = range.getSortedValues();
-        if (sortedValues == null || sortedValues.isEmpty()) return 50.0;
+        if (sortedValues == null || sortedValues.isEmpty())
+            return 50.0;
 
         // 计算排名（从1开始）
         int rank = 1;
         for (Double val : sortedValues) {
-            if (val < value) rank++;
+            if (val < value)
+                rank++;
         }
 
         // 归一化到[0, 100]
@@ -306,7 +338,7 @@ public class NormalizationProcessor {
 
     // 批量归一化多个属性
     public Map<String, NormalizationResult> normalizeBatch(List<Part> parts,
-                                                          List<NormalizationConfig> configs) {
+            List<NormalizationConfig> configs) {
         Map<String, NormalizationResult> results = new HashMap<>();
 
         for (NormalizationConfig config : configs) {

@@ -62,8 +62,12 @@ public class PartVar {
         return part.speed;
     }
 
-    public int getCapacity() {
-        return part.capacity;
+    public long getCapacity() {
+        if (part.hasNormalizedAttr(Part.ATTR_CAPACITY)) {
+            double dr = part.getNormalizedAttr(Part.ATTR_CAPACITY);
+            return (long) dr;
+        }
+        return part.getCapacity();
     }
 
     public boolean isSolidState() {

@@ -50,42 +50,24 @@ public class PriorityMultiSolver {
     private void initParts() {
         allParts = new ArrayList<>();
         // 固态硬盘
-        Part sd1 = new Part("sd1", true, 5400, 3);
-        sd1.setAttr(Part.ATTR_LISTPRICE, 100.0);
-        sd1.setAttr(Part.ATTR_DELIVERYTIME, 2.0);
-        sd1.setAttr(Part.ATTR_PROFIT, 30.0);
-        allParts.add(sd1);
-
-        Part sd2 = new Part("sd2", true, 7200, 6);
-        sd2.setAttr(Part.ATTR_LISTPRICE, 200.0);
-        sd2.setAttr(Part.ATTR_DELIVERYTIME, 3.0);
-        sd2.setAttr(Part.ATTR_PROFIT, 60.0);
-        allParts.add(sd2);
-
-        Part sd3 = new Part("sd3", true, 9000, 9);
-        sd3.setAttr(Part.ATTR_LISTPRICE, 300.0);
-        sd3.setAttr(Part.ATTR_DELIVERYTIME, 4.0);
-        sd3.setAttr(Part.ATTR_PROFIT, 90.0);
-        allParts.add(sd3);
+        allParts.add(createPart("sd1", true, 5400, 3, 100.0, 2.0, 30.0));
+        allParts.add(createPart("sd2", true, 7200, 6, 200.0, 3.0, 60.0));
+        allParts.add(createPart("sd3", true, 9000, 9, 300.0, 4.0, 90.0));
 
         // 机械硬盘
-        Part md1 = new Part("md1", false, 5400, 1);
-        md1.setAttr(Part.ATTR_LISTPRICE, 50.0);
-        md1.setAttr(Part.ATTR_DELIVERYTIME, 1.0);
-        md1.setAttr(Part.ATTR_PROFIT, 10.0);
-        allParts.add(md1);
+        allParts.add(createPart("md1", false, 5400, 1, 50.0, 1.0, 10.0));
+        allParts.add(createPart("md2", false, 7200, 2, 80.0, 1.5, 20.0));
+        allParts.add(createPart("md3", false, 9000, 3, 120.0, 2.0, 30.0));
+    }
 
-        Part md2 = new Part("md2", false, 7200, 2);
-        md2.setAttr(Part.ATTR_LISTPRICE, 80.0);
-        md2.setAttr(Part.ATTR_DELIVERYTIME, 1.5);
-        md2.setAttr(Part.ATTR_PROFIT, 20.0);
-        allParts.add(md2);
-
-        Part md3 = new Part("md3", false, 9000, 3);
-        md3.setAttr(Part.ATTR_LISTPRICE, 120.0);
-        md3.setAttr(Part.ATTR_DELIVERYTIME, 2.0);
-        md3.setAttr(Part.ATTR_PROFIT, 30.0);
-        allParts.add(md3);
+    // 创建零件辅助方法
+    private Part createPart(String code, boolean isSolidState, int speed, int capacity,
+            double listPrice, double deliveryTime, double profit) {
+        Part part = new Part(code, isSolidState, speed, capacity);
+        part.setAttr(Part.ATTR_LISTPRICE, listPrice);
+        part.setAttr(Part.ATTR_DELIVERYTIME, deliveryTime);
+        part.setAttr(Part.ATTR_PROFIT, profit);
+        return part;
     }
 
     // 初始化归一化处理器
@@ -197,8 +179,16 @@ public class PriorityMultiSolver {
     // 主求解方法
     public ProductResult solve(String strReq) {
         ProductResult result = solveReq(strReq, null);
-        double objectValue = result.getSolutions().get(0).getObjectValue() * (1 + 0.5);
-
+        double objectValue = result.getSolutions().get(0).getObjectValue();// * (1 + 0.5);
+        int cResult = Double.compare(objectValue, 0.0);
+        if (cResult < 0) {
+            objectValue = objectValue * (1 - 0.5);
+        } else if (cResult == 0) { // TODO
+            objectValue = objectValue + 0.5;
+        } else {
+            objectValue = objectValue * (1 + 0.5);
+        }
+        // objectValue = 0;
         result = solveReq(strReq, objectValue);
         return result;
     }
@@ -280,6 +270,12 @@ public class PriorityMultiSolver {
         }
 
         int value = Integer.parseInt(req.getAttrValue());
+
+        // 对value进行标准化（如果适用）
+        if (req.getAttrCode().equals("Capacity")) {
+            double normalizedValue = normalizationProcessor.normalizeValue(value, Part.ATTR_CAPACITY);
+            value = (int) Math.round(normalizedValue);
+        }
 
         switch (req.getAttrComparator()) {
             case ">=":
@@ -442,6 +438,7 @@ public class PriorityMultiSolver {
             // 创建总容量表达式
             TrackedLinearExpr totalCapacityExpr = model.newTrackedExpr("Total_Capacity");
             for (PartVar pv : partVars) {
+                // totalCapacityExpr.addTerm(pv.qty, pv.getCapacity());
                 totalCapacityExpr.addTerm(pv.qty, pv.getCapacity());
             }
 

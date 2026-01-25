@@ -369,6 +369,11 @@ public class CpModelTracker {
             System.out.printf("%3d. %s%n", i + 1, constraints.get(i).toString());
         }
         System.out.println("\n" + "=".repeat(80));
+
+        System.out.println("\nObjectFuntionDetail: ");
+        System.out.println(objectExpr.toDetailString());
+        System.out.println("\n" + "=".repeat(80));
+
     }
 
     public void printRunValue(CpSolver cpSolver, CpSolverStatus status) {
