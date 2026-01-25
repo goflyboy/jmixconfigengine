@@ -1,4 +1,4 @@
-package com.jmix.temp3;
+package com.jmix.temp3.basic;
 
 import com.jmix.temp3.core.CpModelTracker;
 import com.jmix.temp3.core.ExpressionCalculator;

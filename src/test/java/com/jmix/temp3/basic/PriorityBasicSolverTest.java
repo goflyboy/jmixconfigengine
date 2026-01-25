@@ -1,4 +1,4 @@
-package com.jmix.temp3;
+package com.jmix.temp3.basic;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;

@@ -2184,7 +2184,8 @@ proRule2:固态硬盘必须配置同一种，并且最多配置2块
 
 2026-1-25：
   分2阶段求解
-  
+  建模过程统一化--抽取？  
+
   基于数量进行归一化？ 
   
   支持多个目标值求解
@@ -2192,6 +2193,637 @@ proRule2:固态硬盘必须配置同一种，并且最多配置2块
   动态可以调整？
 
 
+
+
+对com.jmix.temp3做下列更新，不要修改其它地方的类
+0、不要修改com.jmix.temp3.basic里的代码
+1、类Part 改造如下：  
+
+ // 部件类（数据模型）
+@Data
+public class Part {
+    private String code;
+    private boolean isSolidState; // 是否为固态硬盘
+    private int speed;            // 转速
+....
+    private Map<String, Double> attrMap = new HashMap<>();       // 原始属性
+    private Map<String, Double> normalizedAttrMap = new HashMap<>(); // 归一化属性
+    
+    // 常量定义
+    public static final String ATTR_CAPACITY = "CAPACITY";
+    public static final String ATTR_LISTPRICE = "LISTPRICE";
+    public static final String ATTR_DELIVERYTIME = "DELIVERYTIME";
+    public static final String ATTR_PROFIT = "PROFIT";
+    public static final String ATTR_WEIGHT = "WEIGHT";
+    public static final String ATTR_PRIORITY_SCORE = "PRIORITY_SCORE";
+    
+    // 设置原始属性
+    public void setAttr(String attrName, double value) {
+        attrMap.put(attrName, value);
+    }
+    
+    // 获取原始属性
+    public double getAttr(String attrName) {
+        return attrMap.getOrDefault(attrName, 0.0);
+    }
+    
+    // 设置归一化属性
+    public void setNormalizedAttr(String attrName, double normalizedValue) {
+        normalizedAttrMap.put(attrName, normalizedValue);
+    }
+    
+    // 获取归一化属性
+    public double getNormalizedAttr(String attrName) {
+        return normalizedAttrMap.getOrDefault(attrName, 0.0);
+    }
+    
+    // 检查是否包含某个属性
+    public boolean hasAttr(String attrName) {
+        return attrMap.containsKey(attrName);
+    }
+}
+
+
+2、PriorityMultiSolver 类做下列修改
+2.1  initParts 增加
+  增加对listPrice和deliveryTime初始化
+
+3、增加 归一化处理器
+/**
+ * 归一化处理器 - 负责将原始属性归一化到[0,100]范围
+ * 独立于约束模型，只处理数据
+ */
+public class NormalizationProcessor {
+    
+    // 归一化配置
+    @Data
+    public static class NormalizationConfig {
+        private String attrName;
+        private NormalizationMethod method = NormalizationMethod.LINEAR;
+        private double minValue;      // 可选：自定义最小值
+        private double maxValue;      // 可选：自定义最大值
+        private boolean isQuantityRelated = true; // 是否与数量相关
+        private double power = 1.0;   // 幂律归一化的指数
+        private int numBins = 10;     // 分箱数量（用于分位数归一化）
+        
+        public NormalizationConfig(String attrName) {
+            this.attrName = attrName;
+        }
+    }
+    
+    // 归一化方法枚举
+    public enum NormalizationMethod {
+        LINEAR,      // 线性归一化
+        LOG,         // 对数归一化
+        LOG10,       // 以10为底的对数
+        POWER,       // 幂律归一化
+        QUANTILE,    // 分位数归一化
+        RANK,        // 排名归一化
+        PIECEWISE,   // 分段线性
+        Z_SCORE      // Z-score归一化
+    }
+    
+    // 归一化范围
+    @Data
+    public static class NormalizationRange {
+        private double minValue;
+        private double maxValue;
+        private double meanValue;
+        private double stdValue;
+        private List<Double> sortedValues; // 排序后的值（用于分位数）
+        
+        public NormalizationRange(double min, double max) {
+            this.minValue = min;
+            this.maxValue = max;
+        }
+        
+        public double getRange() {
+            return maxValue - minValue;
+        }
+    }
+    
+    // 归一化结果
+    @Data
+    public static class NormalizationResult {
+        private String attrName;
+        private Map<String, Double> normalizedValues; // partCode -> 归一化值
+        private NormalizationRange range;
+        private NormalizationMethod method;
+        
+        public NormalizationResult(String attrName) {
+            this.attrName = attrName;
+            this.normalizedValues = new HashMap<>();
+        }
+        
+        public void addNormalizedValue(String partCode, double value) {
+            normalizedValues.put(partCode, value);
+        }
+        
+        public double getNormalizedValue(String partCode) {
+            return normalizedValues.getOrDefault(partCode, 50.0); // 默认50
+        }
+    }
+    
+    // 主归一化方法
+    public NormalizationResult normalize(List<Part> parts, NormalizationConfig config) {
+        // 收集原始值
+        List<Double> rawValues = collectRawValues(parts, config.attrName);
+        
+        // 计算范围
+        NormalizationRange range = calculateRange(rawValues, config);
+        
+        // 应用归一化方法
+        return applyNormalization(parts, config, range);
+    }
+    
+    // 收集原始值
+    private List<Double> collectRawValues(List<Part> parts, String attrName) {
+        List<Double> values = new ArrayList<>();
+        for (Part part : parts) {
+            if (part.hasAttr(attrName)) {
+                values.add(part.getAttr(attrName));
+            }
+        }
+        return values;
+    }
+    
+    // 计算范围
+    private NormalizationRange calculateRange(List<Double> values, NormalizationConfig config) {
+        if (values.isEmpty()) {
+            return new NormalizationRange(0, 1);
+        }
+        
+        // 如果配置中指定了范围，使用配置的范围
+        if (config.minValue != config.maxValue) {
+            return new NormalizationRange(config.minValue, config.maxValue);
+        }
+        
+        // 否则自动计算
+        double min = Collections.min(values);
+        double max = Collections.max(values);
+        double sum = 0.0;
+        
+        for (Double val : values) {
+            sum += val;
+        }
+        double mean = sum / values.size();
+        
+        // 计算标准差
+        double variance = 0.0;
+        for (Double val : values) {
+            variance += Math.pow(val - mean, 2);
+        }
+        double std = Math.sqrt(variance / values.size());
+        
+        NormalizationRange range = new NormalizationRange(min, max);
+        range.setMeanValue(mean);
+        range.setStdValue(std);
+        range.setSortedValues(new ArrayList<>(values));
+        Collections.sort(range.getSortedValues());
+        
+        return range;
+    }
+    
+    // 应用归一化
+    private NormalizationResult applyNormalization(List<Part> parts, 
+                                                  NormalizationConfig config, 
+                                                  NormalizationRange range) {
+        NormalizationResult result = new NormalizationResult(config.attrName);
+        result.setRange(range);
+        result.setMethod(config.method);
+        
+        for (Part part : parts) {
+            if (!part.hasAttr(config.attrName)) {
+                continue;
+            }
+            
+            double rawValue = part.getAttr(config.attrName);
+            double normalizedValue;
+            
+            switch (config.method) {
+                case LINEAR:
+                    normalizedValue = linearNormalize(rawValue, range);
+                    break;
+                case LOG:
+                    normalizedValue = logNormalize(rawValue, range);
+                    break;
+                case LOG10:
+                    normalizedValue = log10Normalize(rawValue, range);
+                    break;
+                case POWER:
+                    normalizedValue = powerNormalize(rawValue, range, config.power);
+                    break;
+                case QUANTILE:
+                    normalizedValue = quantileNormalize(rawValue, range, config.numBins);
+                    break;
+                case RANK:
+                    normalizedValue = rankNormalize(rawValue, range);
+                    break;
+                case PIECEWISE:
+                    normalizedValue = piecewiseNormalize(rawValue, range);
+                    break;
+                case Z_SCORE:
+                    normalizedValue = zScoreNormalize(rawValue, range);
+                    break;
+                default:
+                    normalizedValue = linearNormalize(rawValue, range);
+            }
+            
+            // 确保在[0, 100]范围内
+            normalizedValue = Math.max(0, Math.min(100, normalizedValue));
+            
+            // 存储结果
+            result.addNormalizedValue(part.getCode(), normalizedValue);
+            
+            // 同时更新Part对象的归一化属性
+            part.setNormalizedAttr(config.attrName, normalizedValue);
+        }
+        
+        return result;
+    }
+    
+    // 线性归一化
+    private double linearNormalize(double value, NormalizationRange range) {
+        if (range.getRange() == 0) return 50.0;
+        return ((value - range.getMinValue()) / range.getRange()) * 100;
+    }
+    
+    // 对数归一化
+    private double logNormalize(double value, NormalizationRange range) {
+        if (value <= 0) value = 0.1; // 避免log(0)
+        double logValue = Math.log(value + 1);
+        double logMin = Math.log(range.getMinValue() + 1);
+        double logMax = Math.log(range.getMaxValue() + 1);
+        
+        if (logMax - logMin == 0) return 50.0;
+        return ((logValue - logMin) / (logMax - logMin)) * 100;
+    }
+    
+    // 以10为底的对数归一化
+    private double log10Normalize(double value, NormalizationRange range) {
+        if (value <= 0) value = 0.1;
+        double log10Value = Math.log10(value + 1);
+        double log10Min = Math.log10(range.getMinValue() + 1);
+        double log10Max = Math.log10(range.getMaxValue() + 1);
+        
+        if (log10Max - log10Min == 0) return 50.0;
+        return ((log10Value - log10Min) / (log10Max - log10Min)) * 100;
+    }
+    
+    // 幂律归一化
+    private double powerNormalize(double value, NormalizationRange range, double power) {
+        double poweredValue = Math.pow(value, power);
+        double poweredMin = Math.pow(range.getMinValue(), power);
+        double poweredMax = Math.pow(range.getMaxValue(), power);
+        
+        if (poweredMax - poweredMin == 0) return 50.0;
+        return ((poweredValue - poweredMin) / (poweredMax - poweredMin)) * 100;
+    }
+    
+    // 分位数归一化
+    private double quantileNormalize(double value, NormalizationRange range, int numBins) {
+        List<Double> sortedValues = range.getSortedValues();
+        if (sortedValues == null || sortedValues.isEmpty()) return 50.0;
+        
+        // 找到value在排序列表中的位置
+        int index = Collections.binarySearch(sortedValues, value);
+        if (index < 0) {
+            index = -(index + 1); // 插入位置
+        }
+        
+        // 计算百分位数
+        double percentile = (double) index / sortedValues.size() * 100;
+        return percentile;
+    }
+    
+    // 排名归一化
+    private double rankNormalize(double value, NormalizationRange range) {
+        List<Double> sortedValues = range.getSortedValues();
+        if (sortedValues == null || sortedValues.isEmpty()) return 50.0;
+        
+        // 计算排名（从1开始）
+        int rank = 1;
+        for (Double val : sortedValues) {
+            if (val < value) rank++;
+        }
+        
+        // 归一化到[0, 100]
+        double normalizedRank = ((double) rank / sortedValues.size()) * 100;
+        return normalizedRank;
+    }
+    
+    // 分段线性归一化（简化版）
+    private double piecewiseNormalize(double value, NormalizationRange range) {
+        // 简单实现：三等分
+        double segment = range.getRange() / 3;
+        
+        if (value <= range.getMinValue() + segment) {
+            return 33.3 * (value - range.getMinValue()) / segment;
+        } else if (value <= range.getMinValue() + 2 * segment) {
+            return 33.3 + 33.3 * (value - range.getMinValue() - segment) / segment;
+        } else {
+            return 66.6 + 33.3 * (value - range.getMinValue() - 2 * segment) / segment;
+        }
+    }
+    
+    // Z-score归一化
+    private double zScoreNormalize(double value, NormalizationRange range) {
+        double zScore = (value - range.getMeanValue()) / range.getStdValue();
+        // 将Z-score映射到[0, 100]，假设大部分数据在[-3, 3]之间
+        double normalized = 50 + (zScore * 50 / 3);
+        return Math.max(0, Math.min(100, normalized));
+    }
+    
+    // 批量归一化多个属性
+    public Map<String, NormalizationResult> normalizeBatch(List<Part> parts, 
+                                                          List<NormalizationConfig> configs) {
+        Map<String, NormalizationResult> results = new HashMap<>();
+        
+        for (NormalizationConfig config : configs) {
+            NormalizationResult result = normalize(parts, config);
+            results.put(config.getAttrName(), result);
+        }
+        
+        return results;
+    }
+}
+
+5、增加目标构建器（表达式构建独立）
+/**
+ * 目标构建器 - 负责构建目标函数的线性表达式
+ * 使用归一化后的数据，但不包含归一化逻辑
+ */
+public class ObjectiveExpressionBuilder {
+    private CpModelTracker model;
+    private List<PartVar> partVars;
+    private Map<String, PartVar> partVarMap; // code -> PartVar
+    
+    public ObjectiveExpressionBuilder(CpModelTracker model, List<PartVar> partVars) {
+        this.model = model;
+        this.partVars = partVars;
+        this.partVarMap = new HashMap<>();
+        
+        for (PartVar pv : partVars) {
+            partVarMap.put(pv.getCode(), pv);
+        }
+    }
+    
+    // 目标配置
+    @Data
+    public static class ObjectiveConfig {
+        private String name;
+        private ObjectiveType type;
+        private double weight;            // 归一化后的权重
+        private String attrName;          // 属性名称
+        private boolean quantityRelated = true; // 是否与数量相关
+        private AggregateType aggregateType = AggregateType.SUM; // 聚合类型
+        
+        public ObjectiveConfig(String name, ObjectiveType type, double weight, String attrName) {
+            this.name = name;
+            this.type = type;
+            this.weight = weight;
+            this.attrName = attrName;
+        }
+    }
+    
+    // 目标类型
+    public enum ObjectiveType {
+        MAXIMIZE,    // 最大化
+        MINIMIZE     // 最小化
+    }
+    
+    // 聚合类型
+    public enum AggregateType {
+        SUM,         // 求和（数量相关）
+        MAX,         // 最大值（独立目标）
+        MIN,         // 最小值（独立目标）
+        AVG          // 平均值
+    }
+    
+    // 构建单个目标表达式
+    public TrackedLinearExpr buildExpression(ObjectiveConfig config) {
+        switch (config.aggregateType) {
+            case SUM:
+                return buildSumExpression(config);
+            case MAX:
+                return buildMaxExpression(config);
+            case MIN:
+                return buildMinExpression(config);
+            case AVG:
+                return buildAvgExpression(config);
+            default:
+                throw new IllegalArgumentException("不支持的聚合类型: " + config.aggregateType);
+        }
+    }
+    
+    // 构建求和表达式（数量相关）
+    private TrackedLinearExpr buildSumExpression(ObjectiveConfig config) {
+        TrackedLinearExpr sumExpr =  
+        
+        for (PartVar pv : partVars) {
+            Part part = pv.getPart();
+            
+            // 获取归一化属性值
+            Double normalizedValue = part.getNormalizedAttr(config.getAttrName());
+            if (normalizedValue == null) {
+                // 如果没有归一化值，尝试使用原始值（应该不会发生）
+                normalizedValue = part.getAttr(config.getAttrName());
+            }
+            
+            // 创建表达式：quantity * normalizedValue
+            sumExpr.addTerm(pv.getQuantity(), normalizedValue.longValue());
+        }
+        
+        return sumExpr.build();
+    }
+    
+    // 构建最大值表达式（独立目标）
+    private TrackedLinearExpr buildMaxExpression(ObjectiveConfig config) {
+        // 创建最大值变量
+        IntVar maxVar = model.newIntVar(0, 100, "max_" + config.getName());
+        
+        // 创建每个部件的值变量
+        List<IntVar> partValueVars = new ArrayList<>();
+        
+        for (PartVar pv : partVars) {
+            Part part = pv.getPart();
+            Double normalizedValue = part.getNormalizedAttr(config.getAttrName());
+            int value = (int) Math.round(normalizedValue);
+            
+            // 创建部件值变量
+            IntVar partValue = model.newIntVar(0, value, 
+                "partval_" + pv.getCode() + "_" + config.getAttrName());
+            
+            // 约束：如果部件被选中，partValue = value；否则为0
+            IntVar isSelected = pv.getIsSelected();
+            
+            // 当isSelected=1时，partValue=value
+            model.addEquality(partValue, value).onlyEnforceIf(isSelected);
+            // 当isSelected=0时，partValue=0
+            model.addEquality(partValue, 0).onlyEnforceIf(isSelected.not());
+            
+            partValueVars.add(partValue);
+        }
+        
+        // 设置maxVar为所有partValue的最大值
+        model.addMaxEquality(maxVar, partValueVars.toArray(new IntVar[0]));
+        
+        return LinearExpr.newBuilder().add(maxVar).build();
+    }
+    
+    // 构建最小值表达式（独立目标）
+    private TrackedLinearExpr buildMinExpression(ObjectiveConfig config) {
+        // 创建最小值变量
+        IntVar minVar = model.newIntVar(0, 100, "min_" + config.getName());
+        
+        // 创建每个部件的值变量
+        List<IntVar> partValueVars = new ArrayList<>();
+        
+        for (PartVar pv : partVars) {
+            Part part = pv.getPart();
+            Double normalizedValue = part.getNormalizedAttr(config.getAttrName());
+            int value = (int) Math.round(normalizedValue);
+            
+            // 创建部件值变量
+            // 注意：对于最小值，当部件没选中时，我们希望它不影响最小值
+            // 所以设置一个很大的值（如100）当部件没选中时
+            IntVar partValue = model.newIntVar(0, 100, 
+                "partval_" + pv.getCode() + "_" + config.getAttrName());
+            
+            IntVar isSelected = pv.getIsSelected();
+            
+            // 当isSelected=1时，partValue=value
+            model.addEquality(partValue, value).onlyEnforceIf(isSelected);
+            // 当isSelected=0时，partValue=100（不影响最小值）
+            model.addEquality(partValue, 100).onlyEnforceIf(isSelected.not());
+            
+            partValueVars.add(partValue);
+        }
+        
+        // 设置minVar为所有partValue的最小值
+        model.addMinEquality(minVar, partValueVars.toArray(new IntVar[0]));
+        
+        return LinearExpr.newBuilder().add(minVar).build();
+    }
+    
+    // 构建平均值表达式
+    private LinearExpr buildAvgExpression(ObjectiveConfig config) {
+        // 计算总和
+        LinearExpr sumExpr = buildSumExpression(config);
+        
+        // 计算选中部件数量
+        IntVar selectedCount = buildSelectedCount();
+        
+        // 创建平均值变量
+        IntVar avgVar = model.newIntVar(0, 100, "avg_" + config.getName());
+        
+        // 约束：avgVar * selectedCount = sumExpr
+        // 由于CP-SAT不支持除法，我们使用近似或线性化
+        // 简化：直接使用总和，在目标函数中调整权重
+        
+        return sumExpr; // 简化返回总和
+    }
+    
+    // 构建选中部件数量表达式
+    private IntVar buildSelectedCount() {
+        IntVar countVar = model.newIntVar(0, partVars.size(), "selected_count");
+        
+        LinearExprBuilder countExpr = LinearExpr.newBuilder();
+        for (PartVar pv : partVars) {
+            // 使用isSelected（0/1）求和
+            countExpr.add(pv.getIsSelected());
+        }
+        
+        model.addEquality(countVar, countExpr.build());
+        return countVar;
+    }
+    
+    // 构建多个目标表达式的综合目标
+    public LinearExpr buildCompositeObjective(List<ObjectiveConfig> configs) {
+        Map<String, LinearExpr> expressions = new HashMap<>();
+        
+        // 构建所有表达式
+        for (ObjectiveConfig config : configs) {
+            LinearExpr expr = buildExpression(config);
+            expressions.put(config.getName(), expr);
+        }
+        
+        // 构建综合目标
+        return combineExpressions(configs, expressions);
+    }
+    
+    // 合并多个表达式为目标函数
+    private LinearExpr combineExpressions(List<ObjectiveConfig> configs, 
+                                         Map<String, LinearExpr> expressions) {
+        LinearExprBuilder composite = LinearExpr.newBuilder();
+        
+        for (ObjectiveConfig config : configs) {
+            LinearExpr expr = expressions.get(config.getName());
+            
+            if (config.getType() == ObjectiveType.MAXIMIZE) {
+                // 最大化：负权重（因为CP-SAT是最小化）
+                composite.addTerm(expr, -(long)(config.getWeight() * 1000));
+            } else {
+                // 最小化：正权重
+                composite.addTerm(expr, (long)(config.getWeight() * 1000));
+            }
+        }
+        
+        return composite.build();
+    }
+    
+    // 创建常用的目标配置
+    public static List<ObjectiveConfig> createCommonObjectives() {
+        List<ObjectiveConfig> configs = new ArrayList<>();
+        
+        // 数量相关目标（求和）
+        configs.add(new ObjectiveConfig("totalCost", ObjectiveType.MINIMIZE, 1.0, Part.ATTR_LISTPRICE));
+        configs.add(new ObjectiveConfig("totalWeight", ObjectiveType.MAXIMIZE, 0.8, Part.ATTR_WEIGHT));
+        configs.add(new ObjectiveConfig("totalProfit", ObjectiveType.MAXIMIZE, 1.2, Part.ATTR_PROFIT));
+        configs.add(new ObjectiveConfig("totalCapacity", ObjectiveType.MAXIMIZE, 1.5, Part.ATTR_CAPACITY));
+        
+        // 独立目标（最大值/最小值）
+        ObjectiveConfig deliveryConfig = new ObjectiveConfig("maxDelivery", 
+            ObjectiveType.MINIMIZE, 0.7, Part.ATTR_DELIVERYTIME);
+        deliveryConfig.setQuantityRelated(false);
+        deliveryConfig.setAggregateType(AggregateType.MAX);
+        configs.add(deliveryConfig);
+        
+        ObjectiveConfig priorityConfig = new ObjectiveConfig("minPriority", 
+            ObjectiveType.MAXIMIZE, 0.5, Part.ATTR_PRIORITY_SCORE);
+        priorityConfig.setQuantityRelated(false);
+        priorityConfig.setAggregateType(AggregateType.MIN);
+        configs.add(priorityConfig);
+        
+        return configs;
+    }
+}
+
+
+
+
+normalized_cost = (cost - min_cost) / (max_cost - min_cost) * 100
+但是注意，我们希望成本越小越好，所以我们可以用反向归一化：
+cost_score = 100 - normalized_cost
+
+归一化：
+对于cost，我们可以预先计算一个最大成本max_cost（所有部件都选最贵的）和最小成本min_cost（所有部件都选最便宜的），然后：
+normalized_cost = (cost - min_cost) / (max_cost - min_cost) * 100
+但是注意，我们希望成本越小越好，所以我们可以用反向归一化：
+cost_score = 100 - normalized_cost
+
+对于weight，类似地计算最大重量max_weight和最小重量min_weight，然后：
+normalized_weight = (weight - min_weight) / (max_weight - min_weight) * 100
+我们希望重量越大越好，所以weight_score = normalized_weight
+
+对于delivery，我们计算最大货期max_delivery和最小货期min_delivery，注意delivery是最大货期（即所有选中部件中货期的最大值），同样反向：
+normalized_delivery = (delivery - min_delivery) / (max_delivery - min_delivery) * 100
+delivery_score = 100 - normalized_delivery
+
+
+总目标函数：
+total_score = w1 * cost_score + w2 * weight_score + w3 * delivery_score
+我们希望最大化total_score，即最小化 -total_score。
 
 idea:
 现象：
