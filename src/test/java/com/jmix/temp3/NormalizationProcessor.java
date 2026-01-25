@@ -224,6 +224,41 @@ public class NormalizationProcessor {
 
     // 执行单个值的归一化
     private double normalizeValue(double rawValue, NormalizationConfig config, NormalizationRange range) {
+        double normalizedValue = 0.0;
+
+        switch (config.method) {
+            case LINEAR:
+                normalizedValue = linearNormalize(rawValue, range);
+                break;
+            case LOG:
+                normalizedValue = logNormalize(rawValue, range);
+                break;
+            case LOG10:
+                normalizedValue = log10Normalize(rawValue, range);
+                break;
+            case POWER:
+                normalizedValue = powerNormalize(rawValue, range, config.power);
+                break;
+            case QUANTILE:
+                normalizedValue = quantileNormalize(rawValue, range, config.numBins);
+                break;
+            case RANK:
+                normalizedValue = rankNormalize(rawValue, range);
+                break;
+            case PIECEWISE:
+                normalizedValue = piecewiseNormalize(rawValue, range);
+                break;
+            case Z_SCORE:
+                normalizedValue = zScoreNormalize(rawValue, range);
+                break;
+            default:
+                normalizedValue = linearNormalize(rawValue, range);
+        }
+
+        // 确保在[0, 100]范围内
+        normalizedValue = Math.max(0, Math.min(100, normalizedValue));
+        return normalizedValue;
+    }
 
     // 执行单个值的归一化（使用缓存的配置和范围）
     public double normalizeValue(double rawValue, String partAttrName) {
