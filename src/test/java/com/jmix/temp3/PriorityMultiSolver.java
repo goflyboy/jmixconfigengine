@@ -80,7 +80,7 @@ public class PriorityMultiSolver {
         NormalizationProcessor.NormalizationConfig capacityConfig = new NormalizationProcessor.NormalizationConfig(
                 Part.ATTR_CAPACITY);
         // capacityConfig.setMethod(NormalizationProcessor.NormalizationMethod.LINEAR);
-        capacityConfig.setMethod(NormalizationProcessor.NormalizationMethod.LOG);
+        capacityConfig.setMethod(NormalizationProcessor.NormalizationMethod.EQUAL);
         configs.add(capacityConfig);
 
         NormalizationProcessor.NormalizationConfig priceConfig = new NormalizationProcessor.NormalizationConfig(
@@ -178,22 +178,95 @@ public class PriorityMultiSolver {
 
     // 主求解方法
     public ProductResult solve(String strReq) {
+        // 第一次求解
         ProductResult result = solveReq(strReq, null);
         if (result.getSolutions().size() <= 0) {
             return result;
         }
-        double objectValue = result.getSolutions().get(0).getObjectValue();// * (1 + 0.5);
+
+        final int maxExecTimes = 5; // 最大执行次数
+        final int availableSolutionNum = 5;
+        final int minSolutionThreshold = 3; // 最少解数量阈值
+        int execTimes = 0;
+        double baseAdjustCoeff = 0.5; // 基础调整系数
+        double objectValue = result.getSolutions().get(0).getObjectValue();
+        boolean lastAdjustmentIncreased = false; // 上次调整是否增加了objectValue
+        boolean needIncreased = true; // 是否需要增加objectvalue
+
+        do {
+            execTimes++;
+            ProductResult lastResult = result;
+
+            // 根据上一次求解结果动态调整策略
+            if (execTimes > 1) {
+                if (lastResult.isHasSearchMax()) {
+                    // objectValue设置太大，最优解都没有处理，系数需要往下调
+                    baseAdjustCoeff *= 0.7; // 降低调整幅度
+                    needIncreased = false;
+                    log.info("Iteration {}: objective value too high, reducing adjustment coefficient to {}",
+                            execTimes, baseAdjustCoeff);
+                } else if (lastResult.getSolutions().size() < minSolutionThreshold) {
+                    // 解数量太少，objectValue设置太小，系数需要往上调
+                    baseAdjustCoeff *= 1.5; // 增加调整幅度
+                    needIncreased = true;
+                    log.info("Iteration {}: too few solutions found, increasing adjustment coefficient to {}",
+                            execTimes, baseAdjustCoeff);
+                } else {
+                    log.info("xxxx");
+                    break;
+                }
+            }
+            // 上次增加，还需要增加 ->增加
+            // 上次增加，需要减少-> 需要减少
+
+            // 上次减少，还需要增加 ->增加
+            // 上次减少，需要减少-> 需要减少
+
+            // 根据上一次调整方向决定本次调整
+            if (!needIncreased) {
+                // 上次增加了，这次尝试减少
+                objectValue = getAdjustObjectValue(objectValue, -baseAdjustCoeff);
+                lastAdjustmentIncreased = false;
+            } else {
+                // 上次减少了，这次尝试增加
+                objectValue = getAdjustObjectValue(objectValue, baseAdjustCoeff);
+                lastAdjustmentIncreased = true;
+            }
+
+            log.info("Iteration {}: adjusting objective value to {}", execTimes, objectValue);
+            result = solveReq(strReq, objectValue);
+
+        } while (execTimes < maxExecTimes
+                && result.getSolutions().size() <= availableSolutionNum);
+
+        return result;
+    }
+
+    private double getAdjustObjectValue(double objectValue, double adjustCoeff) {
         int cResult = Double.compare(objectValue, 0.0);
         if (cResult < 0) {
-            objectValue = objectValue * (1 - 0.5);
-        } else if (cResult == 0) { // TODO
-            objectValue = objectValue + 0.5;
+            // 对于负值，根据调整系数的正负来决定调整方向
+            if (adjustCoeff >= 0) {
+                // 正系数：减少绝对值（更接近0）
+                objectValue = objectValue * (1 - adjustCoeff);
+            } else {
+                // 负系数：增加绝对值（更远离0）
+                objectValue = objectValue * (1 + Math.abs(adjustCoeff));
+            }
+        } else if (cResult == 0) {
+            // 对于0值，根据调整系数设置起始值
+            objectValue = adjustCoeff;
         } else {
-            objectValue = objectValue * (1 + 0.5);
+            // 对于正值，根据调整系数的正负来决定调整方向
+            if (adjustCoeff >= 0) {
+                // 正系数：增加值
+                objectValue = objectValue * (1 + adjustCoeff);
+            } else {
+                // 负系数：减少值
+                objectValue = objectValue * (1 - Math.abs(adjustCoeff));
+            }
         }
-        // objectValue = 1500;
-        result = solveReq(strReq, objectValue);
-        return result;
+        return objectValue;
     }
 
     public ProductResult solveReq(String strReq, Double objectValue) {
@@ -250,6 +323,7 @@ public class PriorityMultiSolver {
         // 9. 排序解
         sortSolutions(pResult);
         pResult.setSolverStatus(status.toString());
+        System.out.println(pResult.toShortString());
         return pResult;
     }
 
@@ -340,7 +414,143 @@ public class PriorityMultiSolver {
         model.addLessOrEqual(objectiveExpr, objectValue);
     }
 
-    private TrackedLinearExpr buildPriorityRule(CpModelTracker model, List<PartVar> partVars,
+    // 规则1: 固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量
+    private static TrackedLinearExpr buildPriorityRule(CpModelTracker model, List<PartVar> partVars,
+            PartConstraintReq req) {
+        // 分离固态硬盘和机械硬盘
+        List<PartVar> solidStateParts = partVars.stream()
+                .filter(PartVar::isSolidState)
+                .collect(Collectors.toList());
+
+        List<PartVar> mechanicalParts = partVars.stream()
+                .filter(pv -> !pv.isSolidState())
+                .collect(Collectors.toList());
+
+        if (solidStateParts.isEmpty() || mechanicalParts.isEmpty()) {
+            return null;
+        }
+        // 创建固态硬盘总容量表达式
+        TrackedLinearExpr ssTotalCapacity = model.newTrackedExpr("SS_Total_Capacity");
+        for (PartVar pv : solidStateParts) {
+            ssTotalCapacity.addTerm(pv.qty, pv.getCapacity());
+        }
+
+        // 创建机械硬盘总容量表达式
+        TrackedLinearExpr mechTotalCapacity = model.newTrackedExpr("Mech_Total_Capacity");
+        for (PartVar pv : mechanicalParts) {
+            mechTotalCapacity.addTerm(pv.qty, pv.getCapacity());
+        }
+        // 如果是容量需求
+        if ("Capacity".equals(req.getAttrCode())) {
+
+            int requiredCapacity = Integer.parseInt(req.getAttrValue());
+
+            // 创建固态硬盘是否足够的布尔变量
+            BoolVar ssSufficient = (BoolVar) model.newBoolVar(
+                    "ssSufficient");
+
+            // 定义：如果固态硬盘容量 >= 需求容量，则 ssSufficient = true
+            model.addGreaterOrEqual(ssTotalCapacity, requiredCapacity).onlyEnforceIf(ssSufficient);
+            model.addLessThan(ssTotalCapacity, requiredCapacity).onlyEnforceIf(ssSufficient.not());
+
+            // 规则1.1: 如果固态硬盘足够，则禁止使用机械硬盘
+            for (PartVar pv : mechanicalParts) {
+                model.addEquality(pv.qty, 0).onlyEnforceIf(ssSufficient);
+            }
+
+            // 创建目标函数
+            TrackedLinearExpr objectiveExpr = model.newTrackedExpr("ObjectiveFun");
+
+            // 基础目标: 最大化SSD使用（负权重）--容量越大越好
+            objectiveExpr.addExpr(ssTotalCapacity, -100);
+
+            // HDD惩罚 = HDD容量 * 惩罚系数S
+            objectiveExpr.addExpr(mechTotalCapacity, 1);
+
+            // 3. 惩罚过度配置（重要！）
+            // 创建总容量变量
+            TrackedLinearExpr totalCapacityExpr = model.newTrackedExpr("Total_Capacity");
+            for (PartVar pv : partVars) {
+                totalCapacityExpr.addTerm(pv.qty, pv.getCapacity());
+            }
+
+            // 创建过度配置变量
+            // 约束：excessCapacity = totalCapacity - requiredCapacity
+            TrackedLinearExpr tExpr = model.newTrackedExpr("excessCapacityExpr");
+            tExpr.addExpr(totalCapacityExpr, 1);
+            tExpr.addConstant(-requiredCapacity);
+            // 2. 过度配置惩罚
+            objectiveExpr.addExpr(tExpr, 500); // 惩罚过度配置
+
+            // 4. 惩罚使用多个零件（鼓励简洁配置）
+            // 总零件数量惩罚
+            TrackedLinearExpr totalPartsExpr = model.newTrackedExpr("Total_Parts");
+            for (PartVar pv : partVars) {
+                totalPartsExpr.addTerm(pv.qty, 1);
+            }
+
+            objectiveExpr.addExpr(totalPartsExpr, 500); // 零件数量惩罚
+
+            // model.addLessOrEqual(objectiveExpr, 2000);
+            model.setObjectExpr(objectiveExpr);
+
+            // model.minimize(objectiveExpr); // 设置目标函数为最小化（因为SSD有负权重）
+            return objectiveExpr;
+        } else {// 给的数量qty总数
+            // 创建固态硬盘总容量表达式
+            TrackedLinearExpr ssTotalQty = model.newTrackedExpr("ssTotalQty");
+            for (PartVar pv : solidStateParts) {
+                ssTotalQty.addTerm(pv.qty, 1);
+            }
+            // 创建机械硬盘总容量表达式
+            TrackedLinearExpr mechTotalQty = model.newTrackedExpr("mechTotalQty");
+            for (PartVar pv : mechanicalParts) {
+                mechTotalQty.addTerm(pv.qty, 1);
+            }
+            int requiredQty = Integer.parseInt(req.getAttrValue());
+            // 创建固态硬盘是否足够的布尔变量
+            BoolVar ssSufficientQty = (BoolVar) model.newBoolVar(
+                    "ssSufficientQty");
+            // 定义：如果固态硬盘容量 >= 需求容量，则 ssSufficient = true
+            model.addGreaterOrEqual(ssTotalQty, requiredQty).onlyEnforceIf(ssSufficientQty);
+            model.addLessThan(ssTotalQty, requiredQty).onlyEnforceIf(ssSufficientQty.not());
+            // 规则1.1: 如果固态硬盘足够，则禁止使用机械硬盘
+            for (PartVar pv : mechanicalParts) {
+                model.addEquality(pv.qty, 0).onlyEnforceIf(ssSufficientQty);
+            }
+
+            // 创建目标函数
+            TrackedLinearExpr objectiveExpr = model.newTrackedExpr("ObjectiveFunQty");
+
+            // 基础目标: 最大化SSD使用（负权重）--容量越大越好
+            objectiveExpr.addExpr(ssTotalCapacity, -100);
+            // objectiveExpr.addExpr(ssTotalQty, -100);
+            // HDD惩罚 = HDD容量 * 惩罚系数S，容量越小越好
+            objectiveExpr.addExpr(mechTotalCapacity, 1);
+            // objectiveExpr.addExpr(mechTotalQty, 1);
+
+            // 3. 惩罚过度配置（重要！）
+            // 创建总容量变量
+            TrackedLinearExpr totalQtyExpr = model.newTrackedExpr("totalQtyExpr");
+            for (PartVar pv : partVars) {
+                totalQtyExpr.addTerm(pv.qty, 1);
+            }
+            // 创建过度配置变量
+            // 约束：excessCapacity = totalCapacity - requiredCapacity
+            TrackedLinearExpr excessQyExpr = model.newTrackedExpr("excessQyExpr");
+            excessQyExpr.addExpr(totalQtyExpr, 1);
+            excessQyExpr.addConstant(-requiredQty);
+            // 2. 过度配置惩罚
+            objectiveExpr.addExpr(excessQyExpr, 500); // 惩罚过度配置
+
+            // model.addLessOrEqual(objectiveExpr, 1000);
+            model.setObjectExpr(objectiveExpr);
+            // model.minimize(objectiveExpr); // 设置目标函数为最小化（因为SSD有负权重）
+            return objectiveExpr;
+        }
+    }
+
+    private void setCompositeObjective(CpModelTracker model, List<PartVar> partVars,
             PartConstraintReq req) {
         // 使用新的目标构建器
         ObjectiveExpressionBuilder builder = new ObjectiveExpressionBuilder(model, partVars);
@@ -369,17 +579,8 @@ public class PriorityMultiSolver {
         // 构建综合目标表达式
         TrackedLinearExpr objectiveExpr = builder.buildCompositeObjective(objectives);
 
-        // 添加固态硬盘优先规则约束（与原来类似）
-        addSolidStatePriorityConstraints(model, partVars, req);
-
-        // 添加过度配置惩罚
-        addExcessConfigurationPenalty(model, partVars, req, objectiveExpr);
-
-        // 添加零件数量惩罚
-        addPartCountPenalty(model, partVars, objectiveExpr);
-
         model.setObjectExpr(objectiveExpr);
-        return objectiveExpr;
+        // setMin/max等
     }
 
     // 添加固态硬盘优先约束

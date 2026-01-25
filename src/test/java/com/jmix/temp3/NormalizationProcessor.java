@@ -50,7 +50,8 @@ public class NormalizationProcessor {
         QUANTILE, // 分位数归一化
         RANK, // 排名归一化
         PIECEWISE, // 分段线性
-        Z_SCORE // Z-score归一化
+        Z_SCORE, // Z-score归一化
+        EQUAL // 等级法，不归一
     }
 
     // 归一化范围
@@ -251,12 +252,18 @@ public class NormalizationProcessor {
             case Z_SCORE:
                 normalizedValue = zScoreNormalize(rawValue, range);
                 break;
+            case EQUAL:
+                normalizedValue = equalNormalize(rawValue, range);
+                break;
             default:
-                normalizedValue = linearNormalize(rawValue, range);
+                throw new IllegalArgumentException("Illegal config.method=" + config.method);
+            // normalizedValue = linearNormalize(rawValue, range);
+        }
+        if (config.method != NormalizationMethod.EQUAL) {
+            // 确保在[0, 100]范围内 TODO ,应该是
+            normalizedValue = Math.max(0, Math.min(100, normalizedValue));
         }
 
-        // 确保在[0, 100]范围内
-        normalizedValue = Math.max(0, Math.min(100, normalizedValue));
         return normalizedValue;
     }
 
@@ -361,6 +368,11 @@ public class NormalizationProcessor {
         } else {
             return 66.6 + 33.3 * (value - range.getMinValue() - 2 * segment) / segment;
         }
+    }
+
+    // Z-score归一化
+    private double equalNormalize(double value, NormalizationRange range) {
+        return value;
     }
 
     // Z-score归一化

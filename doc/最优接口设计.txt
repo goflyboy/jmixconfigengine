@@ -2849,6 +2849,8 @@ Solu3: parts=[sd1 Q:0, sd2 Q:0, sd3 Q:0, md1 Q:0, md2 Q:0, md3 Q:2], OV=1506.0
 TODO: 带数量的标准化估计还是有问题？***
 TODO： 2*2 = 5    3*15 = 45？--总量，感觉不行***
 
+            // objectValue设置太小，很多可用解没有挖掘出来, 系数需要往上调
+            // objectValue设置太大，太多的解，导致的最优解都没有处理(result.hasSearchMax=false)，系数需要往下调
 
 
 
