@@ -22,6 +22,7 @@ import com.google.ortools.sat.IntVar;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,22 +37,114 @@ import java.util.stream.Collectors;
 public class PriorityMultiSolver {
 
     private List<Part> allParts;
+    private NormalizationProcessor normalizationProcessor;
+    private ObjectiveExpressionBuilder.ObjectiveConfig[] commonObjectives;
 
     public PriorityMultiSolver() {
         initParts();
+        initNormalization();
+        initObjectives();
     }
 
     // 初始化零件数据
     private void initParts() {
         allParts = new ArrayList<>();
         // 固态硬盘
-        allParts.add(new Part("sd1", true, 5400, 3));
-        allParts.add(new Part("sd2", true, 7200, 6));
-        allParts.add(new Part("sd3", true, 9000, 9));
+        Part sd1 = new Part("sd1", true, 5400, 3);
+        sd1.setAttr(Part.ATTR_LISTPRICE, 100.0);
+        sd1.setAttr(Part.ATTR_DELIVERYTIME, 2.0);
+        sd1.setAttr(Part.ATTR_PROFIT, 30.0);
+        allParts.add(sd1);
+
+        Part sd2 = new Part("sd2", true, 7200, 6);
+        sd2.setAttr(Part.ATTR_LISTPRICE, 200.0);
+        sd2.setAttr(Part.ATTR_DELIVERYTIME, 3.0);
+        sd2.setAttr(Part.ATTR_PROFIT, 60.0);
+        allParts.add(sd2);
+
+        Part sd3 = new Part("sd3", true, 9000, 9);
+        sd3.setAttr(Part.ATTR_LISTPRICE, 300.0);
+        sd3.setAttr(Part.ATTR_DELIVERYTIME, 4.0);
+        sd3.setAttr(Part.ATTR_PROFIT, 90.0);
+        allParts.add(sd3);
+
         // 机械硬盘
-        allParts.add(new Part("md1", false, 5400, 1));
-        allParts.add(new Part("md2", false, 7200, 2));
-        allParts.add(new Part("md3", false, 9000, 3));
+        Part md1 = new Part("md1", false, 5400, 1);
+        md1.setAttr(Part.ATTR_LISTPRICE, 50.0);
+        md1.setAttr(Part.ATTR_DELIVERYTIME, 1.0);
+        md1.setAttr(Part.ATTR_PROFIT, 10.0);
+        allParts.add(md1);
+
+        Part md2 = new Part("md2", false, 7200, 2);
+        md2.setAttr(Part.ATTR_LISTPRICE, 80.0);
+        md2.setAttr(Part.ATTR_DELIVERYTIME, 1.5);
+        md2.setAttr(Part.ATTR_PROFIT, 20.0);
+        allParts.add(md2);
+
+        Part md3 = new Part("md3", false, 9000, 3);
+        md3.setAttr(Part.ATTR_LISTPRICE, 120.0);
+        md3.setAttr(Part.ATTR_DELIVERYTIME, 2.0);
+        md3.setAttr(Part.ATTR_PROFIT, 30.0);
+        allParts.add(md3);
+    }
+
+    // 初始化归一化处理器
+    private void initNormalization() {
+        normalizationProcessor = new NormalizationProcessor();
+
+        // 创建归一化配置
+        List<NormalizationProcessor.NormalizationConfig> configs = new ArrayList<>();
+
+        // 配置各种属性的归一化方法
+        NormalizationProcessor.NormalizationConfig capacityConfig = new NormalizationProcessor.NormalizationConfig(
+                Part.ATTR_CAPACITY);
+        capacityConfig.setMethod(NormalizationProcessor.NormalizationMethod.LINEAR);
+        configs.add(capacityConfig);
+
+        NormalizationProcessor.NormalizationConfig priceConfig = new NormalizationProcessor.NormalizationConfig(
+                Part.ATTR_LISTPRICE);
+        priceConfig.setMethod(NormalizationProcessor.NormalizationMethod.LINEAR);
+        configs.add(priceConfig);
+
+        NormalizationProcessor.NormalizationConfig deliveryConfig = new NormalizationProcessor.NormalizationConfig(
+                Part.ATTR_DELIVERYTIME);
+        deliveryConfig.setMethod(NormalizationProcessor.NormalizationMethod.LINEAR);
+        configs.add(deliveryConfig);
+
+        NormalizationProcessor.NormalizationConfig profitConfig = new NormalizationProcessor.NormalizationConfig(
+                Part.ATTR_PROFIT);
+        profitConfig.setMethod(NormalizationProcessor.NormalizationMethod.LINEAR);
+        configs.add(profitConfig);
+
+        NormalizationProcessor.NormalizationConfig weightConfig = new NormalizationProcessor.NormalizationConfig(
+                Part.ATTR_WEIGHT);
+        weightConfig.setMethod(NormalizationProcessor.NormalizationMethod.LINEAR);
+        configs.add(weightConfig);
+
+        // 执行批量归一化
+        normalizationProcessor.normalizeBatch(allParts, configs);
+    }
+
+    // 初始化目标配置
+    private void initObjectives() {
+        commonObjectives = new ObjectiveExpressionBuilder.ObjectiveConfig[] {
+                new ObjectiveExpressionBuilder.ObjectiveConfig("totalCost",
+                        ObjectiveExpressionBuilder.ObjectiveType.MINIMIZE, 1.0, Part.ATTR_LISTPRICE),
+                new ObjectiveExpressionBuilder.ObjectiveConfig("totalCapacity",
+                        ObjectiveExpressionBuilder.ObjectiveType.MAXIMIZE, 1.5, Part.ATTR_CAPACITY),
+                new ObjectiveExpressionBuilder.ObjectiveConfig("totalProfit",
+                        ObjectiveExpressionBuilder.ObjectiveType.MAXIMIZE, 1.2, Part.ATTR_PROFIT),
+                new ObjectiveExpressionBuilder.ObjectiveConfig("maxDelivery",
+                        ObjectiveExpressionBuilder.ObjectiveType.MINIMIZE, 0.7, Part.ATTR_DELIVERYTIME)
+        };
+
+        // 设置聚合类型
+        for (ObjectiveExpressionBuilder.ObjectiveConfig config : commonObjectives) {
+            if ("maxDelivery".equals(config.getName())) {
+                config.setQuantityRelated(false);
+                config.setAggregateType(ObjectiveExpressionBuilder.AggregateType.MAX);
+            }
+        }
     }
 
     // 解析需求字符串
@@ -249,6 +342,44 @@ public class PriorityMultiSolver {
 
     private TrackedLinearExpr buildPriorityRule(CpModelTracker model, List<PartVar> partVars,
             PartConstraintReq req) {
+        // 使用新的目标构建器
+        ObjectiveExpressionBuilder builder = new ObjectiveExpressionBuilder(model, partVars);
+
+        // 创建目标配置列表
+        List<ObjectiveExpressionBuilder.ObjectiveConfig> objectives = new ArrayList<>();
+        objectives.addAll(Arrays.asList(commonObjectives));
+
+        // 根据需求类型调整权重
+        if ("Capacity".equals(req.getAttrCode())) {
+            // 容量需求时，更重视容量和成本
+            for (ObjectiveExpressionBuilder.ObjectiveConfig config : objectives) {
+                if ("totalCapacity".equals(config.getName())) {
+                    config.setWeight(2.0); // 提高容量权重
+                } else if ("totalCost".equals(config.getName())) {
+                    config.setWeight(1.5); // 提高成本权重
+                }
+            }
+        }
+
+        // 构建综合目标表达式
+        TrackedLinearExpr objectiveExpr = builder.buildCompositeObjective(objectives);
+
+        // 添加固态硬盘优先规则约束（与原来类似）
+        addSolidStatePriorityConstraints(model, partVars, req);
+
+        // 添加过度配置惩罚
+        addExcessConfigurationPenalty(model, partVars, req, objectiveExpr);
+
+        // 添加零件数量惩罚
+        addPartCountPenalty(model, partVars, objectiveExpr);
+
+        model.setObjectExpr(objectiveExpr);
+        return objectiveExpr;
+    }
+
+    // 添加固态硬盘优先约束
+    private void addSolidStatePriorityConstraints(CpModelTracker model, List<PartVar> partVars,
+            PartConstraintReq req) {
         // 分离固态硬盘和机械硬盘
         List<PartVar> solidStateParts = partVars.stream()
                 .filter(PartVar::isSolidState)
@@ -259,27 +390,20 @@ public class PriorityMultiSolver {
                 .collect(Collectors.toList());
 
         if (solidStateParts.isEmpty() || mechanicalParts.isEmpty()) {
-            return null;
+            return;
         }
+
         // 创建固态硬盘总容量表达式
         TrackedLinearExpr ssTotalCapacity = model.newTrackedExpr("SS_Total_Capacity");
         for (PartVar pv : solidStateParts) {
             ssTotalCapacity.addTerm(pv.qty, pv.getCapacity());
         }
 
-        // 创建机械硬盘总容量表达式
-        TrackedLinearExpr mechTotalCapacity = model.newTrackedExpr("Mech_Total_Capacity");
-        for (PartVar pv : mechanicalParts) {
-            mechTotalCapacity.addTerm(pv.qty, pv.getCapacity());
-        }
-        // 如果是容量需求
         if ("Capacity".equals(req.getAttrCode())) {
-
             int requiredCapacity = Integer.parseInt(req.getAttrValue());
 
             // 创建固态硬盘是否足够的布尔变量
-            BoolVar ssSufficient = (BoolVar) model.newBoolVar(
-                    "ssSufficient");
+            BoolVar ssSufficient = (BoolVar) model.newBoolVar("ssSufficient");
 
             // 定义：如果固态硬盘容量 >= 需求容量，则 ssSufficient = true
             model.addGreaterOrEqual(ssTotalCapacity, requiredCapacity).onlyEnforceIf(ssSufficient);
@@ -289,98 +413,72 @@ public class PriorityMultiSolver {
             for (PartVar pv : mechanicalParts) {
                 model.addEquality(pv.qty, 0).onlyEnforceIf(ssSufficient);
             }
+        } else {
+            // 数量约束的逻辑
+            TrackedLinearExpr ssTotalQty = model.newTrackedExpr("ssTotalQty");
+            for (PartVar pv : solidStateParts) {
+                ssTotalQty.addTerm(pv.qty, 1);
+            }
 
-            // 创建目标函数
-            TrackedLinearExpr objectiveExpr = model.newTrackedExpr("ObjectiveFun");
+            int requiredQty = Integer.parseInt(req.getAttrValue());
+            BoolVar ssSufficientQty = (BoolVar) model.newBoolVar("ssSufficientQty");
 
-            // 基础目标: 最大化SSD使用（负权重）--容量越大越好
-            objectiveExpr.addExpr(ssTotalCapacity, -100);
+            model.addGreaterOrEqual(ssTotalQty, requiredQty).onlyEnforceIf(ssSufficientQty);
+            model.addLessThan(ssTotalQty, requiredQty).onlyEnforceIf(ssSufficientQty.not());
 
-            // HDD惩罚 = HDD容量 * 惩罚系数S
-            objectiveExpr.addExpr(mechTotalCapacity, 1);
+            // 如果固态硬盘足够，则禁止使用机械硬盘
+            for (PartVar pv : mechanicalParts) {
+                model.addEquality(pv.qty, 0).onlyEnforceIf(ssSufficientQty);
+            }
+        }
+    }
 
-            // 3. 惩罚过度配置（重要！）
-            // 创建总容量变量
+    // 添加过度配置惩罚
+    private void addExcessConfigurationPenalty(CpModelTracker model, List<PartVar> partVars,
+            PartConstraintReq req, TrackedLinearExpr objectiveExpr) {
+        if ("Capacity".equals(req.getAttrCode())) {
+            int requiredValue = Integer.parseInt(req.getAttrValue());
+
+            // 创建总容量表达式
             TrackedLinearExpr totalCapacityExpr = model.newTrackedExpr("Total_Capacity");
             for (PartVar pv : partVars) {
                 totalCapacityExpr.addTerm(pv.qty, pv.getCapacity());
             }
 
-            // 创建过度配置变量
-            // 约束：excessCapacity = totalCapacity - requiredCapacity
-            TrackedLinearExpr tExpr = model.newTrackedExpr("excessCapacityExpr");
-            tExpr.addExpr(totalCapacityExpr, 1);
-            tExpr.addConstant(-requiredCapacity);
-            // 2. 过度配置惩罚
-            objectiveExpr.addExpr(tExpr, 500); // 惩罚过度配置
+            // 创建过度配置表达式：totalCapacity - requiredCapacity
+            TrackedLinearExpr excessExpr = model.newTrackedExpr("excessCapacityExpr");
+            excessExpr.addExpr(totalCapacityExpr, 1);
+            excessExpr.addConstant(-requiredValue);
 
-            // 4. 惩罚使用多个零件（鼓励简洁配置）
-            // 总零件数量惩罚
-            TrackedLinearExpr totalPartsExpr = model.newTrackedExpr("Total_Parts");
-            for (PartVar pv : partVars) {
-                totalPartsExpr.addTerm(pv.qty, 1);
-            }
+            objectiveExpr.addExpr(excessExpr, 500); // 惩罚过度配置
+        } else {
+            int requiredValue = Integer.parseInt(req.getAttrValue());
 
-            objectiveExpr.addExpr(totalPartsExpr, 500); // 零件数量惩罚
-
-            // model.addLessOrEqual(objectiveExpr, 2000);
-            model.setObjectExpr(objectiveExpr);
-
-            // model.minimize(objectiveExpr); // 设置目标函数为最小化（因为SSD有负权重）
-            return objectiveExpr;
-
-        } else {// 给的数量qty总数
-            // 创建固态硬盘总容量表达式
-            TrackedLinearExpr ssTotalQty = model.newTrackedExpr("ssTotalQty");
-            for (PartVar pv : solidStateParts) {
-                ssTotalQty.addTerm(pv.qty, 1);
-            }
-            // 创建机械硬盘总容量表达式
-            TrackedLinearExpr mechTotalQty = model.newTrackedExpr("mechTotalQty");
-            for (PartVar pv : mechanicalParts) {
-                mechTotalQty.addTerm(pv.qty, 1);
-            }
-            int requiredQty = Integer.parseInt(req.getAttrValue());
-            // 创建固态硬盘是否足够的布尔变量
-            BoolVar ssSufficientQty = (BoolVar) model.newBoolVar(
-                    "ssSufficientQty");
-            // 定义：如果固态硬盘容量 >= 需求容量，则 ssSufficient = true
-            model.addGreaterOrEqual(ssTotalQty, requiredQty).onlyEnforceIf(ssSufficientQty);
-            model.addLessThan(ssTotalQty, requiredQty).onlyEnforceIf(ssSufficientQty.not());
-            // 规则1.1: 如果固态硬盘足够，则禁止使用机械硬盘
-            for (PartVar pv : mechanicalParts) {
-                model.addEquality(pv.qty, 0).onlyEnforceIf(ssSufficientQty);
-            }
-
-            // 创建目标函数
-            TrackedLinearExpr objectiveExpr = model.newTrackedExpr("ObjectiveFunQty");
-
-            // 基础目标: 最大化SSD使用（负权重）--容量越大越好
-            objectiveExpr.addExpr(ssTotalCapacity, -100);
-            // objectiveExpr.addExpr(ssTotalQty, -100);
-            // HDD惩罚 = HDD容量 * 惩罚系数S，容量越小越好
-            objectiveExpr.addExpr(mechTotalCapacity, 1);
-            // objectiveExpr.addExpr(mechTotalQty, 1);
-
-            // 3. 惩罚过度配置（重要！）
-            // 创建总容量变量
+            // 创建总数量表达式
             TrackedLinearExpr totalQtyExpr = model.newTrackedExpr("totalQtyExpr");
             for (PartVar pv : partVars) {
                 totalQtyExpr.addTerm(pv.qty, 1);
             }
-            // 创建过度配置变量
-            // 约束：excessCapacity = totalCapacity - requiredCapacity
-            TrackedLinearExpr excessQyExpr = model.newTrackedExpr("excessQyExpr");
-            excessQyExpr.addExpr(totalQtyExpr, 1);
-            excessQyExpr.addConstant(-requiredQty);
-            // 2. 过度配置惩罚
-            objectiveExpr.addExpr(excessQyExpr, 500); // 惩罚过度配置
 
-            // model.addLessOrEqual(objectiveExpr, 1000);
-            model.setObjectExpr(objectiveExpr);
-            // model.minimize(objectiveExpr); // 设置目标函数为最小化（因为SSD有负权重）
-            return objectiveExpr;
+            // 创建过度配置表达式：totalQty - requiredQty
+            TrackedLinearExpr excessExpr = model.newTrackedExpr("excessQtyExpr");
+            excessExpr.addExpr(totalQtyExpr, 1);
+            excessExpr.addConstant(-requiredValue);
+
+            objectiveExpr.addExpr(excessExpr, 500); // 惩罚过度配置
         }
+    }
+
+    // 添加零件数量惩罚
+    private void addPartCountPenalty(CpModelTracker model, List<PartVar> partVars,
+            TrackedLinearExpr objectiveExpr) {
+        // 总零件数量惩罚（鼓励简洁配置）
+        TrackedLinearExpr totalPartsExpr = model.newTrackedExpr("Total_Parts");
+        for (PartVar pv : partVars) {
+            totalPartsExpr.addTerm(pv.qty, 1);
+        }
+
+        objectiveExpr.addExpr(totalPartsExpr, 500); // 零件数量惩罚
     }
 
     // 简化版本：假设容量需求总是被满足
