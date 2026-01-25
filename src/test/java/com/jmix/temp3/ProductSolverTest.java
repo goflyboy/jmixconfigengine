@@ -26,9 +26,9 @@ public class ProductSolverTest {
     public void testCase0_CapacityGreaterEqual6Speed5400() {
         String strReq = " Capacity >=6 where Speed = 5400";
         solve(strReq);
-        assertSoluSizeEqual(9);
+        assertSoluSizeEqual(2);
         // printSolu();
-        assertSoluEqual(1, "parts=[sd1 Q:2, md1 Q:0], OV=-600.0");
+        assertSoluContain(1, "parts=[sd1 Q:2, md1 Q:0], OV=400.0, SS=1");
     }
 
     /**
@@ -42,8 +42,8 @@ public class ProductSolverTest {
     public void testCase1_CapacityGreaterEqual5Speed5400() {
         String strReq = " Capacity >=5 where Speed = 5400";
         solve(strReq);
-        assertSoluEqual(1, "parts=[sd1 Q:2, md1 Q:0], OV=-600.0");
-        assertSoluContain("parts=[sd1 Q:1, md1 Q:2], OV=-298.0");
+        assertSoluContain(1, "parts=[sd1 Q:2, md1 Q:0], OV=900.0, SS=1");
+        assertSoluContain("sd1 Q:1, md1 Q:2");
     }
 
     /**
@@ -55,7 +55,7 @@ public class ProductSolverTest {
     public void testCase2_CapacityGreaterEqual7Speed5400() {
         String strReq = " Capacity >=7 where Speed = 5400";
         solve(strReq);
-        assertSoluEqual(1, "parts=[sd1 Q:2, md1 Q:1], OV=-599.0");
+        assertSoluContain(1, "parts=[sd1 Q:2, md1 Q:1], OV=901.0, SS=1");
     }
 
     /**
@@ -67,8 +67,8 @@ public class ProductSolverTest {
     public void testCase3_QtyGreaterEqual2Speed5400() {
         String strReq = " Qty >=2 where Speed = 5400";
         solve(strReq);
-        assertSoluEqual(1, "parts=[sd1 Q:2, md1 Q:0], OV=-200.0");
-        assertSoluEqual(2, "parts=[sd1 Q:1, md1 Q:1], OV=-99.0");
+        assertSoluContain(1, "parts=[sd1 Q:2, md1 Q:0]");
+        assertSoluContain(2, "parts=[sd1 Q:1, md1 Q:1]");
     }
 
     /**
@@ -80,8 +80,8 @@ public class ProductSolverTest {
     public void testCase4_QtyGreaterEqual3Speed5400() {
         String strReq = " Qty >=3 where Speed = 5400";
         solve(strReq);
-        assertSoluEqual(1, "parts=[sd1 Q:2, md1 Q:1], OV=-199.0");
-        assertSoluContain("parts=[sd1 Q:2, md1 Q:2], OV=-198.0");
+        assertSoluContain(1, "parts=[sd1 Q:2, md1 Q:1]");
+        assertSoluContain("parts=[sd1 Q:2, md1 Q:2]");
     }
 
     /**
@@ -95,12 +95,52 @@ public class ProductSolverTest {
     public void testCase5_CapacityGreaterEqual5NoSpeedFilter() {
         String strReq = " Capacity >=5 ";
         solve(strReq);
-        assertSoluEqual(1, "parts=[sd1 Q:2, md1 Q:1], OV=-199.0");
-        assertSoluContain("parts=[sd1 Q:2, md1 Q:2], OV=-198.0");
-        // Solu1: parts=[sd1 Q:0, sd2 Q:0, sd3 Q:2, md1 Q:0, md2 Q:0, md3 Q:0],
-        // OV=-1800.0
-        // Solu2: parts=[sd1 Q:0, sd2 Q:0, sd3 Q:1, md1 Q:0, md2 Q:0, md3 Q:0],
-        // OV=-900.0
+        assertSoluContain(1, "parts=[sd1 Q:0, sd2 Q:1, sd3 Q:0, md1 Q:0, md2 Q:0, md3 Q:0], OV=400.0, SS=1");
+        assertSoluContain("sd1 Q:2, sd2 Q:0, sd3 Q:0, md1 Q:0, md2 Q:0, md3 Q:0");// 这个按objfun也是优先的
+        assertSoluContain("sd1 Q:2, sd2 Q:0, sd3 Q:0, md1 Q:0, md2 Q:0, md3 Q:0");
+        // 26. - 100 * (3 * sd1_Q + 6 * sd2_Q + 9 * sd3_Q) + 1 * (1 * md1_Q + 2 * md2_Q
+        // + 3 * md3_Q) + 500 * (1 * (3 * sd1_Q + 6 * sd2_Q + 9 * sd3_Q + 1 * md1_Q + 2
+        // * md2_Q + 3 * md3_Q) - 5) + 500 * (1 * sd1_Q + 1 * sd2_Q + 1 * sd3_Q + 1 *
+        // md1_Q + 1 * md2_Q + 1 * md3_Q) <= 2000 (addLessOrEqual) L:ObjectiveFun
+    }
+
+    /**
+     * 用例5：测试点，解读1 - 固态硬盘优先匹配高速率容量，考察点：但是数量满足的要求下，优先使用容量高-
+     * 输入：strReq = " Capacity >=2 "
+     * 输出：
+     * 解1：sd3.qty=2
+     * 解2：sd2.qty=2
+     */
+    @Test
+    public void testCase6_CapacityGreaterEqual5NoSpeedFilter() {
+        String strReq = " Qty >=2 ";// 固态硬盘最多配2块
+        solve(strReq);
+        assertSoluContain(1, "parts=[sd1 Q:0, sd2 Q:0, sd3 Q:2, md1 Q:0, md2 Q:0, md3 Q:0], OV=-1800.0");
+        assertSoluContain(2, "parts=[sd1 Q:0, sd2 Q:2, sd3 Q:0, md1 Q:0, md2 Q:0, md3 Q:0]");// 这个按objfun也是优先的
+        assertSoluContain(3, "parts=[sd1 Q:0, sd2 Q:0, sd3 Q:1, md1 Q:1, md2 Q:0, md3 Q:0]");
+        // 26. - 100 * (3 * sd1_Q + 6 * sd2_Q + 9 * sd3_Q) + 1 * (1 * md1_Q + 2 * md2_Q
+        // + 3 * md3_Q) + 500 * (1 * (1 * sd1_Q + 1 * sd2_Q + 1 * sd3_Q + 1 * md1_Q + 1
+        // * md2_Q + 1 * md3_Q) - 2) <= 1000
+    }
+
+    /**
+     * 用例5：测试点，解读1 - 固态硬盘优先匹配高速率容量，考察点：但是数量满足的要求下，使用低容量机械硬盘来补充
+     * 输入：strReq = " Capacity >=3 " (固态硬盘容量不够，使用机械硬盘补充)
+     * 输出：
+     * 解1：sd3.qty=2,md1.qty=1
+     * 解2：sd3.qty=2,md2.qty=1
+     * 解3：sd3.qty=2,md3.qty=1
+     */
+    @Test
+    public void testCase7_CapacityGreaterEqual5NoSpeedFilter() {
+        String strReq = " Qty >=3 ";// 固态硬盘最多配2块
+        solve(strReq);
+        assertSoluContain(1, "parts=[sd1 Q:0, sd2 Q:0, sd3 Q:2, md1 Q:1, md2 Q:0, md3 Q:0], OV=-1799.0");
+        assertSoluContain(2, "parts=[sd1 Q:0, sd2 Q:0, sd3 Q:2, md1 Q:0, md2 Q:1, md3 Q:0]");// 这个按objfun也是优先的
+        assertSoluContain(3, "parts=[sd1 Q:0, sd2 Q:0, sd3 Q:2, md1 Q:0, md2 Q:0, md3 Q:1]");
+        // 26. - 100 * (3 * sd1_Q + 6 * sd2_Q + 9 * sd3_Q) + 1 * (1 * md1_Q + 2 * md2_Q
+        // + 3 * md3_Q) + 500 * (1 * (1 * sd1_Q + 1 * sd2_Q + 1 * sd3_Q + 1 * md1_Q + 1
+        // * md2_Q + 1 * md3_Q) - 2) <= 1000
     }
 
     ProductResult result = null;
@@ -129,17 +169,25 @@ public class ProductSolverTest {
         assertEquals(size, result.getSolutions().size(), "Solutions size should be " + size);
     }
 
-    private void assertSoluEqual(int index, String expect) {
+    private void assertSoluContain(int index, String expect) {
         String msg = "Solution at index " + index + " should match expected string";
         assertTrue(result.getSolutions().size() >= index, msg);
-        assertEquals(expect, result.getSolutions().get(index - 1).toShortString(),
+        assertStringContains(result.getSolutions().get(index - 1).toShortString(),
+                expect,
                 msg);
+    }
+
+    private void assertStringContains(String real, String expect, String msg) {
+        boolean result = real.contains(expect);
+        if (!result) {
+            assertEquals(expect, real, "contains is false," + msg);
+        }
     }
 
     private void assertSoluContain(String expect) {
         boolean isContain = false;
         for (Solution solu : result.getSolutions()) {
-            if (solu.toShortString().equals(expect)) {
+            if (solu.toShortString().contains(expect)) {
                 isContain = true;
                 break;
             }

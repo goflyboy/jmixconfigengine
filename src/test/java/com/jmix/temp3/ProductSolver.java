@@ -216,14 +216,6 @@ public class ProductSolver {
             }
         }
 
-        // // 机械硬盘数量限制（可选）
-        // List<PartVar> mechanicalParts = partVars.stream()
-        // .filter(pv -> !pv.isSolidState())
-        // .collect(Collectors.toList());
-
-        // for (PartVar pv : mechanicalParts) {
-        // model.addLessOrEqual(pv.qty, 3); // 假设最多3块
-        // }
     }
 
     // 规则1: 固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量
@@ -241,20 +233,20 @@ public class ProductSolver {
         if (solidStateParts.isEmpty() || mechanicalParts.isEmpty()) {
             return;
         }
+        // 创建固态硬盘总容量表达式
+        TrackedLinearExpr ssTotalCapacity = model.newTrackedExpr("SS_Total_Capacity");
+        for (PartVar pv : solidStateParts) {
+            ssTotalCapacity.addTerm(pv.qty, pv.getCapacity());
+        }
 
+        // 创建机械硬盘总容量表达式
+        TrackedLinearExpr mechTotalCapacity = model.newTrackedExpr("Mech_Total_Capacity");
+        for (PartVar pv : mechanicalParts) {
+            mechTotalCapacity.addTerm(pv.qty, pv.getCapacity());
+        }
         // 如果是容量需求
         if ("Capacity".equals(req.getAttrCode())) {
-            // 创建固态硬盘总容量表达式
-            TrackedLinearExpr ssTotalCapacity = model.newTrackedExpr("SS_Total_Capacity");
-            for (PartVar pv : solidStateParts) {
-                ssTotalCapacity.addTerm(pv.qty, pv.getCapacity());
-            }
 
-            // 创建机械硬盘总容量表达式
-            TrackedLinearExpr mechTotalCapacity = model.newTrackedExpr("Mech_Total_Capacity");
-            for (PartVar pv : mechanicalParts) {
-                mechTotalCapacity.addTerm(pv.qty, pv.getCapacity());
-            }
             int requiredCapacity = Integer.parseInt(req.getAttrValue());
 
             // 创建固态硬盘是否足够的布尔变量
@@ -273,8 +265,7 @@ public class ProductSolver {
             // 创建目标函数
             TrackedLinearExpr objectiveExpr = model.newTrackedExpr("ObjectiveFun");
 
-            // 基础目标: 最大化SSD使用（负权重）
-            // objectiveExpr.addExpr(ssTotalCapacity, -10000);
+            // 基础目标: 最大化SSD使用（负权重）--容量越大越好
             objectiveExpr.addExpr(ssTotalCapacity, -100);
 
             // HDD惩罚 = HDD容量 * 惩罚系数S
@@ -289,8 +280,6 @@ public class ProductSolver {
 
             // 创建过度配置变量
             // 约束：excessCapacity = totalCapacity - requiredCapacity
-            // IntVar excessCapacity = createSimpleExcessCapacityVar(model,
-            // totalCapacityExpr, requiredCapacity);
             TrackedLinearExpr tExpr = model.newTrackedExpr("excessCapacityExpr");
             tExpr.addExpr(totalCapacityExpr, 1);
             tExpr.addConstant(-requiredCapacity);
@@ -306,10 +295,10 @@ public class ProductSolver {
 
             objectiveExpr.addExpr(totalPartsExpr, 500); // 零件数量惩罚
 
-            // model.addLessOrEqual(objectiveExpr, 2000);
+            model.addLessOrEqual(objectiveExpr, 2000);
             model.setObjectExpr(objectiveExpr);
 
-            model.minimize(objectiveExpr); // 设置目标函数为最小化（因为SSD有负权重）
+            // model.minimize(objectiveExpr); // 设置目标函数为最小化（因为SSD有负权重）
 
         } else {// 给的数量qty总数
             // 创建固态硬盘总容量表达式
@@ -337,13 +326,28 @@ public class ProductSolver {
             // 创建目标函数
             TrackedLinearExpr objectiveExpr = model.newTrackedExpr("ObjectiveFunQty");
 
-            // 基础目标: 最大化SSD使用（负权重）
-            objectiveExpr.addExpr(ssTotalQty, -100);
+            // 基础目标: 最大化SSD使用（负权重）--容量越大越好
+            objectiveExpr.addExpr(ssTotalCapacity, -100);
+            // objectiveExpr.addExpr(ssTotalQty, -100);
+            // HDD惩罚 = HDD容量 * 惩罚系数S，容量越小越好
+            objectiveExpr.addExpr(mechTotalCapacity, 1);
+            // objectiveExpr.addExpr(mechTotalQty, 1);
 
-            // HDD惩罚 = HDD容量 * 惩罚系数S
-            objectiveExpr.addExpr(mechTotalQty, 1);
+            // 3. 惩罚过度配置（重要！）
+            // 创建总容量变量
+            TrackedLinearExpr totalQtyExpr = model.newTrackedExpr("totalQtyExpr");
+            for (PartVar pv : partVars) {
+                totalQtyExpr.addTerm(pv.qty, 1);
+            }
+            // 创建过度配置变量
+            // 约束：excessCapacity = totalCapacity - requiredCapacity
+            TrackedLinearExpr excessQyExpr = model.newTrackedExpr("excessQyExpr");
+            excessQyExpr.addExpr(totalQtyExpr, 1);
+            excessQyExpr.addConstant(-requiredQty);
+            // 2. 过度配置惩罚
+            objectiveExpr.addExpr(excessQyExpr, 500); // 惩罚过度配置
 
-            model.addLessOrEqual(objectiveExpr, -1);
+            model.addLessOrEqual(objectiveExpr, 1000);
             model.setObjectExpr(objectiveExpr);
             // model.minimize(objectiveExpr); // 设置目标函数为最小化（因为SSD有负权重）
 
