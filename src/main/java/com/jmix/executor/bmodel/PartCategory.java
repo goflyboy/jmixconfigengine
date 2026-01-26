@@ -104,7 +104,7 @@ public class PartCategory extends ModuleBase implements IModule, IPart {
         if (hasMatchedPartCategoryOfReq) {
             // 先匹配当前原子part
             List<Part> filterParts = querySubAtomicParts(category, constraintReq);
-            resultPartCategory.addSubParts(filterParts);
+            resultPartCategory.addAtomicPartsWithoutStructure(filterParts);
         }
         // 在去自己的子分类中匹配
         for (PartCategory pc : category.getPartCategorys()) {
@@ -291,21 +291,6 @@ public class PartCategory extends ModuleBase implements IModule, IPart {
         throw new IllegalArgumentException("Attribute '" + attrCode + "' not found in schema");
     }
 
-    // /**
-    // * 添加子部件分类
-    // *
-    // * @param partCategories 子部件分类列表
-    // */
-    // public void addPartCategory(PartCategory partCategory) {
-    // this.partCategoryMap.put(partCategory.getCode(), partCategory);
-    // }
-
-    // public void addPartCategory(List<PartCategory> partCategories) {
-    // for (PartCategory partCategory : partCategories) {
-    // addPartCategory(partCategory);
-    // }
-    // }
-
     /**
      * 添加子部件列表
      *
@@ -466,7 +451,7 @@ public class PartCategory extends ModuleBase implements IModule, IPart {
     @JsonIgnore
     @Override
     public List<Part> getAtomicParts() {
-        return super.getAllAtomicParts();
+        return super.getAtomicParts();
     }
 
     /**
@@ -478,6 +463,18 @@ public class PartCategory extends ModuleBase implements IModule, IPart {
     @JsonIgnore
     public String getAtomicPartShortString() {
         List<Part> atomicParts = getAtomicParts();
+        return PartUtils.toShortString(atomicParts);
+    }
+
+    /**
+     * 获取原子部件的短字符串表示
+     * 格式：Size:xx Codes: code1,code2,....（最多MAX_DISPLAY_CODES个代码）
+     * 
+     * @return 原子部件的短字符串表示
+     */
+    @JsonIgnore
+    public String getAllAtomicPartShortString() {
+        List<Part> atomicParts = getAllAtomicParts();
         return PartUtils.toShortString(atomicParts);
     }
 

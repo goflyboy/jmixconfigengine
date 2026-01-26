@@ -74,7 +74,7 @@ public class PartCategoryConstraintExecutorImpl {
                 log.error("PartCategory not found: {}", partCatagoryReq.getPartCatagoryCode());
                 return Result.failed("PartCategory not found: " + partCatagoryReq.getPartCatagoryCode());
             }
-            log.info("Priority-orginal aparts: {}", originalCategory.getAtomicPartShortString());
+            log.info("Priority-orginal aparts: {}", originalCategory.getAllAtomicPartShortString());
             // 遍历所有部件约束请求，逐步过滤
             PartCategory filteredCategory = originalCategory;
             List<ParConstraint> partConstraintFromReqs = new ArrayList<>();
@@ -84,10 +84,10 @@ public class PartCategoryConstraintExecutorImpl {
                 // 查询满足条件的PartCategory
                 filteredCategory = filteredCategory.query(partConstraintReq);
                 String msg = String.format("Priority-filtered aparts: {%s} by {%s}",
-                        filteredCategory.getAtomicPartShortString(),
+                        filteredCategory.getAllAtomicPartShortString(),
                         partConstraintReq.toShortString());
                 log.info(msg);
-                if (filteredCategory.getAtomicParts().isEmpty()) {
+                if (filteredCategory.getAllAtomicPartShortString().isEmpty()) {
                     return Result.noSolution(msg);
                 }
                 resolveAddPartConstraint(filteredCategory, partConstraintReq, partConstraintFromReqs);
@@ -429,7 +429,7 @@ public class PartCategoryConstraintExecutorImpl {
             String categoryCode = partConstraint.getOrgReq().getPartCatagoryCode();
             allPartCategoryCodes.add(categoryCode);
             // 合并原子部件
-            List<Part> atomicParts = partConstraint.getFilteredCategory().getAtomicParts();
+            List<Part> atomicParts = partConstraint.getFilteredCategory().getAllAtomicParts();
             addPartsToMap(mergedAtomicParts, atomicParts);
         }
 
@@ -440,7 +440,7 @@ public class PartCategoryConstraintExecutorImpl {
             for (PartCategory subPartCategory : partCategoryList) {
                 if (!allPartCategoryCodes.contains(subPartCategory.getCode())) {
                     // 补充未包含的子分类的所有原子部件
-                    List<Part> subAtomicParts = subPartCategory.getAtomicParts();
+                    List<Part> subAtomicParts = subPartCategory.getAllAtomicParts();
                     addPartsToMap(mergedAtomicParts, subAtomicParts);
                 }
             }

@@ -212,8 +212,10 @@ public class ModuleBase extends Onto {
     public void addAtomicPartsWithoutStructure(List<? extends IPart> parts) {
         for (IPart part : parts) {
             if (part instanceof Part) {
-                atomicParts.add((Part) part);
-                atomicPartMap.put(part.getCode(), (Part) part);
+                if (!atomicPartMap.containsKey(part.getCode())) {
+                    atomicParts.add((Part) part);
+                    atomicPartMap.put(part.getCode(), (Part) part);
+                }
             } else {
                 log.error("Unsupported part type: {}, only Part instances are supported",
                         part.getClass().getSimpleName());
@@ -234,7 +236,7 @@ public class ModuleBase extends Onto {
         Map<String, IPart> unAddedParts = new HashMap<>();
         Map<String, IPart> allPartMap = new HashMap<>();
         for (IPart part : parts) {
-            allPartMap.put(part.getCode(), (Part) part);
+            allPartMap.put(part.getCode(), part);
         }
 
         for (IPart part : parts) {
