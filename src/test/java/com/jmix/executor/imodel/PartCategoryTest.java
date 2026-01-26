@@ -296,7 +296,6 @@ public class PartCategoryTest {
 
         // partMap和partCategoryMap不应该被克隆
         assertTrue(cloned.getAllParts().isEmpty(), "partMap should not be cloned");
-        assertTrue(cloned.getPartCategoryMap().isEmpty(), "partCategoryMap should not be cloned");
     }
 
     @Test

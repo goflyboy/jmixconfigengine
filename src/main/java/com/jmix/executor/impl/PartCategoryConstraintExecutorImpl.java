@@ -8,16 +8,16 @@ import com.jmix.executor.bmodel.base.Pair;
 import com.jmix.executor.bmodel.logic.PriorityRuleSchema;
 import com.jmix.executor.bmodel.logic.PriorityStrategy;
 import com.jmix.executor.bmodel.logic.Rule;
+import com.jmix.executor.cmodel.ModuleInst;
+import com.jmix.executor.cmodel.ParaInst;
+import com.jmix.executor.cmodel.PartInst;
 import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
 import com.jmix.executor.impl.algmodel.RelaxVar;
 import com.jmix.executor.model.AttrFunConstant;
 import com.jmix.executor.model.ConstraintConfig;
 import com.jmix.executor.model.InferPartCategoryReq;
-import com.jmix.executor.cmodel.ModuleInst;
 import com.jmix.executor.model.ParConstraint;
-import com.jmix.executor.cmodel.ParaInst;
 import com.jmix.executor.model.PartConstraintReq;
-import com.jmix.executor.cmodel.PartInst;
 import com.jmix.executor.model.Result;
 
 import com.google.ortools.sat.CpModel;
@@ -83,8 +83,13 @@ public class PartCategoryConstraintExecutorImpl {
                 // attrComparator, attrValue构建约束表达式）
                 // 查询满足条件的PartCategory
                 filteredCategory = filteredCategory.query(partConstraintReq);
-                log.info("Priority-filtered aparts: {} by {}", filteredCategory.getAtomicPartShortString(),
+                String msg = String.format("Priority-filtered aparts: {%s} by {%s}",
+                        filteredCategory.getAtomicPartShortString(),
                         partConstraintReq.toShortString());
+                log.info(msg);
+                if (filteredCategory.getAtomicParts().isEmpty()) {
+                    return Result.noSolution(msg);
+                }
                 resolveAddPartConstraint(filteredCategory, partConstraintReq, partConstraintFromReqs);
             }
 
@@ -431,8 +436,8 @@ public class PartCategoryConstraintExecutorImpl {
         // 判断父分类是否包含在allPartCategoryCodes中
         if (!allPartCategoryCodes.contains(originalCategory.getCode())) {
             // 要把没有包含的子分类的部件补充上
-            Map<String, PartCategory> partCategoryMap = originalCategory.getPartCategoryMap();
-            for (PartCategory subPartCategory : partCategoryMap.values()) {
+            List<PartCategory> partCategoryList = originalCategory.getPartCategorys();
+            for (PartCategory subPartCategory : partCategoryList) {
                 if (!allPartCategoryCodes.contains(subPartCategory.getCode())) {
                     // 补充未包含的子分类的所有原子部件
                     List<Part> subAtomicParts = subPartCategory.getAtomicParts();
@@ -442,7 +447,7 @@ public class PartCategoryConstraintExecutorImpl {
         }
         // 克隆原始分类并添加合并的部件
         PartCategory resultCategory = originalCategory.clone();
-        resultCategory.addParts(new ArrayList<>(mergedAtomicParts.values()));
+        resultCategory.addAtomicPartsWithoutStructure(new ArrayList<>(mergedAtomicParts.values()));
         return resultCategory;
     }
 

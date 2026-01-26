@@ -879,7 +879,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         for (Part part : categoryPart.getAtomicParts()) {
             createPartVar(part);
         }
-        for (PartCategory subCategory : categoryPart.getPartCategoryMap().values()) {
+        for (PartCategory subCategory : categoryPart.getPartCategorys()) {
             createPartCategoryVar(subCategory);
         }
         return partCategoryVar;
