@@ -75,6 +75,14 @@ public class PartCategory extends ModuleBase implements IModule, IPart {
         return pc;
     }
 
+    @Override
+    public PartCategory findPartCategory(String categoryCode) {
+        if (this.getCode().equals(categoryCode)) {
+            return this;
+        }
+        return super.findPartCategory(categoryCode);
+    }
+
     /**
      * 查询满足条件的Part
      *
@@ -99,8 +107,8 @@ public class PartCategory extends ModuleBase implements IModule, IPart {
             resultPartCategory.addSubParts(filterParts);
         }
         // 在去自己的子分类中匹配
-        for (PartCategory pc : category.partCategoryMap.values()) {
-            resultPartCategory.addPartCategory(query(pc, constraintReq, hasMatchedPartCategoryOfReq));
+        for (PartCategory pc : category.getPartCategorys()) {
+            resultPartCategory.addPart(query(pc, constraintReq, hasMatchedPartCategoryOfReq));
         }
         return resultPartCategory;
     }
@@ -157,40 +165,42 @@ public class PartCategory extends ModuleBase implements IModule, IPart {
         return filterParts;
     }
 
-    /**
-     * 根据代码查找PartCategory（可能是this，也可能是子PartCategory）
-     *
-     * @param category 当前PartCategory
-     * @param code     要查找的代码
-     * @return 找到的PartCategory，如果未找到则返回null
-     */
-    @JsonIgnore
-    private PartCategory findPartCategoryByCode(PartCategory category, String code) {
-        if (code == null || code.trim().isEmpty()) {
-            log.error("PartCategory code is null or empty");
-            return null;
-        }
-        // 如果是当前PartCategory的code，直接返回
-        if (category.getCode().equals(code)) {
-            return category;
-        }
-        // 在子PartCategory中查找
-        if (category.partCategoryMap != null && !category.partCategoryMap.isEmpty()) {
-            // 先在直接子分类中查找
-            PartCategory found = category.partCategoryMap.get(code);
-            if (found != null) {
-                return found;
-            }
-            // 递归在子分类中查找
-            for (PartCategory subCategory : category.partCategoryMap.values()) {
-                PartCategory result = findPartCategoryByCode(subCategory, code);
-                if (result != null) {
-                    return result;
-                }
-            }
-        }
-        return null;
-    }
+    // /**
+    // * 根据代码查找PartCategory（可能是this，也可能是子PartCategory）
+    // *
+    // * @param category 当前PartCategory
+    // * @param code 要查找的代码
+    // * @return 找到的PartCategory，如果未找到则返回null
+    // */
+    // @JsonIgnore
+    // private PartCategory findPartCategoryByCode(PartCategory category, String
+    // code) {
+    // if (code == null || code.trim().isEmpty()) {
+    // log.error("PartCategory code is null or empty");
+    // return null;
+    // }
+    // // 如果是当前PartCategory的code，直接返回
+    // if (category.getCode().equals(code)) {
+    // return category;
+    // }
+    // // 在子PartCategory中查找
+    // if (category.partCategoryMap != null && !category.partCategoryMap.isEmpty())
+    // {
+    // // 先在直接子分类中查找
+    // PartCategory found = category.partCategoryMap.get(code);
+    // if (found != null) {
+    // return found;
+    // }
+    // // 递归在子分类中查找
+    // for (PartCategory subCategory : category.partCategoryMap.values()) {
+    // PartCategory result = findPartCategoryByCode(subCategory, code);
+    // if (result != null) {
+    // return result;
+    // }
+    // }
+    // }
+    // return null;
+    // }
 
     /**
      * 检查属性是否为实例属性
@@ -281,20 +291,20 @@ public class PartCategory extends ModuleBase implements IModule, IPart {
         throw new IllegalArgumentException("Attribute '" + attrCode + "' not found in schema");
     }
 
-    /**
-     * 添加子部件分类
-     *
-     * @param partCategories 子部件分类列表
-     */
-    public void addPartCategory(PartCategory partCategory) {
-        this.partCategoryMap.put(partCategory.getCode(), partCategory);
-    }
+    // /**
+    // * 添加子部件分类
+    // *
+    // * @param partCategories 子部件分类列表
+    // */
+    // public void addPartCategory(PartCategory partCategory) {
+    // this.partCategoryMap.put(partCategory.getCode(), partCategory);
+    // }
 
-    public void addPartCategory(List<PartCategory> partCategories) {
-        for (PartCategory partCategory : partCategories) {
-            addPartCategory(partCategory);
-        }
-    }
+    // public void addPartCategory(List<PartCategory> partCategories) {
+    // for (PartCategory partCategory : partCategories) {
+    // addPartCategory(partCategory);
+    // }
+    // }
 
     /**
      * 添加子部件列表

@@ -1,4 +1,4 @@
-package com.jmix.tool.impl;
+package com.jmix.tool.impl.llm;
 
 import lombok.extern.slf4j.Slf4j;
 

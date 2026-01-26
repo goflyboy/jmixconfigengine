@@ -1,6 +1,6 @@
-package com.jmix.tool.impl;
+package com.jmix.tool.impl.llm;
 
-import com.jmix.tool.LLMInvoker;
+import com.jmix.tool.impl.ModelGenneratorException;
 
 import lombok.extern.slf4j.Slf4j;
 

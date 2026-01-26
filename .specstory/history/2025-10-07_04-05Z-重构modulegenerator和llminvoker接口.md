@@ -169,7 +169,7 @@ Lines added: 245, lines removed: 1
 + package com.jmix.tool.impl;
 + 
 + import com.jmix.executor.model.AlgLoaderException;
-+ import com.jmix.tool.LLMInvoker;
++ import com.jmix.tool.impl.llm.LLMInvoker;
 + 
 + import lombok.extern.slf4j.Slf4j;
 + 
@@ -449,7 +449,7 @@ Lines added: 1, lines removed: 15
   package com.jmix.tool.impl;
   
 - import com.jmix.executor.model.AlgLoaderException;
-+ import com.jmix.tool.LLMInvoker;
++ import com.jmix.tool.impl.llm.LLMInvoker;
   
   import lombok.extern.slf4j.Slf4j;
 - 
@@ -1123,7 +1123,7 @@ Lines added: undefined, lines removed: 11
   package com.jmix.tool.impl;
   
 - import com.jmix.executor.model.AlgLoaderException;
-  import com.jmix.tool.LLMInvoker;
+  import com.jmix.tool.impl.llm.LLMInvoker;
 - 
 - import lombok.extern.slf4j.Slf4j;
 - 
@@ -2091,7 +2091,7 @@ Before I edit, I’ll create a detailed todo list since this involves multiple s
 @@
 -package com.jmix.tool.impl;
 -
--import com.jmix.tool.LLMInvoker;
+-import com.jmix.tool.impl.llm.LLMInvoker;
 -
 -import lombok.extern.slf4j.Slf4j;
 -
@@ -2109,7 +2109,7 @@ Before I edit, I’ll create a detailed todo list since this involves multiple s
 -import dev.langchain4j.model.output.Response;
 +package com.jmix.tool.impl;
 +
-+import com.jmix.tool.LLMInvoker;
++import com.jmix.tool.impl.llm.LLMInvoker;
 +
 +import lombok.extern.slf4j.Slf4j;
 +

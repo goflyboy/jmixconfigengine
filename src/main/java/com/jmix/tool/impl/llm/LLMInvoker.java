@@ -1,4 +1,4 @@
-package com.jmix.tool;
+package com.jmix.tool.impl.llm;
 
 /**
  * LLM调用接口

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,6 +20,7 @@ import java.util.Map;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
+@Slf4j
 public class ModuleBase extends Onto {
 
     /**
@@ -30,12 +32,6 @@ public class ModuleBase extends Onto {
      * 部件分类列表
      */
     protected List<PartCategory> partCategorys = new ArrayList<>();
-
-    /**
-     * 部件分类映射表
-     */
-    @JsonIgnore
-    protected Map<String, PartCategory> partCategoryMap = new HashMap<>();
 
     /**
      * 部件映射表
@@ -72,13 +68,30 @@ public class ModuleBase extends Onto {
      */
     @JsonIgnore
     public PartCategory findPartCategory(String categoryCode) {
-        if (partCategoryMap == null || partCategoryMap.isEmpty()) {
-            // 根据partCategorys初始化partCategoryMap
-            for (PartCategory partCategory : partCategorys) {
-                partCategoryMap.put(partCategory.getCode(), partCategory);
+        PartCategory result = null;
+        // 根据partCategorys初始化partCategoryMap
+        for (PartCategory pc : this.partCategorys) {
+            result = findPartCategory(pc, categoryCode);
+            if (null != result) {
+                return result;
             }
         }
-        return partCategoryMap.get(categoryCode);
+        return result;
+    }
+
+    private PartCategory findPartCategory(PartCategory category, String categoryCode) {
+        if (category.getCode().equals(categoryCode)) {
+            return category;
+        }
+        PartCategory result = null;
+        // 根据partCategorys初始化partCategoryMap
+        for (PartCategory pc : category.getPartCategorys()) {
+            result = findPartCategory(pc, categoryCode);
+            if (null != result) {
+                return result;
+            }
+        }
+        return result;
     }
 
     /**
@@ -116,6 +129,28 @@ public class ModuleBase extends Onto {
     }
 
     /**
+     * 获取所有的部件
+     * 
+     * @return
+     */
+    @JsonIgnore
+    public List<PartCategory> getAllPartCategorys() {
+        List<PartCategory> allPartCategories = new ArrayList<>();
+        // 根据partCategorys初始化partCategoryMap
+        for (PartCategory pc : this.partCategorys) {
+            getAllPartCategorys(pc, allPartCategories);
+        }
+        return allPartCategories;
+    }
+
+    private void getAllPartCategorys(PartCategory category, List<PartCategory> allPartCategories) {
+        allPartCategories.add(category);
+        for (PartCategory pc : category.getPartCategorys()) {
+            getAllPartCategorys(pc, allPartCategories);
+        }
+    }
+
+    /**
      * 获取部件
      * 
      * @return
@@ -148,11 +183,43 @@ public class ModuleBase extends Onto {
     @JsonIgnore
     public void addPart(IPart part) {
         if (part instanceof Part) {
-            atomicParts.add((Part) part);
-            atomicPartMap.put(part.getCode(), (Part) part);
+            if (findAtomicPart(part.getCode()) != null) {
+                log.warn("part {}, has existed, will be ommited!", part.getCode());
+            } else {
+                atomicParts.add((Part) part);
+                atomicPartMap.put(part.getCode(), (Part) part);
+            }
+
         } else if (part instanceof PartCategory) {
-            partCategorys.add((PartCategory) part);
-            partCategoryMap.put(part.getCode(), (PartCategory) part);
+            if (findPartCategory(part.getCode()) != null) {
+                log.warn("findPartCategory {}, has existed, will be ommited!", part.getCode());
+            } else {
+                PartCategory father = findPartCategory((part.getFatherCode()));
+                if (null != father && !(father == this)) {
+                    father.addPart(part);
+                }
+                partCategorys.add((PartCategory) part);
+            }
+        }
+    }
+
+    /**
+     * 添加部件,不带结构的
+     * 
+     * @param parts 部件列表
+     */
+    @JsonIgnore
+    public void addAtomicPartsWithoutStructure(List<? extends IPart> parts) {
+        for (IPart part : parts) {
+            if (part instanceof Part) {
+                atomicParts.add((Part) part);
+                atomicPartMap.put(part.getCode(), (Part) part);
+            } else {
+                log.error("Unsupported part type: {}, only Part instances are supported",
+                        part.getClass().getSimpleName());
+                throw new IllegalArgumentException("Unsupported part type: " + part.getClass().getSimpleName()
+                        + ", only Part instances are supported");
+            }
         }
     }
 
@@ -163,7 +230,39 @@ public class ModuleBase extends Onto {
      */
     @JsonIgnore
     public void addParts(List<? extends IPart> parts) {
+        // 先根据fatherCode/code构建好层次广西
+        Map<String, IPart> unAddedParts = new HashMap<>();
+        Map<String, IPart> allPartMap = new HashMap<>();
         for (IPart part : parts) {
+            allPartMap.put(part.getCode(), (Part) part);
+        }
+
+        for (IPart part : parts) {
+            // 没有父节点的part，直接添加到当前列表中
+            if (part.getFatherCode() == null || part.getFatherCode().isEmpty()) {
+                addPart(part);
+                continue;
+            }
+            // 有父节点，分两种场景
+            // A.不在带添加的列表中，已存在当前产品中
+            IPart fatherPart = findPartCategory((part.getFatherCode()));
+            if (null != fatherPart) {
+                ((PartCategory) fatherPart).addPart(part);
+            } else {
+                fatherPart = allPartMap.get(part.getFatherCode());
+                if (null != fatherPart) {
+                    ((PartCategory) fatherPart).addPart(part);
+                    unAddedParts.put(fatherPart.getCode(), fatherPart);
+                } else {
+                    log.error("Father part not found for part: {}, fatherCode: {}", part.getCode(),
+                            part.getFatherCode());
+                    throw new IllegalArgumentException("Father part not found for part: " + part.getCode()
+                            + ", fatherCode: " + part.getFatherCode());
+                }
+            }
+
+        }
+        for (IPart part : unAddedParts.values()) {
             addPart(part);
         }
     }

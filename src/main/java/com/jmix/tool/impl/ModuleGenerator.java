@@ -1,7 +1,8 @@
 package com.jmix.tool.impl;
 
-import com.jmix.tool.LLMInvoker;
+import com.jmix.tool.impl.llm.LLMInvoker;
 
+import com.jmix.tool.impl.llm.LLMInvokerImpl;
 import lombok.extern.slf4j.Slf4j;
 
 /**
