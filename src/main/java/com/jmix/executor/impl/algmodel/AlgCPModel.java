@@ -216,7 +216,7 @@ public class AlgCPModel {
         log.info("relax:{} -----{}", currentRelaxVarName, funName);
         AlgCPConstraint constraint = new AlgCPConstraint(ct, this.currentRelaxVar, this.currentRelaxVarName);
         constraint.setName(funName);
-        constraints.add(constraint);
+        // 注意：约束添加到列表的操作现在在 createAndTrackConstraint 方法中进行
         return constraint;
     }
 
@@ -357,321 +357,552 @@ public class AlgCPModel {
         variableLogs.add(String.format("%s in [%d, %d]", name, lb, ub));
     }
 
+    /**
+     * 创建并记录约束的私有辅助方法（LinearArgument约束）
+     *
+     * @param constraint     原始约束对象
+     * @param leftExpr       左侧表达式
+     * @param rightValue     右侧值
+     * @param constraintName 约束名称
+     * @param operator       操作符
+     * @return 包装的约束对象
+     */
+    private AlgCPConstraint createAndTrackConstraint(Constraint constraint, LinearArgument leftExpr, long rightValue,
+            String constraintName, String operator) {
+        AlgCPConstraint algCt = attachRelax(constraint, constraintName);
+        algCt.setLeft(toNameString(leftExpr));
+        algCt.setOperator(operator);
+        algCt.setRight(String.valueOf(rightValue));
+        constraints.add(algCt);
+        return algCt;
+    }
+
+    /**
+     * 创建并记录约束的私有辅助方法（AlgCPLinearExpr约束）
+     *
+     * @param constraint     原始约束对象
+     * @param leftExpr       左侧表达式
+     * @param rightValue     右侧值
+     * @param constraintName 约束名称
+     * @param operator       操作符
+     * @return 包装的约束对象
+     */
+    private AlgCPConstraint createAndTrackConstraint(Constraint constraint, AlgCPLinearExpr leftExpr, long rightValue,
+            String constraintName, String operator) {
+        AlgCPConstraint algCt = attachRelax(constraint, constraintName);
+        algCt.setLeft(leftExpr.toString());
+        algCt.setLeftName(leftExpr.getName());
+        algCt.setOperator(operator);
+        algCt.setRight(String.valueOf(rightValue));
+        constraints.add(algCt);
+        return algCt;
+    }
+
+    /**
+     * 创建并记录约束的私有辅助方法（两个LinearArgument约束）
+     *
+     * @param constraint     原始约束对象
+     * @param leftExpr       左侧表达式
+     * @param rightExpr      右侧表达式
+     * @param constraintName 约束名称
+     * @param operator       操作符
+     * @return 包装的约束对象
+     */
+    private AlgCPConstraint createAndTrackConstraint(Constraint constraint, LinearArgument leftExpr,
+            LinearArgument rightExpr,
+            String constraintName, String operator) {
+        AlgCPConstraint algCt = attachRelax(constraint, constraintName);
+        algCt.setLeft(toNameString(leftExpr));
+        algCt.setOperator(operator);
+        algCt.setRight(toNameString(rightExpr));
+        constraints.add(algCt);
+        return algCt;
+    }
+
+    /**
+     * 创建并记录约束的私有辅助方法（LinearArgument和AlgCPLinearExpr约束）
+     *
+     * @param constraint     原始约束对象
+     * @param leftExpr       左侧表达式
+     * @param rightExpr      右侧表达式
+     * @param constraintName 约束名称
+     * @param operator       操作符
+     * @return 包装的约束对象
+     */
+    private AlgCPConstraint createAndTrackConstraint(Constraint constraint, LinearArgument leftExpr,
+            AlgCPLinearExpr rightExpr,
+            String constraintName, String operator) {
+        AlgCPConstraint algCt = attachRelax(constraint, constraintName);
+        algCt.setLeft(toNameString(leftExpr));
+        algCt.setOperator(operator);
+        algCt.setRight(rightExpr.toString());
+        algCt.setRightName(rightExpr.getName());
+        constraints.add(algCt);
+        return algCt;
+    }
+
+    /**
+     * 创建并记录约束的私有辅助方法（AlgCPLinearExpr和LinearArgument约束）
+     *
+     * @param constraint     原始约束对象
+     * @param leftExpr       左侧表达式
+     * @param rightExpr      右侧表达式
+     * @param constraintName 约束名称
+     * @param operator       操作符
+     * @return 包装的约束对象
+     */
+    private AlgCPConstraint createAndTrackConstraint(Constraint constraint, AlgCPLinearExpr leftExpr,
+            LinearArgument rightExpr,
+            String constraintName, String operator) {
+        AlgCPConstraint algCt = attachRelax(constraint, constraintName);
+        algCt.setLeft(leftExpr.toString());
+        algCt.setLeftName(leftExpr.getName());
+        algCt.setOperator(operator);
+        algCt.setRight(toNameString(rightExpr));
+        constraints.add(algCt);
+        return algCt;
+    }
+
+    /**
+     * 创建并记录布尔约束的辅助方法
+     *
+     * @param constraint     原始约束对象
+     * @param constraintName 约束名称
+     * @return 包装的约束对象
+     */
+    private AlgCPConstraint createAndTrackBoolConstraint(Constraint constraint, String constraintName) {
+        AlgCPConstraint algCt = attachRelax(constraint, constraintName);
+        constraints.add(algCt);
+        return algCt;
+    }
+
+    /**
+     * 将LinearArgument转换为名称字符串
+     *
+     * @param expr LinearArgument表达式
+     * @return 名称字符串
+     */
+    private String toNameString(LinearArgument expr) {
+        if (expr instanceof com.google.ortools.sat.IntVar) {
+            return ((com.google.ortools.sat.IntVar) expr).getName();
+        } else if (expr instanceof com.google.ortools.sat.BoolVar) {
+            return ((com.google.ortools.sat.BoolVar) expr).getName();
+        } else {
+            throw new IllegalArgumentException("Unsupported linear argument type: " + expr.getClass().getName());
+        }
+    }
+
     // 以下方法直接委托给底层的CpModel，保持接口兼容性
     // Boolean Constraints
 
     /**
      * 添加布尔或约束，至少有一个字面量为真
-     * 
+     *
      * @param literals 字面量数组
      * @return 添加的约束
      */
     public AlgCPConstraint addBoolOr(final Literal[] literals) {
         Constraint ct = cpModel.addBoolOr(literals);
-        return attachRelax(ct, "addBoolOr");
+        return createAndTrackBoolConstraint(ct, "addBoolOr");
     }
 
     /**
      * 添加布尔或约束，至少有一个字面量为真
-     * 
+     *
      * @param literals 字面量集合
      * @return 添加的约束
      */
     public AlgCPConstraint addBoolOr(final Iterable<Literal> literals) {
         Constraint ct = cpModel.addBoolOr(literals);
-        return attachRelax(ct, "addBoolOr");
+        return createAndTrackBoolConstraint(ct, "addBoolOr");
     }
 
     /**
      * 添加至少一个约束，等价于addBoolOr
-     * 
+     *
      * @param literals 字面量数组
      * @return 添加的约束
      */
     public AlgCPConstraint addAtLeastOne(final Literal[] literals) {
         Constraint ct = cpModel.addAtLeastOne(literals);
-        return attachRelax(ct, "addAtLeastOne");
+        return createAndTrackBoolConstraint(ct, "addAtLeastOne");
     }
 
     /**
      * 添加至少一个约束，等价于addBoolOr
-     * 
+     *
      * @param literals 字面量集合
      * @return 添加的约束
      */
     public AlgCPConstraint addAtLeastOne(final Iterable<Literal> literals) {
         Constraint ct = cpModel.addAtLeastOne(literals);
-        return attachRelax(ct, "addAtLeastOne");
+        return createAndTrackBoolConstraint(ct, "addAtLeastOne");
     }
 
     /**
      * 添加最多一个约束，最多有一个字面量为真
-     * 
+     *
      * @param literals 字面量数组
      * @return 添加的约束
      */
     public AlgCPConstraint addAtMostOne(final Literal[] literals) {
         Constraint ct = cpModel.addAtMostOne(literals);
-        return attachRelax(ct, "addAtMostOne");
+        return createAndTrackBoolConstraint(ct, "addAtMostOne");
     }
 
     /**
      * 添加最多一个约束，最多有一个字面量为真
-     * 
+     *
      * @param literals 字面量集合
      * @return 添加的约束
      */
     public AlgCPConstraint addAtMostOne(final Iterable<Literal> literals) {
         Constraint ct = cpModel.addAtMostOne(literals);
-        return attachRelax(ct, "addAtMostOne");
+        return createAndTrackBoolConstraint(ct, "addAtMostOne");
     }
 
     /**
      * 添加恰好一个约束，恰好有一个字面量为真
-     * 
+     *
      * @param literals 字面量数组
      * @return 添加的约束
      */
     public AlgCPConstraint addExactlyOne(final Literal[] literals) {
         Constraint ct = cpModel.addExactlyOne(literals);
-        return attachRelax(ct, "addExactlyOne");
+        return createAndTrackBoolConstraint(ct, "addExactlyOne");
     }
 
     /**
      * 添加恰好一个约束，恰好有一个字面量为真
-     * 
+     *
      * @param literals 字面量集合
      * @return 添加的约束
      */
     public AlgCPConstraint addExactlyOne(final Iterable<Literal> literals) {
         Constraint ct = cpModel.addExactlyOne(literals);
-        return attachRelax(ct, "addExactlyOne");
+        return createAndTrackBoolConstraint(ct, "addExactlyOne");
     }
 
     /**
      * 添加布尔与约束，所有字面量都为真
-     * 
+     *
      * @param literals 字面量数组
      * @return 添加的约束
      */
     public AlgCPConstraint addBoolAnd(final Literal[] literals) {
         Constraint ct = cpModel.addBoolAnd(literals);
-        return attachRelax(ct, "addBoolAnd");
+        return createAndTrackBoolConstraint(ct, "addBoolAnd");
     }
 
     /**
      * 添加布尔与约束，所有字面量都为真
-     * 
+     *
      * @param literals 字面量集合
      * @return 添加的约束
      */
     public AlgCPConstraint addBoolAnd(final Iterable<Literal> literals) {
         Constraint ct = cpModel.addBoolAnd(literals);
-        return attachRelax(ct, "addBoolAnd");
+        return createAndTrackBoolConstraint(ct, "addBoolAnd");
     }
 
     /**
      * 添加布尔异或约束，奇数个字面量为真
-     * 
+     *
      * @param literals 字面量数组
      * @return 添加的约束
      */
     public AlgCPConstraint addBoolXor(final Literal[] literals) {
         Constraint ct = cpModel.addBoolXor(literals);
-        return attachRelax(ct, "addBoolXor");
+        return createAndTrackBoolConstraint(ct, "addBoolXor");
     }
 
     /**
      * 添加布尔异或约束，奇数个字面量为真
-     * 
+     *
      * @param literals 字面量集合
      * @return 添加的约束
      */
     public AlgCPConstraint addBoolXor(final Iterable<Literal> literals) {
         Constraint ct = cpModel.addBoolXor(literals);
-        return attachRelax(ct, "addBoolXor");
+        return createAndTrackBoolConstraint(ct, "addBoolXor");
     }
 
     /**
      * 添加蕴含约束，a蕴含b
-     * 
+     *
      * @param a 前提字面量
      * @param b 结论字面量
      * @return 添加的约束
      */
     public AlgCPConstraint addImplication(final Literal a, final Literal b) {
         Constraint ct = cpModel.addImplication(a, b);
-        return attachRelax(ct, "addImplication");
+        return createAndTrackBoolConstraint(ct, "addImplication");
     }
 
     // Linear constraints
 
     /**
      * 添加等式约束，表达式等于指定值
-     * 
+     *
      * @param expr  线性表达式
      * @param value 目标值
      * @return 添加的约束
      */
     public AlgCPConstraint addEquality(final LinearArgument expr, final long value) {
         Constraint ct = cpModel.addEquality(expr, value);
-        return attachRelax(ct, "addEquality");
+        return createAndTrackConstraint(ct, expr, value, "addEquality", "==");
     }
 
     /**
      * 添加等式约束，两个表达式相等
-     * 
+     *
      * @param left  左侧表达式
      * @param right 右侧表达式
      * @return 添加的约束
      */
     public AlgCPConstraint addEquality(final LinearArgument left, final LinearArgument right) {
         Constraint ct = cpModel.addEquality(left, right);
-        return attachRelax(ct, "addEquality");
+        return createAndTrackConstraint(ct, left, right, "addEquality", "==");
     }
 
     /**
      * 添加小于等于约束，表达式小于等于指定值
-     * 
+     *
      * @param expr  线性表达式
      * @param value 目标值
      * @return 添加的约束
      */
     public AlgCPConstraint addLessOrEqual(final LinearArgument expr, final long value) {
         Constraint ct = cpModel.addLessOrEqual(expr, value);
-        return attachRelax(ct, "addLessOrEqual");
+        return createAndTrackConstraint(ct, expr, value, "addLessOrEqual", "<=");
     }
 
     /**
      * 添加小于等于约束，左侧表达式小于等于右侧表达式
-     * 
+     *
      * @param left  左侧表达式
      * @param right 右侧表达式
      * @return 添加的约束
      */
     public AlgCPConstraint addLessOrEqual(final LinearArgument left, final LinearArgument right) {
         Constraint ct = cpModel.addLessOrEqual(left, right);
-        return attachRelax(ct, "addLessOrEqual");
+        return createAndTrackConstraint(ct, left, right, "addLessOrEqual", "<=");
     }
 
     /**
      * 添加小于约束，表达式小于指定值
-     * 
+     *
      * @param expr  线性表达式
      * @param value 目标值
      * @return 添加的约束
      */
     public AlgCPConstraint addLessThan(final LinearArgument expr, final long value) {
         Constraint ct = cpModel.addLessThan(expr, value);
-        return attachRelax(ct, "addLessThan");
+        return createAndTrackConstraint(ct, expr, value, "addLessThan", "<");
     }
 
     /**
      * 添加小于约束，左侧表达式小于右侧表达式
-     * 
+     *
      * @param left  左侧表达式
      * @param right 右侧表达式
      * @return 添加的约束
      */
     public AlgCPConstraint addLessThan(final LinearArgument left, final LinearArgument right) {
         Constraint ct = cpModel.addLessThan(left, right);
-        return attachRelax(ct, "addLessThan");
+        return createAndTrackConstraint(ct, left, right, "addLessThan", "<");
     }
 
     /**
      * 添加大于等于约束，表达式大于等于指定值
-     * 
+     *
      * @param expr  线性表达式
      * @param value 目标值
      * @return 添加的约束
      */
     public AlgCPConstraint addGreaterOrEqual(final LinearArgument expr, final long value) {
         Constraint ct = cpModel.addGreaterOrEqual(expr, value);
-        return attachRelax(ct, "addGreaterOrEqual");
+        return createAndTrackConstraint(ct, expr, value, "addGreaterOrEqual", ">=");
     }
 
     /**
      * 添加大于等于约束，左侧表达式大于等于右侧表达式
-     * 
+     *
      * @param left  左侧表达式
      * @param right 右侧表达式
      * @return 添加的约束
      */
     public AlgCPConstraint addGreaterOrEqual(final LinearArgument left, final LinearArgument right) {
         Constraint ct = cpModel.addGreaterOrEqual(left, right);
-        return attachRelax(ct, "addGreaterOrEqual");
+        return createAndTrackConstraint(ct, left, right, "addGreaterOrEqual", ">=");
     }
 
     /**
      * 添加大于约束，表达式大于指定值
-     * 
+     *
      * @param expr  线性表达式
      * @param value 目标值
      * @return 添加的约束
      */
     public AlgCPConstraint addGreaterThan(final LinearArgument expr, final long value) {
         Constraint ct = cpModel.addGreaterThan(expr, value);
-        return attachRelax(ct, "addGreaterThan");
+        return createAndTrackConstraint(ct, expr, value, "addGreaterThan", ">");
     }
 
     /**
      * 添加大于约束，左侧表达式大于右侧表达式
-     * 
+     *
      * @param left  左侧表达式
      * @param right 右侧表达式
      * @return 添加的约束
      */
     public AlgCPConstraint addGreaterThan(final LinearArgument left, final LinearArgument right) {
         Constraint ct = cpModel.addGreaterThan(left, right);
-        return attachRelax(ct, "addGreaterThan");
+        return createAndTrackConstraint(ct, left, right, "addGreaterThan", ">");
     }
 
     /**
      * 添加不等于约束，表达式不等于指定值
-     * 
+     *
      * @param expr  线性表达式
      * @param value 目标值
      * @return 添加的约束
      */
     public AlgCPConstraint addDifferent(final LinearArgument expr, final long value) {
         Constraint ct = cpModel.addDifferent(expr, value);
-        return attachRelax(ct, "addDifferent");
+        return createAndTrackConstraint(ct, expr, value, "addDifferent", "!=");
     }
 
     /**
      * 添加不等于约束，两个表达式不相等
-     * 
+     *
      * @param left  左侧表达式
      * @param right 右侧表达式
      * @return 添加的约束
      */
     public AlgCPConstraint addDifferent(final LinearArgument left, final LinearArgument right) {
         Constraint ct = cpModel.addDifferent(left, right);
-        return attachRelax(ct, "addDifferent");
+        return createAndTrackConstraint(ct, left, right, "addDifferent", "!=");
     }
 
     // Integer constraints
 
     /**
      * 添加全不同约束，所有表达式值都不相同
-     * 
+     *
      * @param expressions 表达式数组
      * @return 添加的约束
      */
     public AlgCPConstraint addAllDifferent(final LinearArgument[] expressions) {
         Constraint ct = cpModel.addAllDifferent(expressions);
-        return attachRelax(ct, "addAllDifferent");
+        return createAndTrackBoolConstraint(ct, "addAllDifferent");
     }
 
     /**
      * 添加全不同约束，所有表达式值都不相同
-     * 
+     *
      * @param expressions 表达式集合
      * @return 添加的约束
      */
     public AlgCPConstraint addAllDifferent(final Iterable<? extends LinearArgument> expressions) {
         Constraint ct = cpModel.addAllDifferent(expressions);
-        return attachRelax(ct, "addAllDifferent");
+        return createAndTrackBoolConstraint(ct, "addAllDifferent");
+    }
+
+    /**
+     * 添加等式约束，AlgCPLinearExpr等于指定值
+     *
+     * @param expr  AlgCPLinearExpr表达式
+     * @param value 目标值
+     * @return 添加的约束
+     */
+    public AlgCPConstraint addEquality(final AlgCPLinearExpr expr, final long value) {
+        Constraint ct = cpModel.addEquality(expr.build(), value);
+        return createAndTrackConstraint(ct, expr, value, "addEquality", "==");
+    }
+
+    /**
+     * 添加小于等于约束，AlgCPLinearExpr小于等于指定值
+     *
+     * @param expr  AlgCPLinearExpr表达式
+     * @param value 目标值
+     * @return 添加的约束
+     */
+    public AlgCPConstraint addLessOrEqual(final AlgCPLinearExpr expr, final long value) {
+        Constraint ct = cpModel.addLessOrEqual(expr.build(), value);
+        return createAndTrackConstraint(ct, expr, value, "addLessOrEqual", "<=");
+    }
+
+    /**
+     * 添加小于约束，AlgCPLinearExpr小于指定值
+     *
+     * @param expr  AlgCPLinearExpr表达式
+     * @param value 目标值
+     * @return 添加的约束
+     */
+    public AlgCPConstraint addLessThan(final AlgCPLinearExpr expr, final long value) {
+        Constraint ct = cpModel.addLessThan(expr.build(), value);
+        return createAndTrackConstraint(ct, expr, value, "addLessThan", "<");
+    }
+
+    /**
+     * 添加大于等于约束，AlgCPLinearExpr大于等于指定值
+     *
+     * @param expr  AlgCPLinearExpr表达式
+     * @param value 目标值
+     * @return 添加的约束
+     */
+    public AlgCPConstraint addGreaterOrEqual(final AlgCPLinearExpr expr, final long value) {
+        Constraint ct = cpModel.addGreaterOrEqual(expr.build(), value);
+        return createAndTrackConstraint(ct, expr, value, "addGreaterOrEqual", ">=");
+    }
+
+    /**
+     * 添加大于约束，AlgCPLinearExpr大于指定值
+     *
+     * @param expr  AlgCPLinearExpr表达式
+     * @param value 目标值
+     * @return 添加的约束
+     */
+    public AlgCPConstraint addGreaterThan(final AlgCPLinearExpr expr, final long value) {
+        Constraint ct = cpModel.addGreaterThan(expr.build(), value);
+        return createAndTrackConstraint(ct, expr, value, "addGreaterThan", ">");
+    }
+
+    /**
+     * 添加不等于约束，AlgCPLinearExpr不等于指定值
+     *
+     * @param expr  AlgCPLinearExpr表达式
+     * @param value 目标值
+     * @return 添加的约束
+     */
+    public AlgCPConstraint addDifferent(final AlgCPLinearExpr expr, final long value) {
+        Constraint ct = cpModel.addDifferent(expr.build(), value);
+        return createAndTrackConstraint(ct, expr, value, "addDifferent", "!=");
+    }
+
+    /**
+     * 添加等式约束，LinearArgument等于AlgCPLinearExpr
+     *
+     * @param left  左侧LinearArgument表达式
+     * @param right 右侧AlgCPLinearExpr表达式
+     * @return 添加的约束
+     */
+    public AlgCPConstraint addEquality(final LinearArgument left, final AlgCPLinearExpr right) {
+        Constraint ct = cpModel.addEquality(left, right.build());
+        return createAndTrackConstraint(ct, left, right, "addEquality", "==");
+    }
+
+    /**
+     * 添加等式约束，AlgCPLinearExpr等于LinearArgument
+     *
+     * @param left  左侧AlgCPLinearExpr表达式
+     * @param right 右侧LinearArgument表达式
+     * @return 添加的约束
+     */
+    public AlgCPConstraint addEquality(final AlgCPLinearExpr left, final LinearArgument right) {
+        Constraint ct = cpModel.addEquality(left.build(), right);
+        return createAndTrackConstraint(ct, left, right, "addEquality", "==");
     }
 
     // Variable creation methods (delegated without registration)

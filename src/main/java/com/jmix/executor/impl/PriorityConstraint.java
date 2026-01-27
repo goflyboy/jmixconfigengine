@@ -4,9 +4,8 @@ import com.jmix.executor.bmodel.logic.PriorityRuleSchema;
 import com.jmix.executor.bmodel.logic.PriorityStrategy;
 import com.jmix.executor.bmodel.logic.PriorityType;
 import com.jmix.executor.bmodel.logic.Rule;
+import com.jmix.executor.impl.algmodel.AlgCPLinearExpr;
 import com.jmix.executor.impl.util.ExpressionCalculator;
-
-import com.google.ortools.sat.LinearExpr;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +30,7 @@ public class PriorityConstraint {
     /**
      * 线性表达式
      */
-    private LinearExpr expr;
+    private AlgCPLinearExpr expr;
 
     /**
      * 表达式字符串，如：sd1.S*110 + sd2.S*120 + md1.S*13

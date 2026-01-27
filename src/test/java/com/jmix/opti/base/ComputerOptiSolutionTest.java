@@ -5,6 +5,7 @@ import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.executor.bmodel.attr.DynamicAttributeType;
 import com.jmix.executor.bmodel.logic.PriorityStrategy;
 import com.jmix.executor.bmodel.logic.PriorityType;
+import com.jmix.executor.impl.algmodel.AlgCPLinearExpr;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
 import com.jmix.tool.bbuilder.anno.DAttrAnno1;
 import com.jmix.tool.bbuilder.anno.DAttrAnno2;
@@ -14,8 +15,6 @@ import com.jmix.tool.bbuilder.anno.DAttrInherit;
 import com.jmix.tool.bbuilder.anno.ModuleAnno;
 import com.jmix.tool.bbuilder.anno.PartAnno;
 import com.jmix.tool.bbuilder.anno.PriorityRuleAnno;
-
-import com.google.ortools.sat.LinearExpr;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -96,11 +95,11 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
             // proRule1-natuarl: 固态硬盘必须配置同一种，并且最多配置2块
             // proRule1-dsl: 拆分为proRule11和proRule11两条约束（和isSelected(S)、qty(Q)相关）
             // proRule11-cRule: sd1.S + sd2.S <=1
-            LinearExpr sumSelected = sum4Selected("fatherCode=sd");
+            AlgCPLinearExpr sumSelected = sum4Selected("fatherCode=sd");
             model.addLessOrEqual(sumSelected, 1);
 
             // proRule12-cRule: sd1.Q + sd2.Q <= 2
-            LinearExpr sumQty = sum4Quantity("fatherCode=sd");
+            AlgCPLinearExpr sumQty = sum4Quantity("fatherCode=sd");
             model.addLessOrEqual(sumQty, 2);
         }
 

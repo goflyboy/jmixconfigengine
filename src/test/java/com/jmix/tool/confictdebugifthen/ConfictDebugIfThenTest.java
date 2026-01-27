@@ -2,13 +2,12 @@ package com.jmix.tool.confictdebugifthen;
 
 import com.jmix.coretest.ConstraintAlgImplTestBase;
 import com.jmix.coretest.ModuleScenarioTestBase;
+import com.jmix.executor.impl.algmodel.AlgCPLinearExpr;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
 import com.jmix.tool.bbuilder.anno.ModuleAnno;
 import com.jmix.tool.bbuilder.anno.PartAnno;
 
 import com.google.ortools.sat.BoolVar;
-import com.google.ortools.sat.IntVar;
-import com.google.ortools.sat.LinearExpr;
 import com.google.ortools.sat.Literal;
 
 import lombok.extern.slf4j.Slf4j;
@@ -48,7 +47,9 @@ public class ConfictDebugIfThenTest extends ModuleScenarioTestBase {
         @CodeRuleAnno(normalNaturalCode = "x.qty + y.qty > 10")
         private void rule2() {
             // Create linear expression for sum of x and y quantities
-            LinearExpr sumXY = LinearExpr.sum(new IntVar[] { x.qty, y.qty });
+            AlgCPLinearExpr sumXY = model.newLinearExpr("sum_x_y");
+            sumXY.addTerm(x.qty, 1);
+            sumXY.addTerm(y.qty, 1);
 
             // Add constraint: x.qty + y.qty > 10
             model.addGreaterThan(sumXY, 10);

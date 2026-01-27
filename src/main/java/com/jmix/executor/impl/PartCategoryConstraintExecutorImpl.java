@@ -23,7 +23,7 @@ import com.jmix.executor.model.Result;
 import com.google.ortools.sat.CpModel;
 import com.google.ortools.sat.CpSolver;
 import com.google.ortools.sat.CpSolverStatus;
-import com.google.ortools.sat.LinearExpr;
+import com.jmix.executor.impl.algmodel.AlgCPLinearExpr;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -227,12 +227,12 @@ public class PartCategoryConstraintExecutorImpl {
                 log.error("PriorityConstraint not found for attrCode: {}", attrCode);
                 return Result.failed("PriorityConstraint not found for attrCode: " + attrCode);
             }
-            LinearExpr objectiveExpr = pConstraint.getExpr();
+            AlgCPLinearExpr objectiveExpr = pConstraint.getExpr();
 
             if (priorityStrategy == PriorityStrategy.MAX) {
-                optModel.maximize(objectiveExpr);
+                optModel.maximize(objectiveExpr.build());
             } else {
-                optModel.minimize(objectiveExpr);
+                optModel.minimize(objectiveExpr.build());
             }
             PriorityAttrValueImpl objValue = new PriorityAttrValueImpl();
             objValue.setAttrCode(attrCode);
@@ -289,17 +289,17 @@ public class PartCategoryConstraintExecutorImpl {
                     log.error("PriorityConstraint not found for attrCode: {}", attrCode);
                     return Result.failed("PriorityConstraint not found for attrCode: " + attrCode);
                 }
-                LinearExpr expr = multiPConstraint.getExpr();
+                AlgCPLinearExpr expr = multiPConstraint.getExpr();
                 PriorityStrategy priorityStrategy = objValue.getPriorityStrategy();
                 if (priorityStrategy == PriorityStrategy.MAX) {
                     double minValue = optimalValue * (1 - threshold);
-                    multiModel.addGreaterOrEqual(expr, (long) minValue);
+                    multiModel.addGreaterOrEqual(expr.build(), (long) minValue);
                     log.info(
                             " Priority-process pconstraint-step2 greater/less Added Priority adjusted constraint: {} >= {}",
                             attrCode, (long) minValue);
                 } else {
                     double maxValue = optimalValue * (1 + threshold);
-                    multiModel.addLessOrEqual(expr, (long) maxValue);
+                    multiModel.addLessOrEqual(expr.build(), (long) maxValue);
                     log.info(
                             " Priority-process pconstraint-step2 greater/less Added Priority adjusted constraint: {} <= {}",
                             attrCode, (long) maxValue);

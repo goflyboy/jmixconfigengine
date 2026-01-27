@@ -282,11 +282,11 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @param varName     变量名称（"S" 或 "Q"）
      * @param varGetter   从PartVar获取LinearArgument的函数（如getIsSelected或getQty）
      * @param atomicParts 原子部件列表
-     * @return 构建的LinearExpr表达式
+     * @return 构建的AlgCPLinearExpr表达式
      */
-    private LinearExpr buildPriorityConstraintExpressions(PriorityConstraint pConstraint, String attrCode,
+    private AlgCPLinearExpr buildPriorityConstraintExpressions(PriorityConstraint pConstraint, String attrCode,
             String varName, Function<PartVar, LinearArgument> varGetter, List<Part> atomicParts) {
-        List<LinearExpr> sumTerms = new ArrayList<>();
+        AlgCPLinearExpr algExpr = new AlgCPLinearExpr("priority_expr_" + attrCode + "_" + varName);
         List<String> exprStrParts = new ArrayList<>();
         List<String> exprTemplateParts = new ArrayList<>();
         List<String> exprTemplateStrParts = new ArrayList<>();
@@ -297,8 +297,8 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             PartVar partVar = getPartVar(part.getCode());
             int attrValue = isWithoutAttr ? 1 : Integer.parseInt(part.getAttr(attrCode));
 
-            // 构建LinearExpr项
-            sumTerms.add(LinearExpr.term(varGetter.apply(partVar), attrValue));
+            // 构建AlgCPLinearExpr项
+            algExpr.addTerm((com.google.ortools.sat.IntVar) varGetter.apply(partVar), attrValue);
 
             // 创建 PartTerm
             PriorityConstraint.PartTerm term = new PriorityConstraint.PartTerm();
@@ -322,16 +322,13 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             index++;
         }
 
-        // 构建LinearExpr
-        LinearExpr expr = LinearExpr.sum(sumTerms.toArray(new LinearExpr[0]));
-
-        // 设置表达式字符串和LinearExpr
-        pConstraint.setExpr(expr);
+        // 设置表达式字符串和AlgCPLinearExpr
+        pConstraint.setExpr(algExpr);
         pConstraint.setExprStr(String.join(" + ", exprStrParts));
         pConstraint.setExprTemplate(String.join(" + ", exprTemplateParts));
         pConstraint.setExprTemplateStr(String.join(" + ", exprTemplateStrParts));
         pConstraint.setExprVariables(exprVariables);
-        return expr;
+        return algExpr;
     }
 
     /**
@@ -906,12 +903,13 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         java.util.function.Function<PartVar, LinearArgument> varGetter = PartVar::getQty;
 
         // 构建表达式，但使用传入的 sumParts 而不是 module.getAtomicParts()
-        LinearExpr sumFunExpr = buildSumConstraintExpressions(tempConstraint, sumParts, attrCode, varName, varGetter);
+        AlgCPLinearExpr sumFunExpr = buildSumConstraintExpressions(tempConstraint, sumParts, attrCode, varName,
+                varGetter);
         String sumFormulaBase = tempConstraint.getExprStr();
 
         // 应用约束
         ComparisonOperator operator = ComparisonOperator.fromSymbol(partConstraint.getComparator());
-        operator.applyConstraint(model.getCpModel(), sumFunExpr, partConstraint.getLeftValue());
+        operator.applyConstraint(model.getCpModel(), sumFunExpr.build(), partConstraint.getLeftValue());
         String sumFormula = operator.getFormulaString(sumFormulaBase, partConstraint.getLeftValue());
 
         log.info("Priority-Added sum constraint: {} for {}", sumFormula,
@@ -926,11 +924,11 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @param attrCode    属性代码
      * @param varName     变量名称（"S" 或 "Q"）
      * @param varGetter   从PartVar获取LinearArgument的函数（如getIsSelected或getQty）
-     * @return 构建的LinearExpr表达式
+     * @return 构建的AlgCPLinearExpr表达式
      */
-    private LinearExpr buildSumConstraintExpressions(PriorityConstraint pConstraint, List<Part> sumParts,
+    private AlgCPLinearExpr buildSumConstraintExpressions(PriorityConstraint pConstraint, List<Part> sumParts,
             String attrCode, String varName, java.util.function.Function<PartVar, LinearArgument> varGetter) {
-        List<LinearExpr> sumTerms = new ArrayList<>();
+        AlgCPLinearExpr algExpr = new AlgCPLinearExpr("sum_constraint_" + attrCode + "_" + varName);
         List<String> exprStrParts = new ArrayList<>();
         List<String> exprTemplateParts = new ArrayList<>();
         List<String> exprTemplateStrParts = new ArrayList<>();
@@ -955,8 +953,8 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
                 attrValue = Integer.parseInt(part.getAttr(attrCode));
             }
 
-            // 构建LinearExpr项
-            sumTerms.add(LinearExpr.term(varGetter.apply(partVar), attrValue));
+            // 构建AlgCPLinearExpr项
+            algExpr.addTerm((com.google.ortools.sat.IntVar) varGetter.apply(partVar), attrValue);
 
             // 创建 PartTerm
             PriorityConstraint.PartTerm term = new PriorityConstraint.PartTerm();
@@ -979,17 +977,14 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             index++;
         }
 
-        // 构建LinearExpr
-        LinearExpr expr = LinearExpr.sum(sumTerms.toArray(new LinearExpr[0]));
-
-        // 设置表达式字符串和LinearExpr
-        pConstraint.setExpr(expr);
+        // 设置表达式字符串和AlgCPLinearExpr
+        pConstraint.setExpr(algExpr);
         pConstraint.setExprStr(String.join(" + ", exprStrParts));
         pConstraint.setExprTemplate(String.join(" + ", exprTemplateParts));
         pConstraint.setExprTemplateStr(String.join(" + ", exprTemplateStrParts));
         pConstraint.setExprVariables(exprVariables);
 
-        return expr;
+        return algExpr;
     }
 
     /**
@@ -1001,7 +996,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @param filtedConditionStr 过滤条件字符串
      * @return 求和后的LinearExpr表达式
      */
-    private LinearExpr sum4Parts(String cofAttrCode,
+    private AlgCPLinearExpr sum4Parts(String cofAttrCode,
             Function<PartVar, LinearArgument> varGetter, String varName, String filtedConditionStr) {
         // 创建一个临时的PriorityConstraint对象来复用构建逻辑
         PriorityConstraint tempConstraint = new PriorityConstraint();
@@ -1013,7 +1008,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             log.info("Priority-Filtered parts: {} in sum4Parts", PartUtils.toShortString(atomicParts));
         }
 
-        LinearExpr expr = buildPriorityConstraintExpressions(tempConstraint, cofAttrCode, varName, varGetter,
+        AlgCPLinearExpr expr = buildPriorityConstraintExpressions(tempConstraint, cofAttrCode, varName, varGetter,
                 atomicParts);
         log.info("Priority-Sum formula in sum4Parts: {}", tempConstraint.getExprStr());
         return expr;
@@ -1021,43 +1016,43 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
     /**
      * 对选中的部件求和（带属性系数）
-     * 
+     *
      * @param cofAttrCode        属性代码，如果为null或空则使用默认值1
      * @param filtedConditionStr 过滤条件字符串
-     * @return 求和后的LinearExpr表达式
+     * @return 求和后的AlgCPLinearExpr表达式
      */
-    public LinearExpr sum4Selected(String cofAttrCode, String filtedConditionStr) {
+    public AlgCPLinearExpr sum4Selected(String cofAttrCode, String filtedConditionStr) {
         return sum4Parts(cofAttrCode, PartVar::getIsSelected, "S", filtedConditionStr);
     }
 
     /**
      * 对选中的部件求和（不带属性系数）
-     * 
+     *
      * @param filtedConditionStr 过滤条件字符串
-     * @return 求和后的LinearExpr表达式
+     * @return 求和后的AlgCPLinearExpr表达式
      */
-    public LinearExpr sum4Selected(String filtedConditionStr) {
+    public AlgCPLinearExpr sum4Selected(String filtedConditionStr) {
         return sum4Selected(null, filtedConditionStr);
     }
 
     /**
      * 对数量的部件求和（带属性系数）
-     * 
+     *
      * @param cofAttrCode        属性代码，如果为null或空则使用默认值1
      * @param filtedConditionStr 过滤条件字符串
-     * @return 求和后的LinearExpr表达式
+     * @return 求和后的AlgCPLinearExpr表达式
      */
-    public LinearExpr sum4Quantity(String cofAttrCode, String filtedConditionStr) {
+    public AlgCPLinearExpr sum4Quantity(String cofAttrCode, String filtedConditionStr) {
         return sum4Parts(cofAttrCode, PartVar::getQty, "Q", filtedConditionStr);
     }
 
     /**
      * 对数量的部件求和（不带属性系数）
-     * 
+     *
      * @param filtedConditionStr 过滤条件字符串
-     * @return 求和后的LinearExpr表达式
+     * @return 求和后的AlgCPLinearExpr表达式
      */
-    public LinearExpr sum4Quantity(String filtedConditionStr) {
+    public AlgCPLinearExpr sum4Quantity(String filtedConditionStr) {
         return sum4Quantity(null, filtedConditionStr);
     }
 

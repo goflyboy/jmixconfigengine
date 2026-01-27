@@ -3,6 +3,7 @@ package com.jmix.scenario.ruletest;
 import com.jmix.coretest.ConstraintAlgImplTestBase;
 import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.executor.bmodel.para.ParaType;
+import com.jmix.executor.impl.algmodel.AlgCPLinearExpr;
 import com.jmix.executor.model.ConstraintConfig;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
 import com.jmix.tool.bbuilder.anno.ModuleAnno;
@@ -10,8 +11,6 @@ import com.jmix.tool.bbuilder.anno.ParaAnno;
 import com.jmix.tool.bbuilder.anno.PartAnno;
 
 import com.google.ortools.sat.BoolVar;
-import com.google.ortools.sat.IntVar;
-import com.google.ortools.sat.LinearExpr;
 import com.google.ortools.sat.Literal;
 
 import lombok.extern.slf4j.Slf4j;
@@ -84,8 +83,10 @@ public class ParaIsHiddenTest extends ModuleScenarioTestBase {
             model.addEquality(p2.value, 0).onlyEnforceIf(p2.isHidden);
 
             // Logic5: part1.quantity = p1.value + p2.value
-            model.addEquality(part1.qty,
-                    LinearExpr.sum(new IntVar[] { p1.value, p2.value }));
+            AlgCPLinearExpr sumExpr = model.newLinearExpr("sum_p1_p2");
+            sumExpr.addTerm(p1.value, 1);
+            sumExpr.addTerm(p2.value, 1);
+            model.addEquality(part1.qty, sumExpr);
         }
     }
 
