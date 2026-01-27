@@ -1,6 +1,8 @@
 package com.jmix.executor.impl.algmodel;
 
+import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.IntVar;
+import com.google.ortools.sat.LinearArgument;
 import com.google.ortools.sat.LinearExpr;
 import com.google.ortools.sat.LinearExprBuilder;
 
@@ -8,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;

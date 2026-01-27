@@ -6,7 +6,7 @@ import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.Constraint;
 import com.google.ortools.sat.CpModel;
 import com.google.ortools.sat.CpModelProto;
-import com.google.ortools.sat.DoubleLinearExpr;
+// import com.google.ortools.sat.DoubleLinearExpr;
 import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.LinearArgument;
 import com.google.ortools.sat.Literal;
@@ -483,10 +483,10 @@ public class AlgCPModel {
      * @return 名称字符串
      */
     private String toNameString(LinearArgument expr) {
-        if (expr instanceof com.google.ortools.sat.IntVar) {
-            return ((com.google.ortools.sat.IntVar) expr).getName();
-        } else if (expr instanceof com.google.ortools.sat.BoolVar) {
-            return ((com.google.ortools.sat.BoolVar) expr).getName();
+        if (expr instanceof IntVar) {
+            return ((IntVar) expr).getName();
+        } else if (expr instanceof BoolVar) {
+            return ((BoolVar) expr).getName();
         } else {
             throw new IllegalArgumentException("Unsupported linear argument type: " + expr.getClass().getName());
         }
@@ -1025,66 +1025,34 @@ public class AlgCPModel {
 
     // Objective methods
 
-    /**
-     * 添加线性表达式的最小化目标
-     *
-     * @param expr 线性表达式
-     */
-    public void minimize(final LinearArgument expr) {
-        cpModel.minimize(expr);
-        log.info("Objective set: minimize linear expression");
-    }
+    // /**
+    // * 添加线性表达式的最小化目标
+    // *
+    // * @param expr 线性表达式
+    // */
+    // public void minimize(final LinearArgument expr) {
+    // cpModel.minimize(expr);
+    // log.info("Objective set: minimize linear expression");
+    // }
 
     /**
      * 添加双精度线性表达式的最小化目标
      *
      * @param expr 双精度线性表达式
      */
-    public void minimize(final DoubleLinearExpr expr) {
-        cpModel.minimize(expr);
-        log.info("Objective set: minimize double linear expression");
-    }
-
-    /**
-     * 添加线性表达式的最大化目标
-     *
-     * @param expr 线性表达式
-     */
-    public void maximize(final LinearArgument expr) {
-        cpModel.maximize(expr);
-        log.info("Objective set: maximize linear expression");
-    }
-
-    /**
-     * 添加双精度线性表达式的最大化目标
-     *
-     * @param expr 双精度线性表达式
-     */
-    public void maximize(final DoubleLinearExpr expr) {
-        cpModel.maximize(expr);
-        log.info("Objective set: maximize double linear expression");
-    }
-
-    /**
-     * 添加AlgCPLinearExpr的最小化目标
-     *
-     * @param expr AlgCPLinearExpr表达式
-     */
-    public void minimize(final AlgCPLinearExpr expr) {
+    public void minimize(AlgCPLinearExpr expr) {
         cpModel.minimize(expr.build());
-        this.objectExpr = expr;
-        log.info("Objective set: minimize AlgCPLinearExpr {}", expr.getName());
+        addVirutalAlgCPConstraint("minimize", expr);
     }
 
-    /**
-     * 添加AlgCPLinearExpr的最大化目标
-     *
-     * @param expr AlgCPLinearExpr表达式
-     */
-    public void maximize(final AlgCPLinearExpr expr) {
-        cpModel.maximize(expr.build());
+    private AlgCPConstraint addVirutalAlgCPConstraint(String name, AlgCPLinearExpr expr) {
+        AlgCPConstraint ct = new AlgCPConstraint(null, this.currentRelaxVar, this.currentRelaxVarName);
+        ct.setName(name);
+        ct.setLeft(expr.toString());
+        ct.setLeftName(expr.getName());
         this.objectExpr = expr;
-        log.info("Objective set: maximize AlgCPLinearExpr {}", expr.getName());
+        constraints.add(ct);
+        return ct;
     }
 
     /**
