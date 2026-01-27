@@ -45,6 +45,7 @@
     "instType" : 0,
     "valueLogics" : null,
     "paraType" : "ENUM",
+    "assignType" : "CALC",
     "minValue" : "-1000",
     "maxValue" : "1000",
     "refSpecCode" : null

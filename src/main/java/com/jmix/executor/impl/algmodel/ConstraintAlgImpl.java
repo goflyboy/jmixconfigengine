@@ -178,7 +178,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
         // 根据exeProgObjs初始化Variables
         initVariables(exeProgObjs);
-        
+
         // 设置输入变量（如有）
         setInputVariables(partConstraints);
 
@@ -1065,6 +1065,26 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      */
     public AlgCPLinearExpr sum4Selected(String filtedConditionStr) {
         return sum4Selected(null, filtedConditionStr);
+    }
+
+    /**
+     * Return list of atomic parts used by sum4Selected, optionally filtered by
+     * condition.
+     *
+     * @param filtedConditionStr filter expression, may be null
+     * @return filtered list of atomic parts
+     */
+    public List<PartVar> getInternalPartVars(String filtedConditionStr) {
+        List<Part> atomicParts = module.getAllAtomicParts();
+        if (filtedConditionStr != null && !filtedConditionStr.trim().isEmpty()) {
+            atomicParts = FilterExpressionExecutor.doSelect(atomicParts, filtedConditionStr);
+            log.info("Priority-Filtered parts: {} in getPartVars", PartUtils.toShortString(atomicParts));
+        }
+        List<PartVar> partVars = new ArrayList<>();
+        for (Part part : atomicParts) {
+            partVars.add(getPartVar(part.getCode()));
+        }
+        return partVars;
     }
 
     /**

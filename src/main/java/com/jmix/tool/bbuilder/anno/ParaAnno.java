@@ -1,5 +1,6 @@
 package com.jmix.tool.bbuilder.anno;
 
+import com.jmix.executor.bmodel.para.AssignType;
 import com.jmix.executor.bmodel.para.Para;
 import com.jmix.executor.bmodel.para.ParaType;
 
@@ -70,4 +71,9 @@ public @interface ParaAnno {
      * 扩展属性
      */
     String[] extAttrs() default {};
+
+    /**
+     * assign type for parameter, INPUT means manual input, CALC means calculated
+     */
+    AssignType assignType() default AssignType.CALC;
 }

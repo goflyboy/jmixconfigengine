@@ -12,6 +12,7 @@ import com.google.ortools.sat.IntVar;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +69,8 @@ public class ConstraintAlgImplTestBase extends ConstraintAlgImpl {
         }
 
         /**
-         * reference to internal implementation ParaVar, for delegating runtime values in tests
+         * reference to internal implementation ParaVar, for delegating runtime values
+         * in tests
          */
         public com.jmix.executor.impl.algmodel.ParaVar internal;
 
@@ -137,6 +139,7 @@ public class ConstraintAlgImplTestBase extends ConstraintAlgImpl {
     protected Var<?> newParaVar(com.jmix.executor.impl.algmodel.ParaVar internalParaVar) {
         ParaVar paraVar = new ParaVar();
         paraVar.setBase(internalParaVar.getBase());
+        paraVar.internal = internalParaVar;
         paraVar.value = internalParaVar.getValue();
         paraVar.isHidden = internalParaVar.getIsHidden();
         paraVar.optionSelectVars = internalParaVar.getOptionSelectVars();
@@ -162,5 +165,14 @@ public class ConstraintAlgImplTestBase extends ConstraintAlgImpl {
             ParaVar rightParaVar, List<String> rightParaFilterOptionCodes) {
         super.addCompatibleConstraintRequires(ruleCode, super.getParaVar(leftParaVar.getCode()),
                 leftParaFilterOptionCodes, super.getParaVar(rightParaVar.getCode()), rightParaFilterOptionCodes);
+    }
+
+    public List<PartVar> getPartVars(String filtedConditionStr) {
+        List<com.jmix.executor.impl.algmodel.PartVar> partVars = super.getInternalPartVars(filtedConditionStr);
+        List<PartVar> result = new ArrayList<>();
+        for (com.jmix.executor.impl.algmodel.PartVar partVar : partVars) {
+            result.add((PartVar) newPartVar(partVar));
+        }
+        return result;
     }
 }

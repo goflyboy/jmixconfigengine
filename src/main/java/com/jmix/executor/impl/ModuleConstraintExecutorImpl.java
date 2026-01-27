@@ -8,6 +8,9 @@ import com.jmix.executor.bmodel.PartCategory;
 import com.jmix.executor.bmodel.attr.DynamicAttribute;
 import com.jmix.executor.bmodel.base.Pair;
 import com.jmix.executor.bmodel.logic.RefProgObjSchema;
+import com.jmix.executor.cmodel.ModuleInst;
+import com.jmix.executor.cmodel.ParaInst;
+import com.jmix.executor.cmodel.PartInst;
 import com.jmix.executor.impl.algmodel.AlgCPModel;
 import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
 import com.jmix.executor.impl.algmodel.RelaxVar;
@@ -20,11 +23,8 @@ import com.jmix.executor.model.ExtensibleProcess;
 import com.jmix.executor.model.InferParasPostProcess;
 import com.jmix.executor.model.InferParasReq;
 import com.jmix.executor.model.InferPartCategoryReq;
-import com.jmix.executor.cmodel.ModuleInst;
 import com.jmix.executor.model.ParConstraint;
-import com.jmix.executor.cmodel.ParaInst;
 import com.jmix.executor.model.PartConstraintReq;
-import com.jmix.executor.cmodel.PartInst;
 import com.jmix.executor.model.Result;
 import com.jmix.executor.model.RunInferParasRsp;
 
@@ -382,7 +382,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
 
             // 调用新的initModel方法
             alg.initModel(model, module, relativePair.getFirst(), relativePair.getSecond(), isAttachRelax,
-                    confictedRelaxs);
+                    confictedRelaxs, null);
         } else {
             // 全量加载模型
             alg.initModel(model, module, isAttachRelax, confictedRelaxs);
