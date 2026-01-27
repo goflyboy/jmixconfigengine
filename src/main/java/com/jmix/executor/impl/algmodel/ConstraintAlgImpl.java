@@ -23,7 +23,6 @@ import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.CpModel;
 import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.LinearArgument;
-import com.google.ortools.sat.LinearExpr;
 import com.google.ortools.sat.Literal;
 import com.google.ortools.util.Domain;
 
@@ -404,12 +403,13 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         if (!relaxVars.isEmpty()) {
             // 构建加权目标函数：min(relaxVar[0].value * relaxVar[0].weight + relaxVar[1].value *
             // relaxVar[1].weight + ...)
-            LinearArgument[] weightedTerms = new LinearArgument[relaxVars.size()];
+            AlgCPLinearExpr[] weightedTerms = new AlgCPLinearExpr[relaxVars.size()];
             for (int i = 0; i < relaxVars.size(); i++) {
                 RelaxVar relaxVar = relaxVars.get(i);
-                weightedTerms[i] = LinearExpr.term(relaxVar.getValue(), relaxVar.getWeight());
+                weightedTerms[i] = AlgCPLinearExpr.term(relaxVar.getValue(), relaxVar.getWeight());
             }
-            model.minimize(LinearExpr.sum(weightedTerms));
+            AlgCPLinearExpr objectiveExpr = AlgCPLinearExpr.sum(weightedTerms);
+            model.minimize(objectiveExpr);
             log.info("relax: -----relaxation objective function with {} relaxation variables", relaxVars.size());
         }
     }
@@ -994,7 +994,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @param varGetter          从PartVar获取LinearArgument的函数（如getIsSelected或getQty）
      * @param varName            变量名称（如"isSelected"或"qty"），用于构建字符串表达式
      * @param filtedConditionStr 过滤条件字符串
-     * @return 求和后的LinearExpr表达式
+     * @return 求和后的AlgCPLinearExpr表达式
      */
     private AlgCPLinearExpr sum4Parts(String cofAttrCode,
             Function<PartVar, LinearArgument> varGetter, String varName, String filtedConditionStr) {

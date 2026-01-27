@@ -161,8 +161,8 @@ public class AlgCPConstraint {
         }
         // Handle other unsupported Literal types
         throw new UnsupportedOperationException(
-                "Unsupported Literal type: " + lit.getClass().getSimpleName() +
-                        ". Only BoolVar, IntVar, and NotBoolVar are supported. Literal: " + lit);
+                "Unsupported Literal type: " + lit.getClass().getSimpleName()
+                        + ". Only BoolVar, IntVar, and NotBoolVar are supported. Literal: " + lit);
     }
 
     /**
