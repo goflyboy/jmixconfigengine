@@ -66,6 +66,19 @@ public class ConstraintAlgImplTestBase extends ConstraintAlgImpl {
             }
             throw new AlgLoaderException("ParaOptionVar not found for code: " + code);
         }
+
+        /**
+         * reference to internal implementation ParaVar, for delegating runtime values in tests
+         */
+        public com.jmix.executor.impl.algmodel.ParaVar internal;
+
+        public Integer getInputValue() {
+            return internal != null ? internal.getInputValue() : null;
+        }
+
+        public Boolean getIsHasInputed() {
+            return internal != null ? internal.getIsHasInputed() : Boolean.FALSE;
+        }
     }
 
     public class PartVar extends Var<Part> {

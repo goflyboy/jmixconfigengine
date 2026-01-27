@@ -107,7 +107,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     public void initModel(CpModel model, IModule module, boolean isAttachRelax, List<RelaxVar> confictedRelaxs) {
         List<String> fullRules = toFullRules(module);
         List<RefProgObjSchema> fullProgObjs = toFullProgObjs(module);
-        initModel(model, module, fullRules, fullProgObjs, isAttachRelax, confictedRelaxs);
+        initModel(model, module, fullRules, fullProgObjs, isAttachRelax, confictedRelaxs, null);
     }
 
     private List<String> toFullRules(IModule tempModule) {
@@ -147,7 +147,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             List<String> exeRules,
             List<RefProgObjSchema> exeProgObjs,
             List<RelaxVar> confictedRelaxs) {
-        initModel(model, module, exeRules, exeProgObjs, false, confictedRelaxs);
+        initModel(model, module, exeRules, exeProgObjs, false, confictedRelaxs, null);
     }
 
     /**
@@ -165,7 +165,8 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             List<String> exeRules,
             List<RefProgObjSchema> exeProgObjs,
             boolean isAttachRelax,
-            List<RelaxVar> confictedRelaxs) {
+            List<RelaxVar> confictedRelaxs,
+            List<ParConstraint> partConstraints) {
         this.model = new AlgCPModel(model);
         this.model.setIsAttachRelax(isAttachRelax);
         this.model.setConfictedRelaxVars(confictedRelaxs);
@@ -177,12 +178,43 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
         // 根据exeProgObjs初始化Variables
         initVariables(exeProgObjs);
+        
+        // 设置输入变量（如有）
+        setInputVariables(partConstraints);
 
         // 根据exeRules初始化rule
         initRules(exeRules);
 
         // 设置默认可见性约束
         setDefaultVisibilityConstraints();
+    }
+
+    /**
+     * 根据外部传入的部件约束（求和约束）设置对应的参数输入值
+     *
+     * @param partConstraints 部件约束列表，可以为null
+     */
+    protected void setInputVariables(List<ParConstraint> partConstraints) {
+        if (partConstraints == null || partConstraints.isEmpty()) {
+            return;
+        }
+        for (ParConstraint pt : partConstraints) {
+            if (pt == null) {
+                continue;
+            }
+            String paraCode = "sum" + pt.getSumAttrCode();
+            try {
+                ParaVar pVar = this.getParaVar(paraCode);
+                if (pVar != null) {
+                    pVar.setInputValue(pt.getLeftValue());
+                    pVar.setIsHasInputed(Boolean.TRUE);
+                    log.info("Set input variable {} = {}", paraCode, pt.getLeftValue());
+                }
+            } catch (AlgLoaderException e) {
+                log.warn("ParaVar not found for input variable: {}", paraCode);
+                // continue to next
+            }
+        }
     }
 
     /**
