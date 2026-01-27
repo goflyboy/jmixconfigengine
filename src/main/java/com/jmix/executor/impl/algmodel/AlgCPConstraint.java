@@ -81,7 +81,7 @@ public class AlgCPConstraint {
         this.relaxationVar = relaxationVar;
         this.relaxationVarName = relaxationVarName;
 
-        if (relaxationVar != null) {
+        if (relaxationVar != null && cpConstraint != null) {
             cpConstraint.onlyEnforceIf(relaxationVar.not());
         }
         log.info("Constraint created: {} with relaxation: {}", name, relaxationVarName);

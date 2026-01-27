@@ -2,12 +2,12 @@ package com.jmix.tool.confictdebug;
 
 import com.jmix.coretest.ConstraintAlgImplTestBase;
 import com.jmix.coretest.ModuleScenarioTestBase;
+import com.jmix.executor.impl.algmodel.AlgCPLinearExpr;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
 import com.jmix.tool.bbuilder.anno.ModuleAnno;
 import com.jmix.tool.bbuilder.anno.PartAnno;
 
 import com.google.ortools.sat.IntVar;
-import com.google.ortools.sat.LinearExpr;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,7 +29,9 @@ public class ConfictDebugTest extends ModuleScenarioTestBase {
         @CodeRuleAnno(normalNaturalCode = "x.qty + y.qty < 20")
         private void rule1() {
             // Create linear expression for x.qty + y.qty
-            LinearExpr sumXY = LinearExpr.sum(new IntVar[] { x.qty, y.qty });
+            AlgCPLinearExpr sumXY = new AlgCPLinearExpr("sum_x_y");
+            sumXY.addTerm(x.qty, 1);
+            sumXY.addTerm(y.qty, 1);
             // Add constraint: x.qty + y.qty < 20
             model.addLessThan(sumXY, 20);
         }
@@ -38,7 +40,8 @@ public class ConfictDebugTest extends ModuleScenarioTestBase {
         @CodeRuleAnno(normalNaturalCode = "x.qty - y.qty > 10")
         private void rule2() {
             // Create linear expression for x.qty - y.qty
-            LinearExpr diffXY = LinearExpr.weightedSum(new IntVar[] { x.qty, y.qty }, new long[] { 1, -1 });
+            AlgCPLinearExpr diffXY = AlgCPLinearExpr.weightedSum(new IntVar[] { x.qty, y.qty },
+                    new long[] { 1, -1 });
             // Add constraint: x.qty - y.qty > 10
             model.addGreaterThan(diffXY, 10);
         }
@@ -54,7 +57,8 @@ public class ConfictDebugTest extends ModuleScenarioTestBase {
         @CodeRuleAnno(normalNaturalCode = "x.qty + 2 * y.qty > 10")
         private void rule4() {
             // Create linear expression for x.qty + 2 * y.qty
-            LinearExpr sumX2Y = LinearExpr.weightedSum(new IntVar[] { x.qty, y.qty }, new long[] { 1, 2 });
+            AlgCPLinearExpr sumX2Y = AlgCPLinearExpr.weightedSum(new com.google.ortools.sat.IntVar[] { x.qty, y.qty },
+                    new long[] { 1, 2 });
             // Add constraint: x.qty + 2 * y.qty > 10
             model.addGreaterThan(sumX2Y, 10);
         }

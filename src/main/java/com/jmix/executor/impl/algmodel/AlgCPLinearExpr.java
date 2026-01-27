@@ -120,6 +120,42 @@ public class AlgCPLinearExpr {
         return term(var, scale);
     }
 
+    /**
+     * 创建带权重的求和表达式
+     *
+     * @param vars    变量数组
+     * @param weights 权重数组
+     * @return 加权求和的AlgCPLinearExpr
+     */
+    public static AlgCPLinearExpr weightedSum(IntVar[] vars, long[] weights) {
+        if (vars.length != weights.length) {
+            throw new IllegalArgumentException("Variables and weights arrays must have the same length");
+        }
+        AlgCPLinearExpr result = new AlgCPLinearExpr("weighted_sum");
+        for (int i = 0; i < vars.length; i++) {
+            result.addTerm(vars[i], weights[i]);
+        }
+        return result;
+    }
+
+    /**
+     * 创建带权重的求和表达式
+     *
+     * @param vars    变量数组
+     * @param weights 权重数组
+     * @return 加权求和的AlgCPLinearExpr
+     */
+    public static AlgCPLinearExpr weightedSum(BoolVar[] vars, long[] weights) {
+        if (vars.length != weights.length) {
+            throw new IllegalArgumentException("Variables and weights arrays must have the same length");
+        }
+        AlgCPLinearExpr result = new AlgCPLinearExpr("weighted_sum");
+        for (int i = 0; i < vars.length; i++) {
+            result.addTerm(vars[i], weights[i]);
+        }
+        return result;
+    }
+
     public AlgCPLinearExpr(String name) {
         this.builder = LinearExpr.newBuilder();
         this.terms = new ArrayList<>();
