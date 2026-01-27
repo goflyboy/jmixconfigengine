@@ -104,8 +104,8 @@ public final class ModuleGenneratorByAnno {
         // 处理扩展属性
         buildExtAttr(moduleAnno, module);
 
-        // 2. 遍历成员变量，创建Para和Part
-        Pair<List<Para>, List<IPart>> paraParts = buildParaParts(moduleAlgClazz);
+        // 2. 遍历成员变量，创建Para和Part，根据fatherCode添加到对应的PartCategory
+        Pair<List<Para>, List<IPart>> paraParts = buildParameterParts(moduleAlgClazz);
         module.setParas(paraParts.getFirst());
         module.addParts(paraParts.getSecond());
         module.init(); // 保证后续能使用getPara等函数
@@ -586,7 +586,7 @@ public final class ModuleGenneratorByAnno {
 
     /**
      * 构建Para和Part列表
-     * 
+     *
      * @param moduleAlgClazz 模块算法类
      * @return 包含Para列表和Part列表的Pair
      */
@@ -617,6 +617,71 @@ public final class ModuleGenneratorByAnno {
         }
         List<IPart> parts = new ArrayList<>(partMap.values());
 
+        return Pair.of(paras, parts);
+    }
+
+    /**
+     * 构建参数部分，根据fatherCode添加到对应的PartCategory
+     *
+     * @param moduleAlgClazz 模块算法类
+     * @return 包含Para列表和Part列表的Pair
+     */
+    private static Pair<List<Para>, List<IPart>> buildParameterParts(Class<?> moduleAlgClazz) {
+        List<Para> paras = new ArrayList<>();
+        Map<String, IPart> partMap = new HashMap<>();
+
+        // 首先收集所有字段，用于后续继承处理
+        List<Field> partFields = new ArrayList<>();
+        Map<String, String> fieldNameToPartCode = new HashMap<>();
+
+        // 收集Part字段
+        for (Field field : moduleAlgClazz.getDeclaredFields()) {
+            if (field.getType().getSimpleName().equals(PartVar.class.getSimpleName()) ||
+                    field.getType().getSimpleName().equals(PartCategoryVar.class.getSimpleName())) {
+                Optional<IPart> partOpt = createPartFromField(field, partMap);
+                if (partOpt.isPresent()) {
+                    partMap.put(partOpt.get().getCode(), partOpt.get());
+                    fieldNameToPartCode.put(field.getName(), partOpt.get().getCode());
+                }
+                partFields.add(field);
+            }
+        }
+
+        // 处理Para字段，根据fatherCode添加到对应的PartCategory
+        for (Field field : moduleAlgClazz.getDeclaredFields()) {
+            if (field.getType().getSimpleName().equals(ParaVar.class.getSimpleName())) {
+                Optional<Para> paraOpt = createParaFromField(field);
+                if (paraOpt.isPresent()) {
+                    Para para = paraOpt.get();
+                    String fatherCode = para.getFatherCode();
+
+                    // 如果有fatherCode，添加到对应的PartCategory
+                    if (!Strings.isNullOrEmpty(fatherCode)) {
+                        IPart fatherPart = partMap.get(fatherCode);
+                        if (fatherPart instanceof PartCategory) {
+                            PartCategory partCategory = (PartCategory) fatherPart;
+                            if (partCategory.getParas() == null) {
+                                partCategory.setParas(new ArrayList<>());
+                            }
+                            partCategory.getParas().add(para);
+                            log.info("Parameter '{}' added to PartCategory '{}'", para.getCode(), fatherCode);
+                        } else {
+                            log.warn("Father part '{}' not found or not a PartCategory for parameter '{}', adding to module level",
+                                    fatherCode, para.getCode());
+                            paras.add(para);
+                        }
+                    } else {
+                        // 没有fatherCode的Para添加到模块级别
+                        paras.add(para);
+                    }
+                }
+            } else if (!field.getType().getSimpleName().equals(PartVar.class.getSimpleName()) &&
+                    !field.getType().getSimpleName().equals(PartCategoryVar.class.getSimpleName())) {
+                log.info("ignore field type: " + field.getType().getSimpleName());
+            }
+        }
+
+        List<IPart> parts = new ArrayList<>(partMap.values());
         return Pair.of(paras, parts);
     }
 

@@ -1,5 +1,6 @@
 package com.jmix.executor.impl.algmodel;
 
+import com.jmix.executor.bmodel.base.AssignType;
 import com.jmix.executor.bmodel.para.Para;
 import com.jmix.executor.model.AlgLoaderException;
 
@@ -76,6 +77,21 @@ public class ParaVar extends Var<Para> {
      * 参数可选值的选中状态(CodeId -> ParaOptionVar)
      */
     private Map<Integer, ParaOptionVar> optionSelectVars = new HashMap<>();
+
+    /**
+     * 参数赋值类型
+     */
+    private AssignType assignType = AssignType.CALC;
+
+    /**
+     * 手工输入值
+     */
+    private Integer inputValue = null;
+
+    /**
+     * 是否已输入
+     */
+    private Boolean isHasInputed = false;
 
     /**
      * 根据代码ID获取参数选项变量

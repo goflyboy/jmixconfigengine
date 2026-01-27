@@ -6,6 +6,7 @@ import com.jmix.executor.bmodel.attr.DynamicAttributeType;
 import com.jmix.executor.bmodel.logic.PriorityStrategy;
 import com.jmix.executor.bmodel.logic.PriorityType;
 import com.jmix.executor.impl.algmodel.AlgCPLinearExpr;
+import com.jmix.executor.impl.algmodel.AlgCPModel;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
 import com.jmix.tool.bbuilder.anno.DAttrAnno1;
 import com.jmix.tool.bbuilder.anno.DAttrAnno2;
@@ -13,12 +14,15 @@ import com.jmix.tool.bbuilder.anno.DAttrAnno3;
 import com.jmix.tool.bbuilder.anno.DAttrAnno4;
 import com.jmix.tool.bbuilder.anno.DAttrInherit;
 import com.jmix.tool.bbuilder.anno.ModuleAnno;
+import com.jmix.tool.bbuilder.anno.ParaAnno;
 import com.jmix.tool.bbuilder.anno.PartAnno;
 import com.jmix.tool.bbuilder.anno.PriorityRuleAnno;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 @Slf4j
 public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
@@ -72,7 +76,6 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
                 "9000",
                 "4" })
         private PartVar sd3;
-
         // 机械硬盘实例1
         @PartAnno(fatherCode = "md", attrs = { "5400", "2", "13" })
         private PartVar md1;
@@ -89,6 +92,12 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
         @PartAnno(fatherCode = "md", attrs = { "9900", "4", "10" })
         private PartVar md4;
 
+        @ParaAnno(fatherCode = "driver")
+        private ParaVar sumCapacity;
+
+        @ParaAnno(fatherCode = "driver")
+        private ParaVar sumQuantity;
+
         // proRule1:固态硬盘必须配置同一种，并且最多配置2块
         @CodeRuleAnno(fatherCode = "drive", normalNaturalCode = "固态硬盘必须配置同一种，并且最多配置2块")
         private void rule1() {
@@ -103,6 +112,18 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
             model.addLessOrEqual(sumQty, 2);
         }
 
+        // // proRule2:固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量
+        // @PriorityRuleAnno(fatherCode = "drive", normalNaturalCode =
+        // "固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量", attrCode = "capacityWeight", strategy =
+        // PriorityStrategy.MAX, type = PriorityType.SELECT)
+        // private void rule2() {
+        // // proRule2-natuarl: 固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量
+        // // proRule2-dsl: 选择的部件capacityWeight总和越大越好( 和qty(Q) * capacityWeight 相关)
+        // // proRule2-expr: sd1.S*110 +sd2.S*120 + md1.S*13
+        // // proRule2-step1: maximum(expr) ->
+        // // proRule2-step2: expr >= 200*(1-30%) = 84
+        // } // 优先使用固态硬盘：如果固态硬盘容量已足够，限制机械硬盘使用 TODO，怎么表达
+
         // proRule2:固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量
         @PriorityRuleAnno(fatherCode = "drive", normalNaturalCode = "固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量", attrCode = "capacityWeight", strategy = PriorityStrategy.MAX, type = PriorityType.SELECT)
         private void rule2() {
@@ -112,6 +133,151 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
             // proRule2-step1: maximum(expr) ->
             // proRule2-step2: expr >= 200*(1-30%) = 84
         } // 优先使用固态硬盘：如果固态硬盘容量已足够，限制机械硬盘使用 TODO，怎么表达
+          // 规则1: 固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量
+
+        private void applyPriorityRule(AlgCPModel model) {
+            List<PartVar> partVars = null;
+
+            // // 分离固态硬盘和机械硬盘
+            // List<PartVar> solidStateParts = partVars.stream()
+            // .filter(PartVar::isSolidState)
+            // .collect(Collectors.toList());
+
+            // List<PartVar> mechanicalParts = partVars.stream()
+            // .filter(pv -> !pv.isSolidState())
+            // .collect(Collectors.toList());
+
+            // if (solidStateParts.isEmpty() || mechanicalParts.isEmpty()) {
+            // return;
+            // }
+            // // 创建固态硬盘总容量表达式
+            // AlgCPLinearExpr ssTotalCapacity = model.newLinearExpr("SS_Total_Capacity");
+            // for (PartVar pv : solidStateParts) {
+            // ssTotalCapacity.addTerm(pv.qty, pv.getCapacity());
+            // }
+
+            // 创建机械硬盘总容量表达式
+            // AlgCPLinearExpr mechTotalCapacity =
+            // model.newLinearExpr("Mech_Total_Capacity");
+            // for (PartVar pv : mechanicalParts) {
+            // mechTotalCapacity.addTerm(pv.qty, pv.getCapacity());
+            // }
+            AlgCPLinearExpr ssTotalCapacity = sum4Selected("Capacity", "fatherCode=sd");
+            AlgCPLinearExpr mechTotalCapacity = sum4Selected("Capacity", "fatherCode=md");
+            // // 如果是容量需求
+            // if ("Capacity".equals(req.getAttrCode())) {
+
+            // int requiredCapacity = Integer.parseInt(req.getAttrValue());
+
+            // // 创建固态硬盘是否足够的布尔变量
+            // BoolVar ssSufficient = (BoolVar) model.newBoolVar(
+            // "ssSufficient");
+
+            // // 定义：如果固态硬盘容量 >= 需求容量，则 ssSufficient = true
+            // model.addGreaterOrEqual(ssTotalCapacity,
+            // requiredCapacity).onlyEnforceIf(ssSufficient);
+            // model.addLessThan(ssTotalCapacity,
+            // requiredCapacity).onlyEnforceIf(ssSufficient.not());
+
+            // // 规则1.1: 如果固态硬盘足够，则禁止使用机械硬盘
+            // for (PartVar pv : mechanicalParts) {
+            // model.addEquality(pv.qty, 0).onlyEnforceIf(ssSufficient);
+            // }
+
+            // // 创建目标函数
+            // AlgCPLinearExpr objectiveExpr = model.newLinearExpr("ObjectiveFun");
+
+            // // 基础目标: 最大化SSD使用（负权重）--容量越大越好
+            // objectiveExpr.addExpr(ssTotalCapacity, -100);
+
+            // // HDD惩罚 = HDD容量 * 惩罚系数S
+            // objectiveExpr.addExpr(mechTotalCapacity, 1);
+
+            // // 3. 惩罚过度配置（重要！）
+            // // 创建总容量变量
+            // AlgCPLinearExpr totalCapacityExpr = model.newLinearExpr("Total_Capacity");
+            // for (PartVar pv : partVars) {
+            // totalCapacityExpr.addTerm(pv.qty, pv.getCapacity());
+            // }
+
+            // // 创建过度配置变量
+            // // 约束：excessCapacity = totalCapacity - requiredCapacity
+            // AlgCPLinearExpr tExpr = model.newLinearExpr("excessCapacityExpr");
+            // tExpr.addExpr(totalCapacityExpr, 1);
+            // tExpr.addConstant(-requiredCapacity);
+            // // 2. 过度配置惩罚
+            // objectiveExpr.addExpr(tExpr, 500); // 惩罚过度配置
+
+            // // 4. 惩罚使用多个零件（鼓励简洁配置）
+            // // 总零件数量惩罚
+            // AlgCPLinearExpr totalPartsExpr = model.newLinearExpr("Total_Parts");
+            // for (PartVar pv : partVars) {
+            // totalPartsExpr.addTerm(pv.qty, 1);
+            // }
+
+            // objectiveExpr.addExpr(totalPartsExpr, 500); // 零件数量惩罚
+
+            // model.addLessOrEqual(objectiveExpr, 2000);
+            // model.setObjectExpr(objectiveExpr);
+
+            // // model.minimize(objectiveExpr); // 设置目标函数为最小化（因为SSD有负权重）
+
+            // } else {// 给的数量qty总数
+            // // 创建固态硬盘总容量表达式
+            // AlgCPLinearExpr ssTotalQty = model.newLinearExpr("ssTotalQty");
+            // for (PartVar pv : solidStateParts) {
+            // ssTotalQty.addTerm(pv.qty, 1);
+            // }
+            // // 创建机械硬盘总容量表达式
+            // AlgCPLinearExpr mechTotalQty = model.newLinearExpr("mechTotalQty");
+            // for (PartVar pv : mechanicalParts) {
+            // mechTotalQty.addTerm(pv.qty, 1);
+            // }
+            // int requiredQty = Integer.parseInt(req.getAttrValue());
+            // // 创建固态硬盘是否足够的布尔变量
+            // BoolVar ssSufficientQty = (BoolVar) model.newBoolVar(
+            // "ssSufficientQty");
+            // // 定义：如果固态硬盘容量 >= 需求容量，则 ssSufficient = true
+            // model.addGreaterOrEqual(ssTotalQty,
+            // requiredQty).onlyEnforceIf(ssSufficientQty);
+            // model.addLessThan(ssTotalQty,
+            // requiredQty).onlyEnforceIf(ssSufficientQty.not());
+            // // 规则1.1: 如果固态硬盘足够，则禁止使用机械硬盘
+            // for (PartVar pv : mechanicalParts) {
+            // model.addEquality(pv.qty, 0).onlyEnforceIf(ssSufficientQty);
+            // }
+
+            // // 创建目标函数
+            // AlgCPLinearExpr objectiveExpr = model.newLinearExpr("ObjectiveFunQty");
+
+            // // 基础目标: 最大化SSD使用（负权重）--容量越大越好
+            // objectiveExpr.addExpr(ssTotalCapacity, -100);
+            // // objectiveExpr.addExpr(ssTotalQty, -100);
+            // // HDD惩罚 = HDD容量 * 惩罚系数S，容量越小越好
+            // objectiveExpr.addExpr(mechTotalCapacity, 1);
+            // // objectiveExpr.addExpr(mechTotalQty, 1);
+
+            // // 3. 惩罚过度配置（重要！）
+            // // 创建总容量变量
+            // AlgCPLinearExpr totalQtyExpr = model.newLinearExpr("totalQtyExpr");
+            // for (PartVar pv : partVars) {
+            // totalQtyExpr.addTerm(pv.qty, 1);
+            // }
+            // // 创建过度配置变量
+            // // 约束：excessCapacity = totalCapacity - requiredCapacity
+            // AlgCPLinearExpr excessQyExpr = model.newLinearExpr("excessQyExpr");
+            // excessQyExpr.addExpr(totalQtyExpr, 1);
+            // excessQyExpr.addConstant(-requiredQty);
+            // // 2. 过度配置惩罚
+            // objectiveExpr.addExpr(excessQyExpr, 500); // 惩罚过度配置
+
+            // model.addLessOrEqual(objectiveExpr, 1000);
+            // model.setObjectExpr(objectiveExpr);
+            // // model.minimize(objectiveExpr); // 设置目标函数为最小化（因为SSD有负权重）
+
+            // }
+        }
+
     }
     // ---------------模型的定义end----------------------------------------
 
