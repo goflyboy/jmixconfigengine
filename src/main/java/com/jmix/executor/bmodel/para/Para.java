@@ -41,6 +41,11 @@ public class Para extends DynamicAttribute {
     private ParaType paraType = ParaType.ENUM;
 
     /**
+     * assignment type: INPUT means manual input; CALC means calculated
+     */
+    private AssignType assignType = AssignType.CALC;
+
+    /**
      * Range类型的最小值
      */
     private String minValue = DEFAULT_MIN_VALUE;
