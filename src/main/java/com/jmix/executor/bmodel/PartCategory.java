@@ -70,7 +70,7 @@ public class PartCategory extends ModuleBase implements IModule, IPart {
 
         pc.setRules(new ArrayList<>(this.getRules()));
         pc.setParas(new ArrayList<>(this.getParas()));// TODO 后续参数值可能会有变化
-
+        pc.init();
         // 不复制partCategoryMap和partMap，这些将在init方法中重新初始化
         return pc;
     }
