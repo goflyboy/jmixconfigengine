@@ -15,6 +15,7 @@ import com.google.ortools.util.Domain;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +23,7 @@ import java.util.Map;
 /**
  * 对CpModel接口的封装，实现变量注册等封装
  * 实现对CpModel接口封装，类似测试代码调用model的代码都不需要修改（如：model.addBoolAnd)
- * 
+ *
  * @since 2025-09-22
  */
 @Slf4j
@@ -69,6 +70,36 @@ public class AlgCPModel {
     private String currentRelaxVarName = "";
 
     /**
+     * 变量映射表
+     */
+    private Map<String, IntVar> variables = new HashMap<>();
+
+    /**
+     * 变量日志列表
+     */
+    private List<String> variableLogs = new ArrayList<>();
+
+    /**
+     * 约束列表
+     */
+    private List<AlgCPConstraint> constraints = new ArrayList<>();
+
+    /**
+     * 目标表达式
+     */
+    private AlgCPLinearExpr objectExpr;
+
+    /**
+     * 创建跟踪的线性表达式
+     *
+     * @param name 表达式名称
+     * @return AlgCPLinearExpr 实例
+     */
+    public AlgCPLinearExpr newLinearExpr(String name) {
+        return new AlgCPLinearExpr(name);
+    }
+
+    /**
      * 默认构造函数，创建新的CpModel实例
      */
     public AlgCPModel() {
@@ -77,11 +108,14 @@ public class AlgCPModel {
 
     /**
      * 构造函数，使用指定的CpModel实例
-     * 
+     *
      * @param cpModel 要封装的CpModel实例
      */
     public AlgCPModel(final CpModel cpModel) {
         this.cpModel = cpModel;
+        this.variables = new HashMap<>();
+        this.variableLogs = new ArrayList<>();
+        this.constraints = new ArrayList<>();
     }
 
     /**
@@ -173,19 +207,22 @@ public class AlgCPModel {
 
     /**
      * 附加松弛变量到约束
-     * 
+     *
      * @param ct      约束
      * @param funName 函数名称
      * @return 带松弛变量的约束包装
      */
     private AlgCPConstraint attachRelax(Constraint ct, String funName) {
         log.info("relax:{} -----{}", currentRelaxVarName, funName);
-        return new AlgCPConstraint(ct, this.currentRelaxVar, this.currentRelaxVarName);
+        AlgCPConstraint constraint = new AlgCPConstraint(ct, this.currentRelaxVar, this.currentRelaxVarName);
+        constraint.setName(funName);
+        constraints.add(constraint);
+        return constraint;
     }
 
     /**
      * 创建整数变量，封装CpModel的newIntVar方法
-     * 
+     *
      * @param left  变量的最小值
      * @param right 变量的最大值
      * @param name  变量名称
@@ -194,12 +231,14 @@ public class AlgCPModel {
     public IntVar newIntVar(final long left, final long right, final String name) {
         IntVar tv = this.cpModel.newIntVar(left, right, name);
         registerVariables(tv, name);
+        trackVariable(tv, left, right, name);
+        log.info("Variable created: {} in [{}, {}]", name, left, right);
         return tv;
     }
 
     /**
      * 从单个值创建整数变量，封装CpModel的newIntVarFromDomain方法
-     * 
+     *
      * @param value 变量的固定值
      * @param name  变量名称
      * @return 创建的整数变量
@@ -207,12 +246,14 @@ public class AlgCPModel {
     public IntVar newIntVarFromDomain(final long value, final String name) {
         IntVar tv = this.cpModel.newIntVarFromDomain(Domain.fromValues(new long[] { value }), name);
         registerVariables(tv, name);
+        trackVariable(tv, value, value, name);
+        log.info("Variable created: {} = {}", name, value);
         return tv;
     }
 
     /**
      * 从多个值创建整数变量，封装CpModel的newIntVarFromDomain方法
-     * 
+     *
      * @param values 变量的可能值数组
      * @param name   变量名称
      * @return 创建的整数变量
@@ -220,12 +261,14 @@ public class AlgCPModel {
     public IntVar newIntVarFromDomain(final long[] values, final String name) {
         IntVar tv = this.cpModel.newIntVarFromDomain(Domain.fromValues(values), name);
         registerVariables(tv, name);
+        trackVariable(tv, values[0], values[values.length - 1], name);
+        log.info("Variable created: {} in domain {}", name, java.util.Arrays.toString(values));
         return tv;
     }
 
     /**
      * 从区间创建整数变量，封装CpModel的newIntVarFromDomain方法
-     * 
+     *
      * @param intervals 变量的区间范围数组
      * @param name      变量名称
      * @return 创建的整数变量
@@ -233,12 +276,14 @@ public class AlgCPModel {
     public IntVar newIntVarFromDomain(final long[][] intervals, final String name) {
         IntVar tv = this.cpModel.newIntVarFromDomain(Domain.fromIntervals(intervals), name);
         registerVariables(tv, name);
+        trackVariable(tv, intervals[0][0], intervals[intervals.length - 1][1], name);
+        log.info("Variable created: {} in intervals {}", name, java.util.Arrays.deepToString(intervals));
         return tv;
     }
 
     /**
      * 创建具有完整域的整数变量，封装CpModel的newIntVarFromDomain方法
-     * 
+     *
      * @param name 变量名称
      * @return 创建的整数变量
      */
@@ -246,18 +291,22 @@ public class AlgCPModel {
         IntVar tv = this.cpModel.newIntVarFromDomain(Domain.fromValues(new long[] { Long.MIN_VALUE, Long.MAX_VALUE }),
                 name);
         registerVariables(tv, name);
+        trackVariable(tv, Long.MIN_VALUE, Long.MAX_VALUE, name);
+        log.info("Variable created: {} in full domain", name);
         return tv;
     }
 
     /**
      * 创建布尔变量，封装CpModel的newBoolVar方法
-     * 
+     *
      * @param name 变量名称
      * @return 创建的布尔变量
      */
     public BoolVar newBoolVar(final String name) {
         BoolVar tv = this.cpModel.newBoolVar(name);
         registerVariablesBool(tv, name);
+        trackVariable(tv, 0, 1, name);
+        log.info("BoolVar created: {} in {0, 1}", name);
         return tv;
     }
 
@@ -287,12 +336,25 @@ public class AlgCPModel {
 
     /**
      * 注册其他变量 - BoolVar版本
-     * 
+     *
      * @param tv   变量对象
      * @param name 变量名称
      */
     private void registerVariablesBool(final BoolVar tv, final String name) {
         registerVariables(tv, name);
+    }
+
+    /**
+     * 跟踪变量创建信息
+     *
+     * @param var  变量对象
+     * @param lb   下界
+     * @param ub   上界
+     * @param name 变量名称
+     */
+    private void trackVariable(IntVar var, long lb, long ub, String name) {
+        variables.put(name, var);
+        variableLogs.add(String.format("%s in [%d, %d]", name, lb, ub));
     }
 
     // 以下方法直接委托给底层的CpModel，保持接口兼容性
@@ -734,38 +796,64 @@ public class AlgCPModel {
 
     /**
      * 添加线性表达式的最小化目标
-     * 
+     *
      * @param expr 线性表达式
      */
     public void minimize(final LinearArgument expr) {
         cpModel.minimize(expr);
+        log.info("Objective set: minimize linear expression");
     }
 
     /**
      * 添加双精度线性表达式的最小化目标
-     * 
+     *
      * @param expr 双精度线性表达式
      */
     public void minimize(final DoubleLinearExpr expr) {
         cpModel.minimize(expr);
+        log.info("Objective set: minimize double linear expression");
     }
 
     /**
      * 添加线性表达式的最大化目标
-     * 
+     *
      * @param expr 线性表达式
      */
     public void maximize(final LinearArgument expr) {
         cpModel.maximize(expr);
+        log.info("Objective set: maximize linear expression");
     }
 
     /**
      * 添加双精度线性表达式的最大化目标
-     * 
+     *
      * @param expr 双精度线性表达式
      */
     public void maximize(final DoubleLinearExpr expr) {
         cpModel.maximize(expr);
+        log.info("Objective set: maximize double linear expression");
+    }
+
+    /**
+     * 添加AlgCPLinearExpr的最小化目标
+     *
+     * @param expr AlgCPLinearExpr表达式
+     */
+    public void minimize(final AlgCPLinearExpr expr) {
+        cpModel.minimize(expr.build());
+        this.objectExpr = expr;
+        log.info("Objective set: minimize AlgCPLinearExpr {}", expr.getName());
+    }
+
+    /**
+     * 添加AlgCPLinearExpr的最大化目标
+     *
+     * @param expr AlgCPLinearExpr表达式
+     */
+    public void maximize(final AlgCPLinearExpr expr) {
+        cpModel.maximize(expr.build());
+        this.objectExpr = expr;
+        log.info("Objective set: maximize AlgCPLinearExpr {}", expr.getName());
     }
 
     /**
