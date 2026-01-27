@@ -909,7 +909,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
         // 应用约束
         ComparisonOperator operator = ComparisonOperator.fromSymbol(partConstraint.getComparator());
-        operator.applyConstraint(model.getCpModel(), sumFunExpr.build(), partConstraint.getLeftValue());
+        operator.applyConstraint(model, sumFunExpr, partConstraint.getLeftValue());
         String sumFormula = operator.getFormulaString(sumFormulaBase, partConstraint.getLeftValue());
 
         log.info("Priority-Added sum constraint: {} for {}", sumFormula,
