@@ -20,7 +20,6 @@ import com.jmix.executor.model.ParConstraint;
 import com.jmix.executor.model.PartConstantAttr;
 
 import com.google.ortools.sat.BoolVar;
-import com.google.ortools.sat.CpModel;
 import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.LinearArgument;
 import com.google.ortools.sat.Literal;
@@ -122,7 +121,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @param isAttachRelax   是否附加松弛变量
      * @param confictedRelaxs 冲突松弛变量列表
      */
-    public void initModel(CpModel model, IModule module, boolean isAttachRelax, List<RelaxVar> confictedRelaxs,
+    public void initModel(AlgCPModel model, IModule module, boolean isAttachRelax, List<RelaxVar> confictedRelaxs,
             List<ParConstraint> partConstraintFromReqs) {
         List<String> fullRules = toFullRules(module);
         List<RefProgObjSchema> fullProgObjs = toFullProgObjs(module);
@@ -161,7 +160,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @param exeProgObjs     本次要初始化的变量
      * @param confictedRelaxs 冲突松弛变量列表
      */
-    public void initModel(CpModel model,
+    public void initModel(AlgCPModel model,
             IModule module,
             List<String> exeRules,
             List<RefProgObjSchema> exeProgObjs,
@@ -179,14 +178,14 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @param isAttachRelax   是否附加松弛变量
      * @param confictedRelaxs 冲突松弛变量列表
      */
-    public void initModel(CpModel model,
+    public void initModel(AlgCPModel model,
             IModule module,
             List<String> exeRules,
             List<RefProgObjSchema> exeProgObjs,
             boolean isAttachRelax,
             List<RelaxVar> confictedRelaxs,
             List<ParConstraint> partConstraints) {
-        this.model = new AlgCPModel(model);
+        this.model = model;
         this.model.setIsAttachRelax(isAttachRelax);
         this.model.setConfictedRelaxVars(confictedRelaxs);
         this.module = module;
@@ -502,7 +501,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * 
      * @param model CP模型实例
      */
-    protected void initModelAfter(CpModel model) {
+    protected void initModelAfter(AlgCPModel model) {
 
     }
 
@@ -612,7 +611,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @param name   变量名称
      * @return 创建的整数变量
      */
-    public static IntVar newIntVarFromDomain(CpModel model, long[] values, String name) {
+    public static IntVar newIntVarFromDomain(AlgCPModel model, long[] values, String name) {
         return model.newIntVarFromDomain(Domain.fromValues(values), name);
     }
 

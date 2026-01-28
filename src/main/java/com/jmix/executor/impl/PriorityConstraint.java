@@ -85,7 +85,7 @@ public class PriorityConstraint {
             return new ArrayList<>();
         }
         // convert from PriorityConstraint.PartTerm (same type) if possible
-        return expr.getTerms();
+        return expr.getPartTerms();
     }
 
     /**

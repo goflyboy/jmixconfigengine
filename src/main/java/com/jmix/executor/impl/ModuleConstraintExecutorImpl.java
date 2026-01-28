@@ -31,7 +31,6 @@ import com.jmix.executor.model.RunInferParasRsp;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.google.ortools.sat.CpModel;
 import com.google.ortools.sat.CpSolver;
 import com.google.ortools.sat.CpSolverStatus;
 
@@ -155,8 +154,8 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
             if (status == CpSolverStatus.MODEL_INVALID) {
                 // 重新获取模型进行验证
                 ConstraintAlgImpl alg = initConstraintModel(module, req, false, new ArrayList<>());
-                CpModel model = alg.getModel().getCpModel();
-                String validationError = model.validate();
+                AlgCPModel model = alg.getModel();
+                String validationError = model.getCpModel().validate();
                 log.error("Model validation failed: {}", validationError);
                 return Result.failed("Model validation failed: " + validationError);
             }
@@ -321,11 +320,11 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
             throws AlgLoaderException, AlgExecutorException {
         // 初始化约束模型
         ConstraintAlgImpl alg = initConstraintModel(module, req, isAttachRelax, confictedRelaxs);
-        CpModel model = alg.getModel().getCpModel();
+        AlgCPModel model = alg.getModel();
 
         if (config.isLogModelProto()) {
             // 将module的CpModelProto信息输出到文件config.logFilePath/module.proto.txt
-            model.exportToFile(config.getLogFilePath() + File.separator + module.getCode() + ".proto.txt");
+            model.getCpModel().exportToFile(config.getLogFilePath() + File.separator + module.getCode() + ".proto.txt");
         }
         CpSolver solver = new CpSolver();
         solver.getParameters().setEnumerateAllSolutions(req.isEnumerateAllSolution());
@@ -363,7 +362,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
             throws AlgLoaderException, AlgExecutorException {
         // 创建约束算法实例
         ConstraintAlgImpl alg = createConstraintAlg(module.getId(), module.getCode());
-        CpModel model = new CpModel();
+        AlgCPModel model = new AlgCPModel();
 
         // 根据loadType决定是否使用差量加载模型
         if (config.getLoadType() == ConstraintConfig.LOAD_TYPE_INCREMENTAL) {
