@@ -29,20 +29,66 @@ public class PartAlgCPLinearExprTest {
     }
 
     @Test
-    public void testAddTermAndGetParts() {
+    public void testAddTermConstant_basic() {
         // prepare PartVars with test bases
         PartVar pv1 = ofPart("P1");
         PartVar pv2 = ofPart("P2");
 
-        // expr1: coefficient != 1
         PartAlgCPLinearExpr expr1 = new PartAlgCPLinearExpr("expr1");
         expr1.addTerm(pv1, pv1.getQty(), 1);
         expr1.addTerm(pv2, pv2.getQty(), 3);
+        expr1.addConstant(5);
         log.info(expr1.toString());
 
-        assertEquals("P1.Q*2", expr1.getExprStr());
-        assertEquals("%d*2", expr1.getExprTemplate());
-        assertEquals("P1.Q_%d*2", expr1.getExprTemplateStr());
+        assertEquals("1*P1.Q + 3*P2.Q + 5", expr1.getExprStr());
+        assertEquals("1*%d + 3*%d + 5", expr1.getExprTemplate());
+        assertEquals("1*P1.Q_%d + 3*P2.Q_%d + 5", expr1.getExprTemplateStr());
+        assertEquals(2, expr1.getPartTerms().size());
+    }
 
+    @Test
+    public void testAddTermConstant_negative() {
+        // prepare PartVars with test bases
+        PartVar pv1 = ofPart("P1");
+        PartVar pv2 = ofPart("P2");
+
+        PartAlgCPLinearExpr expr1 = new PartAlgCPLinearExpr("expr1");
+        expr1.addTerm(pv1, pv1.getQty(), -1);
+        expr1.addTerm(pv2, pv2.getQty(), -3);
+        expr1.addConstant(5);
+        log.info(expr1.toString());
+
+        assertEquals("-1*P1.Q - 3*P2.Q + 5", expr1.getExprStr());
+        assertEquals("-1*%d - 3*%d + 5", expr1.getExprTemplate());
+        assertEquals("-1*P1.Q_%d - 3*P2.Q_%d + 5", expr1.getExprTemplateStr());
+        assertEquals(2, expr1.getPartTerms().size());
+    }
+
+    @Test
+    public void testAddExpr() {
+        // prepare PartVars with test bases
+        PartVar pv1 = ofPart("P1");
+        PartVar pv2 = ofPart("P2");
+        PartVar pv3 = ofPart("P3");
+
+        PartAlgCPLinearExpr expr1 = new PartAlgCPLinearExpr("expr1");
+        expr1.addTerm(pv1, pv1.getQty(), 1);
+        expr1.addTerm(pv2, pv2.getQty(), 3);
+        expr1.addConstant(5);
+        log.info(expr1.toString());
+
+        PartAlgCPLinearExpr expr2 = new PartAlgCPLinearExpr("expr2");
+        expr1.addTerm(pv3, pv1.getQty(), -30);
+        log.info(expr2.toString());
+
+        PartAlgCPLinearExpr expr = new PartAlgCPLinearExpr("expr");
+        expr.addExpr(expr1, 1);
+        expr.addExpr(expr2, -30);
+        log.info(expr.toString());
+
+        assertEquals("1*(1*P1.Q + 3*P2.Q + 5) - 30*P3.Q", expr.getExprStr());
+        // assertEquals("%d + %d*3 + 5", expr.getExprTemplate());
+        // assertEquals("P1.Q_%d + P2.Q_%d*3 + 5", expr.getExprTemplateStr());
+        assertEquals(3, expr.getPartTerms().size());
     }
 }

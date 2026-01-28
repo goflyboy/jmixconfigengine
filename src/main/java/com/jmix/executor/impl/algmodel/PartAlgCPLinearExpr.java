@@ -4,9 +4,7 @@ import com.jmix.executor.impl.PriorityConstraint;
 
 import com.google.ortools.sat.IntVar;
 
-import lombok.AccessLevel;
 import lombok.Data;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -27,8 +25,7 @@ public class PartAlgCPLinearExpr extends AlgCPLinearExpr {
 
     private final List<String> termTemplateStrs = new ArrayList<>();
 
-    @Getter(AccessLevel.NONE)
-    private final List<PriorityConstraint.PartTerm> terms = new ArrayList<>();
+    private final List<PriorityConstraint.PartTerm> partTerms = new ArrayList<>();
 
     private int termIndex = 0;
 
@@ -37,31 +34,62 @@ public class PartAlgCPLinearExpr extends AlgCPLinearExpr {
     }
 
     public String getExprStr() {
-        return String.join(" + ", termStrs);
+        return joinWithSigns(termStrs);
     }
 
     public String getExprTemplate() {
-        return String.join(" + ", termTemplates);
+        return joinWithSigns(termTemplates);
     }
 
     public String getExprTemplateStr() {
-        return String.join(" + ", termTemplateStrs);
+        return joinWithSigns(termTemplateStrs);
     }
 
-    public List<PriorityConstraint.PartTerm> getTerms() {
-        return terms;
+    public List<PriorityConstraint.PartTerm> getPartTerms() {
+        return partTerms;
     }
 
-    public PartAlgCPLinearExpr() {
-        super();
+    private String joinWithSigns(List<String> items) {
+        if (items == null || items.isEmpty()) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < items.size(); i++) {
+            String raw = items.get(i).trim();
+            if (raw.isEmpty()) {
+                continue;
+            }
+            if (raw.startsWith("-")) {
+                String unsigned = raw.substring(1);
+                if (sb.length() == 0) {
+                    sb.append("-").append(unsigned);
+                } else {
+                    sb.append(" - ").append(unsigned);
+                }
+            } else if (raw.startsWith("+")) {
+                String unsigned = raw.substring(1);
+                if (sb.length() == 0) {
+                    sb.append(unsigned);
+                } else {
+                    sb.append(" + ").append(unsigned);
+                }
+            } else {
+                if (sb.length() == 0) {
+                    sb.append(raw);
+                } else {
+                    sb.append(" + ").append(raw);
+                }
+            }
+        }
+        return sb.toString();
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("exprStrParts: ").append(getExprStr()).append(System.lineSeparator());
-        sb.append("exprTemplateParts: ").append(getExprTemplate()).append(System.lineSeparator());
-        sb.append("exprTemplateStrParts: ").append(getExprTemplateStr());
+        sb.append("exprStr: ").append(getExprStr()).append(System.lineSeparator());
+        sb.append("exprTemplate: ").append(getExprTemplate()).append(System.lineSeparator());
+        sb.append("exprTemplateStr: ").append(getExprTemplateStr());
         return sb.toString();
     }
 
@@ -73,22 +101,16 @@ public class PartAlgCPLinearExpr extends AlgCPLinearExpr {
 
         // build expression string parts
         String shortCode = partVar.getBase().getShortCode();
-        if (attrValue != 1) {
-            termStrs.add(shortCode + "." + varName + "*" + attrValue);
-            termTemplates.add("%d*" + attrValue);
-            termTemplateStrs.add(shortCode + "." + varName + "_%d*" + attrValue);
-        } else {
-            termStrs.add(shortCode + "." + varName);
-            termTemplates.add("%d");
-            termTemplateStrs.add(shortCode + "." + varName + "_%d");
-        }
+        termStrs.add(attrValue + "*" + shortCode + "." + varName);
+        termTemplates.add(attrValue + "*" + "%d");
+        termTemplateStrs.add(attrValue + "*" + shortCode + "." + varName + "_%d");
 
         // create PartTerm
         PriorityConstraint.PartTerm term = new PriorityConstraint.PartTerm();
         term.setIndex(termIndex);
         term.setPartCode(partVar.getCode());
         term.setTermValue(null);
-        terms.add(term);
+        partTerms.add(term);
         termIndex++;
 
         // delegate to parent to build numeric expression
@@ -109,7 +131,7 @@ public class PartAlgCPLinearExpr extends AlgCPLinearExpr {
     public void addConstant(long value) {
         super.addConstant(value);
         termStrs.add(String.valueOf(value));
-        termTemplates.add("%d");
+        termTemplates.add(String.valueOf(value));
         termTemplateStrs.add(String.valueOf(value));
     }
 
@@ -133,23 +155,17 @@ public class PartAlgCPLinearExpr extends AlgCPLinearExpr {
             return;
         }
 
-        if (coefficient != 1) {
-            termStrs.add(coefficient + "*(" + groupedStr + ")");
-            termTemplates.add(coefficient + "*(" + groupedTemplate + ")");
-            termTemplateStrs.add(coefficient + "*(" + groupedTemplateStr + ")");
-        } else {
-            termStrs.add("(" + groupedStr + ")");
-            termTemplates.add("(" + groupedTemplate + ")");
-            termTemplateStrs.add("(" + groupedTemplateStr + ")");
-        }
+        termStrs.add(coefficient + "*(" + groupedStr + ")");
+        termTemplates.add(coefficient + "*(" + groupedTemplate + ")");
+        termTemplateStrs.add(coefficient + "*(" + groupedTemplateStr + ")");
 
         // merge PartTerm list with adjusted indices
-        for (PriorityConstraint.PartTerm t : expr.getTerms()) {
+        for (PriorityConstraint.PartTerm t : expr.getPartTerms()) {
             PriorityConstraint.PartTerm newTerm = new PriorityConstraint.PartTerm();
             newTerm.setIndex(termIndex++); // TODO
             newTerm.setPartCode(t.getPartCode());
             newTerm.setTermValue(null);
-            terms.add(newTerm);
+            partTerms.add(newTerm);
         }
     }
 
