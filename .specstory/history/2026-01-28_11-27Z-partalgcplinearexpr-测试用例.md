@@ -2658,7 +2658,7 @@ Lint errors for `src/main/java/com/jmix/executor/impl/algmodel/PartAlgCPLinearEx
 
 _**User (2026-01-28 11:01Z)**_
 
-@ExpressionCalculator.java (21)  添加ExpressionCalculator的测试用例
+@ExpressionCalculator.java (21)  添加ExpressionCalculator的测试用例 @src/main/java/com/jmix/executor/impl/algmodel/ConstraintAlgImpl.java:22-23 
 
 ---
 

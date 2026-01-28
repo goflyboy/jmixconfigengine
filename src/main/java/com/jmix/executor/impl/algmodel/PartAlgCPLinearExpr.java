@@ -153,7 +153,7 @@ public class PartAlgCPLinearExpr extends AlgCPLinearExpr {
                 operatorNum++;
             }
         }
-        return operatorNum <= 0;
+        return operatorNum <= 1;
     }
 
     /**
