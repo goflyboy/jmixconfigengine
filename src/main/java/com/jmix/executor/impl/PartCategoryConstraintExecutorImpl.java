@@ -11,6 +11,7 @@ import com.jmix.executor.bmodel.logic.Rule;
 import com.jmix.executor.cmodel.ModuleInst;
 import com.jmix.executor.cmodel.ParaInst;
 import com.jmix.executor.cmodel.PartInst;
+import com.jmix.executor.impl.algmodel.AlgCPLinearExpr;
 import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
 import com.jmix.executor.impl.algmodel.RelaxVar;
 import com.jmix.executor.model.AttrFunConstant;
@@ -23,7 +24,6 @@ import com.jmix.executor.model.Result;
 import com.google.ortools.sat.CpModel;
 import com.google.ortools.sat.CpSolver;
 import com.google.ortools.sat.CpSolverStatus;
-import com.jmix.executor.impl.algmodel.AlgCPLinearExpr;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -127,7 +127,7 @@ public class PartCategoryConstraintExecutorImpl {
 
         // 创建CP模型
         CpModel model = new CpModel();
-        alg.initModel(model, filteredCategory, isAttachRelax, confictedRelaxs);
+        alg.initModel(model, filteredCategory, isAttachRelax, confictedRelaxs, null);
 
         // 根据请求初始化约束模型
         initModelByReq(partCatagoryReq, alg);
@@ -156,7 +156,7 @@ public class PartCategoryConstraintExecutorImpl {
             // 重新获取模型进行验证
             ConstraintAlgImpl validationAlg = createConstraintAlg(module.getId(), module.getCode());
             CpModel validationModel = new CpModel();
-            validationAlg.initModel(validationModel, module, false, new ArrayList<>());
+            validationAlg.initModel(validationModel, module, false, new ArrayList<>(), null);
             String validationError = validationModel.validate();
             log.error("Model validation failed: {}", validationError);
             return Result.failed("Model validation failed: " + validationError);
@@ -216,7 +216,7 @@ public class PartCategoryConstraintExecutorImpl {
             // 创建新的算法实例和模型
             ConstraintAlgImpl optAlg = createConstraintAlg(module.getId(), module.getCode());
             CpModel optModel = new CpModel();
-            optAlg.initModel(optModel, filteredCategory, isAttachRelax, confictedRelaxs);
+            optAlg.initModel(optModel, filteredCategory, isAttachRelax, confictedRelaxs, partConstraintFromReqs);
             initModelByReq(partCatagoryReq, optAlg);
             initModelByPriorityConstraints(partConstraintFromReqs, optAlg);
             optAlg.addRelaxObjectFunction();
@@ -267,7 +267,7 @@ public class PartCategoryConstraintExecutorImpl {
             // 创建新的算法实例和模型
             ConstraintAlgImpl multiAlg = createConstraintAlg(module.getId(), module.getCode());
             CpModel multiModel = new CpModel();
-            multiAlg.initModel(multiModel, filteredCategory, isAttachRelax, confictedRelaxs);
+            multiAlg.initModel(multiModel, filteredCategory, isAttachRelax, confictedRelaxs, null);
             initModelByReq(partCatagoryReq, multiAlg);
             initModelByPriorityConstraints(partConstraintFromReqs, multiAlg);
             multiAlg.addRelaxObjectFunction();

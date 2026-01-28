@@ -10,6 +10,7 @@ import com.jmix.executor.model.AlgLoaderException;
 import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.IntVar;
 
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -83,6 +84,7 @@ public class ConstraintAlgImplTestBase extends ConstraintAlgImpl {
         }
     }
 
+    @Data
     public class PartVar extends Var<Part> {
         /**
          * 部件的数量值
@@ -120,13 +122,6 @@ public class ConstraintAlgImplTestBase extends ConstraintAlgImpl {
         partVar.qty = internalPartVar.getQty();
         partVar.isHidden = internalPartVar.getIsHidden();
         partVar.isSelected = internalPartVar.getIsSelected();
-
-        // // 初始化子部件选中状态映射 TODO
-        // for (com.jmix.executor.impl.algmodel.PartVar subPart :
-        // internalPartVar.getSubParts()) {
-        // partVar.subPartSelectedVars.put(subPart.getCode(),
-        // newBoolVar(subPart.getCode() + "_selected"));
-        // }
         return partVar;
     }
 

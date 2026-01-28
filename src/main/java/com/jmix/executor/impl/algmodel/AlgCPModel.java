@@ -100,6 +100,16 @@ public class AlgCPModel {
     }
 
     /**
+     * 创建跟踪的线性表达式
+     *
+     * @param name 表达式名称
+     * @return AlgCPLinearExpr 实例
+     */
+    public PartAlgCPLinearExpr newPartLinearExpr(String name) {
+        return new PartAlgCPLinearExpr(name);
+    }
+
+    /**
      * 默认构造函数，创建新的CpModel实例
      */
     public AlgCPModel() {
@@ -482,7 +492,7 @@ public class AlgCPModel {
      * @param expr LinearArgument表达式
      * @return 名称字符串
      */
-    private String toNameString(LinearArgument expr) {
+    public static String toNameString(LinearArgument expr) {
         if (expr instanceof IntVar) {
             return ((IntVar) expr).getName();
         } else if (expr instanceof BoolVar) {

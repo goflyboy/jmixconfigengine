@@ -385,7 +385,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
                     confictedRelaxs, null);
         } else {
             // 全量加载模型
-            alg.initModel(model, module, isAttachRelax, confictedRelaxs);
+            alg.initModel(model, module, isAttachRelax, confictedRelaxs, null);
         }
 
         // 根据请求初始化约束模型

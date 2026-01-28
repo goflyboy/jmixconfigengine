@@ -140,7 +140,7 @@ public class AlgCPConstraint {
      * @param lit 文字对象
      * @return 名称字符串
      */
-    private String toNameString(Literal lit) {
+    public static String toNameString(Literal lit) {
         if (lit instanceof com.google.ortools.sat.BoolVar) {
             return ((com.google.ortools.sat.BoolVar) lit).getName();
         }

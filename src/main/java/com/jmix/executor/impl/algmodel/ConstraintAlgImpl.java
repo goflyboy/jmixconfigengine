@@ -11,6 +11,7 @@ import com.jmix.executor.bmodel.logic.PriorityType;
 import com.jmix.executor.bmodel.logic.RefProgObjSchema;
 import com.jmix.executor.bmodel.logic.Rule;
 import com.jmix.executor.bmodel.logic.RuleTypeConstants;
+import com.jmix.executor.bmodel.para.AssignType;
 import com.jmix.executor.bmodel.para.Para;
 import com.jmix.executor.impl.PriorityConstraint;
 import com.jmix.executor.impl.util.FilterExpressionExecutor;
@@ -104,10 +105,11 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @param isAttachRelax   是否附加松弛变量
      * @param confictedRelaxs 冲突松弛变量列表
      */
-    public void initModel(CpModel model, IModule module, boolean isAttachRelax, List<RelaxVar> confictedRelaxs) {
+    public void initModel(CpModel model, IModule module, boolean isAttachRelax, List<RelaxVar> confictedRelaxs,
+            List<ParConstraint> partConstraintFromReqs) {
         List<String> fullRules = toFullRules(module);
         List<RefProgObjSchema> fullProgObjs = toFullProgObjs(module);
-        initModel(model, module, fullRules, fullProgObjs, isAttachRelax, confictedRelaxs, null);
+        initModel(model, module, fullRules, fullProgObjs, isAttachRelax, confictedRelaxs, partConstraintFromReqs);
     }
 
     private List<String> toFullRules(IModule tempModule) {
@@ -315,50 +317,26 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @param atomicParts 原子部件列表
      * @return 构建的AlgCPLinearExpr表达式
      */
-    private AlgCPLinearExpr buildPriorityConstraintExpressions(PriorityConstraint pConstraint, String attrCode,
+    private PartAlgCPLinearExpr buildPriorityConstraintExpressions(PriorityConstraint pConstraint, String attrCode,
             String varName, Function<PartVar, LinearArgument> varGetter, List<Part> atomicParts) {
-        AlgCPLinearExpr algExpr = new AlgCPLinearExpr("priority_expr_" + attrCode + "_" + varName);
-        List<String> exprStrParts = new ArrayList<>();
-        List<String> exprTemplateParts = new ArrayList<>();
-        List<String> exprTemplateStrParts = new ArrayList<>();
-        List<PriorityConstraint.PartTerm> exprVariables = new ArrayList<>();
+        PartAlgCPLinearExpr algExpr = new PartAlgCPLinearExpr("priority_expr_" + attrCode + "_" + varName);
         boolean isWithoutAttr = attrCode == null || attrCode.isEmpty();
-        int index = 0;
         for (Part part : atomicParts) {
             PartVar partVar = getPartVar(part.getCode());
             int attrValue = isWithoutAttr ? 1 : Integer.parseInt(part.getAttr(attrCode));
 
-            // 构建AlgCPLinearExpr项
-            algExpr.addTerm((com.google.ortools.sat.IntVar) varGetter.apply(partVar), attrValue);
-
-            // 创建 PartTerm
-            PriorityConstraint.PartTerm term = new PriorityConstraint.PartTerm();
-            term.setIndex(index);
-            term.setPartCode(part.getCode());
-            // termValue 将在求解后设置，这里先设为 null
-            term.setTermValue(null);
-            exprVariables.add(term);
-
-            // 构建表达式字符串部分
-            String shortCode = partVar.getBase().getShortCode();
-            if (attrValue != 1) {
-                exprStrParts.add(shortCode + "." + varName + "*" + attrValue);
-                exprTemplateParts.add("%d*" + attrValue);
-                exprTemplateStrParts.add(shortCode + "." + varName + "_%d*" + attrValue);
-            } else {
-                exprStrParts.add(shortCode + "." + varName);
-                exprTemplateParts.add("%d");
-                exprTemplateStrParts.add(shortCode + "." + varName + "_%d");
-            }
-            index++;
+            // delegate to PartAlgCPLinearExpr to add both numeric term and metadata
+            // Note: varGetter may return an IntVar or BoolVar; cast to IntVar as existing
+            // code did.
+            algExpr.addTerm(partVar, (IntVar) varGetter.apply(partVar), attrValue, varName);
         }
 
         // 设置表达式字符串和AlgCPLinearExpr
         pConstraint.setExpr(algExpr);
-        pConstraint.setExprStr(String.join(" + ", exprStrParts));
-        pConstraint.setExprTemplate(String.join(" + ", exprTemplateParts));
-        pConstraint.setExprTemplateStr(String.join(" + ", exprTemplateStrParts));
-        pConstraint.setExprVariables(exprVariables);
+        pConstraint.setExprStr(String.join(" + ", algExpr.getExprStrParts()));
+        pConstraint.setExprTemplate(String.join(" + ", algExpr.getExprTemplateParts()));
+        pConstraint.setExprTemplateStr(String.join(" + ", algExpr.getExprTemplateStrParts()));
+        pConstraint.setExprVariables(algExpr.getExprVariables());
         return algExpr;
     }
 
@@ -831,6 +809,11 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         Para para = paraOpt.get();
         ParaVar paraVar = new ParaVar();
         paraVar.setBase(para);
+        if (para.getAssignType() == AssignType.INPUT) {
+            registerVar(code, paraVar);
+            return paraVar;
+        }
+
         switch (para.getParaType()) {
             case INTEGER:
                 paraVar.setValue(newIntVar(Integer.parseInt(para.getMinValue()), Integer.parseInt(para.getMaxValue()),
@@ -958,15 +941,10 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @param varGetter   从PartVar获取LinearArgument的函数（如getIsSelected或getQty）
      * @return 构建的AlgCPLinearExpr表达式
      */
-    private AlgCPLinearExpr buildSumConstraintExpressions(PriorityConstraint pConstraint, List<Part> sumParts,
+    private PartAlgCPLinearExpr buildSumConstraintExpressions(PriorityConstraint pConstraint, List<Part> sumParts,
             String attrCode, String varName, java.util.function.Function<PartVar, LinearArgument> varGetter) {
-        AlgCPLinearExpr algExpr = new AlgCPLinearExpr("sum_constraint_" + attrCode + "_" + varName);
-        List<String> exprStrParts = new ArrayList<>();
-        List<String> exprTemplateParts = new ArrayList<>();
-        List<String> exprTemplateStrParts = new ArrayList<>();
-        List<PriorityConstraint.PartTerm> exprVariables = new ArrayList<>();
+        PartAlgCPLinearExpr algExpr = new PartAlgCPLinearExpr("sum_constraint_" + attrCode + "_" + varName);
         boolean isWithoutAttr = attrCode == null || attrCode.isEmpty();
-        int index = 0;
 
         for (Part part : sumParts) {
             PartVar partVar = getPartVar(part.getCode());
@@ -976,7 +954,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
                         + ", cannot create sum constraint");
             }
 
-            int attrValue = 0;
+            int attrValue;
             if (isWithoutAttr) {
                 attrValue = 1;
             } else if (PartConstantAttr.Quantity.getCode().equals(attrCode)) {
@@ -985,36 +963,16 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
                 attrValue = Integer.parseInt(part.getAttr(attrCode));
             }
 
-            // 构建AlgCPLinearExpr项
-            algExpr.addTerm((com.google.ortools.sat.IntVar) varGetter.apply(partVar), attrValue);
-
-            // 创建 PartTerm
-            PriorityConstraint.PartTerm term = new PriorityConstraint.PartTerm();
-            term.setIndex(index);
-            term.setPartCode(part.getCode());
-            term.setTermValue(null);
-            exprVariables.add(term);
-
-            // 构建表达式字符串部分
-            String shortCode = partVar.getBase().getShortCode();
-            if (attrValue != 1) {
-                exprStrParts.add(shortCode + "." + varName + "*" + attrValue);
-                exprTemplateParts.add("%d*" + attrValue);
-                exprTemplateStrParts.add(shortCode + "." + varName + "_%d*" + attrValue);
-            } else {
-                exprStrParts.add(shortCode + "." + varName);
-                exprTemplateParts.add("%d");
-                exprTemplateStrParts.add(shortCode + "." + varName + "_%d");
-            }
-            index++;
+            // add term via PartAlgCPLinearExpr to capture metadata and numeric term
+            algExpr.addTerm(partVar, (com.google.ortools.sat.IntVar) varGetter.apply(partVar), attrValue, varName);
         }
 
         // 设置表达式字符串和AlgCPLinearExpr
         pConstraint.setExpr(algExpr);
-        pConstraint.setExprStr(String.join(" + ", exprStrParts));
-        pConstraint.setExprTemplate(String.join(" + ", exprTemplateParts));
-        pConstraint.setExprTemplateStr(String.join(" + ", exprTemplateStrParts));
-        pConstraint.setExprVariables(exprVariables);
+        pConstraint.setExprStr(algExpr.getExprStrParts());
+        pConstraint.setExprTemplate(algExpr.getExprTemplateParts());
+        pConstraint.setExprTemplateStr(algExpr.getExprTemplateStrParts());
+        pConstraint.setExprVariables(algExpr.getExprVariables());
 
         return algExpr;
     }
@@ -1028,7 +986,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @param filtedConditionStr 过滤条件字符串
      * @return 求和后的AlgCPLinearExpr表达式
      */
-    private AlgCPLinearExpr sum4Parts(String cofAttrCode,
+    private PartAlgCPLinearExpr sum4Parts(String cofAttrCode,
             Function<PartVar, LinearArgument> varGetter, String varName, String filtedConditionStr) {
         // 创建一个临时的PriorityConstraint对象来复用构建逻辑
         PriorityConstraint tempConstraint = new PriorityConstraint();
@@ -1040,7 +998,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             log.info("Priority-Filtered parts: {} in sum4Parts", PartUtils.toShortString(atomicParts));
         }
 
-        AlgCPLinearExpr expr = buildPriorityConstraintExpressions(tempConstraint, cofAttrCode, varName, varGetter,
+        PartAlgCPLinearExpr expr = buildPriorityConstraintExpressions(tempConstraint, cofAttrCode, varName, varGetter,
                 atomicParts);
         log.info("Priority-Sum formula in sum4Parts: {}", tempConstraint.getExprStr());
         return expr;
@@ -1053,7 +1011,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @param filtedConditionStr 过滤条件字符串
      * @return 求和后的AlgCPLinearExpr表达式
      */
-    public AlgCPLinearExpr sum4Selected(String cofAttrCode, String filtedConditionStr) {
+    public PartAlgCPLinearExpr sum4Selected(String cofAttrCode, String filtedConditionStr) {
         return sum4Parts(cofAttrCode, PartVar::getIsSelected, "S", filtedConditionStr);
     }
 
@@ -1063,7 +1021,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @param filtedConditionStr 过滤条件字符串
      * @return 求和后的AlgCPLinearExpr表达式
      */
-    public AlgCPLinearExpr sum4Selected(String filtedConditionStr) {
+    public PartAlgCPLinearExpr sum4Selected(String filtedConditionStr) {
         return sum4Selected(null, filtedConditionStr);
     }
 
@@ -1094,7 +1052,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @param filtedConditionStr 过滤条件字符串
      * @return 求和后的AlgCPLinearExpr表达式
      */
-    public AlgCPLinearExpr sum4Quantity(String cofAttrCode, String filtedConditionStr) {
+    public PartAlgCPLinearExpr sum4Quantity(String cofAttrCode, String filtedConditionStr) {
         return sum4Parts(cofAttrCode, PartVar::getQty, "Q", filtedConditionStr);
     }
 
@@ -1104,7 +1062,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @param filtedConditionStr 过滤条件字符串
      * @return 求和后的AlgCPLinearExpr表达式
      */
-    public AlgCPLinearExpr sum4Quantity(String filtedConditionStr) {
+    public PartAlgCPLinearExpr sum4Quantity(String filtedConditionStr) {
         return sum4Quantity(null, filtedConditionStr);
     }
 
