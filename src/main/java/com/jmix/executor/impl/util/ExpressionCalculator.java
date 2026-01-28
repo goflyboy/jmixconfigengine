@@ -58,8 +58,6 @@ public class ExpressionCalculator {
             }
 
             Object result = expr.evaluate(context);
-            // System.out.println(expr.getSourceText());
-            // System.out.println(expr.getParsedText());
             if (result instanceof Number) {
                 return ((Number) result).doubleValue();
             } else {

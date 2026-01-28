@@ -267,7 +267,7 @@ public class PartCategoryConstraintExecutorImpl {
             // 创建新的算法实例和模型
             ConstraintAlgImpl multiAlg = createConstraintAlg(module.getId(), module.getCode());
             CpModel multiModel = new CpModel();
-            multiAlg.initModel(multiModel, filteredCategory, isAttachRelax, confictedRelaxs, null);
+            multiAlg.initModel(multiModel, filteredCategory, isAttachRelax, confictedRelaxs, partConstraintFromReqs);
             initModelByReq(partCatagoryReq, multiAlg);
             initModelByPriorityConstraints(partConstraintFromReqs, multiAlg);
             multiAlg.addRelaxObjectFunction();

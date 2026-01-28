@@ -120,9 +120,9 @@ public class PartAlgCPLinearExprTest {
         expr12.addExpr(expr11, 500);
         log.info(expr12.toString());
 
-        assertEquals("100 + 500*(11*(1*P1.Q + 3*P2.Q + 5 - 30*P3.Q))", expr12.getExprStr());
-        assertEquals("100 + 500*(11*(1*%d + 3*%d + 5 - 30*%d))", expr12.getExprTemplate());
-        assertEquals("100 + 500*(11*(1*P1.Q_%d + 3*P2.Q_%d + 5 - 30*P3.Q_%d))", expr12.getExprTemplateStr());
+        assertEquals("100 + 500*(11*(1*P1.Q + 3*P2.Q + 5) - 30*(-30*P3.Q))", expr12.getExprStr());
+        assertEquals("100 + 500*(11*(1*%d + 3*%d + 5) - 30*(-30*%d))", expr12.getExprTemplate());
+        assertEquals("100 + 500*(11*(1*P1.Q_%d + 3*P2.Q_%d + 5) - 30*(-30*P3.Q_%d))", expr12.getExprTemplateStr());
         assertEquals("P1,P2,P3", expr12.getPartTermsStr());
     }
     // TODO 是有其它场景
