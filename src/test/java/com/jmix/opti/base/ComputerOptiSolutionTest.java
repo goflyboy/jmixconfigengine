@@ -231,7 +231,7 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
 
                 model.addLessOrEqual(objectiveExpr, 2000);
                 model.setObjectExpr(objectiveExpr);
-
+                updatePriorityObjectFuntion("capacityWeight", objectiveExpr);
                 // model.minimize(objectiveExpr); // 设置目标函数为最小化（因为SSD有负权重）
 
             } else {// 给的数量qty总数
@@ -293,7 +293,7 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
                 model.addLessOrEqual(objectiveExpr, 1000);
                 model.setObjectExpr(objectiveExpr);
                 // model.minimize(objectiveExpr); // 设置目标函数为最小化（因为SSD有负权重）
-
+                updatePriorityObjectFuntion("capacityWeight", objectiveExpr);
             }
         }
 

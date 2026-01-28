@@ -87,6 +87,27 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     protected Map<String, PriorityConstraint> priorityRuleMap = new HashMap<>();
 
     /**
+     * Update or create priority objective function for given attribute code.
+     *
+     * @param attrCode attribute code
+     * @param expr     expression containing part-term metadata and numeric terms
+     */
+    public void updatePriorityObjectFuntion(String attrCode, PartAlgCPLinearExpr expr) {
+        if (attrCode == null || attrCode.isEmpty()) {
+            log.warn("attrCode is null or empty, skip updating priority objective");
+            return;
+        }
+        PriorityConstraint pConstraint = priorityRuleMap.get(attrCode);
+        if (pConstraint == null) {
+            log.error("PriorityConstraint not found for attrCode: {}", attrCode);
+            throw new AlgLoaderException("PriorityConstraint not found for attrCode: " + attrCode);
+        }
+        pConstraint.setExpr(expr);
+        log.info("Updated priority objective for attrCode {}: expr={}", attrCode,
+                expr != null ? expr.toString() : "null");
+    }
+
+    /**
      * 添加和隐藏相关的约束的Var
      * 
      * @param hiddenVars 需要添加隐藏约束的变量数组
@@ -333,10 +354,6 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
         // 设置表达式字符串和AlgCPLinearExpr
         pConstraint.setExpr(algExpr);
-        pConstraint.setExprStr(String.join(" + ", algExpr.getExprStrParts()));
-        pConstraint.setExprTemplate(String.join(" + ", algExpr.getExprTemplateParts()));
-        pConstraint.setExprTemplateStr(String.join(" + ", algExpr.getExprTemplateStrParts()));
-        pConstraint.setExprVariables(algExpr.getExprVariables());
         return algExpr;
     }
 
@@ -969,11 +986,6 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
         // 设置表达式字符串和AlgCPLinearExpr
         pConstraint.setExpr(algExpr);
-        pConstraint.setExprStr(algExpr.getExprStrParts());
-        pConstraint.setExprTemplate(algExpr.getExprTemplateParts());
-        pConstraint.setExprTemplateStr(algExpr.getExprTemplateStrParts());
-        pConstraint.setExprVariables(algExpr.getExprVariables());
-
         return algExpr;
     }
 

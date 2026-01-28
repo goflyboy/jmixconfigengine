@@ -4,7 +4,7 @@ import com.jmix.executor.bmodel.logic.PriorityRuleSchema;
 import com.jmix.executor.bmodel.logic.PriorityStrategy;
 import com.jmix.executor.bmodel.logic.PriorityType;
 import com.jmix.executor.bmodel.logic.Rule;
-import com.jmix.executor.impl.algmodel.AlgCPLinearExpr;
+import com.jmix.executor.impl.algmodel.PartAlgCPLinearExpr;
 import com.jmix.executor.impl.util.ExpressionCalculator;
 
 import lombok.Data;
@@ -30,32 +30,63 @@ public class PriorityConstraint {
     /**
      * 线性表达式
      */
-    private AlgCPLinearExpr expr;
-
-    /**
-     * 表达式字符串，如：sd1.S*110 + sd2.S*120 + md1.S*13
-     */
-    private String exprStr;
-
-    /**
-     * 表达式模板，如：%d*110 + %d*120 + %d*13，用于计算值（是否一致）
-     */
-    private String exprTemplate;
-
-    /**
-     * 表达式模板字符串，如：sd1.S_%d*110 + sd2.S_%d*120 + md1.S_%d*13，用于展示
-     */
-    private String exprTemplateStr;
-
-    /**
-     * 表达式变量列表
-     */
-    private List<PartTerm> exprVariables = new ArrayList<>();
+    private PartAlgCPLinearExpr expr;
 
     /**
      * 属性代码
      */
     private String attrCode;
+
+    // 以下字段保留为注释，仅通过 getter 暴露（数据由 expr 提供）
+    /*
+     * private String exprStr;
+     * private String exprTemplate;
+     * private String exprTemplateStr;
+     * private List<PartTerm> exprVariables = new ArrayList<>();
+     */
+    /**
+     * 表达式模板，如：%d*110 + %d*120 + %d*13，用于计算值（是否一致）
+     * 
+     * @return
+     */
+    public String getExprStr() {
+        if (expr == null) {
+            return "";
+        }
+        return expr.getExprStrParts();
+    }
+
+    public String getExprTemplate() {
+        if (expr == null) {
+            return "";
+        }
+        return expr.getExprTemplateParts();
+    }
+
+    /**
+     * 表达式模板字符串，如：sd1.S_%d*110 + sd2.S_%d*120 + md1.S_%d*13，用于展示
+     * 
+     * @return
+     */
+    public String getExprTemplateStr() {
+        if (expr == null) {
+            return "";
+        }
+        return expr.getExprTemplateStrParts();
+    }
+
+    /**
+     * 表达式变量列表
+     * 
+     * @return
+     */
+    public List<PartTerm> getExprVariables() {
+        if (expr == null) {
+            return new ArrayList<>();
+        }
+        // convert from PriorityConstraint.PartTerm (same type) if possible
+        return expr.getExprVariables();
+    }
 
     /**
      * 计算表达式结果
