@@ -45,8 +45,22 @@ public class PartAlgCPLinearExpr extends AlgCPLinearExpr {
         return joinWithSigns(termTemplateStrs);
     }
 
-    public List<PriorityConstraint.PartTerm> getPartTerms() {
-        return partTerms;
+    /**
+     * Return comma separated part codes of stored PartTerm entries, e.g. "P1,P2"
+     */
+    public String getPartTermsStr() {
+        StringBuilder sb = new StringBuilder();
+        for (PriorityConstraint.PartTerm pt : partTerms) {
+            String code = pt.getPartCode();
+            if (code == null) {
+                continue;
+            }
+            if (sb.length() > 0) {
+                sb.append(",");
+            }
+            sb.append(code);
+        }
+        return sb.toString();
     }
 
     private String joinWithSigns(List<String> items) {
@@ -117,6 +131,31 @@ public class PartAlgCPLinearExpr extends AlgCPLinearExpr {
         super.addTerm(var, coefficient);
     }
 
+    private boolean isSinglePositiveExpr(String expr) {
+        // 如果含有"(“，则否
+        // 统计含"+"、"-"的个数，如果个数大于1，则否
+        // 否者是
+        if (expr == null || expr.trim().isEmpty()) {
+            return true;
+        }
+        if (expr.charAt(0) == '-') { // 如：-30*P3.Q
+            return false;
+        }
+        // If contains parentheses, treat as not a single simple expression
+        if (expr.indexOf('(') >= 0 || expr.indexOf(')') >= 0) {
+            return false;
+        }
+        int operatorNum = 0;
+        for (int i = 0; i < expr.length(); i++) {
+            char c = expr.charAt(i);
+            // if (c == '+' || c == '-') {
+            if (c == '+') {
+                operatorNum++;
+            }
+        }
+        return operatorNum <= 1;
+    }
+
     /**
      * Convenience overload that uses default varName "Q".
      */
@@ -154,10 +193,15 @@ public class PartAlgCPLinearExpr extends AlgCPLinearExpr {
             // nothing to add
             return;
         }
-
-        termStrs.add(coefficient + "*(" + groupedStr + ")");
-        termTemplates.add(coefficient + "*(" + groupedTemplate + ")");
-        termTemplateStrs.add(coefficient + "*(" + groupedTemplateStr + ")");
+        if (isSinglePositiveExpr(expr.getExprStr())) {
+            termStrs.add(coefficient + "*" + groupedStr + "");
+            termTemplates.add(coefficient + "*" + groupedTemplate + "");
+            termTemplateStrs.add(coefficient + "*" + groupedTemplateStr + "");
+        } else {
+            termStrs.add(coefficient + "*(" + groupedStr + ")");
+            termTemplates.add(coefficient + "*(" + groupedTemplate + ")");
+            termTemplateStrs.add(coefficient + "*(" + groupedTemplateStr + ")");
+        }
 
         // merge PartTerm list with adjusted indices
         for (PriorityConstraint.PartTerm t : expr.getPartTerms()) {
