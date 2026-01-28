@@ -2,6 +2,7 @@ package com.jmix.executor.bmodel.para;
 
 import com.jmix.executor.bmodel.attr.DynamicAttribute;
 import com.jmix.executor.bmodel.attr.DynamicAttributerOption;
+import com.jmix.executor.bmodel.base.AssignType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

@@ -6,12 +6,12 @@ import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartCategory;
 import com.jmix.executor.bmodel.PartUtils;
 import com.jmix.executor.bmodel.attr.DynamicAttributerOption;
+import com.jmix.executor.bmodel.base.AssignType;
 import com.jmix.executor.bmodel.logic.PriorityRuleSchema;
 import com.jmix.executor.bmodel.logic.PriorityType;
 import com.jmix.executor.bmodel.logic.RefProgObjSchema;
 import com.jmix.executor.bmodel.logic.Rule;
 import com.jmix.executor.bmodel.logic.RuleTypeConstants;
-import com.jmix.executor.bmodel.para.AssignType;
 import com.jmix.executor.bmodel.para.Para;
 import com.jmix.executor.impl.PriorityConstraint;
 import com.jmix.executor.impl.util.FilterExpressionExecutor;
@@ -270,9 +270,10 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
                     isFirst = false;
                 }
                 ParaVar pv = (ParaVar) v;
-                // 暂时没有添加到松弛变量里
-                model.addEquality(pv.getIsHidden(), 0);
-
+                if (pv.getBase().getAssignType() == AssignType.CALC) {
+                    // 暂时没有添加到松弛变量里
+                    model.addEquality(pv.getIsHidden(), 0);
+                }
             } else if (v instanceof PartVar) {
                 if (isFirst) {
                     this.model.setRelax4SysRule("hiddensrule");

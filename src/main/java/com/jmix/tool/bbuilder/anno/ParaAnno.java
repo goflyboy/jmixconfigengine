@@ -1,6 +1,6 @@
 package com.jmix.tool.bbuilder.anno;
 
-import com.jmix.executor.bmodel.para.AssignType;
+import com.jmix.executor.bmodel.base.AssignType;
 import com.jmix.executor.bmodel.para.Para;
 import com.jmix.executor.bmodel.para.ParaType;
 

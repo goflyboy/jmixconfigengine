@@ -1,17 +1,18 @@
 package com.jmix.executor.impl;
 
 import com.jmix.executor.bmodel.Module;
+import com.jmix.executor.bmodel.base.AssignType;
 import com.jmix.executor.bmodel.logic.PriorityType;
+import com.jmix.executor.cmodel.ModuleInst;
+import com.jmix.executor.cmodel.ParaInst;
+import com.jmix.executor.cmodel.PartInst;
+import com.jmix.executor.cmodel.PriorityAttrValue;
 import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
 import com.jmix.executor.impl.algmodel.OtherVar;
 import com.jmix.executor.impl.algmodel.ParaVar;
 import com.jmix.executor.impl.algmodel.PartVar;
 import com.jmix.executor.impl.algmodel.Var;
 import com.jmix.executor.model.AlgLoaderException;
-import com.jmix.executor.cmodel.ModuleInst;
-import com.jmix.executor.cmodel.ParaInst;
-import com.jmix.executor.cmodel.PartInst;
-import com.jmix.executor.cmodel.PriorityAttrValue;
 
 import com.google.ortools.sat.CpSolverSolutionCallback;
 
@@ -185,21 +186,23 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
         // 从模块中获取对应的Para模型，设置shortCode
         pi.setShortCode(pv.getBase().getShortCode());
 
-        // value: read IntVar domain value
-        int value = (int) value(pv.getValue());
-        pi.setValue(String.valueOf(value));
-
-        // options: selected option codes
-        List<String> options = new ArrayList<>();
-        pv.getOptionSelectVars().forEach((codeId, optionVar) -> {
-            long sel = value(optionVar.getIsSelectedVar());
-            if (sel == 1L) {
-                options.add(optionVar.getCode());
-            }
-        });
-        pi.setOptions(options);
-        pi.setHidden((int) value(pv.getIsHidden()) == 1);
-
+        if (pv.getBase().getAssignType() == AssignType.CALC) {
+            // value: read IntVar domain value
+            int value = (int) value(pv.getValue());
+            pi.setValue(String.valueOf(value));
+            pi.setHidden((int) value(pv.getIsHidden()) == 1);
+            // options: selected option codes
+            List<String> options = new ArrayList<>();
+            pv.getOptionSelectVars().forEach((codeId, optionVar) -> {
+                long sel = value(optionVar.getIsSelectedVar());
+                if (sel == 1L) {
+                    options.add(optionVar.getCode());
+                }
+            });
+            pi.setOptions(options);
+        } else {
+            pi.setValue(String.valueOf(pv.getInputValue()));
+        }
         return pi;
     }
 
