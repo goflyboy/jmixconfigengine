@@ -19,7 +19,6 @@ import com.jmix.executor.model.AlgLoaderException;
 import com.jmix.executor.model.ParConstraint;
 import com.jmix.executor.model.PartConstantAttr;
 
-import com.google.ortools.Loader;
 import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.CpModel;
 import com.google.ortools.sat.IntVar;
@@ -52,9 +51,6 @@ import java.util.function.Function;
  */
 @Slf4j
 public abstract class ConstraintAlgImpl implements ConstraintAlg {
-    static {
-        Loader.loadNativeLibraries();
-    }
 
     /**
      * CP约束求解模型实例

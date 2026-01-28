@@ -4,7 +4,9 @@ import com.jmix.executor.impl.PriorityConstraint;
 
 import com.google.ortools.sat.IntVar;
 
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -19,13 +21,14 @@ import java.util.List;
 @Data
 public class PartAlgCPLinearExpr extends AlgCPLinearExpr {
 
-    private final List<String> exprStrPartTerms = new ArrayList<>();
+    private final List<String> termStrs = new ArrayList<>();
 
-    private final List<String> exprTemplatePartTerms = new ArrayList<>();
+    private final List<String> termTemplates = new ArrayList<>();
 
-    private final List<String> exprTemplateStrPartTerms = new ArrayList<>();
+    private final List<String> termTemplateStrs = new ArrayList<>();
 
-    private final List<PriorityConstraint.PartTerm> exprVariables = new ArrayList<>();
+    @Getter(AccessLevel.NONE)
+    private final List<PriorityConstraint.PartTerm> terms = new ArrayList<>();
 
     private int termIndex = 0;
 
@@ -33,25 +36,33 @@ public class PartAlgCPLinearExpr extends AlgCPLinearExpr {
         super(name);
     }
 
-    public String getExprStrParts() {
-        return String.join(" + ", exprStrPartTerms);
-
+    public String getExprStr() {
+        return String.join(" + ", termStrs);
     }
 
-    public String getExprTemplateParts() {
-        return String.join(" + ", exprTemplatePartTerms);
+    public String getExprTemplate() {
+        return String.join(" + ", termTemplates);
     }
 
-    public String getExprTemplateStrParts() {
-        return String.join(" + ", exprTemplateStrPartTerms);
+    public String getExprTemplateStr() {
+        return String.join(" + ", termTemplateStrs);
     }
 
-    public List<PriorityConstraint.PartTerm> getExprVariables() {
-        return exprVariables;
+    public List<PriorityConstraint.PartTerm> getTerms() {
+        return terms;
     }
 
     public PartAlgCPLinearExpr() {
         super();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("exprStrParts: ").append(getExprStr()).append(System.lineSeparator());
+        sb.append("exprTemplateParts: ").append(getExprTemplate()).append(System.lineSeparator());
+        sb.append("exprTemplateStrParts: ").append(getExprTemplateStr());
+        return sb.toString();
     }
 
     /**
@@ -63,13 +74,13 @@ public class PartAlgCPLinearExpr extends AlgCPLinearExpr {
         // build expression string parts
         String shortCode = partVar.getBase().getShortCode();
         if (attrValue != 1) {
-            exprStrPartTerms.add(shortCode + "." + varName + "*" + attrValue);
-            exprTemplatePartTerms.add("%d*" + attrValue);
-            exprTemplateStrPartTerms.add(shortCode + "." + varName + "_%d*" + attrValue);
+            termStrs.add(shortCode + "." + varName + "*" + attrValue);
+            termTemplates.add("%d*" + attrValue);
+            termTemplateStrs.add(shortCode + "." + varName + "_%d*" + attrValue);
         } else {
-            exprStrPartTerms.add(shortCode + "." + varName);
-            exprTemplatePartTerms.add("%d");
-            exprTemplateStrPartTerms.add(shortCode + "." + varName + "_%d");
+            termStrs.add(shortCode + "." + varName);
+            termTemplates.add("%d");
+            termTemplateStrs.add(shortCode + "." + varName + "_%d");
         }
 
         // create PartTerm
@@ -77,7 +88,7 @@ public class PartAlgCPLinearExpr extends AlgCPLinearExpr {
         term.setIndex(termIndex);
         term.setPartCode(partVar.getCode());
         term.setTermValue(null);
-        exprVariables.add(term);
+        terms.add(term);
         termIndex++;
 
         // delegate to parent to build numeric expression
@@ -97,9 +108,9 @@ public class PartAlgCPLinearExpr extends AlgCPLinearExpr {
     @Override
     public void addConstant(long value) {
         super.addConstant(value);
-        exprStrPartTerms.add(String.valueOf(value));
-        exprTemplatePartTerms.add("%d");
-        exprTemplateStrPartTerms.add(String.valueOf(value));
+        termStrs.add(String.valueOf(value));
+        termTemplates.add("%d");
+        termTemplateStrs.add(String.valueOf(value));
     }
 
     /**
@@ -114,31 +125,31 @@ public class PartAlgCPLinearExpr extends AlgCPLinearExpr {
         // numeric combination
         super.addExpr(expr, coefficient);
         // compose grouped string/template parts
-        String groupedStr = expr.getExprStrParts();
-        String groupedTemplate = expr.getExprTemplateParts();
-        String groupedTemplateStr = expr.getExprTemplateStrParts();
+        String groupedStr = expr.getExprStr();
+        String groupedTemplate = expr.getExprTemplate();
+        String groupedTemplateStr = expr.getExprTemplateStr();
         if (groupedStr.isEmpty()) {
             // nothing to add
             return;
         }
 
         if (coefficient != 1) {
-            exprStrPartTerms.add(coefficient + "*(" + groupedStr + ")");
-            exprTemplatePartTerms.add(coefficient + "*(" + groupedTemplate + ")");
-            exprTemplateStrPartTerms.add(coefficient + "*(" + groupedTemplateStr + ")");
+            termStrs.add(coefficient + "*(" + groupedStr + ")");
+            termTemplates.add(coefficient + "*(" + groupedTemplate + ")");
+            termTemplateStrs.add(coefficient + "*(" + groupedTemplateStr + ")");
         } else {
-            exprStrPartTerms.add("(" + groupedStr + ")");
-            exprTemplatePartTerms.add("(" + groupedTemplate + ")");
-            exprTemplateStrPartTerms.add("(" + groupedTemplateStr + ")");
+            termStrs.add("(" + groupedStr + ")");
+            termTemplates.add("(" + groupedTemplate + ")");
+            termTemplateStrs.add("(" + groupedTemplateStr + ")");
         }
 
         // merge PartTerm list with adjusted indices
-        for (PriorityConstraint.PartTerm t : expr.getExprVariables()) {
+        for (PriorityConstraint.PartTerm t : expr.getTerms()) {
             PriorityConstraint.PartTerm newTerm = new PriorityConstraint.PartTerm();
-            newTerm.setIndex(termIndex++);// TODO
+            newTerm.setIndex(termIndex++); // TODO
             newTerm.setPartCode(t.getPartCode());
             newTerm.setTermValue(null);
-            exprVariables.add(newTerm);
+            terms.add(newTerm);
         }
     }
 

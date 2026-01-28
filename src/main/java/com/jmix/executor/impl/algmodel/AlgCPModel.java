@@ -2,11 +2,11 @@ package com.jmix.executor.impl.algmodel;
 
 import com.jmix.executor.model.AlgLoaderException;
 
+import com.google.ortools.Loader;
 import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.Constraint;
 import com.google.ortools.sat.CpModel;
 import com.google.ortools.sat.CpModelProto;
-// import com.google.ortools.sat.DoubleLinearExpr;
 import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.LinearArgument;
 import com.google.ortools.sat.Literal;
@@ -29,6 +29,9 @@ import java.util.Map;
 @Slf4j
 @Data
 public class AlgCPModel {
+    static {
+        Loader.loadNativeLibraries();
+    }
     /**
      * 底层的CpModel实例
      */

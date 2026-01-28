@@ -53,14 +53,14 @@ public class PriorityConstraint {
         if (expr == null) {
             return "";
         }
-        return expr.getExprStrParts();
+        return expr.getExprStr();
     }
 
     public String getExprTemplate() {
         if (expr == null) {
             return "";
         }
-        return expr.getExprTemplateParts();
+        return expr.getExprTemplate();
     }
 
     /**
@@ -72,7 +72,7 @@ public class PriorityConstraint {
         if (expr == null) {
             return "";
         }
-        return expr.getExprTemplateStrParts();
+        return expr.getExprTemplateStr();
     }
 
     /**
@@ -85,7 +85,7 @@ public class PriorityConstraint {
             return new ArrayList<>();
         }
         // convert from PriorityConstraint.PartTerm (same type) if possible
-        return expr.getExprVariables();
+        return expr.getTerms();
     }
 
     /**
