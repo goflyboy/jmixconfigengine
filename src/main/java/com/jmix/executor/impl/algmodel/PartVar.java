@@ -23,24 +23,6 @@ import java.util.Map;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class PartVar extends Var<IPart> {
-    /**
-     * 部件变量命名模式常量
-     */
-    public static final String VAR_PATTERN_PREFIX = "##Part.";
-
-    /**
-     * 部件数量Var的命名模式
-     */
-    public static final String QTY_PATTERN = VAR_PATTERN_PREFIX + "qty.%s";
-
-    /**
-     * 显示隐藏Var的命名模式
-     */
-    public static final String HIDDEN_PATTERN = VAR_PATTERN_PREFIX + "isHidden.%s";
-    /**
-     * 选中隐藏Var的命名模式
-     */
-    public static final String ISSELECTED_PATTERN = VAR_PATTERN_PREFIX + "isSelected.%s";
 
     /**
      * 部件数量Var的短名称
@@ -56,6 +38,25 @@ public class PartVar extends Var<IPart> {
      * 选中Var的短名称
      */
     public static final String ISSELECTED_SHORT_NAME = "S";
+
+    /**
+     * 部件变量命名模式常量
+     */
+    public static final String VAR_PATTERN_PREFIX = "##Part.";
+
+    /**
+     * 部件数量Var的命名模式
+     */
+    public static final String QTY_PATTERN = VAR_PATTERN_PREFIX + "%s." + QTY_SHORT_NAME;
+
+    /**
+     * 显示隐藏Var的命名模式
+     */
+    public static final String HIDDEN_PATTERN = VAR_PATTERN_PREFIX + "%s." + HIDDEN_SHORT_NAME;
+    /**
+     * 选中隐藏Var的命名模式
+     */
+    public static final String ISSELECTED_PATTERN = VAR_PATTERN_PREFIX + "%s." + ISSELECTED_SHORT_NAME;
 
     /**
      * 部件的数量值

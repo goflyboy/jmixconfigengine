@@ -266,7 +266,7 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
                 if (pInst == null) {
                     exprVariablesValues.add(0);
                 } else {
-                    if (priorityType == PriorityType.SELECT) {
+                    if (exprVariable.getTermValue().equals(PartVar.ISSELECTED_SHORT_NAME)) {
                         exprVariablesValues.add(pInst.isSelected() ? 1 : 0);
                     } else {
                         exprVariablesValues.add(pInst.getQuantity() != null ? pInst.getQuantity() : 0);
@@ -282,9 +282,6 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
             priorityAttrValue.setAttrCode(pConstraint.getAttrCode());
             priorityAttrValue.setOptimalValue(calculatedValue);
             priorityAttrValues.add(priorityAttrValue);
-            log.info("Priority:PA_{}: {} = {}", optimalValue.getAttrCode(),
-                    PriorityConstraint.instanceExprTemplateStr(pConstraint.getExprTemplateStr(), exprVariablesValues),
-                    calculatedValue);
         }
 
         // 设置到 ModuleInst

@@ -147,32 +147,9 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
         private void applyPriorityRule(AlgCPModel model) {
             List<PartVar> partVars = getPartVars("");
 
-            // // 分离固态硬盘和机械硬盘
-            // List<PartVar> solidStateParts = partVars.stream()
-            // .filter(PartVar::isSolidState)
-            // .collect(Collectors.toList());
 
-            // List<PartVar> mechanicalParts = partVars.stream()
-            // .filter(pv -> !pv.isSolidState())
-            // .collect(Collectors.toList());
-
-            // if (solidStateParts.isEmpty() || mechanicalParts.isEmpty()) {
-            // return;
-            // }
-            // // 创建固态硬盘总容量表达式
-            // AlgCPLinearExpr ssTotalCapacity = model.newLinearExpr("SS_Total_Capacity");
-            // for (PartVar pv : solidStateParts) {
-            // ssTotalCapacity.addTerm(pv.qty, pv.getCapacity());
-            // }
-
-            // 创建机械硬盘总容量表达式
-            // AlgCPLinearExpr mechTotalCapacity =
-            // model.newLinearExpr("Mech_Total_Capacity");
-            // for (PartVar pv : mechanicalParts) {
-            // mechTotalCapacity.addTerm(pv.qty, pv.getCapacity());
-            // }
-            PartAlgCPLinearExpr ssTotalCapacity = sum4Selected("Capacity", "fatherCode=sd");
-            PartAlgCPLinearExpr mechTotalCapacity = sum4Selected("Capacity", "fatherCode=md");
+            PartAlgCPLinearExpr ssTotalCapacity = sum4Quantity("Capacity", "fatherCode=sd");
+            PartAlgCPLinearExpr mechTotalCapacity = sum4Quantity("Capacity", "fatherCode=md");
             // 如果是容量需求
             // if ("Capacity".equals(req.getAttrCode())) {
             if (sumCapacity.getIsHasInputed()) {
@@ -205,15 +182,9 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
                 objectiveExpr.addExpr(mechTotalCapacity, 1);
 
                 // 3. 惩罚过度配置（重要！）
-                // 创建总容量变量
-                // AlgCPLinearExpr totalCapacityExpr = model.newLinearExpr("Total_Capacity");
-                // for (PartVar pv : partVars) {
-                // totalCapacityExpr.addTerm(pv.qty, pv.getCapacity());
-                // }
                 PartAlgCPLinearExpr totalCapacityExpr = sum4Selected("Capacity", "");
 
-                // 创建过度配置变量
-                // 约束：excessCapacity = totalCapacity - requiredCapacity
+                // 创建过度配置变量约束：excessCapacity = totalCapacity - requiredCapacity
                 PartAlgCPLinearExpr tExpr = model.newPartLinearExpr("excessCapacityExpr");
                 tExpr.addExpr(totalCapacityExpr, 1);
                 tExpr.addConstant(-requiredCapacity);
@@ -228,23 +199,11 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
                 }
 
                 objectiveExpr.addExpr(totalPartsExpr, 500); // 零件数量惩罚
-
-                model.addLessOrEqual(objectiveExpr, 2000);
                 model.setObjectExpr(objectiveExpr);
                 updatePriorityObjectFuntion("capacityWeight", objectiveExpr);
-                // model.minimize(objectiveExpr); // 设置目标函数为最小化（因为SSD有负权重）
 
             } else {// 给的数量qty总数
-                // 创建固态硬盘总容量表达式
-                // AlgCPLinearExpr ssTotalQty = model.newLinearExpr("ssTotalQty");
-                // for (PartVar pv : solidStateParts) {
-                // ssTotalQty.addTerm(pv.qty, 1);
-                // }
-                // // 创建机械硬盘总容量表达式
-                // AlgCPLinearExpr mechTotalQty = model.newLinearExpr("mechTotalQty");
-                // for (PartVar pv : mechanicalParts) {
-                // mechTotalQty.addTerm(pv.qty, 1);
-                // }
+
                 PartAlgCPLinearExpr ssTotalQty = sum4Quantity("fatherCode=sd");
                 PartAlgCPLinearExpr mechTotalQty = sum4Quantity("fatherCode=md");
 
@@ -275,23 +234,16 @@ public class ComputerOptiSolutionTest extends ModuleScenarioTestBase {
                 // objectiveExpr.addExpr(mechTotalQty, 1);
 
                 // 3. 惩罚过度配置（重要！）
-                // 创建总容量变量
-                // PartAlgCPLinearExpr totalQtyExpr = model.newPartLinearExpr("totalQtyExpr");
-                // for (PartVar pv : partVars) {
-                // totalQtyExpr.addTerm(pv, pv.qty, 1);
-                // }
                 PartAlgCPLinearExpr totalQtyExpr = sum4Quantity("");
 
-                // 创建过度配置变量
-                // 约束：excessCapacity = totalCapacity - requiredCapacity
+                // 创建过度配置变量 约束：excessCapacity = totalCapacity - requiredCapacity
                 PartAlgCPLinearExpr excessQyExpr = model.newPartLinearExpr("excessQyExpr");
                 excessQyExpr.addExpr(totalQtyExpr, 1);
                 excessQyExpr.addConstant(-requiredQty);
                 // 2. 过度配置惩罚
                 objectiveExpr.addExpr(excessQyExpr, 500); // 惩罚过度配置
 
-                model.addLessOrEqual(objectiveExpr, 1000);
-                model.setObjectExpr(objectiveExpr);
+                model.setObjectExpr(objectiveExpr); //分minimize/adddGreaterxx
                 // model.minimize(objectiveExpr); // 设置目标函数为最小化（因为SSD有负权重）
                 updatePriorityObjectFuntion("capacityWeight", objectiveExpr);
             }

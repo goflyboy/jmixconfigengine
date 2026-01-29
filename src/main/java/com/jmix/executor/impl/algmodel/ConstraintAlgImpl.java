@@ -336,7 +336,8 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      */
     private PartAlgCPLinearExpr buildPriorityConstraintExpressions(PriorityConstraint pConstraint, String attrCode,
             String varName, Function<PartVar, LinearArgument> varGetter, List<Part> atomicParts) {
-        PartAlgCPLinearExpr algExpr = new PartAlgCPLinearExpr("priority_expr_" + attrCode + "_" + varName);
+        PartAlgCPLinearExpr algExpr = new PartAlgCPLinearExpr(
+                "sumPars_" + (attrCode == null ? "" : attrCode) + "_" + varName);
         boolean isWithoutAttr = attrCode == null || attrCode.isEmpty();
         for (Part part : atomicParts) {
             PartVar partVar = getPartVar(part.getCode());
@@ -1020,7 +1021,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @return 求和后的AlgCPLinearExpr表达式
      */
     public PartAlgCPLinearExpr sum4Selected(String cofAttrCode, String filtedConditionStr) {
-        return sum4Parts(cofAttrCode, PartVar::getIsSelected, "S", filtedConditionStr);
+        return sum4Parts(cofAttrCode, PartVar::getIsSelected, PartVar.ISSELECTED_SHORT_NAME, filtedConditionStr);
     }
 
     /**
@@ -1061,7 +1062,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @return 求和后的AlgCPLinearExpr表达式
      */
     public PartAlgCPLinearExpr sum4Quantity(String cofAttrCode, String filtedConditionStr) {
-        return sum4Parts(cofAttrCode, PartVar::getQty, "Q", filtedConditionStr);
+        return sum4Parts(cofAttrCode, PartVar::getQty, PartVar.QTY_SHORT_NAME, filtedConditionStr);
     }
 
     /**

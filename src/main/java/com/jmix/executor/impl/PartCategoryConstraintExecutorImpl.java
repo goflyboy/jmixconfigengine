@@ -175,6 +175,28 @@ public class PartCategoryConstraintExecutorImpl {
         return Result.success(cb.getAllSolutions());
     }
 
+    private Pair<Boolean, String> validPriorityOverallValue(double solverValue, List<ModuleInst> exprValueSolutions) {
+        StringBuffer sb = new StringBuffer();
+        boolean result = false;
+
+        if (exprValueSolutions == null || exprValueSolutions.isEmpty()) {
+            sb.append("exprValueSolutions is empty");
+            result = false;
+        } else {
+            double priorityOverallValue = exprValueSolutions.get(0).getPriorityOverallValue();
+            if (Double.compare(priorityOverallValue, solverValue) != 0) {
+                sb.append(String.format(
+                        "Priority overall value mismatch: solverValue=%.2f, exprValueSolutions.get(0).getPriorityOverallValue()=%.2f",
+                        solverValue, priorityOverallValue));
+                result = false;
+            } else {
+                result = true;
+            }
+        }
+
+        return Pair.of(result, sb.toString());
+    }
+
     /**
      * 使用优先级约束进行分级求解
      * 
@@ -251,6 +273,13 @@ public class PartCategoryConstraintExecutorImpl {
                 double optimalValue = optSolver.objectiveValue();
                 objValue.setOptimalValue(optimalValue);
                 optimalValues.add(objValue);
+                Pair<Boolean, String> validResult = validPriorityOverallValue(optimalValue, optCb.getAllSolutions());
+                if (!validResult.getFirst()) {
+                    log.error("Priority-process pconstraint-step1 max/min valid expr&solver: {}",
+                            validResult.getSecond());
+                    return Result.failed(
+                            "Priority-process pconstraint-step1 max/min valid expr&solver " + validResult.getSecond());
+                }
                 log.info("Priority-process pconstraint-step1 max/min Optimal solution: {}",
                         SolutionUtils.toSolutionString(optCb.getAllSolutions()));
                 log.info("Priority-process pconstraint-step1 max/min Optimal value for  {}: {}", attrCode,
@@ -301,7 +330,8 @@ public class PartCategoryConstraintExecutorImpl {
                             " Priority-process pconstraint-step2 greater/less Added Priority adjusted constraint: {} >= {}",
                             attrCode, (long) minValue);
                 } else {
-                    double maxValue = optimalValue * (1 + threshold);
+                    // double maxValue = optimalValue * (1 + threshold);
+                    double maxValue = 1000;
                     multiModel.addLessOrEqual(expr, (long) maxValue);
                     log.info(
                             " Priority-process pconstraint-step2 greater/less Added Priority adjusted constraint: {} <= {}",
@@ -464,7 +494,7 @@ public class PartCategoryConstraintExecutorImpl {
     private void initModelByPriorityConstraints(
             List<ParConstraint> partConstraintFromReqs, ConstraintAlgImpl alg) {
         for (ParConstraint partConstraint : partConstraintFromReqs) {
-            alg.sumFunConstraint(partConstraint.getFilteredCategory().getAtomicParts(), partConstraint);
+            alg.sumFunConstraint(partConstraint.getFilteredCategory().getAllAtomicParts(), partConstraint);
         }
     }
 

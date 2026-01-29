@@ -2,6 +2,7 @@ package com.jmix.executor.impl.algmodel;
 
 import com.jmix.executor.impl.PriorityConstraint;
 
+import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.IntVar;
 
 import lombok.Data;
@@ -100,11 +101,7 @@ public class PartAlgCPLinearExpr extends AlgCPLinearExpr {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("exprStr: ").append(getExprStr()).append(System.lineSeparator());
-        sb.append("exprTemplate: ").append(getExprTemplate()).append(System.lineSeparator());
-        sb.append("exprTemplateStr: ").append(getExprTemplateStr());
-        return sb.toString();
+        return getExprStr();
     }
 
     /**
@@ -123,7 +120,7 @@ public class PartAlgCPLinearExpr extends AlgCPLinearExpr {
         PriorityConstraint.PartTerm term = new PriorityConstraint.PartTerm();
         term.setIndex(termIndex);
         term.setPartCode(partVar.getCode());
-        term.setTermValue(null);
+        term.setTermValue(varName);
         partTerms.add(term);
         termIndex++;
 
@@ -153,14 +150,21 @@ public class PartAlgCPLinearExpr extends AlgCPLinearExpr {
                 operatorNum++;
             }
         }
-        return operatorNum <= 1;
+        return operatorNum <= 0;
     }
 
     /**
      * Convenience overload that uses default varName "Q".
      */
     public void addTerm(PartVar partVar, IntVar var, long coefficient) {
-        addTerm(partVar, var, coefficient, "Q");
+        addTerm(partVar, var, coefficient, PartVar.QTY_SHORT_NAME);
+    }
+
+    /**
+     * Convenience overload that uses default varName "Q".
+     */
+    public void addTerm(PartVar partVar, BoolVar var, long coefficient) {
+        addTerm(partVar, var, coefficient, PartVar.ISSELECTED_SHORT_NAME);
     }
 
     /**
@@ -206,9 +210,9 @@ public class PartAlgCPLinearExpr extends AlgCPLinearExpr {
         // merge PartTerm list with adjusted indices
         for (PriorityConstraint.PartTerm t : expr.getPartTerms()) {
             PriorityConstraint.PartTerm newTerm = new PriorityConstraint.PartTerm();
-            newTerm.setIndex(termIndex++); // TODO
+            newTerm.setIndex(termIndex++);
             newTerm.setPartCode(t.getPartCode());
-            newTerm.setTermValue(null);
+            newTerm.setTermValue(t.getTermValue());
             partTerms.add(newTerm);
         }
     }

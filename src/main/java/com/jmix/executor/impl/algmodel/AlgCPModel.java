@@ -133,15 +133,6 @@ public class AlgCPModel {
         this.constraints = new ArrayList<>();
     }
 
-    /**
-     * 获取底层的CpModel实例
-     * 
-     * @return 封装的CpModel实例
-     */
-    public CpModel getCpModel() {
-        return cpModel;
-    }
-
     private void setCurrentRelaxVarName(String ruleCode, int weight) {
         if (!isAttachRelax) {
             log.info("relax:{} relax is not attached,setCurrentRelaxVarName", ruleCode);
