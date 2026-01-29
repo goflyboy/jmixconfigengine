@@ -7,6 +7,8 @@ import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.Constraint;
 import com.google.ortools.sat.CpModel;
 import com.google.ortools.sat.CpModelProto;
+import com.google.ortools.sat.CpSolver;
+import com.google.ortools.sat.CpSolverStatus;
 import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.LinearArgument;
 import com.google.ortools.sat.Literal;
@@ -652,8 +654,6 @@ public class AlgCPModel {
         return createAndTrackBoolConstraint(ct, "addImplication");
     }
 
-    // Linear constraints
-
     /**
      * 添加等式约束，表达式等于指定值
      *
@@ -1058,6 +1058,16 @@ public class AlgCPModel {
         addVirutalAlgCPConstraint("minimize", expr);
     }
 
+    /**
+     * 添加双精度线性表达式的最大化目标
+     *
+     * @param expr 双精度线性表达式
+     */
+    public void maximize(AlgCPLinearExpr expr) {
+        cpModel.minimize(expr.build());
+        addVirutalAlgCPConstraint("maximize", expr);
+    }
+
     private AlgCPConstraint addVirutalAlgCPConstraint(String name, AlgCPLinearExpr expr) {
         AlgCPConstraint ct = new AlgCPConstraint(null, this.currentRelaxVar, this.currentRelaxVarName);
         ct.setName(name);
@@ -1099,5 +1109,52 @@ public class AlgCPModel {
     @Override
     public final int hashCode() {
         return cpModel.hashCode();
+    }
+
+    /**
+     * 打印模型摘要
+     */
+    public void printModelSummary() {
+        log.info("\n" + "=".repeat(80));
+        log.info("CP-SAT MODEL SUMMARY");
+        log.info("=".repeat(80));
+
+        log.info("\nVARIABLES ({}):", variables.size());
+        log.info("-".repeat(80));
+        for (int i = 0; i < variableLogs.size(); i++) {
+            log.info(String.format("%3d. %s", i + 1, variableLogs.get(i)));
+        }
+
+        log.info("\nCONSTRAINTS ({}):", constraints.size());
+        log.info("-".repeat(80));
+        for (int i = 0; i < constraints.size(); i++) {
+            log.info(String.format("%3d. %s", i + 1, constraints.get(i).toString()));
+        }
+        log.info("\n" + "=".repeat(80));
+
+        log.info("\nObjectFuntionDetail: ");
+        log.info(objectExpr.toDetailString());
+        log.info("\n" + "=".repeat(80));
+
+    }
+
+    public void printRunValue(CpSolver cpSolver, CpSolverStatus status) {
+        log.info("\nCpSolverStatus:{} ", status);
+        if (status == CpSolverStatus.INFEASIBLE) {
+            return;
+        }
+        log.info("\nVARIABLE VALUES ({}):", variables.size());
+        log.info("-".repeat(80));
+        for (IntVar var : variables.values()) {
+            long value = cpSolver.value(var);
+            log.info(String.format("  %-20s = %d", var.getName(), value));
+        }
+        if (status == CpSolverStatus.OPTIMAL || status == CpSolverStatus.FEASIBLE) {
+            log.info("\nObject Value ={}", cpSolver.objectiveValue());
+        } else {
+            log.info("\nObject Value ={}", "not");
+        }
+
+        log.info("-".repeat(80));
     }
 }

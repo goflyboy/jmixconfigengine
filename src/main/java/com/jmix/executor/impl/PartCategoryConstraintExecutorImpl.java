@@ -230,9 +230,9 @@ public class PartCategoryConstraintExecutorImpl {
             AlgCPLinearExpr objectiveExpr = pConstraint.getExpr();
 
             if (priorityStrategy == PriorityStrategy.MAX) {
-                optModel.maximize(objectiveExpr.build());
+                optModel.maximize(objectiveExpr);
             } else {
-                optModel.minimize(objectiveExpr.build());
+                optModel.minimize(objectiveExpr);
             }
             PriorityAttrValueImpl objValue = new PriorityAttrValueImpl();
             objValue.setAttrCode(attrCode);
@@ -242,7 +242,10 @@ public class PartCategoryConstraintExecutorImpl {
             optSolver.getParameters().setNumSearchWorkers(1);
             ModuleInstSolutionCallBack optCb = new ModuleInstSolutionCallBack(module, optAlg.getVars(),
                     optAlg.getOtherVarMap(), optAlg, Arrays.asList(objValue));
-            CpSolverStatus optStatus = optSolver.solve(optModel, optCb);
+
+            log.info(" Priority-process pconstraint-step1 solver  models:\n");
+            optModel.printModelSummary();
+            CpSolverStatus optStatus = optSolver.solve(optModel.getCpModel(), optCb);
 
             if (optStatus == CpSolverStatus.OPTIMAL || optStatus == CpSolverStatus.FEASIBLE) {
                 double optimalValue = optSolver.objectiveValue();
@@ -293,13 +296,13 @@ public class PartCategoryConstraintExecutorImpl {
                 PriorityStrategy priorityStrategy = objValue.getPriorityStrategy();
                 if (priorityStrategy == PriorityStrategy.MAX) {
                     double minValue = optimalValue * (1 - threshold);
-                    multiModel.addGreaterOrEqual(expr.build(), (long) minValue);
+                    multiModel.addGreaterOrEqual(expr, (long) minValue);
                     log.info(
                             " Priority-process pconstraint-step2 greater/less Added Priority adjusted constraint: {} >= {}",
                             attrCode, (long) minValue);
                 } else {
                     double maxValue = optimalValue * (1 + threshold);
-                    multiModel.addLessOrEqual(expr.build(), (long) maxValue);
+                    multiModel.addLessOrEqual(expr, (long) maxValue);
                     log.info(
                             " Priority-process pconstraint-step2 greater/less Added Priority adjusted constraint: {} <= {}",
                             attrCode, (long) maxValue);
@@ -311,12 +314,13 @@ public class PartCategoryConstraintExecutorImpl {
             CpSolver multiSolver = new CpSolver();
             multiSolver.getParameters().setEnumerateAllSolutions(true);
             multiSolver.getParameters().setNumSearchWorkers(1);
-
+            log.info(" Priority-process  pconstraint-step3 solver  models:\n");
+            multiModel.printModelSummary();
             // 获取最大解数量限制
             int maxSolutionNum = partCatagoryReq.getMaxSolutionNum() > 0 ? partCatagoryReq.getMaxSolutionNum() : 10;
             ModuleInstSolutionCallBack multiCb = new ModuleInstSolutionCallBack(module, multiAlg.getVars(),
                     multiAlg.getOtherVarMap(), multiAlg, optimalValues, maxSolutionNum);
-            CpSolverStatus multiStatus = multiSolver.solve(multiModel, multiCb);
+            CpSolverStatus multiStatus = multiSolver.solve(multiModel.getCpModel(), multiCb);
 
             if (multiStatus == CpSolverStatus.OPTIMAL || multiStatus == CpSolverStatus.FEASIBLE) {
                 allSolutions.addAll(multiCb.getAllSolutions());

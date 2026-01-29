@@ -332,7 +332,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
         log.info("solver parameters:\n" + solver.getParameters().toString());
         // 可按需设置更多参数
         ModuleInstSolutionCallBack cb = new ModuleInstSolutionCallBack(module, alg.getVars(), alg.getOtherVarMap());
-        CpSolverStatus status = solver.solve(model, cb);
+        CpSolverStatus status = solver.solve(model.getCpModel(), cb);
 
         return new RunInferParasRsp(status, cb, alg.getModel(), solver);
     }

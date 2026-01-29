@@ -3134,3 +3134,5 @@ class PartConstraintReq {
 }
 
 TODO: 非inst属性和属性不能混合在一起？
+
+TODO：把CpSolver也包装起来
