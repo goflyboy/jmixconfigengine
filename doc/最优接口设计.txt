@@ -3136,3 +3136,10 @@ class PartConstraintReq {
 TODO: 非inst属性和属性不能混合在一起？
 
 TODO：把CpSolver也包装起来
+
+TODO: 求出这个解后，需要把业务模型？ 
+
+TODO：怎么让生成的代码 符合编程规范？ ---不需要再调整？**
+
+1、老的不分？
+2、新的？*
