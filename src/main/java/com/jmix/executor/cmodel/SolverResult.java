@@ -21,6 +21,10 @@ public class SolverResult {
 
     private String solverStatus;
 
+    private String message;
+
+    Double objectiveValue;//求解器的opt
+
     private boolean hasSearchMax = false;// 是否达到搜索的最大值
 
     private int searchMax = -1;// -1,表示没有设置，搜索的最大值

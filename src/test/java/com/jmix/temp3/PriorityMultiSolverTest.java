@@ -160,7 +160,6 @@ public class PriorityMultiSolverTest {
      * 求解并打印调试信息
      *
      * @param strReq       需求字符串
-     * @param testCaseName 测试用例名称
      * @return 解列表
      */
     private ProductResult solve(String strReq) {

@@ -1028,17 +1028,6 @@ public class AlgCPModel {
     }
 
     // Objective methods
-
-    // /**
-    // * 添加线性表达式的最小化目标
-    // *
-    // * @param expr 线性表达式
-    // */
-    // public void minimize(final LinearArgument expr) {
-    // cpModel.minimize(expr);
-    // log.info("Objective set: minimize linear expression");
-    // }
-
     /**
      * 添加双精度线性表达式的最小化目标
      *

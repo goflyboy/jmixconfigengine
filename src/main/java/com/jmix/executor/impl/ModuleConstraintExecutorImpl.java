@@ -127,10 +127,10 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
                 log.error("ModuleAlgClassLoader not found for module: {}", module.getId());
                 return Result.failed("ModuleAlgClassLoader not found for module: " + module.getId());
             }
-            PartCategoryConstraintExecutorImpl partCatagoryExcutor = new PartCategoryConstraintExecutorImpl(config,
+            PartCategoryConstraintExecutorImpl categoryExecutor = new PartCategoryConstraintExecutorImpl(module, config,
                     loader);
             InferPartCategoryReq cReq = toInferPartCategoryReq(req);
-            return partCatagoryExcutor.processPartCategory(cReq, module, false, new ArrayList<>());
+            return categoryExecutor.processPartCategory(cReq);
         } catch (AlgLoaderException | AlgExecutorException ex) {
             log.error("Failed to infer paras", ex);
             return Result.failed("exception: " + ex.getMessage());

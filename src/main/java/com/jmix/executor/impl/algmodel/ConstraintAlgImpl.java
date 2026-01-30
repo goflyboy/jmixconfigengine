@@ -83,8 +83,16 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     protected Map<String, PriorityConstraint> priorityRuleMap = new HashMap<>();
 
     /**
-     * 获取所有的Priority合并后的表达式
+     * 是否有优先类规则
      * 
+     * @return exr
+     */
+    public boolean hasPriorityRule() {
+        return !priorityRuleMap.isEmpty();
+    }
+    /**
+     * 获取所有的Priority合并后的表达式
+     *
      * @return exr
      */
     public PartAlgCPLinearExpr queryMergerPriorityConstraintExpr() {

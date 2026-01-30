@@ -27,6 +27,15 @@ public class AlgCPLinearExpr {
     private String name;
 
     /**
+     * 是否空
+     *
+     * @return
+     */
+    public boolean isEmpty() {
+        return terms.isEmpty();
+    }
+
+    /**
      * 创建一个包含单个项的线性表达式
      *
      * @param var         变量

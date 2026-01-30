@@ -13,12 +13,7 @@ import com.jmix.executor.cmodel.ParaInst;
 import com.jmix.executor.cmodel.PartInst;
 import com.jmix.executor.cmodel.SolverResult;
 import com.jmix.executor.impl.algmodel.*;
-import com.jmix.executor.model.AttrFunConstant;
-import com.jmix.executor.model.ConstraintConfig;
-import com.jmix.executor.model.InferPartCategoryReq;
-import com.jmix.executor.model.ParConstraint;
-import com.jmix.executor.model.PartConstraintReq;
-import com.jmix.executor.model.Result;
+import com.jmix.executor.model.*;
 
 import com.google.ortools.sat.CpSolver;
 import com.google.ortools.sat.CpSolverStatus;
@@ -37,35 +32,29 @@ import java.util.Set;
 /**
  * 部件分类约束执行器实现类
  * 专门处理部件分类相关的约束求解
- * 
+ *
  * @since 2025-01-XX
  */
 @Slf4j
 public class PartCategoryConstraintExecutorImpl {
-
+    private final Module module;
     private final ConstraintConfig config;
     private final ModuleAlgClassLoader moduleAlgClassLoader;
 
-    public PartCategoryConstraintExecutorImpl(ConstraintConfig config, ModuleAlgClassLoader moduleAlgClassLoader) {
+    public PartCategoryConstraintExecutorImpl(Module module, ConstraintConfig config, ModuleAlgClassLoader moduleAlgClassLoader) {
+        this.module = module;
         this.config = config;
         this.moduleAlgClassLoader = moduleAlgClassLoader;
     }
 
     /**
      * 处理部件分类约束
-     * 
+     *
      * @param partCatagoryReq 部件分类请求
-     * @param module          模块对象
-     * @param isAttachRelax   是否附加松弛变量
-     * @param confictedRelaxs 冲突松弛变量列表
      * @return 推理结果
      */
-    public Result<List<ModuleInst>> processPartCategory(InferPartCategoryReq partCatagoryReq, Module module,
-            boolean isAttachRelax, List<RelaxVar> confictedRelaxs) {
+    public Result<List<ModuleInst>> processPartCategory(InferPartCategoryReq partCatagoryReq) {
         try {
-            // 创建约束算法实例
-            ConstraintAlgImpl alg = createConstraintAlg(module.getId(), module.getCode());
-
             // 查找原始部件分类
             PartCategory originalCategory = module.findPartCategory(partCatagoryReq.getPartCatagoryCode());
             if (originalCategory == null) {
@@ -95,11 +84,10 @@ public class PartCategoryConstraintExecutorImpl {
             if (filteredCategory.hasPriorityRule()) {
                 PartCategory mergedFilteredCategory = buildMergedFilteredCategory(originalCategory,
                         partConstraintFromReqs);
-                return solveWithPriorityConstraints(alg, mergedFilteredCategory, isAttachRelax, confictedRelaxs,
-                        partCatagoryReq, module, partConstraintFromReqs);
+                return solveWithPriorityConstraints(mergedFilteredCategory,
+                        partCatagoryReq, partConstraintFromReqs);
             }
-
-            return solveConstraintModel(alg, filteredCategory, isAttachRelax, confictedRelaxs, partCatagoryReq, module);
+            return solveWithOutPriorityConstraints(filteredCategory, partCatagoryReq);
 
         } catch (Exception e) {
             log.error("Failed to process part category constraint", e);
@@ -109,68 +97,16 @@ public class PartCategoryConstraintExecutorImpl {
 
     /**
      * 求解约束模型并返回结果
-     * 
-     * @param alg              约束算法实现
+     *
      * @param filteredCategory 过滤后的部件分类
-     * @param isAttachRelax    是否附加松弛变量
-     * @param confictedRelaxs  冲突松弛变量列表
      * @param partCatagoryReq  部件分类请求
-     * @param module           模块对象
      * @return 求解结果
      */
-    private Result<List<ModuleInst>> solveConstraintModel(ConstraintAlgImpl alg, PartCategory filteredCategory,
-            boolean isAttachRelax, List<RelaxVar> confictedRelaxs,
-            InferPartCategoryReq partCatagoryReq,
-            Module module) {
-
-        // 创建CP模型
-        AlgCPModel model = new AlgCPModel();
-        alg.initModel(model, filteredCategory, isAttachRelax, confictedRelaxs, null);
-
-        // 根据请求初始化约束模型
-        initModelByReq(partCatagoryReq, alg);
-
-        // 添加松弛目标函数, 方便调试
-        alg.addRelaxObjectFunction();
-
-        if (config.isLogModelProto()) {
-            // 将module的CpModelProto信息输出到文件config.logFilePath/module.proto.txt
-            alg.getModel().getCpModel()
-                    .exportToFile(config.getLogFilePath() + File.separator + module.getCode() + ".proto.txt");
-        }
-
-        CpSolver solver = new CpSolver();
-        solver.getParameters().setEnumerateAllSolutions(partCatagoryReq.isEnumerateAllSolution());
-        solver.getParameters().setNumSearchWorkers(1); // 单线程搜索，防止有重复解
-        log.info("solver parameters:\n" + solver.getParameters().toString());
-        // 可按需设置更多参数
-        int maxSolutionNum = partCatagoryReq.getMaxSolutionNum() > 0 ? partCatagoryReq.getMaxSolutionNum() : 10;
-        ModuleInstSolutionCallBack cb = new ModuleInstSolutionCallBack(module, alg.getVars(),
-                alg.getOtherVarMap(), alg,  maxSolutionNum);
-        CpSolverStatus status = solver.solve(alg.getModel().getCpModel(), cb);
-
-        // 如果模型无效，调用ValidateCpModel获取详细错误信息
-        if (status == CpSolverStatus.MODEL_INVALID) {
-            // 重新获取模型进行验证
-            ConstraintAlgImpl validationAlg = createConstraintAlg(module.getId(), module.getCode());
-            AlgCPModel validationModel = new AlgCPModel();
-            validationAlg.initModel(validationModel, module, false, new ArrayList<>(), null);
-            String validationError = validationModel.getCpModel().validate();
-            log.error("Model validation failed: {}", validationError);
-            return Result.failed("Model validation failed: " + validationError);
-        }
-
-        if (status != CpSolverStatus.OPTIMAL && status != CpSolverStatus.FEASIBLE
-                && status != CpSolverStatus.INFEASIBLE) {
-            return Result.failed("solver status: " + status);
-        }
-
-        if (status == CpSolverStatus.INFEASIBLE) {
-            return Result.success(null);
-        }
-
-        // 返回成功结果
-        return Result.success(cb.getAllSolutions());
+    private Result<List<ModuleInst>> solveWithOutPriorityConstraints(PartCategory filteredCategory,
+                                                                     InferPartCategoryReq partCatagoryReq) {
+        log.info("no Priority-process starting........");
+        SolverResult result = invokerSolver(filteredCategory, partCatagoryReq, new ArrayList<>(), null);
+        return Result.success(result.getSolutions());
     }
 
     private Pair<Boolean, String> validPriorityOverallValue(double solverValue, List<ModuleInst> exprValueSolutions) {
@@ -195,109 +131,90 @@ public class PartCategoryConstraintExecutorImpl {
         return Pair.of(result, sb.toString());
     }
 
-    /**
-     * 使用优先级约束进行分级求解
-     * 
-     * @param alg                    约束算法实现
-     * @param filteredCategory       过滤后的部件分类
-     * @param isAttachRelax          是否附加松弛变量
-     * @param confictedRelaxs        冲突松弛变量列表
-     * @param partCatagoryReq        部件分类请求
-     * @param module                 模块对象
-     * @param partConstraintFromReqs 部件约束列表
-     * @return 求解结果
-     */
-    private Result<List<ModuleInst>> solveWithPriorityConstraints(ConstraintAlgImpl alg,
-            PartCategory filteredCategory, boolean isAttachRelax, List<RelaxVar> confictedRelaxs,
-            InferPartCategoryReq partCatagoryReq, Module module, List<ParConstraint> partConstraintFromReqs) {
-        List<Rule> priorityRules = filteredCategory.queryPriorityRules();
-        List<ModuleInst> allSolutions = new ArrayList<>();
+    private Result<List<ModuleInst>> solveWithPriorityConstraints(
+            PartCategory filteredCategory, InferPartCategoryReq partCatagoryReq, List<ParConstraint> partConstraintFromReqs) {
         log.info(" Priority-process pconstraint-step1 max/min starting........");
-       // 步骤1：对每个优先级规则优化求解最优解
+        // 步骤1：对每个优先级规则优化求解最优解
+        SolverResult firstResult = invokerSolver(filteredCategory, partCatagoryReq, partConstraintFromReqs, null);
+        // 步骤2：在保持高优先级目标接近最优的前提下，寻找多个解
+        log.info(" Priority-process pconstraint-step2 to find multiple solutions starting........");
+        SolverResult secondResult = invokerSolver(filteredCategory, partCatagoryReq, partConstraintFromReqs, firstResult.getObjectiveValue());
+        return Result.success(secondResult.getSolutions());
+    }
+
+    private SolverResult invokerSolver(
+            PartCategory filteredCategory, InferPartCategoryReq partCatagoryReq, List<ParConstraint> partConstraintFromReqs, Double adjustOptimalValue) {
+
+        log.info(" Priority-process pconstraint-step1 max/min starting........");
+        // 步骤1：对每个优先级规则优化求解最优解
         ConstraintAlgImpl optAlg = createConstraintAlg(module.getId(), module.getCode());
         AlgCPModel optModel = new AlgCPModel();
-        optAlg.initModel(optModel, filteredCategory, isAttachRelax, confictedRelaxs, partConstraintFromReqs);
+        optAlg.initModel(optModel, filteredCategory, false, new ArrayList<>(), partConstraintFromReqs);
         initModelByReq(partCatagoryReq, optAlg);
         initModelByPriorityConstraints(partConstraintFromReqs, optAlg);
         optAlg.addRelaxObjectFunction();
-        PartAlgCPLinearExpr priorityMergedExpr = optAlg.queryMergerPriorityConstraintExpr();
-        optModel.minimize(priorityMergedExpr);
+        boolean hasPriorityRule = optAlg.hasPriorityRule();
+        if (hasPriorityRule) {
+            PartAlgCPLinearExpr priorityMergedExpr = optAlg.queryMergerPriorityConstraintExpr();
+            if (adjustOptimalValue == null) {
+                optModel.minimize(priorityMergedExpr);
+            } else {
+                optModel.addLessOrEqual(priorityMergedExpr, adjustOptimalValue.longValue());
+            }
+        }
+
         // 求解最优解
         CpSolver optSolver = new CpSolver();
         optSolver.getParameters().setNumSearchWorkers(1);
+        SolverResult sr = new SolverResult();
         ModuleInstSolutionCallBack optCb = new ModuleInstSolutionCallBack(module, optAlg.getVars(),
                 optAlg.getOtherVarMap(), optAlg);
 
         log.info(" Priority-process pconstraint-step1 solver  models:\n");
         optModel.printModelSummary();
         CpSolverStatus optStatus = optSolver.solve(optModel.getCpModel(), optCb);
-        Double optimalValue = null;
+        sr.setSolutions(optCb.getAllSolutions());
+        sr.setSolverStatus(optStatus.toString());
         if (optStatus == CpSolverStatus.OPTIMAL || optStatus == CpSolverStatus.FEASIBLE) {
-            optimalValue = optSolver.objectiveValue();
-            Pair<Boolean, String> validResult = validPriorityOverallValue(optimalValue, optCb.getAllSolutions());
-            if (!validResult.getFirst()) {
-                log.error("Priority-process pconstraint-step1 max/min valid expr&solver: {}",
-                        validResult.getSecond());
-                return Result.failed(
-                        "Priority-process pconstraint-step1 max/min valid expr&solver " + validResult.getSecond());
-            }
-            log.info("Priority-process pconstraint-step1 max/min Optimal solution: {}",
-                    SolutionUtils.toSolutionString(optCb.getAllSolutions()));
-            log.info("Priority-process pconstraint-step1 max/min Optimal value for : {}", optimalValue);
-
+            sr.setObjectiveValue(optSolver.objectiveValue());
+            log.info("Priority-process pconstraint-step1 max/min Optimal value for : {}", optSolver.objectiveValue());
         } else {
-            log.warn(
-                    "Priority-process pconstraint-step1 max/min Failed to find optimal solution, status: {}",
-                     optStatus);
+            log.error("Priority-process pconstraint-step1 solver, status : " + optStatus);
+            return sr;
         }
-
-
-
-
-        log.info(" Priority-process pconstraint-step1 max/min finished........");
-        // 步骤2：在保持高优先级目标接近最优的前提下，寻找多个解
-        if (  null != optimalValue) {
-            SolverResult multiSolverResult = solveMultipleSolutionsWithPriorityConstraints(
-                    module, filteredCategory, isAttachRelax, confictedRelaxs,
-                    partCatagoryReq, partConstraintFromReqs, optimalValue);
-
-            if (!SolverResult.STATUS_OPTIMAL.equals(multiSolverResult.getSolverStatus())
-                    && !SolverResult.STATUS_FEASIBLE.equals(multiSolverResult.getSolverStatus())) {
-                return Result.failed("Failed to find multiple solutions: " + multiSolverResult.getSolverStatus());
+        if (hasPriorityRule && (adjustOptimalValue == null)) {
+            Pair<Boolean, String> validResult = validPriorityOverallValue(sr.getObjectiveValue(), optCb.getAllSolutions());
+            if (!validResult.getFirst()) {
+                String msg = "Priority-process pconstraint-step1 max/min valid expr&solver " + validResult.getSecond();
+                log.error(msg);
+                throw new AlgExecutorException(msg);
             }
-
-            allSolutions.addAll(multiSolverResult.getSolutions());
+            sortSolutionsByPriority(sr.getSolutions());
         }
-
-        // 步骤3：对解按优先级排序
-        if (!allSolutions.isEmpty()) {
-            sortSolutionsByPriority(allSolutions, priorityRules, alg);
-            log.info(" Priority-process pconstraint-step4 sort solutions by priority finished........");
-        }
-        log.info(" Priority-process pconstraint-step3 solver finished........");
-        return Result.success(allSolutions);
+        log.info("Priority-process pconstraint-step1 max/min finished-Optimal solution: \n {}",
+                SolutionUtils.toSolutionString(sr.getSolutions()));
+        return sr;
     }
 
     /**
      * 步骤2：在保持高优先级目标接近最优的前提下，寻找多个解
-     * 
+     *
      * @param module                 模块对象
      * @param filteredCategory       过滤后的部件分类
      * @param isAttachRelax          是否附加松弛变量
      * @param confictedRelaxs        冲突松弛变量列表
      * @param partCatagoryReq        部件分类请求
      * @param partConstraintFromReqs 部件约束列表
-     * @param optimalValue          最优值列表
+     * @param optimalValue           最优值列表
      * @return 求解结果
      */
     private SolverResult solveMultipleSolutionsWithPriorityConstraints(Module module,
-            PartCategory filteredCategory, boolean isAttachRelax, List<RelaxVar> confictedRelaxs,
-            InferPartCategoryReq partCatagoryReq, List<ParConstraint> partConstraintFromReqs,
-            double optimalValue) {
+                                                                       PartCategory filteredCategory, boolean isAttachRelax, List<RelaxVar> confictedRelaxs,
+                                                                       InferPartCategoryReq partCatagoryReq, List<ParConstraint> partConstraintFromReqs,
+                                                                       Double optimalValue) {
         SolverResult solverResult = new SolverResult();
 
         log.info(" Priority-process pconstraint-step2 greater/less starting........");
-
         // 创建新的算法实例和模型
         ConstraintAlgImpl multiAlg = createConstraintAlg(module.getId(), module.getCode());
         AlgCPModel multiModel = new AlgCPModel();
@@ -313,7 +230,7 @@ public class PartCategoryConstraintExecutorImpl {
         multiModel.addLessOrEqual(mergedExpr, (long) maxValue);
         log.info(
                 " Priority-process pconstraint-step2 greater/less Added Priority adjusted constraint: <= {}",
-                  (long) maxValue);
+                (long) maxValue);
 
         log.info(" Priority-process pconstraint-step2 greater/less finished........");
         log.info(" Priority-process pconstraint-step3 solver starting........");
@@ -326,7 +243,7 @@ public class PartCategoryConstraintExecutorImpl {
         // 获取最大解数量限制
         int maxSolutionNum = partCatagoryReq.getMaxSolutionNum() > 0 ? partCatagoryReq.getMaxSolutionNum() : 10;
         ModuleInstSolutionCallBack multiCb = new ModuleInstSolutionCallBack(module, multiAlg.getVars(),
-                multiAlg.getOtherVarMap(), multiAlg,  maxSolutionNum);
+                multiAlg.getOtherVarMap(), multiAlg, maxSolutionNum);
         CpSolverStatus multiStatus = multiSolver.solve(multiModel.getCpModel(), multiCb);
 
         solverResult.setSolverStatus(multiStatus.toString());
@@ -344,16 +261,7 @@ public class PartCategoryConstraintExecutorImpl {
         return solverResult;
     }
 
-    /**
-     * 按优先级对解进行排序
-     * 根据solutions中每个ModuleInst.priorityOverallValue进行排序，然后对ModuleInst.prioritySortNo进行赋值
-     * 
-     * @param solutions     解列表
-     * @param priorityRules 优先级规则列表
-     * @param alg           约束算法实现
-     */
-    private void sortSolutionsByPriority(List<ModuleInst> solutions, List<Rule> priorityRules,
-            ConstraintAlgImpl alg) {
+    private void sortSolutionsByPriority(List<ModuleInst> solutions) {
         // 根据 priorityOverallValue 进行排序（降序，值越大优先级越高）
         solutions.sort((a, b) -> Double.compare(b.getPriorityOverallValue(), a.getPriorityOverallValue()));
 
@@ -365,7 +273,7 @@ public class PartCategoryConstraintExecutorImpl {
 
     /**
      * 根据请求初始化约束模型
-     * 
+     *
      * @param req 部件分类请求
      * @param alg 约束算法实现
      */
@@ -384,7 +292,7 @@ public class PartCategoryConstraintExecutorImpl {
 
     /**
      * 将部件列表添加到合并的原子部件Map中
-     * 
+     *
      * @param mergedAtomicParts 合并的原子部件Map
      * @param parts             部件列表
      */
@@ -400,13 +308,13 @@ public class PartCategoryConstraintExecutorImpl {
      * 使用扣除法原则：
      * - 含有父分类，则求并集
      * - 不含有父分类，补充没有在里面的子分类的部件
-     * 
+     *
      * @param originalCategory       原始部件分类
      * @param partConstraintFromReqs 部件约束列表
      * @return 合并后的过滤分类
      */
     private PartCategory buildMergedFilteredCategory(PartCategory originalCategory,
-            List<ParConstraint> partConstraintFromReqs) {
+                                                     List<ParConstraint> partConstraintFromReqs) {
         // 实现案例
         // --drive PC
         // ----sd PC
@@ -459,7 +367,7 @@ public class PartCategoryConstraintExecutorImpl {
 
     /**
      * 根据请求初始化约束模型
-     * 
+     *
      * @param partConstraintFromReqs 部件约束列表
      * @param alg                    约束算法实现
      */
@@ -472,13 +380,13 @@ public class PartCategoryConstraintExecutorImpl {
 
     /**
      * 解析并添加部件约束
-     * 
+     *
      * @param filteredCategory       过滤后的部件分类
      * @param partConstraintReq      部件约束请求
      * @param partConstraintFromReqs 部件约束列表
      */
     private void resolveAddPartConstraint(PartCategory filteredCategory, PartConstraintReq partConstraintReq,
-            List<ParConstraint> partConstraintFromReqs) {
+                                          List<ParConstraint> partConstraintFromReqs) {
         // 解析属性
         Pair<DynamicAttribute, String> result = filteredCategory.parseAttribute(
                 partConstraintReq.getAttrCode(),
@@ -499,7 +407,7 @@ public class PartCategoryConstraintExecutorImpl {
 
     /**
      * 创建约束算法实例
-     * 
+     *
      * @param moduleId   模块ID
      * @param moduleCode 模块代码
      * @return 约束算法实例
