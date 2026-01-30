@@ -107,7 +107,7 @@ public class ModuleInst {
      * 优先级综合值
      * 最后综合的值
      */
-    private double priorityOverallValue;
+    private double priorityOverallValue = 0.0;
 
     /**
      * 根据部件代码查询部件实例

@@ -7,15 +7,12 @@ import com.jmix.executor.cmodel.ModuleInst;
 import com.jmix.executor.cmodel.ParaInst;
 import com.jmix.executor.cmodel.PartInst;
 import com.jmix.executor.cmodel.PriorityAttrValue;
-import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
-import com.jmix.executor.impl.algmodel.OtherVar;
-import com.jmix.executor.impl.algmodel.ParaVar;
-import com.jmix.executor.impl.algmodel.PartVar;
-import com.jmix.executor.impl.algmodel.Var;
+import com.jmix.executor.impl.algmodel.*;
 import com.jmix.executor.model.AlgLoaderException;
 
 import com.google.ortools.sat.CpSolverSolutionCallback;
 
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -31,6 +28,7 @@ import java.util.Map;
  * @since 2025-09-22
  */
 @Slf4j
+@Data
 public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
 
     private final Module module;
@@ -48,11 +46,10 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
     // 约束算法实现，用于查询优先级约束
     private ConstraintAlgImpl alg;
 
-    // 优先级属性最优值列表
-    private List<PriorityAttrValueImpl> optimalValues = new ArrayList<>();
-
     // 最大解数量限制，0表示无限制
     private int maxSolutionNum = 0;
+
+    private  PartAlgCPLinearExpr priorityExpr = null;
 
     // 常量定义
     private static final String OTHER_VARIABLES_VALUE_KEY = "OTHER_VARIABLES_VALUE";
@@ -96,20 +93,6 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
         this.alg = alg;
     }
 
-    /**
-     * 构造函数
-     * 
-     * @param module        模块对象
-     * @param vars          变量列表
-     * @param otherVarMap   其他变量映射
-     * @param alg           约束算法实现
-     * @param optimalValues 优先级属性最优值列表
-     */
-    public ModuleInstSolutionCallBack(Module module, List<Var<?>> vars, Map<String, OtherVar> otherVarMap,
-            ConstraintAlgImpl alg, List<PriorityAttrValueImpl> optimalValues) {
-        this(module, vars, otherVarMap, alg);
-        this.optimalValues = optimalValues != null ? optimalValues : new ArrayList<>();
-    }
 
     /**
      * 构造函数
@@ -118,12 +101,11 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
      * @param vars           变量列表
      * @param otherVarMap    其他变量映射
      * @param alg            约束算法实现
-     * @param optimalValues  优先级属性最优值列表
      * @param maxSolutionNum 最大解数量限制，0表示无限制
      */
     public ModuleInstSolutionCallBack(Module module, List<Var<?>> vars, Map<String, OtherVar> otherVarMap,
-            ConstraintAlgImpl alg, List<PriorityAttrValueImpl> optimalValues, int maxSolutionNum) {
-        this(module, vars, otherVarMap, alg, optimalValues);
+            ConstraintAlgImpl alg,   int maxSolutionNum) {
+        this(module, vars, otherVarMap, alg);
         this.maxSolutionNum = maxSolutionNum;
     }
 
@@ -163,15 +145,6 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
             log.info("Reached maximum solution limit: {}, stopping search", maxSolutionNum);
             stopSearch();
         }
-    }
-
-    /**
-     * 获取所有解决方案
-     * 
-     * @return 所有解决方案列表
-     */
-    public List<ModuleInst> getAllSolutions() {
-        return allSolutions;
     }
 
     /**
@@ -248,56 +221,26 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
      * @param moduleInst 模块实例
      */
     private void processPriorityValues(ModuleInst moduleInst) {
-        if (optimalValues == null || optimalValues.isEmpty()) {
-            log.info("optimalValues is null or empty, cannot process priority values");
+        if(priorityExpr == null) {
             return;
         }
-
-        List<PriorityAttrValue> priorityAttrValues = new ArrayList<>();
-
-        for (PriorityAttrValueImpl optimalValue : optimalValues) {
-            PriorityConstraint pConstraint = optimalValue.getPConstraint();
-            List<Integer> exprVariablesValues = new ArrayList<>();
-            PriorityType priorityType = pConstraint.getPriorityType();
-
-            // 遍历表达式变量
-            for (PriorityConstraint.PartTerm exprVariable : pConstraint.getExprVariables()) {
-                PartInst pInst = moduleInst.queryPart(exprVariable.getPartCode());
-                if (pInst == null) {
-                    exprVariablesValues.add(0);
+        List<Integer> exprVariablesValues = new ArrayList<>();
+        // 遍历表达式变量
+        for (PriorityConstraint.PartTerm exprVariable : priorityExpr.getPartTerms()) {
+            PartInst pInst = moduleInst.queryPart(exprVariable.getPartCode());
+            if (pInst == null) {
+                exprVariablesValues.add(0);
+            } else {
+                if (exprVariable.getTermValue().equals(PartVar.ISSELECTED_SHORT_NAME)) {
+                    exprVariablesValues.add(pInst.isSelected() ? 1 : 0);
                 } else {
-                    if (exprVariable.getTermValue().equals(PartVar.ISSELECTED_SHORT_NAME)) {
-                        exprVariablesValues.add(pInst.isSelected() ? 1 : 0);
-                    } else {
-                        exprVariablesValues.add(pInst.getQuantity() != null ? pInst.getQuantity() : 0);
-                    }
+                    exprVariablesValues.add(pInst.getQuantity() != null ? pInst.getQuantity() : 0);
                 }
             }
-
-            // 计算最优值
-            double calculatedValue = PriorityConstraint.calcToString(pConstraint, exprVariablesValues);
-
-            // 创建 PriorityAttrValueImpl
-            PriorityAttrValue priorityAttrValue = new PriorityAttrValue();
-            priorityAttrValue.setAttrCode(pConstraint.getAttrCode());
-            priorityAttrValue.setOptimalValue(calculatedValue);
-            priorityAttrValues.add(priorityAttrValue);
         }
-
-        // 设置到 ModuleInst
-        moduleInst.setPriorityAttrValues(priorityAttrValues);
-
-        // 计算综合值（平均值）
-        if (!priorityAttrValues.isEmpty()) {
-            double sum = 0.0;
-            for (PriorityAttrValue value : priorityAttrValues) {
-                sum += value.getOptimalValue();
-            }
-            double overallValue = sum / priorityAttrValues.size();
-            moduleInst.setPriorityOverallValue(overallValue);
-        } else {
-            moduleInst.setPriorityOverallValue(0.0);
-        }
+        // 计算最优值
+        double calculatedValue = PriorityConstraint.calcToString(priorityExpr, exprVariablesValues);
+        moduleInst.setPriorityOverallValue(calculatedValue);
     }
 
     /**

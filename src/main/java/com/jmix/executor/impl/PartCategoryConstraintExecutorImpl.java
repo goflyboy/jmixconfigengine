@@ -12,10 +12,7 @@ import com.jmix.executor.cmodel.ModuleInst;
 import com.jmix.executor.cmodel.ParaInst;
 import com.jmix.executor.cmodel.PartInst;
 import com.jmix.executor.cmodel.SolverResult;
-import com.jmix.executor.impl.algmodel.AlgCPLinearExpr;
-import com.jmix.executor.impl.algmodel.AlgCPModel;
-import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
-import com.jmix.executor.impl.algmodel.RelaxVar;
+import com.jmix.executor.impl.algmodel.*;
 import com.jmix.executor.model.AttrFunConstant;
 import com.jmix.executor.model.ConstraintConfig;
 import com.jmix.executor.model.InferPartCategoryReq;
@@ -216,88 +213,53 @@ public class PartCategoryConstraintExecutorImpl {
         List<Rule> priorityRules = filteredCategory.queryPriorityRules();
         List<ModuleInst> allSolutions = new ArrayList<>();
         log.info(" Priority-process pconstraint-step1 max/min starting........");
+       // 步骤1：对每个优先级规则优化求解最优解
+        ConstraintAlgImpl optAlg = createConstraintAlg(module.getId(), module.getCode());
+        AlgCPModel optModel = new AlgCPModel();
+        optAlg.initModel(optModel, filteredCategory, isAttachRelax, confictedRelaxs, partConstraintFromReqs);
+        initModelByReq(partCatagoryReq, optAlg);
+        initModelByPriorityConstraints(partConstraintFromReqs, optAlg);
+        optAlg.addRelaxObjectFunction();
+        PartAlgCPLinearExpr priorityMergedExpr = optAlg.queryMergerPriorityConstraintExpr();
+        optModel.minimize(priorityMergedExpr);
+        // 求解最优解
+        CpSolver optSolver = new CpSolver();
+        optSolver.getParameters().setNumSearchWorkers(1);
+        ModuleInstSolutionCallBack optCb = new ModuleInstSolutionCallBack(module, optAlg.getVars(),
+                optAlg.getOtherVarMap(), optAlg, priorityMergedExpr);
 
-        // 步骤1：对每个优先级规则优化求解最优解
-        List<PriorityAttrValueImpl> optimalValues = new ArrayList<>();
-        for (Rule rule : priorityRules) {
-            if (rule.getRawCode() == null || !(rule.getRawCode() instanceof PriorityRuleSchema)) {
-                log.error("Rule rawCode is not PriorityRuleSchema for rule: {}", rule.getCode());
-                return Result.failed("Rule rawCode is not PriorityRuleSchema for rule: " + rule.getCode());
+        log.info(" Priority-process pconstraint-step1 solver  models:\n");
+        optModel.printModelSummary();
+        CpSolverStatus optStatus = optSolver.solve(optModel.getCpModel(), optCb);
+        Double optimalValue = null;
+        if (optStatus == CpSolverStatus.OPTIMAL || optStatus == CpSolverStatus.FEASIBLE) {
+            optimalValue = optSolver.objectiveValue();
+            Pair<Boolean, String> validResult = validPriorityOverallValue(optimalValue, optCb.getAllSolutions());
+            if (!validResult.getFirst()) {
+                log.error("Priority-process pconstraint-step1 max/min valid expr&solver: {}",
+                        validResult.getSecond());
+                return Result.failed(
+                        "Priority-process pconstraint-step1 max/min valid expr&solver " + validResult.getSecond());
             }
+            log.info("Priority-process pconstraint-step1 max/min Optimal solution: {}",
+                    SolutionUtils.toSolutionString(optCb.getAllSolutions()));
+            log.info("Priority-process pconstraint-step1 max/min Optimal value for : {}", optimalValue);
 
-            PriorityRuleSchema schema = (PriorityRuleSchema) rule.getRawCode();
-            String attrCode = schema.getAttrCode();
-            if (attrCode == null || attrCode.isEmpty()) {
-                log.error("PriorityRuleSchema attrCode is empty for rule: {}", rule.getCode());
-                return Result.failed("PriorityRuleSchema attrCode is empty for rule: " + rule.getCode());
-            }
-
-            PriorityStrategy priorityStrategy = schema.getPriorityStrategy();
-
-            log.info("Priority-process pconstraint-step1 max/min for attrCode: {}", attrCode);
-
-            // 创建新的算法实例和模型
-            ConstraintAlgImpl optAlg = createConstraintAlg(module.getId(), module.getCode());
-            AlgCPModel optModel = new AlgCPModel();
-            optAlg.initModel(optModel, filteredCategory, isAttachRelax, confictedRelaxs, partConstraintFromReqs);
-            initModelByReq(partCatagoryReq, optAlg);
-            initModelByPriorityConstraints(partConstraintFromReqs, optAlg);
-            optAlg.addRelaxObjectFunction();
-
-            // 重新构建目标函数表达式（使用新的alg实例）
-            PriorityConstraint pConstraint = optAlg.queryPriorityConstraint(attrCode);
-            if (pConstraint == null) {
-                log.error("PriorityConstraint not found for attrCode: {}", attrCode);
-                return Result.failed("PriorityConstraint not found for attrCode: " + attrCode);
-            }
-            AlgCPLinearExpr objectiveExpr = pConstraint.getExpr();
-
-            if (priorityStrategy == PriorityStrategy.MAX) {
-                optModel.maximize(objectiveExpr);
-            } else {
-                optModel.minimize(objectiveExpr);
-            }
-            PriorityAttrValueImpl objValue = new PriorityAttrValueImpl();
-            objValue.setAttrCode(attrCode);
-            objValue.setPConstraint(pConstraint);
-            // 求解最优解
-            CpSolver optSolver = new CpSolver();
-            optSolver.getParameters().setNumSearchWorkers(1);
-            ModuleInstSolutionCallBack optCb = new ModuleInstSolutionCallBack(module, optAlg.getVars(),
-                    optAlg.getOtherVarMap(), optAlg, Arrays.asList(objValue));
-
-            log.info(" Priority-process pconstraint-step1 solver  models:\n");
-            optModel.printModelSummary();
-            CpSolverStatus optStatus = optSolver.solve(optModel.getCpModel(), optCb);
-
-            if (optStatus == CpSolverStatus.OPTIMAL || optStatus == CpSolverStatus.FEASIBLE) {
-                double optimalValue = optSolver.objectiveValue();
-                objValue.setOptimalValue(optimalValue);
-                optimalValues.add(objValue);
-                Pair<Boolean, String> validResult = validPriorityOverallValue(optimalValue, optCb.getAllSolutions());
-                if (!validResult.getFirst()) {
-                    log.error("Priority-process pconstraint-step1 max/min valid expr&solver: {}",
-                            validResult.getSecond());
-                    return Result.failed(
-                            "Priority-process pconstraint-step1 max/min valid expr&solver " + validResult.getSecond());
-                }
-                log.info("Priority-process pconstraint-step1 max/min Optimal solution: {}",
-                        SolutionUtils.toSolutionString(optCb.getAllSolutions()));
-                log.info("Priority-process pconstraint-step1 max/min Optimal value for  {}: {}", attrCode,
-                        optimalValue);
-
-            } else {
-                log.warn(
-                        "Priority-process pconstraint-step1 max/min Failed to find optimal solution for attrCode: {}, status: {}",
-                        attrCode, optStatus);
-            }
+        } else {
+            log.warn(
+                    "Priority-process pconstraint-step1 max/min Failed to find optimal solution, status: {}",
+                     optStatus);
         }
+
+
+
+
         log.info(" Priority-process pconstraint-step1 max/min finished........");
         // 步骤2：在保持高优先级目标接近最优的前提下，寻找多个解
-        if (!optimalValues.isEmpty()) {
+        if (  null != optimalValue) {
             SolverResult multiSolverResult = solveMultipleSolutionsWithPriorityConstraints(
                     module, filteredCategory, isAttachRelax, confictedRelaxs,
-                    partCatagoryReq, partConstraintFromReqs, optimalValues);
+                    partCatagoryReq, partConstraintFromReqs, optimalValue);
 
             if (!SolverResult.STATUS_OPTIMAL.equals(multiSolverResult.getSolverStatus())
                     && !SolverResult.STATUS_FEASIBLE.equals(multiSolverResult.getSolverStatus())) {
@@ -325,13 +287,13 @@ public class PartCategoryConstraintExecutorImpl {
      * @param confictedRelaxs        冲突松弛变量列表
      * @param partCatagoryReq        部件分类请求
      * @param partConstraintFromReqs 部件约束列表
-     * @param optimalValues          最优值列表
+     * @param optimalValue          最优值列表
      * @return 求解结果
      */
     private SolverResult solveMultipleSolutionsWithPriorityConstraints(Module module,
             PartCategory filteredCategory, boolean isAttachRelax, List<RelaxVar> confictedRelaxs,
             InferPartCategoryReq partCatagoryReq, List<ParConstraint> partConstraintFromReqs,
-            List<PriorityAttrValueImpl> optimalValues) {
+            double optimalValue) {
         SolverResult solverResult = new SolverResult();
 
         log.info(" Priority-process pconstraint-step2 greater/less starting........");
@@ -346,40 +308,13 @@ public class PartCategoryConstraintExecutorImpl {
 
         // 对每个最优值添加约束：保持高优先级目标在最优值的30%范围内
         double threshold = 0.3;
-        for (PriorityAttrValueImpl objValue : optimalValues) {
-            String attrCode = objValue.getAttrCode();
-            PriorityConstraint pConstraint = objValue.getPConstraint();
-            double optimalValue = objValue.getOptimalValue();
+        double maxValue = 1000;//optimalValue
+        PartAlgCPLinearExpr mergedExpr = multiAlg.queryMergerPriorityConstraintExpr();
+        multiModel.addLessOrEqual(mergedExpr, (long) maxValue);
+        log.info(
+                " Priority-process pconstraint-step2 greater/less Added Priority adjusted constraint: <= {}",
+                  (long) maxValue);
 
-            if (attrCode == null || attrCode.isEmpty() || pConstraint == null) {
-                log.error("Invalid PriorityAttrValueImpl, skipping: attrCode={}", attrCode);
-                solverResult.setSolverStatus("Invalid PriorityAttrValueImpl");
-                return solverResult;
-            }
-            // 重新构建表达式（使用新的alg实例）
-            PriorityConstraint multiPConstraint = multiAlg.queryPriorityConstraint(attrCode);
-            if (multiPConstraint == null) {
-                log.error("PriorityConstraint not found for attrCode: {}", attrCode);
-                solverResult.setSolverStatus("PriorityConstraint not found");
-                return solverResult;
-            }
-            AlgCPLinearExpr expr = multiPConstraint.getExpr();
-            PriorityStrategy priorityStrategy = objValue.getPriorityStrategy();
-            if (priorityStrategy == PriorityStrategy.MAX) {
-                double minValue = optimalValue * (1 - threshold);
-                multiModel.addGreaterOrEqual(expr, (long) minValue);
-                log.info(
-                        " Priority-process pconstraint-step2 greater/less Added Priority adjusted constraint: {} >= {}",
-                        attrCode, (long) minValue);
-            } else {
-                // double maxValue = optimalValue * (1 + threshold);
-                double maxValue = 1000;
-                multiModel.addLessOrEqual(expr, (long) maxValue);
-                log.info(
-                        " Priority-process pconstraint-step2 greater/less Added Priority adjusted constraint: {} <= {}",
-                        attrCode, (long) maxValue);
-            }
-        }
         log.info(" Priority-process pconstraint-step2 greater/less finished........");
         log.info(" Priority-process pconstraint-step3 solver starting........");
         // 求解多个解
@@ -391,7 +326,7 @@ public class PartCategoryConstraintExecutorImpl {
         // 获取最大解数量限制
         int maxSolutionNum = partCatagoryReq.getMaxSolutionNum() > 0 ? partCatagoryReq.getMaxSolutionNum() : 10;
         ModuleInstSolutionCallBack multiCb = new ModuleInstSolutionCallBack(module, multiAlg.getVars(),
-                multiAlg.getOtherVarMap(), multiAlg, optimalValues, maxSolutionNum);
+                multiAlg.getOtherVarMap(), multiAlg,  maxSolutionNum);
         CpSolverStatus multiStatus = multiSolver.solve(multiModel.getCpModel(), multiCb);
 
         solverResult.setSolverStatus(multiStatus.toString());

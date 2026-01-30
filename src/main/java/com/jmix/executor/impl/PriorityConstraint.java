@@ -96,14 +96,13 @@ public class PriorityConstraint {
      * @param exprVariables 表达式变量值列表
      * @return 计算结果
      */
-    public static double calcToString(PriorityConstraint pc, List<Integer> exprVariables) {
+    public static double calcToString(PartAlgCPLinearExpr pc, List<Integer> exprVariables) {
 
         // 调用公式计算机器计算 calcStr 的值 calcResult，基于 Apache Commons JEXL 3.4.0 实现
         String calcExprStr = instanceExprTemplate(pc.getExprTemplate(), exprVariables);
         String calcExprTemplateStr = instanceExprTemplateStr(pc.getExprTemplateStr(), exprVariables);
         double calcResult = ExpressionCalculator.calculate(calcExprStr);
-        log.info("Priority:PA_{}: {} = {}",
-                pc.getAttrCode(),
+        log.info("Priority:: {} = {}",
                 calcExprTemplateStr,
                 calcResult);
         return calcResult;

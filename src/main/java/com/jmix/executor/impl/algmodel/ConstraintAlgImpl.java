@@ -82,6 +82,14 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     protected Map<String, PriorityConstraint> priorityRuleMap = new HashMap<>();
 
     /**
+     * 获取所有的Priority合并后的表达式
+     * @return exr
+     */
+    public PartAlgCPLinearExpr	queryMergerPriorityConstraintExpr() {
+        return null;
+    }
+
+    /**
      * Update or create priority objective function for given attribute code.
      *
      * @param attrCode attribute code
@@ -806,6 +814,9 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         }
         return priorityRuleMap.get(attrCode);
     }
+
+
+
 
     /**
      * 创建参数变量
