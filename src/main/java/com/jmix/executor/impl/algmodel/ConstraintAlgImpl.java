@@ -8,6 +8,7 @@ import com.jmix.executor.bmodel.PartUtils;
 import com.jmix.executor.bmodel.attr.DynamicAttributerOption;
 import com.jmix.executor.bmodel.base.AssignType;
 import com.jmix.executor.bmodel.logic.PriorityRuleSchema;
+import com.jmix.executor.bmodel.logic.PriorityStrategy;
 import com.jmix.executor.bmodel.logic.PriorityType;
 import com.jmix.executor.bmodel.logic.RefProgObjSchema;
 import com.jmix.executor.bmodel.logic.Rule;
@@ -83,10 +84,20 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
     /**
      * 获取所有的Priority合并后的表达式
+     * 
      * @return exr
      */
-    public PartAlgCPLinearExpr	queryMergerPriorityConstraintExpr() {
-        return null;
+    public PartAlgCPLinearExpr queryMergerPriorityConstraintExpr() {
+        PartAlgCPLinearExpr mergedExpr = model.newPartLinearExpr("merged_priority_expr");
+        for (PriorityConstraint pc : priorityRuleMap.values()) {
+            Rule rule = pc.getRule();
+            PriorityRuleSchema schema = (PriorityRuleSchema) rule.getRawCode();
+            PriorityStrategy strategy = schema.getPriorityStrategy();
+            // int weight = schema.getWeight();
+            int coff = strategy == PriorityStrategy.MAX ? -1 : 1;
+            mergedExpr.addExpr(pc.getExpr(), coff);
+        }
+        return mergedExpr;
     }
 
     /**
@@ -814,9 +825,6 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         }
         return priorityRuleMap.get(attrCode);
     }
-
-
-
 
     /**
      * 创建参数变量

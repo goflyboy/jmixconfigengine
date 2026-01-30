@@ -3155,20 +3155,19 @@ TODO：怎么让生成的代码 符合编程规范？ ---不需要再调整？**
 设置权重就可以？ ***
    多个优选类的规则， 组成一个大的公式？**
 
+1、
 类： PriorityRuleSchema
 增加字段
   int   weight  = 1; 默认是1
 
+2、
 类PriorityRuleAnno 也增加
   weight = 1
 
 
-TODO: 要搞条 PriorityRuleAnno 
-     */
-    PriorityType type() default PriorityType.SELECT;
 
 
-在类增加ConstraintAlgImpl函数
+3、类  ConstraintAlgImpl 的 queryMergerPriorityConstraintExpr按下列实现
 
 PartAlgCPLinearExpr	queryMergerPriorityConstraintExpr() {
 	PartAlgCPLinearExpr mergeredExpr = model.newxxx
@@ -3179,14 +3178,19 @@ PartAlgCPLinearExpr	queryMergerPriorityConstraintExpr() {
 		 if (priorityStrategy == PriorityStrategy.MAX) {
                 coff = -1;//按负的处理
           } 
-		mergeredExpr.addExpr(pc.getExpr(),coff * weight); 
+		mergeredExpr.addExpr(pc.getExpr(),coff ); 
 
 	}
 	return mergeredExpr;
 }
 
-ModuleInst 去掉 priorityAttrValues
+4、ModuleInst 去掉 priorityAttrValues
 
-优化ModuleInstSolutionCallBack构造方法
+5、优化ModuleInstSolutionCallBack构造方法，调通使用的地方
 
 
+TODO：总体代码要优化一下？————solver?**  的 
+
+TODO: 要搞条 PriorityRuleAnno 
+     */
+    PriorityType type() default PriorityType.SELECT;

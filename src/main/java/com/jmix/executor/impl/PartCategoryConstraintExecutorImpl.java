@@ -146,7 +146,7 @@ public class PartCategoryConstraintExecutorImpl {
         // 可按需设置更多参数
         int maxSolutionNum = partCatagoryReq.getMaxSolutionNum() > 0 ? partCatagoryReq.getMaxSolutionNum() : 10;
         ModuleInstSolutionCallBack cb = new ModuleInstSolutionCallBack(module, alg.getVars(),
-                alg.getOtherVarMap(), null, null, maxSolutionNum);
+                alg.getOtherVarMap(), alg,  maxSolutionNum);
         CpSolverStatus status = solver.solve(alg.getModel().getCpModel(), cb);
 
         // 如果模型无效，调用ValidateCpModel获取详细错误信息
@@ -226,7 +226,7 @@ public class PartCategoryConstraintExecutorImpl {
         CpSolver optSolver = new CpSolver();
         optSolver.getParameters().setNumSearchWorkers(1);
         ModuleInstSolutionCallBack optCb = new ModuleInstSolutionCallBack(module, optAlg.getVars(),
-                optAlg.getOtherVarMap(), optAlg, priorityMergedExpr);
+                optAlg.getOtherVarMap(), optAlg);
 
         log.info(" Priority-process pconstraint-step1 solver  models:\n");
         optModel.printModelSummary();

@@ -91,6 +91,7 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
             ConstraintAlgImpl alg) {
         this(module, vars, otherVarMap);
         this.alg = alg;
+        this.priorityExpr = alg.queryMergerPriorityConstraintExpr();
     }
 
 
