@@ -11,6 +11,12 @@ import java.util.List;
 @Data
 public class SolverResult {
 
+    /**
+     * Solver status constants
+     */
+    public static final String STATUS_OPTIMAL = "OPTIMAL";
+    public static final String STATUS_FEASIBLE = "FEASIBLE";
+
     private List<ModuleInst> solutions = new ArrayList<>();
 
     private String solverStatus;

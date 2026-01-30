@@ -11,6 +11,7 @@ import com.jmix.executor.bmodel.logic.Rule;
 import com.jmix.executor.cmodel.ModuleInst;
 import com.jmix.executor.cmodel.ParaInst;
 import com.jmix.executor.cmodel.PartInst;
+import com.jmix.executor.cmodel.SolverResult;
 import com.jmix.executor.impl.algmodel.AlgCPLinearExpr;
 import com.jmix.executor.impl.algmodel.AlgCPModel;
 import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
@@ -294,73 +295,16 @@ public class PartCategoryConstraintExecutorImpl {
         log.info(" Priority-process pconstraint-step1 max/min finished........");
         // 步骤2：在保持高优先级目标接近最优的前提下，寻找多个解
         if (!optimalValues.isEmpty()) {
-            log.info(" Priority-process pconstraint-step2 greater/less starting........");
+            SolverResult multiSolverResult = solveMultipleSolutionsWithPriorityConstraints(
+                    module, filteredCategory, isAttachRelax, confictedRelaxs,
+                    partCatagoryReq, partConstraintFromReqs, optimalValues);
 
-            // 创建新的算法实例和模型
-            ConstraintAlgImpl multiAlg = createConstraintAlg(module.getId(), module.getCode());
-            AlgCPModel multiModel = new AlgCPModel();
-            multiAlg.initModel(multiModel, filteredCategory, isAttachRelax, confictedRelaxs, partConstraintFromReqs);
-            initModelByReq(partCatagoryReq, multiAlg);
-            initModelByPriorityConstraints(partConstraintFromReqs, multiAlg);
-            multiAlg.addRelaxObjectFunction();
-
-            // 对每个最优值添加约束：保持高优先级目标在最优值的30%范围内
-            double threshold = 0.3;
-            for (PriorityAttrValueImpl objValue : optimalValues) {
-                String attrCode = objValue.getAttrCode();
-                PriorityConstraint pConstraint = objValue.getPConstraint();
-                double optimalValue = objValue.getOptimalValue();
-
-                if (attrCode == null || attrCode.isEmpty() || pConstraint == null) {
-                    log.error("Invalid PriorityAttrValueImpl, skipping: attrCode={}", attrCode);
-                    return Result.failed("Invalid PriorityAttrValueImpl, skipping: attrCode=" + attrCode);
-                }
-                // 重新构建表达式（使用新的alg实例）
-                PriorityConstraint multiPConstraint = multiAlg.queryPriorityConstraint(attrCode);
-                if (multiPConstraint == null) {
-                    log.error("PriorityConstraint not found for attrCode: {}", attrCode);
-                    return Result.failed("PriorityConstraint not found for attrCode: " + attrCode);
-                }
-                AlgCPLinearExpr expr = multiPConstraint.getExpr();
-                PriorityStrategy priorityStrategy = objValue.getPriorityStrategy();
-                if (priorityStrategy == PriorityStrategy.MAX) {
-                    double minValue = optimalValue * (1 - threshold);
-                    multiModel.addGreaterOrEqual(expr, (long) minValue);
-                    log.info(
-                            " Priority-process pconstraint-step2 greater/less Added Priority adjusted constraint: {} >= {}",
-                            attrCode, (long) minValue);
-                } else {
-                    // double maxValue = optimalValue * (1 + threshold);
-                    double maxValue = 1000;
-                    multiModel.addLessOrEqual(expr, (long) maxValue);
-                    log.info(
-                            " Priority-process pconstraint-step2 greater/less Added Priority adjusted constraint: {} <= {}",
-                            attrCode, (long) maxValue);
-                }
-            }
-            log.info(" Priority-process pconstraint-step2 greater/less finished........");
-            log.info(" Priority-process pconstraint-step3 solver starting........");
-            // 求解多个解
-            CpSolver multiSolver = new CpSolver();
-            multiSolver.getParameters().setEnumerateAllSolutions(true);
-            multiSolver.getParameters().setNumSearchWorkers(1);
-            log.info(" Priority-process  pconstraint-step3 solver  models:\n");
-            multiModel.printModelSummary();
-            // 获取最大解数量限制
-            int maxSolutionNum = partCatagoryReq.getMaxSolutionNum() > 0 ? partCatagoryReq.getMaxSolutionNum() : 10;
-            ModuleInstSolutionCallBack multiCb = new ModuleInstSolutionCallBack(module, multiAlg.getVars(),
-                    multiAlg.getOtherVarMap(), multiAlg, optimalValues, maxSolutionNum);
-            CpSolverStatus multiStatus = multiSolver.solve(multiModel.getCpModel(), multiCb);
-
-            if (multiStatus == CpSolverStatus.OPTIMAL || multiStatus == CpSolverStatus.FEASIBLE) {
-                allSolutions.addAll(multiCb.getAllSolutions());
-                log.info(" Priority-process pconstraint-step3 solver Found {} solutions ", allSolutions.size());
-            } else {
-                log.warn(
-                        " Priority-process pconstraint-step3 solver Failed to find multiple solutions, status: {}",
-                        multiStatus);
+            if (!SolverResult.STATUS_OPTIMAL.equals(multiSolverResult.getSolverStatus())
+                    && !SolverResult.STATUS_FEASIBLE.equals(multiSolverResult.getSolverStatus())) {
+                return Result.failed("Failed to find multiple solutions: " + multiSolverResult.getSolverStatus());
             }
 
+            allSolutions.addAll(multiSolverResult.getSolutions());
         }
 
         // 步骤3：对解按优先级排序
@@ -370,6 +314,99 @@ public class PartCategoryConstraintExecutorImpl {
         }
         log.info(" Priority-process pconstraint-step3 solver finished........");
         return Result.success(allSolutions);
+    }
+
+    /**
+     * 步骤2：在保持高优先级目标接近最优的前提下，寻找多个解
+     * 
+     * @param module                 模块对象
+     * @param filteredCategory       过滤后的部件分类
+     * @param isAttachRelax          是否附加松弛变量
+     * @param confictedRelaxs        冲突松弛变量列表
+     * @param partCatagoryReq        部件分类请求
+     * @param partConstraintFromReqs 部件约束列表
+     * @param optimalValues          最优值列表
+     * @return 求解结果
+     */
+    private SolverResult solveMultipleSolutionsWithPriorityConstraints(Module module,
+            PartCategory filteredCategory, boolean isAttachRelax, List<RelaxVar> confictedRelaxs,
+            InferPartCategoryReq partCatagoryReq, List<ParConstraint> partConstraintFromReqs,
+            List<PriorityAttrValueImpl> optimalValues) {
+        SolverResult solverResult = new SolverResult();
+
+        log.info(" Priority-process pconstraint-step2 greater/less starting........");
+
+        // 创建新的算法实例和模型
+        ConstraintAlgImpl multiAlg = createConstraintAlg(module.getId(), module.getCode());
+        AlgCPModel multiModel = new AlgCPModel();
+        multiAlg.initModel(multiModel, filteredCategory, isAttachRelax, confictedRelaxs, partConstraintFromReqs);
+        initModelByReq(partCatagoryReq, multiAlg);
+        initModelByPriorityConstraints(partConstraintFromReqs, multiAlg);
+        multiAlg.addRelaxObjectFunction();
+
+        // 对每个最优值添加约束：保持高优先级目标在最优值的30%范围内
+        double threshold = 0.3;
+        for (PriorityAttrValueImpl objValue : optimalValues) {
+            String attrCode = objValue.getAttrCode();
+            PriorityConstraint pConstraint = objValue.getPConstraint();
+            double optimalValue = objValue.getOptimalValue();
+
+            if (attrCode == null || attrCode.isEmpty() || pConstraint == null) {
+                log.error("Invalid PriorityAttrValueImpl, skipping: attrCode={}", attrCode);
+                solverResult.setSolverStatus("Invalid PriorityAttrValueImpl");
+                return solverResult;
+            }
+            // 重新构建表达式（使用新的alg实例）
+            PriorityConstraint multiPConstraint = multiAlg.queryPriorityConstraint(attrCode);
+            if (multiPConstraint == null) {
+                log.error("PriorityConstraint not found for attrCode: {}", attrCode);
+                solverResult.setSolverStatus("PriorityConstraint not found");
+                return solverResult;
+            }
+            AlgCPLinearExpr expr = multiPConstraint.getExpr();
+            PriorityStrategy priorityStrategy = objValue.getPriorityStrategy();
+            if (priorityStrategy == PriorityStrategy.MAX) {
+                double minValue = optimalValue * (1 - threshold);
+                multiModel.addGreaterOrEqual(expr, (long) minValue);
+                log.info(
+                        " Priority-process pconstraint-step2 greater/less Added Priority adjusted constraint: {} >= {}",
+                        attrCode, (long) minValue);
+            } else {
+                // double maxValue = optimalValue * (1 + threshold);
+                double maxValue = 1000;
+                multiModel.addLessOrEqual(expr, (long) maxValue);
+                log.info(
+                        " Priority-process pconstraint-step2 greater/less Added Priority adjusted constraint: {} <= {}",
+                        attrCode, (long) maxValue);
+            }
+        }
+        log.info(" Priority-process pconstraint-step2 greater/less finished........");
+        log.info(" Priority-process pconstraint-step3 solver starting........");
+        // 求解多个解
+        CpSolver multiSolver = new CpSolver();
+        multiSolver.getParameters().setEnumerateAllSolutions(true);
+        multiSolver.getParameters().setNumSearchWorkers(1);
+        log.info(" Priority-process  pconstraint-step3 solver  models:\n");
+        multiModel.printModelSummary();
+        // 获取最大解数量限制
+        int maxSolutionNum = partCatagoryReq.getMaxSolutionNum() > 0 ? partCatagoryReq.getMaxSolutionNum() : 10;
+        ModuleInstSolutionCallBack multiCb = new ModuleInstSolutionCallBack(module, multiAlg.getVars(),
+                multiAlg.getOtherVarMap(), multiAlg, optimalValues, maxSolutionNum);
+        CpSolverStatus multiStatus = multiSolver.solve(multiModel.getCpModel(), multiCb);
+
+        solverResult.setSolverStatus(multiStatus.toString());
+
+        if (multiStatus == CpSolverStatus.OPTIMAL || multiStatus == CpSolverStatus.FEASIBLE) {
+            solverResult.getSolutions().addAll(multiCb.getAllSolutions());
+            log.info(" Priority-process pconstraint-step3 solver Found {} solutions ",
+                    solverResult.getSolutions().size());
+        } else {
+            log.warn(
+                    " Priority-process pconstraint-step3 solver Failed to find multiple solutions, status: {}",
+                    multiStatus);
+        }
+
+        return solverResult;
     }
 
     /**
