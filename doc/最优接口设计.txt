@@ -3194,3 +3194,6 @@ TODO：总体代码要优化一下？————solver?**  的
 TODO: 要搞条 PriorityRuleAnno 
      */
     PriorityType type() default PriorityType.SELECT;
+
+
+ (lastResult.isHasSearchMax()) {

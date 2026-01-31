@@ -79,15 +79,17 @@ public class PartCategoryConstraintExecutorImpl {
                 }
                 resolveAddPartConstraint(filteredCategory, partConstraintReq, partConstraintFromReqs);
             }
-
+            SolverResult sr = null;
             // 检查是否有优先级规则，如果有则使用分级求解
             if (filteredCategory.hasPriorityRule()) {
                 PartCategory mergedFilteredCategory = buildMergedFilteredCategory(originalCategory,
                         partConstraintFromReqs);
-                return solveWithPriorityConstraints(mergedFilteredCategory,
+                sr = solveWithPriorityConstraints(mergedFilteredCategory,
                         partCatagoryReq, partConstraintFromReqs);
+            } else {
+                sr = solveWithOutPriorityConstraints(filteredCategory, partCatagoryReq);
             }
-            return solveWithOutPriorityConstraints(filteredCategory, partCatagoryReq);
+            return Result.success(sr.getSolutions());
 
         } catch (Exception e) {
             log.error("Failed to process part category constraint", e);
@@ -102,11 +104,10 @@ public class PartCategoryConstraintExecutorImpl {
      * @param partCatagoryReq  部件分类请求
      * @return 求解结果
      */
-    private Result<List<ModuleInst>> solveWithOutPriorityConstraints(PartCategory filteredCategory,
-                                                                     InferPartCategoryReq partCatagoryReq) {
+    private SolverResult solveWithOutPriorityConstraints(PartCategory filteredCategory,
+                                                         InferPartCategoryReq partCatagoryReq) {
         log.info("no Priority-process starting........");
-        SolverResult result = invokerSolver(filteredCategory, partCatagoryReq, new ArrayList<>(), null);
-        return Result.success(result.getSolutions());
+        return invokerSolver(filteredCategory, partCatagoryReq, new ArrayList<>(), null);
     }
 
     private Pair<Boolean, String> validPriorityOverallValue(double solverValue, List<ModuleInst> exprValueSolutions) {
@@ -131,21 +132,99 @@ public class PartCategoryConstraintExecutorImpl {
         return Pair.of(result, sb.toString());
     }
 
-    private Result<List<ModuleInst>> solveWithPriorityConstraints(
+
+    // 主求解方法
+    private SolverResult solveWithPriorityConstraints(
             PartCategory filteredCategory, InferPartCategoryReq partCatagoryReq, List<ParConstraint> partConstraintFromReqs) {
-        log.info(" Priority-process pconstraint-step1 max/min starting........");
-        // 步骤1：对每个优先级规则优化求解最优解
-        SolverResult firstResult = invokerSolver(filteredCategory, partCatagoryReq, partConstraintFromReqs, null);
-        // 步骤2：在保持高优先级目标接近最优的前提下，寻找多个解
-        log.info(" Priority-process pconstraint-step2 to find multiple solutions starting........");
-        SolverResult secondResult = invokerSolver(filteredCategory, partCatagoryReq, partConstraintFromReqs, firstResult.getObjectiveValue());
-        return Result.success(secondResult.getSolutions());
+        log.info("Priority-process pconstraint-step1 max/min starting........");
+        // 步骤1：对每个优先级规则优化求解最优解  minimize(objecFun)
+        SolverResult result = invokerSolver(filteredCategory, partCatagoryReq, partConstraintFromReqs, null);
+
+        if (!result.hasSolution()) {
+            result.setMessage("Cannot find solution in first step");
+            return result;
+        }
+
+        // 步骤2：在保持高优先级目标接近最优的前提下，寻找多个解，objecFun <= ajustObjectValue(不断调整ajustObjectValue)
+        final int maxExecTimes = 5; // 最大执行次数,
+        final int availableSolutionNum = 5;//可行解的格式
+        final int minSolutionThreshold = 3; // 最少解数量阈值
+        int execTimes = 0;
+        double baseAdjustCoeff = 0.5; // 基础调整系数
+        double objectValue = result.getObjectiveValue();
+        boolean needIncreased = true; // 是否需要增加objectvalue
+        int needIncreasedTimes = 0;
+        do {
+            execTimes++;
+            SolverResult lastResult = result;
+            // 根据上一次求解结果动态调整策略
+            if (execTimes > 1) {
+                if (lastResult.isHasSearchMax()) {
+                    // objectValue设置太大，最优解都没有处理，系数需要往下调
+                    baseAdjustCoeff *= 0.7; // 降低调整幅度
+                    needIncreased = false;
+                    needIncreasedTimes = 0;
+                    log.info("Priority-process pconstraint-step2 Iteration {}: objective value too high, reducing adjustment coefficient to {}",
+                            execTimes, baseAdjustCoeff);
+                } else if (lastResult.getSolutions().size() < minSolutionThreshold) {
+                    // 解数量太少，objectValue设置太小，系数需要往上调
+                    needIncreasedTimes ++;
+                    baseAdjustCoeff *= 1.5 *  needIncreasedTimes;; // 增加调整幅度
+                    needIncreased = true;
+                    log.info("Priority-process pconstraint-step2 Iteration {}: too few solutions found, increasing adjustment coefficient to {}",
+                            execTimes, baseAdjustCoeff);
+                } else {
+                    log.info("xxxx");
+                    break;
+                }
+            }
+            // 根据上一次调整方向决定本次调整
+            if (!needIncreased) {
+                objectValue = getAdjustObjectValue(objectValue, -baseAdjustCoeff);
+            } else {
+                objectValue = getAdjustObjectValue(objectValue, baseAdjustCoeff);
+            }
+
+            log.info("Priority-process pconstraint-step2 Iteration {}: adjusting objective value to {}", execTimes, objectValue);
+            result = invokerSolver(filteredCategory, partCatagoryReq, partConstraintFromReqs, objectValue);
+
+        } while (execTimes < maxExecTimes
+                && result.getSolutions().size() <= availableSolutionNum);
+        result.setIterationTimes(execTimes);
+        return result;
     }
+
+    private double getAdjustObjectValue(double objectValue, double adjustCoeff) {
+        int cResult = Double.compare(objectValue, 0.0);
+        if (cResult < 0) {
+            // 对于负值，根据调整系数的正负来决定调整方向
+            if (adjustCoeff >= 0) {
+                // 正系数：减少绝对值（更接近0）
+                objectValue = objectValue * (1 - adjustCoeff);
+            } else {
+                // 负系数：增加绝对值（更远离0）
+                objectValue = objectValue * (1 + Math.abs(adjustCoeff));
+            }
+        } else if (cResult == 0) {
+            // 对于0值，根据调整系数设置起始值
+            objectValue = adjustCoeff;
+        } else {
+            // 对于正值，根据调整系数的正负来决定调整方向
+            if (adjustCoeff >= 0) {
+                // 正系数：增加值
+                objectValue = objectValue * (1 + adjustCoeff);
+            } else {
+                // 负系数：减少值
+                objectValue = objectValue * (1 - Math.abs(adjustCoeff));
+            }
+        }
+        return objectValue;
+    }
+
 
     private SolverResult invokerSolver(
             PartCategory filteredCategory, InferPartCategoryReq partCatagoryReq, List<ParConstraint> partConstraintFromReqs, Double adjustOptimalValue) {
-
-        log.info(" Priority-process pconstraint-step1 max/min starting........");
+        log.info("invokerSolver starting........");
         // 步骤1：对每个优先级规则优化求解最优解
         ConstraintAlgImpl optAlg = createConstraintAlg(module.getId(), module.getCode());
         AlgCPModel optModel = new AlgCPModel();
@@ -170,28 +249,28 @@ public class PartCategoryConstraintExecutorImpl {
         ModuleInstSolutionCallBack optCb = new ModuleInstSolutionCallBack(module, optAlg.getVars(),
                 optAlg.getOtherVarMap(), optAlg);
 
-        log.info(" Priority-process pconstraint-step1 solver  models:\n");
+        log.info("solver  models:\n");
         optModel.printModelSummary();
         CpSolverStatus optStatus = optSolver.solve(optModel.getCpModel(), optCb);
         sr.setSolutions(optCb.getAllSolutions());
         sr.setSolverStatus(optStatus.toString());
         if (optStatus == CpSolverStatus.OPTIMAL || optStatus == CpSolverStatus.FEASIBLE) {
             sr.setObjectiveValue(optSolver.objectiveValue());
-            log.info("Priority-process pconstraint-step1 max/min Optimal value for : {}", optSolver.objectiveValue());
+            log.info("Optimal value for : {}", optSolver.objectiveValue());
         } else {
-            log.error("Priority-process pconstraint-step1 solver, status : " + optStatus);
+            log.error("Failed to solver, status : " + optStatus);
             return sr;
         }
         if (hasPriorityRule && (adjustOptimalValue == null)) {
             Pair<Boolean, String> validResult = validPriorityOverallValue(sr.getObjectiveValue(), optCb.getAllSolutions());
             if (!validResult.getFirst()) {
-                String msg = "Priority-process pconstraint-step1 max/min valid expr&solver " + validResult.getSecond();
+                String msg = "Failed to valid expr&solver " + validResult.getSecond();
                 log.error(msg);
                 throw new AlgExecutorException(msg);
             }
             sortSolutionsByPriority(sr.getSolutions());
         }
-        log.info("Priority-process pconstraint-step1 max/min finished-Optimal solution: \n {}",
+        log.info("solutions: \n {}",
                 SolutionUtils.toSolutionString(sr.getSolutions()));
         return sr;
     }

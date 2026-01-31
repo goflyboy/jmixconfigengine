@@ -1,6 +1,7 @@
 package com.jmix.executor.cmodel;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.List;
  * 解决方案结果类
  */
 @Data
+@NoArgsConstructor
 public class SolverResult {
 
     /**
@@ -31,9 +33,13 @@ public class SolverResult {
 
     private int iterationTimes = 0;// 迭代次数
 
-    public SolverResult() {
+    /**
+     * 是否有解
+     * @return
+     */
+    public boolean hasSolution() {
+        return !solutions.isEmpty();
     }
-
     public List<ModuleInst> getSolutions() {
         return solutions;
     }
