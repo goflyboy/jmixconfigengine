@@ -180,12 +180,12 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
                 Result<List<ModuleInst>> r = Result.noSolution(toConfictMessage(confictedRelaxs));
 
                 // 最后一次solution的解
-                List<ModuleInst> solutions = rcResult.getSecond().getSolutionCallBack().getAllSolutions();
+                List<ModuleInst> solutions = rcResult.getSecond().getSolutionCallBack().getSolverResult().getSolutions();
                 r.setData(solutions);
                 return r;
             }
             // 执行后处理
-            List<ModuleInst> solutions = cb.getAllSolutions();
+            List<ModuleInst> solutions = cb.getSolverResult().getSolutions();
             solutions = executePostProcess(module, solutions);
 
             return Result.success(solutions);

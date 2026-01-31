@@ -40,8 +40,13 @@ public class SolverResult {
     public boolean hasSolution() {
         return !solutions.isEmpty();
     }
-    public List<ModuleInst> getSolutions() {
-        return solutions;
+
+    /**
+     * 添加解
+     * @param solu
+     */
+    public void addSolution(ModuleInst solu) {
+        this.solutions.add(solu);
     }
 
     @Override

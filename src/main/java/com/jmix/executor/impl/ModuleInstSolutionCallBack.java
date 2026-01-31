@@ -3,10 +3,7 @@ package com.jmix.executor.impl;
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.base.AssignType;
 import com.jmix.executor.bmodel.logic.PriorityType;
-import com.jmix.executor.cmodel.ModuleInst;
-import com.jmix.executor.cmodel.ParaInst;
-import com.jmix.executor.cmodel.PartInst;
-import com.jmix.executor.cmodel.PriorityAttrValue;
+import com.jmix.executor.cmodel.*;
 import com.jmix.executor.impl.algmodel.*;
 import com.jmix.executor.model.AlgLoaderException;
 
@@ -35,7 +32,7 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
 
     private final List<Var<?>> vars;
 
-    private final List<ModuleInst> allSolutions = new ArrayList<>();
+//    private final List<ModuleInst> allSolutions = new ArrayList<>();
 
     // 第几个解
     private int solutionIndex = 0;
@@ -56,6 +53,7 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
 
     private static final String OTHER_VARIABLES_MEMO_KEY = "OTHER_VARIABLES_MEMO";
 
+    private SolverResult solverResult = new SolverResult();
     /**
      * 构造函数
      * 
@@ -139,11 +137,13 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
         // 处理优先级值
         processPriorityValues(moduleInst);
 
-        allSolutions.add(moduleInst);
+        solverResult.addSolution(moduleInst);
 
         // 如果达到最大解数量限制，停止搜索
-        if (maxSolutionNum > 0 && allSolutions.size() >= maxSolutionNum) {
+        if (maxSolutionNum > 0 && solverResult.getSolutions().size() >= maxSolutionNum) {
             log.info("Reached maximum solution limit: {}, stopping search", maxSolutionNum);
+            solverResult.setHasSearchMax(true);
+            solverResult.setSearchMax(maxSolutionNum);
             stopSearch();
         }
     }
