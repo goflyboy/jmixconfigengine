@@ -81,6 +81,19 @@ public class PriorityMultiSolverTest {
         assertSoluContain(1, "parts=[sd1 Q:2, md1 Q:0]");
         assertSoluContain(2, "parts=[sd1 Q:1, md1 Q:1]");
     }
+    /**
+     * 用例3：测试点，解读2
+     * 输入：strReq = " Qty >=2 where Speed = 5400"
+     * 输出：sd1.qty=2
+     */
+    @Test
+    public void testCase31_QtyEqual2Speed5400() {
+        String strReq = " Qty=2 where Speed = 5400";
+        solve(strReq);
+        printSolu();
+//        assertSoluContain(1, "parts=[sd1 Q:2, md1 Q:0]");
+//        assertSoluContain(2, "parts=[sd1 Q:1, md1 Q:1]");
+    }
 
     /**
      * 用例4：测试点，解读2

@@ -5,9 +5,6 @@ import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartCategory;
 import com.jmix.executor.bmodel.attr.DynamicAttribute;
 import com.jmix.executor.bmodel.base.Pair;
-import com.jmix.executor.bmodel.logic.PriorityRuleSchema;
-import com.jmix.executor.bmodel.logic.PriorityStrategy;
-import com.jmix.executor.bmodel.logic.Rule;
 import com.jmix.executor.cmodel.ModuleInst;
 import com.jmix.executor.cmodel.ParaInst;
 import com.jmix.executor.cmodel.PartInst;
@@ -20,9 +17,7 @@ import com.google.ortools.sat.CpSolverStatus;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -168,9 +163,10 @@ public class PartCategoryConstraintExecutorImpl {
                             execTimes, baseAdjustCoeff);
                 } else if (lastResult.getSolutions().size() < minSolutionThreshold) {
                     // 解数量太少，objectValue设置太小，系数需要往上调
-                    needIncreasedTimes ++;
+                    needIncreasedTimes++;
 //                    baseAdjustCoeff *= 1.5 *  needIncreasedTimes;; // 增加调整幅度
-                    baseAdjustCoeff *= 3 *  needIncreasedTimes;; // 增加调整幅度
+                    baseAdjustCoeff *= 3 * needIncreasedTimes;
+                    ; // 增加调整幅度
                     needIncreased = true;
                     log.info("Priority-process pconstraint-step2 Iteration {}: too few solutions found, increasing adjustment coefficient to {}",
                             execTimes, baseAdjustCoeff);
@@ -185,7 +181,7 @@ public class PartCategoryConstraintExecutorImpl {
             } else {
                 objectValue = getAdjustObjectValue(objectValue, baseAdjustCoeff);
             }
-
+            objectValue = 82000;//TODO
             log.info("Priority-process pconstraint-step2 Iteration {}: adjusting objective value to {}", execTimes, objectValue);
             result = invokerSolver(filteredCategory, partCatagoryReq, partConstraintFromReqs, objectValue);
 
@@ -246,7 +242,8 @@ public class PartCategoryConstraintExecutorImpl {
         // 求解最优解
         CpSolver optSolver = new CpSolver();
         optSolver.getParameters().setNumSearchWorkers(1);
-
+        optSolver.getParameters().setEnumerateAllSolutions(true);
+        optSolver.getParameters().setMaxTimeInSeconds(10);
         ModuleInstSolutionCallBack optCb = new ModuleInstSolutionCallBack(module, optAlg.getVars(),
                 optAlg.getOtherVarMap(), optAlg);
 

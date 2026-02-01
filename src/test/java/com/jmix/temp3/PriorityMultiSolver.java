@@ -355,10 +355,10 @@ public class PriorityMultiSolver {
                 model.addGreaterOrEqual(expr, value);
                 break;
             case "=":
-                model.addEquality(expr.build(), value);
+                model.addEquality(expr, value);
                 break;
             case "<=":
-                model.addLessOrEqual(expr.build(), value);
+                model.addLessOrEqual(expr, value);
                 break;
         }
     }
