@@ -181,7 +181,7 @@ public class PartCategoryConstraintExecutorImpl {
             } else {
                 objectValue = getAdjustObjectValue(objectValue, baseAdjustCoeff);
             }
-            objectValue = 82000;//TODO
+            // objectValue = 82000;
             log.info("Priority-process pconstraint-step2 Iteration {}: adjusting objective value to {}", execTimes, objectValue);
             result = invokerSolver(filteredCategory, partCatagoryReq, partConstraintFromReqs, objectValue);
 

@@ -223,6 +223,8 @@ public class ModuleInst {
      * @param sb 字符串构建器
      */
     private void appendPriorityAttrValuesInfo(StringBuilder sb) {
+        sb.append(" PO:").append(priorityOverallValue);
+        sb.append(" PS:").append(prioritySortNo);
         if (priorityAttrValues == null || priorityAttrValues.isEmpty()) {
             return;
         }
@@ -240,8 +242,6 @@ public class ModuleInst {
             first = false;
         }
         sb.append(")");
-        sb.append(" PO:").append(priorityOverallValue);
-        sb.append(" PS:").append(prioritySortNo);
     }
 
     /**

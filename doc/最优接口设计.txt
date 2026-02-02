@@ -3197,3 +3197,8 @@ TODO: 要搞条 PriorityRuleAnno
 
 
  (lastResult.isHasSearchMax()) {
+
+
+2026-2-2：
+        private void applyPriorityRule(AlgCPModel model) {  怎么进一步封装的问题？
+Failed to process part category constraint: Cannot parse null string

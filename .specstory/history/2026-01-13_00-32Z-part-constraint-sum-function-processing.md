@@ -1290,20 +1290,20 @@ mvn test -Dtest=ComputerOptiSolutionTest#testUserSpecialRequirement3
 [INFO] -------------------------------------------------------
 [INFO]  T E S T S
 [INFO] -------------------------------------------------------
-[INFO] Running com.jmix.opti.base.ComputerOptiSolutionTest
+[INFO] Running com.jmix.opti.base.BaseOptiTest
 SLF4J(W): Class path contains multiple SLF4J providers.
 SLF4J(W): Found provider [ch.qos.logback.classic.spi.LogbackServiceProvider@752325ad]
 SLF4J(W): Found provider [org.slf4j.simple.SimpleServiceProvider@279fedbd]
 SLF4J(W): See https://www.slf4j.org/codes.html#multiple_bindings for an explanation.
 08:50:43.556 [main] INFO com.jmix.executor.impl.ModuleConstraintExecutorImpl -- Module constraint executor initialized
 SLF4J(I): Actual provider is of type [ch.qos.logback.classic.spi.LogbackServiceProvider@752325ad]
-08:50:43.566 [main] INFO com.jmix.tool.impl.ModuleGenneratorByAnno -- Detected inner class: com.jmix.opti.base.ComputerOptiSolutionTest$ComputerOptiSolutionConstraint, parent class: com.jmix.opti.base.ComputerOptiSolutionTest
+08:50:43.566 [main] INFO com.jmix.tool.impl.ModuleGenneratorByAnno -- Detected inner class: com.jmix.opti.base.BaseOptiTest$ComputerOptiSolutionConstraint, parent class: com.jmix.opti.base.BaseOptiTest
 08:50:43.867 [main] INFO com.jmix.tool.impl.ModuleGenneratorByAnno -- Rule 'rule1' added to PartCategory 'drive'
 08:50:43.867 [main] INFO com.jmix.tool.impl.ModuleGenneratorByAnno -- Rule 'rule2' added to PartCategory 'drive'
 08:50:43.876 [main] INFO com.jmix.executor.impl.util.ModuleUtils -- Serializing Module to JSON file: D:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\opti\base\tempResource\ComputerOptiSolution.base.json
 08:50:43.940 [main] INFO com.jmix.executor.impl.util.ModuleUtils -- Successfully serialized Module to JSON file: D:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\opti\base\tempResource\ComputerOptiSolution.base.json
 08:50:43.941 [main] INFO com.jmix.tool.impl.ModuleGenneratorByAnno -- Module saved to: D:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\opti\base\tempResource\ComputerOptiSolution.base.json
-08:50:43.942 [main] INFO com.jmix.executor.impl.ModuleAlgClassLoader -- Loaded class from local project: com.jmix.opti.base.ComputerOptiSolutionTest$ComputerOptiSolutionConstraint
+08:50:43.942 [main] INFO com.jmix.executor.impl.ModuleAlgClassLoader -- Loaded class from local project: com.jmix.opti.base.BaseOptiTest$ComputerOptiSolutionConstraint
 08:50:43.943 [main] INFO com.jmix.executor.impl.ModuleConstraintExecutorImpl -- Added modules: 1
 08:50:44.792 [main] INFO com.jmix.executor.impl.PartCategoryConstraintExecutorImpl -- Priority-orginal aparts: Size:6 Codes: md1,md2,md3,sd1,sd2,sd3
 08:50:44.793 [main] INFO com.jmix.tool.impl.FilterExpressionExecutor -- Starting filter expression execution, object count: 0, filter expression: Speed like %5400%
@@ -1373,7 +1373,7 @@ SLF4J(I): Actual provider is of type [ch.qos.logback.classic.spi.LogbackServiceP
 08:50:44.897 [main] INFO com.jmix.executor.impl.algmodel.ConstraintAlgImpl -- Built priority constraint for attrCode: capacityWeight, ruleCode: rule2, strategy: MAX, type: SELECT
 08:50:44.897 [main] INFO com.jmix.executor.impl.algmodel.ConstraintAlgImpl -- Built 2 rule methods from module rules
 08:50:44.897 [main] INFO com.jmix.executor.impl.algmodel.AlgCPModel -- relax:rule1 relax is not attached,setCurrentRelaxVarName
-08:50:44.897 [main] INFO com.jmix.opti.base.ComputerOptiSolutionTest -- xxx
+08:50:44.897 [main] INFO com.jmix.opti.base.BaseOptiTest -- xxx
 08:50:44.897 [main] INFO com.jmix.executor.impl.algmodel.ConstraintAlgImpl -- Built priority constraint expressions: exprStr=md1.S + sd1.S + sd2.S, exprTemplate=%d + %d + %d
 08:50:44.898 [main] INFO com.jmix.executor.impl.algmodel.ConstraintAlgImpl -- Sum formula: md1.S + sd1.S + sd2.S
 08:50:44.898 [main] INFO com.jmix.executor.impl.algmodel.AlgCPModel -- relax: -----addLessOrEqual
@@ -1419,7 +1419,7 @@ Solutions-Detail:
 08:50:45.036 [main] INFO com.jmix.executor.impl.algmodel.ConstraintAlgImpl -- Built priority constraint for attrCode: capacityWeight, ruleCode: rule2, strategy: MAX, type: SELECT
 08:50:45.036 [main] INFO com.jmix.executor.impl.algmodel.ConstraintAlgImpl -- Built 2 rule methods from module rules
 08:50:45.036 [main] INFO com.jmix.executor.impl.algmodel.AlgCPModel -- relax:rule1 relax is not attached,setCurrentRelaxVarName
-08:50:45.036 [main] INFO com.jmix.opti.base.ComputerOptiSolutionTest -- xxx
+08:50:45.036 [main] INFO com.jmix.opti.base.BaseOptiTest -- xxx
 08:50:45.036 [main] INFO com.jmix.executor.impl.algmodel.ConstraintAlgImpl -- Built priority constraint expressions: exprStr=md1.S + sd1.S + sd2.S, exprTemplate=%d + %d + %d
 08:50:45.036 [main] INFO com.jmix.executor.impl.algmodel.ConstraintAlgImpl -- Sum formula: md1.S + sd1.S + sd2.S
 08:50:45.036 [main] INFO com.jmix.executor.impl.algmodel.AlgCPModel -- relax: -----addLessOrEqual
@@ -1472,11 +1472,11 @@ Solutions-Detail:
 null
 
 08:50:45.065 [main] INFO com.jmix.executor.impl.ModuleConstraintExecutorImpl -- Module constraint executor finalized
-[ERROR] Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 1.655 s &lt;&lt;&lt; FAILURE! -- in com.jmix.opti.base.ComputerOptiSolutionTest
-[ERROR] com.jmix.opti.base.ComputerOptiSolutionTest.testUserSpecialRequirement3 -- Time elapsed: 1.550 s &lt;&lt;&lt; FAILURE!
+[ERROR] Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 1.655 s &lt;&lt;&lt; FAILURE! -- in com.jmix.opti.base.BaseOptiTest
+[ERROR] com.jmix.opti.base.BaseOptiTest.testUserSpecialRequirement3 -- Time elapsed: 1.550 s &lt;&lt;&lt; FAILURE!
 java.lang.AssertionError: Solution count mismatch, expected: 3, actual: 4
 	at com.jmix.coretest.ResultAssert.assertSolutionSizeEqual(ResultAssert.java:43)
-	at com.jmix.opti.base.ComputerOptiSolutionTest.testUserSpecialRequirement3(ComputerOptiSolutionTest.java:220)
+	at com.jmix.opti.base.BaseOptiTest.testUserSpecialRequirement3(ComputerOptiSolutionTest.java:220)
 	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
 	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
 	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
@@ -3331,13 +3331,13 @@ null
 
 07:59:18.048 [main] INFO com.jmix.executor.impl.ModuleConstraintExecutorImpl -- Module constraint executor finalized
 07:59:18.058 [main] INFO com.jmix.executor.impl.ModuleConstraintExecutorImpl -- Module constraint executor initialized
-07:59:18.058 [main] INFO com.jmix.tool.impl.ModuleGenneratorByAnno -- Detected inner class: com.jmix.opti.base.ComputerOptiSolutionTest$ComputerOptiSolutionConstraint, parent class: com.jmix.opti.base.ComputerOptiSolutionTest
+07:59:18.058 [main] INFO com.jmix.tool.impl.ModuleGenneratorByAnno -- Detected inner class: com.jmix.opti.base.BaseOptiTest$ComputerOptiSolutionConstraint, parent class: com.jmix.opti.base.BaseOptiTest
 07:59:18.065 [main] INFO com.jmix.tool.impl.ModuleGenneratorByAnno -- Rule 'rule2' added to PartCategory 'drive'
 07:59:18.065 [main] INFO com.jmix.tool.impl.ModuleGenneratorByAnno -- Rule 'rule1' added to PartCategory 'drive'
 07:59:18.065 [main] INFO com.jmix.executor.impl.util.ModuleUtils -- Serializing Module to JSON file: D:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\opti\base\tempResource\ComputerOptiSolution.base.json
 07:59:18.071 [main] INFO com.jmix.executor.impl.util.ModuleUtils -- Successfully serialized Module to JSON file: D:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\opti\base\tempResource\ComputerOptiSolution.base.json
 07:59:18.071 [main] INFO com.jmix.tool.impl.ModuleGenneratorByAnno -- Module saved to: D:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\opti\base\tempResource\ComputerOptiSolution.base.json
-07:59:18.071 [main] INFO com.jmix.executor.impl.ModuleAlgClassLoader -- Loaded class from local project: com.jmix.opti.base.ComputerOptiSolutionTest$ComputerOptiSolutionConstraint
+07:59:18.071 [main] INFO com.jmix.executor.impl.ModuleAlgClassLoader -- Loaded class from local project: com.jmix.opti.base.BaseOptiTest$ComputerOptiSolutionConstraint
 07:59:18.071 [main] INFO com.jmix.executor.impl.ModuleConstraintExecutorImpl -- Added modules: 1
 07:59:18.072 [main] INFO com.jmix.executor.impl.PartCategoryConstraintExecutorImpl -- Priority-orginal aparts: Size:6 Codes: md1,md2,md3,sd1,sd2,sd3
 07:59:18.074 [main] INFO com.jmix.executor.impl.util.FilterExpressionExecutor -- Starting filter expression execution, object count: 1, filter expression: Speed like %5400%
@@ -3511,13 +3511,13 @@ null
 
 07:59:18.093 [main] INFO com.jmix.executor.impl.ModuleConstraintExecutorImpl -- Module constraint executor finalized
 07:59:18.097 [main] INFO com.jmix.executor.impl.ModuleConstraintExecutorImpl -- Module constraint executor initialized
-07:59:18.097 [main] INFO com.jmix.tool.impl.ModuleGenneratorByAnno -- Detected inner class: com.jmix.opti.base.ComputerOptiSolutionTest$ComputerOptiSolutionConstraint, parent class: com.jmix.opti.base.ComputerOptiSolutionTest
+07:59:18.097 [main] INFO com.jmix.tool.impl.ModuleGenneratorByAnno -- Detected inner class: com.jmix.opti.base.BaseOptiTest$ComputerOptiSolutionConstraint, parent class: com.jmix.opti.base.BaseOptiTest
 07:59:18.103 [main] INFO com.jmix.tool.impl.ModuleGenneratorByAnno -- Rule 'rule2' added to PartCategory 'drive'
 07:59:18.103 [main] INFO com.jmix.tool.impl.ModuleGenneratorByAnno -- Rule 'rule1' added to PartCategory 'drive'
 07:59:18.104 [main] INFO com.jmix.executor.impl.util.ModuleUtils -- Serializing Module to JSON file: D:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\opti\base\tempResource\ComputerOptiSolution.base.json
 07:59:18.107 [main] INFO com.jmix.executor.impl.util.ModuleUtils -- Successfully serialized Module to JSON file: D:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\opti\base\tempResource\ComputerOptiSolution.base.json
 07:59:18.107 [main] INFO com.jmix.tool.impl.ModuleGenneratorByAnno -- Module saved to: D:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\opti\base\tempResource\ComputerOptiSolution.base.json
-07:59:18.108 [main] INFO com.jmix.executor.impl.ModuleAlgClassLoader -- Loaded class from local project: com.jmix.opti.base.ComputerOptiSolutionTest$ComputerOptiSolutionConstraint
+07:59:18.108 [main] INFO com.jmix.executor.impl.ModuleAlgClassLoader -- Loaded class from local project: com.jmix.opti.base.BaseOptiTest$ComputerOptiSolutionConstraint
 07:59:18.108 [main] INFO com.jmix.executor.impl.ModuleConstraintExecutorImpl -- Added modules: 1
 07:59:18.108 [main] INFO com.jmix.executor.impl.PartCategoryConstraintExecutorImpl -- Priority-orginal aparts: Size:6 Codes: md1,md2,md3,sd1,sd2,sd3
 07:59:18.108 [main] INFO com.jmix.executor.impl.util.FilterExpressionExecutor -- Starting filter expression execution, object count: 0, filter expression: Speed like %5400%
@@ -3981,7 +3981,7 @@ Solutions-Detail:
 null
 
 07:59:18.178 [main] INFO com.jmix.executor.impl.ModuleConstraintExecutorImpl -- Module constraint executor finalized
-[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.424 s -- in com.jmix.opti.base.ComputerOptiSolutionTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.424 s -- in com.jmix.opti.base.BaseOptiTest
 [INFO] 
 [INFO] Results:
 [INFO] 
@@ -4331,15 +4331,15 @@ mvn test -Dtest=ComputerOptiSolutionTest#testUserSpecialRequirementConstantAttr 
 ```
 
 ```
-[ERROR] Unable to create test class 'com.jmix.opti.base.ComputerOptiSolutionTest'
+[ERROR] Unable to create test class 'com.jmix.opti.base.BaseOptiTest'
 [ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.2.5:test (default-test) on project configengine: 
 [ERROR] 
 [ERROR] Please refer to D:\01.code\mygithub\jmixconfigengine\target\surefire-reports for the individual test results.
 [ERROR] Please refer to dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.
 [ERROR] There was an error in the forked process
-[ERROR] Unable to create test class 'com.jmix.opti.base.ComputerOptiSolutionTest'
+[ERROR] Unable to create test class 'com.jmix.opti.base.BaseOptiTest'
 [ERROR] org.apache.maven.surefire.booter.SurefireBooterForkException: There was an error in the forked process
-[ERROR] Unable to create test class 'com.jmix.opti.base.ComputerOptiSolutionTest'
+[ERROR] Unable to create test class 'com.jmix.opti.base.BaseOptiTest'
 [ERROR] 	at org.apache.maven.plugin.surefire.booterclient.ForkStarter.fork(ForkStarter.java:628)
 [ERROR] 	at org.apache.maven.plugin.surefire.booterclient.ForkStarter.run(ForkStarter.java:285)
 [ERROR] 	at org.apache.maven.plugin.surefire.booterclient.ForkStarter.run(ForkStarter.java:250)
@@ -4506,15 +4506,15 @@ mvn test -Dtest=ComputerOptiSolutionTest#testUserSpecialRequirementConstantAttr
 [INFO] -------------------------------------------------------
 [INFO]  T E S T S
 [INFO] -------------------------------------------------------
-[INFO] Running com.jmix.opti.base.ComputerOptiSolutionTest
+[INFO] Running com.jmix.opti.base.BaseOptiTest
 2026-01-14 08:07:28.423 [main] INFO  c.j.e.i.ModuleConstraintExecutorImpl - Module constraint executor initialized
-2026-01-14 08:07:28.432 [main] INFO  c.j.tool.impl.ModuleGenneratorByAnno - Detected inner class: com.jmix.opti.base.ComputerOptiSolutionTest$ComputerOptiSolutionConstraint, parent class: com.jmix.opti.base.ComputerOptiSolutionTest
+2026-01-14 08:07:28.432 [main] INFO  c.j.tool.impl.ModuleGenneratorByAnno - Detected inner class: com.jmix.opti.base.BaseOptiTest$ComputerOptiSolutionConstraint, parent class: com.jmix.opti.base.BaseOptiTest
 2026-01-14 08:07:28.647 [main] INFO  c.j.tool.impl.ModuleGenneratorByAnno - Rule 'rule1' added to PartCategory 'drive'
 2026-01-14 08:07:28.648 [main] INFO  c.j.tool.impl.ModuleGenneratorByAnno - Rule 'rule2' added to PartCategory 'drive'
 2026-01-14 08:07:28.654 [main] INFO  c.j.executor.impl.util.ModuleUtils - Serializing Module to JSON file: D:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\opti\base\tempResource\ComputerOptiSolution.base.json
 2026-01-14 08:07:28.696 [main] INFO  c.j.executor.impl.util.ModuleUtils - Successfully serialized Module to JSON file: D:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\opti\base\tempResource\ComputerOptiSolution.base.json
 2026-01-14 08:07:28.696 [main] INFO  c.j.tool.impl.ModuleGenneratorByAnno - Module saved to: D:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\opti\base\tempResource\ComputerOptiSolution.base.json
-2026-01-14 08:07:28.696 [main] INFO  c.j.e.impl.ModuleAlgClassLoader - Loaded class from local project: com.jmix.opti.base.ComputerOptiSolutionTest$ComputerOptiSolutionConstraint
+2026-01-14 08:07:28.696 [main] INFO  c.j.e.impl.ModuleAlgClassLoader - Loaded class from local project: com.jmix.opti.base.BaseOptiTest$ComputerOptiSolutionConstraint
 2026-01-14 08:07:28.696 [main] INFO  c.j.e.i.ModuleConstraintExecutorImpl - Added modules: 1
 2026-01-14 08:07:29.341 [main] INFO  c.j.e.i.PartCategoryConstraintExecutorImpl - Priority-orginal aparts: Size:6 Codes: md1,md2,md3,sd1,sd2,sd3
 2026-01-14 08:07:29.352 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Starting filter expression execution, object count: 0, filter expression: Speed=5400
@@ -4697,7 +4697,7 @@ Solutions-Detail:
 null
 
 2026-01-14 08:07:29.633 [main] INFO  c.j.e.i.ModuleConstraintExecutorImpl - Module constraint executor finalized
-[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.456 s -- in com.jmix.opti.base.ComputerOptiSolutionTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.456 s -- in com.jmix.opti.base.BaseOptiTest
 [INFO] 
 [INFO] Results:
 [INFO] 
@@ -4758,13 +4758,13 @@ if (Test-Path target\test-logs\test.log) { Get-Content target\test-logs\test.log
 
 ```
 2026-01-14 08:07:28.423 [main] INFO  c.j.e.i.ModuleConstraintExecutorImpl - Module constraint executor initialized
-2026-01-14 08:07:28.432 [main] INFO  c.j.tool.impl.ModuleGenneratorByAnno - Detected inner class: com.jmix.opti.base.ComputerOptiSolutionTest$ComputerOptiSolutionConstraint, parent class: com.jmix.opti.base.ComputerOptiSolutionTest
+2026-01-14 08:07:28.432 [main] INFO  c.j.tool.impl.ModuleGenneratorByAnno - Detected inner class: com.jmix.opti.base.BaseOptiTest$ComputerOptiSolutionConstraint, parent class: com.jmix.opti.base.BaseOptiTest
 2026-01-14 08:07:28.647 [main] INFO  c.j.tool.impl.ModuleGenneratorByAnno - Rule 'rule1' added to PartCategory 'drive'
 2026-01-14 08:07:28.648 [main] INFO  c.j.tool.impl.ModuleGenneratorByAnno - Rule 'rule2' added to PartCategory 'drive'
 2026-01-14 08:07:28.654 [main] INFO  c.j.executor.impl.util.ModuleUtils - Serializing Module to JSON file: D:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\opti\base\tempResource\ComputerOptiSolution.base.json
 2026-01-14 08:07:28.696 [main] INFO  c.j.executor.impl.util.ModuleUtils - Successfully serialized Module to JSON file: D:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\opti\base\tempResource\ComputerOptiSolution.base.json
 2026-01-14 08:07:28.696 [main] INFO  c.j.tool.impl.ModuleGenneratorByAnno - Module saved to: D:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\opti\base\tempResource\ComputerOptiSolution.base.json
-2026-01-14 08:07:28.696 [main] INFO  c.j.e.impl.ModuleAlgClassLoader - Loaded class from local project: com.jmix.opti.base.ComputerOptiSolutionTest$ComputerOptiSolutionConstraint
+2026-01-14 08:07:28.696 [main] INFO  c.j.e.impl.ModuleAlgClassLoader - Loaded class from local project: com.jmix.opti.base.BaseOptiTest$ComputerOptiSolutionConstraint
 2026-01-14 08:07:28.696 [main] INFO  c.j.e.i.ModuleConstraintExecutorImpl - Added modules: 1
 2026-01-14 08:07:29.341 [main] INFO  c.j.e.i.PartCategoryConstraintExecutorImpl - Priority-orginal aparts: Size:6 Codes: md1,md2,md3,sd1,sd2,sd3
 2026-01-14 08:07:29.352 [main] INFO  c.j.e.i.u.FilterExpressionExecutor - Starting filter expression execution, object count: 0, filter expression: Speed=5400

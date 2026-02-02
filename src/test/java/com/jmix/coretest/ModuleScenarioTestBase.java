@@ -16,6 +16,7 @@ import com.jmix.executor.cmodel.ParaInst;
 import com.jmix.executor.model.PartConstraintReq;
 import com.jmix.executor.cmodel.PartInst;
 import com.jmix.executor.model.Result;
+import com.jmix.temp3.core.Solution;
 import com.jmix.tool.bbuilder.ModuleGenneratorByAnno;
 import com.jmix.tool.impl.ModulePacker;
 
@@ -33,6 +34,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * 模块场景测试基类
@@ -66,7 +70,7 @@ public abstract class ModuleScenarioTestBase {
     /**
      * 解决方案列表
      */
-    private List<ModuleInst> solutions;
+    private List<ModuleInst> solutions = new ArrayList<>();
 
     /**
      * 推理结果
@@ -689,5 +693,50 @@ public abstract class ModuleScenarioTestBase {
         setResult(result);
         setSolutions(result.getData());
         return getSolutions();
+    }
+
+
+    private void assertSoluSizeEqual(int size) {
+        assertEquals(size, solutions.size(), "Solutions size should be " + size);
+    }
+
+    /**
+     * 比较Solution的值
+     *
+     * @param index
+     * @param expect
+     */
+    public  void assertSoluContain(int index, String expect) {
+        assertSoluContain(index, expect,true);
+    }
+    private void assertSoluContain(int index, String expect, boolean isSimple) {
+        String msg = "Solution at index " + index + " should match expected string";
+        assertTrue(solutions.size() >= index, msg);
+        assertStringContains(solutions.get(index - 1).toShortString(isSimple),
+                expect,
+                msg);
+    }
+
+    private void assertStringContains(String real, String expect, String msg) {
+        boolean result = real.contains(expect);
+        if (!result) {
+            assertEquals(expect, real, "contains is false," + msg);
+        }
+    }
+
+    private void assertSoluContain(String expect) {
+        assertSoluContain(expect,true);
+    }
+
+    private void assertSoluContain(String expect, boolean isSimple) {
+        boolean isContain = false;
+        for (ModuleInst solu : result.getData()) {
+            if (solu.toShortString(isSimple).contains(expect)) {
+                isContain = true;
+                break;
+            }
+        }
+        assertTrue(isContain,
+                "Solution contain " + expect);
     }
 }
