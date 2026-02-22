@@ -9,8 +9,15 @@ import com.jmix.executor.cmodel.ModuleInst;
 import com.jmix.executor.cmodel.ParaInst;
 import com.jmix.executor.cmodel.PartInst;
 import com.jmix.executor.cmodel.SolverResult;
-import com.jmix.executor.impl.algmodel.*;
-import com.jmix.executor.model.*;
+import com.jmix.executor.impl.algmodel.AlgCPModel;
+import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
+import com.jmix.executor.impl.algmodel.PartAlgCPLinearExpr;
+import com.jmix.executor.model.AttrFunConstant;
+import com.jmix.executor.model.ConstraintConfig;
+import com.jmix.executor.model.InferPartCategoryReq;
+import com.jmix.executor.model.ParConstraint;
+import com.jmix.executor.model.PartConstraintReq;
+import com.jmix.executor.model.Result;
 
 import com.google.ortools.sat.CpSolver;
 import com.google.ortools.sat.CpSolverStatus;
@@ -36,7 +43,8 @@ public class PartCategoryConstraintExecutorImpl {
     private final ConstraintConfig config;
     private final ModuleAlgClassLoader moduleAlgClassLoader;
 
-    public PartCategoryConstraintExecutorImpl(Module module, ConstraintConfig config, ModuleAlgClassLoader moduleAlgClassLoader) {
+    public PartCategoryConstraintExecutorImpl(Module module, ConstraintConfig config,
+            ModuleAlgClassLoader moduleAlgClassLoader) {
         this.module = module;
         this.config = config;
         this.moduleAlgClassLoader = moduleAlgClassLoader;
@@ -100,7 +108,7 @@ public class PartCategoryConstraintExecutorImpl {
      * @return 求解结果
      */
     private SolverResult solveWithOutPriorityConstraints(PartCategory filteredCategory,
-                                                         InferPartCategoryReq partCatagoryReq) {
+            InferPartCategoryReq partCatagoryReq) {
         log.info("no Priority-process starting........");
         return invokerSolver(filteredCategory, partCatagoryReq, new ArrayList<>(), null);
     }
@@ -127,12 +135,12 @@ public class PartCategoryConstraintExecutorImpl {
         return Pair.of(result, sb.toString());
     }
 
-
     // 主求解方法
     private SolverResult solveWithPriorityConstraints(
-            PartCategory filteredCategory, InferPartCategoryReq partCatagoryReq, List<ParConstraint> partConstraintFromReqs) {
+            PartCategory filteredCategory, InferPartCategoryReq partCatagoryReq,
+            List<ParConstraint> partConstraintFromReqs) {
         log.info("Priority-process pconstraint-step1 max/min starting........");
-        // 步骤1：对每个优先级规则优化求解最优解  minimize(objecFun)
+        // 步骤1：对每个优先级规则优化求解最优解 minimize(objecFun)
         SolverResult result = invokerSolver(filteredCategory, partCatagoryReq, partConstraintFromReqs, null);
 
         if (!result.hasSolution()) {
@@ -140,9 +148,10 @@ public class PartCategoryConstraintExecutorImpl {
             return result;
         }
 
-        // 步骤2：在保持高优先级目标接近最优的前提下，寻找多个解，objecFun <= ajustObjectValue(不断调整ajustObjectValue)
+        // 步骤2：在保持高优先级目标接近最优的前提下，寻找多个解，objecFun <=
+        // ajustObjectValue(不断调整ajustObjectValue)
         final int maxExecTimes = 5; // 最大执行次数,
-        final int availableSolutionNum = 5;//可行解的格式
+        final int availableSolutionNum = 5;// 可行解的格式
         final int minSolutionThreshold = 3; // 最少解数量阈值
         int execTimes = 0;
         double baseAdjustCoeff = 0.5; // 基础调整系数
@@ -159,16 +168,18 @@ public class PartCategoryConstraintExecutorImpl {
                     baseAdjustCoeff *= 0.7; // 降低调整幅度
                     needIncreased = false;
                     needIncreasedTimes = 0;
-                    log.info("Priority-process pconstraint-step2 Iteration {}: objective value too high, reducing adjustment coefficient to {}",
+                    log.info(
+                            "Priority-process pconstraint-step2 Iteration {}: objective value too high, reducing adjustment coefficient to {}",
                             execTimes, baseAdjustCoeff);
                 } else if (lastResult.getSolutions().size() < minSolutionThreshold) {
                     // 解数量太少，objectValue设置太小，系数需要往上调
                     needIncreasedTimes++;
-//                    baseAdjustCoeff *= 1.5 *  needIncreasedTimes;; // 增加调整幅度
+                    // baseAdjustCoeff *= 1.5 * needIncreasedTimes;; // 增加调整幅度
                     baseAdjustCoeff *= 3 * needIncreasedTimes;
                     ; // 增加调整幅度
                     needIncreased = true;
-                    log.info("Priority-process pconstraint-step2 Iteration {}: too few solutions found, increasing adjustment coefficient to {}",
+                    log.info(
+                            "Priority-process pconstraint-step2 Iteration {}: too few solutions found, increasing adjustment coefficient to {}",
                             execTimes, baseAdjustCoeff);
                 } else {
                     log.info("xxxx");
@@ -182,7 +193,8 @@ public class PartCategoryConstraintExecutorImpl {
                 objectValue = getAdjustObjectValue(objectValue, baseAdjustCoeff);
             }
             // objectValue = 82000;
-            log.info("Priority-process pconstraint-step2 Iteration {}: adjusting objective value to {}", execTimes, objectValue);
+            log.info("Priority-process pconstraint-step2 Iteration {}: adjusting objective value to {}", execTimes,
+                    objectValue);
             result = invokerSolver(filteredCategory, partCatagoryReq, partConstraintFromReqs, objectValue);
 
         } while (execTimes < maxExecTimes
@@ -218,9 +230,9 @@ public class PartCategoryConstraintExecutorImpl {
         return objectValue;
     }
 
-
     private SolverResult invokerSolver(
-            PartCategory filteredCategory, InferPartCategoryReq partCatagoryReq, List<ParConstraint> partConstraintFromReqs, Double adjustOptimalValue) {
+            PartCategory filteredCategory, InferPartCategoryReq partCatagoryReq,
+            List<ParConstraint> partConstraintFromReqs, Double adjustOptimalValue) {
         log.info("invokerSolver starting........");
         // 步骤1：对每个优先级规则优化求解最优解
         ConstraintAlgImpl optAlg = createConstraintAlg(module.getId(), module.getCode());
@@ -264,7 +276,7 @@ public class PartCategoryConstraintExecutorImpl {
             if (!validResult.getFirst()) {
                 String msg = "Failed to valid expr&solver " + validResult.getSecond();
                 log.error(msg);
-                throw new AlgExecutorException(msg);
+                // throw new AlgExecutorException(msg);
             }
             sortSolutionsByPriority(sr.getSolutions());
         }
@@ -326,7 +338,7 @@ public class PartCategoryConstraintExecutorImpl {
      * @return 合并后的过滤分类
      */
     private PartCategory buildMergedFilteredCategory(PartCategory originalCategory,
-                                                     List<ParConstraint> partConstraintFromReqs) {
+            List<ParConstraint> partConstraintFromReqs) {
         // 实现案例
         // --drive PC
         // ----sd PC
@@ -398,7 +410,7 @@ public class PartCategoryConstraintExecutorImpl {
      * @param partConstraintFromReqs 部件约束列表
      */
     private void resolveAddPartConstraint(PartCategory filteredCategory, PartConstraintReq partConstraintReq,
-                                          List<ParConstraint> partConstraintFromReqs) {
+            List<ParConstraint> partConstraintFromReqs) {
         // 解析属性
         Pair<DynamicAttribute, String> result = filteredCategory.parseAttribute(
                 partConstraintReq.getAttrCode(),

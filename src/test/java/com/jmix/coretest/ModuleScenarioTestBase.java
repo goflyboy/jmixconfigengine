@@ -1,9 +1,15 @@
 package com.jmix.coretest;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.jmix.executor.ModuleConstraintExecutor;
 import com.jmix.executor.bmodel.IPart;
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.para.Para;
+import com.jmix.executor.cmodel.ModuleInst;
+import com.jmix.executor.cmodel.ParaInst;
+import com.jmix.executor.cmodel.PartInst;
 import com.jmix.executor.impl.ModuleConstraintExecutorImpl;
 import com.jmix.executor.impl.SolutionUtils;
 import com.jmix.executor.impl.util.CommHelper;
@@ -11,12 +17,8 @@ import com.jmix.executor.impl.util.ParaTypeHandler;
 import com.jmix.executor.model.AlgLoaderException;
 import com.jmix.executor.model.ConstraintConfig;
 import com.jmix.executor.model.InferParasReq;
-import com.jmix.executor.cmodel.ModuleInst;
-import com.jmix.executor.cmodel.ParaInst;
 import com.jmix.executor.model.PartConstraintReq;
-import com.jmix.executor.cmodel.PartInst;
 import com.jmix.executor.model.Result;
-import com.jmix.temp3.core.Solution;
 import com.jmix.tool.bbuilder.ModuleGenneratorByAnno;
 import com.jmix.tool.impl.ModulePacker;
 
@@ -34,9 +36,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * 模块场景测试基类
@@ -695,7 +694,6 @@ public abstract class ModuleScenarioTestBase {
         return getSolutions();
     }
 
-
     private void assertSoluSizeEqual(int size) {
         assertEquals(size, solutions.size(), "Solutions size should be " + size);
     }
@@ -706,9 +704,10 @@ public abstract class ModuleScenarioTestBase {
      * @param index
      * @param expect
      */
-    public  void assertSoluContain(int index, String expect) {
-        assertSoluContain(index, expect,true);
+    public void assertSoluContain(int index, String expect) {
+        assertSoluContain(index, expect, true);
     }
+
     private void assertSoluContain(int index, String expect, boolean isSimple) {
         String msg = "Solution at index " + index + " should match expected string";
         assertTrue(solutions.size() >= index, msg);
@@ -724,8 +723,8 @@ public abstract class ModuleScenarioTestBase {
         }
     }
 
-    private void assertSoluContain(String expect) {
-        assertSoluContain(expect,true);
+    protected void assertSoluContain(String expect) {
+        assertSoluContain(expect, true);
     }
 
     private void assertSoluContain(String expect, boolean isSimple) {

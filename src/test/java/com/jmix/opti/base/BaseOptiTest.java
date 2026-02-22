@@ -271,7 +271,18 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
     public void testCase0_CapacityGreaterEqual6Speed5400() {
         inferRecommend("drive", "drive:sum.Capacity >=6 where Speed = 5400");
         printSimpleSolutions();
-        assertSoluContain(1, "parts=[sd1 Q:2, md1 Q:0]");
+        assertSoluContain(1, "md1(0*),sd1(Q:2,H:0,S:1)");
+        assertSoluContain("md1(Q:3,H:0,S:1),sd1(Q:1,H:0,S:1)");
+    }
+
+    /**
+     * 验证 Capacity >=6 where Speed = 5400 用例的预期解
+     * 解1：sd1(Q:2) - 使用2块5400转固态硬盘
+     * 解2：sd1(Q:1),md1(Q:3) - 固态硬盘1块 + 机械硬盘3块（增配低速率容量）
+     */
+    private void assertCapacity6Speed5400Solutions() {
+        assertSoluContain(1, "md1(0*),sd1(Q:2,H:0,S:1)");
+        assertSoluContain("md1(Q:3,H:0,S:1),sd1(Q:1,H:0,S:1)");
     }
 
     // 要求5400速率的固态硬盘2块
