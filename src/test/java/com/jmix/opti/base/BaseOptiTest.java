@@ -11,10 +11,8 @@ import com.jmix.executor.impl.algmodel.AlgCPLinearExpr;
 import com.jmix.executor.impl.algmodel.AlgCPModel;
 import com.jmix.executor.impl.algmodel.PartAlgCPLinearExpr;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
-import com.jmix.tool.bbuilder.anno.DAttrAnno1;
 import com.jmix.tool.bbuilder.anno.DAttrAnno2;
 import com.jmix.tool.bbuilder.anno.DAttrAnno3;
-import com.jmix.tool.bbuilder.anno.DAttrAnno4;
 import com.jmix.tool.bbuilder.anno.DAttrInherit;
 import com.jmix.tool.bbuilder.anno.ModuleAnno;
 import com.jmix.tool.bbuilder.anno.ParaAnno;
@@ -34,7 +32,7 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
 
     // ---------------模型的定义start----------------------------------------
     @ModuleAnno(id = 123L)
-    static public class ComputerOptiSolutionConstraint extends ConstraintAlgImplTestBase {
+    static public class BaseOptiConstraint extends ConstraintAlgImplTestBase {
         // 硬盘部件分类定义--严格按层级结构定义（顺序很重要），部件的attrs也要按定义的顺序来
         @PartAnno(code = "drive")
         @DAttrAnno2(code = "Speed", dynAttrType = DynamicAttributeType.E_STRING, optionExtSchema = "StringUnit", options = {
@@ -47,6 +45,8 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
         @DAttrAnno3(code = "Capacity", optionExtSchema = "IntegerUnit", options = { "Capacity_1T:1:T",
                 "Capacity_2T:2:T",
                 "Capacity_3T:3:T",
+                "Capacity_6T:6:T",
+                "Capacity_9T:9:T",
                 "Capacity_4T:4:T" }, instType = 0)
         private PartCategoryVar drive;
 
@@ -61,15 +61,15 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
         private PartCategoryVar md;
 
         // 固态硬盘实例1
-        @PartAnno(fatherCode = "sd", attrs = { "5400", "3"  })
+        @PartAnno(fatherCode = "sd", attrs = { "5400", "3" })
         private PartVar sd1;
 
         // 固态硬盘实例2
-        @PartAnno(fatherCode = "sd", attrs = { "7200", "3"  })
+        @PartAnno(fatherCode = "sd", attrs = { "7200", "6" })
         private PartVar sd2;
 
         // 固态硬盘实例3
-        @PartAnno(fatherCode = "sd", attrs = { "9000", "3"  })
+        @PartAnno(fatherCode = "sd", attrs = { "9000", "9" })
         private PartVar sd3;
 
         // 机械硬盘实例1
@@ -77,18 +77,18 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
         private PartVar md1;
 
         // 机械硬盘实例2
-        @PartAnno(fatherCode = "md", attrs = { "7200", "2"  })
+        @PartAnno(fatherCode = "md", attrs = { "7200", "2" })
         private PartVar md2;
 
         // 机械硬盘实例3
-        @PartAnno(fatherCode = "md", attrs = { "9000", "3"  })
+        @PartAnno(fatherCode = "md", attrs = { "9000", "3" })
         private PartVar md3;
 
         @ParaAnno(fatherCode = "drive", type = ParaType.INTEGER, assignType = AssignType.INPUT)
-        private ParaVar sumCapacity;// 输入参数
+        private ParaVar driveSumCapacity;// 输入参数
 
         @ParaAnno(fatherCode = "drive", type = ParaType.INTEGER, assignType = AssignType.INPUT)
-        private ParaVar sumQuantity; //输入参数
+        private ParaVar driveSumQuantity; // 输入参数
 
         // proRule1:固态硬盘必须配置同一种，并且最多配置2块
         @CodeRuleAnno(fatherCode = "drive", normalNaturalCode = "固态硬盘必须配置同一种，并且最多配置2块")
@@ -136,8 +136,8 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
             PartAlgCPLinearExpr mechTotalCapacity = sum4Quantity("Capacity", "fatherCode=md");
             // 如果是容量需求
             // if ("Capacity".equals(req.getAttrCode())) {
-            if (sumCapacity.getIsHasInputed()) {
-                int requiredCapacity = sumCapacity.getInputValue();
+            if (driveSumCapacity.getIsHasInputed()) {
+                int requiredCapacity = driveSumCapacity.getInputValue();
                 // 创建固态硬盘是否足够的布尔变量
                 BoolVar ssSufficient = model.newBoolVar(
                         "ssSufficient");
@@ -190,7 +190,7 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
                 PartAlgCPLinearExpr mechTotalQty = sum4Quantity("fatherCode=md");
 
                 // int requiredQty = Integer.parseInt(req.getAttrValue());
-                int requiredQty = sumQuantity.getInputValue();
+                int requiredQty = driveSumQuantity.getInputValue();
                 // 创建固态硬盘是否足够的布尔变量
                 BoolVar ssSufficientQty = (BoolVar) model.newBoolVar(
                         "ssSufficientQty");
@@ -225,7 +225,7 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
                 // 2. 过度配置惩罚
                 objectiveExpr.addExpr(excessQyExpr, 500); // 惩罚过度配置
 
-                model.setObjectExpr(objectiveExpr); //分minimize/adddGreaterxx
+                model.setObjectExpr(objectiveExpr); // 分minimize/adddGreaterxx
                 // model.minimize(objectiveExpr); // 设置目标函数为最小化（因为SSD有负权重）
                 updatePriorityObjectFuntion("Capacity", objectiveExpr);
             }
@@ -235,7 +235,7 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
     // ---------------模型的定义end----------------------------------------
 
     public BaseOptiTest() {
-        super(ComputerOptiSolutionConstraint.class);
+        super(BaseOptiConstraint.class);
     }
 
     // 要求5400速率的硬盘2块
@@ -245,9 +245,9 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
         inferRecommend("drive", "drive:sum.Quantity ==2 where Speed=5400");
         // Print solutions for debugging
         printSimpleSolutions();
-        assertSoluContain(1,"md1(0*),sd1(Q:2,H:0,S:1)");
-        assertSoluContain(2,"md1(Q:1,H:0,S:1),sd1(Q:1,H:0,S:1)");
-        assertSoluContain(3,"md1(Q:2,H:0,S:1),sd1(0*)");
+        assertSoluContain(1, "md1(0*),sd1(Q:2,H:0,S:1)");
+        assertSoluContain(2, "md1(Q:1,H:0,S:1),sd1(Q:1,H:0,S:1)");
+        assertSoluContain(3, "md1(Q:2,H:0,S:1),sd1(0*)");
 
         // Req:
         // drive:sum.Quantity ==2 where Speed=5400
@@ -260,6 +260,7 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
         // proRule2-固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量
         // objfun 1*(-100*3*sd1.Q_1 + 1*1*md1.Q_1 + 500*(1*(1*sd1.Q_1 + 1*md1.Q_1) - 2))
     }
+
     // 用例0： 测试点，解读1
     // 输入：
     // strReq = " Capacity >=6 where Speed = 5400"
@@ -269,7 +270,7 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
     // ...
     @Test
     public void testCase0_CapacityGreaterEqual6Speed5400() {
-        inferRecommend("drive","drive:sum.Capacity >=6 where Speed = 5400");
+        inferRecommend("drive", "drive:sum.Capacity >=6 where Speed = 5400");
         printSimpleSolutions();
         assertSoluContain(1, "parts=[sd1 Q:2, md1 Q:0]");
     }

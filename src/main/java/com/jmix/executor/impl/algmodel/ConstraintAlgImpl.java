@@ -83,6 +83,11 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     protected Map<String, PriorityConstraint> priorityRuleMap = new HashMap<>();
 
     /**
+     * 当前模块
+     */
+    protected IModule currentModule;
+
+    /**
      * 是否有优先类规则
      * 
      * @return exr
@@ -90,6 +95,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
     public boolean hasPriorityRule() {
         return !priorityRuleMap.isEmpty();
     }
+
     /**
      * 获取所有的Priority合并后的表达式
      *
@@ -247,17 +253,18 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             if (pt == null) {
                 continue;
             }
-            String paraCode = "sum" + pt.getSumAttrCode();
-            try {
-                ParaVar pVar = this.getParaVar(paraCode);
-                if (pVar != null) {
-                    pVar.setInputValue(pt.getLeftValue());
-                    pVar.setIsHasInputed(Boolean.TRUE);
-                    log.info("Set input variable {} = {}", paraCode, pt.getLeftValue());
-                }
-            } catch (AlgLoaderException e) {
-                log.warn("ParaVar not found for input variable: {}", paraCode);
-                // continue to next
+            String ontoCode = pt.getFilteredCategory().getCode();
+            String paraCode = ontoCode + "Sum" + pt.getSumAttrCode();
+
+            ParaVar pVar = this.getParaVar(paraCode);
+            if (pVar != null) {
+                pVar.setInputValue(pt.getLeftValue());
+                pVar.setIsHasInputed(Boolean.TRUE);
+                log.info("Set input variable {} = {}", paraCode, pt.getLeftValue());
+            } else {
+                String msg = "ParaVar not found for input variable: " + paraCode;
+                log.error(msg);
+                throw new AlgLoaderException(msg);
             }
         }
     }

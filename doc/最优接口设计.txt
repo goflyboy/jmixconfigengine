@@ -3234,3 +3234,6 @@ Failed to process part category constraint: Cannot parse null string
   CpSolver solver = new CpSolver();
         CpSolverStatus status = solver.solve(model);
 确认结果是否正确
+
+
+         updatePriorityObjectFuntion("Capacity", objectiveExpr);
