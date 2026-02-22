@@ -1,5 +1,7 @@
 package com.jmix.executor.bmodel;
 
+import com.jmix.executor.bmodel.logic.Rule;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
@@ -126,6 +128,27 @@ public class ModuleBase extends Onto {
             allParts.addAll(partCategory.getAllParts());
         }
         return allParts;
+    }
+
+    /**
+     * 获取所有规则列表（包括子分类中的规则）
+     * 递归收集所有子分类中的规则
+     * 
+     * @return 所有规则列表
+     */
+    @JsonIgnore
+    public List<Rule> getAllRules() {
+        List<Rule> allRules = new ArrayList<>();
+        // 添加当前模块的规则
+        List<Rule> rules = getRules();
+        if (rules != null) {
+            allRules.addAll(rules);
+        }
+        // 递归收集所有子分类中的规则
+        for (PartCategory partCategory : partCategorys) {
+            allRules.addAll(partCategory.getAllRules());
+        }
+        return allRules;
     }
 
     /**

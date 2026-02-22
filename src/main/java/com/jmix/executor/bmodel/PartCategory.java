@@ -432,29 +432,6 @@ public class PartCategory extends ModuleBase implements IModule, IPart {
     }
 
     /**
-     * 获取部件列表
-     * 
-     * @return 部件列表（包括子部件和子分类）
-     */
-    @JsonIgnore
-    @Override
-    public List<IPart> getAllParts() {
-        return super.getAllParts();
-    }
-
-    /**
-     * 获取原子部件列表
-     * 递归收集所有子分类中的原子部件
-     * 
-     * @return 原子部件列表（partType为ATOMIC的部件）
-     */
-    @JsonIgnore
-    @Override
-    public List<Part> getAtomicParts() {
-        return super.getAtomicParts();
-    }
-
-    /**
      * 获取原子部件的短字符串表示
      * 格式：Size:xx Codes: code1,code2,....（最多MAX_DISPLAY_CODES个代码）
      * 

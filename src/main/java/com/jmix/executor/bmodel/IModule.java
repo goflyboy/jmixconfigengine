@@ -37,6 +37,14 @@ public interface IModule {
     List<Rule> getRules();
 
     /**
+     * 获取所有规则列表（包括子分类中的规则）
+     * 递归收集所有子分类中的规则
+     * 
+     * @return 所有规则列表
+     */
+    List<Rule> getAllRules();
+
+    /**
      * 获取参数列表
      * 
      * @return 参数列表

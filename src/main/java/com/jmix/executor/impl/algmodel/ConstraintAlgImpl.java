@@ -324,7 +324,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @throws AlgLoaderException 异常
      */
     private void buildRuleMethods() {
-        if (module == null || module.getRules() == null) {
+        if (module == null || module.getAllRules() == null) {
             return;
         }
 
@@ -338,7 +338,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         }
 
         // 根据module.getRules来构建ruleMethods
-        for (Rule rule : module.getRules()) {
+        for (Rule rule : module.getAllRules()) {
             String ruleCode = rule.getCode();
             Method method = allMethods.get(ruleCode);
             if (method != null) {
