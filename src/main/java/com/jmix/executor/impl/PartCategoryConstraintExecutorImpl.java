@@ -278,8 +278,8 @@ public class PartCategoryConstraintExecutorImpl {
                 log.error(msg);
                 // throw new AlgExecutorException(msg);
             }
-            sortSolutionsByPriority(sr.getSolutions());
         }
+        sortSolutionsByPriority(sr.getSolutions());
         log.info("solutions: \n {}",
                 SolutionUtils.toSolutionString(sr.getSolutions()));
         return sr;
@@ -287,7 +287,7 @@ public class PartCategoryConstraintExecutorImpl {
 
     private void sortSolutionsByPriority(List<ModuleInst> solutions) {
         // 根据 priorityOverallValue 进行排序（降序，值越大优先级越高）
-        solutions.sort((a, b) -> Double.compare(b.getPriorityOverallValue(), a.getPriorityOverallValue()));
+        solutions.sort((a, b) -> -Double.compare(b.getPriorityOverallValue(), a.getPriorityOverallValue()));
 
         // 对 prioritySortNo 进行赋值
         for (int i = 0; i < solutions.size(); i++) {

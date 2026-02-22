@@ -5,6 +5,7 @@ import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.LinearExpr;
 import com.google.ortools.sat.LinearExprBuilder;
 
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.AbstractMap;
@@ -18,6 +19,7 @@ import java.util.Map;
  * 用于跟踪构建线性表达式时的所有信息，便于日志记录和调试
  */
 @Slf4j
+@Data
 public class AlgCPLinearExpr {
 
     private LinearExprBuilder builder;

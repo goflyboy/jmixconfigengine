@@ -163,7 +163,7 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
                 objectiveExpr.addExpr(mechTotalCapacity, 1);
 
                 // 3. 惩罚过度配置（重要！）
-                PartAlgCPLinearExpr totalCapacityExpr = sum4Selected("Capacity", "");
+                PartAlgCPLinearExpr totalCapacityExpr = sum4Selected("Capacity", "").name("totalCapacityExpr");
 
                 // 创建过度配置变量约束：excessCapacity = totalCapacity - requiredCapacity
                 PartAlgCPLinearExpr tExpr = model.newPartLinearExpr("excessCapacityExpr");
@@ -172,12 +172,9 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
                 // 2. 过度配置惩罚
                 objectiveExpr.addExpr(tExpr, 500); // 惩罚过度配置
 
-                // 4. 惩罚使用多个零件（鼓励简洁配置）
+                // 4. 惩罚使用多.个零件（鼓励简洁配置）
                 // 总零件数量惩罚
-                PartAlgCPLinearExpr totalPartsExpr = model.newPartLinearExpr("Total_Parts");
-                for (PartVar pv : partVars) {
-                    totalPartsExpr.addTerm(pv.qty, 1);
-                }
+                PartAlgCPLinearExpr totalPartsExpr = sum4Quantity("").name("totalPartsExpr");
 
                 objectiveExpr.addExpr(totalPartsExpr, 500); // 零件数量惩罚
                 model.setObjectExpr(objectiveExpr);
@@ -275,14 +272,12 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
         assertSoluContain("md1(Q:3,H:0,S:1),sd1(Q:1,H:0,S:1)");
     }
 
-    /**
-     * 验证 Capacity >=6 where Speed = 5400 用例的预期解
-     * 解1：sd1(Q:2) - 使用2块5400转固态硬盘
-     * 解2：sd1(Q:1),md1(Q:3) - 固态硬盘1块 + 机械硬盘3块（增配低速率容量）
-     */
-    private void assertCapacity6Speed5400Solutions() {
+    @Test
+    public void testCase1_CapacityGreaterEqual5Speed5400() {
+        inferRecommend("drive", "drive:sum.Capacity >=5 where Speed = 5400");
+        printSimpleSolutions();
         assertSoluContain(1, "md1(0*),sd1(Q:2,H:0,S:1)");
-        assertSoluContain("md1(Q:3,H:0,S:1),sd1(Q:1,H:0,S:1)");
+        assertSoluContain("md1(Q:2,H:0,S:1),sd1(Q:1,H:0,S:1)");
     }
 
     // 要求5400速率的固态硬盘2块

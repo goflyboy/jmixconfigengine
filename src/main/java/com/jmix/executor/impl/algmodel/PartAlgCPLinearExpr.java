@@ -105,6 +105,17 @@ public class PartAlgCPLinearExpr extends AlgCPLinearExpr {
     }
 
     /**
+     * 设置名称
+     * 
+     * @param name
+     * @return
+     */
+    public PartAlgCPLinearExpr name(String name) {
+        this.setName(name);
+        return this;
+    }
+
+    /**
      * Add a part term with explicit varName (e.g. "S" or "Q").
      */
     public void addTerm(PartVar partVar, IntVar var, long coefficient, String varName) {
