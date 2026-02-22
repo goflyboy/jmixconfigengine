@@ -125,5 +125,28 @@ public class PartAlgCPLinearExprTest {
         assertEquals("100 + 500*(11*(1*P1.Q_%d + 3*P2.Q_%d + 5 - 30*P3.Q_%d))", expr12.getExprTemplateStr());
         assertEquals("P1,P2,P3", expr12.getPartTermsStr());
     }
+
+    @Test
+    public void testAbs() {
+        // prepare PartVars with test bases
+        PartVar pv1 = ofPart("P1");
+        PartVar pv2 = ofPart("P2");
+
+        // P1.Q + 3*P2.Q + 5
+        PartAlgCPLinearExpr expr1 = new PartAlgCPLinearExpr("expr1");
+        expr1.addTerm(pv1, pv1.getQty(), 1);
+        expr1.addTerm(pv2, pv2.getQty(), 3);
+        expr1.addConstant(5);
+        log.info(expr1.toDetailString());
+        // |P1.Q + 3*P2.Q + 5|
+
+        PartAlgCPLinearExpr absexpr = new PartAlgCPLinearExpr("absexpr11");
+        absexpr.addAbsExpr(expr1, model);
+
+        assertEquals("|1*P1.Q + 3*P2.Q + 5|", expr1.getExprStr());
+        assertEquals("|1*%d + 3*%d + 5|", expr1.getExprTemplate());
+        assertEquals("|1*P1.Q_%d + 3*P2.Q_%d + 5|", expr1.getExprTemplateStr());
+
+    }
     // TODO 是有其它场景
 }

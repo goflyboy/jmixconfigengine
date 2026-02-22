@@ -217,4 +217,47 @@ public class PartAlgCPLinearExpr extends AlgCPLinearExpr {
         }
     }
 
+    private void addAbsExpr(PartAlgCPLinearExpr expr) {
+        // 合并所有 termStrs 为一个整体，然后添加绝对值符号
+        String combinedStr = joinWithSigns(expr.getTermStrs());
+        String combinedTemplate = joinWithSigns(expr.getTermTemplates());
+        String combinedTemplateStr = joinWithSigns(expr.getTermTemplateStrs());
+
+        // 清空并添加带绝对值符号的单一项
+        expr.getTermStrs().clear();
+        expr.getTermStrs().add("|" + combinedStr + "|");
+
+        expr.getTermTemplates().clear();
+        expr.getTermTemplates().add("|" + combinedTemplate + "|");
+
+        expr.getTermTemplateStrs().clear();
+        expr.getTermTemplateStrs().add("|" + combinedTemplateStr + "|");
+    }
+
+    /**
+     * 在约束模型中添加绝对值约束。
+     * 创建一个新的变量表示绝对值结果，并添加约束确保该变量等于传入表达式的绝对值。
+     *
+     * @param expr  要计算绝对值的表达式
+     * @param model 约束模型
+     * @return 表示绝对值结果的 IntVar 变量
+     */
+    public void addAbsExpr(PartAlgCPLinearExpr expr, AlgCPModel model) {
+        // 首先修改字符串表示为绝对值形式
+        addAbsExpr(expr);
+
+        // 创建变量表示 |expr|
+        // 假设表达式值范围在 [-100, 100]，所以绝对值范围是 [0, 100]
+        IntVar absVar = model.newIntVar(0, 100000, "abs_" + expr.getName());
+
+        // 获取表达式的 LinearExpr
+        // LinearExpr exprLinear = expr.build();
+
+        // 添加绝对值约束: absVar >= expr 且 absVar >= -expr
+        // 这确保 absVar = |expr|
+        model.addGreaterOrEqual(absVar, expr);
+        model.addGreaterOrEqual(absVar, AlgCPLinearExpr.term(expr, -1));
+        super.add(absVar);
+    }
+
 }

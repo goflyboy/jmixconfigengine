@@ -3202,3 +3202,35 @@ TODO: 要搞条 PriorityRuleAnno
 2026-2-2：
         private void applyPriorityRule(AlgCPModel model) {  怎么进一步封装的问题？
 Failed to process part category constraint: Cannot parse null string
+
+
+
+2026-2-22：
+
+
+请按下列设计实现absExpr，如下：
+1、在类PartAlgCPLinearExpr添加函数： 
+    public void addAbsExpr(PartAlgCPLinearExpr expr,AlgCPModel model) {
+		//大概实现
+        // 2. 创建变量表示 |a-b|
+        IntVar exprVar = model.newIntVar(0, 100, "absVar_"+expr.getName());
+        // 绝对值约束：absDiff >= |a-b| 
+        model.addGreaterOrEqual(exprVar, expr);           // exprVar >= a-b
+        model.addGreaterOrEqual(exprVar, AlgCPLinearExpr .term(expr, -1));  // exprVar >= -(a-b)
+
+		...
+	}
+        // 2. 创建变量表示 |a-b|
+        IntVar absDiff = model.newIntVar(0, 100, "|a-b|");
+        
+
+
+
+2、测试类 PartAlgCPLinearExprTest测试用例testAbs，请调通他
+
+3、在单独创建一个测试用例PartAlgCPLinearExprSysTest，对addAbsExpr测试
+  需要创建model 
+ 调用求解器？
+  CpSolver solver = new CpSolver();
+        CpSolverStatus status = solver.solve(model);
+确认结果是否正确

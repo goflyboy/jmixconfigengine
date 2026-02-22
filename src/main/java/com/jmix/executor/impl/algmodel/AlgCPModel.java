@@ -862,6 +862,18 @@ public class AlgCPModel {
     }
 
     /**
+     * 添加大于等于约束，AlgCPLinearExpr大于等于指定值
+     *
+     * @param expr  AlgCPLinearExpr表达式
+     * @param value 目标值
+     * @return 添加的约束
+     */
+    public AlgCPConstraint addGreaterOrEqual(final LinearArgument left, final AlgCPLinearExpr right) {
+        Constraint ct = cpModel.addGreaterOrEqual(left, right.build());
+        return createAndTrackConstraint(ct, left, right, "addGreaterOrEqual", ">=");
+    }
+
+    /**
      * 添加大于约束，AlgCPLinearExpr大于指定值
      *
      * @param expr  AlgCPLinearExpr表达式

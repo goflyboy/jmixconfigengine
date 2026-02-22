@@ -42,6 +42,19 @@ public class AlgCPLinearExpr {
      * @param coefficient 系数
      * @return 创建的AlgCPLinearExpr
      */
+    public static AlgCPLinearExpr term(AlgCPLinearExpr var, long coefficient) {
+        AlgCPLinearExpr expr = new AlgCPLinearExpr("term_" + var.getName() + "_" + coefficient);
+        expr.addExpr(var, coefficient);
+        return expr;
+    }
+
+    /**
+     * 创建一个包含单个项的线性表达式
+     *
+     * @param var         变量
+     * @param coefficient 系数
+     * @return 创建的AlgCPLinearExpr
+     */
     public static AlgCPLinearExpr term(IntVar var, long coefficient) {
         AlgCPLinearExpr expr = new AlgCPLinearExpr("term_" + var.getName() + "_" + coefficient);
         expr.addTerm(var, coefficient);
@@ -218,6 +231,15 @@ public class AlgCPLinearExpr {
         String termStr = String.format("%s %d * (%s)", sign, Math.abs(coefficient), expr.toString());
         terms.add(new AbstractMap.SimpleEntry<>(termStr, expr.getName()));
         log.debug("Added expression to {}: {}", name, termStr);
+    }
+
+    /**
+     * 添加IntVar到表达式
+     * 
+     * @param var IntVar
+     */
+    public void add(IntVar var) {
+        builder.add(var);
     }
 
     /**
