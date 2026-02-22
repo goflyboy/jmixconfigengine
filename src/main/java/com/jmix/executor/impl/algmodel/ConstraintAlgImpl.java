@@ -9,7 +9,6 @@ import com.jmix.executor.bmodel.attr.DynamicAttributerOption;
 import com.jmix.executor.bmodel.base.AssignType;
 import com.jmix.executor.bmodel.logic.PriorityRuleSchema;
 import com.jmix.executor.bmodel.logic.PriorityStrategy;
-import com.jmix.executor.bmodel.logic.PriorityType;
 import com.jmix.executor.bmodel.logic.RefProgObjSchema;
 import com.jmix.executor.bmodel.logic.Rule;
 import com.jmix.executor.bmodel.logic.RuleTypeConstants;
@@ -120,18 +119,18 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @param attrCode attribute code
      * @param expr     expression containing part-term metadata and numeric terms
      */
-    public void updatePriorityObjectFuntion(String attrCode, PartAlgCPLinearExpr expr) {
-        if (attrCode == null || attrCode.isEmpty()) {
-            log.warn("attrCode is null or empty, skip updating priority objective");
+    public void updatePriorityObjectFuntion(String ruleCode, PartAlgCPLinearExpr expr) {
+        if (ruleCode == null || ruleCode.isEmpty()) {
+            log.warn("ruleCode is null or empty, skip updating priority objective");
             return;
         }
-        PriorityConstraint pConstraint = priorityRuleMap.get(attrCode);
+        PriorityConstraint pConstraint = priorityRuleMap.get(ruleCode);
         if (pConstraint == null) {
-            log.error("PriorityConstraint not found for attrCode: {}", attrCode);
-            throw new AlgLoaderException("PriorityConstraint not found for attrCode: " + attrCode);
+            log.error("PriorityConstraint not found for ruleCode: {}", ruleCode);
+            throw new AlgLoaderException("PriorityConstraint not found for ruleCode: " + ruleCode);
         }
         pConstraint.setExpr(expr);
-        log.info("Updated priority objective for attrCode {}: expr={}", attrCode,
+        log.info("Updated priority objective for ruleCode {}: expr={}", ruleCode,
                 expr != null ? expr.toString() : "null");
     }
 
@@ -398,29 +397,10 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             log.warn("Rule rawCode is not PriorityRuleSchema for rule: {}", rule.getCode());
             return;
         }
-
-        PriorityRuleSchema schema = (PriorityRuleSchema) rule.getRawCode();
-        String attrCode = schema.getAttrCode();
-        if (attrCode == null || attrCode.isEmpty()) {
-            log.warn("PriorityRuleSchema attrCode is empty for rule: {}", rule.getCode());
-            return;
-        }
-
         PriorityConstraint pConstraint = new PriorityConstraint();
         pConstraint.setRule(rule);
-        pConstraint.setAttrCode(attrCode);
-
-        // 根据类型构建表达式字符串和模板
-        PriorityType type = schema.getPriorityType();
-        String varName = (type == PriorityType.SELECT) ? "S" : "Q";
-        Function<PartVar, LinearArgument> varGetter = (type == PriorityType.SELECT)
-                ? PartVar::getIsSelected
-                : PartVar::getQty;
-        // 仅考虑到单层
-        buildPriorityConstraintExpressions(pConstraint, attrCode, varName, varGetter, module.getAllAtomicParts());
-
         // 存储到 priorityRuleMap，使用 attrCode 作为 key
-        priorityRuleMap.put(attrCode, pConstraint);
+        priorityRuleMap.put(rule.getCode(), pConstraint);
     }
 
     /**

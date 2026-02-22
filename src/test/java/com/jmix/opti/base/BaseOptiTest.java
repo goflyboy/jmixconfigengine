@@ -5,7 +5,6 @@ import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.executor.bmodel.attr.DynamicAttributeType;
 import com.jmix.executor.bmodel.base.AssignType;
 import com.jmix.executor.bmodel.logic.PriorityStrategy;
-import com.jmix.executor.bmodel.logic.PriorityType;
 import com.jmix.executor.bmodel.para.ParaType;
 import com.jmix.executor.impl.algmodel.AlgCPLinearExpr;
 import com.jmix.executor.impl.algmodel.AlgCPModel;
@@ -117,7 +116,7 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
         // } // 优先使用固态硬盘：如果固态硬盘容量已足够，限制机械硬盘使用 TODO，怎么表达
 
         // proRule2:固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量
-        @PriorityRuleAnno(fatherCode = "drive", normalNaturalCode = "固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量", attrCode = "Capacity", strategy = PriorityStrategy.MIN, type = PriorityType.SUMARIZE)
+        @PriorityRuleAnno(fatherCode = "drive", normalNaturalCode = "固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量", strategy = PriorityStrategy.MIN)
         private void rule2() {
             // proRule2-natuarl: 固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量
             // proRule2-dsl: 选择的部件capacityWeight总和越大越好( 和qty(Q) * capacityWeight 相关)
@@ -182,7 +181,7 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
 
                 objectiveExpr.addExpr(totalPartsExpr, 500); // 零件数量惩罚
                 model.setObjectExpr(objectiveExpr);
-                updatePriorityObjectFuntion("Capacity", objectiveExpr);
+                updatePriorityObjectFuntion("rule2", objectiveExpr);
 
             } else {// 给的数量qty总数
 
@@ -227,7 +226,7 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
 
                 model.setObjectExpr(objectiveExpr); // 分minimize/adddGreaterxx
                 // model.minimize(objectiveExpr); // 设置目标函数为最小化（因为SSD有负权重）
-                updatePriorityObjectFuntion("Capacity", objectiveExpr);
+                updatePriorityObjectFuntion("rule2", objectiveExpr);
             }
         }
 

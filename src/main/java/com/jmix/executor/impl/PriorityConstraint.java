@@ -32,11 +32,6 @@ public class PriorityConstraint {
      */
     private PartAlgCPLinearExpr expr;
 
-    /**
-     * 属性代码
-     */
-    private String attrCode;
-
     // 以下字段保留为注释，仅通过 getter 暴露（数据由 expr 提供）
     /*
      * private String exprStr;

@@ -3237,3 +3237,13 @@ Failed to process part category constraint: Cannot parse null string
 
 
          updatePriorityObjectFuntion("Capacity", objectiveExpr);
+
+
+做下列优化：
+1、类：
+将方法的改成
+    public void updatePriorityObjectFuntion(String attrCode, PartAlgCPLinearExpr expr) 
+
+改成：
+
+    public void updatePriorityObjectFuntion(String ruleCode, PartAlgCPLinearExpr expr) 

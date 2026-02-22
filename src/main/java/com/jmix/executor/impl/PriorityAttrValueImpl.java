@@ -28,9 +28,6 @@ public class PriorityAttrValueImpl extends PriorityAttrValue {
      * @return 属性代码
      */
     public String getAttrCode() {
-        if (pConstraint != null && pConstraint.getAttrCode() != null) {
-            return pConstraint.getAttrCode();
-        }
         return super.getAttrCode();
     }
 
