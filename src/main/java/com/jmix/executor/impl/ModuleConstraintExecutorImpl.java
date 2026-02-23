@@ -417,7 +417,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
             }
         }
         if (req.getPartConstraintReqs() != null) {
-            addPartConstraintReqs(alg, req.getPartCatagoryCode(), req.getPartConstraintReqs());
+            addPartConstraintReqs(alg, req.getPartCategoryCode(), req.getPartConstraintReqs());
         }
     }
 
@@ -433,7 +433,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
         cReq.setPrePartInsts(req.getPrePartInsts());
         cReq.setPartConstraintReqs(req.getPartConstraintReqs());
         cReq.setEnumerateAllSolution(req.isEnumerateAllSolution());
-        cReq.setPartCatagoryCode(req.getPartCatagoryCode());
+        cReq.setPartCategoryCode(req.getPartCategoryCode());
         return cReq;
     }
 
@@ -441,20 +441,20 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
      * 添加部件约束请求
      *
      * @param alg                约束算法实现
-     * @param partCatagoryCode   部件分类代码
+     * @param partCategoryCode   部件分类代码
      * @param partConstraintReqs 部件约束请求列表
      */
-    private void addPartConstraintReqs(ConstraintAlgImpl alg, String partCatagoryCode,
+    private void addPartConstraintReqs(ConstraintAlgImpl alg, String partCategoryCode,
             List<PartConstraintReq> partConstraintReqs) {
         for (PartConstraintReq partConstraintReq : partConstraintReqs) {
             // 从module中找到对应的PartCategory
             IModule module = alg.getModule();
             PartCategory partCategory = null;
             if (module instanceof Module) {
-                partCategory = ((Module) module).findPartCategory(partCatagoryCode);
+                partCategory = ((Module) module).findPartCategory(partCategoryCode);
             }
             if (partCategory == null) {
-                log.error("PartCategory not found: {}", partCatagoryCode);
+                log.error("PartCategory not found: {}", partCategoryCode);
                 continue;
             }
 

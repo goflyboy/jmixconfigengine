@@ -194,7 +194,7 @@ public class PartCategoryTest {
     @Test
     public void testQueryWithInstanceAttribute() {
         PartConstraintReq req = new PartConstraintReq();
-        req.setPartCatagoryCode("drive");
+        req.setPartCategoryCode("drive");
         req.setAttrCode("sum.Capacity");
         req.setAttrWhereCondition("Speed like %5400%");
 
@@ -212,7 +212,7 @@ public class PartCategoryTest {
     @Test
     public void testQuerySingleDriveCapacityEqual2T() {
         PartConstraintReq req = new PartConstraintReq();
-        req.setPartCatagoryCode("drive");
+        req.setPartCategoryCode("drive");
         req.setAttrCode(""); // 单个硬盘
         req.setAttrComparator("");
         req.setAttrValue("");
@@ -231,7 +231,7 @@ public class PartCategoryTest {
     @Test
     public void testQueryWithNoInstanceAttribute() {
         PartConstraintReq req = new PartConstraintReq();
-        req.setPartCatagoryCode("solidDrive");
+        req.setPartCategoryCode("solidDrive");
         req.setAttrCode("sum.Quantity");
         req.setAttrWhereCondition("Speed like %5400%");
 
@@ -246,7 +246,7 @@ public class PartCategoryTest {
     @Test
     public void testQueryWithInvalidFilterCondition() {
         PartConstraintReq req = new PartConstraintReq();
-        req.setPartCatagoryCode("drive");
+        req.setPartCategoryCode("drive");
         req.setAttrCode("Capacity");
         req.setAttrComparator(">");
         req.setAttrValue("10");

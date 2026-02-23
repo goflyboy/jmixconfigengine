@@ -295,6 +295,32 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
         assertSoluContain("md1(Q:2,H:0,S:1),sd1(Q:1,H:0,S:1)");
     }
 
+    @Test
+    public void testCase5_CapacityGreaterEqual5NoSpeedFilter() {
+        inferRecommend("drive", "drive:sum.Capacity >=5");
+        printSimpleSolutions();
+        assertSoluContain(1, "md1(0*),md2(0*),md3(0*),sd1(Q:2,H:0,S:1),sd2(0*),sd3(0*)");
+        // issue: sd1.Q=1,md2.Q=2 为什么没有出来
+    }
+
+    @Test
+    public void testCase6_QuantityGreaterEqual2NoSpeedFilter() {
+        inferRecommend("drive", "drive:sum.Quantity >=2");
+        printSimpleSolutions();
+        assertSoluContain(1, "md1(0*),md2(0*),md3(0*),sd1(0*),sd2(0*),sd3(Q:2,H:0,S:1)");
+        assertSoluContain(2, "md1(0*),md2(0*),md3(0*),sd1(0*),sd2(Q:2,H:0,S:1),sd3(0*)");
+        assertSoluContain("md1(Q:1,H:0,S:1),md2(0*),md3(0*),sd1(0*),sd2(0*),sd3(Q:1,H:0,S:1)");
+    }
+
+    @Test
+    public void testCase7_QuantityGreaterEqual3NoSpeedFilter() {
+        inferRecommend("drive", "drive:sum.Quantity >=3");
+        printSimpleSolutions();
+        assertSoluContain(1, "md1(Q:1,H:0,S:1),md2(0*),md3(0*),sd1(0*),sd2(0*),sd3(Q:2,H:0,S:1)");
+        assertSoluContain(2, "md1(0*),md2(Q:1,H:0,S:1),md3(0*),sd1(0*),sd2(0*),sd3(Q:2,H:0,S:1)");
+        assertSoluContain(3, "md1(0*),md2(0*),md3(Q:1,H:0,S:1),sd1(0*),sd2(0*),sd3(Q:2,H:0,S:1)");
+    }
+
     // 要求5400速率的固态硬盘2块
     @Test
     public void testNoSpeedRequirement() {

@@ -86,7 +86,7 @@ public class PartCategory extends ModuleBase implements IModule, IPart {
             boolean hasMatchedPartCategoryOfReq) {
         PartCategory resultPartCategory = category.clone();
         if (!hasMatchedPartCategoryOfReq) {
-            if (constraintReq.getPartCatagoryCode().equals(category.getCode())) {
+            if (constraintReq.getPartCategoryCode().equals(category.getCode())) {
                 hasMatchedPartCategoryOfReq = true;
             }
         }

@@ -2,6 +2,7 @@ package com.jmix.executor.model;
 
 import com.jmix.executor.cmodel.ParaInst;
 import com.jmix.executor.cmodel.PartInst;
+
 import lombok.Data;
 
 import java.util.List;
@@ -53,5 +54,5 @@ public class InferParasReq {
     /**
      * 部件分类代码
      */
-    private String partCatagoryCode;
+    private String partCategoryCode;
 }

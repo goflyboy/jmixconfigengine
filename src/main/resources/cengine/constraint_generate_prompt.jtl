@@ -124,7 +124,7 @@ inferParasByPara(String paraCode, String value) -> 解的结果
 inferParasByPara(String paraCode1, String value1, String paraCode2, String value2, ...) -> 解的结果
 
 // 根据约束，推理推荐解
-inferRecommend(String partCode,String partCatagory, String constraintReq1,....)
+inferRecommend(String partCode,String partCategory, String constraintReq1,....)
 
 #### 2.1.1 典型调用案例
 ```java

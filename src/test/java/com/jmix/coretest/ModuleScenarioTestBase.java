@@ -638,7 +638,7 @@ public abstract class ModuleScenarioTestBase {
                 reqPartCategory = partCategory;
                 remainingStr = strReq;
             }
-            req.setPartCatagoryCode(reqPartCategory);
+            req.setPartCategoryCode(reqPartCategory);
 
             // 解析格式：attrCode comparator value where condition
             String[] parts = remainingStr.split(" where ");
@@ -681,7 +681,7 @@ public abstract class ModuleScenarioTestBase {
         InferParasReq req = new InferParasReq();
         req.setModuleId(getModule().getId());
         req.setEnumerateAllSolution(isEnumerateAllSolution());
-        req.setPartCatagoryCode(partCategoryCode);
+        req.setPartCategoryCode(partCategoryCode);
         req.setPartConstraintReqs(partConstraintReqs);
 
         long startTime = System.currentTimeMillis();

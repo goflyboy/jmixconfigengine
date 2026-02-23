@@ -34,11 +34,11 @@ public class PartConstraintReq {
     /**
      * 部件分类代码（用于查询时指定具体的PartCategory）
      */
-    private String partCatagoryCode;
+    private String partCategoryCode;
 
     /**
      * 生成短字符串表示
-     * 格式：partCatagoryCode:attrCode attrComparator attrValue where
+     * 格式：partCategoryCode:attrCode attrComparator attrValue where
      * attrWhereCondition
      * 示例："drive:sum.Capacity >=5 where Speed like %5400%"
      * 
@@ -48,8 +48,8 @@ public class PartConstraintReq {
         StringBuilder sb = new StringBuilder();
 
         // 添加部件分类代码
-        if (partCatagoryCode != null && !partCatagoryCode.isEmpty()) {
-            sb.append(partCatagoryCode).append(":");
+        if (partCategoryCode != null && !partCategoryCode.isEmpty()) {
+            sb.append(partCategoryCode).append(":");
         }
 
         // 添加属性代码、比较符和值
