@@ -2,9 +2,16 @@ package com.jmix.executor.impl;
 
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.base.AssignType;
-import com.jmix.executor.bmodel.logic.PriorityType;
-import com.jmix.executor.cmodel.*;
-import com.jmix.executor.impl.algmodel.*;
+import com.jmix.executor.cmodel.ModuleInst;
+import com.jmix.executor.cmodel.ParaInst;
+import com.jmix.executor.cmodel.PartInst;
+import com.jmix.executor.cmodel.SolverResult;
+import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
+import com.jmix.executor.impl.algmodel.OtherVar;
+import com.jmix.executor.impl.algmodel.ParaVar;
+import com.jmix.executor.impl.algmodel.PartAlgCPLinearExpr;
+import com.jmix.executor.impl.algmodel.PartVar;
+import com.jmix.executor.impl.algmodel.Var;
 import com.jmix.executor.model.AlgLoaderException;
 
 import com.google.ortools.sat.CpSolverSolutionCallback;
@@ -32,7 +39,7 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
 
     private final List<Var<?>> vars;
 
-//    private final List<ModuleInst> allSolutions = new ArrayList<>();
+    // private final List<ModuleInst> allSolutions = new ArrayList<>();
 
     // 第几个解
     private int solutionIndex = 0;
@@ -46,7 +53,7 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
     // 最大解数量限制，0表示无限制
     private int maxSolutionNum = 0;
 
-    private  PartAlgCPLinearExpr priorityExpr = null;
+    private PartAlgCPLinearExpr priorityExpr = null;
 
     // 常量定义
     private static final String OTHER_VARIABLES_VALUE_KEY = "OTHER_VARIABLES_VALUE";
@@ -54,6 +61,7 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
     private static final String OTHER_VARIABLES_MEMO_KEY = "OTHER_VARIABLES_MEMO";
 
     private SolverResult solverResult = new SolverResult();
+
     /**
      * 构造函数
      * 
@@ -92,7 +100,6 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
         this.priorityExpr = alg.queryMergerPriorityConstraintExpr();
     }
 
-
     /**
      * 构造函数
      * 
@@ -103,7 +110,7 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
      * @param maxSolutionNum 最大解数量限制，0表示无限制
      */
     public ModuleInstSolutionCallBack(Module module, List<Var<?>> vars, Map<String, OtherVar> otherVarMap,
-            ConstraintAlgImpl alg,   int maxSolutionNum) {
+            ConstraintAlgImpl alg, int maxSolutionNum) {
         this(module, vars, otherVarMap, alg);
         this.maxSolutionNum = maxSolutionNum;
     }
@@ -222,7 +229,7 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
      * @param moduleInst 模块实例
      */
     private void processPriorityValues(ModuleInst moduleInst) {
-        if(priorityExpr == null) {
+        if (priorityExpr == null) {
             return;
         }
         List<Integer> exprVariablesValues = new ArrayList<>();

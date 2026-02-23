@@ -2,7 +2,6 @@ package com.jmix.executor.impl;
 
 import com.jmix.executor.bmodel.logic.PriorityRuleSchema;
 import com.jmix.executor.bmodel.logic.PriorityStrategy;
-import com.jmix.executor.bmodel.logic.PriorityType;
 import com.jmix.executor.bmodel.logic.Rule;
 import com.jmix.executor.impl.algmodel.PartAlgCPLinearExpr;
 import com.jmix.executor.impl.util.ExpressionCalculator;
@@ -127,21 +126,6 @@ public class PriorityConstraint {
     public static String instanceExprTemplate(String exprTemplate, List<Integer> exprVariables) {
         Object[] objectValues = buildObjectValues(exprVariables);
         return String.format(exprTemplate, objectValues);
-    }
-
-    /**
-     * 获取优先级类型
-     * 
-     * @return 优先级类型，如果无法获取则返回null
-     */
-    public PriorityType getPriorityType() {
-        if (rule == null || rule.getRawCode() == null) {
-            return null;
-        }
-        if (rule.getRawCode() instanceof PriorityRuleSchema) {
-            return ((PriorityRuleSchema) rule.getRawCode()).getPriorityType();
-        }
-        return null;
     }
 
     /**

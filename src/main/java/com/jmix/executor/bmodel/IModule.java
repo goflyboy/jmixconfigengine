@@ -1,6 +1,7 @@
 package com.jmix.executor.bmodel;
 
 import com.jmix.executor.bmodel.logic.Rule;
+import com.jmix.executor.bmodel.para.Para;
 
 import java.util.List;
 
@@ -29,6 +30,13 @@ public interface IModule extends IOnto {
     List<Rule> getAllRules();
 
     /**
+     * 获取所有参数列表
+     *
+     * @return 所有参数列表
+     */
+    List<Para> getAllParas();
+
+    /**
      * 获取部件列表
      *
      * @return 部件列表
@@ -41,6 +49,29 @@ public interface IModule extends IOnto {
      * @return 原子部件列表（partType为ATOMIC的部件）
      */
     List<Part> getAllAtomicParts();
+
+    /**
+     * 根据部件分类编码获取原子部件列表
+     *
+     * @param partCategoryCode 部件分类编码
+     * @return 指定分类下的原子部件列表
+     */
+    List<Part> getAllAtomicParts(String partCategoryCode);
+
+    /**
+     * 判断是否包含所有优先级规则
+     *
+     * @return 如果包含所有优先级规则返回true，否则返回false
+     */
+    boolean hasAllPriorityRule();
+
+    /**
+     * 根据分类编码查找部件分类
+     *
+     * @param categoryCode 部件分类编码
+     * @return 部件分类对象，如果不存在则返回null
+     */
+    PartCategory findPartCategory(String categoryCode);
 
     /**
      * 查询所有优先级规则

@@ -2,7 +2,6 @@ package com.jmix.executor.impl;
 
 import com.jmix.executor.bmodel.logic.PriorityRuleSchema;
 import com.jmix.executor.bmodel.logic.PriorityStrategy;
-import com.jmix.executor.bmodel.logic.PriorityType;
 import com.jmix.executor.cmodel.PriorityAttrValue;
 
 import lombok.Data;
@@ -29,21 +28,6 @@ public class PriorityAttrValueImpl extends PriorityAttrValue {
      */
     public String getAttrCode() {
         return super.getAttrCode();
-    }
-
-    /**
-     * 获取优先级类型
-     * 
-     * @return 优先级类型
-     */
-    public PriorityType getPriorityType() {
-        if (pConstraint != null && pConstraint.getRule() != null) {
-            Object rawCode = pConstraint.getRule().getRawCode();
-            if (rawCode instanceof PriorityRuleSchema) {
-                return ((PriorityRuleSchema) rawCode).getPriorityType();
-            }
-        }
-        return null;
     }
 
     /**

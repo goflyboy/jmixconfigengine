@@ -1,6 +1,8 @@
 package com.jmix.executor.bmodel;
 
 import com.jmix.executor.bmodel.logic.Rule;
+import com.jmix.executor.bmodel.logic.RuleTypeConstants;
+import com.jmix.executor.bmodel.para.Para;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -196,6 +198,72 @@ public class ModuleBase extends Onto {
             allAtomicParts.addAll(partCategory.getAtomicParts());
         }
         return allAtomicParts;
+    }
+
+    /**
+     * 根据部件分类编码获取原子部件列表
+     *
+     * @param partCategoryCode 部件分类编码
+     * @return 指定分类下的原子部件列表
+     */
+    @JsonIgnore
+    public List<Part> getAllAtomicParts(String partCategoryCode) {
+        List<Part> result = new ArrayList<>();
+        PartCategory category = findPartCategory(partCategoryCode);
+        if (category != null) {
+            result.addAll(category.getAllAtomicParts());
+        }
+        return result;
+    }
+
+    /**
+     * 获取所有参数列表
+     * 递归收集所有子分类中的参数
+     *
+     * @return 所有参数列表
+     */
+    @JsonIgnore
+    public List<Para> getAllParas() {
+        List<Para> allParas = new ArrayList<>();
+        List<Para> paras = getParas();
+        if (paras != null) {
+            allParas.addAll(paras);
+        }
+        for (PartCategory partCategory : partCategorys) {
+            allParas.addAll(partCategory.getAllParas());
+        }
+        return allParas;
+    }
+
+    /**
+     * 查询所有优先级规则
+     *
+     * @return 优先级规则列表
+     */
+    @JsonIgnore
+    public List<Rule> queryPriorityRules() {
+        List<Rule> priorityRules = new ArrayList<>();
+        List<Rule> rules = getRules();
+        if (rules == null || rules.isEmpty()) {
+            return priorityRules;
+        }
+        for (Rule rule : rules) {
+            if (RuleTypeConstants.isPriorityRule(rule.getRuleSchemaTypeFullName())) {
+                priorityRules.add(rule);
+            }
+        }
+        return priorityRules;
+    }
+
+    /**
+     * 判断是否包含所有优先级规则
+     *
+     * @return 如果包含所有优先级规则返回true，否则返回false
+     */
+    @JsonIgnore
+    public boolean hasAllPriorityRule() {
+        List<Rule> priorityRules = queryPriorityRules();
+        return !priorityRules.isEmpty();
     }
 
     /**

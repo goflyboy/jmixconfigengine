@@ -3,7 +3,6 @@ package com.jmix.executor.bmodel;
 import com.jmix.executor.bmodel.base.Pair;
 import com.jmix.executor.bmodel.logic.RefProgObjSchema;
 import com.jmix.executor.bmodel.logic.Rule;
-import com.jmix.executor.bmodel.logic.RuleTypeConstants;
 import com.jmix.executor.bmodel.para.Para;
 import com.jmix.executor.impl.ModuleRefRelationGraph;
 
@@ -86,7 +85,7 @@ public class Module extends ModuleBase implements IModule {
         // 2、shortCodes(P1:Size, P2:Color,PT1:part1,PT2:part2)
         StringBuilder sb = new StringBuilder();
         sb.append("ProgObjs(");
-        for (Para para : getParas()) {
+        for (Para para : this.getParas()) {
             sb.append(para.getShortCode()).append(":").append(para.getCode()).append(",");
         }
         for (IPart part : getAllParts()) {
@@ -104,17 +103,6 @@ public class Module extends ModuleBase implements IModule {
     @JsonIgnore
     public String getAttrShortCodeMemo() {
         return "Attrs(V:value, H:isHidden, Q:qty)";
-    }
-
-    /**
-     * 获取规则列表
-     * 
-     * @return 规则列表
-     */
-    @Override
-    public List<Rule> getRules() {
-        List<Rule> rules = super.getRules();
-        return rules != null ? rules : new ArrayList<>();
     }
 
     /**
@@ -171,28 +159,5 @@ public class Module extends ModuleBase implements IModule {
             initRefRelationGraph();
         }
         return refRelationGraph.querySubGraph(progObjCodes);
-    }
-
-    @Override
-    @JsonIgnore
-    public boolean hasPriorityRule() {
-        List<Rule> priorityRules = queryPriorityRules();
-        return !priorityRules.isEmpty();
-    }
-
-    @Override
-    @JsonIgnore
-    public List<Rule> queryPriorityRules() {
-        List<Rule> priorityRules = new ArrayList<>();
-        List<Rule> rules = getRules();
-        if (rules == null || rules.isEmpty()) {
-            return priorityRules;
-        }
-        for (Rule rule : rules) {
-            if (RuleTypeConstants.isPriorityRule(rule.getRuleSchemaTypeFullName())) {
-                priorityRules.add(rule);
-            }
-        }
-        return priorityRules;
     }
 }
