@@ -14,13 +14,13 @@ import com.jmix.executor.model.PartConstantAttr;
 import com.jmix.executor.model.PartConstraintReq;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.base.Strings;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -53,26 +53,14 @@ public class PartCategory extends ModuleBase implements IModule, IPart {
      */
     @JsonIgnore
     public PartCategory clone() {
-        PartCategory pc = new PartCategory();
-        // 复制ProgrammableObject属性
-        pc.setCode(this.getCode());
-        pc.setFatherCode(this.getFatherCode());
-        pc.setDefaultValue(this.getDefaultValue());
-        pc.setDescription(this.getDescription());
-        pc.setSortNo(this.getSortNo());
-        pc.setShortCode(this.getShortCode());
-
-        // 复制Part属性
-        pc.setPartType(this.getPartType());
-        pc.setDynAttr(new HashMap<>(this.getDynAttr()));
-        pc.setDynAttrSchemas(this.getDynAttrSchemas());
-        pc.setDynAttrSchema(this.getDynAttrSchema());
-
-        pc.setRules(new ArrayList<>(this.getRules()));
-        pc.setParas(new ArrayList<>(this.getParas()));// TODO 后续参数值可能会有变化
-        pc.init();
-        // 不复制partCategoryMap和partMap，这些将在init方法中重新初始化
-        return pc;
+        PartCategory to = new PartCategory();
+        // 调用父类的clone方法
+        super.clone(to);
+        // 复制PartCategory特有的属性
+        to.setPartType(this.getPartType());
+        // 调用init方法初始化映射表
+        to.init();
+        return to;
     }
 
     @Override
@@ -114,7 +102,9 @@ public class PartCategory extends ModuleBase implements IModule, IPart {
     }
 
     private List<Part> querySubAtomicParts(PartCategory category, PartConstraintReq constraintReq) {
-
+        if (Strings.isNullOrEmpty(constraintReq.getAttrWhereCondition())) {
+            return new ArrayList<>(category.getAtomicParts());
+        }
         // 解析属性代码
         Pair<DynamicAttribute, String> attrResult = parseAttributeFromCondition(constraintReq.getAttrWhereCondition(),
                 category.getDynAttrSchemas());
@@ -136,7 +126,7 @@ public class PartCategory extends ModuleBase implements IModule, IPart {
                 if (instValues.isEmpty()) {
                     continue;
                 }
-                Part cPart = part.clone();// 带有实例属性，通过clone的方法，把属性的多实例值进行汇总，存储起来，方便后续调用。
+                Part cPart = part.clone(); // 带有实例属性，通过clone的方法，把属性的多实例值进行汇总，存储起来，方便后续调用。
                 List<DynamicAttribute> instAttrsList = category.queryDynAttrSchemas4Inst();
                 for (DynamicAttribute instAttr : instAttrsList) {
                     String sumAttrValue = null;

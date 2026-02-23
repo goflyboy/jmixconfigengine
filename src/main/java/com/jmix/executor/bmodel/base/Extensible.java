@@ -46,4 +46,16 @@ public class Extensible implements IExtensible {
     public void setExtAttr(String key, String value) {
         extAttrs.put(key, value);
     }
+
+    /**
+     * 克隆Extensible对象
+     *
+     * @param to 目标对象
+     * @return 克隆的Extensible对象
+     */
+    @JsonIgnore
+    public void clone(Extensible to) {
+        to.setExtSchema(this.getExtSchema());
+        to.setExtAttrs(new HashMap<>(this.getExtAttrs()));
+    }
 }

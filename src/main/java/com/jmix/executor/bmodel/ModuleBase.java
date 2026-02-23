@@ -316,4 +316,15 @@ public class ModuleBase extends Onto {
                 .filter(part -> part.getFatherCode() == null || part.getFatherCode().isEmpty())
                 .collect(java.util.stream.Collectors.toList());
     }
+
+    /**
+     * 克隆ModuleBase对象
+     *
+     * @param to 目标对象
+     * @return 克隆的ModuleBase对象
+     */
+    public void clone(ModuleBase to) {
+        super.clone(to);
+        // 过滤后的atomicParts和partCategorys都可能被过滤掉，不复制
+    }
 }

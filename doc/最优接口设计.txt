@@ -3247,3 +3247,21 @@ Failed to process part category constraint: Cannot parse null string
 改成：
 
     public void updatePriorityObjectFuntion(String ruleCode, PartAlgCPLinearExpr expr) 
+
+
+
+TODO：增加扩展属性？ --面向对象体现那些功能能用？ idea?   增加一个属性？ 
+
+增加
+15400
+
+1
+1、增加全局扩展属性？
+
+扩展属性的名字： 
+--DELIVERY_TIME  FLOAT  
+---PROFIT  利润
+
+排序方式：排序字段？ 
+---加载方式？***
+

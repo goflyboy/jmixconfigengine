@@ -5,9 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 /**
  * 部件定义
  * 表示模块中的部件，支持原子部件和复合部件
@@ -64,28 +61,13 @@ public class Part extends Onto implements IPart {
      */
     @JsonIgnore
     public Part clone() {
-        Part pc = new Part();
-        // 复制ProgrammableObject属性
-        pc.setCode(this.getCode());
-        pc.setFatherCode(this.getFatherCode());
-        pc.setDefaultValue(this.getDefaultValue());
-        pc.setDescription(this.getDescription());
-        pc.setSortNo(this.getSortNo());
-        pc.setShortCode(this.getShortCode());
-
+        Part to = new Part();
+        super.clone(to);
         // 复制Part特有属性
-        pc.setPartType(this.getPartType());
-        pc.setPrice(this.getPrice());
-        pc.setMaxQuantity(this.getMaxQuantity());
-        pc.setDynAttrSchema(this.getDynAttrSchema());
-
-        // 复制动态属性
-        pc.setDynAttr(new HashMap<>(this.getDynAttr()));
-
-        // 复制动态属性schema
-        pc.setDynAttrSchemas(new ArrayList<>(this.getDynAttrSchemas()));
-
-        return pc;
+        to.setPartType(this.getPartType());
+        to.setPrice(this.getPrice());
+        to.setMaxQuantity(this.getMaxQuantity());
+        return to;
     }
 
 }

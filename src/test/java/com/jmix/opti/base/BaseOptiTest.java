@@ -280,6 +280,28 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
         assertSoluContain("md1(Q:2,H:0,S:1),sd1(Q:1,H:0,S:1)");
     }
 
+    @Test
+    public void testCase2_CapacityGreaterEqual7Speed5400() {
+        inferRecommend("drive", "drive:sum.Capacity >=7 where Speed = 5400");
+        printSimpleSolutions();
+        assertSoluContain(1, "md1(Q:1,H:0,S:1),sd1(Q:2,H:0,S:1)");
+    }
+
+    @Test
+    public void testCase3_QtyGreaterEqual3Speed5400() {
+        inferRecommend("drive", "drive:sum.Quantity >=3 where Speed = 5400");
+        printSimpleSolutions();
+        assertSoluContain(1, "md1(Q:1,H:0,S:1),sd1(Q:2,H:0,S:1)");
+        assertSoluContain("md1(Q:2,H:0,S:1),sd1(Q:1,H:0,S:1)");
+    }
+
+    @Test
+    public void testCase5_CapacityGreaterEqual5NoSpeedFilter() {
+        inferRecommend("drive", "drive:sum.Capacity >=5");
+        printSimpleSolutions();
+        assertSoluContain(1, "md1(Q:1,H:0,S:1),sd1(Q:2,H:0,S:1)");
+    }
+
     // 要求5400速率的固态硬盘2块
     @Test
     public void testNoSpeedRequirement() {

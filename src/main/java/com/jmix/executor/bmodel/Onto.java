@@ -202,4 +202,21 @@ public class Onto extends ProgrammableObject<Integer> implements IDynamicAttribu
     public void setDynAttrSchema(String code, DynamicAttribute dynAttrSchema) {
         getDynAttrSchemas().add(dynAttrSchema);
     }
+
+    /**
+     * 克隆Onto对象
+     *
+     * @param to 目标对象
+     * @return 克隆的Onto对象
+     */
+    public void clone(Onto to) {
+        super.clone(to);
+        to.setDynAttr(new HashMap<>(this.getDynAttr()));
+        to.setDynAttrSchemas(this.getDynAttrSchemas());
+        to.setDynAttrSchema(this.getDynAttrSchema());
+        to.setRules(new ArrayList<>(this.getRules()));
+        to.setParas(new ArrayList<>(this.getParas()));
+        // paraMap将在init方法中重新初始化
+        to.init();
+    }
 }

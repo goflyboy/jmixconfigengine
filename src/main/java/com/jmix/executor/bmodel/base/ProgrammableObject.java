@@ -61,4 +61,20 @@ public class ProgrammableObject<T> extends Extensible implements Programmable {
      */
     @JsonIgnore
     private String shortCode;
+
+    /**
+     * 克隆ProgrammableObject对象
+     *
+     * @param to 目标对象
+     * @return 克隆的ProgrammableObject对象
+     */
+    public void clone(ProgrammableObject<T> to) {
+        super.clone(to);
+        to.setCode(this.getCode());
+        to.setFatherCode(this.getFatherCode());
+        to.setDefaultValue(this.getDefaultValue());
+        to.setDescription(this.getDescription());
+        to.setSortNo(this.getSortNo());
+        to.setShortCode(this.getShortCode());
+    }
 }
