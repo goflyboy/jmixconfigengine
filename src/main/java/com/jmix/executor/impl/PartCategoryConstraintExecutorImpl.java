@@ -72,7 +72,7 @@ public class PartCategoryConstraintExecutorImpl {
                 // 一条partConstraintReq会被拆分两条规则，一条是过滤规则（根据where条件过滤），一条是约束规则（根据attrCode,
                 // attrComparator, attrValue构建约束表达式）
                 // 查询满足条件的PartCategory
-                filteredCategory = filteredCategory.query(partConstraintReq);
+                filteredCategory = filteredCategory.filterClone(partConstraintReq);
                 String msg = String.format("Priority-filtered aparts: {%s} by {%s}",
                         filteredCategory.getAllAtomicPartShortString(),
                         partConstraintReq.toShortString());

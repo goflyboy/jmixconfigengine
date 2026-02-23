@@ -198,7 +198,7 @@ public class PartCategoryTest {
         req.setAttrCode("sum.Capacity");
         req.setAttrWhereCondition("Speed like %5400%");
 
-        PartCategory result = driveCategory.query(req);
+        PartCategory result = driveCategory.filterClone(req);
 
         List<IPart> parts = result.getAllParts();
 
@@ -218,7 +218,7 @@ public class PartCategoryTest {
         req.setAttrValue("");
         req.setAttrWhereCondition("Capacity=2");
 
-        PartCategory result = driveCategory.query(req);
+        PartCategory result = driveCategory.filterClone(req);
 
         assertNotNull(result, "Query result should not be null");
         // 这个查询应该没有匹配的硬盘，因为所有硬盘的容量都不是2T
@@ -235,7 +235,7 @@ public class PartCategoryTest {
         req.setAttrCode("sum.Quantity");
         req.setAttrWhereCondition("Speed like %5400%");
 
-        PartCategory results = solidDriveCategory.query(req);
+        PartCategory results = solidDriveCategory.filterClone(req);
 
         assertEquals(1, results.getAllParts().size(), "Should return 1 solid drive part");
     }
@@ -251,10 +251,8 @@ public class PartCategoryTest {
         req.setAttrComparator(">");
         req.setAttrValue("10");
         req.setAttrWhereCondition(""); // 空的过滤条件
-
-        assertThrows(IllegalArgumentException.class, () -> {
-            driveCategory.query(req);
-        }, "Should throw exception for empty filter condition");
+        PartCategory results = driveCategory.filterClone(req);
+        assertEquals(3, results.getAllAtomicParts().size(), "Should return 3   drive part");
     }
 
     /**

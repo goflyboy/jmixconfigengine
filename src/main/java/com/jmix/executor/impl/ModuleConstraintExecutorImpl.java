@@ -180,7 +180,8 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
                 Result<List<ModuleInst>> r = Result.noSolution(toConfictMessage(confictedRelaxs));
 
                 // 最后一次solution的解
-                List<ModuleInst> solutions = rcResult.getSecond().getSolutionCallBack().getSolverResult().getSolutions();
+                List<ModuleInst> solutions = rcResult.getSecond().getSolutionCallBack().getSolverResult()
+                        .getSolutions();
                 r.setData(solutions);
                 return r;
             }
@@ -458,7 +459,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
             }
 
             // 查询满足条件的PartCategory
-            PartCategory filteredCategory = partCategory.query(partConstraintReq);
+            PartCategory filteredCategory = partCategory.filterClone(partConstraintReq);
 
             // 获取所有叶子部件
             List<Part> filterParts = filteredCategory.getAtomicParts();

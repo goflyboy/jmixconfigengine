@@ -20,6 +20,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.util.CollectionUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -77,11 +79,11 @@ public class PartCategory extends ModuleBase implements IModule, IPart {
      * @param constraintReq 约束请求
      * @return 满足条件的PartCategory列表
      */
-    public PartCategory query(PartConstraintReq constraintReq) {
-        return query(this, constraintReq, false);
+    public PartCategory filterClone(PartConstraintReq constraintReq) {
+        return filterClone(this, constraintReq, false);
     }
 
-    private PartCategory query(PartCategory category, PartConstraintReq constraintReq,
+    private PartCategory filterClone(PartCategory category, PartConstraintReq constraintReq,
             boolean hasMatchedPartCategoryOfReq) {
         PartCategory resultPartCategory = category.clone();
         if (!hasMatchedPartCategoryOfReq) {
@@ -89,14 +91,14 @@ public class PartCategory extends ModuleBase implements IModule, IPart {
                 hasMatchedPartCategoryOfReq = true;
             }
         }
-        if (hasMatchedPartCategoryOfReq) {
+        if (hasMatchedPartCategoryOfReq && CollectionUtils.isEmpty(category.getPartCategorys())) {
             // 先匹配当前原子part
             List<Part> filterParts = querySubAtomicParts(category, constraintReq);
             resultPartCategory.addAtomicPartsWithoutStructure(filterParts);
         }
         // 在去自己的子分类中匹配
         for (PartCategory pc : category.getPartCategorys()) {
-            resultPartCategory.addPart(query(pc, constraintReq, hasMatchedPartCategoryOfReq));
+            resultPartCategory.addPart(filterClone(pc, constraintReq, hasMatchedPartCategoryOfReq));
         }
         return resultPartCategory;
     }
