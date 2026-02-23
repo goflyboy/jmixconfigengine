@@ -1,26 +1,20 @@
 package com.jmix.executor.impl;
 
+import com.jmix.executor.bmodel.IModule;
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartCategory;
 import com.jmix.executor.bmodel.attr.DynamicAttribute;
 import com.jmix.executor.bmodel.base.Pair;
 import com.jmix.executor.cmodel.ModuleInst;
-import com.jmix.executor.cmodel.ParaInst;
-import com.jmix.executor.cmodel.PartInst;
 import com.jmix.executor.cmodel.SolverResult;
-import com.jmix.executor.impl.algmodel.AlgCPModel;
 import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
-import com.jmix.executor.impl.algmodel.PartAlgCPLinearExpr;
 import com.jmix.executor.model.AttrFunConstant;
 import com.jmix.executor.model.ConstraintConfig;
 import com.jmix.executor.model.InferPartCategoryReq;
 import com.jmix.executor.model.ParConstraint;
 import com.jmix.executor.model.PartConstraintReq;
 import com.jmix.executor.model.Result;
-
-import com.google.ortools.sat.CpSolver;
-import com.google.ortools.sat.CpSolverStatus;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,16 +32,11 @@ import java.util.Set;
  * @since 2025-01-XX
  */
 @Slf4j
-public class PartCategoryConstraintExecutorImpl {
-    private final Module module;
-    private final ConstraintConfig config;
-    private final ModuleAlgClassLoader moduleAlgClassLoader;
+public class PartCategoryConstraintExecutorImpl extends ModuleBaseConstraintExecutorImpl {
 
     public PartCategoryConstraintExecutorImpl(Module module, ConstraintConfig config,
             ModuleAlgClassLoader moduleAlgClassLoader) {
-        this.module = module;
-        this.config = config;
-        this.moduleAlgClassLoader = moduleAlgClassLoader;
+        super(module, config, moduleAlgClassLoader);
     }
 
     /**
@@ -56,7 +45,8 @@ public class PartCategoryConstraintExecutorImpl {
      * @param partCatagoryReq 部件分类请求
      * @return 推理结果
      */
-    public Result<List<ModuleInst>> processPartCategory(InferPartCategoryReq partCatagoryReq) {
+    @Override
+    public Result<List<ModuleInst>> doProcess(InferPartCategoryReq partCatagoryReq) {
         try {
             // 查找原始部件分类
             PartCategory originalCategory = module.findPartCategory(partCatagoryReq.getPartCatagoryCode());
@@ -103,45 +93,26 @@ public class PartCategoryConstraintExecutorImpl {
     /**
      * 求解约束模型并返回结果
      *
-     * @param filteredCategory 过滤后的部件分类
-     * @param partCatagoryReq  部件分类请求
+     * @param filteredModuleBase 过滤后的模块基础
+     * @param partCatagoryReq    部件分类请求
      * @return 求解结果
      */
-    private SolverResult solveWithOutPriorityConstraints(PartCategory filteredCategory,
+    @Override
+    protected SolverResult solveWithOutPriorityConstraints(IModule filteredModuleBase,
             InferPartCategoryReq partCatagoryReq) {
         log.info("no Priority-process starting........");
-        return invokerSolver(filteredCategory, partCatagoryReq, new ArrayList<>(), null);
+        return invokerSolver(filteredModuleBase, partCatagoryReq, new ArrayList<>(), null);
     }
 
-    private Pair<Boolean, String> validPriorityOverallValue(double solverValue, List<ModuleInst> exprValueSolutions) {
-        StringBuffer sb = new StringBuffer();
-        boolean result = false;
-
-        if (exprValueSolutions == null || exprValueSolutions.isEmpty()) {
-            sb.append("exprValueSolutions is empty");
-            result = false;
-        } else {
-            double priorityOverallValue = exprValueSolutions.get(0).getPriorityOverallValue();
-            if (Double.compare(priorityOverallValue, solverValue) != 0) {
-                sb.append(String.format(
-                        "Priority overall value mismatch: solverValue=%.2f, exprValueSolutions.get(0).getPriorityOverallValue()=%.2f",
-                        solverValue, priorityOverallValue));
-                result = false;
-            } else {
-                result = true;
-            }
-        }
-
-        return Pair.of(result, sb.toString());
-    }
-
-    // 主求解方法
+    /**
+     * 主求解方法-带优先级约束
+     */
     private SolverResult solveWithPriorityConstraints(
-            PartCategory filteredCategory, InferPartCategoryReq partCatagoryReq,
+            IModule filteredModuleBase, InferPartCategoryReq partCatagoryReq,
             List<ParConstraint> partConstraintFromReqs) {
         log.info("Priority-process pconstraint-step1 max/min starting........");
         // 步骤1：对每个优先级规则优化求解最优解 minimize(objecFun)
-        SolverResult result = invokerSolver(filteredCategory, partCatagoryReq, partConstraintFromReqs, null);
+        SolverResult result = invokerSolver(filteredModuleBase, partCatagoryReq, partConstraintFromReqs, null);
 
         if (!result.hasSolution()) {
             result.setMessage("Cannot find solution in first step");
@@ -151,7 +122,7 @@ public class PartCategoryConstraintExecutorImpl {
         // 步骤2：在保持高优先级目标接近最优的前提下，寻找多个解，objecFun <=
         // ajustObjectValue(不断调整ajustObjectValue)
         final int maxExecTimes = 5; // 最大执行次数,
-        final int availableSolutionNum = 5;// 可行解的格式
+        final int availableSolutionNum = 5; // 可行解的格式
         final int minSolutionThreshold = 3; // 最少解数量阈值
         int execTimes = 0;
         double baseAdjustCoeff = 0.5; // 基础调整系数
@@ -174,9 +145,7 @@ public class PartCategoryConstraintExecutorImpl {
                 } else if (lastResult.getSolutions().size() < minSolutionThreshold) {
                     // 解数量太少，objectValue设置太小，系数需要往上调
                     needIncreasedTimes++;
-                    // baseAdjustCoeff *= 1.5 * needIncreasedTimes;; // 增加调整幅度
                     baseAdjustCoeff *= 3 * needIncreasedTimes;
-                    ; // 增加调整幅度
                     needIncreased = true;
                     log.info(
                             "Priority-process pconstraint-step2 Iteration {}: too few solutions found, increasing adjustment coefficient to {}",
@@ -192,126 +161,14 @@ public class PartCategoryConstraintExecutorImpl {
             } else {
                 objectValue = getAdjustObjectValue(objectValue, baseAdjustCoeff);
             }
-            // objectValue = 82000;
             log.info("Priority-process pconstraint-step2 Iteration {}: adjusting objective value to {}", execTimes,
                     objectValue);
-            result = invokerSolver(filteredCategory, partCatagoryReq, partConstraintFromReqs, objectValue);
+            result = invokerSolver(filteredModuleBase, partCatagoryReq, partConstraintFromReqs, objectValue);
 
         } while (execTimes < maxExecTimes
                 && result.getSolutions().size() <= availableSolutionNum);
         result.setIterationTimes(execTimes);
         return result;
-    }
-
-    private double getAdjustObjectValue(double objectValue, double adjustCoeff) {
-        int cResult = Double.compare(objectValue, 0.0);
-        if (cResult < 0) {
-            // 对于负值，根据调整系数的正负来决定调整方向
-            if (adjustCoeff >= 0) {
-                // 正系数：减少绝对值（更接近0）
-                objectValue = objectValue * (1 - adjustCoeff);
-            } else {
-                // 负系数：增加绝对值（更远离0）
-                objectValue = objectValue * (1 + Math.abs(adjustCoeff));
-            }
-        } else if (cResult == 0) {
-            // 对于0值，根据调整系数设置起始值
-            objectValue = adjustCoeff;
-        } else {
-            // 对于正值，根据调整系数的正负来决定调整方向
-            if (adjustCoeff >= 0) {
-                // 正系数：增加值
-                objectValue = objectValue * (1 + adjustCoeff);
-            } else {
-                // 负系数：减少值
-                objectValue = objectValue * (1 - Math.abs(adjustCoeff));
-            }
-        }
-        return objectValue;
-    }
-
-    private SolverResult invokerSolver(
-            PartCategory filteredCategory, InferPartCategoryReq partCatagoryReq,
-            List<ParConstraint> partConstraintFromReqs, Double adjustOptimalValue) {
-        log.info("invokerSolver starting........");
-        // 步骤1：对每个优先级规则优化求解最优解
-        ConstraintAlgImpl optAlg = createConstraintAlg(module.getId(), module.getCode());
-        AlgCPModel optModel = new AlgCPModel();
-        optAlg.initModel(optModel, filteredCategory, false, new ArrayList<>(), partConstraintFromReqs);
-        initModelByReq(partCatagoryReq, optAlg);
-        initModelByPriorityConstraints(partConstraintFromReqs, optAlg);
-        optAlg.addRelaxObjectFunction();
-        boolean hasPriorityRule = optAlg.hasPriorityRule();
-        if (hasPriorityRule) {
-            PartAlgCPLinearExpr priorityMergedExpr = optAlg.queryMergerPriorityConstraintExpr();
-            if (adjustOptimalValue == null) {
-                optModel.minimize(priorityMergedExpr);
-            } else {
-                optModel.addLessOrEqual(priorityMergedExpr, adjustOptimalValue.longValue());
-            }
-        }
-
-        // 求解最优解
-        CpSolver optSolver = new CpSolver();
-        optSolver.getParameters().setNumSearchWorkers(1);
-        optSolver.getParameters().setEnumerateAllSolutions(true);
-        optSolver.getParameters().setMaxTimeInSeconds(10);
-        ModuleInstSolutionCallBack optCb = new ModuleInstSolutionCallBack(module, optAlg.getVars(),
-                optAlg.getOtherVarMap(), optAlg);
-
-        log.info("solver  models:\n");
-        optModel.printModelSummary();
-        CpSolverStatus optStatus = optSolver.solve(optModel.getCpModel(), optCb);
-        SolverResult sr = optCb.getSolverResult();
-        sr.setSolverStatus(optStatus.toString());
-        if (optStatus == CpSolverStatus.OPTIMAL || optStatus == CpSolverStatus.FEASIBLE) {
-            sr.setObjectiveValue(optSolver.objectiveValue());
-            log.info("Optimal value for : {}", optSolver.objectiveValue());
-        } else {
-            log.error("Failed to solver, status : " + optStatus);
-            return sr;
-        }
-        if (hasPriorityRule && (adjustOptimalValue == null)) {
-            Pair<Boolean, String> validResult = validPriorityOverallValue(sr.getObjectiveValue(), sr.getSolutions());
-            if (!validResult.getFirst()) {
-                String msg = "Failed to valid expr&solver " + validResult.getSecond();
-                log.error(msg);
-                // throw new AlgExecutorException(msg);
-            }
-        }
-        sortSolutionsByPriority(sr.getSolutions());
-        log.info("solutions: \n {}",
-                SolutionUtils.toSolutionString(sr.getSolutions()));
-        return sr;
-    }
-
-    private void sortSolutionsByPriority(List<ModuleInst> solutions) {
-        // 根据 priorityOverallValue 进行排序（降序，值越大优先级越高）
-        solutions.sort((a, b) -> -Double.compare(b.getPriorityOverallValue(), a.getPriorityOverallValue()));
-
-        // 对 prioritySortNo 进行赋值
-        for (int i = 0; i < solutions.size(); i++) {
-            solutions.get(i).setPrioritySortNo(i + 1);
-        }
-    }
-
-    /**
-     * 根据请求初始化约束模型
-     *
-     * @param req 部件分类请求
-     * @param alg 约束算法实现
-     */
-    private void initModelByReq(InferPartCategoryReq req, ConstraintAlgImpl alg) {
-        if (req.getPreParaInsts() != null) {
-            for (ParaInst paraInst : req.getPreParaInsts()) {
-                alg.addParaEquality(paraInst.getCode(), paraInst.getValue());
-            }
-        }
-        if (req.getPrePartInsts() != null) {
-            for (PartInst partInst : req.getPrePartInsts()) {
-                alg.addPartEquality(partInst.getCode(), partInst.getQuantity());
-            }
-        }
     }
 
     /**
@@ -395,7 +252,8 @@ public class PartCategoryConstraintExecutorImpl {
      * @param partConstraintFromReqs 部件约束列表
      * @param alg                    约束算法实现
      */
-    private void initModelByPriorityConstraints(
+    @Override
+    protected void initModelByPriorityConstraints(
             List<ParConstraint> partConstraintFromReqs, ConstraintAlgImpl alg) {
         for (ParConstraint partConstraint : partConstraintFromReqs) {
             alg.sumFunConstraint(partConstraint.getFilteredCategory().getAllAtomicParts(), partConstraint);
@@ -436,7 +294,8 @@ public class PartCategoryConstraintExecutorImpl {
      * @param moduleCode 模块代码
      * @return 约束算法实例
      */
-    private ConstraintAlgImpl createConstraintAlg(long moduleId, String moduleCode) {
+    @Override
+    protected ConstraintAlgImpl createConstraintAlg(long moduleId, String moduleCode) {
         return moduleAlgClassLoader.newConstraintAlg(moduleCode);
     }
 }

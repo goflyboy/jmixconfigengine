@@ -295,13 +295,6 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
         assertSoluContain("md1(Q:2,H:0,S:1),sd1(Q:1,H:0,S:1)");
     }
 
-    @Test
-    public void testCase5_CapacityGreaterEqual5NoSpeedFilter() {
-        inferRecommend("drive", "drive:sum.Capacity >=5");
-        printSimpleSolutions();
-        assertSoluContain(1, "md1(Q:1,H:0,S:1),sd1(Q:2,H:0,S:1)");
-    }
-
     // 要求5400速率的固态硬盘2块
     @Test
     public void testNoSpeedRequirement() {

@@ -130,7 +130,7 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
             PartCategoryConstraintExecutorImpl categoryExecutor = new PartCategoryConstraintExecutorImpl(module, config,
                     loader);
             InferPartCategoryReq cReq = toInferPartCategoryReq(req);
-            return categoryExecutor.processPartCategory(cReq);
+            return categoryExecutor.doProcess(cReq);
         } catch (AlgLoaderException | AlgExecutorException ex) {
             log.error("Failed to infer paras", ex);
             return Result.failed("exception: " + ex.getMessage());

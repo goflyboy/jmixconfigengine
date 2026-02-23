@@ -3278,4 +3278,21 @@ IProduct继承IOnto
 
 
 
+重构PartCategoryConstraintExecutorImpl和ModuleConstraintExecutorImpl
 
+1、尽量根据根据PartCategoryConstraintExecutorImpl 抽取一个公共的ModuleBaseConstraintExecutorImpl(
+public abstract class ModuleBaseConstraintExecutorImpl{
+
+	private Module module;
+    private ConstraintConfig config;
+    private ModuleAlgClassLoader moduleAlgClassLoader;
+
+	//把PartCategory filteredCategory改成：IModule filteredModuleBase）
+	public abstract  Result<List<ModuleInst> doProcess(InferPartCategoryReq partCategoryReq);
+
+	   private SolverResult solveWithOutPriorityConstraints(IModule filteredModuleBase,
+            InferPartCategoryReq partCatagoryReq) {
+		....  
+
+	....
+}
