@@ -17,19 +17,9 @@ import java.util.List;
 public class PriorityRuleSchema extends RuleSchema {
 
     /**
-     * 优先级类型
-     */
-    private PriorityType priorityType;
-
-    /**
      * 优先级策略
      */
     private PriorityStrategy priorityStrategy;
-
-    /**
-     * 属性代码
-     */
-    private String attrCode;
 
     @Override
     public List<RefProgObjSchema> getFromLeftProgObjs() {

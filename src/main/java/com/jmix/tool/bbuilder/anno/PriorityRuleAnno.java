@@ -1,7 +1,6 @@
 package com.jmix.tool.bbuilder.anno;
 
 import com.jmix.executor.bmodel.logic.PriorityStrategy;
-import com.jmix.executor.bmodel.logic.PriorityType;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -40,11 +39,6 @@ public @interface PriorityRuleAnno {
      * 属性代码
      */
     String attrCode() default "";
-
-    /**
-     * 优先级类型
-     */
-    PriorityType type() default PriorityType.SELECT;
 
     /**
      * 优先级策略

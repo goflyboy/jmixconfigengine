@@ -49,6 +49,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -261,7 +262,7 @@ public final class ModuleGenneratorByAnno {
         List<Rule> moduleRules = new ArrayList<>();
 
         // 遍历所有方法
-        for (java.lang.reflect.Method method : moduleAlgClazz.getDeclaredMethods()) {
+        for (Method method : moduleAlgClazz.getDeclaredMethods()) {
             // 检查是否有CompatiableRuleAnno注解
             CompatiableRuleAnno compatiableRuleAnno = method.getAnnotation(CompatiableRuleAnno.class);
             if (compatiableRuleAnno != null) {
@@ -400,9 +401,7 @@ public final class ModuleGenneratorByAnno {
 
         // 创建PriorityRuleSchema
         PriorityRuleSchema schema = new PriorityRuleSchema();
-        schema.setPriorityType(anno.type());
         schema.setVersion("1.0");
-        schema.setAttrCode(anno.attrCode());
         schema.setPriorityStrategy(anno.strategy());
 
         rule.setRawCode(schema);
@@ -668,7 +667,8 @@ public final class ModuleGenneratorByAnno {
                             partCategory.getParas().add(para);
                             log.info("Parameter '{}' added to PartCategory '{}'", para.getCode(), fatherCode);
                         } else {
-                            log.warn("Father part '{}' not found or not a PartCategory for parameter '{}', adding to module level",
+                            log.warn(
+                                    "Father part '{}' not found or not a PartCategory for parameter '{}', adding to module level",
                                     fatherCode, para.getCode());
                             paras.add(para);
                         }
