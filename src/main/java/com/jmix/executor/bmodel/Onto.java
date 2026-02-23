@@ -1,10 +1,10 @@
 package com.jmix.executor.bmodel;
 
 import com.jmix.executor.bmodel.attr.DynamicAttribute;
-import com.jmix.executor.bmodel.attr.IDynamicAttributable;
 import com.jmix.executor.bmodel.attr.InstanceDynAttrValue;
 import com.jmix.executor.bmodel.base.ProgrammableObject;
 import com.jmix.executor.bmodel.logic.Rule;
+import com.jmix.executor.bmodel.logic.RuleTypeConstants;
 import com.jmix.executor.bmodel.para.Para;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -26,7 +26,7 @@ import java.util.Optional;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class Onto extends ProgrammableObject<Integer> implements IDynamicAttributable {
+public class Onto extends ProgrammableObject<Integer> implements IOnto {
 
     /**
      * 实例属性键名
@@ -181,6 +181,11 @@ public class Onto extends ProgrammableObject<Integer> implements IDynamicAttribu
      */
     @JsonIgnore
     public Optional<Para> queryPara(String code) {
+        return getPara(code);
+    }
+
+    @Override
+    public Optional<Para> getPara(String code) {
         if (code == null || paraMap.isEmpty()) {
             for (Para para : getParas()) {
                 paraMap.put(para.getCode(), para);
@@ -188,6 +193,30 @@ public class Onto extends ProgrammableObject<Integer> implements IDynamicAttribu
         }
         Para para = paraMap.get(code);
         return para != null ? Optional.of(para) : Optional.empty();
+    }
+
+    @Override
+    public Optional<Rule> getRule(String code) {
+        if (code == null) {
+            return Optional.empty();
+        }
+        return getRules().stream()
+                .filter(rule -> code.equals(rule.getCode()))
+                .findFirst();
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean hasPriorityRule() {
+        return !getPriorityRules().isEmpty();
+    }
+
+    @Override
+    @JsonIgnore
+    public List<Rule> getPriorityRules() {
+        return getRules().stream()
+                .filter(rule -> RuleTypeConstants.isPriorityRule(rule.getRuleSchemaTypeFullName()))
+                .collect(java.util.stream.Collectors.toList());
     }
 
     @Override

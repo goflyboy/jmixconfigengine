@@ -6,7 +6,6 @@ import com.jmix.executor.bmodel.attr.InstanceDynAttrValueItem;
 import com.jmix.executor.bmodel.base.Pair;
 import com.jmix.executor.bmodel.logic.Rule;
 import com.jmix.executor.bmodel.logic.RuleTypeConstants;
-import com.jmix.executor.bmodel.para.Para;
 import com.jmix.executor.impl.util.FilterExpressionExecutor;
 import com.jmix.executor.impl.util.FilterExpressionExecutor.FilterCondition;
 import com.jmix.executor.model.AttrFunConstant;
@@ -409,18 +408,6 @@ public class PartCategory extends ModuleBase implements IModule, IPart {
             }
         }
         return String.valueOf(sumAttrValue);
-    }
-
-    /**
-     * 根据编码获取参数对象
-     * 
-     * @param code 参数编码
-     * @return 参数对象，如果不存在则返回Optional.empty()
-     */
-    @JsonIgnore
-    @Override
-    public Optional<Para> getPara(String code) {
-        return super.queryPara(code);
     }
 
     /**

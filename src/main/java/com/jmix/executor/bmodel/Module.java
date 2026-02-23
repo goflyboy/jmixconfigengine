@@ -17,7 +17,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * 模块定义
@@ -108,17 +107,6 @@ public class Module extends ModuleBase implements IModule {
     }
 
     /**
-     * 根据编码获取参数对象
-     * 
-     * @param code 参数编码
-     * @return 参数对象，如果不存在则返回Optional.empty()
-     */
-    @JsonIgnore
-    public Optional<Para> getPara(String code) {
-        return super.queryPara(code);
-    }
-
-    /**
      * 获取规则列表
      * 
      * @return 规则列表
@@ -127,26 +115,6 @@ public class Module extends ModuleBase implements IModule {
     public List<Rule> getRules() {
         List<Rule> rules = super.getRules();
         return rules != null ? rules : new ArrayList<>();
-    }
-
-    /**
-     * 获取参数列表
-     * 
-     * @return 参数列表
-     */
-    @Override
-    public List<Para> getParas() {
-        return super.getParas();
-    }
-
-    /**
-     * 获取部件列表
-     * 
-     * @return 部件列表
-     */
-    @Override
-    public List<IPart> getAllParts() {
-        return super.getAllParts();
     }
 
     /**
