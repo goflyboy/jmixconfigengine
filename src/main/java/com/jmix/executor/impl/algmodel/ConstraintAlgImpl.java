@@ -41,6 +41,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * 约束算法实现基类
@@ -80,6 +81,11 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * 优先级约束映射表，存储属性代码到优先级约束的映射
      */
     protected Map<String, PriorityConstraint> priorityRuleMap = new HashMap<>();
+
+    /**
+     * 兼容性约束算法实例
+     */
+    protected CompatibleConstraintAlg compatibleConstraintAlg;
 
     /**
      * 当前模块
@@ -218,6 +224,8 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             List<RelaxVar> confictedRelaxs,
             List<ParConstraint> partConstraints) {
         this.model = model;
+        // 初始化兼容性约束算法实例
+        this.compatibleConstraintAlg = new CompatibleConstraintAlg(model);
         this.model.setIsAttachRelax(isAttachRelax);
         this.model.setConfictedRelaxVars(confictedRelaxs);
         this.module = module;
@@ -1417,5 +1425,133 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         model.addEquality(partVar.getQty(), 0);
 
         log.info("Set part unselected: code={}, isSelected=0, qty=0", part.getCode());
+    }
+
+    /**
+     * 添加不兼容性约束（部件级别）
+     * 
+     * @param ruleCode          规则代码
+     * @param leftPartsExprStr  左侧部件表达式字符串，格式如 "fatherCode=cpu:CoreNum=4"
+     * @param rightPartsExprStr 右侧部件表达式字符串
+     */
+    public void inCompatible(String ruleCode, String leftPartsExprStr, String rightPartsExprStr) {
+        PartsExpr left = filterPartExpr(leftPartsExprStr);
+        PartsExpr right = filterPartExpr(rightPartsExprStr);
+
+        if (left.isEmpty4FilterPars() || right.isEmpty4FilterPars()) {
+            log.info("Skip inCompatible constraint: {} - left or right filter is empty", ruleCode);
+            return;
+        }
+
+        compatibleConstraintAlg.addCompatibleConstraintInCompatible(ruleCode, left, right);
+    }
+
+    /**
+     * 解析部件表达式字符串
+     * 格式：fatherCode=xxx:filterCondition
+     * 
+     * @param partExprStr 部件表达式字符串
+     * @return PartsExpr
+     */
+    private PartsExpr filterPartExpr(String partExprStr) {
+        if (partExprStr == null || partExprStr.isEmpty()) {
+            // 打日志，抛异常
+            log.error("partExprStr is null or empty, cannot filter part expr");
+            throw new AlgLoaderException("partExprStr is null or empty, cannot filter part expr");
+        }
+        PartsExpr partsExpr = new PartsExpr();
+        // 解析partCategoryCode和filterConditionStr
+        String partCategoryCode = "";
+        String filterConditionStr = "";
+
+        int colonIndex = partExprStr.indexOf(':');
+        if (colonIndex > 0) {
+            partCategoryCode = partExprStr.substring(0, colonIndex);
+            filterConditionStr = partExprStr.substring(colonIndex + 1);
+        } else {
+            // 打日志，抛异常
+            log.error("partExprStr is invalid, cannot filter part expr");
+            throw new AlgLoaderException("partExprStr is invalid, cannot filter part expr");
+        }
+
+        partsExpr.setFilterConditionStr(filterConditionStr);
+
+        // 获取该分类下的所有原子部件
+        List<Part> atomicParts = module.getAllAtomicParts(partCategoryCode);
+
+        // 根据过滤条件筛选部件
+        List<Part> filterParts;
+        List<Part> noFilterParts;
+
+        if (filterConditionStr == null || filterConditionStr.isEmpty()) {
+            filterParts = new ArrayList<>();
+            noFilterParts = new ArrayList<>(atomicParts);
+        } else {
+            filterParts = FilterExpressionExecutor.doSelect(atomicParts, filterConditionStr);
+            noFilterParts = subPart(atomicParts, filterParts);
+        }
+
+        // 转换为PartVar
+        partsExpr.setPartVars(toPartVar(atomicParts));
+        partsExpr.setFilterPartVars(toPartVar(filterParts));
+        partsExpr.setNoFilterPartVars(toPartVar(noFilterParts));
+        return partsExpr;
+    }
+
+    /**
+     * 将Part列表转换为PartVar列表
+     * 
+     * @param parts Part列表
+     * @return PartVar列表
+     */
+    public List<PartVar> toPartVar(List<Part> parts) {
+        return parts.stream()
+                .map(this::toPartVar)
+                .filter(pv -> pv != null)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 将Part对象转换为PartVar
+     * 
+     * @param part Part对象
+     * @return PartVar，如果不存在则返回null
+     */
+    public PartVar toPartVar(Part part) {
+        return toPartVar(part.getCode());
+    }
+
+    /**
+     * 将Part代码转换为PartVar
+     * 
+     * @param partCode Part代码
+     * @return PartVar，如果不存在则返回null
+     */
+    public PartVar toPartVar(String partCode) {
+        Var<?> var = getVar(partCode);
+        if (var instanceof PartVar) {
+            return (PartVar) var;
+        }
+        // 打日志，抛异常
+        log.error("PartVar not found for code: {}", partCode);
+        throw new AlgLoaderException("PartVar not found for code: " + partCode);
+    }
+
+    /**
+     * 计算子部件列表
+     * 从allParts中移除subParts
+     * 
+     * @param allParts 全部部件列表
+     * @param subParts 要移除的部件列表
+     * @return 剩余部件列表
+     */
+    private List<Part> subPart(List<Part> allParts, List<Part> subParts) {
+        if (subParts == null || subParts.isEmpty()) {
+            return new ArrayList<>(allParts);
+        }
+
+        List<Part> result = new ArrayList<>(allParts);
+        result.removeAll(subParts);
+        return result;
     }
 }

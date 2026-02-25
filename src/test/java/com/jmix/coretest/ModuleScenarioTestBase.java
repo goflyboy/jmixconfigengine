@@ -671,6 +671,16 @@ public abstract class ModuleScenarioTestBase {
     /**
      * 基于部件约束进行推理推荐
      * 
+     * @param constraintReqs 约束请求字符串数组
+     * @return 推荐的模块实例列表
+     */
+    protected List<ModuleInst> inferRecommendModule(String... constraintReqs) {
+        return inferRecommend("", constraintReqs);
+    }
+
+    /**
+     * 基于部件约束进行推理推荐
+     * 
      * @param partCategoryCode 部件类别
      * @param constraintReqs   约束请求字符串数组
      * @return 推荐的模块实例列表
