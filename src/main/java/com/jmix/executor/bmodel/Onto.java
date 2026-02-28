@@ -83,8 +83,8 @@ public class Onto extends ProgrammableObject<Integer> implements IOnto {
      * 初始化短代码
      */
     @JsonIgnore
-    public void initShortCode() {
-        int index = 0;
+    public int initShortCode(int startIndex) {
+        int index = startIndex;
         for (Para para : getParas()) {
             if (para.getCode().length() <= 3) { // 如果编码长度小于等于3，则直接使用编码
                 para.setShortCode(para.getCode());
@@ -93,7 +93,7 @@ public class Onto extends ProgrammableObject<Integer> implements IOnto {
                 index++;
             }
         }
-
+        return index;
     }
 
     /**

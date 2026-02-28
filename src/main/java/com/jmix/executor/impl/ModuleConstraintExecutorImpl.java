@@ -11,9 +11,11 @@ import com.jmix.executor.bmodel.logic.RefProgObjSchema;
 import com.jmix.executor.cmodel.ModuleInst;
 import com.jmix.executor.cmodel.ParaInst;
 import com.jmix.executor.cmodel.PartInst;
+import com.jmix.executor.cmodel.SolverResult;
 import com.jmix.executor.impl.algmodel.AlgCPModel;
 import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
 import com.jmix.executor.impl.algmodel.RelaxVar;
+import com.jmix.executor.impl.util.ModuleUtils;
 import com.jmix.executor.impl.util.ReqUtils;
 import com.jmix.executor.model.AlgExecutorException;
 import com.jmix.executor.model.AlgLoaderException;
@@ -31,6 +33,7 @@ import com.jmix.executor.model.RunInferParasRsp;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.google.common.base.Strings;
 import com.google.ortools.sat.CpSolver;
 import com.google.ortools.sat.CpSolverStatus;
 
@@ -51,7 +54,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @since 2025-09-22
  */
 @Slf4j
-public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
+public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorImpl implements ModuleConstraintExecutor {
 
     private final Map<Long, Module> moduleMap = new HashMap<>();
 
@@ -109,6 +112,80 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
     }
 
     @Override
+    public Result<List<ModuleInst>> doProcess(InferPartCategoryReq partCategoryReq) {
+        return processProduct(module, partCategoryReq);
+    }
+
+    private Map<String, PartConstraintReq> normalizePartConstraint(List<PartConstraintReq> orgReqs, IModule module) {
+        Map<String, PartConstraintReq> normalizedReqs = new HashMap<>();
+        for (PartConstraintReq orgReq : orgReqs) {
+            normalizedReqs.put(orgReq.getPartCategoryCode(), orgReq);
+        }
+        // 标准化， 1、每个rootCategory只有1个， 2、属于同一个rootCategory的PartConstraintReq，合并在一起
+        // 3、原始需求中针对子的要转换为rootCategory
+        return normalizedReqs;
+    }
+
+    /**
+     * 处理部件分类约束
+     *
+     * @param partCategoryReq 部件分类请求
+     * @return 推理结果
+     */
+    public Result<List<ModuleInst>> processProduct(Module startModule, InferPartCategoryReq partCategoryReq) {
+        try {
+            Map<String, PartConstraintReq> partConstraintReqMap = normalizePartConstraint(
+                    partCategoryReq.getPartConstraintReqs(), startModule);
+            // 查找原始部件分类
+            Pair<Module, List<ParConstraint>> filterResult = filterClone(startModule, partConstraintReqMap);
+            Module filterModule = filterResult.getFirst();
+            log.info("Priority-orignal module: {}", ModuleUtils.toShortString(startModule));
+            log.info("Priority-filter module: {}", ModuleUtils.toShortString(filterModule));
+            List<ParConstraint> partConstraintFromReqs = filterResult.getSecond();
+            SolverResult sr = null;
+            // 检查是否有优先级规则，如果有则使用分级求解
+            if (filterModule.hasAllPriorityRule()) {
+                sr = solveWithPriorityConstraints(filterModule,
+                        partCategoryReq, partConstraintFromReqs);
+            } else {
+                sr = solveWithOutPriorityConstraints(filterModule, partCategoryReq, partConstraintFromReqs);
+            }
+            return Result.success(sr.getSolutions());
+
+        } catch (Exception e) {
+            log.error("Failed to process Module constraint", e);
+            return Result.failed("Failed to process Module constraint: " + e.getMessage());
+        }
+    }
+
+    private Pair<Module, List<ParConstraint>> filterClone(Module startModule,
+            Map<String, PartConstraintReq> partConstraintReqMap) {
+        Module result = startModule.clone();
+        List<ParConstraint> partConstraintFromReqs = new ArrayList<>();
+        PartConstraintReq req = null;
+        PartCategory filterPartCategory = null;
+        for (PartCategory partCategory : startModule.getPartCategorys()) {
+            req = partConstraintReqMap.get(partCategory.getCode());
+            if (req == null) {
+                result.addPart(partCategory); // 完全挪过来
+            } else {
+                filterPartCategory = partCategory.filterClone(req);
+                String msg = String.format("Priority-filtered aparts: {%s} by {%s}",
+                        filterPartCategory.getAllAtomicPartShortString(),
+                        req.getAttrWhereCondition());
+                log.info(msg);
+                if (filterPartCategory.getAllAtomicPartShortString().isEmpty()) {
+                    throw new AlgExecutorException(msg);
+                }
+                result.addPart(filterPartCategory);
+                PartCategoryConstraintExecutorImpl.resolveAddPartConstraint(
+                        filterPartCategory, req, partConstraintFromReqs);
+            }
+        }
+        return new Pair<>(result, partConstraintFromReqs);
+    }
+
+    @Override
     public Result<List<ModuleInst>> inferParas(InferParasReq req) {
         if (req == null) {
             return Result.failed("req is null");
@@ -127,10 +204,18 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
                 log.error("ModuleAlgClassLoader not found for module: {}", module.getId());
                 return Result.failed("ModuleAlgClassLoader not found for module: " + module.getId());
             }
-            PartCategoryConstraintExecutorImpl categoryExecutor = new PartCategoryConstraintExecutorImpl(module, config,
-                    loader);
+            ModuleBaseConstraintExecutorImpl baseExecutor = null;
+            Result<List<ModuleInst>> result = null;
             InferPartCategoryReq cReq = toInferPartCategoryReq(req);
-            return categoryExecutor.doProcess(cReq);
+            if (!Strings.isNullOrEmpty(cReq.getPartCategoryCode())) {
+                baseExecutor = new PartCategoryConstraintExecutorImpl();
+            } else {
+                baseExecutor = this;
+            }
+            baseExecutor.init(module, config, loader);
+            result = baseExecutor.doProcess(cReq);
+
+            return result;
         } catch (AlgLoaderException | AlgExecutorException ex) {
             log.error("Failed to infer paras", ex);
             return Result.failed("exception: " + ex.getMessage());
@@ -338,26 +423,6 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
         return new RunInferParasRsp(status, cb, alg.getModel(), solver);
     }
 
-    /**
-     * 创建约束算法实例
-     * 
-     * @param moduleId   模块ID
-     * @param moduleCode 模块代码
-     * @return 约束算法实例
-     * @throws AlgLoaderException 如果模块类加载器未找到或创建失败
-     */
-    private ConstraintAlgImpl createConstraintAlg(long moduleId, String moduleCode) throws AlgLoaderException {
-        // 加载算法类
-        ModuleAlgClassLoader loader = getModuleClassLoader(moduleId);
-        if (loader == null) {
-            log.error("ModuleAlgClassLoader not found for module: {}", moduleId);
-            throw new AlgLoaderException("ModuleAlgClassLoader not found for module: " + moduleId);
-        }
-
-        // 初始化约束模型
-        return loader.newConstraintAlg(moduleCode);
-    }
-
     private ConstraintAlgImpl initConstraintModel(Module module, InferParasReq req,
             boolean isAttachRelax, List<RelaxVar> confictedRelaxs)
             throws AlgLoaderException, AlgExecutorException {
@@ -561,4 +626,5 @@ public class ModuleConstraintExecutorImpl implements ModuleConstraintExecutor {
             return "{\"error\": \"Serialization failed: " + e.getMessage() + "\"}";
         }
     }
+
 }

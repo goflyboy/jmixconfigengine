@@ -1,11 +1,9 @@
 package com.jmix.executor.impl;
 
-import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartCategory;
 import com.jmix.executor.cmodel.ModuleInst;
 import com.jmix.executor.cmodel.SolverResult;
-import com.jmix.executor.model.ConstraintConfig;
 import com.jmix.executor.model.InferPartCategoryReq;
 import com.jmix.executor.model.ParConstraint;
 import com.jmix.executor.model.PartConstraintReq;
@@ -29,9 +27,7 @@ import java.util.Set;
 @Slf4j
 public class PartCategoryConstraintExecutorImpl extends ModuleBaseConstraintExecutorImpl {
 
-    public PartCategoryConstraintExecutorImpl(Module module, ConstraintConfig config,
-            ModuleAlgClassLoader moduleAlgClassLoader) {
-        super(module, config, moduleAlgClassLoader);
+    public PartCategoryConstraintExecutorImpl() {
     }
 
     /**
@@ -75,7 +71,7 @@ public class PartCategoryConstraintExecutorImpl extends ModuleBaseConstraintExec
                 sr = solveWithPriorityConstraints(mergedFilteredCategory,
                         partCategoryReq, partConstraintFromReqs);
             } else {
-                sr = solveWithOutPriorityConstraints(filteredCategory, partCategoryReq);
+                sr = solveWithOutPriorityConstraints(filteredCategory, partCategoryReq, partConstraintFromReqs);
             }
             return Result.success(sr.getSolutions());
 

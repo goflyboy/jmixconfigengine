@@ -36,11 +36,11 @@ import java.util.List;
 @Slf4j
 public abstract class ModuleBaseConstraintExecutorImpl {
 
-    protected final Module module;
-    protected final ConstraintConfig config;
-    protected final ModuleAlgClassLoader moduleAlgClassLoader;
+    protected Module module;
+    protected ConstraintConfig config;
+    protected ModuleAlgClassLoader moduleAlgClassLoader;
 
-    public ModuleBaseConstraintExecutorImpl(Module module, ConstraintConfig config,
+    public void init(Module module, ConstraintConfig config,
             ModuleAlgClassLoader moduleAlgClassLoader) {
         this.module = module;
         this.config = config;
@@ -63,9 +63,10 @@ public abstract class ModuleBaseConstraintExecutorImpl {
      * @return 求解结果
      */
     protected SolverResult solveWithOutPriorityConstraints(IModule filteredModuleBase,
-            InferPartCategoryReq partCategoryReq) {
+            InferPartCategoryReq partCategoryReq,
+            List<ParConstraint> partConstraintFromReqs) {
         log.info("no Priority-process starting........");
-        return invokerSolver(filteredModuleBase, partCategoryReq, new ArrayList<>(), null);
+        return invokerSolver(filteredModuleBase, partCategoryReq, partConstraintFromReqs, null);
     }
 
     /**
@@ -286,7 +287,7 @@ public abstract class ModuleBaseConstraintExecutorImpl {
      * @param partConstraintReq      部件约束请求
      * @param partConstraintFromReqs 部件约束列表
      */
-    protected void resolveAddPartConstraint(PartCategory filteredCategory, PartConstraintReq partConstraintReq,
+    public static void resolveAddPartConstraint(PartCategory filteredCategory, PartConstraintReq partConstraintReq,
             List<ParConstraint> partConstraintFromReqs) {
         // 解析属性
         Pair<DynamicAttribute, String> result = filteredCategory.parseAttribute(

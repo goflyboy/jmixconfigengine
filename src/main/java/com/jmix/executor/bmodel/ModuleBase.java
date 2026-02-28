@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * 模块基类
@@ -48,11 +49,14 @@ public class ModuleBase extends Onto {
      */
     @JsonIgnore
     public void initShortCode() {
-        super.initShortCode();
-        int index = 0;
-        index = 0;
+        initShortCode(1);
+    }
+
+    @JsonIgnore
+    public int initShortCode(int startIndex) {
+        int index = super.initShortCode(startIndex);
         for (Part part : atomicParts) {
-            if (part.getCode().length() <= 3) { // 如果编码长度小于等于3，则直接使用编码
+            if (part.getCode().length() <= 4) { // 如果编码长度小于等于3，则直接使用编码
                 part.setShortCode(part.getCode());
             } else {
                 part.setShortCode(Part.SHORT_CODE_PREFIX + index);
@@ -60,8 +64,9 @@ public class ModuleBase extends Onto {
             }
         }
         for (PartCategory partCategory : partCategorys) {
-            partCategory.initShortCode();
+            partCategory.initShortCode(index);
         }
+        return index;
     }
 
     /**
@@ -216,6 +221,36 @@ public class ModuleBase extends Onto {
         return result;
     }
 
+    @Override
+    public Optional<Para> getPara(String code) {
+        Optional<Para> result = super.getPara(code);
+        if (result.isPresent()) {
+            return result;
+        }
+        for (PartCategory partCategory : partCategorys) {
+            result = partCategory.getPara(code);
+            if (result.isPresent()) {
+                return result;
+            }
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<Rule> getRule(String code) {
+        Optional<Rule> result = super.getRule(code);
+        if (result.isPresent()) {
+            return result;
+        }
+        for (PartCategory partCategory : partCategorys) {
+            result = partCategory.getRule(code);
+            if (result.isPresent()) {
+                return result;
+            }
+        }
+        return Optional.empty();
+    }
+
     /**
      * 获取所有参数列表
      * 递归收集所有子分类中的参数
@@ -262,8 +297,15 @@ public class ModuleBase extends Onto {
      */
     @JsonIgnore
     public boolean hasAllPriorityRule() {
-        List<Rule> priorityRules = queryPriorityRules();
-        return !priorityRules.isEmpty();
+        if (hasPriorityRule()) {
+            return true;
+        }
+        for (PartCategory partCategory : partCategorys) {
+            if (partCategory.hasAllPriorityRule()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

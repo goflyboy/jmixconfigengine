@@ -133,6 +133,17 @@ public class AlgCPModel {
         this.constraints = new ArrayList<>();
     }
 
+    /**
+     * 添加规则分隔符
+     * 
+     * @param ruleCode 规则代码
+     */
+    public void addRuleSeperator(String ruleCode) {
+        AlgCPConstraint constraint = new AlgCPConstraint(null, null, "");
+        constraint.setName("-".repeat(5) + ruleCode + "-".repeat(5));
+        constraints.add(constraint);
+    }
+
     private void setCurrentRelaxVarName(String ruleCode, int weight) {
         if (!isAttachRelax) {
             log.info("relax:{} relax is not attached,setCurrentRelaxVarName", ruleCode);

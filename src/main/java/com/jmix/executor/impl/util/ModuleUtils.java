@@ -1,6 +1,9 @@
 package com.jmix.executor.impl.util;
 
 import com.jmix.executor.bmodel.Module;
+import com.jmix.executor.bmodel.ModuleBase;
+import com.jmix.executor.bmodel.PartCategory;
+import com.jmix.executor.bmodel.PartUtils;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -132,6 +135,30 @@ public final class ModuleUtils {
         } catch (IOException e) {
             log.warn("JSON file validation failed: {}", e.getMessage());
             return false;
+        }
+    }
+
+    /**
+     * 将ModuleBase对象转换为短字符串
+     * 
+     * @param module ModuleBase对象
+     * @return 短字符串
+     */
+    public static String toShortString(ModuleBase module) {
+        StringBuffer sb = new StringBuffer();
+        toShortString(sb, module, 0);
+        return sb.toString();
+    }
+
+    private static void toShortString(StringBuffer sb, ModuleBase module, int preBlank) {
+        sb.append(" ".repeat(preBlank));
+        // 按partcategory分层打印
+        for (PartCategory partCategory : module.getPartCategorys()) {
+            sb.append(partCategory.getShortCode());
+            sb.append("Parts:");
+            sb.append(PartUtils.toShortString(partCategory.getAtomicParts()));
+            toShortString(sb, partCategory, preBlank + 2);
+            sb.append("\n");
         }
     }
 }

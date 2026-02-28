@@ -168,7 +168,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
     private List<String> toFullRules(IModule tempModule) {
         List<String> fullRules = new ArrayList<>();
-        for (Rule rule : tempModule.getRules()) {
+        for (Rule rule : tempModule.getAllRules()) {
             fullRules.add(rule.getCode());
         }
         return fullRules;
@@ -182,7 +182,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             refProgObjSchema = new RefProgObjSchema(RefProgObjSchema.PROG_OBJ_TYPE_PART, part.getCode(), "");
             fullProgObjs.add(refProgObjSchema);
         }
-        for (Para para : tempModule.getParas()) {
+        for (Para para : tempModule.getAllParas()) {
             refProgObjSchema = new RefProgObjSchema(RefProgObjSchema.PROG_OBJ_TYPE_PARA, para.getCode(), "");
             fullProgObjs.add(refProgObjSchema);
         }
@@ -382,11 +382,14 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         boolean isWithoutAttr = attrCode == null || attrCode.isEmpty();
         for (Part part : atomicParts) {
             PartVar partVar = getPartVar(part.getCode());
-            int attrValue = isWithoutAttr ? 1 : Integer.parseInt(part.getAttr(attrCode));
-
-            // delegate to PartAlgCPLinearExpr to add both numeric term and metadata
-            // Note: varGetter may return an IntVar or BoolVar; cast to IntVar as existing
-            // code did.
+            int attrValue;
+            if (isWithoutAttr) {
+                attrValue = 1;
+            } else if (PartConstantAttr.Quantity.getCode().equals(attrCode)) {
+                attrValue = 1;
+            } else {
+                attrValue = Integer.parseInt(part.getAttr(attrCode));
+            }
             algExpr.addTerm(partVar, (IntVar) varGetter.apply(partVar), attrValue, varName);
         }
 
@@ -429,10 +432,33 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
         // 按exeRules列表来执行规则
         for (String ruleCode : exeRules) {
+            currentModule = getRuleCurrentModule(ruleCode);
+            // model.addRule
+            model.addRuleSeperator(ruleCode);
             Method method = ruleMethods.get(ruleCode);
             executeRuleMethod(ruleCode, method);
+            currentModule = null;
         }
         log.info("Executed  {} requested rules", exeRules.size());
+    }
+
+    private IModule getRuleCurrentModule(String ruleCode) {
+        Optional<Rule> ruleOpt = module.getRule(ruleCode);
+        if (!ruleOpt.isPresent()) {
+            // 打日志，报错
+            log.error("Rule not found for rule code: {}", ruleCode);
+            throw new AlgLoaderException("Rule not found for rule code: " + ruleCode);
+        }
+        Rule rule = ruleOpt.get();
+        if (rule.getFatherCode() == null || rule.getFatherCode().isEmpty()) {
+            return module;
+        }
+        PartCategory partCategory = module.findPartCategory(rule.getFatherCode());
+        if (partCategory == null) {
+            log.error("PartCategory not found for rule code: {}", ruleCode);
+            throw new AlgLoaderException("PartCategory not found for rule code: " + ruleCode);
+        }
+        return partCategory;
     }
 
     /**
@@ -1021,7 +1047,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             Function<PartVar, LinearArgument> varGetter, String varName, String filtedConditionStr) {
         // 创建一个临时的PriorityConstraint对象来复用构建逻辑
         PriorityConstraint tempConstraint = new PriorityConstraint();
-        List<Part> atomicParts = module.getAllAtomicParts();
+        List<Part> atomicParts = currentModule.getAllAtomicParts();
 
         // 如果提供了过滤条件，则先过滤部件
         if (filtedConditionStr != null && !filtedConditionStr.trim().isEmpty()) {
@@ -1031,6 +1057,7 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
 
         PartAlgCPLinearExpr expr = buildPriorityConstraintExpressions(tempConstraint, cofAttrCode, varName, varGetter,
                 atomicParts);
+        tempConstraint.setExpr(expr);
         log.info("Priority-Sum formula in sum4Parts: {}", tempConstraint.getExprStr());
         return expr;
     }

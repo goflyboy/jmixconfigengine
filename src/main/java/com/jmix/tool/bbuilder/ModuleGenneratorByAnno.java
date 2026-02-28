@@ -341,6 +341,7 @@ public final class ModuleGenneratorByAnno {
         // 设置基本信息
         String methodName = method.getName();
         rule.setCode(methodName);
+        rule.setFatherCode(anno.fatherCode());
         rule.setName(methodName);
         rule.setProgObjType("Module");
         rule.setProgObjCode(module.getCode());
@@ -391,6 +392,7 @@ public final class ModuleGenneratorByAnno {
         String methodName = method.getName();
         String ruleCode = anno.code().isEmpty() ? methodName : anno.code();
         rule.setCode(ruleCode);
+        rule.setFatherCode(anno.fatherCode());
         rule.setName(ruleCode);
         rule.setProgObjType("Module");
         rule.setProgObjCode(module.getCode());
@@ -422,6 +424,7 @@ public final class ModuleGenneratorByAnno {
         // 设置基本信息
         String methodName = method.getName();
         rule.setCode(methodName);
+        rule.setFatherCode(anno.fatherCode());
         rule.setName(methodName);
         rule.setProgObjType("Module");
         rule.setProgObjCode(module.getCode());

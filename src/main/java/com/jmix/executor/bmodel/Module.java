@@ -67,6 +67,26 @@ public class Module extends ModuleBase implements IModule {
     private ModuleRefRelationGraph refRelationGraph;
 
     /**
+     * 克隆PartCategory对象
+     *
+     * @return 克隆的PartCategory对象
+     */
+    @JsonIgnore
+    public Module clone() {
+        Module to = new Module();
+        // 调用父类的clone方法
+        super.clone(to);
+        // 复制PartCategory特有的属性
+        to.setId(this.getId());
+        to.setVersion(this.getVersion());
+        to.setPackageName(this.getPackageName());
+        to.setType(this.getType());
+        to.setAlg(this.getAlg());
+        to.setErrorMap(this.errorMap);
+        return to;
+    }
+
+    /**
      * 初始化方法，建立映射关系提升效率
      */
     @JsonIgnore

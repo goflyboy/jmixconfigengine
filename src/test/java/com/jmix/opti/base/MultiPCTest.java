@@ -110,17 +110,15 @@ public class MultiPCTest extends ModuleScenarioTestBase {
         @PartAnno(fatherCode = "cpu", attrs = { "18", "1024", "5" }, price = 800)
         private PartVar cpu4;
 
-        // @ParaAnno(fatherCode = "cpu", type = ParaType.INTEGER, assignType =
-        // AssignType.INPUT)
-        // private ParaVar cpuSumCores; // 输入参数
+        @ParaAnno(fatherCode = "cpu", type = ParaType.INTEGER, assignType = AssignType.INPUT)
+        private ParaVar cpuSumCores; // 输入参数 TODO:不需要建立，应该从引擎干掉
 
-        // @ParaAnno(fatherCode = "cpu", type = ParaType.INTEGER, assignType =
-        // AssignType.INPUT)
-        // private ParaVar cpuSumMemory; // 输入参数
+        @ParaAnno(fatherCode = "cpu", type = ParaType.INTEGER, assignType = AssignType.INPUT)
+        private ParaVar cpuSumMemory; // 输入参数
 
         @CodeRuleAnno(normalNaturalCode = "4核的CPU不兼容固态硬盘")
         private void logicAB1() {
-            inCompatible("logicAB1", "fatherCode=cpu", "CoreNum=4");
+            inCompatible("logicAB1", "cpu:CoreNum=4", "drive:Type=sd");
         }
 
         // TODO：进一步抽取单选型CPU
@@ -203,11 +201,51 @@ public class MultiPCTest extends ModuleScenarioTestBase {
         super(MultiPCConstraint.class);
     }
 
+    // 用例维度设计
+    // 维度1-DA: 分类输入(Input参数)
+    // DA1-第一个有要求（前 ）
+    // DA2-第二个有要求（后）
+    // DA3 两个都有要求
+    // 维度2-DB：规则，规则类型，层级，多个优先级规则
+    // DB1-分类-非优先LogicB2
+    // DB2-分类-优先LogicA1,LogicA2
+    // DB3-分类间-LogicAB，左右是否空，Left,right
     @Test
     public void mixInCompatibleLeftYRightY() {
-        // 测试点：父层category，=表达式
+        // Natural-Input: 要求5400速率的硬盘容量>=5T, 要求4核的CPU的总内存>=512G
+        // DSL-Input: drive:sum.Capacity >=5 where Speed=5400, cpu:sum.Memory >=512
+        // where CoreNum=4
+        // Struct-Input: req1F,req1C(sd1.Q*3 + md1*1 >=5), req2F,req2C(cpu2.Q*256 >=512)
+        // 测试点：
+        // 维度1-DA:DA3
+        // 维度2-DB:DB3(Left-Y,Right-Y)
+
+        // 预期结果：
+        // 解1： cpu2.Q=2 md1.Q=5
+        // --过滤，执行req1F,req2F: -->drive:sd1,md1, cpu:cpu2
+        // --产品规则实例化:
+        // ----LogicA1:cpu2.S<=1
+        // ----LogicB1:sd1.S +md1.S <=1,sd1.Q<=2 --生效
+        // ----LogicB2: (cpu2.S) InCompatible (sd1.S) (Left-Y,Right-Y)
+        // ----目标函数： xxx
+        // --关键执行过程：
+        // ----1. "4核的CPU的总内存>=512G" -->cpu2.Q =2
+        // ---LogicAB1(排除sd1) + "5400速率"(sd1,md1),只有md1，满足要求
+        // --根据req1C,的md1.Q = 5
         inferRecommendModule("drive:sum.Capacity >=5 where Speed=5400", "cpu:sum.Memory >=512 where CoreNum=4");
         printSimpleSolutions();
+        assertSoluContain(1, "cpu2(Q:2,H:0,S:1),md1(Q:5,H:0,S:1),sd1(0*)");
+        assertSoluContain("cpu2(Q:20,H:0,S:1),md1(Q:5,H:0,S:1),sd1(0*)");
     }
 
+    @Test
+    public void mixInCompatibleLeftYRightN() {
+        // Natural-Input: 要求机械硬盘容量>=5T, 要求4核的CPU的总内存>=512G
+
+        inferRecommendModule("drive:sum.Capacity >=5 where Type=md", "cpu:sum.Memory >=512 where CoreNum=4");
+        printSimpleSolutions();
+        assertSoluContain(1, "cpu2(Q:20,H:0,S:1),md1(0*),md2(Q:1,H:0,S:1),md3(Q:1,H:0,S:1)");
+        // TODO: 怎么让cpu1从1开始
+
+    }
 }
