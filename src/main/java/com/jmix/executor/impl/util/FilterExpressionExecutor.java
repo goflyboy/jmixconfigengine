@@ -41,6 +41,7 @@ public final class FilterExpressionExecutor {
 
     private static final Pattern FILTER_PATTERN = Pattern
             .compile("(\\w+)\\s*([=!<>]+|not\\s+like|like)\\s*\"?([^\"]*)\"?");
+    private static final Pattern MULTI_CONDITION_PATTERN = Pattern.compile("\\s+and\\s+", Pattern.CASE_INSENSITIVE);
 
     // Class field cache to improve performance
     private static final Map<Class<?>, Map<String, java.lang.reflect.Field>> FIELD_CACHE = new ConcurrentHashMap<>();
@@ -64,6 +65,32 @@ public final class FilterExpressionExecutor {
         private final String operator;
 
         private final String value;
+
+        /**
+         * 复合条件列表（用于 AND 连接多个条件）
+         */
+        private final List<FilterCondition> subConditions;
+
+        /**
+         * 判断是否为复合条件（AND 条件）
+         */
+        public boolean isCompound() {
+            return subConditions != null && !subConditions.isEmpty();
+        }
+
+        /**
+         * 创建简单条件
+         */
+        public static FilterCondition simple(String fieldName, String operator, String value) {
+            return new FilterCondition(fieldName, operator, value, null);
+        }
+
+        /**
+         * 创建复合条件（AND）
+         */
+        public static FilterCondition and(List<FilterCondition> conditions) {
+            return new FilterCondition(null, null, null, conditions);
+        }
     }
 
     /**
@@ -169,7 +196,7 @@ public final class FilterExpressionExecutor {
                 break;
         }
 
-        return new FilterCondition(deductCondition.getFieldName(), negatedOperator, deductCondition.getValue());
+        return FilterCondition.simple(deductCondition.getFieldName(), negatedOperator, deductCondition.getValue());
     }
 
     /**
@@ -206,27 +233,47 @@ public final class FilterExpressionExecutor {
 
     /**
      * Parse filter expression once and return FilterCondition
+     * Supports single condition and multiple AND conditions
+     * 
+     * <p>
+     * Supported formats:
+     * <ul>
+     * <li>Single condition: "field = value"</li>
+     * <li>Multiple AND conditions: "field1 = value1 and field2 = value2"</li>
+     * </ul>
      * 
      * @param filterExpr 过滤表达式字符串
      * @return 解析后的过滤条件，如果解析失败则返回空
      */
     public static Optional<FilterCondition> parseFilterExpression(String filterExpr) {
         try {
-            Matcher matcher = FILTER_PATTERN.matcher(filterExpr);
-            if (matcher.find()) {
-                String fieldName = matcher.group(1);
-                String operator = matcher.group(2).trim();
-                String value = matcher.group(3);
+            if (filterExpr == null || filterExpr.trim().isEmpty()) {
+                return Optional.empty();
+            }
 
-                // Normalize "not like" operator
-                if (operator.equalsIgnoreCase("not like")) {
-                    operator = OP_NOT_LIKE;
+            // Split multiple conditions by AND
+            String[] conditionParts = MULTI_CONDITION_PATTERN.split(filterExpr);
+
+            if (conditionParts.length == 1) {
+                // Single condition, parse directly
+                return parseSingleCondition(filterExpr.trim());
+            } else {
+                // Multiple AND conditions, parse each and combine
+                List<FilterCondition> conditions = new ArrayList<>();
+                for (String part : conditionParts) {
+                    Optional<FilterCondition> parsed = parseSingleCondition(part.trim());
+                    if (parsed.isPresent()) {
+                        conditions.add(parsed.get());
+                    } else {
+                        log.warn("Failed to parse filter condition part: {}", part);
+                        return Optional.empty();
+                    }
                 }
 
-                return Optional.of(new FilterCondition(fieldName, operator, value));
-            } else {
-                log.warn("Invalid filter expression format: {}", filterExpr);
-                return Optional.empty();
+                if (conditions.size() == 1) {
+                    return Optional.of(conditions.get(0));
+                }
+                return Optional.of(FilterCondition.and(conditions));
             }
         } catch (Exception e) {
             log.error("Exception occurred while parsing filter expression: {}", filterExpr, e);
@@ -235,7 +282,33 @@ public final class FilterExpressionExecutor {
     }
 
     /**
+     * Parse single filter condition
+     * 
+     * @param conditionStr 条件字符串
+     * @return 解析后的过滤条件
+     */
+    private static Optional<FilterCondition> parseSingleCondition(String conditionStr) {
+        Matcher matcher = FILTER_PATTERN.matcher(conditionStr);
+        if (matcher.find()) {
+            String fieldName = matcher.group(1);
+            String operator = matcher.group(2).trim();
+            String value = matcher.group(3);
+
+            // Normalize "not like" operator
+            if (operator.equalsIgnoreCase("not like")) {
+                operator = OP_NOT_LIKE;
+            }
+
+            return Optional.of(FilterCondition.simple(fieldName, operator, value));
+        } else {
+            log.warn("Invalid filter expression format: {}", conditionStr);
+            return Optional.empty();
+        }
+    }
+
+    /**
      * Check if object matches filter condition
+     * Supports both simple and compound (AND) conditions
      * 
      * @param object    要检查的对象
      * @param condition 过滤条件
@@ -243,6 +316,22 @@ public final class FilterExpressionExecutor {
      */
     private static <T extends IExtensible> boolean matchesFilter(T object, FilterCondition condition) {
         try {
+            // Handle compound conditions (AND)
+            if (condition.isCompound()) {
+                List<FilterCondition> subConditions = condition.getSubConditions();
+                if (subConditions == null || subConditions.isEmpty()) {
+                    return true;
+                }
+                // AND logic: all conditions must match
+                for (FilterCondition subCondition : subConditions) {
+                    if (!matchesFilter(object, subCondition)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            // Handle simple condition
             return evaluateCondition(object, condition.getFieldName(), condition.getOperator(), condition.getValue());
         } catch (Exception e) {
             log.error("Exception occurred while evaluating filter condition for object: {}",

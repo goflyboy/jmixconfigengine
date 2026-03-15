@@ -3282,7 +3282,6 @@ IProduct继承IOnto
 
 1、尽量根据根据PartCategoryConstraintExecutorImpl 抽取一个公共的ModuleBaseConstraintExecutorImpl(
 public abstract class ModuleBaseConstraintExecutorImpl{
-
 	private Module module;
     private ConstraintConfig config;
     private ModuleAlgClassLoader moduleAlgClassLoader;
@@ -3296,3 +3295,57 @@ public abstract class ModuleBaseConstraintExecutorImpl{
 
 	....
 }
+
+npx clawhub@latest install <skill-slug>
+
+
+调度
+
+TODO：做简单调度，
+TODO：
+TODO：做一个简单的代理？
+
+
+
+
+--支持Part独立调度？ 支持独立过滤？
+
+---构造上下文？ 
+------
+参考的样例？ 
+
+
+业务模型 
+
+有一些技术实现的？
+再是技术实现？
+
+对象建模？
+对象属性？ 
+
+对象方法、对象属性？ 
+
+对象 
+上下文规则
+
+1、基于  
+2、事件建模？--- 状态的变化？**
+
+本体更多是 概念建模
+
+知识图谱更多是基于实例？
+2025年
+
+1、健康
+A、羽毛球活动一直在增加，作息时间比较规律
+B、改进点：体重增加了太多，人容易犯困
+
+2、家庭
+A、和悠悠、涵涵的户外偏少，深度交流不够
+
+3、事业：
+A、主动规划自己，工作续签成功
+B、当前也在做自己内心感兴趣的事情
+C、待改进点，和主管的沟通有问题,绩效被黑
+
+

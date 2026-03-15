@@ -246,6 +246,5 @@ public class MultiPCTest extends ModuleScenarioTestBase {
         printSimpleSolutions();
         assertSoluContain(1, "cpu2(Q:20,H:0,S:1),md1(0*),md2(Q:1,H:0,S:1),md3(Q:1,H:0,S:1)");
         // TODO: 怎么让cpu1从1开始
-
     }
 }

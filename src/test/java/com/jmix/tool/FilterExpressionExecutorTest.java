@@ -82,6 +82,87 @@ public class FilterExpressionExecutorTest {
         assertEquals(1, result.size());
     }
 
+    // ========== Multiple AND Conditions Tests ==========
+
+    @Test
+    public void testDoSelectWithTwoAndConditions() {
+        // 准备测试数据
+        List<TestPart> parts = Arrays.asList(
+                createTestPart("part1", "5400", "1T"),
+                createTestPart("part2", "7200", "2T"),
+                createTestPart("part3", "9000", "4T"),
+                createTestPart("part31", "5400", "2T"));
+
+        // 测试两个 AND 条件: speed = 5400 and capacity = 2T
+        List<TestPart> result = FilterExpressionExecutor.doSelect(parts, "speed=5400 and capacity=2T");
+
+        assertEquals(1, result.size());
+        assertEquals("part31", result.get(0).getCode());
+    }
+
+    @Test
+    public void testDoSelectWithThreeAndConditions() {
+        // 准备测试数据
+        List<TestPart> parts = Arrays.asList(
+                createTestPart("part1", "5400", "1T"),
+                createTestPart("part2", "7200", "2T"),
+                createTestPart("part3", "9000", "4T"),
+                createTestPart("part31", "5400", "2T"),
+                createTestPart("part32", "5400", "1T"));
+
+        // 测试三个 AND 条件
+        List<TestPart> result = FilterExpressionExecutor.doSelect(parts, "code=part1 and speed=5400 and capacity=1T");
+
+        assertEquals(1, result.size());
+        assertEquals("part1", result.get(0).getCode());
+    }
+
+    @Test
+    public void testDoSelectWithAndConditionsNoMatch() {
+        // 准备测试数据
+        List<TestPart> parts = Arrays.asList(
+                createTestPart("part1", "5400", "1T"),
+                createTestPart("part2", "7200", "2T"),
+                createTestPart("part3", "9000", "4T"));
+
+        // 测试两个 AND 条件，但没有匹配结果
+        List<TestPart> result = FilterExpressionExecutor.doSelect(parts, "speed=5400 and capacity=100T");
+
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    public void testDoSelectWithAndConditionsAndOrMix() {
+        // 准备测试数据 - 使用 TestObject 有 sortNo 和 freq
+        List<TestObject> objects = Arrays.asList(
+                new TestObject("para11", "para11 description", 1, "3G", "1"),
+                new TestObject("para12", "para12 description", 2, "4G", "2"),
+                new TestObject("para31", "para31 description", 2, "5G", "3"),
+                new TestObject("para32", "para32 description", 3, "6G", "4"));
+
+        // 测试两个 AND 条件: sortNo=2 and freq=5G
+        List<TestObject> result = FilterExpressionExecutor.doSelect(objects, "sortNo=2 and freq=5G");
+
+        assertEquals(1, result.size());
+        assertEquals("para31", result.get(0).getCode());
+    }
+
+    @Test
+    public void testDoSelectWithAndConditionsGreaterThan() {
+        // 准备测试数据
+        List<TestObject> objects = Arrays.asList(
+                new TestObject("para11", "para11 description", 1, "3G", "1"),
+                new TestObject("para12", "para12 description", 2, "4G", "2"),
+                new TestObject("para31", "para31 description", 3, "5G", "3"),
+                new TestObject("para32", "para32 description", 4, "6G", "4"));
+
+        // 测试 AND 条件混合比较运算符: sortNo>=2 and freq=5G
+        List<TestObject> result = FilterExpressionExecutor.doSelect(objects, "sortNo>=2 and freq=5G");
+
+        assertEquals(1, result.size());
+        assertEquals("para31", result.get(0).getCode());
+    }
+
     // ========== doDeduct 测试用例 ==========
 
     @Test
