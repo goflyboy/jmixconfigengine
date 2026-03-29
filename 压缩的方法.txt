@@ -1,0 +1,405 @@
+一、核心诉求：
+1、期望的把多层PartCategory，在运行态搞成单层的，简化调度--
+---真的简化了？ 
+---和输入多实例的组合、和
+2、维护态可以有多层，运行态尽量只有单层
+
+二、方案：
+方案1：压到子
+对父的要求怎么办？
+父层的规则无法表达？---**
+
+规则的压缩：
+压缩前：
+--PC1_drive  r0. 总容量越小越好
+----PC11_sd   r1:只能配置一种类型   --->  
+-------sd1
+-------sd2
+-------sd3 
+----PC11_md   r2:总容量越小越好  
+-------md1
+-------md2
+-------md3
+
+
+压缩后：
+
+----PC11_sd   r1:只能配置一种类型   --->   
+-------sd1
+-------sd2
+-------sd3 
+----PC11_md   r2:总容量越小越好  
+-------md1
+-------md2
+-------md3
+
+
+方案2：压到父
+--属性多实例怎么解决的问题？ （混合的情况，有的是多实例，有的不是？)
+----多组要求一定是多多实例属性的要求（如：SD），如果是单组的要求，可能是多少实例属性，也可能不是(sd)
+----或者是在合并是，只有有多实例，都编程多实例，这样更简单一点（好像是）***  感觉更好**
+
+
+
+
+
+1、
+要将PartCategory  改成单层PartCategory   
+
+2、req要改
+
+压扁
+最多支持3次
+
+执行的时候压缩层异常
+
+开始遍历，也是root,  
+
+执行过程还是root
+
+规则的压缩：
+压缩前：
+--PC1_drive
+----PC11_sd   r1:只能配置一种类型   --->  
+-------sd1
+-------sd2
+-------sd3 
+----PC11_md   r2:总容量越小越好  
+-------md1
+-------md2
+-------md3
+压缩后：
+--PC1_drive  r1: 只能配置一种类型&& codePath=("drive.sd")    r2:总容量越小越好 && codePath=("drive.sd")
+-------sd1  codePath="drive.sd"
+-------sd2  codePath="drive.sd"
+-------sd3  codePath="drive.sd"  
+-------md1  codePath="drive.md"
+-------md2  codePath="drive.md"
+-------md3  codePath="drive.md" 
+ --核心逻辑：提上去的属性定义，带上codePath, part的属性值不变
+
+
+属性压缩1-二层：
+压缩前：
+--PC1_drive a1d,a2d
+----PC11_sd a11d  			r11: a11d=10的总容量数不能大于10
+-------sd1 a1v11,a2v11,a11v1
+-------sd2 a1v21,a2v21,a11v2
+-------sd3 a1v31,a2v31,a11v31
+----PC11_md a21d  			 
+-------md1 a1v12,a2v12,a21v1
+-------md2 a1v22,a2v22,a21v2 
+-------md3 a1v32,a2v32,a21v3
+
+
+压缩后：
+--PC1_drive a1d,a2d a11d(codePath=drive.sd),a21d(codePath=drive.md) r11: a11d=10的总容量数不能大于10&& codePath.start("drive.sd") 
+-------sd1 a1v11,a2v11,a11v1
+-------sd2 a1v21,a2v21,a11v2
+-------sd3 a1v31,a2v31,a11v31 
+-------md1 a1v12,a2v12,a21v1
+-------md2 a1v22,a2v22,a21v2 
+-------md3 a1v32,a2v32,a21v3 
+ --核心逻辑：提上去的属性定义，带上codePath, part的属性值不变
+
+
+
+属性压缩-4层：
+压缩前：
+--PC1_drive a1d, 
+----PT1 a1v1
+----PC11_sd a11d 
+-------PT2 a1v2,a11v2		 
+-------PC11   a111d 
+----------PT3 a1v3,a11v3,a111v3 	 
+----------PC11   a1111d  		 
+-------------PT4 a1v4,a11v4,a111v4,a111v4
+
+
+
+
+压缩后：
+--PC1_drive a1d, a11d(codePath=drive.sd) , a111d(codePath=drive.sd)
+----PT1 a1v1 
+-------PT2 a1v2,a11v2		 
+-------PC11   a111d 
+----------PT3 a1v3,a11v3,a111v3 	 
+----------PC11   a1111d  		 
+-------------PT4 a1v4,a11v4,a111v4,a111v4
+ --核心逻辑：提上去的属性定义，带上codePath, part的属性值不变
+
+
+
+压缩后，对部件见的值获取的影响
+
+
+规则压缩1-二层-扩展：
+压缩前：
+--PC1_drive a1d,a2d
+----PC11_sd a11d  			r11: a11d=10的总容量数不能大于10
+-------sd1 a1v11,a2v11,a11v1
+-------sd2 a1v21,a2v21,a11v2
+-------sd3 a1v31,a2v31,a11v31
+----PC11_md a21d  	  		 
+-------md1 a1v12,a2v12,a21v1
+-------md2 a1v22,a2v22,a21v2 
+-------md3 a1v32,a2v32,a21v3
+--PC2_CPU a2d   r21: qty=sum(PC1_drive.a1d)/10; //总属性
+---cpu1  a2v1 
+---cpu2  a2v2 
+--PC3_LINE a3d   r31: qty=sum(PC11_md.a1d)/10; //子分类总属性
+---line1  a3v1 
+---line2  a3v2 
+
+
+
+压缩后：
+--PC1_drive a1d,a2d a11d(codePath=drive.sd),a21d(codePath=drive.md) r11: a11d=10的总容量数不能大于10&& codePath.start("drive.sd") 
+-------sd1 a1v11,a2v11,a11v1
+-------sd2 a1v21,a2v21,a11v2
+-------sd3 a1v31,a2v31,a11v31 
+-------md1 a1v12,a2v12,a21v1
+-------md2 a1v22,a2v22,a21v2 
+-------md3 a1v32,a2v32,a21v3 
+--PC2_CPU a2d   r21: qty=sum(PC1_drive.a1d)/10; //总属性
+---cpu1  a2v1 
+---cpu2  a2v2 
+--PC3_LINE a3d   r31: qty=sum(PC11_md.a1d)/10; //子分类总属性
+---line1  a3v1 
+---line2  a3v2 
+
+
+
+ --核心逻辑：提上去的属性定义，带上codePath, part的属性值不变
+ --运行态 这两层都没有了，干掉了**
+
+
+多层变单层的问题--**
+
+维护态：
+1、在算法构建里，支持维护态构建
+
+2.设置算法的名字，支持设置codePath 
+
+
+在类ProgrammableObject增加属性
+  String codePath = "";//发布态属性，表示这个编程对象在本体结构的层次
+
+在类Rule增加属性
+  String codePath = "";//发布态属性，表示这个编程对象在本体结构的层次
+
+TODO:
+也要写一个例子来
+多实例属性
+
+
+封装一组发布态的接口？ 
+---查询接口，
+
+维护态不要改
+
+每个属性上增加codePath(发布态）
+每个rule都有作用的范围（affectRange.codePathStart, 这个要先执行，然后才能执行其它的）  c.start("drive.sd")，例如：r11 
+存储也存标记一种的特殊的类型（执行态Category、维护态Category)
+codePath在维护态数据有
+
+---引擎加载数据时候一次性生成？ --
+
+
+维护态就做压缩，方便运行
+
+
+--PC1
+----PC11  只能配置一种类型   --->  
+
+
+请求信息也就2层
+
+
+@Data
+public class InferParasReq {
+
+    /**
+     * 模块ID
+     */
+    private Long moduleId;
+
+    /**
+     * 模块编码
+     */
+    private String moduleCode;
+
+    /**
+     * 主部件实例
+     */
+    private PartInst mainPartInst;
+
+    /**
+     * 前置参数实例列表
+     */
+    private List<ParaInst> preParaInsts;
+
+    /**
+     * 前置部件实例列表
+     */
+    private List<PartInst> prePartInsts;
+
+    /**
+     * 部件约束请求列表
+     */
+    private List<PartConstraintReq> partConstraintReqs;
+
+    /**
+     * 是否枚举所有解, false，仅返回一个可行解，true，则返回所有的可选解
+     */
+    private boolean enumerateAllSolution = false;
+
+    /**
+     * 部件分类代码
+     */
+    private String partCategoryCode;
+}
+
+
+
+public class PartConstraintReq {
+
+    /**
+     * 属性代码
+     */
+    private String attrCode;
+
+    /**
+     * 属性比较符
+     */
+    private String attrComparator;
+
+    /**
+     * 属性值
+     */
+    private String attrValue;
+
+    /**
+     * 属性过滤条件
+     */
+    private String attrWhereCondition;
+
+    /**
+     * 部件分类代码（用于查询时指定具体的PartCategory）
+     */
+    private String partCategoryCode;
+}
+
+都是对rootCategory的请求
+class ModuleBaseReq{
+
+}
+
+
+class PartCategoryReq extends ModuleBaseReq{
+
+
+}
+
+class ModuleReq extends ModuleBaseReq{
+
+
+}
+
+2026-3-27：
+运行态的
+---压缩有两个方向， 往上压缩， 往下压缩？ 
+----这两个方案有什么差异点？ 
+
+
+
+2026-3-17：
+3个事情可以做事：
+1、泛化的规则平台？ ---***
+2、规则的生成？ 
+
+5、运行平台？ ---***
+--->  
+   规则平台， 对接rules,  
+
+---规则的执行，规则管理平台
+
+----独立的sheckma ?
+
+
+规则的简单CRUD？ ---配置大模型的？ 
+
+
+6、开源一个ortools使用？***
+---
+
+
+配置器开源工具？ 
+
+
+规则语义平台？---**
+
+
+本体建模方法论
+
+
+
+几个方面的：
+1、需求分析
+存在的问题：
+
+建议：
+ ---需求分析方法? --
+ ---实例化需求分析方法？ 
+
+
+
+
+2、数据制作
+
+
+3、总结方法？
+---
+
+
+
+大模型--cpu 
+上下文--RAM
+Harness-- OS  马具、马鞍  驾驭者
+Harness Engineing工程
+
+
+我需要制定工作计划？ ***
+
+让agent去自动去做？ 
+
+每天花点时间，探索自己的agent，让agent帮你去做？ 
+
+从做最简单的开始？ 
+
+思考一下，自己有那些效率低效的地方？ 
+
+然后改进他？ 
+
+并行几个方向？ ---
+
+---本体论 
+---软件方法论探索--（好的架构去参数） ，基于本体论去构建系统柜？
+---开一个户，去挣钱？ ---要打磨？ ---不要刷视频？ ---
+---解决一类问题， agent(让自己更高效）---？
+---始终有一个代理在运行， （始终一个代理在挣钱？）？
+可能很有效 正常工作日的10%至20%。但是，我正在积极地改善这一点。
+
+
+---明确的目标？ 
+---做一个事情？---做一个具体的点？**
+
+
+---做CRUD的类的应用？ --是不是没有数据库岑？**
+
+
+
+---发我的blog? ---?
+
+---让我的数据构建更简单？***
+---构建直接侧测试框架？ ---

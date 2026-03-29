@@ -231,10 +231,19 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
             Module module = getModule(req.getModuleId(), req.getModuleCode());
             module.init();
 
+            // 获取模块算法类加载器并初始化执行器
+            ModuleAlgClassLoader loader = getModuleClassLoader(module.getId());
+            if (loader == null) {
+                log.error("ModuleAlgClassLoader not found for module: {}", module.getId());
+                return Result.failed("ModuleAlgClassLoader not found for module: " + module.getId());
+            }
+            this.init(module, config, loader);
+
             // 执行约束推理
             RunInferParasRsp result = runInferParas(module, req, false, new ArrayList<>());
             CpSolverStatus status = result.getStatus();
             ModuleInstSolutionCallBack cb = result.getSolutionCallBack();
+
             // 如果模型无效，调用ValidateCpModel获取详细错误信息
             if (status == CpSolverStatus.MODEL_INVALID) {
                 // 重新获取模型进行验证
@@ -270,6 +279,7 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
                 r.setData(solutions);
                 return r;
             }
+
             // 执行后处理
             List<ModuleInst> solutions = cb.getSolverResult().getSolutions();
             solutions = executePostProcess(module, solutions);
