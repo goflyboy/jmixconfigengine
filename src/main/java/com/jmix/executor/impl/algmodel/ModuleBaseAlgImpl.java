@@ -159,11 +159,10 @@ public abstract class ModuleBaseAlgImpl {
      * @param isAttachRelax   是否附加松弛变量
      * @param confictedRelaxs 冲突松弛变量列表
      */
-    public void initModel(AlgCPModel model, IModule module, boolean isAttachRelax, List<RelaxVar> confictedRelaxs,
-            List<ParConstraint> partConstraintFromReqs) {
+    public void initModel(AlgCPModel model, IModule module, List<ParConstraint> partConstraintFromReqs) {
         List<String> fullRules = toFullRules(module);
         List<RefProgObjSchema> fullProgObjs = toFullProgObjs(module);
-        initModel(model, module, fullRules, fullProgObjs, isAttachRelax, confictedRelaxs, partConstraintFromReqs);
+        initModel(model, module, fullRules, fullProgObjs, partConstraintFromReqs);
     }
 
     private List<String> toFullRules(IModule tempModule) {
@@ -201,9 +200,8 @@ public abstract class ModuleBaseAlgImpl {
     public void initModel(AlgCPModel model,
             IModule module,
             List<String> exeRules,
-            List<RefProgObjSchema> exeProgObjs,
-            List<RelaxVar> confictedRelaxs) {
-        initModel(model, module, exeRules, exeProgObjs, false, confictedRelaxs, null);
+            List<RefProgObjSchema> exeProgObjs) {
+        initModel(model, module, exeRules, exeProgObjs, null);
     }
 
     /**
@@ -220,14 +218,10 @@ public abstract class ModuleBaseAlgImpl {
             IModule module,
             List<String> exeRules,
             List<RefProgObjSchema> exeProgObjs,
-            boolean isAttachRelax,
-            List<RelaxVar> confictedRelaxs,
             List<ParConstraint> partConstraints) {
         this.model = model;
         // 初始化兼容性约束算法实例
         this.compatibleConstraintAlg = new CompatibleConstraintAlg(model);
-        this.model.setIsAttachRelax(isAttachRelax);
-        this.model.setConfictedRelaxVars(confictedRelaxs);
         this.module = module;
         initModelAfter(model);
 

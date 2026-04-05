@@ -440,7 +440,8 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
         // 创建约束算法实例
         ConstraintAlgImpl alg = createConstraintAlg(module.getId(), module.getCode());
         AlgCPModel model = new AlgCPModel();
-
+        model.setIsAttachRelax(isAttachRelax);
+        model.setConfictedRelaxVars(confictedRelaxs);
         // 根据loadType决定是否使用差量加载模型
         if (config.getLoadType() == ConstraintConfig.LOAD_TYPE_INCREMENTAL) {
             // 差量加载模型
@@ -457,11 +458,10 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
                             .collect(java.util.stream.Collectors.toList()));
 
             // 调用新的initModel方法
-            alg.initModel(model, module, relativePair.getFirst(), relativePair.getSecond(), isAttachRelax,
-                    confictedRelaxs, null);
+            alg.initModel(model, module, relativePair.getFirst(), relativePair.getSecond(), null);
         } else {
             // 全量加载模型
-            alg.initModel(model, module, isAttachRelax, confictedRelaxs, null);
+            alg.initModel(model, module, null);
         }
 
         // 根据请求初始化约束模型

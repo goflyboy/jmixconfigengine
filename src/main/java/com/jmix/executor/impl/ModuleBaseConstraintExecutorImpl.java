@@ -195,6 +195,8 @@ public abstract class ModuleBaseConstraintExecutorImpl {
         // 步骤1：对每个优先级规则优化求解最优解
         ConstraintAlgImpl optAlg = createConstraintAlg(module.getId(), module.getCode());
         AlgCPModel optModel = new AlgCPModel();
+        optModel.setIsAttachRelax(false);
+        optModel.setConfictedRelaxVars(new ArrayList<>());
         optAlg.initModel(optModel, filteredModuleBase, false, new ArrayList<>(), partConstraintFromReqs);
         initModelByReq(partCategoryReq, optAlg);
         initModelByPriorityConstraints(partConstraintFromReqs, optAlg);
