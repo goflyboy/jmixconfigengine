@@ -232,13 +232,13 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
             module.init();
 
             // 获取模块算法类加载器并初始化执行器
-            // ModuleAlgClassLoader loader = getModuleClassLoader(module.getId());
-            // if (loader == null) {
-            // log.error("ModuleAlgClassLoader not found for module: {}", module.getId());
-            // return Result.failed("ModuleAlgClassLoader not found for module: " +
-            // module.getId());
-            // }
-            // this.init(module, config, loader);
+            ModuleAlgClassLoader loader = getModuleClassLoader(module.getId());
+            if (loader == null) {
+                log.error("ModuleAlgClassLoader not found for module: {}", module.getId());
+                return Result.failed("ModuleAlgClassLoader not found for module: " +
+                        module.getId());
+            }
+            this.init(module, config, loader);
 
             // 执行约束推理
             RunInferParasRsp result = runInferParas(module, req, false, new ArrayList<>());
