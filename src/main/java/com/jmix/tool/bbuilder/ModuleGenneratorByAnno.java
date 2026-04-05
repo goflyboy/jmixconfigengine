@@ -109,6 +109,8 @@ public final class ModuleGenneratorByAnno {
         Pair<List<Para>, List<IPart>> paraParts = buildParameterParts(moduleAlgClazz);
         module.setParas(paraParts.getFirst());
         module.addParts(paraParts.getSecond());
+        // 处理多实例分类，根据PartAnno的instCodes属性进行展开
+        MultiInstCategoryUtils.processInstCategory(module);
         module.init(); // 保证后续能使用getPara等函数
         // 4. 生成规则
         List<Rule> rules = createRulesFromMethods(moduleAlgClazz, module);
@@ -240,6 +242,9 @@ public final class ModuleGenneratorByAnno {
             Map<String, String> extAttrs = parseAttributes(partAnno.extAttrs(), new ArrayList<>());
             ipart.setExtAttrs(extAttrs);
         }
+
+        // 设置实例编码（用于多实例分类处理）
+        MultiInstCategoryUtils.setInstcodes(partAnno, ipart);
 
         // 处理动态属性注解（只有CATEGORY类型的部件才需要）
         if (ipart.getPartType() == PartType.CATEGORY) {

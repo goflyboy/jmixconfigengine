@@ -91,4 +91,9 @@ public @interface PartAnno {
      * 用于约束部件的最大数量值
      */
     int maxQuantity() default Part.MAX_QUANTITY;
+
+    /**
+     * 实例code列表
+     */
+    String instCodes() default "";
 }
