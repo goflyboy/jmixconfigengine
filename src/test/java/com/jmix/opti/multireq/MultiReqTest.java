@@ -70,11 +70,11 @@ public class MultiReqTest extends ModuleScenarioTestBase {
         // 机械硬盘实例3
         @PartAnno(fatherCode = "drive", attrs = { "9000", "3", "md" }, price = 60)
         private PartVar md3;
-
-        @ParaAnno(fatherCode = "drive", type = ParaType.INTEGER, assignType = AssignType.INPUT)
+        // 改动4：原来属于分类2（多）的参数，由于属于整个分类2，当前多实例化，只能提升到产品级fatherCode = "drive"-> ""
+        @ParaAnno(fatherCode = "", type = ParaType.INTEGER, assignType = AssignType.INPUT)
         private ParaVar driveSumCapacity;// 输入参数
 
-        @ParaAnno(fatherCode = "drive", type = ParaType.INTEGER, assignType = AssignType.INPUT)
+        @ParaAnno(fatherCode = "", type = ParaType.INTEGER, assignType = AssignType.INPUT)
         private ParaVar driveSumQuantity; // 输入参数
 
         // ==================== CPU部件分类定义 ====================
@@ -118,18 +118,20 @@ public class MultiReqTest extends ModuleScenarioTestBase {
 
         @CodeRuleAnno(normalNaturalCode = "4核的CPU不兼容固态硬盘")
         private void logicAB1() {
-            inCompatible("logicAB1", "cpu:CoreNum=4", "drive:Type=sd");
+            // 改动点1：分类1（单)->分类2（多），需要设置为拆分为多条规则
+            inCompatible("logicAB1", "cpu:CoreNum=4", "driveI0:Type=sd");
+            inCompatible("logicAB1", "cpu:CoreNum=4", "driveI1:Type=sd");
         }
 
-        // TODO：进一步抽取单选型CPU
         @CodeRuleAnno(fatherCode = "cpu", normalNaturalCode = "仅能使用一种CPU")
         private void logicA1() {
             AlgCPLinearExpr cpuSelected = sum4Selected("").name("cpuSelected");
             model.addLessOrEqual(cpuSelected, 1);
         }
 
-        @CodeRuleAnno(fatherCode = "drive", normalNaturalCode = "固态硬盘必须配置同一种，并且最多配置2块")
-        private void logicB1() {
+        // 改动点2：分类2(多）单个请求的要求，需要按实例维度把自己的规则复制多份
+        @CodeRuleAnno(fatherCode = "driveI0", normalNaturalCode = "固态硬盘必须配置同一种，并且最多配置2块")
+        private void logicB1_I0() {
             // proRule1-natuarl: 固态硬盘必须配置同一种，并且最多配置2块
             // proRule1-dsl: 拆分为proRule11和proRule11两条约束（和isSelected(S)、qty(Q)相关）
             // proRule11-cRule: sd1.S + sd2.S <=1
@@ -141,10 +143,24 @@ public class MultiReqTest extends ModuleScenarioTestBase {
             model.addLessOrEqual(sdTypeSumQty, 2);
         }
 
+        @CodeRuleAnno(fatherCode = "driveI1", normalNaturalCode = "固态硬盘必须配置同一种，并且最多配置2块")
+        private void logicB1_I1() {
+            // proRule1-natuarl: 固态硬盘必须配置同一种，并且最多配置2块
+            // proRule1-dsl: 拆分为proRule11和proRule11两条约束（和isSelected(S)、qty(Q)相关）
+            // proRule11-cRule: sd1.S + sd2.S <=1
+            AlgCPLinearExpr sdTypeSumNum = sum4Selected("Type=sd").name("sdTypeSumNum");
+            model.addLessOrEqual(sdTypeSumNum, 1);
+
+            // proRule12-cRule: sd1.Q + sd2.Q <= 2
+            AlgCPLinearExpr sdTypeSumQty = sum4Quantity("Type=sd").name("sdTypeSumQty");
+            model.addLessOrEqual(sdTypeSumQty, 2);
+        }
+
+        // 改动点3：分类2(多）多个请求的整体要求，需要有整体汇总
         @PriorityRuleAnno(fatherCode = "drive", normalNaturalCode = " 优先使用高容量硬盘", strategy = PriorityStrategy.MIN)
         private void logicB2() {
-
-            PartAlgCPLinearExpr totalCapacity = sum4Quantity("Capacity", "").name("totalCapacity");
+            // 改动点3-1：增加sum4Quantity的partCatagoryCodesStr参数，支持多实例的情况
+            PartAlgCPLinearExpr totalCapacity = sum4Quantity("driveI0,driveI1", "Capacity", "").name("totalCapacity");
             // 如果是容量需求
             if (driveSumCapacity.getIsHasInputed()) {
                 int requiredCapacity = driveSumCapacity.getInputValue();
@@ -156,7 +172,8 @@ public class MultiReqTest extends ModuleScenarioTestBase {
                 PartAlgCPLinearExpr objectiveExpr = model.newPartLinearExpr("ObjectiveFun");
 
                 // a2.使用高容量硬盘 -> "被选择部件单容量总和越大越好"
-                PartAlgCPLinearExpr highCapacityExpr = sum4Selected("Capacity", "").name("highCapacityExpr");
+                PartAlgCPLinearExpr highCapacityExpr = sum4Selected("driveI0,driveI1", "Capacity", "")
+                        .name("highCapacityExpr");
                 objectiveExpr.addExpr(highCapacityExpr, -100);
 
                 // a3.在满足容量需求的前提下，容量越接近需求容量越好
@@ -166,7 +183,8 @@ public class MultiReqTest extends ModuleScenarioTestBase {
                 objectiveExpr.addExpr(excessCapacityExpr, 1);
 
                 // a4.在满足容量需求的前提下， 配置的部件数量越少越好
-                PartAlgCPLinearExpr excessQuantityExpr = sum4Quantity("", "").name("excessQuantityExpr");
+                PartAlgCPLinearExpr excessQuantityExpr = sum4Quantity("driveI0,driveI1", "", "")
+                        .name("excessQuantityExpr");
                 objectiveExpr.addExpr(excessQuantityExpr, 800);
                 model.setObjectExpr(objectiveExpr);
                 updatePriorityObjectFuntion("logicB2", objectiveExpr);
@@ -176,18 +194,20 @@ public class MultiReqTest extends ModuleScenarioTestBase {
                 // int requiredQty = Integer.parseInt(req.getAttrValue());
                 int requiredQuantity = driveSumQuantity.getInputValue();
                 // a1.满足输入总数量需求 totalQuantity >= requiredQuantity
-                PartAlgCPLinearExpr totalQuantity = sum4Quantity("", "").name("totalQuantity");
+                PartAlgCPLinearExpr totalQuantity = sum4Quantity("driveI0,driveI1", "", "").name("totalQuantity");
                 model.addGreaterOrEqual(totalQuantity, requiredQuantity);
 
                 // 创建目标函数
                 PartAlgCPLinearExpr objectiveExpr = model.newPartLinearExpr("ObjectiveFunQty");
 
                 // a2.使用高容量硬盘 -> "被选择部件单容量总和越大越好"
-                PartAlgCPLinearExpr highCapacityExpr = sum4Selected("Capacity", "").name("highCapacityExpr");
+                PartAlgCPLinearExpr highCapacityExpr = sum4Selected("driveI0,driveI1", "Capacity", "")
+                        .name("highCapacityExpr");
                 objectiveExpr.addExpr(highCapacityExpr, -1);
 
                 // a3.在满足数量需求的前提下，数量越接近需求数量越好
-                PartAlgCPLinearExpr excessQuantityExpr = sum4Quantity("", "").name("excessQuantityExpr");
+                PartAlgCPLinearExpr excessQuantityExpr = sum4Quantity("driveI0,driveI1", "", "")
+                        .name("excessQuantityExpr");
                 excessQuantityExpr.addConstant(-requiredQuantity);
                 model.setObjectExpr(objectiveExpr);
                 updatePriorityObjectFuntion("logicB2", objectiveExpr);
@@ -201,50 +221,25 @@ public class MultiReqTest extends ModuleScenarioTestBase {
         super(MultiReqConstraint.class);
     }
 
-    // 用例维度设计
-    // 维度1-DA: 分类输入(Input参数)
-    // DA1-第一个有要求（前 ）
-    // DA2-第二个有要求（后）
-    // DA3 两个都有要求
-    // 维度2-DB：规则，规则类型，层级，多个优先级规则
-    // DB1-分类-非优先LogicB2
-    // DB2-分类-优先LogicA1,LogicA2
-    // DB3-分类间-LogicAB，左右是否空，Left,right
     @Test
-    public void mixInCompatibleLeftYRightY() {
-        // Natural-Input: 要求5400速率的硬盘容量>=5T, 要求4核的CPU的总内存>=512G
-        // DSL-Input: drive:sum.Capacity >=5 where Speed=5400, cpu:sum.Memory >=512
-        // where CoreNum=4
-        // Struct-Input: req1F,req1C(sd1.Q*3 + md1*1 >=5), req2F,req2C(cpu2.Q*256 >=512)
-        // 测试点：
-        // 维度1-DA:DA3
-        // 维度2-DB:DB3(Left-Y,Right-Y)
-
-        // 预期结果：
-        // 解1： cpu2.Q=2 md1.Q=5
-        // --过滤，执行req1F,req2F: -->drive:sd1,md1, cpu:cpu2
-        // --产品规则实例化:
-        // ----LogicA1:cpu2.S<=1
-        // ----LogicB1:sd1.S +md1.S <=1,sd1.Q<=2 --生效
-        // ----LogicB2: (cpu2.S) InCompatible (sd1.S) (Left-Y,Right-Y)
-        // ----目标函数： xxx
-        // --关键执行过程：
-        // ----1. "4核的CPU的总内存>=512G" -->cpu2.Q =2
-        // ---LogicAB1(排除sd1) + "5400速率"(sd1,md1),只有md1，满足要求
-        // --根据req1C,的md1.Q = 5
-        inferRecommendModule("drive:sum.Capacity >=5 where Speed=5400", "cpu:sum.Memory >=512 where CoreNum=4");
+    public void oneReq() {
+        // Natural-Input: 要求机械硬盘容量>=5T, 要求4核的CPU的总内存>=512G
+        inferRecommendModule("driveI0:sum.Capacity >=5 where Speed=5400", "cpu:sum.Memory >=512 where CoreNum=4");
         printSimpleSolutions();
+        // 变化点5-1：要求为保持输入的简洁见，如果仅输出一个实例，则和原来多单实例一样，不加实例名
         assertSoluContain(1, "cpu2(Q:2,H:0,S:1),md1(Q:5,H:0,S:1),sd1(0*)");
         assertSoluContain("cpu2(Q:20,H:0,S:1),md1(Q:5,H:0,S:1),sd1(0*)");
     }
 
     @Test
-    public void mixInCompatibleLeftYRightN() {
-        // Natural-Input: 要求机械硬盘容量>=5T, 要求4核的CPU的总内存>=512G
-
-        inferRecommendModule("drive:sum.Capacity >=5 where Type=md", "cpu:sum.Memory >=512 where CoreNum=4");
+    public void twoReq() {
+        // Natural-Input: 要求机械硬盘容量>=5T, 要求机械硬盘容量>=5T, 要求4核的CPU的总内存>=512G
+        inferRecommendModule("driveI0:sum.Capacity >=5 where Speed=5400", "driveI1:sum.Capacity >=5 where Speed=5400",
+                "cpu:sum.Memory >=512 where CoreNum=4");
         printSimpleSolutions();
-        assertSoluContain(1, "cpu2(Q:20,H:0,S:1),md1(0*),md2(Q:1,H:0,S:1),md3(Q:1,H:0,S:1)");
-        // TODO: 怎么让cpu1从1开始
+        // 变化点5-2：要求为保持输入的简洁见，如果输出多个实例，后面的需要加上实名名称I1
+        assertSoluContain(1, "cpu2(Q:2,H:0,S:1),md1(Q:5,H:0,S:1),sd1(0*),md1_I1(Q:5,H:0,S:1),sd1_I1(0*)");
+        assertSoluContain("cpu2(Q:20,H:0,S:1),md1(Q:5,H:0,S:1),sd1(0*),md1_I1(Q:5,H:0,S:1),sd1_I1(0*)");
     }
+
 }

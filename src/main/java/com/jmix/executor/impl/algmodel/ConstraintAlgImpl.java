@@ -1062,6 +1062,12 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
         return expr;
     }
 
+    public PartAlgCPLinearExpr sum4Selected(String partCatagoryCodesStr, String cofAttrCode,
+            String filtedConditionStr) {
+        // TODO
+        return null;
+    }
+
     /**
      * 对选中的部件求和（带属性系数）
      *
@@ -1069,7 +1075,9 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
      * @param filtedConditionStr 过滤条件字符串
      * @return 求和后的AlgCPLinearExpr表达式
      */
-    public PartAlgCPLinearExpr sum4Selected(String cofAttrCode, String filtedConditionStr) {
+
+    public PartAlgCPLinearExpr sum4Selected(String cofAttrCode,
+            String filtedConditionStr) {
         return sum4Parts(cofAttrCode, PartVar::getIsSelected, PartVar.ISSELECTED_SHORT_NAME, filtedConditionStr);
     }
 
@@ -1101,6 +1109,12 @@ public abstract class ConstraintAlgImpl implements ConstraintAlg {
             partVars.add(getPartVar(part.getCode()));
         }
         return partVars;
+    }
+
+    public PartAlgCPLinearExpr sum4Quantity(String partCatagoryCodesStr, String cofAttrCode,
+            String filtedConditionStr) {
+        // TODO
+        return null;
     }
 
     /**
