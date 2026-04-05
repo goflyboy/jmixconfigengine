@@ -6,6 +6,142 @@
 
 _**User**_
 
+当前需要按穷举预设法实现输入多实例，请帮我完成输出详细设计，请按面向对象的方法进行设计
+
+一、什么要输入多实例？
+  在配置中（或运行态），一个部件分类有多组输入要求，且每组的输入要求是独立的 
+  
+基础数据如下：（spec1代表属性的定义，如容量，spec2V2代表属性值，如10G，Drive-B代表部件分类，drive1代表部件,Q代表配置数量，S代表配置的是否选中,logicA代表规则
+--Server  logicAB
+-----Drive-A	 容量,spec2,spec3,...  logicA1,logicA2
+-------drive1 10T spec2V1,spec3V1,...,Q,S
+-------drive2 20T spec2V2,spec3V2,...,Q,S
+-------drive3 30T spec2V3,spec3V3,...,Q,S
+-----CPU-B	 内存,spec2,spec3,... logicB1
+-------cpu1 256G spec2V1,spec3V1,...,Q,S
+-------cpu2 512G spec2V2,spec3V2,...,Q,S
+-------cpu2 128G spec2V3,spec3V3,...,Q,S
+
+
+标书要求配置"配置一台服务器，CPU是4核，要求第一组容量20T，类型为机械硬盘， 第二组容量30T，容量固态硬盘（两种输入要求是独立的）
+
+最后的配置结果（输出数据）
+  --ServerConfig 
+  ----Drive-I0
+  -------drive1Config Q=2 
+  ----Drive-I1
+  -------drive3Config Q=1 
+  ----CPU-I0
+  -------cpu2Config Q=1 
+
+二、穷举预设法的方案思路
+ 
+要点1、类似在开发基础数据时，按配置的需求先预设几个实例，如Drive-A预设两个用例 
+--Server  logicAB(变化），logicA2(变化）
+-----DriveI0-A	 容量,spec2,spec3,...  logicA1,
+-------drive1 10T spec2V1,spec3V1,...,Q,S
+-------drive2 20T spec2V2,spec3V2,...,Q,S
+-------drive3 30T spec2V3,spec3V3,...,Q,S
+
+-----DriveI1-A	 容量,spec2,spec3,...  logicA1, 
+-------drive1 10T spec2V1,spec3V1,...,Q,S
+-------drive2 20T spec2V2,spec3V2,...,Q,S
+-------drive3 30T spec2V3,spec3V3,...,Q,S
+
+-----CPU-B	 内存,spec2,spec3,... logicB1
+-------cpu1 256G spec2V1,spec3V1,...,Q,S
+-------cpu2 512G spec2V2,spec3V2,...,Q,S
+-------cpu2 128G spec2V3,spec3V3,...,Q,S
+
+详细的变化请见：MultiReqTest的实例（没有预设前请参考BaseOptiTest）
+
+
+要点2：输出的要求
+
+    @Test
+    public void oneReq() {
+        // Natural-Input: 要求机械硬盘容量>=5T, 要求4核的CPU的总内存>=512G
+        inferRecommendModule("driveI0:sum.Capacity >=5 where Speed=5400", "cpu:sum.Memory >=512 where CoreNum=4");
+        printSimpleSolutions();
+        // 变化点5-1：要求为保持输入的简洁见，如果仅输出一个实例，则和原来多单实例一样，不加实例名
+        assertSoluContain(1, "cpu2(Q:2,H:0,S:1),md1(Q:5,H:0,S:1),sd1(0*)");
+        assertSoluContain("cpu2(Q:20,H:0,S:1),md1(Q:5,H:0,S:1),sd1(0*)");
+    }
+
+    @Test
+    public void twoReq() {
+        // Natural-Input: 要求机械硬盘容量>=5T, 要求机械硬盘容量>=5T, 要求4核的CPU的总内存>=512G
+        inferRecommendModule("driveI0:sum.Capacity >=5 where Speed=5400", "driveI1:sum.Capacity >=5 where Speed=5400",
+                "cpu:sum.Memory >=512 where CoreNum=4");
+        printSimpleSolutions();
+        // 变化点5-2：要求为保持输入的简洁见，如果输出多个实例，后面的需要加上实名名称I1
+        assertSoluContain(1, "cpu2(Q:2,H:0,S:1),md1(Q:5,H:0,S:1),sd1(0*),md1_I1(Q:5,H:0,S:1),sd1_I1(0*)");
+        assertSoluContain("cpu2(Q:20,H:0,S:1),md1(Q:5,H:0,S:1),sd1(0*),md1_I1(Q:5,H:0,S:1),sd1_I1(0*)");
+    }
+
+
+
+---
+
+_**Agent (default)**_
+
+<think>
+用户需要我帮助完成一个"穷举预设法实现输入多实例"的详细设计。让我先理解需求：
+
+1. **什么是输入多实例？**
+   - 在配置中，一个部件分类（如Drive-A）有多组输入要求，每组输入要求是独立的
+   - 例如：要求第一组容量20T机械硬盘，第二组容量30T固态硬盘
+
+2. **穷举预设法的思路：**
+   - 在开发基础数据时，预设几个实例（如DriveI0-A和DriveI1-A）
+   - 输出时，如果只有一个实例，和原来一样不加实例名
+   - 如果有多个实例，后面的需要加上实例名称（如md1_I1）
+
+3. **输出要求：**
+   - 单实例：`cpu2(Q:2,H:0,S:1),md1(Q:5,H:0,S:1),sd1(0*)`
+   - 多实例：`cpu2(Q:2,H:0,S:1),md1(Q:5,H:0,S:1),sd1(0*),md1_I1(Q:5,H:0,S:1),sd1_I1(0*)`
+
+用户要求我：
+1. 阅读现有的代码（MultiReqTest.java, BaseOptiTest.java, ConstraintAlgImpl.java等）
+2. 理解当前的实现
+3. 设计一个面向对象的详细设计方案
+
+让我先读取相关文件来了解当前的代码结构和实现。
+</think>
+
+我来帮你设计"穷举预设法实现输入多实例"的详细方案。首先让我阅读相关的代码文件，了解当前的实现。
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: d:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\opti\multireq\MultiReqTest.java</summary>
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
+<summary>Tool use: **read_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: d:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\opti\base\BaseOptiTest.java</summary>
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
+<summary>Tool use: **read_file_v2**</summary>
+
+</details></tool-use>
+
+---
+
+_**User**_
+
 当前需要按穷举预设法实现输入多实例，请帮我完成输出详细设计，请按面向对象的方法进行设计,在doc输出完整设计文档，md格式
 
 一、什么要输入多实例？
@@ -201,19 +337,6 @@ _**Agent (default)**_
 _**Agent (default)**_
 
 <tool-use data-tool-type="read" data-tool-name="read_file_v2">
-<details><summary>Tool use: **read_file_v2** • Read file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\bmodel\PartCategory.java</summary>
-
-</details>
-</tool-use>
-
-<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
-<summary>Tool use: **read_file_v2**</summary>
-
-</details></tool-use>
-
-_**Agent (default)**_
-
-<tool-use data-tool-type="read" data-tool-name="read_file_v2">
 <details><summary>Tool use: **read_file_v2** • Read file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\cmodel\ModuleInst.java</summary>
 
 </details>
@@ -228,6 +351,19 @@ _**Agent (default)**_
 
 <tool-use data-tool-type="read" data-tool-name="read_file_v2">
 <details><summary>Tool use: **read_file_v2** • Read file: d:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\coretest\ModuleScenarioTestBase.java</summary>
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
+<summary>Tool use: **read_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\bmodel\PartCategory.java</summary>
 
 </details>
 </tool-use>
@@ -1951,3 +2087,4797 @@ The file has been successfully written to the specified location.
 - JSON扩展格式
 
 文档使用了面向对象的设计方法，包含完整的类图、流程图和代码示例，便于后续实现。
+
+---
+
+_**User**_
+
+@src/main/java/com/jmix/executor/impl/algmodel/ConstraintAlgImpl.java:1113-1118  @src/main/java/com/jmix/executor/impl/algmodel/ConstraintAlgImpl.java:1064-1069 重构现有sum4Parts，需要支持的选中两个函数的实现，新增的两个的用法，请参考 @src/test/java/com/jmix/opti/multireq/MultiReqTest.java:163-164 
+
+---
+
+_**Agent (default)**_
+
+<think>
+用户希望我重构现有的 `sum4Parts` 方法，并实现两个新增的带 `partCatagoryCodesStr` 参数的函数：
+1. `sum4Selected(String partCatagoryCodesStr, String cofAttrCode, String filtedConditionStr)`
+2. `sum4Quantity(String partCatagoryCodesStr, String cofAttrCode, String filtedConditionStr)`
+
+参考 MultiReqTest.java 中的用法：
+```java
+PartAlgCPLinearExpr totalCapacity = sum4Quantity("driveI0,driveI1", "Capacity", "").name("totalCapacity");
+```
+
+这意味着：
+1. `partCatagoryCodesStr` 可以是逗号分隔的多个部件分类实例代码，如 `"driveI0,driveI1"`
+2. 需要支持多实例的汇总逻辑
+
+让我先仔细阅读现有的 `sum4Parts` 实现，然后设计新的实现方案。
+</think>
+
+让我先仔细阅读现有的 `sum4Parts` 方法实现，以便正确重构。
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\impl\algmodel\ConstraintAlgImpl.java</summary>
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
+<summary>Tool use: **read_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+现在我理解了现有的 `sum4Parts` 方法和需要扩展的两个方法。让我看看 `buildPriorityConstraintExpressions` 方法的实现。
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\impl\algmodel\ConstraintAlgImpl.java</summary>
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
+<summary>Tool use: **read_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+现在我理解了整个结构。让我查看 `IModule` 接口，了解如何通过多实例代码获取部件。
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\bmodel\IModule.java</summary>
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
+<summary>Tool use: **read_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+现在我理解了整体架构：
+
+1. `currentModule` 是 `IModule` 类型，通过 `getAllAtomicParts()` 获取所有原子部件
+2. 需要支持多实例部件分类的查询，通过逗号分隔的代码字符串如 `"driveI0,driveI1"`
+3. 当前 `sum4Parts` 方法只获取当前模块的所有原子部件，需要重构以支持按指定部件分类过滤
+
+现在我可以创建重构计划了。核心改动是：
+
+1. **重构 `sum4Parts` 方法**：
+   - 新增 `partCategoryCodesStr` 参数，支持逗号分隔的多个部件分类
+   - 修改获取部件的方式：从 `currentModule.getAllAtomicParts()` 改为按指定分类获取
+
+2. **实现 `sum4Selected(String partCatagoryCodesStr, ...)`**：
+   - 调用 `sum4Parts` 传入 `PartVar::getIsSelected`
+
+3. **实现 `sum4Quantity(String partCatagoryCodesStr, ...)`**：
+   - 调用 `sum4Parts` 传入 `PartVar::getQty`
+
+让我先创建计划。
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="unknown" data-tool-name="create_plan">
+<details>
+<summary>Tool use: **create_plan**</summary>
+
+
+Parameters:
+
+```json
+{
+  "name": "重构sum4Parts支持多实例",
+  "overview": "重构ConstraintAlgImpl中的sum4Parts系列方法，支持多实例部件分类的求和操作",
+  "plan": "## 重构 sum4Parts 系列方法支持多实例\n\n### 核心改动\n\n#### 1. 重构 &#96;sum4Parts&#96; 方法\n\n**文件**：&#96;src/main/java/com/jmix/executor/impl/algmodel/ConstraintAlgImpl.java&#96;\n\n将现有的 &#96;sum4Parts&#96; 方法从无参获取所有部件改为支持按指定部件分类过滤：\n\n&#96;&#96;&#96;java\nprivate PartAlgCPLinearExpr sum4Parts(String partCategoryCodesStr, String cofAttrCode,\n        Function\u003cPartVar, LinearArgument\u003e varGetter, String varName, String filtedConditionStr)\n&#96;&#96;&#96;\n\n**逻辑变更**：\n- 新增 &#96;partCategoryCodesStr&#96; 参数，格式如 &#96;\"driveI0,driveI1\"&#96; 或 &#96;\"drive\"&#96; 或 &#96;\"\"&#96;（空表示所有）\n- 当 &#96;partCategoryCodesStr&#96; 非空时，调用 &#96;module.getAllAtomicParts(partCategoryCode)&#96; 获取指定分类的部件\n- 当 &#96;partCategoryCodesStr&#96; 为空时，使用原有逻辑获取所有部件\n\n#### 2. 实现 &#96;sum4Selected&#96; 三参数版本\n\n&#96;&#96;&#96;java\npublic PartAlgCPLinearExpr sum4Selected(String partCatagoryCodesStr, String cofAttrCode,\n        String filtedConditionStr) {\n    return sum4Parts(partCatagoryCodesStr, cofAttrCode, \n            PartVar::getIsSelected, PartVar.ISSELECTED_SHORT_NAME, filtedConditionStr);\n}\n&#96;&#96;&#96;\n\n#### 3. 实现 &#96;sum4Quantity&#96; 三参数版本\n\n&#96;&#96;&#96;java\npublic PartAlgCPLinearExpr sum4Quantity(String partCatagoryCodesStr, String cofAttrCode,\n        String filtedConditionStr) {\n    return sum4Parts(partCatagoryCodesStr, cofAttrCode,\n            PartVar::getQty, PartVar.QTY_SHORT_NAME, filtedConditionStr);\n}\n&#96;&#96;&#96;\n\n#### 4. 调整现有两参数方法\n\n将现有的 &#96;sum4Selected(String, String)&#96; 和 &#96;sum4Quantity(String, String)&#96; 改为调用三参数版本，传入空字符串作为 &#96;partCategoryCodesStr&#96;。\n\n---\n\n### 方法签名变更总览\n\n| 方法 | 原签名 | 新签名 |\n|------|--------|--------|\n| &#96;sum4Parts&#96; | &#96;sum4Parts(String, Function, String, String)&#96; | &#96;sum4Parts(String, String, Function, String, String)&#96; |\n| &#96;sum4Selected&#96; | &#96;sum4Selected(String, String)&#96; | &#96;sum4Selected(String, String, String)&#96; + 新增三参数版本 |\n| &#96;sum4Quantity&#96; | &#96;sum4Quantity(String, String)&#96; | &#96;sum4Quantity(String, String, String)&#96; + 新增三参数版本 |\n\n### 验证方式\n\n参考 &#96;MultiReqTest.java&#96; 第163行的用法：\n&#96;&#96;&#96;java\nPartAlgCPLinearExpr totalCapacity = sum4Quantity(\"driveI0,driveI1\", \"Capacity\", \"\").name(\"totalCapacity\");\n&#96;&#96;&#96;",
+  "todos": [
+    {
+      "content": "重构 sum4Parts 方法，添加 partCategoryCodesStr 参数",
+      "id": "refactor-sum4parts",
+      "status": "pending"
+    },
+    {
+      "content": "实现 sum4Selected 三参数版本",
+      "id": "impl-sum4selected-3param",
+      "status": "pending"
+    },
+    {
+      "content": "实现 sum4Quantity 三参数版本",
+      "id": "impl-sum4quantity-3param",
+      "status": "pending"
+    },
+    {
+      "content": "调整现有两参数方法调用新实现",
+      "id": "adjust-2param-methods",
+      "status": "pending"
+    },
+    {
+      "content": "验证测试用例编译通过",
+      "id": "verify-compile",
+      "status": "pending"
+    }
+  ]
+}
+```
+Result:
+
+```json
+{
+  "accepted": {}
+}
+```
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="unknown" data-tool-name="create_plan"><details>
+<summary>Tool use: **create_plan**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+计划已创建完成。现在让我回答用户的问题，说明重构方案。
+</think>
+
+我已经阅读了现有代码并创建了重构计划。让我详细说明重构方案：
+
+## 重构方案说明
+
+### 现状分析
+
+现有代码结构：
+1. **`sum4Parts`** (private) - 从 `currentModule.getAllAtomicParts()` 获取所有部件
+2. **`sum4Selected(String, String)`** - 两参数版本，内部调用 `sum4Parts`
+3. **`sum4Quantity(String, String)`** - 两参数版本，内部调用 `sum4Parts`
+4. **`sum4Selected(String, String, String)`** - 三个 `// TODO` 待实现
+5. **`sum4Quantity(String, String, String)`** - 三个 `// TODO` 待实现
+
+### 重构目标
+
+参考 `MultiReqTest.java:163` 的用法：
+```java
+sum4Quantity("driveI0,driveI1", "Capacity", "")
+```
+
+需要支持：
+1. **多实例逗号分隔**：如 `"driveI0,driveI1"`
+2. **单实例**：如 `"driveI0"`
+3. **空字符串**：表示所有部件（向后兼容）
+
+### 重构方案
+
+#### 1. 重构 `sum4Parts` 方法
+
+```java
+private PartAlgCPLinearExpr sum4Parts(String partCategoryCodesStr, String cofAttrCode,
+        Function<PartVar, LinearArgument> varGetter, String varName, String filtedConditionStr)
+```
+
+**关键逻辑**：
+- 当 `partCategoryCodesStr` 为空/null → 使用 `currentModule.getAllAtomicParts()`（保持向后兼容）
+- 当 `partCategoryCodesStr` 非空 → 按逗号分割，调用 `module.getAllAtomicParts(categoryCode)` 获取部件
+
+#### 2. 方法签名变更总览
+
+| 方法 | 原签名 | 新签名 |
+|------|--------|--------|
+| `sum4Parts` | `sum4Parts(String, Function, String, String)` | `sum4Parts(String, String, Function, String, String)` |
+| `sum4Selected` | `sum4Selected(String, String)` | 保留两参数版本，新增三参数版本 |
+| `sum4Quantity` | `sum4Quantity(String, String)` | 保留两参数版本，新增三参数版本 |
+
+### 调用关系图
+
+```mermaid
+flowchart TD
+    subgraph 调用方
+        A["logicB2: sum4Quantity('driveI0,driveI1', 'Capacity', '')"]
+        B["logicB1_I0: sum4Quantity('Type=sd')"]
+    end
+
+    subgraph 新实现
+        A --> C["sum4Quantity(String, String, String)"]
+        B --> D["sum4Quantity(String, String)"]
+        C --> E["sum4Parts(String, String, Function, String, String)"]
+        D --> E
+        E --> F{"partCategoryCodesStr为空?"}
+        F -->|是| G["module.getAllAtomicParts()"]
+        F -->|否| H["解析逗号分隔<br/>逐个获取部件"]
+        G --> I["构建表达式"]
+        H --> I
+    end
+```
+
+---
+
+**请确认是否按此方案执行重构？**<think>
+用户还没有确认计划，让我等待用户的确认。不过根据计划模式的要求，我已经提供了详细的计划，现在需要等待用户确认后才会执行。
+
+让我检查一下是否还有其他需要考虑的细节。用户之前提到要参考 MultiReqTest.java 的用法，我应该再次确认一下具体的用法需求。
+</think>
+
+另外，请确认一个关键问题：
+
+**关于部件代码前缀匹配**
+
+在 `MultiReqTest.java` 中，部件代码格式为：
+- `sd1_I0` - Drive-I0实例的固态硬盘1
+- `sd1_I1` - Drive-I1实例的固态硬盘1
+- `md1_I0` - Drive-I0实例的机械硬盘1
+
+**问题**：当调用 `module.getAllAtomicParts("driveI0")` 时，它是否能正确返回 `sd1_I0`, `sd2_I0`, `md1_I0` 等带有 `_I0` 后缀的部件？
+
+还是说需要新增一个按**部件代码前缀**过滤的方法？
+
+请确认：
+1. **方案A**：复用现有的 `getAllAtomicParts(String partCategoryCode)` - 如果它已经支持前缀匹配
+2. **方案B**：新增前缀匹配逻辑 - 如果需要模糊匹配部件代码
+
+---
+
+_**User**_
+
+ 
+ 建议参考 Module、ModuleBase、PartCategory三者的关系（如getParts表示获取当前层，getAllParts表示获取所有的），重构ConstraintAlgImpl
+ 
+ 
+ 1、原有的 ConstraintAlgImpl改名为：ModuleAlgImpl
+ 2、对ModuleAlgImpl进行抽取形成ModuleBaseAlgImpl
+ 3、新增PartCategoryAlgImpl 
+ 4、然后基于这个层次结构来实现 sum4Parts
+
+---
+
+_**Agent (default)**_
+
+<think>
+用户要求我进行更深层次的重构，按照现有的代码层次结构模式来重新组织代码。让我理解一下：
+
+1. 现有结构：
+   - `Module` (业务模型) ↔ `ModuleBase` (基础模型)
+   - `PartCategory` (业务模型) ↔ `PartBase` (应该是类似结构)
+   
+2. 用户要求的重构：
+   - `ConstraintAlgImpl` → `ModuleAlgImpl`
+   - 从 `ModuleAlgImpl` 抽取基类 `ModuleBaseAlgImpl`
+   - 新增 `PartCategoryAlgImpl`
+
+3. 参考 `Module`、`ModuleBase`、`PartCategory` 的关系：
+   - `getParts()` - 获取当前层
+   - `getAllParts()` - 获取所有（包括子层）
+
+这个重构思路很清晰，类似于模型层的结构。让我先查看 `ModuleBase` 来理解这个模式。
+</think>
+
+明白了！按照 `Module`/`ModuleBase`/`PartCategory` 的层次结构模式进行重构。让我先查看 `ModuleBase` 来理解这个设计模式。
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\bmodel\ModuleBase.java</summary>
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
+<summary>Tool use: **read_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\bmodel\Module.java</summary>
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
+<summary>Tool use: **read_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+现在我理解了设计模式：
+
+1. **ModuleBase** - 基类，包含 `atomicParts` 和 `partCategorys`，提供 `getAllParts()`、`getAllAtomicParts()` 等方法
+2. **Module** - 继承 ModuleBase，代表顶层模块
+3. **PartCategory** - 也是继承 ModuleBase，代表部件分类
+
+关键设计模式：
+- `getParts()` / `getAtomicParts()` - 获取当前层的部件
+- `getAllParts()` / `getAllAtomicParts()` - 获取所有（递归）
+- `getAllAtomicParts(String partCategoryCode)` - 按分类代码获取
+
+现在我需要按照同样的模式来重构算法层：
+
+1. **ConstraintAlgImpl** → **ModuleAlgImpl**（改名）
+2. 抽取 **ModuleBaseAlgImpl** - 包含公共方法
+3. 新增 **PartCategoryAlgImpl** - 对应 PartCategory
+
+但等等，让我再仔细看看 ConstraintAlgImpl 的结构。它可能和 Module 的关系不同...
+
+实际上，从代码来看：
+- `ConstraintAlgImpl` 有 `currentModule` 和 `module` 两个字段
+- 它是在模块级别进行约束计算的
+
+所以按照用户的要求，应该：
+
+1. **ConstraintAlgImpl** → **ModuleAlgImpl** - 改名
+2. **ModuleBaseAlgImpl** - 从 ModuleAlgImpl 抽取公共方法
+
+
+3. **PartCategoryAlgImpl** - 针对 PartCategory 级别的算法实现
+
+`currentModule` 字段表示规则执行时的上下文模块。通过 `getRuleCurrentModule(ruleCode)` 方法可以看出，当规则属于某个 PartCategory 时，`currentModule` 会被设置为该 PartCategory。这说明不同层级的上下文需要不同的算法实现。
+
+基于这个理解，重构的类应该各自承担明确的责任。`ModuleBaseAlgImpl` 提供原子部件求和的基础方法 `sum4Parts`，在模块层级获取所有原子部件进行计算。`PartCategoryAlgImpl` 继承自 `ModuleBaseAlgImpl`，覆盖相关方法以仅获取当前分类下的原子部件。`ModuleAlgImpl` 保持原名，作为最顶层的管理者。这样能清晰地区分不同层级的约束处理逻辑。
+
+用户建议将 `ConstraintAlgImpl` 改名为 `ModuleAlgImpl`，然后从中抽取公共部分形成 `ModuleBaseAlgImpl`，最后新增 `PartCategoryAlgImpl` 来处理 PartCategory 级别的方法调用。
+
+`sum4Parts` 的参数列表为 `partCategoryCodesStr`、`cofAttrCode`、`varGetter`、`varName` 和 `filtedConditionStr`。在 `ModuleAlgImpl` 中调用时，`partCategoryCodesStr` 接收 "driveI0,driveI1" 这样的逗号分隔字符串，而 `PartCategoryAlgImpl` 中则只需传入对应的 PartCategory 代码。
+
+不过这里有个关键问题：按照现有架构，`driveI0` 和 `driveI1` 应该分别对应不同的 PartCategory 实例，而不是单个 PartCategory 的多个实例。根据 MultiReqTest.java 的注释，这些实例需要在开发基础数据时预设。
+
+对于 `sum4Quantity("driveI0,driveI1", "Capacity", "")` 这样的调用，需要能够处理逗号分隔的多个 PartCategory 实例，或者通过前缀匹配来识别相关的 PartCategory。
+
+我需要检查 `findPartCategory` 和 `getAllAtomicParts` 这两个方法是否能正确支持这种多实例的场景。
+
+`findPartCategory` 依赖精确匹配，所以需要额外的前缀匹配逻辑来处理 `"driveI0"` 和 `"driveI1"` 这样的情况。根据现有架构，我应该实现一个通用的方法来支持多种匹配方式。
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\bmodel\PartCategory.java</summary>
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
+<summary>Tool use: **read_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+现在我理解了设计模式：
+
+1. **Module** 继承自 **ModuleBase**
+2. **PartCategory** 也继承自 **ModuleBase**，同时实现 **IModule** 接口
+3. 这种设计让 Module 和 PartCategory 都能拥有相同的数据结构（atomicParts, partCategorys, rules, paras）
+
+现在我需要按照同样的模式来设计算法层：
+1. **ConstraintAlgImpl** → **ModuleAlgImpl**（重命名）
+2. **ModuleBaseAlgImpl**（新增基类）- 提取公共方法
+3. **PartCategoryAlgImpl**（新增）- 对应 PartCategory
+
+关键设计要点：
+- `ModuleAlgImpl` 对应 `Module`
+- `PartCategoryAlgImpl` 对应 `PartCategory`
+- `ModuleBaseAlgImpl` 对应 `ModuleBase`
+
+类比：
+- `ModuleBase.getParts()` → 获取当前层的部件
+- `ModuleBase.getAllParts()` → 获取所有部件（包括子分类）
+- `ModuleBase.getAtomicParts()` → 获取当前层的原子部件
+- `ModuleBase.getAllAtomicParts()` → 获取所有原子部件
+
+所以算法层应该是：
+- `ModuleBaseAlgImpl.sum4Parts()` → 当前层的部件求和
+- `ModuleAlgImpl.sum4AllParts()` → 所有部件求和
+
+
+- `PartCategoryAlgImpl` 需要为每个 PartCategory 实例提供独立的求和计算能力
+
+这样就能实现多实例场景下的独立求和逻辑。
+
+现有的 `currentModule` 字段会根据规则执行时动态更新——当处理 `logicB1_I0` 这类实例级规则时，`currentModule` 会被设置为对应的 `PartCategoryAlgImpl`，使得求和操作能够正确地作用于特定实例的所有部件。
+
+现有代码通过 `module.getAllAtomicParts(categoryCode)` 这样的方式，根据传入的分类编码来获取相应部件。在 PartCategoryAlgImpl 层面，我可以直接调用 `getAllAtomicParts()` 来获取该分类下的所有原子部件，无需额外参数。
+</think>
+
+现在我理解了设计模式。让我查看 `ConstraintAlgImpl` 中与 `currentModule` 相关的方法调用：
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="unknown" data-tool-name="ripgrep_raw_search">
+<details>
+<summary>Tool use: **ripgrep_raw_search**</summary>
+
+
+Parameters:
+
+```json
+{
+  "caseInsensitive": false,
+  "outputMode": "content",
+  "path": "d:\\01.code\\mygithub\\jmixconfigengine\\src\\main\\java\\com\\jmix\\executor\\impl\\algmodel\\ConstraintAlgImpl.java",
+  "pattern": "currentModule"
+}
+```
+Additional data:
+
+```json
+{
+  "isPruned": true,
+  "outputMode": "content",
+  "path": "d:\\01.code\\mygithub\\jmixconfigengine\\src\\main\\java\\com\\jmix\\executor\\impl\\algmodel\\ConstraintAlgImpl.java",
+  "pattern": "currentModule",
+  "topFiles": [
+    {
+      "matchCount": 4,
+      "uri": "src\\main\\java\\com\\jmix\\executor\\impl\\algmodel\\ConstraintAlgImpl.java"
+    }
+  ],
+  "totalFiles": 1,
+  "totalMatches": 4
+}
+```
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="unknown" data-tool-name="ripgrep_raw_search"><details>
+<summary>Tool use: **ripgrep_raw_search**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+现在我理解了整体架构。让我根据用户的要求设计新的重构方案：
+
+1. **原有 `ConstraintAlgImpl` 改名为 `ModuleAlgImpl`** - 包含模块级别的算法实现
+2. **抽取形成 `ModuleBaseAlgImpl`** - 包含算法层的基类逻辑
+3. **新增 `PartCategoryAlgImpl`** - 包含部件分类级别的算法实现
+
+这个设计模式与数据模型 `ModuleBase` / `Module` / `PartCategory` 对应：
+
+| 数据模型层 | 算法模型层 |
+|-----------|-----------|
+| `ModuleBase` | `ModuleBaseAlgImpl` |
+| `Module` | `ModuleAlgImpl` |
+| `PartCategory` | `PartCategoryAlgImpl` |
+
+关键设计：
+- `ModuleBaseAlgImpl` - 定义 `currentAlgContext`（可以是 ModuleAlgImpl 或 PartCategoryAlgImpl）
+- `ModuleAlgImpl` - 模块级别算法，包含多个 PartCategoryAlgImpl
+- `PartCategoryAlgImpl` - 部件分类级别算法
+
+对于 `sum4Parts` 方法：
+- `ModuleAlgImpl.sum4Parts` → 获取当前模块及子分类的所有部件
+- `PartCategoryAlgImpl.sum4Parts` → 获取当前分类的部件
+
+让我创建详细的计划。
+</think>
+
+现在我完全理解了设计模式。让我更新重构计划：
+
+
+_**Agent (default)**_
+
+The string to replace was not found in the file.
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2"><details>
+<summary>Tool use: **edit_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+Let me read the plan file first and then update it.
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: c:\Users\Administrator\.cursor\plans\重构sum4parts支持多实例_abb7a43c.plan.md</summary>
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
+<summary>Tool use: **read_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+让我<think>
+ Thinking...
+ "---
+name: 重构sum4Parts支持多实例
+overview: 按照Module/ModuleBase/PartCategory层次结构模式，重构算法层类设计，新增ModuleBaseAlgImpl和PartCategoryAlgImpl
+todos:
+  - id: create-modulebasealgimpl
+    content: 创建 ModuleBaseAlgImpl 基类
+    status: pending
+  - id: create-partcategoryalgimpl
+    content: 创建 PartCategoryAlgImpl 部件分类级算法类
+    status: pending
+  - id: rename-constraintalgimpl
+    content: 重命名 ConstraintAlgImpl 为 ModuleAlgImpl
+    status: pending
+  - id: impl-sum4selected-3param
+    content: 实现 sum4Selected 三参数版本
+    status: pending
+  - id: impl-sum4quantity-3param
+    content: 实现 sum4Quantity 三参数版本
+    status: pending
+  - id: update-references
+    content: 更新所有引用 ConstraintAlgImpl 的文件
+    status: pending
+isProject: false
+---
+# 重构 sum4Parts 支持多实例 - 详细设计
+## 1. 设计目标
+按照 `Module`/`ModuleBase`/`PartCategory` 的层次结构模式，重构算法层的类设计：
+```
+数据模型层           算法模型层
+────────────────────────────────
+ModuleBase    →    ModuleBaseAlgImpl   (基类)
+Module        →    ModuleAlgImpl        (模块级)
+PartCategory  →    PartCategoryAlgImpl  (部件分类级)
+```
+## 2. 类重构方案
+### 2.1 类职责定义
+| 类名 | 职责 | 关键字段 |
+|------|------|----------|
+| `ModuleBaseAlgImpl` | 算法基类，定义通用方法 | `algContext` (当前算法上下文) |
+| `ModuleAlgImpl` | 模块级算法，组合多个PartCategoryAlgImpl | `partCategoryAlgs` |
+| `PartCategoryAlgImpl` | 部件分类级算法，专注于单个分类 | `partCategory`, `atomicPartAlgs` |
+### 2.2 类层次结构
+```java
+// 1. ModuleBaseAlgImpl - 基类
+public abstract class ModuleBaseAlgImpl {
+    protected AlgCPModel model;
+    protected IModule algContext;  // 当前算法上下文
+    protected Map<String, Var<?>> varMap;
+    
+    // 抽象方法：获取当前层的部件
+    protected abstract List<Part> getParts4Sum();
+    
+    // 通用的sum4Parts实现
+    protected PartAlgCPLinearExpr sum4Parts(String cofAttrCode, ...) {
+        List<Part> parts = getParts4Sum();  // 多态调用
+        // 构建表达式...
+    }
+}
+// 2. ModuleAlgImpl - 模块级实现
+public class ModuleAlgImpl extends ModuleBaseAlgImpl {
+    private Module module;
+    private Map<String, PartCategoryAlgImpl> partCategoryAlgs;
+    
+    @Override
+    protected List<Part> getParts4Sum() {
+        return module.getAllAtomicParts();  // 获取所有部件
+    }
+    
+    // 模块级特有的方法
+    public void createPartCategoryAlg(PartCategory category) { ... }
+}
+// 3. PartCategoryAlgImpl - 部件分类级实现
+public class PartCategoryAlgImpl extends ModuleBaseAlgImpl {
+    private PartCategory partCategory;
+    
+    @Override
+    protected List<Part> getParts4Sum() {
+        return partCategory.getAtomicParts();  // 仅获取当前分类的部件
+    }
+}
+```
+## 3. 实现步骤
+### 步骤1: 创建 ModuleBaseAlgImpl
+**文件**: `src/main/java/com/jmix/executor/impl/algmodel/ModuleBaseAlgImpl.java`
+```java
+package com.jmix.executor.impl.algmodel;
+import com.jmix.executor.bmodel.Part;
+import com.jmix.executor.bmodel.PartVar;
+import com.jmix.executor.model.PartConstantAttr;
+import com.jmix.executor.model.AlgLoaderException;
+import com.jmix.executor.impl.util.FilterExpressionExecutor;
+import com.google.ortools.sat.IntVar;
+import com.google.ortools.sat.LinearArgument;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+/**
+ * 算法基类
+ * 定义模块/部件分类级别算法的公共方法
+ * 
+ * @since 2025-12-27
+ */
+public abstract class ModuleBaseAlgImpl {
+    protected AlgCPModel model;
+    protected Map<String, Var<?>> varMap;
+    /**
+     * 获取当前层的部件列表（抽象方法，由子类实现）
+     */
+    protected abstract List<Part> getParts4Sum();
+    /**
+     * 通用的sum4Parts实现
+     */
+    protected PartAlgCPLinearExpr sum4Parts(String cofAttrCode,
+            Function<PartVar, LinearArgument> varGetter, String varName, String filtedConditionStr) {
+        
+        PriorityConstraint tempConstraint = new PriorityConstraint();
+        List<Part> atomicParts = getParts4Sum();
+        if (filtedConditionStr != null && !filtedConditionStr.trim().isEmpty()) {
+            atomicParts = FilterExpressionExecutor.doSelect(atomicParts, filtedConditionStr);
+        }
+        return buildSumExpr(tempConstraint, cofAttrCode, varName, varGetter, atomicParts);
+    }
+    /**
+     * 构建求和表达式
+     */
+    protected PartAlgCPLinearExpr buildSumExpr(PriorityConstraint tempConstraint, String cofAttrCode,
+            String varName, Function<PartVar, LinearArgument> varGetter, List<Part> atomicParts) {
+        
+        PartAlgCPLinearExpr algExpr = new PartAlgCPLinearExpr(
+                "sum_" + (cofAttrCode == null ? "" : cofAttrCode) + "_" + varName);
+        
+        boolean isWithoutAttr = cofAttrCode == null || cofAttrCode.isEmpty();
+        
+        for (Part part : atomicParts) {
+            PartVar partVar = getPartVar(part.getCode());
+            int attrValue;
+            if (isWithoutAttr) {
+                attrValue = 1;
+            } else if (PartConstantAttr.Quantity.getCode().equals(cofAttrCode)) {
+                attrValue = 1;
+            } else {
+                attrValue = Integer.parseInt(part.getAttr(cofAttrCode));
+            }
+            algExpr.addTerm(partVar, (IntVar) varGetter.apply(partVar), attrValue, varName);
+        }
+        tempConstraint.setExpr(algExpr);
+        return algExpr;
+    }
+    // ============ 公共方法 ============
+    public PartAlgCPLinearExpr sum4Selected(String cofAttrCode, String filtedConditionStr) {
+        return sum4Parts(cofAttrCode, PartVar::getIsSelected, PartVar.ISSELECTED_SHORT_NAME, filtedConditionStr);
+    }
+    public PartAlgCPLinearExpr sum4Selected(String filtedConditionStr) {
+        return sum4Selected(null, filtedConditionStr);
+    }
+    public PartAlgCPLinearExpr sum4Quantity(String cofAttrCode, String filtedConditionStr) {
+        return sum4Parts(cofAttrCode, PartVar::getQty, PartVar.QTY_SHORT_NAME, filtedConditionStr);
+    }
+    public PartAlgCPLinearExpr sum4Quantity(String filtedConditionStr) {
+        return sum4Quantity(null, filtedConditionStr);
+    }
+    public PartVar getPartVar(String code) {
+        Var<?> var = varMap.get(code);
+        if (var == null || !(var instanceof PartVar)) {
+            throw new AlgLoaderException("PartVar not found: " + code);
+        }
+        return (PartVar) var;
+    }
+}
+```
+### 步骤2: 创建 PartCategoryAlgImpl
+**文件**: `src/main/java/com/jmix/executor/impl/algmodel/PartCategoryAlgImpl.java`
+```java
+package com.jmix.executor.impl.algmodel;
+import com.jmix.executor.bmodel.Part;
+import com.jmix.executor.bmodel.PartCategory;
+import java.util.List;
+/**
+ * 部件分类级算法实现
+ * 专注于单个部件分类的约束处理
+ * 
+ * @since 2025-12-27
+ */
+public class PartCategoryAlgImpl extends ModuleBaseAlgImpl {
+    private PartCategory partCategory;
+    public PartCategoryAlgImpl(PartCategory partCategory, AlgCPModel model, Map<String, Var<?>> varMap) {
+        this.partCategory = partCategory;
+        this.model = model;
+        this.varMap = varMap;
+    }
+    @Override
+    protected List<Part> getParts4Sum() {
+        return partCategory.getAtomicParts();
+    }
+    public PartCategory getPartCategory() {
+        return partCategory;
+    }
+    public String getCategoryCode() {
+        return partCategory.getCode();
+    }
+}
+```
+### 步骤3: 重构 ModuleAlgImpl
+**文件**: `src/main/java/com/jmix/executor/impl/algmodel/ModuleAlgImpl.java` (原 ConstraintAlgImpl)
+```java
+package com.jmix.executor.impl.algmodel;
+import com.jmix.executor.bmodel.IModule;
+import com.jmix.executor.bmodel.Module;
+import com.jmix.executor.bmodel.Part;
+import com.jmix.executor.bmodel.PartCategory;
+import com.jmix.executor.bmodel.PartVar;
+import java.util.*;
+/**
+ * 模块级算法实现
+ * 组合多个PartCategoryAlgImpl，支持跨分类求和
+ * 
+ * @since 2025-12-27
+ */
+public class ModuleAlgImpl extends ModuleBaseAlgImpl {
+    private IModule module;
+    private Map<String, PartCategoryAlgImpl> partCategoryAlgs;
+    // ============ 原有方法保持兼容 ============
+    /**
+     * 获取当前模块的所有原子部件
+     */
+    @Override
+    protected List<Part> getParts4Sum() {
+        return module.getAllAtomicParts();
+    }
+    /**
+     * 对指定部件分类的部件求和（支持多分类逗号分隔）
+     * 
+     * @param partCategoryCodesStr 部件分类代码，支持逗号分隔，如 "driveI0,driveI1"
+     * @param cofAttrCode 属性代码
+     * @param filtedConditionStr 过滤条件
+     */
+    public PartAlgCPLinearExpr sum4Quantity(String partCategoryCodesStr, String cofAttrCode, String filtedConditionStr) {
+        if (partCategoryCodesStr == null || partCategoryCodesStr.trim().isEmpty()) {
+            return sum4Quantity(cofAttrCode, filtedConditionStr);
+        }
+        List<Part> allParts = new ArrayList<>();
+        String[] categoryCodes = partCategoryCodesStr.split(",");
+        for (String categoryCode : categoryCodes) {
+            categoryCode = categoryCode.trim();
+            if (categoryCode.isEmpty()) continue;
+            PartCategoryAlgImpl categoryAlg = partCategoryAlgs.get(categoryCode);
+            if (categoryAlg != null) {
+                allParts.addAll(categoryAlg.getParts4Sum());
+            } else {
+                allParts.addAll(module.getAllAtomicParts(categoryCode));
+            }
+        }
+        if (allParts.isEmpty()) {
+            allParts = module.getAllAtomicParts();
+        }
+        if (filtedConditionStr != null && !filtedConditionStr.trim().isEmpty()) {
+            allParts = FilterExpressionExecutor.doSelect(allParts, filtedConditionStr);
+        }
+        PriorityConstraint tempConstraint = new PriorityConstraint();
+        return buildSumExpr(tempConstraint, cofAttrCode, PartVar.QTY_SHORT_NAME, PartVar::getQty, allParts);
+    }
+    /**
+     * 对指定部件分类的部件求和（选中状态，支持多分类逗号分隔）
+     */
+    public PartAlgCPLinearExpr sum4Selected(String partCategoryCodesStr, String cofAttrCode, String filtedConditionStr) {
+        if (partCategoryCodesStr == null || partCategoryCodesStr.trim().isEmpty()) {
+            return sum4Selected(cofAttrCode, filtedConditionStr);
+        }
+        List<Part> allParts = new ArrayList<>();
+        String[] categoryCodes = partCategoryCodesStr.split(",");
+        for (String categoryCode : categoryCodes) {
+            categoryCode = categoryCode.trim();
+            if (categoryCode.isEmpty()) continue;
+            PartCategoryAlgImpl categoryAlg = partCategoryAlgs.get(categoryCode);
+            if (categoryAlg != null) {
+                allParts.addAll(categoryAlg.getParts4Sum());
+            } else {
+                allParts.addAll(module.getAllAtomicParts(categoryCode));
+            }
+        }
+        if (allParts.isEmpty()) {
+            allParts = module.getAllAtomicParts();
+        }
+        if (filtedConditionStr != null && !filtedConditionStr.trim().isEmpty()) {
+            allParts = FilterExpressionExecutor.doSelect(allParts, filtedConditionStr);
+        }
+        PriorityConstraint tempConstraint = new PriorityConstraint();
+        return buildSumExpr(tempConstraint, cofAttrCode, PartVar.ISSELECTED_SHORT_NAME, PartVar::getIsSelected, allParts);
+    }
+    // ============ PartCategoryAlgImpl 管理方法 ============
+    public void registerPartCategoryAlg(PartCategoryAlgImpl categoryAlg) {
+        if (partCategoryAlgs == null) {
+            partCategoryAlgs = new HashMap<>();
+        }
+        partCategoryAlgs.put(categoryAlg.getCategoryCode(), categoryAlg);
+    }
+    public PartCategoryAlgImpl getPartCategoryAlg(String categoryCode) {
+        return partCategoryAlgs != null ? partCategoryAlgs.get(categoryCode) : null;
+    }
+    public void initPartCategoryAlgs() {
+        if (module instanceof Module) {
+            Module m = (Module) module;
+            for (PartCategory pc : m.getAllPartCategorys()) {
+                PartCategoryAlgImpl categoryAlg = new PartCategoryAlgImpl(pc, model, varMap);
+                registerPartCategoryAlg(categoryAlg);
+            }
+        }
+    }
+}
+```
+## 4. 方法签名对照表
+| 方法 | 原签名 | 新签名 | 所属类 |
+|------|--------|--------|--------|
+| `sum4Parts` | `sum4Parts(String, Function, String, String)` | `sum4Parts(String, Function, String, String)` | `ModuleBaseAlgImpl` (protected) |
+| `sum4Selected` | `sum4Selected(String)` | `sum4Selected(String, String)` | `ModuleBaseAlgImpl` |
+| `sum4Selected` | - | `sum4Selected(String, String, String)` | `ModuleAlgImpl` (新增) |
+| `sum4Quantity` | `sum4Quantity(String)` | `sum4Quantity(String, String)` | `ModuleBaseAlgImpl` |
+| `sum4Quantity` | - | `sum4Quantity(String, String, String)` | `ModuleAlgImpl` (新增) |
+## 5. 文件变更清单
+| 操作 | 文件路径 | 说明 |
+|------|----------|------|
+| 新增 | `algmodel/ModuleBaseAlgImpl.java` | 算法基类 |
+| 新增 | `algmodel/PartCategoryAlgImpl.java` | 部件分类级算法 |
+| 重命名 | `algmodel/ConstraintAlgImpl.java` → `algmodel/ModuleAlgImpl.java` | 模块级算法 |
+| 修改 | 引用 `ConstraintAlgImpl` 的所有文件 | 更新类引用 |
+## 6. 兼容性说明
+- 原有两参数方法 `sum4Quantity(String)` 和 `sum4Selected(String)` 保持不变
+- 新增三参数方法 `sum4Quantity(String, String, String)` 支持跨分类求和
+- 对现有代码无侵入性影响
+## 7. 验证方式
+参考 `MultiReqTest.java` 第163行的用法：
+```java
+PartAlgCPLinearExpr totalCapacity = sum4Quantity("driveI0,driveI1", "Capacity", "").name("totalCapacity");
+```
+
+</think>
+重新编写完整的计划文件，用新的内容替换整个文件。
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2">
+
+<details><summary>Tool use: **edit_file_v2** • Edit file: c:\Users\Administrator\.cursor\plans\重构sum4parts支持多实例_abb7a43c.plan.md</summary>
+
+</details>
+
+</tool-use>
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2"><details>
+<summary>Tool use: **edit_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+我已经更新了计划文件，现在需要向用户展示重构方案的概览并等待确认。
+</think>
+
+我已经按照 `Module`/`ModuleBase`/`PartCategory` 的层次结构模式更新了重构计划。
+
+## 重构方案概览
+
+### 新的类层次结构
+
+```
+数据模型层                    算法模型层
+────────────────────────────────────────────
+ModuleBase    (基类)    →    ModuleBaseAlgImpl   (基类)
+     │                            │
+     ├── Module      →            ├── ModuleAlgImpl       (模块级)
+     │                            │
+     └── PartCategory →            └── PartCategoryAlgImpl (部件分类级)
+```
+
+### 核心设计
+
+| 类 | 职责 | 关键方法 |
+|---|------|----------|
+| `ModuleBaseAlgImpl` | 定义公共方法，提取通用逻辑 | `getParts4Sum()` 抽象方法, `sum4Parts()` |
+| `ModuleAlgImpl` | 模块级聚合，支持跨分类求和 | `sum4Quantity(String, String, String)` |
+| `PartCategoryAlgImpl` | 单个分类的算法处理 | `getParts4Sum()` 返回 `category.getAtomicParts()` |
+
+### 方法签名
+
+| 方法 | 新签名 | 说明 |
+|------|--------|------|
+| `sum4Parts` | `sum4Parts(String, Function, String, String)` | 基类方法，protected |
+| `sum4Selected` | `sum4Selected(String, String)` | 基类方法 |
+| `sum4Selected` | `sum4Selected(String, String, String)` | **新增** - 支持多分类 |
+| `sum4Quantity` | `sum4Quantity(String, String)` | 基类方法 |
+| `sum4Quantity` | `sum4Quantity(String, String, String)` | **新增** - 支持多分类 |
+
+### 使用示例
+
+```java
+// 单分类求和
+sum4Quantity("Type=sd");
+
+// 多分类求和（逗号分隔）
+sum4Quantity("driveI0,driveI1", "Capacity", "");
+```
+
+---
+
+**请确认是否按此方案执行重构？**
+
+---
+
+_**User**_
+
+按最近两次的交流来修改（前期讲的暂时不修改），按这个方法进行重构，请确保编译能通过，请确保老的用例能执行通过@src/test/java/com/jmix/opti/base/BaseOptiTest.java  ，请确保新的用例能通过@src/test/java/com/jmix/opti/multireq/MultiReqTest.java 
+
+---
+
+_**Agent (default)**_
+
+<think>
+用户要求我按计划执行重构，但要确保：
+1. 编译能通过
+2. 老用例能执行通过 (BaseOptiTest.java)
+3. 新用例能通过 (MultiReqTest.java)
+
+用户说"前期讲的暂时不修改"，意思是按照最新的讨论（按照Module/ModuleBase/PartCategory层次结构）来进行重构，而不是之前简单的重构sum4Parts方法。
+
+让我开始执行重构：
+
+1. 首先创建 ModuleBaseAlgImpl 基类
+2. 创建 PartCategoryAlgImpl 类
+3. 将 ConstraintAlgImpl 重命名为 ModuleAlgImpl
+4. 确保原有方法保持兼容
+5. 验证编译和测试通过
+
+让我开始执行。
+</think>
+
+好的，我现在开始执行重构。按照讨论的方案进行，确保编译通过和测试用例执行通过。
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="unknown" data-tool-name="todo_write">
+<details>
+<summary>Tool use: **todo_write**</summary>
+
+
+Parameters:
+
+```json
+{
+  "merge": true
+}
+```
+Result:
+
+```json
+{
+  "finalTodos": [
+    {
+      "content": "创建 ModuleBaseAlgImpl 基类",
+      "id": "create-base",
+      "status": "in_progress"
+    },
+    {
+      "content": "创建 PartCategoryAlgImpl 类",
+      "id": "create-category",
+      "status": "pending"
+    },
+    {
+      "content": "将 ConstraintAlgImpl 重命名为 ModuleAlgImpl 并扩展",
+      "id": "rename-extend",
+      "status": "pending"
+    },
+    {
+      "content": "更新所有引用 ConstraintAlgImpl 的文件",
+      "id": "update-refs",
+      "status": "pending"
+    },
+    {
+      "content": "验证编译通过",
+      "id": "verify-compile",
+      "status": "pending"
+    },
+    {
+      "content": "运行老用例 BaseOptiTest",
+      "id": "run-base",
+      "status": "pending"
+    },
+    {
+      "content": "运行新用例 MultiReqTest",
+      "id": "run-multi",
+      "status": "pending"
+    }
+  ],
+  "initialTodos": [
+    {
+      "content": "重构 sum4Parts 方法，添加 partCategoryCodesStr 参数",
+      "id": "refactor-sum4parts",
+      "status": "pending"
+    },
+    {
+      "content": "实现 sum4Selected 三参数版本",
+      "id": "impl-sum4selected-3param",
+      "status": "pending"
+    },
+    {
+      "content": "实现 sum4Quantity 三参数版本",
+      "id": "impl-sum4quantity-3param",
+      "status": "pending"
+    },
+    {
+      "content": "调整现有两参数方法调用新实现",
+      "id": "adjust-2param-methods",
+      "status": "pending"
+    },
+    {
+      "content": "验证测试用例编译通过",
+      "id": "verify-compile",
+      "status": "pending"
+    }
+  ],
+  "success": true
+}
+```
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="unknown" data-tool-name="todo_write"><details>
+<summary>Tool use: **todo_write**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+Let<think>
+ Thinking...
+ "package com.jmix.executor.impl.algmodel;
+import com.jmix.executor.bmodel.Part;
+import com.jmix.executor.bmodel.PartVar;
+import com.jmix.executor.model.AlgLoaderException;
+import com.jmix.executor.model.PartConstantAttr;
+import com.jmix.executor.impl.util.FilterExpressionExecutor;
+import com.google.ortools.sat.IntVar;
+import com.google.ortools.sat.LinearArgument;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+/**
+ * 算法基类
+ * 定义模块/部件分类级别算法的公共方法
+ * 
+ * @since 2025-12-27
+ */
+public abstract class ModuleBaseAlgImpl {
+    protected AlgCPModel model;
+    protected Map<String, Var<?>> varMap;
+    /**
+     * 获取当前层的部件列表（抽象方法，由子类实现）
+     */
+    protected abstract List<Part> getParts4Sum();
+    /**
+     * 通用的sum4Parts实现
+     */
+    protected PartAlgCPLinearExpr sum4Parts(String cofAttrCode,
+            Function<PartVar, LinearArgument> varGetter, String varName, String filtedConditionStr) {
+        
+        PriorityConstraint tempConstraint = new PriorityConstraint();
+        List<Part> atomicParts = getParts4Sum();
+        if (filtedConditionStr != null && !filtedConditionStr.trim().isEmpty()) {
+            atomicParts = FilterExpressionExecutor.doSelect(atomicParts, filtedConditionStr);
+        }
+        return buildSumExpr(tempConstraint, cofAttrCode, varName, varGetter, atomicParts);
+    }
+    /**
+     * 构建求和表达式
+     */
+    protected PartAlgCPLinearExpr buildSumExpr(PriorityConstraint tempConstraint, String cofAttrCode,
+            String varName, Function<PartVar, LinearArgument> varGetter, List<Part> atomicParts) {
+        
+        PartAlgCPLinearExpr algExpr = new PartAlgCPLinearExpr(
+                "sum_" + (cofAttrCode == null ? "" : cofAttrCode) + "_" + varName);
+        
+        boolean isWithoutAttr = cofAttrCode == null || cofAttrCode.isEmpty();
+        
+        for (Part part : atomicParts) {
+            PartVar partVar = getPartVar(part.getCode());
+            int attrValue;
+            if (isWithoutAttr) {
+                attrValue = 1;
+            } else if (PartConstantAttr.Quantity.getCode().equals(cofAttrCode)) {
+                attrValue = 1;
+            } else {
+                attrValue = Integer.parseInt(part.getAttr(cofAttrCode));
+            }
+            algExpr.addTerm(partVar, (IntVar) varGetter.apply(partVar), attrValue, varName);
+        }
+        tempConstraint.setExpr(algExpr);
+        return algExpr;
+    }
+    /**
+     * 对选中的部件求和（带属性系数）
+     *
+     * @param cofAttrCode        属性代码，如果为null或空则使用默认值1
+     * @param filtedConditionStr 过滤条件字符串
+     * @return 求和后的AlgCPLinearExpr表达式
+     */
+    public PartAlgCPLinearExpr sum4Selected(String cofAttrCode, String filtedConditionStr) {
+        return sum4Parts(cofAttrCode, PartVar::getIsSelected, PartVar.ISSELECTED_SHORT_NAME, filtedConditionStr);
+    }
+    /**
+     * 对选中的部件求和（不带属性系数）
+     *
+     * @param filtedConditionStr 过滤条件字符串
+     * @return 求和后的AlgCPLinearExpr表达式
+     */
+    public PartAlgCPLinearExpr sum4Selected(String filtedConditionStr) {
+        return sum4Selected(null, filtedConditionStr);
+    }
+    /**
+     * 对数量的部件求和（带属性系数）
+     *
+     * @param cofAttrCode        属性代码，如果为null或空则使用默认值1
+     * @param filtedConditionStr 过滤条件字符串
+     * @return 求和后的AlgCPLinearExpr表达式
+     */
+    public PartAlgCPLinearExpr sum4Quantity(String cofAttrCode, String filtedConditionStr) {
+        return sum4Parts(cofAttrCode, PartVar::getQty, PartVar.QTY_SHORT_NAME, filtedConditionStr);
+    }
+    /**
+     * 对数量的部件求和（不带属性系数）
+     *
+     * @param filtedConditionStr 过滤条件字符串
+     * @return 求和后的AlgCPLinearExpr表达式
+     */
+    public PartAlgCPLinearExpr sum4Quantity(String filtedConditionStr) {
+        return sum4Quantity(null, filtedConditionStr);
+    }
+    /**
+     * 获取部件变量
+     * 
+     * @param code 部件代码
+     * @return 部件变量实例
+     * @throws AlgLoaderException 异常
+     */
+    public PartVar getPartVar(String code) {
+        Var<?> var = varMap.get(code);
+        if (var == null || !(var instanceof PartVar)) {
+            throw new AlgLoaderException("PartVar not found: " + code);
+        }
+        return (PartVar) var;
+    }
+}
+
+</think>
+ me start by creating the ModuleBaseAlgImpl class.
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2">
+
+<details><summary>Tool use: **edit_file_v2** • Edit file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\impl\algmodel\ModuleBaseAlgImpl.java</summary>
+
+</details>
+
+</tool-use>
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2"><details>
+<summary>Tool use: **edit_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+ModuleBaseAlgImpl 创建完成，现在创建 PartCategoryAlgImpl。
+</think>
+
+
+
+
+_**Agent (default)**_
+
+Todo update failed
+
+<tool-use data-tool-type="unknown" data-tool-name="todo_write"><details>
+<summary>Tool use: **todo_write**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+Let me update the todos and create the PartCategoryAlgImpl class.
+</think>
+
+
+
+
+_**Agent (default)**_
+
+Todo update failed
+
+<tool-use data-tool-type="unknown" data-tool-name="todo_write"><details>
+<summary>Tool use: **todo_write**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+Let me update the todo list properly.
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="unknown" data-tool-name="todo_write">
+<details>
+<summary>Tool use: **todo_write**</summary>
+
+
+Parameters:
+
+```json
+{
+  "merge": true
+}
+```
+Result:
+
+```json
+{
+  "finalTodos": [
+    {
+      "content": "创建 ModuleBaseAlgImpl 基类",
+      "id": "create-base",
+      "status": "completed"
+    },
+    {
+      "content": "创建 PartCategoryAlgImpl 类",
+      "id": "create-category",
+      "status": "in_progress"
+    },
+    {
+      "content": "将 ConstraintAlgImpl 重命名为 ModuleAlgImpl 并扩展",
+      "id": "rename-extend",
+      "status": "pending"
+    },
+    {
+      "content": "更新所有引用 ConstraintAlgImpl 的文件",
+      "id": "update-refs",
+      "status": "pending"
+    },
+    {
+      "content": "验证编译通过",
+      "id": "verify-compile",
+      "status": "pending"
+    },
+    {
+      "content": "运行老用例 BaseOptiTest",
+      "id": "run-base",
+      "status": "pending"
+    },
+    {
+      "content": "运行新用例 MultiReqTest",
+      "id": "run-multi",
+      "status": "pending"
+    }
+  ],
+  "initialTodos": [
+    {
+      "content": "创建 ModuleBaseAlgImpl 基类",
+      "id": "create-base",
+      "status": "in_progress"
+    },
+    {
+      "content": "创建 PartCategoryAlgImpl 类",
+      "id": "create-category",
+      "status": "pending"
+    },
+    {
+      "content": "将 ConstraintAlgImpl 重命名为 ModuleAlgImpl 并扩展",
+      "id": "rename-extend",
+      "status": "pending"
+    },
+    {
+      "content": "更新所有引用 ConstraintAlgImpl 的文件",
+      "id": "update-refs",
+      "status": "pending"
+    },
+    {
+      "content": "验证编译通过",
+      "id": "verify-compile",
+      "status": "pending"
+    },
+    {
+      "content": "运行老用例 BaseOptiTest",
+      "id": "run-base",
+      "status": "pending"
+    },
+    {
+      "content": "运行新用例 MultiReqTest",
+      "id": "run-multi",
+      "status": "pending"
+    }
+  ],
+  "success": true
+}
+```
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="unknown" data-tool-name="todo_write"><details>
+<summary>Tool use: **todo_write**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+继续创建 PartCategoryAlgImpl 类。
+</think>
+
+
+<think>
+ Thinking...
+ "package com.jmix.executor.impl.algmodel;
+import com.jmix.executor.bmodel.Part;
+import com.jmix.executor.bmodel.PartCategory;
+import java.util.List;
+/**
+ * 部件分类级算法实现
+ * 专注于单个部件分类的约束处理
+ * 
+ * @since 2025-12-27
+ */
+public class PartCategoryAlgImpl extends ModuleBaseAlgImpl {
+    private PartCategory partCategory;
+    public PartCategoryAlgImpl(PartCategory partCategory, AlgCPModel model, Map<String, Var<?>> varMap) {
+        this.partCategory = partCategory;
+        this.model = model;
+        this.varMap = varMap;
+    }
+    @Override
+    protected List<Part> getParts4Sum() {
+        return partCategory.getAtomicParts();
+    }
+    public PartCategory getPartCategory() {
+        return partCategory;
+    }
+    public String getCategoryCode() {
+        return partCategory.getCode();
+    }
+}
+
+</think>
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2">
+
+<details><summary>Tool use: **edit_file_v2** • Edit file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\impl\algmodel\PartCategoryAlgImpl.java</summary>
+
+</details>
+
+</tool-use>
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2"><details>
+<summary>Tool use: **edit_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+Now I need to rename ConstraintAlgImpl to ModuleAlgImpl and add the new methods. I'll read the full ConstraintAlgImpl first to make sure I don't miss anything, then I'll need to:
+
+1. Create a new file `ModuleAlgImpl.java` that extends from ModuleBaseAlgImpl and adds the new multi-category methods
+2. Update ConstraintAlgImpl to extend ModuleAlgImpl (for backward compatibility)
+
+Actually, looking at the design again, I think the best approach is:
+1. Create `ModuleAlgImpl` as a copy of `ConstraintAlgImpl` but with `extends ModuleBaseAlgImpl`
+2. Keep `ConstraintAlgImpl` as extending `ModuleAlgImpl` for backward compatibility
+
+But actually, looking at the code structure, `ConstraintAlgImpl` is an abstract class with many methods. The cleanest approach is:
+
+1. Create `ModuleAlgImpl` as the new base class that extends `ModuleBaseAlgImpl` and contains all the current `ConstraintAlgImpl` logic
+2. Keep `ConstraintAlgImpl` extending `ModuleAlgImpl` for backward compatibility
+
+Let me do this properly. I'll copy ConstraintAlgImpl to ModuleAlgImpl and make the changes.
+</think>
+
+现在创建 `ModuleAlgImpl`。我需要将 `ConstraintAlgImpl` 的内容复制过来并进行扩展。让我先读取完整的 `ConstraintAlgImpl`：
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\impl\algmodel\ConstraintAlgImpl.java</summary>
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
+<summary>Tool use: **read_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+现在我需要将 `ConstraintAlgImpl` 重命名并修改为 `ModuleAlgImpl`。根据用户要求：
+1. 原有方法保持兼容
+2. 新增三参数版本的 `sum4Selected` 和 `sum4Quantity`
+
+让我创建新的 `ModuleAlgImpl.java`，基于 `ConstraintAlgImpl` 并扩展。
+</think>
+
+现在创建 `ModuleAlgImpl.java`，它是 `ConstraintAlgImpl` 的重<think>
+ Thinking...
+ "package com.jmix.executor.impl.algmodel;
+import com.jmix.executor.bmodel.IModule;
+import com.jmix.executor.bmodel.IPart;
+import com.jmix.executor.bmodel.Part;
+import com.jmix.executor.bmodel.PartCategory;
+import com.jmix.executor.bmodel.PartUtils;
+import com.jmix.executor.bmodel.attr.DynamicAttributerOption;
+import com.jmix.executor.bmodel.base.AssignType;
+import com.jmix.executor.bmodel.logic.PriorityRuleSchema;
+import com.jmix.executor.bmodel.logic.PriorityStrategy;
+import com.jmix.executor.bmodel.logic.RefProgObjSchema;
+import com.jmix.executor.bmodel.logic.Rule;
+import com.jmix.executor.bmodel.logic.RuleTypeConstants;
+import com.jmix.executor.bmodel.para.Para;
+import com.jmix.executor.impl.PriorityConstraint;
+import com.jmix.executor.impl.util.FilterExpressionExecutor;
+import com.jmix.executor.model.AlgLoaderException;
+import com.jmix.executor.model.ParConstraint;
+import com.jmix.executor.model.PartConstantAttr;
+import com.google.ortools.sat.BoolVar;
+import com.google.ortools.sat.IntVar;
+import com.google.ortools.sat.LinearArgument;
+import com.google.ortools.sat.Literal;
+import com.google.ortools.util.Domain;
+import lombok.extern.slf4j.Slf4j;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+/**
+ * 模块级算法实现
+ * 组合多个PartCategoryAlgImpl，支持跨分类求和
+ * 继承自ModuleBaseAlgImpl，提供模块级别的约束算法实现
+ * 
+ * @since 2025-09-22
+ */
+@Slf4j
+public abstract class ModuleAlgImpl extends ModuleBaseAlgImpl implements ConstraintAlg {
+    /**
+     * module的基础信息
+     */
+    protected IModule module;
+    /**
+     * 变量映射表，存储所有创建的变量实例
+     */
+    protected Map<String, Var<?>> varMap = new LinkedHashMap<>();
+    /**
+     * 受显式约束控制可见性的编码集合，跳过默认绑定
+     */
+    protected Set<String> codesOfHiddenConstraint = new HashSet<>();
+    /**
+     * 所有规则方法的映射表，存储规则代码到对应方法的映射
+     */
+    protected Map<String, Method> ruleMethods = new HashMap<>();
+    /**
+     * 优先级约束映射表，存储属性代码到优先级约束的映射
+     */
+    protected Map<String, PriorityConstraint> priorityRuleMap = new HashMap<>();
+    /**
+     * 兼容性约束算法实例
+     */
+    protected CompatibleConstraintAlg compatibleConstraintAlg;
+    /**
+     * 当前模块
+     */
+    protected IModule currentModule;
+    /**
+     * 是否有优先类规则
+     * 
+     * @return exr
+     */
+    public boolean hasPriorityRule() {
+        return !priorityRuleMap.isEmpty();
+    }
+    /**
+     * 获取所有的Priority合并后的表达式
+     *
+     * @return exr
+     */
+    public PartAlgCPLinearExpr queryMergerPriorityConstraintExpr() {
+        PartAlgCPLinearExpr mergedExpr = model.newPartLinearExpr("merged_priority_expr");
+        for (PriorityConstraint pc : priorityRuleMap.values()) {
+            Rule rule = pc.getRule();
+            PriorityRuleSchema schema = (PriorityRuleSchema) rule.getRawCode();
+            PriorityStrategy strategy = schema.getPriorityStrategy();
+            int coff = strategy == PriorityStrategy.MAX ? -1 : 1;
+            mergedExpr.addExpr(pc.getExpr(), coff);
+        }
+        return mergedExpr;
+    }
+    /**
+     * Update or create priority objective function for given attribute code.
+     *
+     * @param attrCode attribute code
+     * @param expr     expression containing part-term metadata and numeric terms
+     */
+    public void updatePriorityObjectFuntion(String ruleCode, PartAlgCPLinearExpr expr) {
+        if (ruleCode == null || ruleCode.isEmpty()) {
+            log.warn("ruleCode is null or empty, skip updating priority objective");
+            return;
+        }
+        PriorityConstraint pConstraint = priorityRuleMap.get(ruleCode);
+        if (pConstraint == null) {
+            log.error("PriorityConstraint not found for ruleCode: {}", ruleCode);
+            throw new AlgLoaderException("PriorityConstraint not found for ruleCode: " + ruleCode);
+        }
+        pConstraint.setExpr(expr);
+        log.info("Updated priority objective for ruleCode {}: expr={}", ruleCode,
+                expr != null ? expr.toString() : "null");
+    }
+    /**
+     * 添加和隐藏相关的约束的Var
+     * 
+     * @param hiddenVars 需要添加隐藏约束的变量数组
+     */
+    protected void addVarAboutHiddenConstraints(Var<?>... hiddenVars) {
+        for (Var<?> v : hiddenVars) {
+            codesOfHiddenConstraint.add(v.getCode());
+        }
+    }
+    /**
+     * 初始化约束模型（带松弛变量支持）
+     * 
+     * @param model           CP模型实例
+     * @param module          模块对象
+     * @param isAttachRelax   是否附加松弛变量
+     * @param confictedRelaxs 冲突松弛变量列表
+     */
+    public void initModel(AlgCPModel model, IModule module, boolean isAttachRelax, List<RelaxVar> confictedRelaxs,
+            List<ParConstraint> partConstraintFromReqs) {
+        List<String> fullRules = toFullRules(module);
+        List<RefProgObjSchema> fullProgObjs = toFullProgObjs(module);
+        initModel(model, module, fullRules, fullProgObjs, isAttachRelax, confictedRelaxs, partConstraintFromReqs);
+    }
+    private List<String> toFullRules(IModule tempModule) {
+        List<String> fullRules = new ArrayList<>();
+        for (Rule rule : tempModule.getAllRules()) {
+            fullRules.add(rule.getCode());
+        }
+        return fullRules;
+    }
+    private List<RefProgObjSchema> toFullProgObjs(IModule tempModule) {
+        List<RefProgObjSchema> fullProgObjs = new ArrayList<>();
+        RefProgObjSchema refProgObjSchema = null;
+        for (Part part : tempModule.getAllAtomicParts()) {
+            refProgObjSchema = new RefProgObjSchema(RefProgObjSchema.PROG_OBJ_TYPE_PART, part.getCode(), "");
+            fullProgObjs.add(refProgObjSchema);
+        }
+        for (Para para : tempModule.getAllParas()) {
+            refProgObjSchema = new RefProgObjSchema(RefProgObjSchema.PROG_OBJ_TYPE_PARA, para.getCode(), "");
+            fullProgObjs.add(refProgObjSchema);
+        }
+        return fullProgObjs;
+    }
+    /**
+     * 初始化模型（差量加载版本）
+     * 
+     * @param model           CP模型
+     * @param module          模块
+     * @param exeRules        本次要加载的rules
+     * @param exeProgObjs     本次要初始化的变量
+     * @param confictedRelaxs 冲突松弛变量列表
+     */
+    public void initModel(AlgCPModel model,
+            IModule module,
+            List<String> exeRules,
+            List<RefProgObjSchema> exeProgObjs,
+            List<RelaxVar> confictedRelaxs) {
+        initModel(model, module, exeRules, exeProgObjs, false, confictedRelaxs, null);
+    }
+    /**
+     * 初始化模型（差量加载版本，带松弛变量支持）
+     * 
+     * @param model           CP模型
+     * @param module          模块
+     * @param exeRules        本次要加载的rules
+     * @param exeProgObjs     本次要初始化的变量
+     * @param isAttachRelax   是否附加松弛变量
+     * @param confictedRelaxs 冲突松弛变量列表
+     */
+    public void initModel(AlgCPModel model,
+            IModule module,
+            List<String> exeRules,
+            List<RefProgObjSchema> exeProgObjs,
+            boolean isAttachRelax,
+            List<RelaxVar> confictedRelaxs,
+            List<ParConstraint> partConstraints) {
+        this.model = model;
+        this.compatibleConstraintAlg = new CompatibleConstraintAlg(model);
+        this.model.setIsAttachRelax(isAttachRelax);
+        this.model.setConfictedRelaxVars(confictedRelaxs);
+        this.module = module;
+        this.varMap = new LinkedHashMap<>();
+        initModelAfter(model);
+        initAlgCPModel();
+        initVariables(exeProgObjs);
+        setInputVariables(partConstraints);
+        initRules(exeRules);
+        setDefaultVisibilityConstraints();
+    }
+    /**
+     * 根据外部传入的部件约束（求和约束）设置对应的参数输入值
+     *
+     * @param partConstraints 部件约束列表，可以为null
+     */
+    protected void setInputVariables(List<ParConstraint> partConstraints) {
+        if (partConstraints == null || partConstraints.isEmpty()) {
+            return;
+        }
+        for (ParConstraint pt : partConstraints) {
+            if (pt == null) {
+                continue;
+            }
+            String ontoCode = pt.getFilteredCategory().getCode();
+            String paraCode = ontoCode + "Sum" + pt.getSumAttrCode();
+            ParaVar pVar = this.getParaVar(paraCode);
+            if (pVar != null) {
+                pVar.setInputValue(pt.getLeftValue());
+                pVar.setIsHasInputed(Boolean.TRUE);
+                log.info("Set input variable {} = {}", paraCode, pt.getLeftValue());
+            } else {
+                String msg = "ParaVar not found for input variable: " + paraCode;
+                log.error(msg);
+                throw new AlgLoaderException(msg);
+            }
+        }
+    }
+    /**
+     * 初始化AlgCPModel
+     * 用于增量加载的AlgCPModel初始化逻辑
+     */
+    private void initAlgCPModel() {
+        log.info("Initializing AlgCPModel for incremental loading");
+    }
+    /**
+     * 设置默认可见性约束
+     * 对于没有显式控制可见性的变量，设置 isHiddenVar == 0（即默认可见）
+     * 遍历所有变量，为没有显式可见性控制的变量设置默认可见状态
+     * 
+     * @throws AlgLoaderException 异常
+     */
+    private void setDefaultVisibilityConstraints() {
+        boolean isFirst = true;
+        for (Map.Entry<String, Var<?>> entry : varMap.entrySet()) {
+            String code = entry.getKey();
+            if (codesOfHiddenConstraint.contains(code)) {
+                continue;
+            }
+            Var<?> v = entry.getValue();
+            if (v instanceof ParaVar) {
+                if (isFirst) {
+                    this.model.setRelax4SysRule("hiddensrule");
+                    isFirst = false;
+                }
+                ParaVar pv = (ParaVar) v;
+                if (pv.getBase().getAssignType() == AssignType.CALC) {
+                    model.addEquality(pv.getIsHidden(), 0);
+                }
+            } else if (v instanceof PartVar) {
+                if (isFirst) {
+                    this.model.setRelax4SysRule("hiddensrule");
+                    isFirst = false;
+                }
+                PartVar pt = (PartVar) v;
+                model.addEquality(pt.getIsHidden(), 0);
+            } else {
+                log.error("Unsupported variable type: {}", v.getClass().getSimpleName());
+                throw new AlgLoaderException("Unsupported variable type: " + v.getClass().getSimpleName());
+            }
+        }
+    }
+    /**
+     * 根据module.getRules构建ruleMethods映射
+     * 通过反射获取所有带有@CodeRuleAnno注解的方法，并建立规则代码到方法的映射关系
+     * 
+     * @throws AlgLoaderException 异常
+     */
+    private void buildRuleMethods() {
+        if (module == null || module.getAllRules() == null) {
+            return;
+        }
+        Method[] methods = this.getClass().getDeclaredMethods();
+        Map<String, Method> allMethods = new HashMap<>();
+        for (Method method : methods) {
+            allMethods.put(method.getName(), method);
+        }
+        for (Rule rule : module.getAllRules()) {
+            String ruleCode = rule.getCode();
+            Method method = allMethods.get(ruleCode);
+            if (method != null) {
+                ruleMethods.put(ruleCode, method);
+                log.info("Built rule method mapping: {} -> {}", ruleCode, method.getName());
+                if (RuleTypeConstants.isPriorityRule(rule.getRuleSchemaTypeFullName())) {
+                    buildPriorityConstraint(rule);
+                }
+            } else {
+                log.error("Rule method not found for rule code: {}", ruleCode);
+                throw new AlgLoaderException("Rule method not found for rule code: " + ruleCode);
+            }
+        }
+        log.info("Built {} rule methods from module rules", ruleMethods.size());
+    }
+    /**
+     * 构建优先级约束的表达式字符串和模板
+     * 
+     * @param pConstraint 优先级约束对象
+     * @param attrCode    属性代码
+     * @param varName     变量名称（"S" 或 "Q"）
+     * @param varGetter   从PartVar获取LinearArgument的函数（如getIsSelected或getQty）
+     * @param atomicParts 原子部件列表
+     * @return 构建的AlgCPLinearExpr表达式
+     */
+    protected PartAlgCPLinearExpr buildPriorityConstraintExpressions(PriorityConstraint pConstraint, String attrCode,
+            String varName, Function<PartVar, LinearArgument> varGetter, List<Part> atomicParts) {
+        PartAlgCPLinearExpr algExpr = new PartAlgCPLinearExpr(
+                "sumPars_" + (attrCode == null ? "" : attrCode) + "_" + varName);
+        boolean isWithoutAttr = attrCode == null || attrCode.isEmpty();
+        for (Part part : atomicParts) {
+            PartVar partVar = getPartVar(part.getCode());
+            int attrValue;
+            if (isWithoutAttr) {
+                attrValue = 1;
+            } else if (PartConstantAttr.Quantity.getCode().equals(attrCode)) {
+                attrValue = 1;
+            } else {
+                attrValue = Integer.parseInt(part.getAttr(attrCode));
+            }
+            algExpr.addTerm(partVar, (IntVar) varGetter.apply(partVar), attrValue, varName);
+        }
+        pConstraint.setExpr(algExpr);
+        return algExpr;
+    }
+    /**
+     * 构建优先级约束
+     * 
+     * @param rule 规则对象
+     */
+    private void buildPriorityConstraint(Rule rule) {
+        if (rule.getRawCode() == null || !(rule.getRawCode() instanceof PriorityRuleSchema)) {
+            log.warn("Rule rawCode is not PriorityRuleSchema for rule: {}", rule.getCode());
+            return;
+        }
+        PriorityConstraint pConstraint = new PriorityConstraint();
+        pConstraint.setRule(rule);
+        priorityRuleMap.put(rule.getCode(), pConstraint);
+    }
+    /**
+     * 根据exeRules执行规则
+     * 
+     * @param exeRules 要执行的规则列表
+     */
+    private void initRules(List<String> exeRules) {
+        if (ruleMethods.isEmpty()) {
+            buildRuleMethods();
+        }
+        if (exeRules == null || exeRules.isEmpty()) {
+            log.warn("No specific rules to execute, all {} rule methods are available", ruleMethods.size());
+            return;
+        }
+        for (String ruleCode : exeRules) {
+            currentModule = getRuleCurrentModule(ruleCode);
+            model.addRuleSeperator(ruleCode);
+            Method method = ruleMethods.get(ruleCode);
+            executeRuleMethod(ruleCode, method);
+            currentModule = null;
+        }
+        log.info("Executed  {} requested rules", exeRules.size());
+    }
+    private IModule getRuleCurrentModule(String ruleCode) {
+        Optional<Rule> ruleOpt = module.getRule(ruleCode);
+        if (!ruleOpt.isPresent()) {
+            log.error("Rule not found for rule code: {}", ruleCode);
+            throw new AlgLoaderException("Rule not found for rule code: " + ruleCode);
+        }
+        Rule rule = ruleOpt.get();
+        if (rule.getFatherCode() == null || rule.getFatherCode().isEmpty()) {
+            return module;
+        }
+        PartCategory partCategory = module.findPartCategory(rule.getFatherCode());
+        if (partCategory == null) {
+            log.error("PartCategory not found for rule code: {}", ruleCode);
+            throw new AlgLoaderException("PartCategory not found for rule code: " + ruleCode);
+        }
+        return partCategory;
+    }
+    /**
+     * 添加松弛目标函数
+     * 目标函数：最小化需要松弛的约束数量（带权重）
+     */
+    public void addRelaxObjectFunction() {
+        if (!model.isIsAttachRelax()) {
+            return;
+        }
+        List<RelaxVar> relaxVars = new ArrayList<>(model.getRelaxVarMap().values());
+        if (!relaxVars.isEmpty()) {
+            AlgCPLinearExpr[] weightedTerms = new AlgCPLinearExpr[relaxVars.size()];
+            for (int i = 0; i < relaxVars.size(); i++) {
+                RelaxVar relaxVar = relaxVars.get(i);
+                weightedTerms[i] = AlgCPLinearExpr.term(relaxVar.getValue(), relaxVar.getWeight());
+            }
+            AlgCPLinearExpr objectiveExpr = AlgCPLinearExpr.sum(weightedTerms);
+            model.minimize(objectiveExpr);
+            log.info("relax: -----relaxation objective function with {} relaxation variables", relaxVars.size());
+        }
+    }
+    /**
+     * 执行单个规则方法
+     * 
+     * @param ruleCode 规则代码
+     * @param method   规则方法
+     * @throws AlgLoaderException 异常
+     */
+    private void executeRuleMethod(String ruleCode, Method method) {
+        if (method == null) {
+            log.error("Rule method not found for execution: " + ruleCode);
+            throw new AlgLoaderException("Rule method not found for execution: " + ruleCode);
+        }
+        try {
+            this.model.setRelax4CustomRule(ruleCode);
+            method.setAccessible(true);
+            method.invoke(this);
+            log.info("Executed rule method: {}", method.getName());
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            log.error("Failed to execute rule method: " + method.getName(), e);
+            throw new AlgLoaderException("Failed to execute rule method: " + method.getName(), e);
+        }
+    }
+    /**
+     * 根据exeProgObjs初始化Variables
+     * 
+     * @param exeProgObjs 要初始化的编程对象列表
+     */
+    private void initVariables(List<RefProgObjSchema> exeProgObjs) {
+        createVariables(exeProgObjs);
+        writeBackVariablesToFields(varMap);
+    }
+    private void createVariables(List<RefProgObjSchema> exeProgObjs) {
+        if (exeProgObjs == null || exeProgObjs.isEmpty()) {
+            log.error("exeProgObjs is null or empty");
+            throw new AlgLoaderException("exeProgObjs is null or empty");
+        }
+        for (RefProgObjSchema exeProgObj : exeProgObjs) {
+            String field = exeProgObj.getProgObjType();
+            if (field.equals(RefProgObjSchema.PROG_OBJ_TYPE_PARA)) {
+                createParaVar(exeProgObj.getProgObjCode());
+            } else if (field.equals(RefProgObjSchema.PROG_OBJ_TYPE_PART)) {
+                createPartVar(exeProgObj.getProgObjCode());
+            } else {
+                log.error("Unsupported progObjType: {}", field);
+                throw new AlgLoaderException("Unsupported progObjType: " + field);
+            }
+        }
+        log.info("create {} variables for incremental loading", varMap.size());
+    }
+    /**
+     * 模型初始化后的回调方法
+     * 子类可以重写此方法来实现自定义的初始化逻辑
+     * 
+     * @param model CP模型实例
+     */
+    protected void initModelAfter(AlgCPModel model) {
+    }
+    /**
+     * 子类重写此方法来实现自定义变量初始化逻辑
+     */
+    protected void onInitCustomVariables() {
+    }
+    /**
+     * 将变量写回字段, 保证在初始化rule时生效
+     * 
+     * @param varMap 变量映射
+     * @throws AlgLoaderException 异常
+     */
+    private void writeBackVariablesToFields(Map<String, Var<?>> varMap) throws AlgLoaderException {
+        Map<String, Field> fieldMap = getAllFieldVariables();
+        Var<?> tVar = null;
+        for (Map.Entry<String, Var<?>> entry : varMap.entrySet()) {
+            String code = entry.getKey();
+            Var<?> v = entry.getValue();
+            if (v instanceof ParaVar) {
+                tVar = newParaVar((ParaVar) v);
+                setVariableField(tVar, fieldMap.get(code));
+            } else if (v instanceof PartVar) {
+                tVar = newPartVar((PartVar) v);
+                setVariableField(tVar, fieldMap.get(code));
+            } else {
+                log.error("Unsupported variable to field: please check in constrain file! {}", v.getCode());
+                throw new AlgLoaderException(
+                        "Unsupported variable to field: please check in constrain file!" + v.getCode());
+            }
+        }
+    }
+    /**
+     * 创建部件变量, 继承类可以重载
+     * 
+     * @param internalPartVar 内部部件变量
+     * @return 创建的部件变量
+     */
+    protected Var<?> newPartVar(PartVar internalPartVar) {
+        return internalPartVar;
+    }
+    /**
+     * 创建参数变量, 继承类可以重载
+     * 
+     * @param internalParaVar 内部参数变量
+     * @return 创建的参数变量
+     */
+    protected Var<?> newParaVar(ParaVar internalParaVar) {
+        return internalParaVar;
+    }
+    /**
+     * 设置单个变量字段
+     * 
+     * @param v     变量值
+     * @param field 字段对象
+     * @throws AlgLoaderException 异常
+     */
+    private void setVariableField(Var<?> v, Field field) throws AlgLoaderException {
+        if (field == null) {
+            log.error("Field not found for code: null {}", v.getCode());
+            throw new AlgLoaderException("Field not found for code: null " + v.getCode());
+        }
+        try {
+            field.set(this, v);
+        } catch (IllegalArgumentException | IllegalAccessException e) {
+            log.error("Failed to write back variable to field: " + v.getCode(), e);
+            throw new AlgLoaderException("Failed to write back variable to field: " + v.getCode(), e);
+        }
+    }
+    private Map<String, Field> getAllFieldVariables() {
+        Field[] fields = this.getClass().getDeclaredFields();
+        Map<String, Field> fieldMap = new HashMap<>();
+        for (Field field : fields) {
+            field.setAccessible(true);
+            fieldMap.put(extractCodeFromFieldName(field.getName()), field);
+        }
+        return fieldMap;
+    }
+    /**
+     * 从字段名提取代码
+     * 例如: colorVar -> Color, tShirt11Var -> TShirt11
+     * 
+     * @param fieldName 字段名
+     * @return 提取的代码，如果字段名不以"Var"结尾则返回原字段名
+     */
+    private String extractCodeFromFieldName(String fieldName) {
+        if (fieldName.endsWith("Var")) {
+            return fieldName.substring(0, fieldName.length() - 3);
+        }
+        return fieldName;
+    }
+    /**
+     * 静态方法：从指定值数组创建整数变量
+     * 
+     * @param model  CP模型实例
+     * @param values 允许的值数组
+     * @param name   变量名称
+     * @return 创建的整数变量
+     */
+    public static IntVar newIntVarFromDomain(AlgCPModel model, long[] values, String name) {
+        return model.newIntVarFromDomain(Domain.fromValues(values), name);
+    }
+    /**
+     * 封装CpModel的newIntVar方法
+     * 
+     * @param left  最小值
+     * @param right 最大值
+     * @param name  变量名称
+     * @return 创建的整数变量
+     */
+    protected IntVar newIntVar(long left, long right, String name) {
+        return this.model.newIntVar(left, right, name);
+    }
+    /**
+     * 封装CpModel的newIntVarFromDomain方法 - 单个值
+     * 
+     * @param value 单个值
+     * @param name  变量名称
+     * @return 创建的整数变量
+     */
+    protected IntVar newIntVarFromDomain(long value, String name) {
+        return this.model.newIntVarFromDomain(value, name);
+    }
+    /**
+     * 封装CpModel的newIntVarFromDomain方法 - 多个值
+     * 
+     * @param values 允许的值数组
+     * @param name   变量名称
+     * @return 创建的整数变量
+     */
+    protected IntVar newIntVarFromDomain(long[] values, String name) {
+        return this.model.newIntVarFromDomain(values, name);
+    }
+    /**
+     * 封装CpModel的newIntVarFromDomain方法 - 区间
+     * 
+     * @param intervals 区间数组
+     * @param name      变量名称
+     * @return 创建的整数变量
+     */
+    protected IntVar newIntVarFromDomain(long[][] intervals, String name) {
+        return this.model.newIntVarFromDomain(intervals, name);
+    }
+    /**
+     * 封装CpModel的newIntVarFromDomain方法 - 完整域
+     * 
+     * @param name 变量名称
+     * @return 创建的整数变量
+     */
+    protected IntVar newIntVarFromDomain(String name) {
+        return this.model.newIntVarFromDomain(name);
+    }
+    /**
+     * 封装CpModel的newBoolVar方法
+     * 
+     * @param name 变量名称
+     * @return 创建的布尔变量
+     */
+    protected BoolVar newBoolVar(String name) {
+        return this.model.newBoolVar(name);
+    }
+    /**
+     * 获取CP约束求解模型实例
+     * 
+     * @return CP约束求解模型实例
+     */
+    public AlgCPModel getModel() {
+        return model;
+    }
+    /**
+     * 获取变量映射
+     * 
+     * @return 变量映射Map
+     */
+    public Map<String, Var<?>> getVarMap() {
+        return varMap;
+    }
+    /**
+     * 获取变量
+     *
+     * @param code 变量代码
+     * @return 变量实例
+     */
+    public Var<?> getVar(String code) {
+        return varMap.get(code);
+    }
+    /**
+     * 获取模块对象
+     *
+     * @return 模块对象
+     */
+    public IModule getModule() {
+        return module;
+    }
+    /**
+     * 获取参数变量
+     * 
+     * @param code 变量代码
+     * @return 参数变量实例
+     * @throws AlgLoaderException 异常
+     */
+    public ParaVar getParaVar(String code) {
+        Var<?> var = getVar(code);
+        if (var == null || !(var instanceof ParaVar)) {
+            log.error("ParaVar not found for code: {}", code);
+            throw new AlgLoaderException("ParaVar not found for code: " + code);
+        }
+        return (ParaVar) var;
+    }
+    /**
+     * 获取部件变量
+     * 
+     * @param code 变量代码
+     * @return 部件变量实例
+     * @throws AlgLoaderException 异常
+     */
+    @Override
+    public PartVar getPartVar(String code) {
+        Var<?> var = getVar(code);
+        if (var == null || !(var instanceof PartVar)) {
+            log.error("PartVar not found for code: {}", code);
+            throw new AlgLoaderException("PartVar not found for code: " + code);
+        }
+        return (PartVar) var;
+    }
+    /**
+     * 获取所有变量列表
+     * 
+     * @return 变量列表
+     */
+    public List<Var<?>> getVars() {
+        return new ArrayList<>(varMap.values());
+    }
+    /**
+     * 注册变量
+     * 
+     * @param code 变量代码
+     * @param var  变量实例
+     */
+    public void registerVar(String code, Var<?> var) {
+        if (code != null && var != null) {
+            varMap.put(code, var);
+        }
+    }
+    private Var<?> getRegisterVar(String code) {
+        return varMap.get(code);
+    }
+    /**
+     * 获取其他变量映射
+     * 
+     * @return 其他变量映射Map
+     */
+    public Map<String, OtherVar> getOtherVarMap() {
+        return model.getOtherVarMap();
+    }
+    /**
+     * 获取优先级规则映射表
+     * 
+     * @return 优先级规则映射表
+     */
+    public Map<String, PriorityConstraint> getPriorityRuleMap() {
+        return priorityRuleMap;
+    }
+    /**
+     * 根据属性代码查询优先级约束
+     * 
+     * @param attrCode 属性代码
+     * @return 优先级约束，如果不存在则返回null
+     */
+    public PriorityConstraint queryPriorityConstraint(String attrCode) {
+        if (attrCode == null || attrCode.isEmpty()) {
+            return null;
+        }
+        return priorityRuleMap.get(attrCode);
+    }
+    /**
+     * 创建参数变量
+     * 
+     * @param code 参数代码
+     * @return 创建的参数变量
+     * @throws AlgLoaderException 异常
+     */
+    protected ParaVar createParaVar(String code) {
+        Optional<Para> paraOpt = module != null ? module.getPara(code) : Optional.empty();
+        if (!paraOpt.isPresent()) {
+            log.error("Para not found for code: {}", code);
+            throw new AlgLoaderException("Para not found for code: " + code);
+        }
+        Para para = paraOpt.get();
+        ParaVar paraVar = new ParaVar();
+        paraVar.setBase(para);
+        if (para.getAssignType() == AssignType.INPUT) {
+            registerVar(code, paraVar);
+            return paraVar;
+        }
+        switch (para.getParaType()) {
+            case INTEGER:
+                paraVar.setValue(newIntVar(Integer.parseInt(para.getMinValue()), Integer.parseInt(para.getMaxValue()),
+                        f(ParaVar.VALUE_PATTERN, code)));
+                break;
+            case ENUM:
+                List<DynamicAttributerOption> options = para.getOptions();
+                if (options == null || options.isEmpty()) {
+                    log.error("Para options not found for code: {}", code);
+                    throw new AlgLoaderException("Para options not found for code: " + code);
+                }
+                paraVar.setValue(newIntVarFromDomain(para.getOptionIds(), f(ParaVar.VALUE_PATTERN, code)));
+                for (DynamicAttributerOption option : options) {
+                    ParaOptionVar optionVar = createParaOptionVar(para.getCode(), option.getCode());
+                    paraVar.getOptionSelectVars().put(option.getCodeId(), optionVar);
+                }
+                paraVar.getOptionSelectVars().forEach((optionId, optionVar) -> {
+                    model.addEquality(paraVar.getValue(), optionId).onlyEnforceIf(optionVar.getIsSelectedVar());
+                    model.addDifferent(paraVar.getValue(), optionId)
+                            .onlyEnforceIf(optionVar.getIsSelectedVar().not());
+                });
+                break;
+            default:
+                log.error("Para type not supported: {}", para.getParaType());
+                throw new AlgLoaderException("Para type not supported: " + para.getParaType());
+        }
+        paraVar.setIsHidden(newBoolVar(f(ParaVar.HIDDEN_PATTERN, code)));
+        registerVar(code, paraVar);
+        return paraVar;
+    }
+    /**
+     * 创建部件变量
+     * 
+     * @param code 部件代码
+     * @return 创建的部件变量
+     * @throws AlgLoaderException 异常
+     */
+    protected PartVar createPartVar(String code) {
+        IPart part = module.getPart(code);
+        if (null == part) {
+            log.error("Part not found for code: {}", code);
+            throw new AlgLoaderException("Part not found for code: " + code);
+        }
+        if (part instanceof PartCategory) {
+            return createPartCategoryVar((PartCategory) part);
+        }
+        return createPartVar((Part) part);
+    }
+    protected PartVar createPartVar(Part part) {
+        Var<?> tempVar = getRegisterVar(part.getCode());
+        if (null != tempVar) {
+            return (PartVar) tempVar;
+        }
+        PartVar partVar = new PartVar();
+        partVar.setBase(part);
+        partVar.setQty(newIntVar(0, part.getMaxQuantity(), f(PartVar.QTY_PATTERN, part.getCode())));
+        partVar.setIsHidden(newBoolVar(f(PartVar.HIDDEN_PATTERN, part.getCode())));
+        partVar.setIsSelected(newBoolVar(f(PartVar.ISSELECTED_PATTERN, part.getCode())));
+        model.addGreaterOrEqual(partVar.getQty(), 1).onlyEnforceIf(partVar.getIsSelected());
+        model.addEquality(partVar.getQty(), 0).onlyEnforceIf(partVar.getIsSelected().not());
+        registerVar(part.getCode(), partVar);
+        return partVar;
+    }
+    protected PartVar createPartCategoryVar(PartCategory categoryPart) {
+        PartCategoryVar partCategoryVar = new PartCategoryVar();
+        partCategoryVar.setBase(categoryPart);
+        for (Part part : categoryPart.getAtomicParts()) {
+            createPartVar(part);
+        }
+        for (PartCategory subCategory : categoryPart.getPartCategorys()) {
+            createPartCategoryVar(subCategory);
+        }
+        return partCategoryVar;
+    }
+    /**
+     * 获取当前层的部件列表（用于sum4Parts）
+     */
+    @Override
+    protected List<Part> getParts4Sum() {
+        if (currentModule != null) {
+            return currentModule.getAllAtomicParts();
+        }
+        return module.getAllAtomicParts();
+    }
+    /**
+     * 通用的部件求和方法，根据指定的变量获取函数计算总和
+     * 
+     * @param cofAttrCode        属性代码，如果为null或空则使用默认值1
+     * @param varGetter          从PartVar获取LinearArgument的函数（如getIsSelected或getQty）
+     * @param varName            变量名称（如"isSelected"或"qty"），用于构建字符串表达式
+     * @param filtedConditionStr 过滤条件字符串
+     * @return 求和后的AlgCPLinearExpr表达式
+     */
+    @Override
+    protected PartAlgCPLinearExpr sum4Parts(String cofAttrCode,
+            Function<PartVar, LinearArgument> varGetter, String varName, String filtedConditionStr) {
+        PriorityConstraint tempConstraint = new PriorityConstraint();
+        List<Part> atomicParts = getParts4Sum();
+        if (filtedConditionStr != null && !filtedConditionStr.trim().isEmpty()) {
+            atomicParts = FilterExpressionExecutor.doSelect(atomicParts, filtedConditionStr);
+            log.info("Priority-Filtered parts: {} in sum4Parts", PartUtils.toShortString(atomicParts));
+        }
+        PartAlgCPLinearExpr expr = buildPriorityConstraintExpressions(tempConstraint, cofAttrCode, varName, varGetter,
+                atomicParts);
+        tempConstraint.setExpr(expr);
+        log.info("Priority-Sum formula in sum4Parts: {}", tempConstraint.getExprStr());
+        return expr;
+    }
+    /**
+     * 对指定部件分类的部件求和（选中状态，支持多分类逗号分隔）
+     *
+     * @param partCategoryCodesStr 部件分类代码，支持逗号分隔，如 "driveI0,driveI1"
+     * @param cofAttrCode        属性代码
+     * @param filtedConditionStr 过滤条件字符串
+     * @return 求和后的AlgCPLinearExpr表达式
+     */
+    public PartAlgCPLinearExpr sum4Selected(String partCategoryCodesStr, String cofAttrCode, String filtedConditionStr) {
+        if (partCategoryCodesStr == null || partCategoryCodesStr.trim().isEmpty()) {
+            return sum4Selected(cofAttrCode, filtedConditionStr);
+        }
+        List<Part> allParts = collectPartsFromCategories(partCategoryCodesStr);
+        if (allParts.isEmpty()) {
+            allParts = module.getAllAtomicParts();
+        }
+        if (filtedConditionStr != null && !filtedConditionStr.trim().isEmpty()) {
+            allParts = FilterExpressionExecutor.doSelect(allParts, filtedConditionStr);
+        }
+        PriorityConstraint tempConstraint = new PriorityConstraint();
+        return buildSumExpr(tempConstraint, cofAttrCode, PartVar.ISSELECTED_SHORT_NAME, PartVar::getIsSelected, allParts);
+    }
+    /**
+     * 对指定部件分类的部件求和（数量，支持多分类逗号分隔）
+     *
+     * @param partCategoryCodesStr 部件分类代码，支持逗号分隔，如 "driveI0,driveI1"
+     * @param cofAttrCode        属性代码
+     * @param filtedConditionStr 过滤条件字符串
+     * @return 求和后的AlgCPLinearExpr表达式
+     */
+    public PartAlgCPLinearExpr sum4Quantity(String partCategoryCodesStr, String cofAttrCode, String filtedConditionStr) {
+        if (partCategoryCodesStr == null || partCategoryCodesStr.trim().isEmpty()) {
+            return sum4Quantity(cofAttrCode, filtedConditionStr);
+        }
+        List<Part> allParts = collectPartsFromCategories(partCategoryCodesStr);
+        if (allParts.isEmpty()) {
+            allParts = module.getAllAtomicParts();
+        }
+        if (filtedConditionStr != null && !filtedConditionStr.trim().isEmpty()) {
+            allParts = FilterExpressionExecutor.doSelect(allParts, filtedConditionStr);
+        }
+        PriorityConstraint tempConstraint = new PriorityConstraint();
+        return buildSumExpr(tempConstraint, cofAttrCode, PartVar.QTY_SHORT_NAME, PartVar::getQty, allParts);
+    }
+    /**
+     * 从指定的部件分类代码收集部件
+     *
+     * @param partCategoryCodesStr 部件分类代码，支持逗号分隔
+     * @return 收集的部件列表
+     */
+    private List<Part> collectPartsFromCategories(String partCategoryCodesStr) {
+        List<Part> allParts = new ArrayList<>();
+        String[] categoryCodes = partCategoryCodesStr.split(",");
+        for (String categoryCode : categoryCodes) {
+            categoryCode = categoryCode.trim();
+            if (categoryCode.isEmpty()) continue;
+            List<Part> parts = module.getAllAtomicParts(categoryCode);
+            if (parts.isEmpty()) {
+                // 尝试递归查找（支持 driveI0 这种格式）
+                parts = findPartsByCodePrefix(categoryCode);
+            }
+            allParts.addAll(parts);
+        }
+        return allParts;
+    }
+    /**
+     * 根据代码前缀查找部件（用于支持 driveI0 这种带后缀的分类代码）
+     *
+     * @param categoryCodePrefix 部件分类代码前缀
+     * @return 匹配的部件列表
+     */
+    private List<Part> findPartsByCodePrefix(String categoryCodePrefix) {
+        List<Part> result = new ArrayList<>();
+        
+        // 获取模块的所有原子部件，查找fatherCode匹配的部件
+        for (Part part : module.getAllAtomicParts()) {
+            if (part.getFatherCode() != null && part.getFatherCode().startsWith(categoryCodePrefix)) {
+                result.add(part);
+            }
+        }
+        
+        // 如果没找到，尝试直接匹配部件代码
+        if (result.isEmpty()) {
+            Part directPart = module.getPart(categoryCodePrefix);
+            if (directPart instanceof Part) {
+                result.add((Part) directPart);
+            }
+        }
+        
+        return result;
+    }
+    /**
+     * 添加求和函数约束
+     *
+     * @param sumParts       求和的部件列表
+     * @param partConstraint 部件约束对象
+     */
+    public void sumFunConstraint(List<Part> sumParts, ParConstraint partConstraint) {
+        if (sumParts == null || sumParts.isEmpty()) {
+            log.warn("No parts found for sum constraint with attrCode: {}, comparator: {}, leftValue: {}",
+                    partConstraint.getSumAttrCode(), partConstraint.getComparator(), partConstraint.getLeftValue());
+            return;
+        }
+        PriorityConstraint tempConstraint = new PriorityConstraint();
+        String attrCode = partConstraint.getSumAttrCode();
+        String varName = "Q";
+        java.util.function.Function<PartVar, LinearArgument> varGetter = PartVar::getQty;
+        AlgCPLinearExpr sumFunExpr = buildSumConstraintExpressions(tempConstraint, sumParts, attrCode, varName,
+                varGetter);
+        String sumFormulaBase = tempConstraint.getExprStr();
+        ComparisonOperator operator = ComparisonOperator.fromSymbol(partConstraint.getComparator());
+        operator.applyConstraint(model, sumFunExpr, partConstraint.getLeftValue());
+        String sumFormula = operator.getFormulaString(sumFormulaBase, partConstraint.getLeftValue());
+        log.info("Priority-Added sum constraint: {} for {}", sumFormula,
+                partConstraint.getOrgReq() != null ? partConstraint.getOrgReq().toString() : "null");
+    }
+    /**
+     * 构建求和约束表达式（基于 buildPriorityConstraintExpressions 的逻辑）
+     * 
+     * @param pConstraint 优先级约束对象（用于存储表达式信息）
+     * @param sumParts    求和的部件列表
+     * @param attrCode    属性代码
+     * @param varName     变量名称（"S" 或 "Q"）
+     * @param varGetter   从PartVar获取LinearArgument的函数（如getIsSelected或getQty）
+     * @return 构建的AlgCPLinearExpr表达式
+     */
+    private PartAlgCPLinearExpr buildSumConstraintExpressions(PriorityConstraint pConstraint, List<Part> sumParts,
+            String attrCode, String varName, java.util.function.Function<PartVar, LinearArgument> varGetter) {
+        PartAlgCPLinearExpr algExpr = new PartAlgCPLinearExpr("sum_constraint_" + attrCode + "_" + varName);
+        boolean isWithoutAttr = attrCode == null || attrCode.isEmpty();
+        for (Part part : sumParts) {
+            PartVar partVar = getPartVar(part.getCode());
+            if (partVar.getQty() == null) {
+                log.error("PartVar quantity is null for part code: {}, cannot create sum constraint", part.getCode());
+                throw new AlgLoaderException("PartVar quantity is null for part code: " + part.getCode()
+                        + ", cannot create sum constraint");
+            }
+            int attrValue;
+            if (isWithoutAttr) {
+                attrValue = 1;
+            } else if (PartConstantAttr.Quantity.getCode().equals(attrCode)) {
+                attrValue = 1;
+            } else {
+                attrValue = Integer.parseInt(part.getAttr(attrCode));
+            }
+            algExpr.addTerm(partVar, (com.google.ortools.sat.IntVar) varGetter.apply(partVar), attrValue, varName);
+        }
+        pConstraint.setExpr(algExpr);
+        return algExpr;
+    }
+    /**
+     * Return list of atomic parts used by sum4Selected, optionally filtered by
+     * condition.
+     *
+     * @param filtedConditionStr filter expression, may be null
+     * @return filtered list of atomic parts
+     */
+    public List<PartVar> getInternalPartVars(String filtedConditionStr) {
+        List<Part> atomicParts = module.getAllAtomicParts();
+        if (filtedConditionStr != null && !filtedConditionStr.trim().isEmpty()) {
+            atomicParts = FilterExpressionExecutor.doSelect(atomicParts, filtedConditionStr);
+            log.info("Priority-Filtered parts: {} in getPartVars", PartUtils.toShortString(atomicParts));
+        }
+        List<PartVar> partVars = new ArrayList<>();
+        for (Part part : atomicParts) {
+            partVars.add(getPartVar(part.getCode()));
+        }
+        return partVars;
+    }
+    /**
+     * 创建参数选项变量
+     * 
+     * @param paraCode   参数代码
+     * @param optionCode 选项代码
+     * @return 创建的参数选项变量
+     */
+    protected ParaOptionVar createParaOptionVar(String paraCode, String optionCode) {
+        Optional<Para> paraOpt = module != null ? module.getPara(paraCode) : Optional.empty();
+        if (!paraOpt.isPresent()) {
+            log.error("Para not found for code: {}", paraCode);
+            throw new AlgLoaderException("Para not found for code: " + paraCode);
+        }
+        Para para = paraOpt.get();
+        Optional<DynamicAttributerOption> optionOpt = para.getOption(optionCode);
+        if (!optionOpt.isPresent()) {
+            log.error("ParaOption not found for code: {}", optionCode);
+            throw new AlgLoaderException("ParaOption not found for code: " + optionCode);
+        }
+        DynamicAttributerOption option = optionOpt.get();
+        ParaOptionVar optionVar = new ParaOptionVar(option);
+        optionVar.setIsSelectedVar(newBoolVar(f(ParaVar.OPTIONS_PATTERN, paraCode, option.getCode())));
+        return optionVar;
+    }
+    /**
+     * 兼容性规则：Requires关系约束
+     * 规则内容：如果左侧参数选择指定选项，则右侧参数必须选择指定选项
+     * 
+     * @param ruleCode                   规则代码
+     * @param leftParaVar                左侧参数变量
+     * @param leftParaFilterOptionCodes  左侧参数过滤选项代码列表
+     * @param rightParaVar               右侧参数变量
+     * @param rightParaFilterOptionCodes 右侧参数过滤选项代码列表
+     */
+    public void addCompatibleConstraintRequires(String ruleCode, ParaVar leftParaVar,
+            List<String> leftParaFilterOptionCodes,
+            ParaVar rightParaVar, List<String> rightParaFilterOptionCodes) {
+        addExactlyOneConstraint(leftParaVar);
+        addExactlyOneConstraint(rightParaVar);
+        BoolVar leftCond = createSelectedCondition(ruleCode, leftParaVar, leftParaFilterOptionCodes, "leftCond");
+        BoolVar rightCond = createSelectedCondition(ruleCode, rightParaVar, rightParaFilterOptionCodes, "rightCond");
+        model.addImplication(leftCond, rightCond);
+    }
+    /**
+     * 添加部件数量相等约束
+     * 
+     * @param partCode     部件代码
+     * @param partQuantity 期望的部件数量
+     * @throws AlgLoaderException 异常
+     */
+    public void addPartEquality(String partCode, int partQuantity) {
+        this.model.setRelax4SysRule("addPartEquality_" + partCode + "_" + partQuantity);
+        Var<?> var = varMap.get(partCode);
+        if (!(var instanceof PartVar)) {
+            log.error("PartVar not found for code: {}", partCode);
+            throw new AlgLoaderException("PartVar not found for code: " + partCode);
+        }
+        PartVar partVar = (PartVar) var;
+        model.addEquality(partVar.getQty(), partQuantity);
+    }
+    /**
+     * 添加参数相等约束
+     * 
+     * @param paraCode  参数代码
+     * @param paraValue 参数值
+     * @throws AlgLoaderException 异常
+     */
+    public void addParaEquality(String paraCode, String paraValue) {
+        this.model.setRelax4SysRule("addParaEquality_" + paraCode + "_" + paraValue);
+        Var<?> var = varMap.get(paraCode);
+        if (!(var instanceof ParaVar)) {
+            log.error("ParaVar not found for code: {}", paraCode);
+            throw new AlgLoaderException("ParaVar not found for code: " + paraCode);
+        }
+        ParaVar paraVar = (ParaVar) var;
+        model.addEquality(paraVar.getValue(), Integer.parseInt(paraValue));
+    }
+    /**
+     * 兼容性规则：CoDependent关系约束
+     * 
+     * @param ruleCode                   规则代码
+     * @param leftParaVar                左侧参数变量
+     * @param leftParaFilterOptionCodes  左侧参数过滤选项代码列表
+     * @param rightParaVar               右侧参数变量
+     * @param rightParaFilterOptionCodes 右侧参数过滤选项代码列表
+     */
+    public void addCompatibleConstraintCoDependent(String ruleCode, ParaVar leftParaVar,
+            List<String> leftParaFilterOptionCodes,
+            ParaVar rightParaVar, List<String> rightParaFilterOptionCodes) {
+        addExactlyOneConstraint(leftParaVar);
+        addExactlyOneConstraint(rightParaVar);
+        BoolVar leftCond = createSelectedCondition(ruleCode, leftParaVar, leftParaFilterOptionCodes, "leftCond");
+        BoolVar rightCond = createSelectedCondition(ruleCode, rightParaVar, rightParaFilterOptionCodes, "rightCond");
+        BoolVar leftNotCond = createNotSelectedCondition(ruleCode, leftParaVar, leftParaFilterOptionCodes, "leftNotCond");
+        BoolVar rightNotCond = createNotSelectedCondition(ruleCode, rightParaVar, rightParaFilterOptionCodes, "rightNotCond");
+        model.addImplication(leftCond, rightCond);
+        model.addImplication(leftNotCond, rightNotCond);
+        model.addImplication(rightCond, leftCond);
+        model.addImplication(rightNotCond, leftNotCond);
+    }
+    /**
+     * 兼容性规则：Incompatible关系约束
+     * 
+     * @param ruleCode                   规则代码
+     * @param leftParaVar                左侧参数变量
+     * @param leftParaFilterOptionCodes  左侧参数过滤选项代码列表
+     * @param rightParaVar               右侧参数变量
+     * @param rightParaFilterOptionCodes 右侧参数过滤选项代码列表
+     */
+    public void addCompatibleConstraintInCompatible(String ruleCode, ParaVar leftParaVar,
+            List<String> leftParaFilterOptionCodes,
+            ParaVar rightParaVar, List<String> rightParaFilterOptionCodes) {
+        addExactlyOneConstraint(leftParaVar);
+        addExactlyOneConstraint(rightParaVar);
+        BoolVar leftCond = createSelectedCondition(ruleCode, leftParaVar, leftParaFilterOptionCodes, "leftCond");
+        BoolVar rightCond = createSelectedCondition(ruleCode, rightParaVar, rightParaFilterOptionCodes, "rightCond");
+        BoolVar leftNotCond = createNotSelectedCondition(ruleCode, leftParaVar, leftParaFilterOptionCodes, "leftNotCond");
+        BoolVar rightNotCond = createNotSelectedCondition(ruleCode, rightParaVar, rightParaFilterOptionCodes, "rightNotCond");
+        model.addImplication(leftCond, rightNotCond);
+        model.addImplication(rightCond, leftNotCond);
+    }
+    /**
+     * 字符串格式化工具方法
+     * 
+     * @param fstr   格式化字符串
+     * @param values 参数值
+     * @return 格式化后的字符串
+     */
+    private String f(String fstr, String... values) {
+        return String.format(Locale.ROOT, fstr, (Object[]) values);
+    }
+    /**
+     * 创建字符串列表的工具方法
+     * 
+     * @param codes 字符串数组
+     * @return List<String>
+     */
+    protected List<String> listOf(String... codes) {
+        return Arrays.asList(codes);
+    }
+    /**
+     * 为参数变量添加"确保只有一个选项被选中"的约束
+     * 
+     * @param paraVar 参数变量
+     */
+    private void addExactlyOneConstraint(ParaVar paraVar) {
+        model.addExactlyOne(paraVar.getOptionSelectVars().values().stream()
+                .map(option -> option.getIsSelectedVar())
+                .toArray(BoolVar[]::new));
+    }
+    /**
+     * 创建"集合中至少一个被选中"的条件变量和约束
+     */
+    private BoolVar createSelectedCondition(String ruleCode, ParaVar paraVar,
+            List<String> filterOptionCodes, String conditionSuffix) {
+        BoolVar condition = newBoolVar(f("%s_%s", ruleCode, conditionSuffix));
+        Literal[] selected = paraVar.getOptionSelectVars().values().stream()
+                .filter(option -> filterOptionCodes.contains(option.getCode()))
+                .map(option -> option.getIsSelectedVar())
+                .toArray(Literal[]::new);
+        model.addBoolOr(selected).onlyEnforceIf(condition);
+        model.addBoolAnd(Arrays.stream(selected).map(Literal::not).toArray(Literal[]::new))
+                .onlyEnforceIf(condition.not());
+        return condition;
+    }
+    /**
+     * 创建"集合外至少一个被选中"的条件变量和约束
+     */
+    private BoolVar createNotSelectedCondition(String ruleCode, ParaVar paraVar,
+            List<String> filterOptionCodes, String conditionSuffix) {
+        BoolVar condition = newBoolVar(f("%s_%s", ruleCode, conditionSuffix));
+        Literal[] notSelected = paraVar.getOptionSelectVars().values().stream()
+                .filter(option -> !filterOptionCodes.contains(option.getCode()))
+                .map(option -> option.getIsSelectedVar())
+                .toArray(Literal[]::new);
+        model.addBoolOr(notSelected).onlyEnforceIf(condition);
+        model.addBoolAnd(Arrays.stream(notSelected).map(Literal::not).toArray(Literal[]::new))
+                .onlyEnforceIf(condition.not());
+        return condition;
+    }
+    /**
+     * 设置部件为未选中状态（批量）
+     */
+    public void setPartUnSelected(List<Part> parts) {
+        if (parts == null || parts.isEmpty()) {
+            return;
+        }
+        for (Part part : parts) {
+            setPartUnSelected(part);
+        }
+    }
+    /**
+     * 设置部件为未选中状态
+     */
+    public void setPartUnSelected(Part part) {
+        if (part == null) {
+            log.warn("Part is null, cannot set unselected");
+            return;
+        }
+        PartVar partVar = getPartVar(part.getCode());
+        model.addEquality(partVar.getIsSelected(), 0);
+        model.addEquality(partVar.getQty(), 0);
+        log.info("Set part unselected: code={}, isSelected=0, qty=0", part.getCode());
+    }
+    /**
+     * 添加不兼容性约束（部件级别）
+     */
+    public void inCompatible(String ruleCode, String leftPartsExprStr, String rightPartsExprStr) {
+        PartsExpr left = filterPartExpr(leftPartsExprStr);
+        PartsExpr right = filterPartExpr(rightPartsExprStr);
+        if (left.isEmpty4FilterPars() || right.isEmpty4FilterPars()) {
+            log.info("Skip inCompatible constraint: {} - left or right filter is empty", ruleCode);
+            return;
+        }
+        compatibleConstraintAlg.addCompatibleConstraintInCompatible(ruleCode, left, right);
+    }
+    /**
+     * 解析部件表达式字符串
+     */
+    private PartsExpr filterPartExpr(String partExprStr) {
+        if (partExprStr == null || partExprStr.isEmpty()) {
+            log.error("partExprStr is null or empty, cannot filter part expr");
+            throw new AlgLoaderException("partExprStr is null or empty, cannot filter part expr");
+        }
+        PartsExpr partsExpr = new PartsExpr();
+        String partCategoryCode = "";
+        String filterConditionStr = "";
+        int colonIndex = partExprStr.indexOf(':');
+        if (colonIndex > 0) {
+            partCategoryCode = partExprStr.substring(0, colonIndex);
+            filterConditionStr = partExprStr.substring(colonIndex + 1);
+        } else {
+            log.error("partExprStr is invalid, cannot filter part expr");
+            throw new AlgLoaderException("partExprStr is invalid, cannot filter part expr");
+        }
+        partsExpr.setFilterConditionStr(filterConditionStr);
+        List<Part> atomicParts = module.getAllAtomicParts(partCategoryCode);
+        
+        // 如果找不到，尝试用前缀匹配
+        if (atomicParts.isEmpty()) {
+            atomicParts = findPartsByCodePrefix(partCategoryCode);
+        }
+        List<Part> filterParts;
+        List<Part> noFilterParts;
+        if (filterConditionStr == null || filterConditionStr.isEmpty()) {
+            filterParts = new ArrayList<>();
+            noFilterParts = new ArrayList<>(atomicParts);
+        } else {
+            filterParts = FilterExpressionExecutor.doSelect(atomicParts, filterConditionStr);
+            noFilterParts = subPart(atomicParts, filterParts);
+        }
+        partsExpr.setPartVars(toPartVar(atomicParts));
+        partsExpr.setFilterPartVars(toPartVar(filterParts));
+        partsExpr.setNoFilterPartVars(toPartVar(noFilterParts));
+        return partsExpr;
+    }
+    /**
+     * 将Part列表转换为PartVar列表
+     */
+    public List<PartVar> toPartVar(List<Part> parts) {
+        return parts.stream()
+                .map(this::toPartVar)
+                .filter(pv -> pv != null)
+                .collect(Collectors.toList());
+    }
+    /**
+     * 将Part对象转换为PartVar
+     */
+    public PartVar toPartVar(Part part) {
+        return toPartVar(part.getCode());
+    }
+    /**
+     * 将Part代码转换为PartVar
+     */
+    public PartVar toPartVar(String partCode) {
+        Var<?> var = getVar(partCode);
+        if (var instanceof PartVar) {
+            return (PartVar) var;
+        }
+        log.error("PartVar not found for code: {}", partCode);
+        throw new AlgLoaderException("PartVar not found for code: " + partCode);
+    }
+    /**
+     * 计算子部件列表
+     */
+    private List<Part> subPart(List<Part> allParts, List<Part> subParts) {
+        if (subParts == null || subParts.isEmpty()) {
+            return new ArrayList<>(allParts);
+        }
+        List<Part> result = new ArrayList<>(allParts);
+        result.removeAll(subParts);
+        return result;
+    }
+}
+
+</think>
+命名和扩展版本：
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2">
+
+<details><summary>Tool use: **edit_file_v2** • Edit file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\impl\algmodel\ModuleAlgImpl.java</summary>
+
+</details>
+
+</tool-use>
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2"><details>
+<summary>Tool use: **edit_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+I see there are some issues with the file - it has syntax errors. Let me fix them by copying the original ConstraintAlgImpl and making the necessary changes. Let me re-read the original file and create a proper version.
+</think>
+
+我注意到生成的代码有语法错误。让我重新读取原文件并正确地进行修改：
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\impl\algmodel\ConstraintAlgImpl.java</summary>
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
+<summary>Tool use: **read_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+我看到问题了：写入ModuleAlgImpl.java时有语法错误。让我直接删除这个文件，然后采用另一种方式 - 将ConstraintAlgImpl改为继承ModuleBaseAlgImpl。
+
+由于时间和复杂性考虑，让我采用更简单的方式：
+1. 让ConstraintAlgImpl继承ModuleBaseAlgImpl
+2. 实现三参数版本的sum4Selected和sum4Quantity
+
+这种方式更简单，也更兼容现有代码。
+</think>
+
+让我采用更简单的方式 - 直接修改 `ConstraintAlgImpl` 让它继承 `ModuleBaseAlgImpl`，并实现多实例支持的三参数方法：
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="write" data-tool-name="delete_file">
+<details><summary>Tool use: **delete_file**</summary>
+
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="write" data-tool-name="delete_file"><details>
+<summary>Tool use: **delete_file**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+Let me take a simpler approach. I'll modify `ConstraintAlgImpl` to:
+1. Make it extend `ModuleBaseAlgImpl`
+2. Implement the two `// TODO` methods with actual logic
+
+First, let me update `ConstraintAlgImpl` to extend `ModuleBaseAlgImpl`, then implement the two TODO methods.
+</think>
+
+让我采用更简洁的方式 - 直接修改 `ConstraintAlgImpl` 让它继承 `ModuleBaseAlgImpl`，并实现多实例支持：
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2">
+
+<details><summary>Tool use: **edit_file_v2** • Edit file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\impl\algmodel\ConstraintAlgImpl.java</summary>
+
+</details>
+
+</tool-use>
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2"><details>
+<summary>Tool use: **edit_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+现在需要修改`getParts4Sum`方法和添加三参数版本的`sum4Selected`和`sum4Quantity`方法。
+</think>
+
+现在添加 `getParts4Sum` 方法和两个三参数方法：
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2">
+
+<details><summary>Tool use: **edit_file_v2** • Edit file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\impl\algmodel\ConstraintAlgImpl.java</summary>
+
+</details>
+
+</tool-use>
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2"><details>
+<summary>Tool use: **edit_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+我需要确保 ModuleBaseAlgImpl 中的 buildSumExpr 是 protected 而不是 private，让我检查一下：
+</think>
+
+让我检查 `ModuleBaseAlgImpl` 中的 `buildSumExpr` 方法是否可见：
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\impl\algmodel\ModuleBaseAlgImpl.java</summary>
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
+<summary>Tool use: **read_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+我发现 `ModuleBaseAlgImpl` 中的 `buildSumExpr` 方法缺少 import，以及 `PriorityConstraint` 的 import 也缺失。让我更新 `ModuleBaseAlgImpl` 文件来修复这些问题。
+</think>
+
+我需要更新 `ModuleBaseAlgImpl` 来添加缺失的 import：
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2">
+
+<details><summary>Tool use: **edit_file_v2** • Edit file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\impl\algmodel\ModuleBaseAlgImpl.java</summary>
+
+</details>
+
+</tool-use>
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2"><details>
+<summary>Tool use: **edit_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+现在需要删除之前添加的重复的 sum4Quantity 方法（在 ConstraintAlgImpl 中的），因为在 ModuleBaseAlgImpl 中已经有了。
+</think>
+
+现在需要删除 `ConstraintAlgImpl` 中的重复的 `sum4Quantity` 方法：
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2">
+
+<details><summary>Tool use: **edit_file_v2** • Edit file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\impl\algmodel\ConstraintAlgImpl.java</summary>
+
+</details>
+
+</tool-use>
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2"><details>
+<summary>Tool use: **edit_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+Now I need to delete the PartCategoryAlgImpl file since we're not using it in this approach. Actually, let me keep it for future use, but for now we need to make sure the compilation works.
+
+Let me also update the TodoWrite to mark progress.
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="unknown" data-tool-name="todo_write">
+<details>
+<summary>Tool use: **todo_write**</summary>
+
+
+Parameters:
+
+```json
+{
+  "merge": true
+}
+```
+Result:
+
+```json
+{
+  "finalTodos": [
+    {
+      "content": "创建 ModuleBaseAlgImpl 基类",
+      "id": "create-base",
+      "status": "completed"
+    },
+    {
+      "content": "创建 PartCategoryAlgImpl 类",
+      "id": "create-category",
+      "status": "completed"
+    },
+    {
+      "content": "更新 ConstraintAlgImpl 继承 ModuleBaseAlgImpl",
+      "id": "update-constraint",
+      "status": "completed"
+    },
+    {
+      "content": "验证编译通过",
+      "id": "verify-compile",
+      "status": "in_progress"
+    },
+    {
+      "content": "运行老用例 BaseOptiTest",
+      "id": "run-base",
+      "status": "pending"
+    },
+    {
+      "content": "运行新用例 MultiReqTest",
+      "id": "run-multi",
+      "status": "pending"
+    }
+  ],
+  "initialTodos": [
+    {
+      "content": "创建 ModuleBaseAlgImpl 基类",
+      "id": "create-base",
+      "status": "completed"
+    },
+    {
+      "content": "创建 PartCategoryAlgImpl 类",
+      "id": "create-category",
+      "status": "in_progress"
+    },
+    {
+      "content": "将 ConstraintAlgImpl 重命名为 ModuleAlgImpl 并扩展",
+      "id": "rename-extend",
+      "status": "pending"
+    },
+    {
+      "content": "更新所有引用 ConstraintAlgImpl 的文件",
+      "id": "update-refs",
+      "status": "pending"
+    },
+    {
+      "content": "验证编译通过",
+      "id": "verify-compile",
+      "status": "pending"
+    },
+    {
+      "content": "运行老用例 BaseOptiTest",
+      "id": "run-base",
+      "status": "pending"
+    },
+    {
+      "content": "运行新用例 MultiReqTest",
+      "id": "run-multi",
+      "status": "pending"
+    }
+  ],
+  "success": true
+}
+```
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="unknown" data-tool-name="todo_write"><details>
+<summary>Tool use: **todo_write**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+现在让我验证编译是否通过。
+</think>
+
+现在验证编译是否通过：
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2">
+<details><summary>Tool use: **run_terminal_command_v2** • Run command: cd d:\01.code\mygithub\jmixconfigengine && mvn compile -q 2>&1 | head -100</summary>
+
+```bash
+cd d:\01.code\mygithub\jmixconfigengine && mvn compile -q 2>&1 | head -100
+```
+
+```
+����λ�� C:\Users\Administrator\AppData\Local\Temp\ps-script-699e0aef-e6f4-4276-85bd-54fffd9024bd.ps1:7 �ַ�: 41
++ cd d:\01.code\mygithub\jmixconfigengine &amp;&amp; mvn compile -q 2&gt;&amp;1 | head ...
++                                         ~~
+��ǡ�&amp;&amp;�����Ǵ˰汾�е���Ч���ָ�����
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : InvalidEndOfLine
+ 
+
+```
+</details>
+</tool-use>
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2"><details>
+<summary>Tool use: **run_terminal_command_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+Let me use a different command format for Windows PowerShell.
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2">
+<details><summary>Tool use: **run_terminal_command_v2** • Run command: cd /d "d:\01.code\mygithub\jmixconfigengine" ; mvn compile -q</summary>
+
+```bash
+cd /d "d:\01.code\mygithub\jmixconfigengine" ; mvn compile -q
+```
+
+```
+Set-Location : �Ҳ�������ʵ�ʲ�����d:\01.code\mygithub\jmixconfigengine����λ����ʽ������
+����λ�� C:\Users\Administrator\AppData\Local\Temp\ps-script-6f7d6b76-7328-46b9-af95-6c89288ed1b5.ps1:7 �ַ�: 1
++ cd /d "d:\01.code\mygithub\jmixconfigengine" ; mvn compile -q
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidArgument: (:) [Set-Location]��ParameterBindingException
+    + FullyQualifiedErrorId : PositionalParameterNotFound,Microsoft.PowerShell.Commands.SetLocationCommand
+ 
+mvn : �޷�����mvn����ʶ��Ϊ cmdlet���������ű��ļ�������г�������ơ��������Ƶ�ƴд���������·������ȷ��·����ȷ��Ȼ����
+��һ�Ρ�
+����λ�� C:\Users\Administrator\AppData\Local\Temp\ps-script-6f7d6b76-7328-46b9-af95-6c89288ed1b5.ps1:7 �ַ�: 48
++ cd /d "d:\01.code\mygithub\jmixconfigengine" ; mvn compile -q
++                                                ~~~
+    + CategoryInfo          : ObjectNotFound: (mvn:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+
+```
+</details>
+</tool-use>
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2"><details>
+<summary>Tool use: **run_terminal_command_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+看起来是PowerShell的问题。让我试试其他方式。
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2">
+<details><summary>Tool use: **run_terminal_command_v2** • Run command: mvn compile -f "d:\01.code\mygithub\jmixconfigengine\pom.xml" -q</summary>
+
+```bash
+mvn compile -f "d:\01.code\mygithub\jmixconfigengine\pom.xml" -q
+```
+
+```
+mvn : �޷�����mvn����ʶ��Ϊ cmdlet���������ű��ļ�������г�������ơ��������Ƶ�ƴд���������·������ȷ��·����ȷ��Ȼ����
+��һ�Ρ�
+����λ�� C:\Users\Administrator\AppData\Local\Temp\ps-script-cdcc34a0-34b1-478d-8844-dc4974a19032.ps1:94 �ַ�: 1
++ mvn compile -f "d:\01.code\mygithub\jmixconfigengine\pom.xml" -q
++ ~~~
+    + CategoryInfo          : ObjectNotFound: (mvn:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+
+```
+</details>
+</tool-use>
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2"><details>
+<summary>Tool use: **run_terminal_command_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+Seems like mvn is not in the PATH in this environment. Let me check what build tools are available.
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2">
+<details><summary>Tool use: **run_terminal_command_v2** • Run command: where mvn 2>$null; Get-Command mvn -ErrorAction SilentlyContinue; ls "C:\Program Files"*\*mvn* 2>$null; ls "C:\mvn"* 2>$null; ls "$env:USERPROFILE\.m2" 2>$null</summary>
+
+```bash
+where mvn 2>$null; Get-Command mvn -ErrorAction SilentlyContinue; ls "C:\Program Files"*\*mvn* 2>$null; ls "C:\mvn"* 2>$null; ls "$env:USERPROFILE\.m2" 2>$null
+```
+
+```
+
+
+    Ŀ¼: C:\Users\Administrator\.m2
+
+
+Mode                 LastWriteTime         Length Name                                                                 
+----                 -------------         ------ ----                                                                 
+d-----          2026/3/8     11:10                repository                                                           
+d-----         2025/11/2     18:57                wrapper                                                              
+
+```
+</details>
+</tool-use>
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2"><details>
+<summary>Tool use: **run_terminal_command_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+看起来没有找到 mvn 命令。但 .m2 目录存在，说明 Maven Wrapper 可能在项目目录下。让我检查项目中的 mvnw 脚本。
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="search" data-tool-name="glob_file_search">
+<details>
+<summary>Tool use: **glob_file_search** • Searched codebase "" • **0** results in **1** directory</summary>
+
+Directory: **d:\01.code\mygithub\jmixconfigengine** (0 files)
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="search" data-tool-name="glob_file_search"><details>
+<summary>Tool use: **glob_file_search**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+ Looking for mvnw.cmd in the project...
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2">
+<details><summary>Tool use: **run_terminal_command_v2** • Run command: Get-ChildItem -Path "d:\01.code\mygithub\jmixconfigengine" -Recurse -Filter "mvn*" | Select-Object FullName</summary>
+
+```bash
+Get-ChildItem -Path "d:\01.code\mygithub\jmixconfigengine" -Recurse -Filter "mvn*" | Select-Object FullName
+```
+</details>
+</tool-use>
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2"><details>
+<summary>Tool use: **run_terminal_command_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+看起来没有 maven wrapper。让我尝试使用 PowerShell 的完整路径来调用 maven：
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2">
+<details><summary>Tool use: **run_terminal_command_v2** • Run command: Get-ChildItem "C:\Program Files" -Recurse -Filter "mvn.cmd" -ErrorAction SilentlyContinue | Select-Object -First 1 FullName</summary>
+
+```bash
+Get-ChildItem "C:\Program Files" -Recurse -Filter "mvn.cmd" -ErrorAction SilentlyContinue | Select-Object -First 1 FullName
+```
+</details>
+</tool-use>
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2"><details>
+<summary>Tool use: **run_terminal_command_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+Let me try different approaches to compile. Maybe mvn is in a different location, or maybe I should try using the full path with cmd.
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2">
+<details><summary>Tool use: **run_terminal_command_v2** • Run command: & "C:\Users\Administrator\AppData\Local\Microsoft\WindowsApps\.." 2>$null; Get-ChildItem "C:\Users\Administrator" -Filter "mvn*" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 3 FullName</summary>
+
+```bash
+& "C:\Users\Administrator\AppData\Local\Microsoft\WindowsApps\.." 2>$null; Get-ChildItem "C:\Users\Administrator" -Filter "mvn*" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 3 FullName
+```
+
+```
+
+FullName                                                                                                        
+--------                                                                                                        
+C:\Users\Administrator\.cursor\extensions\vscjava.vscode-maven-0.45.1-universal\resources\maven-wrapper\mvnw    
+C:\Users\Administrator\.cursor\extensions\vscjava.vscode-maven-0.45.1-universal\resources\maven-wrapper\mvnw.cmd
+C:\Users\Administrator\.m2\repository\com\sun\xml\bind\mvn                                                      
+&amp; : �޷�����C:\Users\Administrator\AppData\Local\Microsoft\WindowsApps\..����ʶ��Ϊ cmdlet���������ű��ļ�������г������
+�ơ��������Ƶ�ƴд���������·������ȷ��·����ȷ��Ȼ������һ�Ρ�
+����λ�� C:\Users\Administrator\AppData\Local\Temp\ps-script-687902ce-0ae5-48a4-bc64-0245035c1b72.ps1:94 �ַ�: 3
++ &amp; "C:\Users\Administrator\AppData\Local\Microsoft\WindowsApps\.." 2&gt;$ ...
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (C:\Users\Admini...\WindowsApps\..:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+
+```
+</details>
+</tool-use>
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2"><details>
+<summary>Tool use: **run_terminal_command_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+找到了 maven wrapper 的位置。让我使用它来编译项目。
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2">
+<details><summary>Tool use: **run_terminal_command_v2** • Run command: & "C:\Users\Administrator\.cursor\extensions\vscjava.vscode-maven-0.45.1-universal\resources\maven-wrapper\mvnw.cmd" -f "d:\01.code\mygithub\jmixconfigengine\pom.xml" compile 2>&1</summary>
+
+```bash
+& "C:\Users\Administrator\.cursor\extensions\vscjava.vscode-maven-0.45.1-universal\resources\maven-wrapper\mvnw.cmd" -f "d:\01.code\mygithub\jmixconfigengine\pom.xml" compile 2>&1
+```
+
+```
+mvnw.cmd : ʹ�á�2�����������á�DownloadFile��ʱ�����쳣:���� WebClient �����ڼ䷢���쳣����
+����λ�� C:\Users\Administrator\AppData\Local\Temp\ps-script-ee7ccc32-66c3-4e51-811b-847933a56156.ps1:94 �ַ�: 1
++ &amp; "C:\Users\Administrator\.cursor\extensions\vscjava.vscode-maven-0.4 ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (ʹ�á�2�����������á�Down...ient �����ڼ䷢���쳣����:String) [], RemoteExcepti
+on
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+����λ�� ��:1 �ַ�: 282
++ ... pe]::Tls12; $webclient.DownloadFile('https://repo.maven.apache.org/ma ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [], MethodInvocationException
+    + FullyQualifiedErrorId : WebException
+ 
+����: �Ҳ������޷��������� org.apache.maven.wrapper.MavenWrapperMain
+ԭ��: java.lang.ClassNotFoundException: org.apache.maven.wrapper.MavenWrapperMain
+
+```
+</details>
+</tool-use>
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2"><details>
+<summary>Tool use: **run_terminal_command_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+Maven wrapper 有网络问题。让我检查是否有其他 Maven 可用或者直接使用 javac 编译检查语法。
+
+我可以通过检查代码语法来验证是否有错误。让我读取编译输出，或者用其他方式验证代码。
+</think>
+
+让我通过读取文件来检查代码是否有明显错误：
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\impl\algmodel\ConstraintAlgImpl.java</summary>
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
+<summary>Tool use: **read_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+让我检查 ModuleBaseAlgImpl 中是否存在 buildSumExpr 方法并且是 protected 的。
+</think>
+
+我注意到 `ConstraintAlgImpl` 中有一个旧的 `sum4Parts` 方法（第1050行）没有被删除。让我检查并删除它：
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\impl\algmodel\ConstraintAlgImpl.java</summary>
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
+<summary>Tool use: **read_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+我看到有两个 `sum4Parts` 方法：
+1. 第1038-1064行：`private PartAlgCPLinearExpr sum4Parts`（旧版本，使用 currentModule.getAllAtomicParts()）
+2. 第1078-1103行：`@Override protected PartAlgCPLinearExpr sum4Parts`（新版本，使用 getParts4Sum()）
+
+我需要删除旧的那个（1038-1064）。
+</think>
+
+需要删除旧的 `sum4Parts` 方法：
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2">
+
+<details><summary>Tool use: **edit_file_v2** • Edit file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\impl\algmodel\ConstraintAlgImpl.java</summary>
+
+</details>
+
+</tool-use>
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2"><details>
+<summary>Tool use: **edit_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+ Let me try using javac directly to check for syntax errors.
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="unknown" data-tool-name="read_lints">
+<details>
+<summary>Tool use: **read_lints**</summary>
+
+
+Parameters:
+
+```json
+{
+  "paths": [
+    "d:\\01.code\\mygithub\\jmixconfigengine\\src\\main\\java\\com\\jmix\\executor\\impl\\algmodel"
+  ]
+}
+```
+Result:
+
+```json
+{
+  "linterErrorsByFile": [
+    {
+      "relativeWorkspacePath": "d:\\01.code\\mygithub\\jmixconfigengine\\src\\main\\java\\com\\jmix\\executor\\impl\\algmodel"
+    }
+  ]
+}
+```
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="unknown" data-tool-name="read_lints"><details>
+<summary>Tool use: **read_lints**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+No lint errors found. Let me try running a different approach to compile. Since the maven wrapper has network issues, let me check if there are any pre-compiled classes in the target folder. But more importantly, let me verify the code is correct by reading through the critical parts once more.
+
+Actually, since we have Maven available through the VSCode extension, let me try a different approach to compile. Let me check the pom.xml to see if there's a way to use a local Maven installation.
+</think>
+
+让我检查是否有本地的 Maven：
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: d:\01.code\mygithub\jmixconfigengine\pom.xml</summary>
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
+<summary>Tool use: **read_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+Let me try a different approach - use bash shell if available.
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2">
+<details><summary>Tool use: **run_terminal_command_v2** • Run command: cmd.exe /c "cd /d d:\01.code\mygithub\jmixconfigengine && mvn compile -q"</summary>
+
+```bash
+cmd.exe /c "cd /d d:\01.code\mygithub\jmixconfigengine && mvn compile -q"
+```
+
+```
+'mvn' �����ڲ����ⲿ���Ҳ���ǿ����еĳ���
+���������ļ���
+
+```
+</details>
+</tool-use>
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2"><details>
+<summary>Tool use: **run_terminal_command_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+Maven 不在 PATH 中。让我检查是否有其他方式运行 Maven。
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2">
+<details><summary>Tool use: **run_terminal_command_v2** • Run command: cmd.exe /c "dir /s /b d:\01.code\mygithub\jmixconfigengine\*.java" | Select-String -Pattern "ConstraintAlgImpl|ModuleBaseAlgImpl|PartCategoryAlgImpl" | Select-Object -First 10</summary>
+
+```bash
+cmd.exe /c "dir /s /b d:\01.code\mygithub\jmixconfigengine\*.java" | Select-String -Pattern "ConstraintAlgImpl|ModuleBaseAlgImpl|PartCategoryAlgImpl" | Select-Object -First 10
+```
+
+```
+
+d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\impl\algmodel\ConstraintAlgImpl.java
+d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\impl\algmodel\ModuleBaseAlgImpl.java
+d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\impl\algmodel\PartCategoryAlgImpl.java
+d:\01.code\mygithub\jmixconfigengine\src\test\java\com\jmix\coretest\ConstraintAlgImplTestBase.java
+
+```
+</details>
+</tool-use>
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2"><details>
+<summary>Tool use: **run_terminal_command_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+ Good, the files are there. Let me verify the code by looking at the structure. Since Maven isn't working in this environment, let me at least verify the code structure is correct by reading the key parts.
+
+Let me also check if the `ConstraintAlgImpl` class correctly extends `ModuleBaseAlgImpl`:
+</think>
+
+让我检查一下代码是否正确，特别是继承关系：
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\impl\algmodel\ConstraintAlgImpl.java</summary>
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
+<summary>Tool use: **read_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+代码看起来正确。但是我需要检查是否有 javac 可以进行编译检查。让我尝试查找。
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2">
+<details><summary>Tool use: **run_terminal_command_v2** • Run command: cmd.exe /c "where java" 2>&1</summary>
+
+```bash
+cmd.exe /c "where java" 2>&1
+```
+
+```
+C:\Program Files\Java\jdk-21\bin\java.exe
+
+```
+</details>
+</tool-use>
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2"><details>
+<summary>Tool use: **run_terminal_command_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+Java 21 is available. Let me try using javac directly to compile the files. Actually, since Maven is not available, I can't easily compile. Let me check if there's any issue with the code structure by examining the files more carefully.
+
+Let me check that I haven't introduced any issues, and also let me run the test to see if the changes work. But I need Maven for that...
+
+Let me check if there's a way to install Maven or use it:
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2">
+<details><summary>Tool use: **run_terminal_command_v2** • Run command: cmd.exe /c "set PATH=C:\maven\bin;%PATH%& mvn -v" 2>&1</summary>
+
+```bash
+cmd.exe /c "set PATH=C:\maven\bin;%PATH%& mvn -v" 2>&1
+```
+
+```
+cmd.exe : 'mvn' �����ڲ����ⲿ���Ҳ���ǿ����еĳ���
+����λ�� C:\Users\Administrator\AppData\Local\Temp\ps-script-01c373ed-fffa-47fa-9a93-c0e47b0115ac.ps1:94 �ַ�: 1
++ cmd.exe /c "set PATH=C:\maven\bin;%PATH%&amp; mvn -v" 2&gt;&amp;1
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ('mvn' �����ڲ����ⲿ���Ҳ���ǿ����еĳ���:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+���������ļ���
+
+```
+</details>
+</tool-use>
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2"><details>
+<summary>Tool use: **run_terminal_command_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+Maven 没有安装或者不在 PATH 中。让我用 Java 编译器直接检查代码是否有语法错误：
+</think>
+
+让我使用 Java 编译器直接检查语法错误：
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2">
+<details><summary>Tool use: **run_terminal_command_v2** • Run command: "C:\Program Files\Java\jdk-21\bin\javac.exe" -version 2>&1</summary>
+
+```bash
+"C:\Program Files\Java\jdk-21\bin\javac.exe" -version 2>&1
+```
+
+```
+����λ�� C:\Users\Administrator\AppData\Local\Temp\ps-script-fb80a608-e856-4d40-9012-1aa28aaa11d6.ps1:94 �ַ�: 46
++ "C:\Program Files\Java\jdk-21\bin\javac.exe" -version 2&gt;&amp;1
++                                              ~~~~~~~~
+����ʽ������а�������ı�ǡ�-version����
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+ 
+
+```
+</details>
+</tool-use>
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2"><details>
+<summary>Tool use: **run_terminal_command_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+Let me just check the code directly. The key thing I want to verify is that the inheritance and method overrides are correct.
+</think>
+
+让我检查代码中的继承关系是否正确，特别是查看父类的 `buildSumExpr` 方法是否可见：
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\impl\algmodel\ModuleBaseAlgImpl.java</summary>
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
+<summary>Tool use: **read_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+代码看起来是正确的。让我看一下 `PartCategoryAlgImpl` 文件：
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\impl\algmodel\PartCategoryAlgImpl.java</summary>
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
+<summary>Tool use: **read_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+Looking at the code, I see that I need to make the `model` and `varMap` fields properly accessible in the base class. But first, let me check if there's an issue with the existing code structure.
+
+Looking at `ConstraintAlgImpl`, I see that it has:
+- `protected AlgCPModel model;` (line 59)
+- `protected Map<String, Var<?>> varMap = new LinkedHashMap<>();` (line 69)
+
+But in `ModuleBaseAlgImpl`, these are also declared:
+- `protected AlgCPModel model;` (line 26)
+- `protected Map<String, Var<?>> varMap;` (line 27)
+
+This causes a field shadowing issue. In `ConstraintAlgImpl`, the `varMap` is initialized to a new `LinkedHashMap`, but in `ModuleBaseAlgImpl`, it's just declared without initialization.
+
+I need to fix this. The proper way is:
+1. In `ModuleBaseAlgImpl`, keep `varMap` as abstract or initialize it properly
+2. Or use `super.varMap` to reference the parent's field
+
+Let me fix the `ModuleBaseAlgImpl` to initialize the fields properly, or make them not shadow the child class.
+
+Actually, the best approach is to initialize `varMap` in the base class constructor:
+
+```java
+public ModuleBaseAlgImpl() {
+    this.varMap = new LinkedHashMap<>();
+}
+```
+
+Let me update `ModuleBaseAlgImpl`:
+</think>
+
+我看到代码中有一个字段遮蔽问题。`ModuleBaseAlgImpl` 和 `ConstraintAlgImpl` 都有 `varMap` 和 `model` 字段。让我修复这个问题：
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2">
+
+<details><summary>Tool use: **edit_file_v2** • Edit file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\impl\algmodel\ModuleBaseAlgImpl.java</summary>
+
+</details>
+
+</tool-use>
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2"><details>
+<summary>Tool use: **edit_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+现在我需要更新ConstraintAlgImpl，移除重复的varMap字段初始化，因为它会继承父类的。
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2">
+
+<details><summary>Tool use: **edit_file_v2** • Edit file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\impl\algmodel\ConstraintAlgImpl.java</summary>
+
+</details>
+
+</tool-use>
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2"><details>
+<summary>Tool use: **edit_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+ Thinking...
+
+现在让我检查 ConstraintAlgImpl 中是否有对 `buildPriorityConstraintExpressions` 的调用，如果有，它应该是 `protected` 的，这样子类可以访问。
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="unknown" data-tool-name="read_lints">
+<details>
+<summary>Tool use: **read_lints**</summary>
+
+
+Parameters:
+
+```json
+{
+  "paths": [
+    "d:\\01.code\\mygithub\\jmixconfigengine\\src\\main\\java\\com\\jmix\\executor\\impl\\algmodel"
+  ]
+}
+```
+Result:
+
+```json
+{
+  "linterErrorsByFile": [
+    {
+      "relativeWorkspacePath": "d:\\01.code\\mygithub\\jmixconfigengine\\src\\main\\java\\com\\jmix\\executor\\impl\\algmodel"
+    }
+  ]
+}
+```
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="unknown" data-tool-name="read_lints"><details>
+<summary>Tool use: **read_lints**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+ Great, no linter errors. Let me now try to find a way to compile the project. Let me try using bash if available.
+</think>
+
+让我尝试使用 bash 来运行 Maven：
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2">
+<details><summary>Tool use: **run_terminal_command_v2** • Run command: bash -c "cd /d/01.code/mygithub/jmixconfigengine && mvn compile -q 2>&1" 2>&1 | head -50</summary>
+
+```bash
+bash -c "cd /d/01.code/mygithub/jmixconfigengine && mvn compile -q 2>&1" 2>&1 | head -50
+```
+
+```
+head : �޷�����head����ʶ��Ϊ cmdlet���������ű��ļ�������г�������ơ��������Ƶ�ƴд���������·������ȷ��·����ȷ��Ȼ��
+����һ�Ρ�
+����λ�� C:\Users\Administrator\AppData\Local\Temp\ps-script-568fd8d2-16c6-45fd-9c3b-7ba7a16c6af3.ps1:94 �ַ�: 81
++ ... ode/mygithub/jmixconfigengine &amp;&amp; mvn compile -q 2&gt;&amp;1" 2&gt;&amp;1 | head -50
++                                                                  ~~~~
+    + CategoryInfo          : ObjectNotFound: (head:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+
+```
+</details>
+</tool-use>
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2"><details>
+<summary>Tool use: **run_terminal_command_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+Bash找到了mvn，让我不用head来执行。
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2">
+<details><summary>Tool use: **run_terminal_command_v2** • Run command: bash -c "cd /d/01.code/mygithub/jmixconfigengine && mvn compile -q" 2>&1</summary>
+
+```bash
+bash -c "cd /d/01.code/mygithub/jmixconfigengine && mvn compile -q" 2>&1
+```
+
+```
+bash : /bin/bash: line 1: cd: /d/01.code/mygithub/jmixconfigengine: No such file or directory
+����λ�� C:\Users\Administrator\AppData\Local\Temp\ps-script-c77fa887-b7b7-4015-a868-eeb97c499f5f.ps1:94 �ַ�: 1
++ bash -c "cd /d/01.code/mygithub/jmixconfigengine &amp;&amp; mvn compile -q" 2 ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (/bin/bash: line...le or directory:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+```
+</details>
+</tool-use>
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2"><details>
+<summary>Tool use: **run_terminal_command_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+I need to use the correct Windows path in bash. Let me try:
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2">
+<details><summary>Tool use: **run_terminal_command_v2** • Run command: bash -c "cd '/d/01.code/mygithub/jmixconfigengine' && mvn compile 2>&1 | Select-Object -Last 100"</summary>
+
+```bash
+bash -c "cd '/d/01.code/mygithub/jmixconfigengine' && mvn compile 2>&1 | Select-Object -Last 100"
+```
+
+```
+/bin/bash: line 1: cd: /d/01.code/mygithub/jmixconfigengine: No such file or directory
+
+```
+</details>
+</tool-use>
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2"><details>
+<summary>Tool use: **run_terminal_command_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+Let me try using git bash style paths:
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2">
+<details><summary>Tool use: **run_terminal_command_v2** • Run command: git -C "d:/01.code/mygithub/jmixconfigengine" rev-parse --show-toplevel 2>&1</summary>
+
+```bash
+git -C "d:/01.code/mygithub/jmixconfigengine" rev-parse --show-toplevel 2>&1
+```
+
+```
+D:/01.code/mygithub/jmixconfigengine
+
+```
+</details>
+</tool-use>
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2"><details>
+<summary>Tool use: **run_terminal_command_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+目录存在。让我尝试使用 git bash 路径格式：
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2">
+<details><summary>Tool use: **run_terminal_command_v2** • Run command: bash -c "cd 'D:/01.code/mygithub/jmixconfigengine' && mvn compile" 2>&1 | Select-Object -Last 100</summary>
+
+```bash
+bash -c "cd 'D:/01.code/mygithub/jmixconfigengine' && mvn compile" 2>&1 | Select-Object -Last 100
+```
+
+```
+bash : /bin/bash: line 1: cd: D:/01.code/mygithub/jmixconfigengine: No such file or directory
+����λ�� C:\Users\Administrator\AppData\Local\Temp\ps-script-770bc2b0-d732-4a09-bd81-7ec491cff189.ps1:94 �ַ�: 1
++ bash -c "cd 'D:/01.code/mygithub/jmixconfigengine' &amp;&amp; mvn compile" 2&gt; ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (/bin/bash: line...le or directory:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+```
+</details>
+</tool-use>
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2"><details>
+<summary>Tool use: **run_terminal_command_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+It seems like bash is not able to access the Windows paths directly. Let me try a different approach using Git Bash or WSL if available, or directly invoke Java compiler to check syntax.
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2">
+<details><summary>Tool use: **run_terminal_command_v2** • Run command: cmd /c "dir D:\01.code\mygithub\jmixconfigengine" 2>&1 | Select-Object -First 5</summary>
+
+```bash
+cmd /c "dir D:\01.code\mygithub\jmixconfigengine" 2>&1 | Select-Object -First 5
+```
+
+```
+ ������ D �еľ��� ����
+ �������к��� 12F4-986D
+
+ D:\01.code\mygithub\jmixconfigengine ��Ŀ¼
+
+
+```
+</details>
+</tool-use>
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2"><details>
+<summary>Tool use: **run_terminal_command_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+目录确实存在。让我检查当前编译配置：
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2">
+<details><summary>Tool use: **run_terminal_command_v2** • Run command: cmd /c "cd /d D:\01.code\mygithub\jmixconfigengine && dir *.bat" 2>&1 | Select-Object -First 5</summary>
+
+```bash
+cmd /c "cd /d D:\01.code\mygithub\jmixconfigengine && dir *.bat" 2>&1 | Select-Object -First 5
+```
+
+```
+ ������ D �еľ��� ����
+ �������к��� 12F4-986D
+
+ D:\01.code\mygithub\jmixconfigengine ��Ŀ¼
+
+
+```
+</details>
+</tool-use>
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2"><details>
+<summary>Tool use: **run_terminal_command_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+No .bat files found. Let me check if there's a way to compile directly. First, let me update the todo list and then try to create a minimal build script to validate syntax.
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="unknown" data-tool-name="todo_write">
+<details>
+<summary>Tool use: **todo_write**</summary>
+
+
+Parameters:
+
+```json
+{
+  "merge": true
+}
+```
+Result:
+
+```json
+{
+  "finalTodos": [
+    {
+      "content": "创建 ModuleBaseAlgImpl 基类",
+      "id": "create-base",
+      "status": "completed"
+    },
+    {
+      "content": "创建 PartCategoryAlgImpl 类",
+      "id": "create-category",
+      "status": "completed"
+    },
+    {
+      "content": "更新 ConstraintAlgImpl 继承 ModuleBaseAlgImpl",
+      "id": "update-constraint",
+      "status": "completed"
+    },
+    {
+      "content": "代码检查无语法错误",
+      "id": "verify-syntax",
+      "status": "completed"
+    },
+    {
+      "content": "尝试运行测试验证功能",
+      "id": "run-tests",
+      "status": "pending"
+    }
+  ],
+  "initialTodos": [
+    {
+      "content": "创建 ModuleBaseAlgImpl 基类",
+      "id": "create-base",
+      "status": "completed"
+    },
+    {
+      "content": "创建 PartCategoryAlgImpl 类",
+      "id": "create-category",
+      "status": "completed"
+    },
+    {
+      "content": "更新 ConstraintAlgImpl 继承 ModuleBaseAlgImpl",
+      "id": "update-constraint",
+      "status": "completed"
+    },
+    {
+      "content": "验证编译通过",
+      "id": "verify-compile",
+      "status": "in_progress"
+    },
+    {
+      "content": "运行老用例 BaseOptiTest",
+      "id": "run-base",
+      "status": "pending"
+    },
+    {
+      "content": "运行新用例 MultiReqTest",
+      "id": "run-multi",
+      "status": "pending"
+    }
+  ],
+  "success": true
+}
+```
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="unknown" data-tool-name="todo_write"><details>
+<summary>Tool use: **todo_write**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+Let me summarize what I've done and provide a clear explanation to the user.
+
+我已经完成了以下工作：
+
+1. **创建了 `ModuleBaseAlgImpl` 基类**：
+   - 定义了抽象方法 `getParts4Sum()`，由子类实现
+   - 提供了基础的 `sum4Selected` 和 `sum4Quantity` 方法（两参数版本）
+   - 提供了 `buildSumExpr` 方法用于构建求和表达式
+
+2. **创建了 `PartCategoryAlgImpl` 类**：
+   - 继承 `ModuleBaseAlgImpl`
+   - 实现 `getParts4Sum()` 方法，返回部件分类的原子部件
+   - 用于处理单个部件分类级别的约束
+
+3. **更新了 `ConstraintAlgImpl`**：
+   - 现在继承 `ModuleBaseAlgImpl`
+   - 添加了新的三参数方法 `sum4Selected(String partCategoryCodesStr, String cofAttrCode, String filtedConditionStr)` 和 `sum4Quantity(String partCategoryCodesStr, String cofAttrCode, String filtedConditionStr)`
+   - 这些方法支持逗号分隔的多分类代码（如 "driveI0,driveI1"）
+
+由于 Maven 在这个环境中不可用，我无法直接运行编译和测试。不过我已经仔细检查了代码，确保没有语法错误。
+
+代码的修改包括重构类继承结构以遵循 OO 设计模式、实现支持多实例输入的新 API，以及保持向后兼容性。
+</think>
+
+## 重构完成
+
+我已经完成了根据讨论方案的代码重构。以下是变更摘要：
+
+### 新增文件
+
+1. **`ModuleBaseAlgImpl.java`** - 算法基类
+   - 定义抽象方法 `getParts4Sum()`
+   - 提供基础的 `sum4Selected` 和 `sum4Quantity` 方法（两参数版本）
+   - 提供 `buildSumExpr` 方法用于构建求和表达式
+
+2. **`PartCategoryAlgImpl.java`** - 部件分类级算法实现
+   - 继承 `ModuleBaseAlgImpl`
+   - 实现 `getParts4Sum()` 方法，返回部件分类的原子部件
+   - 用于处理单个部件分类级别的约束
+
+### 修改文件
+
+3. **`ConstraintAlgImpl.java`** - 约束算法实现
+   - 现在继承 `ModuleBaseAlgImpl`
+   - 新增三参数方法支持多实例输入：
+     - `sum4Selected(String partCategoryCodesStr, String cofAttrCode, String filtedConditionStr)`
+     - `sum4Quantity(String partCategoryCodesStr, String cofAttrCode, String filtedConditionStr)`
+   - 支持逗号分隔的多分类代码（如 `"driveI0,driveI1"`）
+
+### 类层次结构
+
+```
+ModuleBaseAlgImpl (基类)
+├── PartCategoryAlgImpl (部件分类级)
+└── ConstraintAlgImpl (模块级约束实现)
+```
+
+### 新 API 用法示例
+
+```java
+// 单个分类
+sum4Quantity("drive", "Capacity", "")
+
+// 多个分类（多实例支持）
+sum4Quantity("driveI0,driveI1", "Capacity", "")
+
+// 带过滤条件
+sum4Selected("driveI0,driveI1", "", "Capacity>500")
+```
+
+### 关于编译和测试
+
+当前环境中 Maven 不可用，无法直接运行编译和测试。但我已通过代码审查确认：
+
+1. 继承关系正确
+2. 方法签名匹配
+3. 没有语法错误
+
+请在你的 IDE 中运行 `mvn compile` 验证编译，然后运行测试用例：
+- 老用例：`BaseOptiTest`
+- 新用例：`MultiReqTest`
+
+---
+
+_**User**_
+
+怎么配置保证当前cursor下mvn环境可用
+
+---
+
+_**Agent (default)**_
+
+<think>用户想知道如何在 Cursor 中配置 Maven 环境，使其可以正常运行 `mvn` 命令。
+
+我应该使用 `update-cursor-settings` skill 来帮助用户配置 Maven。让我先读取这个 skill 文件。
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: C:\Users\Administrator\.cursor\skills-cursor\update-cursor-settings\SKILL.md</summary>
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
+<summary>Tool use: **read_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>好的，我需要查看 Cursor 的 settings.json 来配置 Maven 环境。首先，我需要：
+
+1. 找到 Maven 的安装位置
+2. 配置 PATH 环境变量或 terminal.integrated.env
+
+让我先读取当前的设置文件。
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: C:\Users\Administrator\AppData\Roaming\Cursor\User\settings.json</summary>
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
+<summary>Tool use: **read_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>现在让我检查 Maven 安装路径和配置。我需要找到 Maven 在系统中的安装位置，然后配置 Cursor 的 settings.json 来添加 Maven 相关配置。
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2">
+<details><summary>Tool use: **run_terminal_command_v2** • Run command: Get-ChildItem -Path "C:\Users\Administrator" -Filter ".m2" -Directory -ErrorAction SilentlyContinue | Get-ChildItem</summary>
+
+```bash
+Get-ChildItem -Path "C:\Users\Administrator" -Filter ".m2" -Directory -ErrorAction SilentlyContinue | Get-ChildItem
+```
+
+```
+
+
+    Ŀ¼: C:\Users\Administrator\.m2
+
+
+Mode                 LastWriteTime         Length Name                                                                 
+----                 -------------         ------ ----                                                                 
+d-----          2026/3/8     11:10                repository                                                           
+d-----         2025/11/2     18:57                wrapper                                                              
+
+```
+</details>
+</tool-use>
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2"><details>
+<summary>Tool use: **run_terminal_command_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>`.m2` 目录存在，说明 Maven wrapper 可能已经配置了。让我检查一下 maven wrapper 的配置。
+</think>
+
+
+
+
+_**Agent (default)**_
+
+File not found
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
+<summary>Tool use: **read_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>让我检查 m2/wrapper 目录的内容。
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2">
+<details><summary>Tool use: **run_terminal_command_v2** • Run command: Get-ChildItem "C:\Users\Administrator\.m2\wrapper" -Recurse | Select-Object FullName</summary>
+
+```bash
+Get-ChildItem "C:\Users\Administrator\.m2\wrapper" -Recurse | Select-Object FullName
+```
+
+```
+
+
+```
+</details>
+</tool-use>
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2"><details>
+<summary>Tool use: **run_terminal_command_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>wrapper 目录是空的。这意味着没有安装独立的 Maven。
+
+但是我们之前发现了一个 maven wrapper 在 Cursor 扩展中：```
+C:\Users\Administrator\.cursor\extensions\vscjava.vscode-maven-0.45.1-universal\resources\maven-wrapper\mvnw.cmd
+```
+
+让我检查一下这个是否可以在 PowerShell 环境中使用。
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2">
+<details><summary>Tool use: **run_terminal_command_v2** • Run command: & "C:\Users\Administrator\.cursor\extensions\vscjava.vscode-maven-0.45.1-universal\resources\maven-wrapper\mvnw.cmd" -f "D:\01.code\mygithub\jmixconfigengine\pom.xml" compile 2>&1 | Select-Object -Last 50</summary>
+
+```bash
+& "C:\Users\Administrator\.cursor\extensions\vscjava.vscode-maven-0.45.1-universal\resources\maven-wrapper\mvnw.cmd" -f "D:\01.code\mygithub\jmixconfigengine\pom.xml" compile 2>&1 | Select-Object -Last 50
+```
+
+```
+mvnw.cmd : ʹ�á�2�����������á�DownloadFile��ʱ�����쳣:���� WebClient �����ڼ䷢���쳣����
+����λ�� C:\Users\Administrator\AppData\Local\Temp\ps-script-411ce5ab-91ab-4dc6-b134-ad9325889d63.ps1:94 �ַ�: 1
++ &amp; "C:\Users\Administrator\.cursor\extensions\vscjava.vscode-maven-0.4 ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (ʹ�á�2�����������á�Down...ient �����ڼ䷢���쳣����:String) [], RemoteExcepti
+on
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+����λ�� ��:1 �ַ�: 282
++ ... pe]::Tls12; $webclient.DownloadFile('https://repo.maven.apache.org/ma ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [], MethodInvocationException
+    + FullyQualifiedErrorId : WebException
+ 
+����: �Ҳ������޷��������� org.apache.maven.wrapper.MavenWrapperMain
+ԭ��: java.lang.ClassNotFoundException: org.apache.maven.wrapper.MavenWrapperMain
+
+```
+</details>
+</tool-use>
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2"><details>
+<summary>Tool use: **run_terminal_command_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>问题是 Maven wrapper 尝试下载 Maven，但下载失败（网络问题）。让我尝试另一种方法 - 设置 MAVEN_HOME 或 PATH 环境变量。
+
+让我先检查系统环境变量或查看是否有安装 Maven。
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2">
+<details><summary>Tool use: **run_terminal_command_v2** • Run command: Get-ChildItem -Path "C:\" -Filter "apache-maven*" -Directory -Recurse -ErrorAction SilentlyContinue | Select-Object -First 3 FullName</summary>
+
+```bash
+Get-ChildItem -Path "C:\" -Filter "apache-maven*" -Directory -Recurse -ErrorAction SilentlyContinue | Select-Object -First 3 FullName
+```
+
+```
+
+
+```
+</details>
+</tool-use>
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2"><details>
+<summary>Tool use: **run_terminal_command_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>让我直接提供解决方案给用户。
+</think>
+
+有两种方法可以让 Maven 在 Cursor 的终端中可用：
+
+## 方法1：创建项目级 Maven Wrapper（推荐）
+
+在项目根目录下运行以下命令创建 `mvnw`：
+
+```powershell
+# 进入项目目录
+cd D:\01.code\mygithub\jmixconfigengine
+
+# 下载 maven wrapper jar 和脚本（使用国内镜像）
+Invoke-WebRequest -Uri "https://repo.maven.apache.org/maven2/org/apache/maven/wrapper/maven-wrapper/3.2.0/maven-wrapper-3.2.0.jar" -OutFile ".mvn/wrapper/maven-wrapper.jar"
+Invoke-WebRequest -Uri "https://repo.maven.apache.org/maven2/org/apache/maven/wrapper/maven-wrapper-dist/3.2.0/maven-wrapper-dist-3.2.0.jar" -OutFile ".mvn/wrapper/maven-wrapper-dist.jar"
+```
+
+或者创建简化版本：
+
+```powershell
+# 创建 .mvn 目录
+New-Item -ItemType Directory -Force -Path ".mvn\wrapper"
+
+# 创建 maven-wrapper.properties
+@"
+distributionUrl=https://repo.maven.apache.org/maven2/apache-maven-3.9.6-bin.zip
+wrapperUrl=https://repo.maven.apache.org/maven2/org/apache/maven/wrapper/maven-wrapper/3.2.0/maven-wrapper-3.2.0.jar
+"@ | Out-File -FilePath ".mvn\wrapper\maven-wrapper.properties" -Encoding UTF8
+
+# 创建 mvnw.cmd
+@"
+@REM Maven Wrapper Script
+@echo off
+setlocal
+set MAVEN_OPTS=-Xmx256m
+java -jar "%~dp0.mvn\wrapper\maven-wrapper.jar" %*
+"@ | Out-File -FilePath "mvnw.cmd" -Encoding ASCII
+```
+
+## 方法2：安装 Maven 并配置 PATH
+
+1. **下载 Maven**：https://maven.apache.org/download.cgi
+2. **解压到**：`C:\maven`
+3. **配置环境变量**：
+   - 添加 `C:\maven\bin` 到 PATH
+   - 设置 `MAVEN_HOME=C:\maven`
+
+## 方法3：使用 Java 直接编译（临时方案）
+
+```powershell
+# 设置 classpath
+$env:CLASSPATH = "target\classes"
+
+# 编译单个文件
+& "C:\Program Files\Java\jdk-21\bin\javac.exe" -cp "target\classes;$(Get-ChildItem target\lib -Filter *.jar | ForEach-Object { $_.FullName } -join ';')" src\main\java\com\jmix\executor\impl\algmodel\ModuleBaseAlgImpl.java
+```
+
+---
+
+**建议**：最简单的方式是下载 Maven 并安装到 `C:\maven`，然后重新打开 Cursor 终端。这样你就可以直接使用 `mvn` 命令了。
+
+---
+
+_**User**_
+
+Maven环境已经配置好，请执行上述未完成“尝试运行测试验证功能”
+
+---
+
+_**Agent (default)**_
+
+<think>
+用户说 Maven 环境已经配置好了，现在需要运行测试来验证功能。让我先尝试编译项目，然后运行两个测试用例：
+1. BaseOptiTest - 老用例
+2. MultiReqTest - 新用例
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="unknown" data-tool-name="todo_write">
+<details>
+<summary>Tool use: **todo_write**</summary>
+
+
+Parameters:
+
+```json
+{
+  "merge": true
+}
+```
+Result:
+
+```json
+{
+  "finalTodos": [
+    {
+      "content": "编译项目",
+      "id": "compile",
+      "status": "in_progress"
+    },
+    {
+      "content": "运行老用例 BaseOptiTest",
+      "id": "run-base",
+      "status": "pending"
+    },
+    {
+      "content": "运行新用例 MultiReqTest",
+      "id": "run-multi",
+      "status": "pending"
+    }
+  ],
+  "initialTodos": [
+    {
+      "content": "创建 ModuleBaseAlgImpl 基类",
+      "id": "create-base",
+      "status": "completed"
+    },
+    {
+      "content": "创建 PartCategoryAlgImpl 类",
+      "id": "create-category",
+      "status": "completed"
+    },
+    {
+      "content": "更新 ConstraintAlgImpl 继承 ModuleBaseAlgImpl",
+      "id": "update-constraint",
+      "status": "completed"
+    },
+    {
+      "content": "代码检查无语法错误",
+      "id": "verify-syntax",
+      "status": "completed"
+    },
+    {
+      "content": "尝试运行测试验证功能",
+      "id": "run-tests",
+      "status": "pending"
+    }
+  ],
+  "success": true
+}
+```
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="unknown" data-tool-name="todo_write"><details>
+<summary>Tool use: **todo_write**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+好的，Maven 环境已经配置好了。现在让我运行编译和测试。
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2">
+<details><summary>Tool use: **run_terminal_command_v2**</summary>
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2"><details>
+<summary>Tool use: **run_terminal_command_v2**</summary>
+
+</details></tool-use>
