@@ -77,6 +77,13 @@ public class MultiReqTest extends ModuleScenarioTestBase {
         @ParaAnno(fatherCode = "", type = ParaType.INTEGER, assignType = AssignType.INPUT)
         private ParaVar driveSumQuantity; // 输入参数
 
+        // 改动4：原来属于分类2（多）的参数，由于属于整个分类2，当前多实例化，只能提升到产品级fatherCode = "drive"-> ""
+        @ParaAnno(fatherCode = "drive", type = ParaType.INTEGER, assignType = AssignType.INPUT)
+        private ParaVar SumCapacity;// 输入参数
+
+        @ParaAnno(fatherCode = "drive", type = ParaType.INTEGER, assignType = AssignType.INPUT)
+        private ParaVar SumQuantity; // 输入参数
+
         // ==================== CPU部件分类定义 ====================
         @PartAnno()
         @DAttrAnno1(code = "CoreNum", dynAttrType = DynamicAttributeType.E_INT, optionExtSchema = "IntegerUnit", options = {
@@ -115,6 +122,19 @@ public class MultiReqTest extends ModuleScenarioTestBase {
 
         @ParaAnno(fatherCode = "cpu", type = ParaType.INTEGER, assignType = AssignType.INPUT)
         private ParaVar cpuSumMemory; // 输入参数
+
+        // 额外增加的
+        @CodeRuleAnno(normalNaturalCode = "应用各个请求的总数量和容量等于总的容量数") // 为了兼容总实例的数量总和的关系
+        private void logic4ReqMutiInst() {
+            // drive.SumCapacity = driveI1.SumCapacity + driveI2.SumCapacity
+            addParaEqual("driveSumCapacity", "drive:SumCapacity");
+            addParaEqual("driveSumQuantity", "drive:SumQuantity");
+        }
+
+        void addParaEqual(String sumParaCode, String instSumParaCode) {
+            // 动态表达式
+
+        }
 
         @CodeRuleAnno(normalNaturalCode = "4核的CPU不兼容固态硬盘")
         private void logicAB1() {
@@ -157,7 +177,7 @@ public class MultiReqTest extends ModuleScenarioTestBase {
         }
 
         // 改动点3：分类2(多）多个请求的整体要求，需要有整体汇总
-        @PriorityRuleAnno(fatherCode = "drive", normalNaturalCode = " 优先使用高容量硬盘", strategy = PriorityStrategy.MIN)
+        @PriorityRuleAnno(fatherCode = "", normalNaturalCode = " 优先使用高容量硬盘", strategy = PriorityStrategy.MIN)
         private void logicB2() {
             // 改动点3-1：增加sum4Quantity的partCatagoryCodesStr参数，支持多实例的情况
             PartAlgCPLinearExpr totalCapacity = sum4Quantity("driveI0,driveI1", "Capacity", "").name("totalCapacity");

@@ -146,19 +146,23 @@ public final class MultiInstCategoryUtils {
         List<Para> clonedParas = new ArrayList<>();
         if (org.getParas() != null) {
             for (Para para : org.getParas()) {
-                clonedParas.add(clonePara(para));
+                Para clonedPara = clonePara(para);
+                clonedPara.setFatherCode(newCode);
+                // 为了兼容前期setInputVariables的逻辑，这里暂时这么适配，后续统一改
+                clonedPara.setCode(newCode + "" + para.getCode());
+                clonedParas.add(clonedPara);
             }
         }
         dst.setParas(clonedParas);
 
-        // 克隆rules（Rule没有clone方法，需要手动克隆）
-        List<Rule> clonedRules = new ArrayList<>();
-        if (org.getRules() != null) {
-            for (Rule rule : org.getRules()) {
-                clonedRules.add(cloneRule(rule));
-            }
-        }
-        dst.setRules(clonedRules);
+        // // 克隆rules（Rule没有clone方法，需要手动克隆）
+        // List<Rule> clonedRules = new ArrayList<>();
+        // if (org.getRules() != null) {
+        // for (Rule rule : org.getRules()) {
+        // clonedRules.add(cloneRule(rule));
+        // }
+        // }
+        // dst.setRules(clonedRules);
 
         // 克隆dynAttr
         if (org.getDynAttr() != null) {
