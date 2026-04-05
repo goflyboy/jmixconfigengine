@@ -27,6 +27,15 @@
       "provider": "claude-code",
       "last_updated": "2026-04-05T03:33:47Z"
     },
+    "5e546da8-183f-4466-929f-c9ce59fe9430": {
+      "user_message_count": 1,
+      "agent_message_count": 10,
+      "start_timestamp": "2026-04-05T12:03:10+08:00",
+      "end_timestamp": "2026-04-05T12:03:10+08:00",
+      "markdown_size_bytes": 6876,
+      "provider": "cursoride",
+      "last_updated": "2026-04-05T04:03:47Z"
+    },
     "a0e0da07-b735-4a92-9d80-8f2a279d46c3": {
       "user_message_count": 1,
       "agent_message_count": 16,

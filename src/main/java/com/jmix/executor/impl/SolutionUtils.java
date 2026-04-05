@@ -2,6 +2,7 @@ package com.jmix.executor.impl;
 
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.impl.algmodel.OtherVar;
+import com.jmix.executor.cmodel.ModuleBaseInst;
 import com.jmix.executor.cmodel.ModuleInst;
 import com.jmix.executor.model.Result;
 
@@ -110,7 +111,7 @@ public final class SolutionUtils {
     private static void printOthers(List<ModuleInst> solutions, StringBuilder sb) {
         if (!solutions.isEmpty()) {
             ModuleInst firstSolution = solutions.get(0);
-            Object otherVarsMemo = firstSolution.getExtAttrs().get(ModuleInst.OTHER_VARIABLES_MEMO_KEY);
+            Object otherVarsMemo = firstSolution.getExtAttrs().get(ModuleBaseInst.OTHER_VARIABLES_MEMO_KEY);
             if (otherVarsMemo instanceof Map) {
                 @SuppressWarnings("unchecked")
                 Map<String, OtherVar> otherVarMap = (Map<String, OtherVar>) otherVarsMemo;

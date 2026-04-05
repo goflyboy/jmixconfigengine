@@ -1,9 +1,13 @@
 package com.jmix.tool.extensibleDemo;
 
 import com.jmix.executor.cmodel.ModuleInst;
+import com.jmix.executor.cmodel.PartCategoryInst;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * DC公司的模块实例包装类
@@ -32,7 +36,7 @@ public class DCModuleInst extends ModuleInst {
 
     /**
      * 从原始ModuleInst创建DCModuleInst
-     * 
+     *
      * @param moduleInst 原始模块实例
      */
     public DCModuleInst(ModuleInst moduleInst) {
@@ -43,8 +47,10 @@ public class DCModuleInst extends ModuleInst {
             this.setInstanceConfigId(moduleInst.getInstanceConfigId());
             this.setInstanceId(moduleInst.getInstanceId());
             this.setQuantity(moduleInst.getQuantity());
-            this.setParas(moduleInst.getParas());
-            this.setParts(moduleInst.getParts());
+            this.setParas(new ArrayList<>(moduleInst.getParas()));
+            this.setParts(new ArrayList<>(moduleInst.getParts()));
+            // 复制部件分类实例
+            this.setPartCategorys(new ArrayList<>(moduleInst.getPartCategorys()));
         }
     }
 }

@@ -2,6 +2,7 @@ package com.jmix.executor.impl;
 
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.base.AssignType;
+import com.jmix.executor.cmodel.ModuleBaseInst;
 import com.jmix.executor.cmodel.ModuleInst;
 import com.jmix.executor.cmodel.ParaInst;
 import com.jmix.executor.cmodel.PartInst;
@@ -54,11 +55,6 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
     private int maxSolutionNum = 0;
 
     private PartAlgCPLinearExpr priorityExpr = null;
-
-    // 常量定义
-    private static final String OTHER_VARIABLES_VALUE_KEY = "OTHER_VARIABLES_VALUE";
-
-    private static final String OTHER_VARIABLES_MEMO_KEY = "OTHER_VARIABLES_MEMO";
 
     private SolverResult solverResult = new SolverResult();
 
@@ -217,8 +213,8 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
                 long varValue = value(otherVar.getVar());
                 otherVarKeyMap.put(otherVar.getShortCode(), varValue);
             }
-            moduleInst.getExtAttrs().put(OTHER_VARIABLES_VALUE_KEY, otherVarKeyMap);
-            moduleInst.getExtAttrs().put(OTHER_VARIABLES_MEMO_KEY, otherVarMap);
+            moduleInst.getExtAttrs().put(ModuleBaseInst.OTHER_VARIABLES_VALUE_KEY, otherVarKeyMap);
+            moduleInst.getExtAttrs().put(ModuleBaseInst.OTHER_VARIABLES_MEMO_KEY, otherVarMap);
         }
     }
 
