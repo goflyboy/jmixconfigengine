@@ -76,7 +76,9 @@ public class MultiPCTest extends ModuleScenarioTestBase {
 
             @ParaAnno(type = ParaType.INTEGER, assignType = AssignType.INPUT)
             private ParaVar driveSumQuantity; // 输入参数
-            // TODO：进一步抽取单选型CPU
+
+            @ParaAnno(type = ParaType.INTEGER, assignType = AssignType.INPUT)
+            public ParaVar p1; // 输入参数
 
             @CodeRuleAnno(normalNaturalCode = "固态硬盘必须配置同一种，并且最多配置2块")
             private void logicB1() {
@@ -162,7 +164,7 @@ public class MultiPCTest extends ModuleScenarioTestBase {
         @DAttrAnno3(code = "ConfigType", dynAttrType = DynamicAttributeType.E_INT, optionExtSchema = "IntegerUnit", options = {
                 "ConfigType_2:2:配置",
                 "ConfigType_5:5:配置" })
-        static public class CPUCategory extends PartCategoryAlg {
+        public class cpu extends PartCategoryAlg {
 
             // CPU实例1: CoreNum=2, Memory=123, ConfigType=2
             @PartAnno(fatherCode = "cpu", attrs = { "2", "123", "2" }, price = 100)
@@ -186,6 +188,9 @@ public class MultiPCTest extends ModuleScenarioTestBase {
             @ParaAnno(fatherCode = "cpu", type = ParaType.INTEGER, assignType = AssignType.INPUT)
             private ParaVar cpuSumMemory;
 
+            @ParaAnno(type = ParaType.INTEGER, assignType = AssignType.INPUT)
+            public ParaVar p1; // 输入参数
+
             @CodeRuleAnno(fatherCode = "cpu", normalNaturalCode = "仅能使用一种CPU")
             private void logicA1() {
                 AlgCPLinearExpr cpuSelected = sum4Selected("").name("cpuSelected");
@@ -194,11 +199,17 @@ public class MultiPCTest extends ModuleScenarioTestBase {
 
         }
 
+        // TODO: 跨分类参数的问题（搞几个场景，类似都有端口类型,10GE, 独立， 有一个总的，给这两个赋值？**
         // 输入参数
         @CodeRuleAnno(normalNaturalCode = "4核的CPU不兼容固态硬盘")
         private void logicAB1() {
             // inCompatible("logicAB1", "cpu:CoreNum=4", "drive:Type=sd");
             // TODO
+            /*
+             * if ((cpu.p1.getIsHasInputed())) {
+             * drive.p1.setInputValue(cpu.p1.getInputValue());
+             * }
+             */
         }
 
     }

@@ -68,6 +68,16 @@ public abstract class ModuleBaseAlgImpl {
     protected Map<String, Var<?>> varMap = new LinkedHashMap<>();
 
     /**
+     * 部件变量映射表，存储code到PartVar的映射
+     */
+    protected Map<String, PartVar> partMap = new LinkedHashMap<>();
+
+    /**
+     * 参数变量映射表，存储code到ParaVar的映射
+     */
+    protected Map<String, ParaVar> paraMap = new LinkedHashMap<>();
+
+    /**
      * 受显式约束控制可见性的编码集合，跳过默认绑定
      */
     protected Set<String> codesOfHiddenConstraint = new HashSet<>();
@@ -286,7 +296,7 @@ public abstract class ModuleBaseAlgImpl {
      * 
      * @throws AlgLoaderException 异常
      */
-    private void setDefaultVisibilityConstraints() {
+    protected void setDefaultVisibilityConstraints() {
         boolean isFirst = true;
         for (Map.Entry<String, Var<?>> entry : varMap.entrySet()) {
             String code = entry.getKey();
@@ -397,7 +407,7 @@ public abstract class ModuleBaseAlgImpl {
      * 
      * @param rule 规则对象
      */
-    private void buildPriorityConstraint(Rule rule) {
+    protected void buildPriorityConstraint(Rule rule) {
         if (rule.getRawCode() == null || !(rule.getRawCode() instanceof PriorityRuleSchema)) {
             log.warn("Rule rawCode is not PriorityRuleSchema for rule: {}", rule.getCode());
             return;
@@ -434,6 +444,46 @@ public abstract class ModuleBaseAlgImpl {
             currentModule = null;
         }
         log.info("Executed  {} requested rules", exeRules.size());
+    }
+
+    /**
+     * 初始化并执行规则方法
+     * 使用外部传入的 allRuleMethods 映射来选择要执行的规则
+     * 
+     * @param allRuleMethods 所有规则方法的映射表 (ruleCode -> Method)
+     */
+    public void initRule(Map<String, Method> allRuleMethods) {
+        if (allRuleMethods == null || allRuleMethods.isEmpty()) {
+            log.warn("allRuleMethods is null or empty, skip initRule");
+            return;
+        }
+
+        if (module == null || module.getAllRules() == null) {
+            log.warn("Module or module.getAllRules() is null, skip initRule");
+            return;
+        }
+
+        List<Rule> rules = module.getAllRules();
+        for (Rule rule : rules) {
+            String ruleCode = rule.getCode();
+            Method ruleMethod = allRuleMethods.get(ruleCode);
+            if (ruleMethod != null) {
+                ruleMethods.put(ruleCode, ruleMethod);
+                log.info("Registered rule method: {} -> {}", ruleCode, ruleMethod.getName());
+
+                // 检查是否是PriorityRule，如果是则构建优先级约束
+                if (RuleTypeConstants.isPriorityRule(rule.getRuleSchemaTypeFullName())) {
+                    buildPriorityConstraint(rule);
+                }
+
+                // 执行规则方法
+                executeRuleMethod(ruleCode, ruleMethod);
+            } else {
+                log.error("Rule method not found in allRuleMethods for rule code: {}", ruleCode);
+                throw new AlgLoaderException("Rule method not found in allRuleMethods for rule code: " + ruleCode);
+            }
+        }
+        log.info("Initialized and executed {} rules", ruleMethods.size());
     }
 
     private IModule getRuleCurrentModule(String ruleCode) {
@@ -487,7 +537,7 @@ public abstract class ModuleBaseAlgImpl {
      * @param method   规则方法
      * @throws AlgLoaderException 异常
      */
-    private void executeRuleMethod(String ruleCode, Method method) {
+    protected void executeRuleMethod(String ruleCode, Method method) {
         if (method == null) {
             log.error("Rule method not found for execution: " + ruleCode);
             throw new AlgLoaderException("Rule method not found for execution: " + ruleCode);
@@ -546,6 +596,143 @@ public abstract class ModuleBaseAlgImpl {
      */
     protected void initModelAfter(AlgCPModel model) {
 
+    }
+
+    /**
+     * 初始化所有变量（paras和parts）
+     * 遍历module的paras，创建ParaVar并放到paraMap
+     * 遍历module的parts，创建PartVar并放到partMap
+     */
+    protected void initAll() {
+        if (module == null) {
+            log.warn("Module is null, skip initAll");
+            return;
+        }
+
+        // 初始化所有paras
+        for (Para para : module.getAllParas()) {
+            if (para != null && para.getCode() != null) {
+                ParaVar paraVar = initParaVar(para);
+                paraMap.put(para.getCode(), paraVar);
+            }
+        }
+        log.info("Initialized {} para variables", paraMap.size());
+
+        // 初始化所有parts（原子部件）
+        for (Part part : module.getAllAtomicParts()) {
+            if (part != null && part.getCode() != null) {
+                PartVar partVar = initPartVar(part);
+                partMap.put(part.getCode(), partVar);
+            }
+        }
+        log.info("Initialized {} part variables", partMap.size());
+    }
+
+    /**
+     * 初始化参数变量
+     * 根据参数类型创建对应的变量（INTEGER/ENUM）
+     * 
+     * @param para 参数对象
+     * @return 创建的参数变量
+     */
+    protected ParaVar initParaVar(Para para) {
+        String code = para.getCode();
+        ParaVar paraVar = new ParaVar();
+        paraVar.setBase(para);
+
+        if (para.getAssignType() == AssignType.INPUT) {
+            registerVar(code, paraVar);
+            return paraVar;
+        }
+
+        switch (para.getParaType()) {
+            case INTEGER:
+                paraVar.setValue(newIntVar(Integer.parseInt(para.getMinValue()), Integer.parseInt(para.getMaxValue()),
+                        f(ParaVar.VALUE_PATTERN, code)));
+                break;
+            case ENUM:
+                List<DynamicAttributerOption> options = para.getOptions();
+                if (options == null || options.isEmpty()) {
+                    log.error("Para options not found for code: {}", code);
+                    throw new AlgLoaderException("Para options not found for code: " + code);
+                }
+                paraVar.setValue(newIntVarFromDomain(para.getOptionIds(), f(ParaVar.VALUE_PATTERN, code)));
+
+                for (DynamicAttributerOption option : options) {
+                    ParaOptionVar optionVar = createParaOptionVar(para.getCode(), option.getCode());
+                    paraVar.getOptionSelectVars().put(option.getCodeId(), optionVar);
+                }
+                paraVar.getOptionSelectVars().forEach((optionId, optionVar) -> {
+                    model.addEquality(paraVar.getValue(), optionId).onlyEnforceIf(optionVar.getIsSelectedVar());
+                    model.addDifferent(paraVar.getValue(), optionId)
+                            .onlyEnforceIf(optionVar.getIsSelectedVar().not());
+                });
+                break;
+            default:
+                log.error("Para type not supported: {}", para.getParaType());
+                throw new AlgLoaderException("Para type not supported: " + para.getParaType());
+        }
+        paraVar.setIsHidden(newBoolVar(f(ParaVar.HIDDEN_PATTERN, code)));
+        registerVar(code, paraVar);
+        return paraVar;
+    }
+
+    /**
+     * 初始化部件变量
+     * 创建部件的数量、选中状态和隐藏状态变量
+     * 
+     * @param part 部件对象
+     * @return 创建的部件变量
+     */
+    protected PartVar initPartVar(Part part) {
+        PartVar partVar = new PartVar();
+        partVar.setBase(part);
+        partVar.setQty(newIntVar(0, part.getMaxQuantity(), f(PartVar.QTY_PATTERN, part.getCode())));
+        partVar.setIsHidden(newBoolVar(f(PartVar.HIDDEN_PATTERN, part.getCode())));
+        partVar.setIsSelected(newBoolVar(f(PartVar.ISSELECTED_PATTERN, part.getCode())));
+
+        // 添加Qty和IsSelected的关系
+        model.addGreaterOrEqual(partVar.getQty(), 1).onlyEnforceIf(partVar.getIsSelected());
+        model.addEquality(partVar.getQty(), 0).onlyEnforceIf(partVar.getIsSelected().not());
+
+        registerVar(part.getCode(), partVar);
+        return partVar;
+    }
+
+    /**
+     * 获取所有部件变量
+     * 
+     * @return 部件变量映射
+     */
+    public Map<String, PartVar> getPartMap() {
+        return partMap;
+    }
+
+    /**
+     * 获取所有参数变量
+     * 
+     * @return 参数变量映射
+     */
+    public Map<String, ParaVar> getParaMap() {
+        return paraMap;
+    }
+
+    /**
+     * 获取所有PartVar列表
+     * 
+     * @return PartVar列表
+     */
+    public List<PartVar> getAllPartVars() {
+        return new ArrayList<>(partMap.values());
+    }
+
+    /**
+     * 获取所有ParaVar列表
+     * 
+     * @return ParaVar列表
+     */
+    public List<ParaVar> getAllParaVars() {
+        return new ArrayList<>(paraMap.values());
     }
 
     /**
@@ -608,7 +795,7 @@ public abstract class ModuleBaseAlgImpl {
      * @param field 字段对象
      * @throws AlgLoaderException 异常
      */
-    private void setVariableField(Var<?> v, Field field) throws AlgLoaderException {
+    protected void setVariableField(Var<?> v, Field field) throws AlgLoaderException {
         if (field == null) {
             log.error("Field not found for code: null {}", v.getCode());
             throw new AlgLoaderException("Field not found for code: null " + v.getCode());
@@ -621,7 +808,12 @@ public abstract class ModuleBaseAlgImpl {
         }
     }
 
-    private Map<String, Field> getAllFieldVariables() {
+    /**
+     * 获取所有字段变量
+     * 
+     * @return 字段映射表
+     */
+    protected Map<String, Field> getAllFieldVariables() {
         Field[] fields = this.getClass().getDeclaredFields();
         Map<String, Field> fieldMap = new HashMap<>();
         for (Field field : fields) {
@@ -1169,8 +1361,9 @@ public abstract class ModuleBaseAlgImpl {
 
         for (String categoryCode : categoryCodes) {
             categoryCode = categoryCode.trim();
-            if (categoryCode.isEmpty())
+            if (categoryCode.isEmpty()) {
                 continue;
+            }
 
             List<Part> parts = module.getAllAtomicParts(categoryCode);
             if (parts.isEmpty()) {
