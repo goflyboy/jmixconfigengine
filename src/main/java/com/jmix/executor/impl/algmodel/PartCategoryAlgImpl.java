@@ -8,11 +8,9 @@ import com.jmix.executor.model.ParConstraint;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 部件分类级算法实现
@@ -84,48 +82,13 @@ public class PartCategoryAlgImpl extends ModuleBaseAlgImpl {
         setDefaultVisibilityConstraints();
 
         // 将变量写回字段
-        writeBackToFields();
+        try {
+            writeBackToFields();
+        } catch (AlgLoaderException e) {
+            log.error("Failed to write back variables to fields for PartCategory: {}", module.getCode(), e);
+        }
 
         log.info("PartCategoryAlgImpl initialized for category: {}", partCategory.getCode());
-    }
-
-    /**
-     * 将变量写回字段
-     */
-    protected void writeBackToFields() {
-        Map<String, Field> fieldMap = getAllFieldVariables();
-
-        // 处理PartVar
-        for (Map.Entry<String, PartVar> entry : partMap.entrySet()) {
-            String code = entry.getKey();
-            PartVar partVar = entry.getValue();
-            Field field = fieldMap.get(code);
-            if (field != null) {
-                try {
-                    Var<?> tVar = newPartVar(partVar);
-                    setVariableField(tVar, field);
-                    log.debug("Wrote back PartVar to field: {}", code);
-                } catch (AlgLoaderException e) {
-                    log.error("Failed to write back PartVar to field: {}", code, e);
-                }
-            }
-        }
-
-        // 处理ParaVar
-        for (Map.Entry<String, ParaVar> entry : paraMap.entrySet()) {
-            String code = entry.getKey();
-            ParaVar paraVar = entry.getValue();
-            Field field = fieldMap.get(code);
-            if (field != null) {
-                try {
-                    Var<?> tVar = newParaVar(paraVar);
-                    setVariableField(tVar, field);
-                    log.debug("Wrote back ParaVar to field: {}", code);
-                } catch (AlgLoaderException e) {
-                    log.error("Failed to write back ParaVar to field: {}", code, e);
-                }
-            }
-        }
     }
 
     /**
@@ -162,22 +125,6 @@ public class PartCategoryAlgImpl extends ModuleBaseAlgImpl {
             }
         }
         log.info("Executed {} rules for PartCategory {}", categoryRules.size(), partCategory.getCode());
-    }
-
-    /**
-     * 过滤出指定fatherCode的规则
-     *
-     * @param rules      所有规则列表
-     * @param fatherCode 父级代码
-     * @return 过滤后的规则列表
-     */
-    private List<Rule> filterRulesByFatherCode(List<Rule> rules, String fatherCode) {
-        if (rules == null) {
-            return new java.util.ArrayList<>();
-        }
-        return rules.stream()
-                .filter(rule -> fatherCode.equals(rule.getFatherCode()))
-                .collect(Collectors.toList());
     }
 
     @Override

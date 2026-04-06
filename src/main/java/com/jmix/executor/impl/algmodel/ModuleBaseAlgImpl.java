@@ -743,6 +743,225 @@ public abstract class ModuleBaseAlgImpl {
     }
 
     /**
+     * 按partCategoryCode对partConstraintFromReqs进行分组
+     *
+     * @param partConstraintFromReqs 部件约束列表
+     * @return 按partCategoryCode分组的映射
+     */
+    protected Map<String, List<ParConstraint>> groupConstraintsByPartCategory(List<ParConstraint> partConstraintFromReqs) {
+        Map<String, List<ParConstraint>> result = new LinkedHashMap<>();
+        if (partConstraintFromReqs == null || partConstraintFromReqs.isEmpty()) {
+            return result;
+        }
+
+        for (ParConstraint constraint : partConstraintFromReqs) {
+            if (constraint == null || constraint.getFilteredCategory() == null) {
+                continue;
+            }
+            String categoryCode = constraint.getFilteredCategory().getCode();
+            result.computeIfAbsent(categoryCode, k -> new java.util.ArrayList<>()).add(constraint);
+        }
+        return result;
+    }
+
+    /**
+     * 过滤出指定fatherCode的规则
+     *
+     * @param rules      所有规则列表
+     * @param fatherCode 父级代码，如果为null则获取模块级别的规则
+     * @return 过滤后的规则列表
+     */
+    protected List<Rule> filterRulesByFatherCode(List<Rule> rules, String fatherCode) {
+        if (rules == null) {
+            return new java.util.ArrayList<>();
+        }
+        return rules.stream()
+                .filter(rule -> {
+                    if (fatherCode == null) {
+                        return rule.getFatherCode() == null || rule.getFatherCode().isEmpty();
+                    }
+                    return fatherCode.equals(rule.getFatherCode());
+                })
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 根据module.getAllRules()构建所有规则方法的映射
+     *
+     * @param module 模块对象
+     * @return 规则代码到方法对象的映射
+     */
+    protected Map<String, Method> buildAllRuleMethods(IModule module) {
+        if (module == null || module.getAllRules() == null) {
+            return new HashMap<>();
+        }
+
+        // 获取当前类的所有方法
+        Method[] methods = this.getClass().getDeclaredMethods();
+        Map<String, Method> allMethods = new HashMap<>();
+
+        // 构建方法名到Method对象的映射
+        for (Method method : methods) {
+            allMethods.put(method.getName(), method);
+        }
+
+        // 根据module.getAllRules()来构建ruleMethods
+        Map<String, Method> ruleMethods = new HashMap<>();
+        for (Rule rule : module.getAllRules()) {
+            String ruleCode = rule.getCode();
+            Method method = allMethods.get(ruleCode);
+            if (method != null) {
+                ruleMethods.put(ruleCode, method);
+                log.info("Built rule method mapping: {} -> {}", ruleCode, method.getName());
+
+                // 检查是否是PriorityRule，如果是则构建优先级约束
+                if (RuleTypeConstants.isPriorityRule(rule.getRuleSchemaTypeFullName())) {
+                    buildPriorityConstraint(rule);
+                }
+            } else {
+                log.warn("Rule method not found for rule code: {} in class {}", ruleCode, this.getClass().getName());
+            }
+        }
+
+        log.info("Built {} rule methods from module rules", ruleMethods.size());
+        return ruleMethods;
+    }
+
+    /**
+     * 将变量写回字段，保证规则使用变量是同一个
+     *
+     * @throws AlgLoaderException 异常
+     */
+    protected void writeBackToFields() throws AlgLoaderException {
+        Map<String, Field> fieldMap = getAllFieldVariables();
+
+        // 处理PartVar
+        for (Map.Entry<String, PartVar> entry : partMap.entrySet()) {
+            String code = entry.getKey();
+            PartVar partVar = entry.getValue();
+            Field field = fieldMap.get(code);
+            if (field != null) {
+                Var<?> tVar = newPartVar(partVar);
+                setVariableField(tVar, field);
+            }
+        }
+
+        // 处理ParaVar
+        for (Map.Entry<String, ParaVar> entry : paraMap.entrySet()) {
+            String code = entry.getKey();
+            ParaVar paraVar = entry.getValue();
+            Field field = fieldMap.get(code);
+            if (field != null) {
+                Var<?> tVar = newParaVar(paraVar);
+                setVariableField(tVar, field);
+            }
+        }
+    }
+
+    /**
+     * 将partMap和paraMap中的变量写回到对应的字段
+     */
+    protected void writeBackPartAndParaVars() {
+        Map<String, Field> fieldMap = getAllFieldVariables();
+
+        // 处理PartVar
+        for (Map.Entry<String, PartVar> entry : partMap.entrySet()) {
+            String code = entry.getKey();
+            PartVar partVar = entry.getValue();
+            Field field = fieldMap.get(code);
+            if (field != null) {
+                try {
+                    field.set(this, partVar);
+                    log.debug("Wrote back PartVar to field: {}", code);
+                } catch (IllegalAccessException e) {
+                    log.error("Failed to write back PartVar to field: {}", code, e);
+                }
+            }
+        }
+
+        // 处理ParaVar
+        for (Map.Entry<String, ParaVar> entry : paraMap.entrySet()) {
+            String code = entry.getKey();
+            ParaVar paraVar = entry.getValue();
+            Field field = fieldMap.get(code);
+            if (field != null) {
+                try {
+                    field.set(this, paraVar);
+                    log.debug("Wrote back ParaVar to field: {}", code);
+                } catch (IllegalAccessException e) {
+                    log.error("Failed to write back ParaVar to field: {}", code, e);
+                }
+            }
+        }
+    }
+
+    /**
+     * 执行本层的规则
+     *
+     * @param allRuleMethods 所有规则方法映射
+     */
+    protected void executeModuleRules(Map<String, Method> allRuleMethods) {
+        if (module == null || module.getAllRules() == null || allRuleMethods == null) {
+            return;
+        }
+
+        List<Rule> moduleRules = filterRulesByFatherCode(module.getAllRules(), null);
+        for (Rule rule : moduleRules) {
+            String ruleCode = rule.getCode();
+            Method method = allRuleMethods.get(ruleCode);
+            if (method != null) {
+                executeRuleMethod(ruleCode, method);
+            }
+        }
+    }
+
+    /**
+     * 初始化模块算法实例（基类实现）
+     * 按partCategoryCode对partConstraintFromReqs进行分组，然后初始化本层和子层的变量与规则
+     *
+     * @param model                    CP约束模型
+     * @param module                   模块对象
+     * @param partConstraintFromReqs   来自请求的部件约束列表
+     */
+    public void init(AlgCPModel model, IModule module, List<ParConstraint> partConstraintFromReqs) {
+        // Module级别
+        this.model = model;
+        this.module = module;
+
+        // 初始化兼容性约束算法实例
+        this.compatibleConstraintAlg = new CompatibleConstraintAlg(model);
+        initModelAfter(model);
+
+        // 构建规则方法映射
+        Map<String, Method> allRuleMethods = buildAllRuleMethods(module);
+
+        // 初始化本层变量（paras和parts）
+        initAll();
+
+        // 设置输入变量
+        setInputVariables(partConstraintFromReqs);
+
+        // 设置默认可见性约束
+        setDefaultVisibilityConstraints();
+
+        // 将变量写回字段
+        try {
+            writeBackToFields();
+        } catch (AlgLoaderException e) {
+            log.error("Failed to write back variables to fields", e);
+            throw new AlgLoaderException("Failed to write back variables to fields", e);
+        }
+
+        // 执行本层的规则
+        executeModuleRules(allRuleMethods);
+
+        // 对本层的paras和parts执行writeBackToFields
+        writeBackPartAndParaVars();
+
+        log.info("ModuleBaseAlgImpl initialized with module: {}", module != null ? module.getClass().getSimpleName() : "null");
+    }
+
+    /**
      * 将变量写回字段, 保证在初始化rule时生效
      * 
      * @param varMap 变量映射
