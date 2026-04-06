@@ -849,6 +849,7 @@ public abstract class ModuleBaseAlgImpl {
         return priorityRuleMap.get(attrCode);
     }
 
+    // TODO Delete
     /**
      * 创建参数变量
      * 
@@ -902,6 +903,7 @@ public abstract class ModuleBaseAlgImpl {
         return paraVar;
     }
 
+    // TODO Delete
     /**
      * 创建部件变量
      * 
@@ -921,6 +923,7 @@ public abstract class ModuleBaseAlgImpl {
         return createPartVar((Part) part);
     }
 
+    // TODO Delete
     protected PartVar createPartVar(Part part) {
         Var<?> tempVar = getRegisterVar(part.getCode());
         if (null != tempVar) {
@@ -941,6 +944,7 @@ public abstract class ModuleBaseAlgImpl {
         return partVar;
     }
 
+    // TODO Delete
     protected PartVar createPartCategoryVar(PartCategory categoryPart) {
         PartCategoryVar partCategoryVar = new PartCategoryVar();
         partCategoryVar.setBase(categoryPart);

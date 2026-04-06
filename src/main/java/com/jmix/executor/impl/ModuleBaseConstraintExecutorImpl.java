@@ -197,7 +197,7 @@ public abstract class ModuleBaseConstraintExecutorImpl {
         AlgCPModel optModel = new AlgCPModel();
         optModel.setIsAttachRelax(false);
         optModel.setConfictedRelaxVars(new ArrayList<>());
-        optAlg.initModel(optModel, filteredModuleBase, false, new ArrayList<>(), partConstraintFromReqs);
+        optAlg.initModel(optModel, filteredModuleBase, partConstraintFromReqs);
         initModelByReq(partCategoryReq, optAlg);
         initModelByPriorityConstraints(partConstraintFromReqs, optAlg);
         optAlg.addRelaxObjectFunction();

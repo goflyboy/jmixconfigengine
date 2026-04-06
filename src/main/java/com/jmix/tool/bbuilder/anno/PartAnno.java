@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
  * 
  * @since 2025-09-22
  */
-@Target(ElementType.FIELD)
+@Target({ ElementType.FIELD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PartAnno {
     /**
