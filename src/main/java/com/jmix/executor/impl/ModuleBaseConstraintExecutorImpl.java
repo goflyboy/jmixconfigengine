@@ -10,7 +10,7 @@ import com.jmix.executor.cmodel.ParaInst;
 import com.jmix.executor.cmodel.PartInst;
 import com.jmix.executor.cmodel.SolverResult;
 import com.jmix.executor.impl.algmodel.AlgCPModel;
-import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
+import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
 import com.jmix.executor.impl.algmodel.PartAlgCPLinearExpr;
 import com.jmix.executor.model.AttrFunConstant;
 import com.jmix.executor.model.ConstraintConfig;
@@ -193,7 +193,7 @@ public abstract class ModuleBaseConstraintExecutorImpl {
         log.info("invokerSolver starting........");
 
         // 步骤1：对每个优先级规则优化求解最优解
-        ConstraintAlgImpl optAlg = createConstraintAlg(module.getId(), module.getCode());
+        ModuleAlgImpl optAlg = createConstraintAlg(module.getId(), module.getCode());
         AlgCPModel optModel = new AlgCPModel();
         optModel.setIsAttachRelax(false);
         optModel.setConfictedRelaxVars(new ArrayList<>());
@@ -257,7 +257,7 @@ public abstract class ModuleBaseConstraintExecutorImpl {
     /**
      * 根据请求初始化约束模型
      */
-    protected void initModelByReq(InferPartCategoryReq req, ConstraintAlgImpl alg) {
+    protected void initModelByReq(InferPartCategoryReq req, ModuleAlgImpl alg) {
         if (req.getPreParaInsts() != null) {
             for (ParaInst paraInst : req.getPreParaInsts()) {
                 alg.addParaEquality(paraInst.getCode(), paraInst.getValue());
@@ -274,7 +274,7 @@ public abstract class ModuleBaseConstraintExecutorImpl {
      * 根据请求初始化优先级约束模型
      */
     protected void initModelByPriorityConstraints(
-            List<ParConstraint> partConstraintFromReqs, ConstraintAlgImpl alg) {
+            List<ParConstraint> partConstraintFromReqs, ModuleAlgImpl alg) {
         for (ParConstraint partConstraint : partConstraintFromReqs) {
             if (partConstraint.getFilteredCategory() != null) {
                 alg.sumFunConstraint(partConstraint.getFilteredCategory().getAllAtomicParts(), partConstraint);
@@ -312,7 +312,7 @@ public abstract class ModuleBaseConstraintExecutorImpl {
     /**
      * 创建约束算法实例
      */
-    protected ConstraintAlgImpl createConstraintAlg(long moduleId, String moduleCode) {
+    protected ModuleAlgImpl createConstraintAlg(long moduleId, String moduleCode) {
         return moduleAlgClassLoader.newConstraintAlg(moduleCode);
     }
 }

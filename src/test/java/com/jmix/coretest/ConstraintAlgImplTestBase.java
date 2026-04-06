@@ -2,7 +2,7 @@ package com.jmix.coretest;
 
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.para.Para;
-import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
+import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
 import com.jmix.executor.impl.algmodel.ParaOptionVar;
 import com.jmix.executor.impl.algmodel.Var;
 import com.jmix.executor.model.AlgLoaderException;
@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-public class ConstraintAlgImplTestBase extends ConstraintAlgImpl {
+public class ConstraintAlgImplTestBase extends ModuleAlgImpl {
 
     /**
      * 为了简化测试用例中算法的表达，类似:p1.value + p2.value 表达，不是 p1.getValue() + p2.getValue()

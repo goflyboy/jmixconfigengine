@@ -7,7 +7,7 @@ import com.jmix.executor.cmodel.ModuleInst;
 import com.jmix.executor.cmodel.ParaInst;
 import com.jmix.executor.cmodel.PartInst;
 import com.jmix.executor.cmodel.SolverResult;
-import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
+import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
 import com.jmix.executor.impl.algmodel.OtherVar;
 import com.jmix.executor.impl.algmodel.ParaVar;
 import com.jmix.executor.impl.algmodel.PartAlgCPLinearExpr;
@@ -49,7 +49,7 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
     private Map<String, OtherVar> otherVarMap;
 
     // 约束算法实现，用于查询优先级约束
-    private ConstraintAlgImpl alg;
+    private ModuleAlgImpl alg;
 
     // 最大解数量限制，0表示无限制
     private int maxSolutionNum = 0;
@@ -90,7 +90,7 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
      * @param alg         约束算法实现
      */
     public ModuleInstSolutionCallBack(Module module, List<Var<?>> vars, Map<String, OtherVar> otherVarMap,
-            ConstraintAlgImpl alg) {
+            ModuleAlgImpl alg) {
         this(module, vars, otherVarMap);
         this.alg = alg;
         this.priorityExpr = alg.queryMergerPriorityConstraintExpr();
@@ -106,7 +106,7 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
      * @param maxSolutionNum 最大解数量限制，0表示无限制
      */
     public ModuleInstSolutionCallBack(Module module, List<Var<?>> vars, Map<String, OtherVar> otherVarMap,
-            ConstraintAlgImpl alg, int maxSolutionNum) {
+            ModuleAlgImpl alg, int maxSolutionNum) {
         this(module, vars, otherVarMap, alg);
         this.maxSolutionNum = maxSolutionNum;
     }

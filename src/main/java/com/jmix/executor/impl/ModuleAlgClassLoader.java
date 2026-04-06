@@ -6,7 +6,7 @@ import static com.jmix.executor.bmodel.ModuleAlgArtifact.ALG_PARA_CLASS;
 import static com.jmix.executor.bmodel.ModuleAlgArtifact.ALG_PART_CLASS;
 
 import com.jmix.executor.bmodel.ModuleAlgArtifact;
-import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
+import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
 import com.jmix.executor.model.AlgLoaderException;
 import com.jmix.executor.model.ConstraintConfig;
 
@@ -230,7 +230,7 @@ public class ModuleAlgClassLoader extends ClassLoader {
      * @return 约束算法实现实例
      * @throws AlgLoaderException 创建过程中的异常
      */
-    public ConstraintAlgImpl newConstraintAlg(String moduleCode) {
+    public ModuleAlgImpl newConstraintAlg(String moduleCode) {
         String className = this.constraintRuleClassName;
         Class<?> clazz = classMap.get(className);
         if (clazz == null) {
@@ -242,14 +242,14 @@ public class ModuleAlgClassLoader extends ClassLoader {
             instance = clazz.getDeclaredConstructor().newInstance();
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
                 | NoSuchMethodException | SecurityException e) {
-            log.error("Failed to create instance of ConstraintAlgImpl: {}", className, e);
-            throw new AlgLoaderException("Failed to create instance of ConstraintAlgImpl: " + className, e);
+            log.error("Failed to create instance of ModuleAlgImpl: {}", className, e);
+            throw new AlgLoaderException("Failed to create instance of ModuleAlgImpl: " + className, e);
         }
-        if (!(instance instanceof ConstraintAlgImpl)) {
-            log.error("Loaded class is not an instance of ConstraintAlgImpl: {}", className);
-            throw new AlgLoaderException("Loaded class is not an instance of ConstraintAlgImpl: " + className);
+        if (!(instance instanceof ModuleAlgImpl)) {
+            log.error("Loaded class is not an instance of ModuleAlgImpl: {}", className);
+            throw new AlgLoaderException("Loaded class is not an instance of ModuleAlgImpl: " + className);
         }
-        return (ConstraintAlgImpl) instance;
+        return (ModuleAlgImpl) instance;
     }
 
     /**

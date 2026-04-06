@@ -18,7 +18,7 @@ import java.util.Map;
  * @since 2025-04-05
  */
 @Slf4j
-public class ModuleAlgImpl extends ModuleBaseAlgImpl {
+public class ModuleAlgImpl extends ModuleBaseAlgImpl implements ConstraintAlg {
 
     /**
      * 部件分类算法实例映射表

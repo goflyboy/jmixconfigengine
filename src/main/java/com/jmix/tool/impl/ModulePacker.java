@@ -2,7 +2,7 @@ package com.jmix.tool.impl;
 
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.ModuleAlgArtifact;
-import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
+import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
 import com.jmix.executor.impl.util.CommHelper;
 import com.jmix.executor.impl.util.ModuleUtils;
 import com.jmix.executor.model.AlgLoaderException;
@@ -39,7 +39,7 @@ public class ModulePacker {
      * @param outRootDir 输出根目录
      * @return 输出目录路径
      */
-    public String pack(Class<? extends ConstraintAlgImpl> cpClazz, String outRootDir) {
+    public String pack(Class<? extends ModuleAlgImpl> cpClazz, String outRootDir) {
         Module module = ModuleGenneratorByAnno.buildModule(cpClazz);
         return pack(module, cpClazz, outRootDir);
     }
@@ -52,7 +52,7 @@ public class ModulePacker {
      * @param outRootDir 输出根目录
      * @return 输出目录路径
      */
-    public String pack(Module module, Class<? extends ConstraintAlgImpl> cpClazz, String outRootDir) {
+    public String pack(Module module, Class<? extends ModuleAlgImpl> cpClazz, String outRootDir) {
         try {
             String inputDir = CommHelper.getJavaFilePath(cpClazz);
 
@@ -108,10 +108,10 @@ public class ModulePacker {
      * @param cpClassName 约束算法类
      * @return true表示多文件模式，false表示单文件模式
      */
-    public boolean isMultifile(Class<? extends ConstraintAlgImpl> cpClassName) {
-        // 如果cpClass继承了ConstraintAlgImpl且不是内部类，则是多个文件
+    public boolean isMultifile(Class<? extends ModuleAlgImpl> cpClassName) {
+        // 如果cpClass继承了ModuleAlgImpl且不是内部类，则是多个文件
         // 例如：com.jmix.scenario.hello.HelloConstraint (HelloConstraint extends
-        // ConstraintAlgImpl)
+        // ModuleAlgImpl)
         // 否则就是单文件，com.jmix.scenario.ruletest.ParaIsHiddenTest (ParaIsHiddenTest extends
         // ModuleScenarioTestBase)
         return ConstraintAlgImpl.class.isAssignableFrom(cpClassName)

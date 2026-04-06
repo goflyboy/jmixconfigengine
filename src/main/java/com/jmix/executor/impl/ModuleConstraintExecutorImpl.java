@@ -13,7 +13,7 @@ import com.jmix.executor.cmodel.ParaInst;
 import com.jmix.executor.cmodel.PartInst;
 import com.jmix.executor.cmodel.SolverResult;
 import com.jmix.executor.impl.algmodel.AlgCPModel;
-import com.jmix.executor.impl.algmodel.ConstraintAlgImpl;
+import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
 import com.jmix.executor.impl.algmodel.RelaxVar;
 import com.jmix.executor.impl.util.ModuleUtils;
 import com.jmix.executor.impl.util.ReqUtils;
@@ -248,7 +248,7 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
             // 如果模型无效，调用ValidateCpModel获取详细错误信息
             if (status == CpSolverStatus.MODEL_INVALID) {
                 // 重新获取模型进行验证
-                ConstraintAlgImpl alg = initConstraintModel(module, req, false, new ArrayList<>());
+                ModuleAlgImpl alg = initConstraintModel(module, req, false, new ArrayList<>());
                 AlgCPModel model = alg.getModel();
                 String validationError = model.getCpModel().validate();
                 log.error("Model validation failed: {}", validationError);
@@ -416,7 +416,7 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
             List<RelaxVar> confictedRelaxs)
             throws AlgLoaderException, AlgExecutorException {
         // 初始化约束模型
-        ConstraintAlgImpl alg = initConstraintModel(module, req, isAttachRelax, confictedRelaxs);
+        ModuleAlgImpl alg = initConstraintModel(module, req, isAttachRelax, confictedRelaxs);
         AlgCPModel model = alg.getModel();
 
         if (config.isLogModelProto()) {
@@ -434,11 +434,11 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
         return new RunInferParasRsp(status, cb, alg.getModel(), solver);
     }
 
-    private ConstraintAlgImpl initConstraintModel(Module module, InferParasReq req,
+    private ModuleAlgImpl initConstraintModel(Module module, InferParasReq req,
             boolean isAttachRelax, List<RelaxVar> confictedRelaxs)
             throws AlgLoaderException, AlgExecutorException {
         // 创建约束算法实例
-        ConstraintAlgImpl alg = createConstraintAlg(module.getId(), module.getCode());
+        ModuleAlgImpl alg = createConstraintAlg(module.getId(), module.getCode());
         AlgCPModel model = new AlgCPModel();
         model.setIsAttachRelax(isAttachRelax);
         model.setConfictedRelaxVars(confictedRelaxs);
@@ -478,7 +478,7 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
      * @param req 参数反推请求
      * @param alg 约束算法实现
      */
-    private void initModelByReq(InferParasReq req, ConstraintAlgImpl alg) {
+    private void initModelByReq(InferParasReq req, ModuleAlgImpl alg) {
         if (req.getMainPartInst() != null) {
             alg.addPartEquality(req.getMainPartInst().getCode(), req.getMainPartInst().getQuantity());
         }
@@ -520,7 +520,7 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
      * @param partCategoryCode   部件分类代码
      * @param partConstraintReqs 部件约束请求列表
      */
-    private void addPartConstraintReqs(ConstraintAlgImpl alg, String partCategoryCode,
+    private void addPartConstraintReqs(ModuleAlgImpl alg, String partCategoryCode,
             List<PartConstraintReq> partConstraintReqs) {
         for (PartConstraintReq partConstraintReq : partConstraintReqs) {
             // 从module中找到对应的PartCategory
