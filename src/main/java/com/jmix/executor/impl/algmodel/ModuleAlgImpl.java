@@ -4,18 +4,24 @@ import com.jmix.executor.bmodel.IModule;
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartCategory;
+import com.jmix.executor.bmodel.PartUtils;
 import com.jmix.executor.impl.util.FilterExpressionExecutor;
 import com.jmix.executor.model.AlgLoaderException;
 import com.jmix.executor.model.ParConstraint;
 import com.jmix.executor.southinf.IModuleAlg;
 
+import com.google.ortools.sat.LinearArgument;
+
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.logging.log4j.util.Strings;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -32,6 +38,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
      * 部件分类算法实例映射表
      */
     protected Map<String, PartCategoryAlgImpl> partCategoryAlgs = new LinkedHashMap<>();
+    private List<PartCategoryAlgImpl> partCategoryAlgImpls;
 
     /**
      * 初始化模块算法实例
@@ -229,6 +236,21 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
      * @param parts Part列表
      * @return PartVar列表
      */
+    public List<PartVar> toFilterPartVar(PartCategoryAlgImpl partCategoryAlgImpl, String filtedConditionStr) {
+        List<Part> atomicParts = partCategoryAlgImpl.getModule().getAtomicParts();
+        if (filtedConditionStr != null && !filtedConditionStr.trim().isEmpty()) {
+            atomicParts = FilterExpressionExecutor.doSelect(atomicParts, filtedConditionStr);
+            log.info("Priority-Filtered parts: {} in sum4Parts", PartUtils.toShortString(atomicParts));
+        }
+        return toPartVar(partCategoryAlgImpl, atomicParts);
+    }
+
+    /**
+     * 将Part列表转换为PartVar列表
+     * 
+     * @param parts Part列表
+     * @return PartVar列表
+     */
     public List<PartVar> toPartVar(PartCategoryAlgImpl partCategoryAlgImpl, List<Part> parts) {
         return parts.stream()
                 .map(t -> toPartVar(
@@ -269,5 +291,153 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
         List<Part> result = new ArrayList<>(allParts);
         result.removeAll(subParts);
         return result;
+    }
+
+    /**
+     * 通用的部件求和方法，根据指定的变量获取函数计算总和
+     * 
+     * @param cofAttrCode        属性代码，如果为null或空则使用默认值1
+     * @param varGetter          从PartVar获取LinearArgument的函数（如getIsSelected或getQty）
+     * @param varName            变量名称（如"isSelected"或"qty"），用于构建字符串表达式
+     * @param filtedConditionStr 过滤条件字符串
+     * @return 求和后的AlgCPLinearExpr表达式
+     */
+    // @Override
+    protected PartAlgCPLinearExpr sum4Parts(PartCategoryAlgImpl partCategoryAlgImpl, String cofAttrCode,
+            Function<PartVar, LinearArgument> varGetter, String varName, String filtedConditionStr) {
+        PartAlgCPLinearExpr expr = buildSumExpr(
+                cofAttrCode, varName, varGetter,
+                toFilterPartVar(partCategoryAlgImpl, filtedConditionStr));
+        return expr;
+    }
+
+    /**
+     * 对指定部件分类的部件求和（选中状态，支持多分类逗号分隔）
+     * 
+     * @param partCategoryCodesStr 部件分类代码，支持逗号分隔，如 "driveI0,driveI1"
+     * @param cofAttrCode          属性代码
+     * @param filtedConditionStr   过滤条件字符串
+     * @return 求和后的AlgCPLinearExpr表达式
+     */
+    public PartAlgCPLinearExpr sum4Selected(String partCategoryCodesStr, String cofAttrCode,
+            String filtedConditionStr) {
+        if (partCategoryCodesStr == null || partCategoryCodesStr.trim().isEmpty()) {
+            return sum4Selected(cofAttrCode, filtedConditionStr);
+        }
+        List<PartCategoryAlgImpl> partCategoryAlgImpls = toPartCategoryAlgImpls(partCategoryCodesStr);
+        List<PartVar> allPartVars = new ArrayList<>();
+        for (PartCategoryAlgImpl partCategoryAlgImpl : partCategoryAlgImpls) {
+            allPartVars.addAll(toFilterPartVar(partCategoryAlgImpl, filtedConditionStr));
+        }
+
+        return buildSumExpr(cofAttrCode, PartVar.ISSELECTED_SHORT_NAME, PartVar::getIsSelected,
+                allPartVars);
+    }
+
+    // /**
+    // * 构建求和表达式
+    // */
+    // protected PartAlgCPLinearExpr buildSumExpr(PriorityConstraint tempConstraint,
+    // String cofAttrCode,
+    // String varName, Function<PartVar, LinearArgument> varGetter, List<Part>
+    // atomicParts) {
+
+    // PartAlgCPLinearExpr algExpr = new PartAlgCPLinearExpr(
+    // "sum_" + (cofAttrCode == null ? "" : cofAttrCode) + "_" + varName);
+
+    // boolean isWithoutAttr = cofAttrCode == null || cofAttrCode.isEmpty();
+
+    // for (Part part : atomicParts) {
+    // PartVar partVar = getPartVar(part.getCode());
+    // int attrValue;
+    // if (isWithoutAttr) {
+    // attrValue = 1;
+    // } else if (PartConstantAttr.Quantity.getCode().equals(cofAttrCode)) {
+    // attrValue = 1;
+    // } else {
+    // attrValue = Integer.parseInt(part.getAttr(cofAttrCode));
+    // }
+    // algExpr.addTerm(partVar, (IntVar) varGetter.apply(partVar), attrValue,
+    // varName);
+    // }
+
+    // tempConstraint.setExpr(algExpr);
+    // return algExpr;
+    // }
+
+    /**
+     * 对指定部件分类的部件求和（数量，支持多分类逗号分隔）
+     * 
+     * @param partCategoryCodesStr 部件分类代码，支持逗号分隔，如 "driveI0,driveI1"
+     * @param cofAttrCode          属性代码
+     * @param filtedConditionStr   过滤条件字符串
+     * @return 求和后的AlgCPLinearExpr表达式
+     */
+    public PartAlgCPLinearExpr sum4Quantity(String partCategoryCodesStr, String cofAttrCode,
+            String filtedConditionStr) {
+        if (Strings.isEmpty(partCategoryCodesStr)) {
+            return sum4Quantity(cofAttrCode, filtedConditionStr);
+        }
+        List<PartCategoryAlgImpl> partCategoryAlgImpls = toPartCategoryAlgImpls(partCategoryCodesStr);
+        List<PartVar> allPartVars = new ArrayList<>();
+        for (PartCategoryAlgImpl partCategoryAlgImpl : partCategoryAlgImpls) {
+            allPartVars.addAll(toFilterPartVar(partCategoryAlgImpl, filtedConditionStr));
+        }
+        return buildSumExpr(cofAttrCode, PartVar.QTY_SHORT_NAME, PartVar::getQty, allPartVars);
+    }
+
+    private List<PartCategoryAlgImpl> toPartCategoryAlgImpls(String partCategoryCodesStr) {
+        List<PartCategoryAlgImpl> partCategoryAlgImpls = new ArrayList<>();
+        String[] categoryCodes = partCategoryCodesStr.split(",");
+        for (String categoryCode : categoryCodes) {
+            partCategoryAlgImpls.add(getPartCategoryAlg(categoryCode));
+        }
+        return partCategoryAlgImpls;
+    }
+
+    /**
+     * 对选中的部件求和（带属性系数）
+     *
+     * @param cofAttrCode        属性代码，如果为null或空则使用默认值1
+     * @param filtedConditionStr 过滤条件字符串
+     * @return 求和后的AlgCPLinearExpr表达式
+     */
+
+    public PartAlgCPLinearExpr sum4Selected(String cofAttrCode,
+            String filtedConditionStr) {
+        return sum4Parts((PartCategoryAlgImpl) currentModuleAlg, cofAttrCode, PartVar::getIsSelected,
+                PartVar.ISSELECTED_SHORT_NAME, filtedConditionStr);
+    }
+
+    /**
+     * 对选中的部件求和（不带属性系数）
+     *
+     * @param filtedConditionStr 过滤条件字符串
+     * @return 求和后的AlgCPLinearExpr表达式
+     */
+    public PartAlgCPLinearExpr sum4Selected(String filtedConditionStr) {
+        return sum4Selected(null, filtedConditionStr);
+    }
+
+    /**
+     * 对数量的部件求和（带属性系数）
+     *
+     * @param cofAttrCode        属性代码，如果为null或空则使用默认值1
+     * @param filtedConditionStr 过滤条件字符串
+     * @return 求和后的AlgCPLinearExpr表达式
+     */
+    public PartAlgCPLinearExpr sum4Quantity(String cofAttrCode, String filtedConditionStr) {
+        return sum4Parts((PartCategoryAlgImpl) currentModuleAlg,
+                cofAttrCode, PartVar::getQty, PartVar.QTY_SHORT_NAME, filtedConditionStr);
+    }
+
+    /**
+     * 对数量的部件求和（不带属性系数）
+     *
+     * @param filtedConditionStr 过滤条件字符串
+     * @return 求和后的AlgCPLinearExpr表达式
+     */
+    public PartAlgCPLinearExpr sum4Quantity(String filtedConditionStr) {
+        return sum4Quantity(null, filtedConditionStr);
     }
 }

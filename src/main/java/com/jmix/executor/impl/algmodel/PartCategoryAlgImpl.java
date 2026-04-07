@@ -36,4 +36,9 @@ public class PartCategoryAlgImpl extends ModuleBaseAlgImpl {
     protected Var<?> newParaVar(ParaVar internalParaVar) {
         throw new UnsupportedOperationException("Unimplemented method 'newParaVar'");
     }
+
+    @Override
+    public String toString() {
+        return getPartCategory().getCode();
+    }
 }

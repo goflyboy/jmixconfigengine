@@ -412,26 +412,31 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * @param atomicParts 原子部件列表
      * @return 构建的AlgCPLinearExpr表达式
      */
-    private PartAlgCPLinearExpr buildPriorityConstraintExpressions(PriorityConstraint pConstraint, String attrCode,
-            String varName, Function<PartVar, LinearArgument> varGetter, List<Part> atomicParts) {
+    protected PartAlgCPLinearExpr buildPriorityConstraintExpressions(PriorityConstraint pConstraint, String attrCode,
+            String varName, Function<PartVar, LinearArgument> varGetter, List<PartVar> partVars) {
+        PartAlgCPLinearExpr algExpr = buildSumExpr(attrCode, varName, varGetter, partVars);
+        // 设置表达式字符串和AlgCPLinearExpr
+        pConstraint.setExpr(algExpr);
+        return algExpr;
+    }
+
+    protected PartAlgCPLinearExpr buildSumExpr(String attrCode,
+            String varName, Function<PartVar, LinearArgument> varGetter, List<PartVar> partVars) {
         PartAlgCPLinearExpr algExpr = new PartAlgCPLinearExpr(
                 "sumPars_" + (attrCode == null ? "" : attrCode) + "_" + varName);
         boolean isWithoutAttr = attrCode == null || attrCode.isEmpty();
-        for (Part part : atomicParts) {
-            PartVar partVar = currentModuleAlg.getPartVar(part.getCode());
+        for (PartVar partVar : partVars) {
             int attrValue;
             if (isWithoutAttr) {
                 attrValue = 1;
             } else if (PartConstantAttr.Quantity.getCode().equals(attrCode)) {
                 attrValue = 1;
             } else {
-                attrValue = Integer.parseInt(part.getAttr(attrCode));
+                attrValue = Integer.parseInt(partVar.getBase().getAttr(attrCode));
             }
             algExpr.addTerm(partVar, (IntVar) varGetter.apply(partVar), attrValue, varName);
         }
 
-        // 设置表达式字符串和AlgCPLinearExpr
-        pConstraint.setExpr(algExpr);
         return algExpr;
     }
 
@@ -449,6 +454,96 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         pConstraint.setRule(rule);
         // 存储到 priorityRuleMap，使用 attrCode 作为 key
         priorityRuleMap.put(rule.getCode(), pConstraint);
+    }
+
+    /**
+     * 添加求和函数约束
+     *
+     * @param sumParts       求和的部件列表
+     * @param partConstraint 部件约束对象
+     */
+    public void sumFunConstraint(List<Part> sumParts,
+            ParConstraint partConstraint) {
+        sumFunConstraint((PartCategoryAlgImpl) this, sumParts, partConstraint);
+    }
+
+    /**
+     * 添加求和函数约束
+     *
+     * @param partCategoryAlgImpl 部件分类算法实现类
+     * @param sumParts            求和的部件列表
+     * @param partConstraint      部件约束对象
+     */
+    protected void sumFunConstraint(PartCategoryAlgImpl partCategoryAlgImpl, List<Part> sumParts,
+            ParConstraint partConstraint) {
+        if (sumParts == null || sumParts.isEmpty()) {
+            log.warn("No parts found for sum constraint with attrCode: {}, comparator: {}, leftValue: {}",
+                    partConstraint.getSumAttrCode(), partConstraint.getComparator(), partConstraint.getLeftValue());
+            return;
+        }
+
+        // 使用 buildPriorityConstraintExpressions 的逻辑构建表达式
+        // 创建一个临时的 PriorityConstraint 对象来复用构建逻辑
+        PriorityConstraint tempConstraint = new PriorityConstraint();
+        String attrCode = partConstraint.getSumAttrCode();
+        String varName = "Q";
+        java.util.function.Function<PartVar, LinearArgument> varGetter = PartVar::getQty;
+
+        // 构建表达式，但使用传入的 sumParts 而不是 module.getAtomicParts()
+        AlgCPLinearExpr sumFunExpr = buildSumConstraintExpressions(
+                partCategoryAlgImpl, tempConstraint, sumParts, attrCode, varName,
+                varGetter);
+        String sumFormulaBase = tempConstraint.getExprStr();
+
+        // 应用约束
+        ComparisonOperator operator = ComparisonOperator.fromSymbol(partConstraint.getComparator());
+        operator.applyConstraint(model, sumFunExpr, partConstraint.getLeftValue());
+        String sumFormula = operator.getFormulaString(sumFormulaBase, partConstraint.getLeftValue());
+
+        log.info("Priority-Added sum constraint: {} for {}", sumFormula,
+                partConstraint.getOrgReq() != null ? partConstraint.getOrgReq().toString() : "null");
+    }
+
+    /**
+     * 构建求和约束表达式（基于 buildPriorityConstraintExpressions 的逻辑）
+     * 
+     * @param pConstraint 优先级约束对象（用于存储表达式信息）
+     * @param sumParts    求和的部件列表
+     * @param attrCode    属性代码
+     * @param varName     变量名称（"S" 或 "Q"）
+     * @param varGetter   从PartVar获取LinearArgument的函数（如getIsSelected或getQty）
+     * @return 构建的AlgCPLinearExpr表达式
+     */
+    private PartAlgCPLinearExpr buildSumConstraintExpressions(PartCategoryAlgImpl partCategoryAlgImpl,
+            PriorityConstraint pConstraint, List<Part> sumParts,
+            String attrCode, String varName, Function<PartVar, LinearArgument> varGetter) {
+        PartAlgCPLinearExpr algExpr = new PartAlgCPLinearExpr("sum_constraint_" + attrCode + "_" + varName);
+        boolean isWithoutAttr = attrCode == null || attrCode.isEmpty();
+
+        for (Part part : sumParts) {
+            PartVar partVar = partCategoryAlgImpl.getPartVar(part.getCode());
+            if (partVar.getQty() == null) {
+                log.error("PartVar quantity is null for part code: {}, cannot create sum constraint", part.getCode());
+                throw new AlgLoaderException("PartVar quantity is null for part code: " + part.getCode()
+                        + ", cannot create sum constraint");
+            }
+
+            int attrValue;
+            if (isWithoutAttr) {
+                attrValue = 1;
+            } else if (PartConstantAttr.Quantity.getCode().equals(attrCode)) {
+                attrValue = 1;
+            } else {
+                attrValue = Integer.parseInt(part.getAttr(attrCode));
+            }
+
+            // add term via PartAlgCPLinearExpr to capture metadata and numeric term
+            algExpr.addTerm(partVar, (IntVar) varGetter.apply(partVar), attrValue, varName);
+        }
+
+        // 设置表达式字符串和AlgCPLinearExpr
+        pConstraint.setExpr(algExpr);
+        return algExpr;
     }
 
     /**
@@ -1367,270 +1462,6 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
     }
 
     /**
-     * 添加求和函数约束
-     *
-     * @param sumParts       求和的部件列表
-     * @param partConstraint 部件约束对象
-     */
-    public void sumFunConstraint(List<Part> sumParts, ParConstraint partConstraint) {
-        if (sumParts == null || sumParts.isEmpty()) {
-            log.warn("No parts found for sum constraint with attrCode: {}, comparator: {}, leftValue: {}",
-                    partConstraint.getSumAttrCode(), partConstraint.getComparator(), partConstraint.getLeftValue());
-            return;
-        }
-
-        // 使用 buildPriorityConstraintExpressions 的逻辑构建表达式
-        // 创建一个临时的 PriorityConstraint 对象来复用构建逻辑
-        PriorityConstraint tempConstraint = new PriorityConstraint();
-        String attrCode = partConstraint.getSumAttrCode();
-        String varName = "Q";
-        java.util.function.Function<PartVar, LinearArgument> varGetter = PartVar::getQty;
-
-        // 构建表达式，但使用传入的 sumParts 而不是 module.getAtomicParts()
-        AlgCPLinearExpr sumFunExpr = buildSumConstraintExpressions(tempConstraint, sumParts, attrCode, varName,
-                varGetter);
-        String sumFormulaBase = tempConstraint.getExprStr();
-
-        // 应用约束
-        ComparisonOperator operator = ComparisonOperator.fromSymbol(partConstraint.getComparator());
-        operator.applyConstraint(model, sumFunExpr, partConstraint.getLeftValue());
-        String sumFormula = operator.getFormulaString(sumFormulaBase, partConstraint.getLeftValue());
-
-        log.info("Priority-Added sum constraint: {} for {}", sumFormula,
-                partConstraint.getOrgReq() != null ? partConstraint.getOrgReq().toString() : "null");
-    }
-
-    /**
-     * 构建求和约束表达式（基于 buildPriorityConstraintExpressions 的逻辑）
-     * 
-     * @param pConstraint 优先级约束对象（用于存储表达式信息）
-     * @param sumParts    求和的部件列表
-     * @param attrCode    属性代码
-     * @param varName     变量名称（"S" 或 "Q"）
-     * @param varGetter   从PartVar获取LinearArgument的函数（如getIsSelected或getQty）
-     * @return 构建的AlgCPLinearExpr表达式
-     */
-    private PartAlgCPLinearExpr buildSumConstraintExpressions(PriorityConstraint pConstraint, List<Part> sumParts,
-            String attrCode, String varName, java.util.function.Function<PartVar, LinearArgument> varGetter) {
-        PartAlgCPLinearExpr algExpr = new PartAlgCPLinearExpr("sum_constraint_" + attrCode + "_" + varName);
-        boolean isWithoutAttr = attrCode == null || attrCode.isEmpty();
-
-        for (Part part : sumParts) {
-            PartVar partVar = getPartVar(part.getCode());
-            if (partVar.getQty() == null) {
-                log.error("PartVar quantity is null for part code: {}, cannot create sum constraint", part.getCode());
-                throw new AlgLoaderException("PartVar quantity is null for part code: " + part.getCode()
-                        + ", cannot create sum constraint");
-            }
-
-            int attrValue;
-            if (isWithoutAttr) {
-                attrValue = 1;
-            } else if (PartConstantAttr.Quantity.getCode().equals(attrCode)) {
-                attrValue = 1;
-            } else {
-                attrValue = Integer.parseInt(part.getAttr(attrCode));
-            }
-
-            // add term via PartAlgCPLinearExpr to capture metadata and numeric term
-            algExpr.addTerm(partVar, (com.google.ortools.sat.IntVar) varGetter.apply(partVar), attrValue, varName);
-        }
-
-        // 设置表达式字符串和AlgCPLinearExpr
-        pConstraint.setExpr(algExpr);
-        return algExpr;
-    }
-
-    /**
-     * 通用的部件求和方法，根据指定的变量获取函数计算总和
-     * 
-     * @param cofAttrCode        属性代码，如果为null或空则使用默认值1
-     * @param varGetter          从PartVar获取LinearArgument的函数（如getIsSelected或getQty）
-     * @param varName            变量名称（如"isSelected"或"qty"），用于构建字符串表达式
-     * @param filtedConditionStr 过滤条件字符串
-     * @return 求和后的AlgCPLinearExpr表达式
-     */
-    // @Override
-    protected PartAlgCPLinearExpr sum4Parts(String cofAttrCode,
-            Function<PartVar, LinearArgument> varGetter, String varName, String filtedConditionStr) {
-        PriorityConstraint tempConstraint = new PriorityConstraint();
-        List<Part> atomicParts = currentModule.getAtomicParts();
-        if (filtedConditionStr != null && !filtedConditionStr.trim().isEmpty()) {
-            atomicParts = FilterExpressionExecutor.doSelect(atomicParts, filtedConditionStr);
-            log.info("Priority-Filtered parts: {} in sum4Parts", PartUtils.toShortString(atomicParts));
-        }
-
-        PartAlgCPLinearExpr expr = buildPriorityConstraintExpressions(tempConstraint, cofAttrCode, varName, varGetter,
-                atomicParts);
-        tempConstraint.setExpr(expr);
-        log.info("Priority-Sum formula in sum4Parts: {}", tempConstraint.getExprStr());
-        return expr;
-    }
-
-    /**
-     * 对指定部件分类的部件求和（选中状态，支持多分类逗号分隔）
-     * 
-     * @param partCategoryCodesStr 部件分类代码，支持逗号分隔，如 "driveI0,driveI1"
-     * @param cofAttrCode          属性代码
-     * @param filtedConditionStr   过滤条件字符串
-     * @return 求和后的AlgCPLinearExpr表达式
-     */
-    public PartAlgCPLinearExpr sum4Selected(String partCategoryCodesStr, String cofAttrCode,
-            String filtedConditionStr) {
-        if (partCategoryCodesStr == null || partCategoryCodesStr.trim().isEmpty()) {
-            return sum4Selected(cofAttrCode, filtedConditionStr);
-        }
-
-        List<Part> allParts = collectPartsFromCategories(partCategoryCodesStr);
-
-        if (allParts.isEmpty()) {
-            allParts = module.getAllAtomicParts();
-        }
-
-        if (filtedConditionStr != null && !filtedConditionStr.trim().isEmpty()) {
-            allParts = FilterExpressionExecutor.doSelect(allParts, filtedConditionStr);
-        }
-
-        PriorityConstraint tempConstraint = new PriorityConstraint();
-        return buildSumExpr(tempConstraint, cofAttrCode, PartVar.ISSELECTED_SHORT_NAME, PartVar::getIsSelected,
-                allParts);
-    }
-
-    /**
-     * 构建求和表达式
-     */
-    protected PartAlgCPLinearExpr buildSumExpr(PriorityConstraint tempConstraint, String cofAttrCode,
-            String varName, Function<PartVar, LinearArgument> varGetter, List<Part> atomicParts) {
-
-        PartAlgCPLinearExpr algExpr = new PartAlgCPLinearExpr(
-                "sum_" + (cofAttrCode == null ? "" : cofAttrCode) + "_" + varName);
-
-        boolean isWithoutAttr = cofAttrCode == null || cofAttrCode.isEmpty();
-
-        for (Part part : atomicParts) {
-            PartVar partVar = getPartVar(part.getCode());
-            int attrValue;
-            if (isWithoutAttr) {
-                attrValue = 1;
-            } else if (PartConstantAttr.Quantity.getCode().equals(cofAttrCode)) {
-                attrValue = 1;
-            } else {
-                attrValue = Integer.parseInt(part.getAttr(cofAttrCode));
-            }
-            algExpr.addTerm(partVar, (IntVar) varGetter.apply(partVar), attrValue, varName);
-        }
-
-        tempConstraint.setExpr(algExpr);
-        return algExpr;
-    }
-
-    /**
-     * 对指定部件分类的部件求和（数量，支持多分类逗号分隔）
-     * 
-     * @param partCategoryCodesStr 部件分类代码，支持逗号分隔，如 "driveI0,driveI1"
-     * @param cofAttrCode          属性代码
-     * @param filtedConditionStr   过滤条件字符串
-     * @return 求和后的AlgCPLinearExpr表达式
-     */
-    public PartAlgCPLinearExpr sum4Quantity(String partCategoryCodesStr, String cofAttrCode,
-            String filtedConditionStr) {
-        if (partCategoryCodesStr == null || partCategoryCodesStr.trim().isEmpty()) {
-            return sum4Quantity(cofAttrCode, filtedConditionStr);
-        }
-
-        List<Part> allParts = collectPartsFromCategories(partCategoryCodesStr);
-
-        if (allParts.isEmpty()) {
-            allParts = module.getAllAtomicParts();
-        }
-
-        if (filtedConditionStr != null && !filtedConditionStr.trim().isEmpty()) {
-            allParts = FilterExpressionExecutor.doSelect(allParts, filtedConditionStr);
-        }
-
-        PriorityConstraint tempConstraint = new PriorityConstraint();
-        return buildSumExpr(tempConstraint, cofAttrCode, PartVar.QTY_SHORT_NAME, PartVar::getQty, allParts);
-    }
-
-    /**
-     * 从指定的部件分类代码收集部件
-     * 支持逗号分隔的多个分类代码
-     * 
-     * @param partCategoryCodesStr 部件分类代码，支持逗号分隔
-     * @return 收集的部件列表
-     */
-    private List<Part> collectPartsFromCategories(String partCategoryCodesStr) {
-        List<Part> allParts = new ArrayList<>();
-        String[] categoryCodes = partCategoryCodesStr.split(",");
-
-        for (String categoryCode : categoryCodes) {
-            categoryCode = categoryCode.trim();
-            if (categoryCode.isEmpty()) {
-                continue;
-            }
-
-            List<Part> parts = module.getAllAtomicParts(categoryCode);
-            if (parts.isEmpty()) {
-                // 尝试递归查找（支持 driveI0 这种格式）
-                parts = findPartsByCodePrefix(categoryCode);
-            }
-            allParts.addAll(parts);
-        }
-
-        return allParts;
-    }
-
-    /**
-     * 根据代码前缀查找部件（用于支持 driveI0 这种带后缀的分类代码）
-     * 
-     * @param categoryCodePrefix 部件分类代码前缀
-     * @return 匹配的部件列表
-     */
-    private List<Part> findPartsByCodePrefix(String categoryCodePrefix) {
-        List<Part> result = new ArrayList<>();
-
-        // 获取模块的所有原子部件，查找fatherCode匹配的部件
-        for (Part part : module.getAllAtomicParts()) {
-            if (part.getFatherCode() != null && part.getFatherCode().startsWith(categoryCodePrefix)) {
-                result.add(part);
-            }
-        }
-
-        // 如果没找到，尝试直接匹配部件代码
-        if (result.isEmpty()) {
-            IPart directPart = module.getPart(categoryCodePrefix);
-            if (directPart instanceof Part) {
-                result.add((Part) directPart);
-            }
-        }
-
-        return result;
-    }
-
-    /**
-     * 对选中的部件求和（带属性系数）
-     *
-     * @param cofAttrCode        属性代码，如果为null或空则使用默认值1
-     * @param filtedConditionStr 过滤条件字符串
-     * @return 求和后的AlgCPLinearExpr表达式
-     */
-
-    public PartAlgCPLinearExpr sum4Selected(String cofAttrCode,
-            String filtedConditionStr) {
-        return sum4Parts(cofAttrCode, PartVar::getIsSelected, PartVar.ISSELECTED_SHORT_NAME, filtedConditionStr);
-    }
-
-    /**
-     * 对选中的部件求和（不带属性系数）
-     *
-     * @param filtedConditionStr 过滤条件字符串
-     * @return 求和后的AlgCPLinearExpr表达式
-     */
-    public PartAlgCPLinearExpr sum4Selected(String filtedConditionStr) {
-        return sum4Selected(null, filtedConditionStr);
-    }
-
-    /**
      * Return list of atomic parts used by sum4Selected, optionally filtered by
      * condition.
      *
@@ -1650,26 +1481,320 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         return partVars;
     }
 
-    /**
-     * 对数量的部件求和（带属性系数）
-     *
-     * @param cofAttrCode        属性代码，如果为null或空则使用默认值1
-     * @param filtedConditionStr 过滤条件字符串
-     * @return 求和后的AlgCPLinearExpr表达式
-     */
-    public PartAlgCPLinearExpr sum4Quantity(String cofAttrCode, String filtedConditionStr) {
-        return sum4Parts(cofAttrCode, PartVar::getQty, PartVar.QTY_SHORT_NAME, filtedConditionStr);
-    }
+    // /**
+    // * 添加求和函数约束
+    // *
+    // * @param sumParts 求和的部件列表
+    // * @param partConstraint 部件约束对象
+    // */
+    // public void sumFunConstraint(List<Part> sumParts, ParConstraint
+    // partConstraint) {
+    // if (sumParts == null || sumParts.isEmpty()) {
+    // log.warn("No parts found for sum constraint with attrCode: {}, comparator:
+    // {}, leftValue: {}",
+    // partConstraint.getSumAttrCode(), partConstraint.getComparator(),
+    // partConstraint.getLeftValue());
+    // return;
+    // }
 
-    /**
-     * 对数量的部件求和（不带属性系数）
-     *
-     * @param filtedConditionStr 过滤条件字符串
-     * @return 求和后的AlgCPLinearExpr表达式
-     */
-    public PartAlgCPLinearExpr sum4Quantity(String filtedConditionStr) {
-        return sum4Quantity(null, filtedConditionStr);
-    }
+    // // 使用 buildPriorityConstraintExpressions 的逻辑构建表达式
+    // // 创建一个临时的 PriorityConstraint 对象来复用构建逻辑
+    // PriorityConstraint tempConstraint = new PriorityConstraint();
+    // String attrCode = partConstraint.getSumAttrCode();
+    // String varName = "Q";
+    // java.util.function.Function<PartVar, LinearArgument> varGetter =
+    // PartVar::getQty;
+
+    // // 构建表达式，但使用传入的 sumParts 而不是 module.getAtomicParts()
+    // AlgCPLinearExpr sumFunExpr = buildSumConstraintExpressions(tempConstraint,
+    // sumParts, attrCode, varName,
+    // varGetter);
+    // String sumFormulaBase = tempConstraint.getExprStr();
+
+    // // 应用约束
+    // ComparisonOperator operator =
+    // ComparisonOperator.fromSymbol(partConstraint.getComparator());
+    // operator.applyConstraint(model, sumFunExpr, partConstraint.getLeftValue());
+    // String sumFormula = operator.getFormulaString(sumFormulaBase,
+    // partConstraint.getLeftValue());
+
+    // log.info("Priority-Added sum constraint: {} for {}", sumFormula,
+    // partConstraint.getOrgReq() != null ? partConstraint.getOrgReq().toString() :
+    // "null");
+    // }
+
+    // /**
+    // * 构建求和约束表达式（基于 buildPriorityConstraintExpressions 的逻辑）
+    // *
+    // * @param pConstraint 优先级约束对象（用于存储表达式信息）
+    // * @param sumParts 求和的部件列表
+    // * @param attrCode 属性代码
+    // * @param varName 变量名称（"S" 或 "Q"）
+    // * @param varGetter 从PartVar获取LinearArgument的函数（如getIsSelected或getQty）
+    // * @return 构建的AlgCPLinearExpr表达式
+    // */
+    // private PartAlgCPLinearExpr buildSumConstraintExpressions(PriorityConstraint
+    // pConstraint, List<Part> sumParts,
+    // String attrCode, String varName, Function<PartVar, LinearArgument> varGetter)
+    // {
+    // PartAlgCPLinearExpr algExpr = new PartAlgCPLinearExpr("sum_constraint_" +
+    // attrCode + "_" + varName);
+    // boolean isWithoutAttr = attrCode == null || attrCode.isEmpty();
+
+    // for (Part part : sumParts) {
+    // PartVar partVar = getPartVar(part.getCode());
+    // if (partVar.getQty() == null) {
+    // log.error("PartVar quantity is null for part code: {}, cannot create sum
+    // constraint", part.getCode());
+    // throw new AlgLoaderException("PartVar quantity is null for part code: " +
+    // part.getCode()
+    // + ", cannot create sum constraint");
+    // }
+
+    // int attrValue;
+    // if (isWithoutAttr) {
+    // attrValue = 1;
+    // } else if (PartConstantAttr.Quantity.getCode().equals(attrCode)) {
+    // attrValue = 1;
+    // } else {
+    // attrValue = Integer.parseInt(part.getAttr(attrCode));
+    // }
+
+    // // add term via PartAlgCPLinearExpr to capture metadata and numeric term
+    // algExpr.addTerm(partVar, (IntVar) varGetter.apply(partVar), attrValue,
+    // varName);
+    // }
+
+    // // 设置表达式字符串和AlgCPLinearExpr
+    // pConstraint.setExpr(algExpr);
+    // return algExpr;
+    // }
+
+    // /**
+    // * 通用的部件求和方法，根据指定的变量获取函数计算总和
+    // *
+    // * @param cofAttrCode 属性代码，如果为null或空则使用默认值1
+    // * @param varGetter 从PartVar获取LinearArgument的函数（如getIsSelected或getQty）
+    // * @param varName 变量名称（如"isSelected"或"qty"），用于构建字符串表达式
+    // * @param filtedConditionStr 过滤条件字符串
+    // * @return 求和后的AlgCPLinearExpr表达式
+    // */
+    // // @Override
+    // protected PartAlgCPLinearExpr sum4Parts(String cofAttrCode,
+    // Function<PartVar, LinearArgument> varGetter, String varName, String
+    // filtedConditionStr) {
+    // PriorityConstraint tempConstraint = new PriorityConstraint();
+    // List<Part> atomicParts = currentModule.getAtomicParts();
+    // if (filtedConditionStr != null && !filtedConditionStr.trim().isEmpty()) {
+    // atomicParts = FilterExpressionExecutor.doSelect(atomicParts,
+    // filtedConditionStr);
+    // log.info("Priority-Filtered parts: {} in sum4Parts",
+    // PartUtils.toShortString(atomicParts));
+    // }
+
+    // PartAlgCPLinearExpr expr = buildPriorityConstraintExpressions(tempConstraint,
+    // cofAttrCode, varName, varGetter,
+    // atomicParts);
+    // tempConstraint.setExpr(expr);
+    // log.info("Priority-Sum formula in sum4Parts: {}",
+    // tempConstraint.getExprStr());
+    // return expr;
+    // }
+
+    // /**
+    // * 对指定部件分类的部件求和（选中状态，支持多分类逗号分隔）
+    // *
+    // * @param partCategoryCodesStr 部件分类代码，支持逗号分隔，如 "driveI0,driveI1"
+    // * @param cofAttrCode 属性代码
+    // * @param filtedConditionStr 过滤条件字符串
+    // * @return 求和后的AlgCPLinearExpr表达式
+    // */
+    // public PartAlgCPLinearExpr sum4Selected(String partCategoryCodesStr, String
+    // cofAttrCode,
+    // String filtedConditionStr) {
+    // if (partCategoryCodesStr == null || partCategoryCodesStr.trim().isEmpty()) {
+    // return sum4Selected(cofAttrCode, filtedConditionStr);
+    // }
+
+    // List<Part> allParts = collectPartsFromCategories(partCategoryCodesStr);
+
+    // if (allParts.isEmpty()) {
+    // allParts = module.getAllAtomicParts();
+    // }
+
+    // if (filtedConditionStr != null && !filtedConditionStr.trim().isEmpty()) {
+    // allParts = FilterExpressionExecutor.doSelect(allParts, filtedConditionStr);
+    // }
+
+    // PriorityConstraint tempConstraint = new PriorityConstraint();
+    // return buildSumExpr(tempConstraint, cofAttrCode,
+    // PartVar.ISSELECTED_SHORT_NAME, PartVar::getIsSelected,
+    // allParts);
+    // }
+
+    // /**
+    // * 构建求和表达式
+    // */
+    // protected PartAlgCPLinearExpr buildSumExpr(PriorityConstraint tempConstraint,
+    // String cofAttrCode,
+    // String varName, Function<PartVar, LinearArgument> varGetter, List<Part>
+    // atomicParts) {
+
+    // PartAlgCPLinearExpr algExpr = new PartAlgCPLinearExpr(
+    // "sum_" + (cofAttrCode == null ? "" : cofAttrCode) + "_" + varName);
+
+    // boolean isWithoutAttr = cofAttrCode == null || cofAttrCode.isEmpty();
+
+    // for (Part part : atomicParts) {
+    // PartVar partVar = getPartVar(part.getCode());
+    // int attrValue;
+    // if (isWithoutAttr) {
+    // attrValue = 1;
+    // } else if (PartConstantAttr.Quantity.getCode().equals(cofAttrCode)) {
+    // attrValue = 1;
+    // } else {
+    // attrValue = Integer.parseInt(part.getAttr(cofAttrCode));
+    // }
+    // algExpr.addTerm(partVar, (IntVar) varGetter.apply(partVar), attrValue,
+    // varName);
+    // }
+
+    // tempConstraint.setExpr(algExpr);
+    // return algExpr;
+    // }
+
+    // /**
+    // * 对指定部件分类的部件求和（数量，支持多分类逗号分隔）
+    // *
+    // * @param partCategoryCodesStr 部件分类代码，支持逗号分隔，如 "driveI0,driveI1"
+    // * @param cofAttrCode 属性代码
+    // * @param filtedConditionStr 过滤条件字符串
+    // * @return 求和后的AlgCPLinearExpr表达式
+    // */
+    // public PartAlgCPLinearExpr sum4Quantity(String partCategoryCodesStr, String
+    // cofAttrCode,
+    // String filtedConditionStr) {
+    // if (partCategoryCodesStr == null || partCategoryCodesStr.trim().isEmpty()) {
+    // return sum4Quantity(cofAttrCode, filtedConditionStr);
+    // }
+
+    // List<Part> allParts = collectPartsFromCategories(partCategoryCodesStr);
+
+    // if (allParts.isEmpty()) {
+    // allParts = module.getAllAtomicParts();
+    // }
+
+    // if (filtedConditionStr != null && !filtedConditionStr.trim().isEmpty()) {
+    // allParts = FilterExpressionExecutor.doSelect(allParts, filtedConditionStr);
+    // }
+
+    // PriorityConstraint tempConstraint = new PriorityConstraint();
+    // return buildSumExpr(tempConstraint, cofAttrCode, PartVar.QTY_SHORT_NAME,
+    // PartVar::getQty, allParts);
+    // }
+
+    // /**
+    // * 从指定的部件分类代码收集部件
+    // * 支持逗号分隔的多个分类代码
+    // *
+    // * @param partCategoryCodesStr 部件分类代码，支持逗号分隔
+    // * @return 收集的部件列表
+    // */
+    // private List<Part> collectPartsFromCategories(String partCategoryCodesStr) {
+    // List<Part> allParts = new ArrayList<>();
+    // String[] categoryCodes = partCategoryCodesStr.split(",");
+
+    // for (String categoryCode : categoryCodes) {
+    // categoryCode = categoryCode.trim();
+    // if (categoryCode.isEmpty()) {
+    // continue;
+    // }
+
+    // List<Part> parts = module.getAllAtomicParts(categoryCode);
+    // if (parts.isEmpty()) {
+    // // 尝试递归查找（支持 driveI0 这种格式）
+    // parts = findPartsByCodePrefix(categoryCode);
+    // }
+    // allParts.addAll(parts);
+    // }
+
+    // return allParts;
+    // }
+
+    // /**
+    // * 根据代码前缀查找部件（用于支持 driveI0 这种带后缀的分类代码）
+    // *
+    // * @param categoryCodePrefix 部件分类代码前缀
+    // * @return 匹配的部件列表
+    // */
+    // private List<Part> findPartsByCodePrefix(String categoryCodePrefix) {
+    // List<Part> result = new ArrayList<>();
+
+    // // 获取模块的所有原子部件，查找fatherCode匹配的部件
+    // for (Part part : module.getAllAtomicParts()) {
+    // if (part.getFatherCode() != null &&
+    // part.getFatherCode().startsWith(categoryCodePrefix)) {
+    // result.add(part);
+    // }
+    // }
+
+    // // 如果没找到，尝试直接匹配部件代码
+    // if (result.isEmpty()) {
+    // IPart directPart = module.getPart(categoryCodePrefix);
+    // if (directPart instanceof Part) {
+    // result.add((Part) directPart);
+    // }
+    // }
+
+    // return result;
+    // }
+
+    // /**
+    // * 对选中的部件求和（带属性系数）
+    // *
+    // * @param cofAttrCode 属性代码，如果为null或空则使用默认值1
+    // * @param filtedConditionStr 过滤条件字符串
+    // * @return 求和后的AlgCPLinearExpr表达式
+    // */
+
+    // public PartAlgCPLinearExpr sum4Selected(String cofAttrCode,
+    // String filtedConditionStr) {
+    // return sum4Parts(cofAttrCode, PartVar::getIsSelected,
+    // PartVar.ISSELECTED_SHORT_NAME, filtedConditionStr);
+    // }
+
+    // /**
+    // * 对选中的部件求和（不带属性系数）
+    // *
+    // * @param filtedConditionStr 过滤条件字符串
+    // * @return 求和后的AlgCPLinearExpr表达式
+    // */
+    // public PartAlgCPLinearExpr sum4Selected(String filtedConditionStr) {
+    // return sum4Selected(null, filtedConditionStr);
+    // }
+
+    // /**
+    // * 对数量的部件求和（带属性系数）
+    // *
+    // * @param cofAttrCode 属性代码，如果为null或空则使用默认值1
+    // * @param filtedConditionStr 过滤条件字符串
+    // * @return 求和后的AlgCPLinearExpr表达式
+    // */
+    // public PartAlgCPLinearExpr sum4Quantity(String cofAttrCode, String
+    // filtedConditionStr) {
+    // return sum4Parts(cofAttrCode, PartVar::getQty, PartVar.QTY_SHORT_NAME,
+    // filtedConditionStr);
+    // }
+
+    // /**
+    // * 对数量的部件求和（不带属性系数）
+    // *
+    // * @param filtedConditionStr 过滤条件字符串
+    // * @return 求和后的AlgCPLinearExpr表达式
+    // */
+    // public PartAlgCPLinearExpr sum4Quantity(String filtedConditionStr) {
+    // return sum4Quantity(null, filtedConditionStr);
+    // }
 
     /**
      * 创建参数选项变量
