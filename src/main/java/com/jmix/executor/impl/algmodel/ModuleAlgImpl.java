@@ -75,9 +75,6 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
                 PartCategoryAlgImpl pcAlg = new PartCategoryAlgImpl();
                 pcAlg.initData(model, (IModule) partCategory, pc4PartConstraintFromReqs, this);
 
-                // 执行PartCategoryAlgImpl的规则
-                // pcAlg.initRule(allRuleMethods);
-
                 partCategoryAlgs.put(categoryCode, pcAlg);
             }
         }
@@ -333,37 +330,6 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
         return buildSumExpr(cofAttrCode, PartVar.ISSELECTED_SHORT_NAME, PartVar::getIsSelected,
                 allPartVars);
     }
-
-    // /**
-    // * 构建求和表达式
-    // */
-    // protected PartAlgCPLinearExpr buildSumExpr(PriorityConstraint tempConstraint,
-    // String cofAttrCode,
-    // String varName, Function<PartVar, LinearArgument> varGetter, List<Part>
-    // atomicParts) {
-
-    // PartAlgCPLinearExpr algExpr = new PartAlgCPLinearExpr(
-    // "sum_" + (cofAttrCode == null ? "" : cofAttrCode) + "_" + varName);
-
-    // boolean isWithoutAttr = cofAttrCode == null || cofAttrCode.isEmpty();
-
-    // for (Part part : atomicParts) {
-    // PartVar partVar = getPartVar(part.getCode());
-    // int attrValue;
-    // if (isWithoutAttr) {
-    // attrValue = 1;
-    // } else if (PartConstantAttr.Quantity.getCode().equals(cofAttrCode)) {
-    // attrValue = 1;
-    // } else {
-    // attrValue = Integer.parseInt(part.getAttr(cofAttrCode));
-    // }
-    // algExpr.addTerm(partVar, (IntVar) varGetter.apply(partVar), attrValue,
-    // varName);
-    // }
-
-    // tempConstraint.setExpr(algExpr);
-    // return algExpr;
-    // }
 
     /**
      * 对指定部件分类的部件求和（数量，支持多分类逗号分隔）

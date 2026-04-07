@@ -1,7 +1,6 @@
 package com.jmix.executor.impl.algmodel;
 
 import com.jmix.executor.bmodel.IModule;
-import com.jmix.executor.bmodel.IPart;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartCategory;
 import com.jmix.executor.bmodel.PartUtils;
@@ -9,7 +8,6 @@ import com.jmix.executor.bmodel.attr.DynamicAttributerOption;
 import com.jmix.executor.bmodel.base.AssignType;
 import com.jmix.executor.bmodel.logic.PriorityRuleSchema;
 import com.jmix.executor.bmodel.logic.PriorityStrategy;
-import com.jmix.executor.bmodel.logic.RefProgObjSchema;
 import com.jmix.executor.bmodel.logic.Rule;
 import com.jmix.executor.bmodel.logic.RuleTypeConstants;
 import com.jmix.executor.bmodel.para.Para;
@@ -62,11 +60,6 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * module的基础信息
      */
     protected IModule module;
-
-    // /**
-    // * 变量映射表，存储所有创建的变量实例
-    // */
-    // protected Map<String, Var<?>> varMap = new LinkedHashMap<>();
 
     /**
      * 部件变量映射表，存储code到PartVar的映射
@@ -166,97 +159,6 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         }
     }
 
-    // /**
-    // * 初始化约束模型（带松弛变量支持）
-    // *
-    // * @param model CP模型实例
-    // * @param module 模块对象
-    // * @param isAttachRelax 是否附加松弛变量
-    // * @param confictedRelaxs 冲突松弛变量列表
-    // */
-    // public void initModel(AlgCPModel model, IModule module, List<ParConstraint>
-    // partConstraintFromReqs) {
-    // List<String> fullRules = toFullRules(module);
-    // List<RefProgObjSchema> fullProgObjs = toFullProgObjs(module);
-    // initModel(model, module, fullRules, fullProgObjs, partConstraintFromReqs);
-    // }
-
-    private List<String> toFullRules(IModule tempModule) {
-        List<String> fullRules = new ArrayList<>();
-        for (Rule rule : tempModule.getAllRules()) {
-            fullRules.add(rule.getCode());
-        }
-        return fullRules;
-    }
-
-    private List<RefProgObjSchema> toFullProgObjs(IModule tempModule) {
-        List<RefProgObjSchema> fullProgObjs = new ArrayList<>();
-        RefProgObjSchema refProgObjSchema = null;
-        // 根据module.parts,module.paras,创建RefProgObjSchema列表
-        for (Part part : tempModule.getAllAtomicParts()) {
-            refProgObjSchema = new RefProgObjSchema(RefProgObjSchema.PROG_OBJ_TYPE_PART, part.getCode(), "");
-            fullProgObjs.add(refProgObjSchema);
-        }
-        for (Para para : tempModule.getAllParas()) {
-            refProgObjSchema = new RefProgObjSchema(RefProgObjSchema.PROG_OBJ_TYPE_PARA, para.getCode(), "");
-            fullProgObjs.add(refProgObjSchema);
-        }
-        return fullProgObjs;
-    }
-
-    // /**
-    // * 初始化模型（差量加载版本）
-    // *
-    // * @param model CP模型
-    // * @param module 模块
-    // * @param exeRules 本次要加载的rules
-    // * @param exeProgObjs 本次要初始化的变量
-    // * @param confictedRelaxs 冲突松弛变量列表
-    // */
-    // public void initModel(AlgCPModel model,
-    // IModule module,
-    // List<String> exeRules,
-    // List<RefProgObjSchema> exeProgObjs) {
-    // initModel(model, module, exeRules, exeProgObjs, null);
-    // }
-
-    // /**
-    // * 初始化模型（差量加载版本，带松弛变量支持）
-    // *
-    // * @param model CP模型
-    // * @param module 模块
-    // * @param exeRules 本次要加载的rules
-    // * @param exeProgObjs 本次要初始化的变量
-    // * @param isAttachRelax 是否附加松弛变量
-    // * @param confictedRelaxs 冲突松弛变量列表
-    // */
-    // public void initModel(AlgCPModel model,
-    // IModule module,
-    // List<String> exeRules,
-    // List<RefProgObjSchema> exeProgObjs,
-    // List<ParConstraint> partConstraints) {
-    // this.model = model;
-    // // 初始化兼容性约束算法实例
-    // this.compatibleConstraintAlg = new CompatibleConstraintAlg(model);
-    // this.module = module;
-    // initModelAfter(model);
-
-    // // 初始化AlgCPModel
-    // initAlgCPModel();
-
-    // // 根据exeProgObjs初始化Variables
-    // initVariables(exeProgObjs);
-
-    // // 设置输入变量（如有）
-    // setInputVariables(partConstraints);
-
-    // // 根据exeRules初始化rule
-    // initRules(exeRules);
-
-    // // 设置默认可见性约束
-    // setDefaultVisibilityConstraints();
-    // }
-
     /**
      * 根据外部传入的部件约束（求和约束）设置对应的参数输入值
      *
@@ -286,47 +188,6 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         }
     }
 
-    /**
-     * 初始化AlgCPModel
-     * 用于增量加载的AlgCPModel初始化逻辑
-     */
-    private void initAlgCPModel() {
-        // 初始化AlgCPModel的相关逻辑
-        log.info("Initializing AlgCPModel for incremental loading");
-    }
-
-    // protected void setDefaultVisibilityConstraints2() {
-    // boolean isFirst = true;
-    // for (Map.Entry<String, Var<?>> entry : varMap.entrySet()) {
-    // String code = entry.getKey();
-    // if (codesOfHiddenConstraint.contains(code)) {
-    // continue;
-    // }
-    // Var<?> v = entry.getValue();
-    // if (v instanceof ParaVar) {
-    // if (isFirst) {
-    // this.model.setRelax4SysRule("hiddensrule");
-    // isFirst = false;
-    // }
-    // ParaVar pv = (ParaVar) v;
-    // if (pv.getBase().getAssignType() == AssignType.CALC) {
-    // // 暂时没有添加到松弛变量里
-    // model.addEquality(pv.getIsHidden(), 0);
-    // }
-    // } else if (v instanceof PartVar) {
-    // if (isFirst) {
-    // this.model.setRelax4SysRule("hiddensrule");
-    // isFirst = false;
-    // }
-    // PartVar pt = (PartVar) v;
-    // model.addEquality(pt.getIsHidden(), 0);
-    // } else {
-    // log.error("Unsupported variable type: {}", v.getClass().getSimpleName());
-    // throw new AlgLoaderException("Unsupported variable type: " +
-    // v.getClass().getSimpleName());
-    // }
-    // }
-    // }
     /**
      * 设置默认可见性约束
      * 对于没有显式控制可见性的变量，设置 isHiddenVar == 0（即默认可见）
@@ -361,46 +222,47 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         }
     }
 
-    /**
-     * 根据module.getRules构建ruleMethods映射
-     * 通过反射获取所有带有@CodeRuleAnno注解的方法，并建立规则代码到方法的映射关系
-     * 
-     * @throws AlgLoaderException 异常
-     */
-    private void buildRuleMethods() {
-        if (module == null || module.getAllRules() == null) {
-            return;
-        }
+    // /**
+    // * 根据module.getRules构建ruleMethods映射
+    // * 通过反射获取所有带有@CodeRuleAnno注解的方法，并建立规则代码到方法的映射关系
+    // *
+    // * @throws AlgLoaderException 异常
+    // */
+    // private void buildRuleMethods() {
+    // if (module == null || module.getAllRules() == null) {
+    // return;
+    // }
 
-        // 获取当前类的所有方法
-        Method[] methods = this.getClass().getDeclaredMethods();
-        Map<String, Method> allMethods = new HashMap<>();
+    // // 获取当前类的所有方法
+    // Method[] methods = this.getClass().getDeclaredMethods();
+    // Map<String, Method> allMethods = new HashMap<>();
 
-        // 构建方法名到Method对象的映射
-        for (Method method : methods) {
-            allMethods.put(method.getName(), method);
-        }
+    // // 构建方法名到Method对象的映射
+    // for (Method method : methods) {
+    // allMethods.put(method.getName(), method);
+    // }
 
-        // 根据module.getRules来构建ruleMethods
-        for (Rule rule : module.getAllRules()) {
-            String ruleCode = rule.getCode();
-            Method method = allMethods.get(ruleCode);
-            if (method != null) {
-                ruleMethods.put(ruleCode, method);
-                log.info("Built rule method mapping: {} -> {}", ruleCode, method.getName());
+    // // 根据module.getRules来构建ruleMethods
+    // for (Rule rule : module.getAllRules()) {
+    // String ruleCode = rule.getCode();
+    // Method method = allMethods.get(ruleCode);
+    // if (method != null) {
+    // ruleMethods.put(ruleCode, method);
+    // log.info("Built rule method mapping: {} -> {}", ruleCode, method.getName());
 
-                // 检查rule.ruleSchemaTypeFullName是否为PriorityRule，如果是则构建优先级约束
-                if (RuleTypeConstants.isPriorityRule(rule.getRuleSchemaTypeFullName())) {
-                    buildPriorityConstraint(rule);
-                }
-            } else {
-                log.error("Rule method not found for rule code: {}", ruleCode);
-                throw new AlgLoaderException("Rule method not found for rule code: " + ruleCode);
-            }
-        }
+    // // 检查rule.ruleSchemaTypeFullName是否为PriorityRule，如果是则构建优先级约束
+    // if (RuleTypeConstants.isPriorityRule(rule.getRuleSchemaTypeFullName())) {
+    // buildPriorityConstraint(rule);
+    // }
+    // } else {
+    // log.error("Rule method not found for rule code: {}", ruleCode);
+    // throw new AlgLoaderException("Rule method not found for rule code: " +
+    // ruleCode);
+    // }
+    // }
 
-        log.info("Built {} rule methods from module rules", ruleMethods.size());
-    }
+    // log.info("Built {} rule methods from module rules", ruleMethods.size());
+    // }
 
     /**
      * 构建优先级约束的表达式字符串和模板
@@ -546,76 +408,6 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         return algExpr;
     }
 
-    /**
-     * 根据exeRules执行规则
-     * 
-     * @param exeRules 要执行的规则列表
-     */
-    private void initRules(List<String> exeRules) {
-        // 判断ruleMethods是否已经构建，如果没有构建则先构建
-        if (ruleMethods.isEmpty()) {
-            buildRuleMethods();
-        }
-
-        if (exeRules == null || exeRules.isEmpty()) {
-            log.warn("No specific rules to execute, all {} rule methods are available", ruleMethods.size());
-            return;
-        }
-
-        // 按exeRules列表来执行规则
-        for (String ruleCode : exeRules) {
-            currentModule = getRuleCurrentModule(ruleCode);
-            // model.addRule
-            model.addRuleSeperator(ruleCode);
-            Method method = ruleMethods.get(ruleCode);
-            executeRuleMethod(ruleCode, method);
-            currentModule = null;
-        }
-        log.info("Executed  {} requested rules", exeRules.size());
-    }
-
-    // /**
-    // * 初始化并执行规则方法
-    // * 使用外部传入的 allRuleMethods 映射来选择要执行的规则
-    // *
-    // * @param allRuleMethods 所有规则方法的映射表 (ruleCode -> Method)
-    // */
-    // public void initRule(Map<String, Method> allRuleMethods) {
-    // if (allRuleMethods == null || allRuleMethods.isEmpty()) {
-    // log.warn("allRuleMethods is null or empty, skip initRule");
-    // return;
-    // }
-
-    // if (module == null || module.getAllRules() == null) {
-    // log.warn("Module or module.getAllRules() is null, skip initRule");
-    // return;
-    // }
-
-    // List<Rule> rules = module.getAllRules();
-    // for (Rule rule : rules) {
-    // String ruleCode = rule.getCode();
-    // Method ruleMethod = allRuleMethods.get(ruleCode);
-    // if (ruleMethod != null) {
-    // ruleMethods.put(ruleCode, ruleMethod);
-    // log.info("Registered rule method: {} -> {}", ruleCode, ruleMethod.getName());
-
-    // // 检查是否是PriorityRule，如果是则构建优先级约束
-    // if (RuleTypeConstants.isPriorityRule(rule.getRuleSchemaTypeFullName())) {
-    // buildPriorityConstraint(rule);
-    // }
-
-    // // 执行规则方法
-    // executeRuleMethod(ruleCode, ruleMethod);
-    // } else {
-    // log.error("Rule method not found in allRuleMethods for rule code: {}",
-    // ruleCode);
-    // throw new AlgLoaderException("Rule method not found in allRuleMethods for
-    // rule code: " + ruleCode);
-    // }
-    // }
-    // log.info("Initialized and executed {} rules", ruleMethods.size());
-    // }
-
     private IModule getRuleCurrentModule(String ruleCode) {
         Optional<Rule> ruleOpt = module.getRule(ruleCode);
         if (!ruleOpt.isPresent()) {
@@ -691,38 +483,6 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
             throw new AlgLoaderException("Failed to execute rule method: " + method.getName(), e);
         }
     }
-
-    // /**
-    // * 根据exeProgObjs初始化Variables
-    // *
-    // * @param exeProgObjs 要初始化的编程对象列表
-    // */
-    // private void initVariables(List<RefProgObjSchema> exeProgObjs) {
-    // // 创建变量
-    // createVariables(exeProgObjs);
-
-    // // 将变量写回字段, 保证规则使用变量是同一个
-    // writeBackVariablesToFields(varMap);
-    // }
-
-    // private void createVariables(List<RefProgObjSchema> exeProgObjs) {
-    // if (exeProgObjs == null || exeProgObjs.isEmpty()) {
-    // log.error("exeProgObjs is null or empty");
-    // throw new AlgLoaderException("exeProgObjs is null or empty");
-    // }
-    // for (RefProgObjSchema exeProgObj : exeProgObjs) {
-    // String field = exeProgObj.getProgObjType();
-    // if (field.equals(RefProgObjSchema.PROG_OBJ_TYPE_PARA)) {
-    // createParaVar(exeProgObj.getProgObjCode());
-    // } else if (field.equals(RefProgObjSchema.PROG_OBJ_TYPE_PART)) {
-    // createPartVar(exeProgObj.getProgObjCode());
-    // } else {
-    // log.error("Unsupported progObjType: {}", field);
-    // throw new AlgLoaderException("Unsupported progObjType: " + field);
-    // }
-    // }
-    // log.info("create {} variables for incremental loading", varMap.size());
-    // }
 
     /**
      * 模型初始化后的回调方法
@@ -830,24 +590,6 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         model.addEquality(partVar.getQty(), 0).onlyEnforceIf(partVar.getIsSelected().not());
 
         return partVar;
-    }
-
-    /**
-     * 获取所有部件变量
-     * 
-     * @return 部件变量映射
-     */
-    public Map<String, PartVar> getPartMap() {
-        return partMap;
-    }
-
-    /**
-     * 获取所有参数变量
-     * 
-     * @return 参数变量映射
-     */
-    public Map<String, ParaVar> getParaMap() {
-        return paraMap;
     }
 
     /**
@@ -1027,15 +769,6 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
 
     }
 
-    // public void init(AlgCPModel model, IModule module, List<ParConstraint>
-    // partConstraintFromReqs) {
-
-    // // 构建规则方法映射
-    // Map<String, Method> allRuleMethods = buildAllRuleMethods(module);
-    // initInternal(model, module, partConstraintFromReqs, allRuleMethods,
-    // module.getAlg());
-    // }
-
     protected void initData(AlgCPModel model, IModule module, List<ParConstraint> partConstraintFromReqs,
             IModuleAlg moduleAlgFile) {
         // Module级别
@@ -1067,34 +800,6 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
 
         log.info("ModuleBaseAlgImpl initRules {}", module.getClass().getSimpleName());
     }
-    // /**
-    // * 将变量写回字段, 保证在初始化rule时生效
-    // *
-    // * @param varMap 变量映射
-    // * @throws AlgLoaderException 异常
-    // */
-    // private void writeBackVariablesToFields(Map<String, Var<?>> varMap) throws
-    // AlgLoaderException {
-    // Map<String, Field> fieldMap = getAllFieldVariables();
-    // Var<?> tVar = null;
-    // for (Map.Entry<String, Var<?>> entry : varMap.entrySet()) {
-    // String code = entry.getKey();
-    // Var<?> v = entry.getValue();
-    // if (v instanceof ParaVar) {
-    // tVar = newParaVar((ParaVar) v);
-    // setVariableField(tVar, fieldMap.get(code));
-    // } else if (v instanceof PartVar) {
-    // tVar = newPartVar((PartVar) v);
-    // setVariableField(tVar, fieldMap.get(code));
-    // } else {
-    // log.error("Unsupported variable to field: please check in constrain file!
-    // {}", v.getCode());
-    // throw new AlgLoaderException(
-    // "Unsupported variable to field: please check in constrain file!" +
-    // v.getCode());
-    // }
-    // }
-    // }
 
     /**
      * 创建部件变量, 继承类可以重载
@@ -1111,26 +816,6 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * @return 创建的参数变量
      */
     protected abstract Var<?> newParaVar(ParaVar internalParaVar);
-
-    // /**
-    // * 创建部件变量, 继承类可以重载
-    // *
-    // * @param internalPartVar 内部部件变量
-    // * @return 创建的部件变量
-    // */
-    // protected Var<?> newPartVar(PartVar internalPartVar) {
-    // return internalPartVar;
-    // }
-
-    // /**
-    // * 创建参数变量, 继承类可以重载
-    // *
-    // * @param internalParaVar 内部参数变量
-    // * @return 创建的参数变量
-    // */
-    // protected Var<?> newParaVar(ParaVar internalParaVar) {
-    // return internalParaVar;
-    // }
 
     /**
      * 设置单个变量字段
@@ -1288,25 +973,6 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         return model;
     }
 
-    // /**
-    // * 获取变量映射
-    // *
-    // * @return 变量映射Map
-    // */
-    // public Map<String, Var<?>> getVarMap() {
-    // return varMap;
-    // }
-
-    // /**
-    // * 获取变量
-    // *
-    // * @param code 变量代码
-    // * @return 变量实例
-    // */
-    // public Var<?> getVar(String code) {
-    // return varMap.get(code);
-    // }
-
     /**
      * 获取模块对象
      *
@@ -1353,114 +1019,6 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         return priorityRuleMap.get(attrCode);
     }
 
-    // TODO Delete
-    /**
-     * 创建参数变量
-     * 
-     * @param code 参数代码
-     * @return 创建的参数变量
-     * @throws AlgLoaderException 异常
-     */
-    protected ParaVar createParaVar(String code) {
-        Optional<Para> paraOpt = module != null ? module.getPara(code) : Optional.empty();
-        if (!paraOpt.isPresent()) {
-            log.error("Para not found for code: {}", code);
-            throw new AlgLoaderException("Para not found for code: " + code);
-        }
-        Para para = paraOpt.get();
-        ParaVar paraVar = new ParaVar();
-        paraVar.setBase(para);
-        if (para.getAssignType() == AssignType.INPUT) {
-            // registerVar(code, paraVar);
-            return paraVar;
-        }
-
-        switch (para.getParaType()) {
-            case INTEGER:
-                paraVar.setValue(newIntVar(Integer.parseInt(para.getMinValue()), Integer.parseInt(para.getMaxValue()),
-                        f(ParaVar.VALUE_PATTERN, code)));
-                break;
-            case ENUM:
-                List<DynamicAttributerOption> options = para.getOptions();
-                if (options == null || options.isEmpty()) {
-                    log.error("Para options not found for code: {}", code);
-                    throw new AlgLoaderException("Para options not found for code: " + code);
-                }
-                paraVar.setValue(newIntVarFromDomain(para.getOptionIds(), f(ParaVar.VALUE_PATTERN, code)));
-
-                for (DynamicAttributerOption option : options) {
-                    ParaOptionVar optionVar = createParaOptionVar(para.getCode(), option.getCode());
-                    paraVar.getOptionSelectVars().put(option.getCodeId(), optionVar);
-                }
-                paraVar.getOptionSelectVars().forEach((optionId, optionVar) -> {
-                    model.addEquality(paraVar.getValue(), optionId).onlyEnforceIf(optionVar.getIsSelectedVar());
-                    model.addDifferent(paraVar.getValue(), optionId)
-                            .onlyEnforceIf(optionVar.getIsSelectedVar().not());
-                });
-                break;
-            default:
-                log.error("Para type not supported: {}", para.getParaType());
-                throw new AlgLoaderException("Para type not supported: " + para.getParaType());
-        }
-        paraVar.setIsHidden(newBoolVar(f(ParaVar.HIDDEN_PATTERN, code)));
-        // registerVar(code, paraVar);
-        return paraVar;
-    }
-
-    // TODO Delete
-    /**
-     * 创建部件变量
-     * 
-     * @param code 部件代码
-     * @return 创建的部件变量
-     * @throws AlgLoaderException 异常
-     */
-    protected PartVar createPartVar(String code) {
-        IPart part = module.getPart(code);
-        if (null == part) {
-            log.error("Part not found for code: {}", code);
-            throw new AlgLoaderException("Part not found for code: " + code);
-        }
-        if (part instanceof PartCategory) {
-            return createPartCategoryVar((PartCategory) part);
-        }
-        return createPartVar((Part) part);
-    }
-
-    // TODO Delete
-    protected PartVar createPartVar(Part part) {
-        Var<?> tempVar = null;// getRegisterVar(part.getCode());
-        if (null != tempVar) {
-            return (PartVar) tempVar;
-        }
-        // 现有代码
-        PartVar partVar = new PartVar();
-        partVar.setBase(part);
-        partVar.setQty(newIntVar(0, part.getMaxQuantity(), f(PartVar.QTY_PATTERN, part.getCode())));
-        partVar.setIsHidden(newBoolVar(f(PartVar.HIDDEN_PATTERN, part.getCode())));
-        partVar.setIsSelected(newBoolVar(f(PartVar.ISSELECTED_PATTERN, part.getCode())));
-
-        // 添加Qty和IsSelected的关系
-        model.addGreaterOrEqual(partVar.getQty(), 1).onlyEnforceIf(partVar.getIsSelected());
-        model.addEquality(partVar.getQty(), 0).onlyEnforceIf(partVar.getIsSelected().not());
-
-        // registerVar(part.getCode(), partVar);
-        return partVar;
-    }
-
-    // TODO Delete
-    protected PartVar createPartCategoryVar(PartCategory categoryPart) {
-        PartCategoryVar partCategoryVar = new PartCategoryVar();
-        partCategoryVar.setBase(categoryPart);
-        for (Part part : categoryPart.getAtomicParts()) {
-            createPartVar(part);
-        }
-        for (PartCategory subCategory : categoryPart.getPartCategorys()) {
-            createPartCategoryVar(subCategory);
-        }
-        return partCategoryVar;
-    }
-
     /**
      * Return list of atomic parts used by sum4Selected, optionally filtered by
      * condition.
@@ -1480,321 +1038,6 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         }
         return partVars;
     }
-
-    // /**
-    // * 添加求和函数约束
-    // *
-    // * @param sumParts 求和的部件列表
-    // * @param partConstraint 部件约束对象
-    // */
-    // public void sumFunConstraint(List<Part> sumParts, ParConstraint
-    // partConstraint) {
-    // if (sumParts == null || sumParts.isEmpty()) {
-    // log.warn("No parts found for sum constraint with attrCode: {}, comparator:
-    // {}, leftValue: {}",
-    // partConstraint.getSumAttrCode(), partConstraint.getComparator(),
-    // partConstraint.getLeftValue());
-    // return;
-    // }
-
-    // // 使用 buildPriorityConstraintExpressions 的逻辑构建表达式
-    // // 创建一个临时的 PriorityConstraint 对象来复用构建逻辑
-    // PriorityConstraint tempConstraint = new PriorityConstraint();
-    // String attrCode = partConstraint.getSumAttrCode();
-    // String varName = "Q";
-    // java.util.function.Function<PartVar, LinearArgument> varGetter =
-    // PartVar::getQty;
-
-    // // 构建表达式，但使用传入的 sumParts 而不是 module.getAtomicParts()
-    // AlgCPLinearExpr sumFunExpr = buildSumConstraintExpressions(tempConstraint,
-    // sumParts, attrCode, varName,
-    // varGetter);
-    // String sumFormulaBase = tempConstraint.getExprStr();
-
-    // // 应用约束
-    // ComparisonOperator operator =
-    // ComparisonOperator.fromSymbol(partConstraint.getComparator());
-    // operator.applyConstraint(model, sumFunExpr, partConstraint.getLeftValue());
-    // String sumFormula = operator.getFormulaString(sumFormulaBase,
-    // partConstraint.getLeftValue());
-
-    // log.info("Priority-Added sum constraint: {} for {}", sumFormula,
-    // partConstraint.getOrgReq() != null ? partConstraint.getOrgReq().toString() :
-    // "null");
-    // }
-
-    // /**
-    // * 构建求和约束表达式（基于 buildPriorityConstraintExpressions 的逻辑）
-    // *
-    // * @param pConstraint 优先级约束对象（用于存储表达式信息）
-    // * @param sumParts 求和的部件列表
-    // * @param attrCode 属性代码
-    // * @param varName 变量名称（"S" 或 "Q"）
-    // * @param varGetter 从PartVar获取LinearArgument的函数（如getIsSelected或getQty）
-    // * @return 构建的AlgCPLinearExpr表达式
-    // */
-    // private PartAlgCPLinearExpr buildSumConstraintExpressions(PriorityConstraint
-    // pConstraint, List<Part> sumParts,
-    // String attrCode, String varName, Function<PartVar, LinearArgument> varGetter)
-    // {
-    // PartAlgCPLinearExpr algExpr = new PartAlgCPLinearExpr("sum_constraint_" +
-    // attrCode + "_" + varName);
-    // boolean isWithoutAttr = attrCode == null || attrCode.isEmpty();
-
-    // for (Part part : sumParts) {
-    // PartVar partVar = getPartVar(part.getCode());
-    // if (partVar.getQty() == null) {
-    // log.error("PartVar quantity is null for part code: {}, cannot create sum
-    // constraint", part.getCode());
-    // throw new AlgLoaderException("PartVar quantity is null for part code: " +
-    // part.getCode()
-    // + ", cannot create sum constraint");
-    // }
-
-    // int attrValue;
-    // if (isWithoutAttr) {
-    // attrValue = 1;
-    // } else if (PartConstantAttr.Quantity.getCode().equals(attrCode)) {
-    // attrValue = 1;
-    // } else {
-    // attrValue = Integer.parseInt(part.getAttr(attrCode));
-    // }
-
-    // // add term via PartAlgCPLinearExpr to capture metadata and numeric term
-    // algExpr.addTerm(partVar, (IntVar) varGetter.apply(partVar), attrValue,
-    // varName);
-    // }
-
-    // // 设置表达式字符串和AlgCPLinearExpr
-    // pConstraint.setExpr(algExpr);
-    // return algExpr;
-    // }
-
-    // /**
-    // * 通用的部件求和方法，根据指定的变量获取函数计算总和
-    // *
-    // * @param cofAttrCode 属性代码，如果为null或空则使用默认值1
-    // * @param varGetter 从PartVar获取LinearArgument的函数（如getIsSelected或getQty）
-    // * @param varName 变量名称（如"isSelected"或"qty"），用于构建字符串表达式
-    // * @param filtedConditionStr 过滤条件字符串
-    // * @return 求和后的AlgCPLinearExpr表达式
-    // */
-    // // @Override
-    // protected PartAlgCPLinearExpr sum4Parts(String cofAttrCode,
-    // Function<PartVar, LinearArgument> varGetter, String varName, String
-    // filtedConditionStr) {
-    // PriorityConstraint tempConstraint = new PriorityConstraint();
-    // List<Part> atomicParts = currentModule.getAtomicParts();
-    // if (filtedConditionStr != null && !filtedConditionStr.trim().isEmpty()) {
-    // atomicParts = FilterExpressionExecutor.doSelect(atomicParts,
-    // filtedConditionStr);
-    // log.info("Priority-Filtered parts: {} in sum4Parts",
-    // PartUtils.toShortString(atomicParts));
-    // }
-
-    // PartAlgCPLinearExpr expr = buildPriorityConstraintExpressions(tempConstraint,
-    // cofAttrCode, varName, varGetter,
-    // atomicParts);
-    // tempConstraint.setExpr(expr);
-    // log.info("Priority-Sum formula in sum4Parts: {}",
-    // tempConstraint.getExprStr());
-    // return expr;
-    // }
-
-    // /**
-    // * 对指定部件分类的部件求和（选中状态，支持多分类逗号分隔）
-    // *
-    // * @param partCategoryCodesStr 部件分类代码，支持逗号分隔，如 "driveI0,driveI1"
-    // * @param cofAttrCode 属性代码
-    // * @param filtedConditionStr 过滤条件字符串
-    // * @return 求和后的AlgCPLinearExpr表达式
-    // */
-    // public PartAlgCPLinearExpr sum4Selected(String partCategoryCodesStr, String
-    // cofAttrCode,
-    // String filtedConditionStr) {
-    // if (partCategoryCodesStr == null || partCategoryCodesStr.trim().isEmpty()) {
-    // return sum4Selected(cofAttrCode, filtedConditionStr);
-    // }
-
-    // List<Part> allParts = collectPartsFromCategories(partCategoryCodesStr);
-
-    // if (allParts.isEmpty()) {
-    // allParts = module.getAllAtomicParts();
-    // }
-
-    // if (filtedConditionStr != null && !filtedConditionStr.trim().isEmpty()) {
-    // allParts = FilterExpressionExecutor.doSelect(allParts, filtedConditionStr);
-    // }
-
-    // PriorityConstraint tempConstraint = new PriorityConstraint();
-    // return buildSumExpr(tempConstraint, cofAttrCode,
-    // PartVar.ISSELECTED_SHORT_NAME, PartVar::getIsSelected,
-    // allParts);
-    // }
-
-    // /**
-    // * 构建求和表达式
-    // */
-    // protected PartAlgCPLinearExpr buildSumExpr(PriorityConstraint tempConstraint,
-    // String cofAttrCode,
-    // String varName, Function<PartVar, LinearArgument> varGetter, List<Part>
-    // atomicParts) {
-
-    // PartAlgCPLinearExpr algExpr = new PartAlgCPLinearExpr(
-    // "sum_" + (cofAttrCode == null ? "" : cofAttrCode) + "_" + varName);
-
-    // boolean isWithoutAttr = cofAttrCode == null || cofAttrCode.isEmpty();
-
-    // for (Part part : atomicParts) {
-    // PartVar partVar = getPartVar(part.getCode());
-    // int attrValue;
-    // if (isWithoutAttr) {
-    // attrValue = 1;
-    // } else if (PartConstantAttr.Quantity.getCode().equals(cofAttrCode)) {
-    // attrValue = 1;
-    // } else {
-    // attrValue = Integer.parseInt(part.getAttr(cofAttrCode));
-    // }
-    // algExpr.addTerm(partVar, (IntVar) varGetter.apply(partVar), attrValue,
-    // varName);
-    // }
-
-    // tempConstraint.setExpr(algExpr);
-    // return algExpr;
-    // }
-
-    // /**
-    // * 对指定部件分类的部件求和（数量，支持多分类逗号分隔）
-    // *
-    // * @param partCategoryCodesStr 部件分类代码，支持逗号分隔，如 "driveI0,driveI1"
-    // * @param cofAttrCode 属性代码
-    // * @param filtedConditionStr 过滤条件字符串
-    // * @return 求和后的AlgCPLinearExpr表达式
-    // */
-    // public PartAlgCPLinearExpr sum4Quantity(String partCategoryCodesStr, String
-    // cofAttrCode,
-    // String filtedConditionStr) {
-    // if (partCategoryCodesStr == null || partCategoryCodesStr.trim().isEmpty()) {
-    // return sum4Quantity(cofAttrCode, filtedConditionStr);
-    // }
-
-    // List<Part> allParts = collectPartsFromCategories(partCategoryCodesStr);
-
-    // if (allParts.isEmpty()) {
-    // allParts = module.getAllAtomicParts();
-    // }
-
-    // if (filtedConditionStr != null && !filtedConditionStr.trim().isEmpty()) {
-    // allParts = FilterExpressionExecutor.doSelect(allParts, filtedConditionStr);
-    // }
-
-    // PriorityConstraint tempConstraint = new PriorityConstraint();
-    // return buildSumExpr(tempConstraint, cofAttrCode, PartVar.QTY_SHORT_NAME,
-    // PartVar::getQty, allParts);
-    // }
-
-    // /**
-    // * 从指定的部件分类代码收集部件
-    // * 支持逗号分隔的多个分类代码
-    // *
-    // * @param partCategoryCodesStr 部件分类代码，支持逗号分隔
-    // * @return 收集的部件列表
-    // */
-    // private List<Part> collectPartsFromCategories(String partCategoryCodesStr) {
-    // List<Part> allParts = new ArrayList<>();
-    // String[] categoryCodes = partCategoryCodesStr.split(",");
-
-    // for (String categoryCode : categoryCodes) {
-    // categoryCode = categoryCode.trim();
-    // if (categoryCode.isEmpty()) {
-    // continue;
-    // }
-
-    // List<Part> parts = module.getAllAtomicParts(categoryCode);
-    // if (parts.isEmpty()) {
-    // // 尝试递归查找（支持 driveI0 这种格式）
-    // parts = findPartsByCodePrefix(categoryCode);
-    // }
-    // allParts.addAll(parts);
-    // }
-
-    // return allParts;
-    // }
-
-    // /**
-    // * 根据代码前缀查找部件（用于支持 driveI0 这种带后缀的分类代码）
-    // *
-    // * @param categoryCodePrefix 部件分类代码前缀
-    // * @return 匹配的部件列表
-    // */
-    // private List<Part> findPartsByCodePrefix(String categoryCodePrefix) {
-    // List<Part> result = new ArrayList<>();
-
-    // // 获取模块的所有原子部件，查找fatherCode匹配的部件
-    // for (Part part : module.getAllAtomicParts()) {
-    // if (part.getFatherCode() != null &&
-    // part.getFatherCode().startsWith(categoryCodePrefix)) {
-    // result.add(part);
-    // }
-    // }
-
-    // // 如果没找到，尝试直接匹配部件代码
-    // if (result.isEmpty()) {
-    // IPart directPart = module.getPart(categoryCodePrefix);
-    // if (directPart instanceof Part) {
-    // result.add((Part) directPart);
-    // }
-    // }
-
-    // return result;
-    // }
-
-    // /**
-    // * 对选中的部件求和（带属性系数）
-    // *
-    // * @param cofAttrCode 属性代码，如果为null或空则使用默认值1
-    // * @param filtedConditionStr 过滤条件字符串
-    // * @return 求和后的AlgCPLinearExpr表达式
-    // */
-
-    // public PartAlgCPLinearExpr sum4Selected(String cofAttrCode,
-    // String filtedConditionStr) {
-    // return sum4Parts(cofAttrCode, PartVar::getIsSelected,
-    // PartVar.ISSELECTED_SHORT_NAME, filtedConditionStr);
-    // }
-
-    // /**
-    // * 对选中的部件求和（不带属性系数）
-    // *
-    // * @param filtedConditionStr 过滤条件字符串
-    // * @return 求和后的AlgCPLinearExpr表达式
-    // */
-    // public PartAlgCPLinearExpr sum4Selected(String filtedConditionStr) {
-    // return sum4Selected(null, filtedConditionStr);
-    // }
-
-    // /**
-    // * 对数量的部件求和（带属性系数）
-    // *
-    // * @param cofAttrCode 属性代码，如果为null或空则使用默认值1
-    // * @param filtedConditionStr 过滤条件字符串
-    // * @return 求和后的AlgCPLinearExpr表达式
-    // */
-    // public PartAlgCPLinearExpr sum4Quantity(String cofAttrCode, String
-    // filtedConditionStr) {
-    // return sum4Parts(cofAttrCode, PartVar::getQty, PartVar.QTY_SHORT_NAME,
-    // filtedConditionStr);
-    // }
-
-    // /**
-    // * 对数量的部件求和（不带属性系数）
-    // *
-    // * @param filtedConditionStr 过滤条件字符串
-    // * @return 求和后的AlgCPLinearExpr表达式
-    // */
-    // public PartAlgCPLinearExpr sum4Quantity(String filtedConditionStr) {
-    // return sum4Quantity(null, filtedConditionStr);
-    // }
 
     /**
      * 创建参数选项变量
@@ -2122,116 +1365,4 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         log.info("Set part unselected: code={}, isSelected=0, qty=0", part.getCode());
     }
 
-    // /**
-    // * 解析部件表达式字符串
-    // * 格式：fatherCode=xxx:filterCondition
-    // *
-    // * @param partExprStr 部件表达式字符串
-    // * @return PartsExpr
-    // */
-    // private PartsExpr filterPartExpr(String partExprStr) {
-    // if (partExprStr == null || partExprStr.isEmpty()) {
-    // // 打日志，抛异常
-    // log.error("partExprStr is null or empty, cannot filter part expr");
-    // throw new AlgLoaderException("partExprStr is null or empty, cannot filter
-    // part expr");
-    // }
-    // PartsExpr partsExpr = new PartsExpr();
-    // // 解析partCategoryCode和filterConditionStr
-    // String partCategoryCode = "";
-    // String filterConditionStr = "";
-
-    // int colonIndex = partExprStr.indexOf(':');
-    // if (colonIndex > 0) {
-    // partCategoryCode = partExprStr.substring(0, colonIndex);
-    // filterConditionStr = partExprStr.substring(colonIndex + 1);
-    // } else {
-    // // 打日志，抛异常
-    // log.error("partExprStr is invalid, cannot filter part expr");
-    // throw new AlgLoaderException("partExprStr is invalid, cannot filter part
-    // expr");
-    // }
-
-    // partsExpr.setFilterConditionStr(filterConditionStr);
-
-    // PartCategoryAlgImpl partCategoryAlgImpl = this.getPartC
-    // // 获取该分类下的所有原子部件
-    // List<Part> atomicParts = module.getAllAtomicParts(partCategoryCode);
-
-    // // 根据过滤条件筛选部件
-    // List<Part> filterParts;
-    // List<Part> noFilterParts;
-
-    // if (filterConditionStr == null || filterConditionStr.isEmpty()) {
-    // filterParts = new ArrayList<>();
-    // noFilterParts = new ArrayList<>(atomicParts);
-    // } else {
-    // filterParts = FilterExpressionExecutor.doSelect(atomicParts,
-    // filterConditionStr);
-    // noFilterParts = subPart(atomicParts, filterParts);
-    // }
-
-    // // 转换为PartVar
-    // partsExpr.setPartVars(toPartVar(atomicParts));
-    // partsExpr.setFilterPartVars(toPartVar(filterParts));
-    // partsExpr.setNoFilterPartVars(toPartVar(noFilterParts));
-    // return partsExpr;
-    // }
-
-    // /**
-    // * 将Part列表转换为PartVar列表
-    // *
-    // * @param parts Part列表
-    // * @return PartVar列表
-    // */
-    // public List<PartVar> toPartVar(List<Part> parts) {
-    // return parts.stream()
-    // .map(this::toPartVar)
-    // .filter(pv -> pv != null)
-    // .collect(Collectors.toList());
-    // }
-
-    // /**
-    // * 将Part对象转换为PartVar
-    // *
-    // * @param part Part对象
-    // * @return PartVar，如果不存在则返回null
-    // */
-    // public PartVar toPartVar(Part part) {
-    // return toPartVar(part.getCode());
-    // }
-
-    // /**
-    // * 将Part代码转换为PartVar
-    // *
-    // * @param partCode Part代码
-    // * @return PartVar，如果不存在则返回null
-    // */
-    // public PartVar toPartVar(String partCode) {
-    // PartVar partVar = partMap.get(partCode);
-    // if (partVar == null) {
-    // // 打日志，抛异常
-    // log.error("PartVar not found for code: {}", partCode);
-    // throw new AlgLoaderException("PartVar not found for code: " + partCode);
-    // }
-    // return partVar;
-    // }
-
-    // /**
-    // * 计算子部件列表
-    // * 从allParts中移除subParts
-    // *
-    // * @param allParts 全部部件列表
-    // * @param subParts 要移除的部件列表
-    // * @return 剩余部件列表
-    // */
-    // private List<Part> subPart(List<Part> allParts, List<Part> subParts) {
-    // if (subParts == null || subParts.isEmpty()) {
-    // return new ArrayList<>(allParts);
-    // }
-
-    // List<Part> result = new ArrayList<>(allParts);
-    // result.removeAll(subParts);
-    // return result;
-    // }
 }
