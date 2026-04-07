@@ -64,7 +64,7 @@ public class ModuleBase extends Onto {
             }
         }
         for (PartCategory partCategory : partCategorys) {
-            partCategory.initShortCode(index);
+            index = partCategory.initShortCode(index);
         }
         return index;
     }

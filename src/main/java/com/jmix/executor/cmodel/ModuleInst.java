@@ -239,7 +239,7 @@ public class ModuleInst extends ModuleBaseInst {
                 }
             }
         } else {
-            int index = 1;
+            int index = 0;
             for (PartCategoryInst partCategory : this.partCategorys) {
                 index++;
                 sb.append(partCategory.toShortString(isSimple));

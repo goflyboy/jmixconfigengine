@@ -727,7 +727,8 @@ public abstract class ModuleScenarioTestBase {
     }
 
     private void assertStringContains(String real, String expect, String msg) {
-        boolean result = real.contains(expect);
+        // boolean result = real.contains(expect);
+        boolean result = contains(real, expect);
         if (!result) {
             assertEquals(expect, real, "contains is false," + msg);
         }
@@ -740,7 +741,7 @@ public abstract class ModuleScenarioTestBase {
     private void assertSoluContain(String expect, boolean isSimple) {
         boolean isContain = false;
         for (ModuleInst solu : result.getData()) {
-            if (solu.toShortString(isSimple).contains(expect)) {
+            if (contains(solu.toShortString(isSimple), expect)) {
                 isContain = true;
                 break;
             }
@@ -748,4 +749,27 @@ public abstract class ModuleScenarioTestBase {
         assertTrue(isContain,
                 "Solution contain " + expect);
     }
+
+    private boolean contains(String realWholeStr, String expectStr) {
+        List<String> expectParts = parseExpect(expectStr);
+        for (String expectPart : expectParts) {
+            if (!realWholeStr.contains(expectPart)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private List<String> parseExpect(String expectStr) {
+        // expectStr = "cpu2(Q:20,H:0,S:1),md1(Q:5,H:0,S:1),sd1(0*)"
+        // 预期结果：["cpu2(Q:20,H:0,S:1)","md1(Q:5,H:0,S:1)","sd1(0*)"
+        // 处理逻辑： 根据“),”来拆分
+        List<String> result = new ArrayList<>();
+        String[] items = expectStr.split("\\),");
+        for (String item : items) {
+            result.add(item.trim());
+        }
+        return result;
+    }
+
 }

@@ -63,10 +63,10 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      */
     protected IModule module;
 
-    /**
-     * 变量映射表，存储所有创建的变量实例
-     */
-    protected Map<String, Var<?>> varMap = new LinkedHashMap<>();
+    // /**
+    // * 变量映射表，存储所有创建的变量实例
+    // */
+    // protected Map<String, Var<?>> varMap = new LinkedHashMap<>();
 
     /**
      * 部件变量映射表，存储code到PartVar的映射
@@ -295,6 +295,38 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         log.info("Initializing AlgCPModel for incremental loading");
     }
 
+    // protected void setDefaultVisibilityConstraints2() {
+    // boolean isFirst = true;
+    // for (Map.Entry<String, Var<?>> entry : varMap.entrySet()) {
+    // String code = entry.getKey();
+    // if (codesOfHiddenConstraint.contains(code)) {
+    // continue;
+    // }
+    // Var<?> v = entry.getValue();
+    // if (v instanceof ParaVar) {
+    // if (isFirst) {
+    // this.model.setRelax4SysRule("hiddensrule");
+    // isFirst = false;
+    // }
+    // ParaVar pv = (ParaVar) v;
+    // if (pv.getBase().getAssignType() == AssignType.CALC) {
+    // // 暂时没有添加到松弛变量里
+    // model.addEquality(pv.getIsHidden(), 0);
+    // }
+    // } else if (v instanceof PartVar) {
+    // if (isFirst) {
+    // this.model.setRelax4SysRule("hiddensrule");
+    // isFirst = false;
+    // }
+    // PartVar pt = (PartVar) v;
+    // model.addEquality(pt.getIsHidden(), 0);
+    // } else {
+    // log.error("Unsupported variable type: {}", v.getClass().getSimpleName());
+    // throw new AlgLoaderException("Unsupported variable type: " +
+    // v.getClass().getSimpleName());
+    // }
+    // }
+    // }
     /**
      * 设置默认可见性约束
      * 对于没有显式控制可见性的变量，设置 isHiddenVar == 0（即默认可见）
@@ -304,33 +336,28 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      */
     protected void setDefaultVisibilityConstraints() {
         boolean isFirst = true;
-        for (Map.Entry<String, Var<?>> entry : varMap.entrySet()) {
-            String code = entry.getKey();
-            if (codesOfHiddenConstraint.contains(code)) {
+        for (ParaVar paraVar : this.getParaVars()) {
+            if (codesOfHiddenConstraint.contains(paraVar.getCode())) {
                 continue;
             }
-            Var<?> v = entry.getValue();
-            if (v instanceof ParaVar) {
-                if (isFirst) {
-                    this.model.setRelax4SysRule("hiddensrule");
-                    isFirst = false;
-                }
-                ParaVar pv = (ParaVar) v;
-                if (pv.getBase().getAssignType() == AssignType.CALC) {
-                    // 暂时没有添加到松弛变量里
-                    model.addEquality(pv.getIsHidden(), 0);
-                }
-            } else if (v instanceof PartVar) {
-                if (isFirst) {
-                    this.model.setRelax4SysRule("hiddensrule");
-                    isFirst = false;
-                }
-                PartVar pt = (PartVar) v;
-                model.addEquality(pt.getIsHidden(), 0);
-            } else {
-                log.error("Unsupported variable type: {}", v.getClass().getSimpleName());
-                throw new AlgLoaderException("Unsupported variable type: " + v.getClass().getSimpleName());
+            if (isFirst) {
+                this.model.setRelax4SysRule("hiddensrule");
+                isFirst = false;
             }
+            if (paraVar.getBase().getAssignType() == AssignType.CALC) {
+                // 暂时没有添加到松弛变量里
+                model.addEquality(paraVar.getIsHidden(), 0);
+            }
+        }
+        for (PartVar partVar : this.getPartVars()) {
+            if (codesOfHiddenConstraint.contains(partVar.getCode())) {
+                continue;
+            }
+            if (isFirst) {
+                this.model.setRelax4SysRule("hiddensrule");
+                isFirst = false;
+            }
+            model.addEquality(partVar.getIsHidden(), 0);
         }
     }
 
@@ -570,37 +597,37 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         }
     }
 
-    /**
-     * 根据exeProgObjs初始化Variables
-     * 
-     * @param exeProgObjs 要初始化的编程对象列表
-     */
-    private void initVariables(List<RefProgObjSchema> exeProgObjs) {
-        // 创建变量
-        createVariables(exeProgObjs);
+    // /**
+    // * 根据exeProgObjs初始化Variables
+    // *
+    // * @param exeProgObjs 要初始化的编程对象列表
+    // */
+    // private void initVariables(List<RefProgObjSchema> exeProgObjs) {
+    // // 创建变量
+    // createVariables(exeProgObjs);
 
-        // 将变量写回字段, 保证规则使用变量是同一个
-        writeBackVariablesToFields(varMap);
-    }
+    // // 将变量写回字段, 保证规则使用变量是同一个
+    // writeBackVariablesToFields(varMap);
+    // }
 
-    private void createVariables(List<RefProgObjSchema> exeProgObjs) {
-        if (exeProgObjs == null || exeProgObjs.isEmpty()) {
-            log.error("exeProgObjs is null or empty");
-            throw new AlgLoaderException("exeProgObjs is null or empty");
-        }
-        for (RefProgObjSchema exeProgObj : exeProgObjs) {
-            String field = exeProgObj.getProgObjType();
-            if (field.equals(RefProgObjSchema.PROG_OBJ_TYPE_PARA)) {
-                createParaVar(exeProgObj.getProgObjCode());
-            } else if (field.equals(RefProgObjSchema.PROG_OBJ_TYPE_PART)) {
-                createPartVar(exeProgObj.getProgObjCode());
-            } else {
-                log.error("Unsupported progObjType: {}", field);
-                throw new AlgLoaderException("Unsupported progObjType: " + field);
-            }
-        }
-        log.info("create {} variables for incremental loading", varMap.size());
-    }
+    // private void createVariables(List<RefProgObjSchema> exeProgObjs) {
+    // if (exeProgObjs == null || exeProgObjs.isEmpty()) {
+    // log.error("exeProgObjs is null or empty");
+    // throw new AlgLoaderException("exeProgObjs is null or empty");
+    // }
+    // for (RefProgObjSchema exeProgObj : exeProgObjs) {
+    // String field = exeProgObj.getProgObjType();
+    // if (field.equals(RefProgObjSchema.PROG_OBJ_TYPE_PARA)) {
+    // createParaVar(exeProgObj.getProgObjCode());
+    // } else if (field.equals(RefProgObjSchema.PROG_OBJ_TYPE_PART)) {
+    // createPartVar(exeProgObj.getProgObjCode());
+    // } else {
+    // log.error("Unsupported progObjType: {}", field);
+    // throw new AlgLoaderException("Unsupported progObjType: " + field);
+    // }
+    // }
+    // log.info("create {} variables for incremental loading", varMap.size());
+    // }
 
     /**
      * 模型初始化后的回调方法
@@ -845,10 +872,8 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
 
     /**
      * 将变量写回字段，保证规则使用变量是同一个
-     *
-     * @throws AlgLoaderException 异常
      */
-    protected void writeBackToFields(IModuleAlg moduleAlgFile) throws AlgLoaderException {
+    protected void writeBackToFields(IModuleAlg moduleAlgFile) {
         Map<String, Field> fieldMap = getAllFieldVariables(moduleAlgFile);
         ModuleBaseAlgImpl algFileImpl = (ModuleBaseAlgImpl) moduleAlgFile;
         // 处理PartVar
@@ -907,19 +932,6 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
 
     }
 
-    /**
-     * 初始化模块算法实例（基类实现）
-     * 按partCategoryCode对partConstraintFromReqs进行分组，然后初始化本层和子层的变量与规则
-     *
-     * @param model                  CP约束模型
-     * @param module                 模块对象
-     * @param partConstraintFromReqs 来自请求的部件约束列表
-     */
-    public void init(AlgCPModel model, IModule module, List<ParConstraint> partConstraintFromReqs,
-            Map<String, Method> allRuleMethods, IModuleAlg moduleAlgFile) {
-        initInternal(model, module, partConstraintFromReqs, allRuleMethods, moduleAlgFile);
-    }
-
     // public void init(AlgCPModel model, IModule module, List<ParConstraint>
     // partConstraintFromReqs) {
 
@@ -929,8 +941,8 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
     // module.getAlg());
     // }
 
-    private void initInternal(AlgCPModel model, IModule module, List<ParConstraint> partConstraintFromReqs,
-            Map<String, Method> allRuleMethods, IModuleAlg moduleAlgFile) {
+    protected void initData(AlgCPModel model, IModule module, List<ParConstraint> partConstraintFromReqs,
+            IModuleAlg moduleAlgFile) {
         // Module级别
         this.model = model;
         this.module = module;
@@ -946,48 +958,48 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         setInputVariables(partConstraintFromReqs);
 
         // 将变量写回字段
-        try {
-            writeBackToFields(moduleAlgFile);
-        } catch (AlgLoaderException e) {
-            log.error("Failed to write back variables to fields", e);
-            throw new AlgLoaderException("Failed to write back variables to fields", e);
-        }
+        writeBackToFields(moduleAlgFile);
 
+        log.info("ModuleBaseAlgImpl initRules {}", module.getClass().getSimpleName());
+    }
+
+    protected void initRules(Map<String, Method> allRuleMethods, IModuleAlg moduleAlgFile) {
         // 执行本层的规则
         executeModuleRules(moduleAlgFile, allRuleMethods);
 
         // 设置默认可见性约束
         setDefaultVisibilityConstraints();
 
-        log.info("ModuleBaseAlgImpl initialized with module: {}",
-                module != null ? module.getClass().getSimpleName() : "null");
+        log.info("ModuleBaseAlgImpl initRules {}", module.getClass().getSimpleName());
     }
-
-    /**
-     * 将变量写回字段, 保证在初始化rule时生效
-     * 
-     * @param varMap 变量映射
-     * @throws AlgLoaderException 异常
-     */
-    private void writeBackVariablesToFields(Map<String, Var<?>> varMap) throws AlgLoaderException {
-        Map<String, Field> fieldMap = getAllFieldVariables();
-        Var<?> tVar = null;
-        for (Map.Entry<String, Var<?>> entry : varMap.entrySet()) {
-            String code = entry.getKey();
-            Var<?> v = entry.getValue();
-            if (v instanceof ParaVar) {
-                tVar = newParaVar((ParaVar) v);
-                setVariableField(tVar, fieldMap.get(code));
-            } else if (v instanceof PartVar) {
-                tVar = newPartVar((PartVar) v);
-                setVariableField(tVar, fieldMap.get(code));
-            } else {
-                log.error("Unsupported variable to field: please check in constrain file! {}", v.getCode());
-                throw new AlgLoaderException(
-                        "Unsupported variable to field: please check in constrain file!" + v.getCode());
-            }
-        }
-    }
+    // /**
+    // * 将变量写回字段, 保证在初始化rule时生效
+    // *
+    // * @param varMap 变量映射
+    // * @throws AlgLoaderException 异常
+    // */
+    // private void writeBackVariablesToFields(Map<String, Var<?>> varMap) throws
+    // AlgLoaderException {
+    // Map<String, Field> fieldMap = getAllFieldVariables();
+    // Var<?> tVar = null;
+    // for (Map.Entry<String, Var<?>> entry : varMap.entrySet()) {
+    // String code = entry.getKey();
+    // Var<?> v = entry.getValue();
+    // if (v instanceof ParaVar) {
+    // tVar = newParaVar((ParaVar) v);
+    // setVariableField(tVar, fieldMap.get(code));
+    // } else if (v instanceof PartVar) {
+    // tVar = newPartVar((PartVar) v);
+    // setVariableField(tVar, fieldMap.get(code));
+    // } else {
+    // log.error("Unsupported variable to field: please check in constrain file!
+    // {}", v.getCode());
+    // throw new AlgLoaderException(
+    // "Unsupported variable to field: please check in constrain file!" +
+    // v.getCode());
+    // }
+    // }
+    // }
 
     /**
      * 创建部件变量, 继承类可以重载
@@ -1181,24 +1193,24 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         return model;
     }
 
-    /**
-     * 获取变量映射
-     * 
-     * @return 变量映射Map
-     */
-    public Map<String, Var<?>> getVarMap() {
-        return varMap;
-    }
+    // /**
+    // * 获取变量映射
+    // *
+    // * @return 变量映射Map
+    // */
+    // public Map<String, Var<?>> getVarMap() {
+    // return varMap;
+    // }
 
-    /**
-     * 获取变量
-     *
-     * @param code 变量代码
-     * @return 变量实例
-     */
-    public Var<?> getVar(String code) {
-        return varMap.get(code);
-    }
+    // /**
+    // * 获取变量
+    // *
+    // * @param code 变量代码
+    // * @return 变量实例
+    // */
+    // public Var<?> getVar(String code) {
+    // return varMap.get(code);
+    // }
 
     /**
      * 获取模块对象
@@ -1725,13 +1737,11 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         // 设置当前松弛变量名称
         this.model.setRelax4SysRule("addPartEquality_" + partCode + "_" + partQuantity);
         // 1. 根据partCode找到对应的partVar
-        Var<?> var = varMap.get(partCode);
-        if (!(var instanceof PartVar)) {
+        PartVar partVar = partMap.get(partCode);
+        if (partVar == null) {
             log.error("PartVar not found for code: {}", partCode);
             throw new AlgLoaderException("PartVar not found for code: " + partCode);
         }
-        PartVar partVar = (PartVar) var;
-
         // 2. 使用model.addEquality添加数量约束
         model.addEquality(partVar.getQty(), partQuantity);
     }
@@ -1746,12 +1756,11 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
     public void addParaEquality(String paraCode, String paraValue) {
         // 设置当前松弛变量名称
         this.model.setRelax4SysRule("addParaEquality_" + paraCode + "_" + paraValue);
-        Var<?> var = varMap.get(paraCode);
-        if (!(var instanceof ParaVar)) {
+        ParaVar paraVar = paraMap.get(paraCode);
+        if (paraVar == null) {
             log.error("ParaVar not found for code: {}", paraCode);
             throw new AlgLoaderException("ParaVar not found for code: " + paraCode);
         }
-        ParaVar paraVar = (ParaVar) var;
         model.addEquality(paraVar.getValue(), Integer.parseInt(paraValue));
     }
 
@@ -1968,7 +1977,6 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * - partVar.qty == 0
      *
      * @param part 部件
-     * @throws AlgLoaderException 异常
      */
     public void setPartUnSelected(Part part) {
         if (part == null) {
@@ -1989,131 +1997,116 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         log.info("Set part unselected: code={}, isSelected=0, qty=0", part.getCode());
     }
 
-    /**
-     * 添加不兼容性约束（部件级别）
-     * 
-     * @param ruleCode          规则代码
-     * @param leftPartsExprStr  左侧部件表达式字符串，格式如 "fatherCode=cpu:CoreNum=4"
-     * @param rightPartsExprStr 右侧部件表达式字符串
-     */
-    public void inCompatible(String ruleCode, String leftPartsExprStr, String rightPartsExprStr) {
-        PartsExpr left = filterPartExpr(leftPartsExprStr);
-        PartsExpr right = filterPartExpr(rightPartsExprStr);
+    // /**
+    // * 解析部件表达式字符串
+    // * 格式：fatherCode=xxx:filterCondition
+    // *
+    // * @param partExprStr 部件表达式字符串
+    // * @return PartsExpr
+    // */
+    // private PartsExpr filterPartExpr(String partExprStr) {
+    // if (partExprStr == null || partExprStr.isEmpty()) {
+    // // 打日志，抛异常
+    // log.error("partExprStr is null or empty, cannot filter part expr");
+    // throw new AlgLoaderException("partExprStr is null or empty, cannot filter
+    // part expr");
+    // }
+    // PartsExpr partsExpr = new PartsExpr();
+    // // 解析partCategoryCode和filterConditionStr
+    // String partCategoryCode = "";
+    // String filterConditionStr = "";
 
-        if (left.isEmpty4FilterPars() || right.isEmpty4FilterPars()) {
-            log.info("Skip inCompatible constraint: {} - left or right filter is empty", ruleCode);
-            return;
-        }
+    // int colonIndex = partExprStr.indexOf(':');
+    // if (colonIndex > 0) {
+    // partCategoryCode = partExprStr.substring(0, colonIndex);
+    // filterConditionStr = partExprStr.substring(colonIndex + 1);
+    // } else {
+    // // 打日志，抛异常
+    // log.error("partExprStr is invalid, cannot filter part expr");
+    // throw new AlgLoaderException("partExprStr is invalid, cannot filter part
+    // expr");
+    // }
 
-        compatibleConstraintAlg.addCompatibleConstraintInCompatible(ruleCode, left, right);
-    }
+    // partsExpr.setFilterConditionStr(filterConditionStr);
 
-    /**
-     * 解析部件表达式字符串
-     * 格式：fatherCode=xxx:filterCondition
-     * 
-     * @param partExprStr 部件表达式字符串
-     * @return PartsExpr
-     */
-    private PartsExpr filterPartExpr(String partExprStr) {
-        if (partExprStr == null || partExprStr.isEmpty()) {
-            // 打日志，抛异常
-            log.error("partExprStr is null or empty, cannot filter part expr");
-            throw new AlgLoaderException("partExprStr is null or empty, cannot filter part expr");
-        }
-        PartsExpr partsExpr = new PartsExpr();
-        // 解析partCategoryCode和filterConditionStr
-        String partCategoryCode = "";
-        String filterConditionStr = "";
+    // PartCategoryAlgImpl partCategoryAlgImpl = this.getPartC
+    // // 获取该分类下的所有原子部件
+    // List<Part> atomicParts = module.getAllAtomicParts(partCategoryCode);
 
-        int colonIndex = partExprStr.indexOf(':');
-        if (colonIndex > 0) {
-            partCategoryCode = partExprStr.substring(0, colonIndex);
-            filterConditionStr = partExprStr.substring(colonIndex + 1);
-        } else {
-            // 打日志，抛异常
-            log.error("partExprStr is invalid, cannot filter part expr");
-            throw new AlgLoaderException("partExprStr is invalid, cannot filter part expr");
-        }
+    // // 根据过滤条件筛选部件
+    // List<Part> filterParts;
+    // List<Part> noFilterParts;
 
-        partsExpr.setFilterConditionStr(filterConditionStr);
+    // if (filterConditionStr == null || filterConditionStr.isEmpty()) {
+    // filterParts = new ArrayList<>();
+    // noFilterParts = new ArrayList<>(atomicParts);
+    // } else {
+    // filterParts = FilterExpressionExecutor.doSelect(atomicParts,
+    // filterConditionStr);
+    // noFilterParts = subPart(atomicParts, filterParts);
+    // }
 
-        // 获取该分类下的所有原子部件
-        List<Part> atomicParts = module.getAllAtomicParts(partCategoryCode);
+    // // 转换为PartVar
+    // partsExpr.setPartVars(toPartVar(atomicParts));
+    // partsExpr.setFilterPartVars(toPartVar(filterParts));
+    // partsExpr.setNoFilterPartVars(toPartVar(noFilterParts));
+    // return partsExpr;
+    // }
 
-        // 根据过滤条件筛选部件
-        List<Part> filterParts;
-        List<Part> noFilterParts;
+    // /**
+    // * 将Part列表转换为PartVar列表
+    // *
+    // * @param parts Part列表
+    // * @return PartVar列表
+    // */
+    // public List<PartVar> toPartVar(List<Part> parts) {
+    // return parts.stream()
+    // .map(this::toPartVar)
+    // .filter(pv -> pv != null)
+    // .collect(Collectors.toList());
+    // }
 
-        if (filterConditionStr == null || filterConditionStr.isEmpty()) {
-            filterParts = new ArrayList<>();
-            noFilterParts = new ArrayList<>(atomicParts);
-        } else {
-            filterParts = FilterExpressionExecutor.doSelect(atomicParts, filterConditionStr);
-            noFilterParts = subPart(atomicParts, filterParts);
-        }
+    // /**
+    // * 将Part对象转换为PartVar
+    // *
+    // * @param part Part对象
+    // * @return PartVar，如果不存在则返回null
+    // */
+    // public PartVar toPartVar(Part part) {
+    // return toPartVar(part.getCode());
+    // }
 
-        // 转换为PartVar
-        partsExpr.setPartVars(toPartVar(atomicParts));
-        partsExpr.setFilterPartVars(toPartVar(filterParts));
-        partsExpr.setNoFilterPartVars(toPartVar(noFilterParts));
-        return partsExpr;
-    }
+    // /**
+    // * 将Part代码转换为PartVar
+    // *
+    // * @param partCode Part代码
+    // * @return PartVar，如果不存在则返回null
+    // */
+    // public PartVar toPartVar(String partCode) {
+    // PartVar partVar = partMap.get(partCode);
+    // if (partVar == null) {
+    // // 打日志，抛异常
+    // log.error("PartVar not found for code: {}", partCode);
+    // throw new AlgLoaderException("PartVar not found for code: " + partCode);
+    // }
+    // return partVar;
+    // }
 
-    /**
-     * 将Part列表转换为PartVar列表
-     * 
-     * @param parts Part列表
-     * @return PartVar列表
-     */
-    public List<PartVar> toPartVar(List<Part> parts) {
-        return parts.stream()
-                .map(this::toPartVar)
-                .filter(pv -> pv != null)
-                .collect(Collectors.toList());
-    }
+    // /**
+    // * 计算子部件列表
+    // * 从allParts中移除subParts
+    // *
+    // * @param allParts 全部部件列表
+    // * @param subParts 要移除的部件列表
+    // * @return 剩余部件列表
+    // */
+    // private List<Part> subPart(List<Part> allParts, List<Part> subParts) {
+    // if (subParts == null || subParts.isEmpty()) {
+    // return new ArrayList<>(allParts);
+    // }
 
-    /**
-     * 将Part对象转换为PartVar
-     * 
-     * @param part Part对象
-     * @return PartVar，如果不存在则返回null
-     */
-    public PartVar toPartVar(Part part) {
-        return toPartVar(part.getCode());
-    }
-
-    /**
-     * 将Part代码转换为PartVar
-     * 
-     * @param partCode Part代码
-     * @return PartVar，如果不存在则返回null
-     */
-    public PartVar toPartVar(String partCode) {
-        Var<?> var = getVar(partCode);
-        if (var instanceof PartVar) {
-            return (PartVar) var;
-        }
-        // 打日志，抛异常
-        log.error("PartVar not found for code: {}", partCode);
-        throw new AlgLoaderException("PartVar not found for code: " + partCode);
-    }
-
-    /**
-     * 计算子部件列表
-     * 从allParts中移除subParts
-     * 
-     * @param allParts 全部部件列表
-     * @param subParts 要移除的部件列表
-     * @return 剩余部件列表
-     */
-    private List<Part> subPart(List<Part> allParts, List<Part> subParts) {
-        if (subParts == null || subParts.isEmpty()) {
-            return new ArrayList<>(allParts);
-        }
-
-        List<Part> result = new ArrayList<>(allParts);
-        result.removeAll(subParts);
-        return result;
-    }
+    // List<Part> result = new ArrayList<>(allParts);
+    // result.removeAll(subParts);
+    // return result;
+    // }
 }

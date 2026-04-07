@@ -428,7 +428,7 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
         solver.getParameters().setNumSearchWorkers(1); // 单线程搜索，防止有重复解
         log.info("solver parameters:\n" + solver.getParameters().toString());
         // 可按需设置更多参数
-        ModuleInstSolutionCallBack cb = new ModuleInstSolutionCallBack(module, alg.getVars(), alg.getOtherVarMap());
+        ModuleInstSolutionCallBack cb = new ModuleInstSolutionCallBack(module, alg);
         CpSolverStatus status = solver.solve(model.getCpModel(), cb);
         log.info("solver  models:\n");
         model.printModelSummary();
