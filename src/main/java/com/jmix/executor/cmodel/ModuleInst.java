@@ -6,7 +6,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 模块实例类
@@ -215,10 +217,47 @@ public class ModuleInst extends ModuleBaseInst {
     @Override
     public String toShortString(boolean isSimple) {
         StringBuilder sb = new StringBuilder();
+        // 当前模块本身的
         sb.append(super.toShortString(isSimple));
+        toShortString(sb, isSimple, this.getPartCategorys());
         // 添加优先级属性值信息
         appendPriorityAttrValuesInfo(sb);
         return sb.toString();
     }
 
+    private void toShortString(StringBuilder sb, boolean isSimple, List<PartCategoryInst> pCategoryInsts) {
+        if (hasMuitiPartCategoryInst(pCategoryInsts)) {
+            // 分类的
+            int index = 0;
+            for (PartCategoryInst partCategory : this.partCategorys) {
+                index++;
+                String prefix = partCategory.getCode();
+                prefix = "_I" + partCategory.getInstanceId() + "{";
+                sb.append(prefix).append(partCategory.toShortString(isSimple)).append("}");
+                if (!(index == this.partCategorys.size())) { // isLast
+                    sb.append(",");
+                }
+            }
+        } else {
+            int index = 1;
+            for (PartCategoryInst partCategory : this.partCategorys) {
+                index++;
+                sb.append(partCategory.toShortString(isSimple));
+                if (!(index == this.partCategorys.size())) { // isLast
+                    sb.append(",");
+                }
+            }
+        }
+    }
+
+    private boolean hasMuitiPartCategoryInst(List<PartCategoryInst> pCategoryInsts) {
+        Set<String> pcCodes = new HashSet<>();
+        for (PartCategoryInst pCategoryInst : pCategoryInsts) {
+            if (pcCodes.contains(pCategoryInst.getCode())) {
+                return true;
+            }
+            pcCodes.add(pCategoryInst.getCode());
+        }
+        return false;
+    }
 }

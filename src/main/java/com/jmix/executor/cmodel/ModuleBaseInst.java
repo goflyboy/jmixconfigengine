@@ -131,7 +131,6 @@ public class ModuleBaseInst {
             }
             sb.append(part.toShortString(isSimple));
         }
-
         // 添加其他变量信息
         appendOtherVariablesInfo(sb);
 
