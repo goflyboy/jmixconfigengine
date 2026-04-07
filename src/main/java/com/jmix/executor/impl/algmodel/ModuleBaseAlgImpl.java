@@ -18,6 +18,7 @@ import com.jmix.executor.impl.util.FilterExpressionExecutor;
 import com.jmix.executor.model.AlgLoaderException;
 import com.jmix.executor.model.ParConstraint;
 import com.jmix.executor.model.PartConstantAttr;
+import com.jmix.executor.southinf.IModuleAlg;
 
 import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.IntVar;
@@ -50,7 +51,7 @@ import java.util.stream.Collectors;
  * @since 2025-12-27
  */
 @Slf4j
-public abstract class ModuleBaseAlgImpl {
+public abstract class ModuleBaseAlgImpl implements IModuleAlg {
 
     /**
      * CP约束求解模型实例
@@ -98,9 +99,13 @@ public abstract class ModuleBaseAlgImpl {
     protected CompatibleConstraintAlg compatibleConstraintAlg;
 
     /**
-     * 当前模块
+     * 当前模块,算法当前执行模块
      */
     protected IModule currentModule;
+    /**
+     * 当前模块算法实例
+     */
+    protected ModuleBaseAlgImpl currentModuleAlg;
 
     /**
      * 是否有优先类规则
@@ -161,19 +166,20 @@ public abstract class ModuleBaseAlgImpl {
         }
     }
 
-    /**
-     * 初始化约束模型（带松弛变量支持）
-     * 
-     * @param model           CP模型实例
-     * @param module          模块对象
-     * @param isAttachRelax   是否附加松弛变量
-     * @param confictedRelaxs 冲突松弛变量列表
-     */
-    public void initModel(AlgCPModel model, IModule module, List<ParConstraint> partConstraintFromReqs) {
-        List<String> fullRules = toFullRules(module);
-        List<RefProgObjSchema> fullProgObjs = toFullProgObjs(module);
-        initModel(model, module, fullRules, fullProgObjs, partConstraintFromReqs);
-    }
+    // /**
+    // * 初始化约束模型（带松弛变量支持）
+    // *
+    // * @param model CP模型实例
+    // * @param module 模块对象
+    // * @param isAttachRelax 是否附加松弛变量
+    // * @param confictedRelaxs 冲突松弛变量列表
+    // */
+    // public void initModel(AlgCPModel model, IModule module, List<ParConstraint>
+    // partConstraintFromReqs) {
+    // List<String> fullRules = toFullRules(module);
+    // List<RefProgObjSchema> fullProgObjs = toFullProgObjs(module);
+    // initModel(model, module, fullRules, fullProgObjs, partConstraintFromReqs);
+    // }
 
     private List<String> toFullRules(IModule tempModule) {
         List<String> fullRules = new ArrayList<>();
@@ -198,58 +204,58 @@ public abstract class ModuleBaseAlgImpl {
         return fullProgObjs;
     }
 
-    /**
-     * 初始化模型（差量加载版本）
-     * 
-     * @param model           CP模型
-     * @param module          模块
-     * @param exeRules        本次要加载的rules
-     * @param exeProgObjs     本次要初始化的变量
-     * @param confictedRelaxs 冲突松弛变量列表
-     */
-    public void initModel(AlgCPModel model,
-            IModule module,
-            List<String> exeRules,
-            List<RefProgObjSchema> exeProgObjs) {
-        initModel(model, module, exeRules, exeProgObjs, null);
-    }
+    // /**
+    // * 初始化模型（差量加载版本）
+    // *
+    // * @param model CP模型
+    // * @param module 模块
+    // * @param exeRules 本次要加载的rules
+    // * @param exeProgObjs 本次要初始化的变量
+    // * @param confictedRelaxs 冲突松弛变量列表
+    // */
+    // public void initModel(AlgCPModel model,
+    // IModule module,
+    // List<String> exeRules,
+    // List<RefProgObjSchema> exeProgObjs) {
+    // initModel(model, module, exeRules, exeProgObjs, null);
+    // }
 
-    /**
-     * 初始化模型（差量加载版本，带松弛变量支持）
-     * 
-     * @param model           CP模型
-     * @param module          模块
-     * @param exeRules        本次要加载的rules
-     * @param exeProgObjs     本次要初始化的变量
-     * @param isAttachRelax   是否附加松弛变量
-     * @param confictedRelaxs 冲突松弛变量列表
-     */
-    public void initModel(AlgCPModel model,
-            IModule module,
-            List<String> exeRules,
-            List<RefProgObjSchema> exeProgObjs,
-            List<ParConstraint> partConstraints) {
-        this.model = model;
-        // 初始化兼容性约束算法实例
-        this.compatibleConstraintAlg = new CompatibleConstraintAlg(model);
-        this.module = module;
-        initModelAfter(model);
+    // /**
+    // * 初始化模型（差量加载版本，带松弛变量支持）
+    // *
+    // * @param model CP模型
+    // * @param module 模块
+    // * @param exeRules 本次要加载的rules
+    // * @param exeProgObjs 本次要初始化的变量
+    // * @param isAttachRelax 是否附加松弛变量
+    // * @param confictedRelaxs 冲突松弛变量列表
+    // */
+    // public void initModel(AlgCPModel model,
+    // IModule module,
+    // List<String> exeRules,
+    // List<RefProgObjSchema> exeProgObjs,
+    // List<ParConstraint> partConstraints) {
+    // this.model = model;
+    // // 初始化兼容性约束算法实例
+    // this.compatibleConstraintAlg = new CompatibleConstraintAlg(model);
+    // this.module = module;
+    // initModelAfter(model);
 
-        // 初始化AlgCPModel
-        initAlgCPModel();
+    // // 初始化AlgCPModel
+    // initAlgCPModel();
 
-        // 根据exeProgObjs初始化Variables
-        initVariables(exeProgObjs);
+    // // 根据exeProgObjs初始化Variables
+    // initVariables(exeProgObjs);
 
-        // 设置输入变量（如有）
-        setInputVariables(partConstraints);
+    // // 设置输入变量（如有）
+    // setInputVariables(partConstraints);
 
-        // 根据exeRules初始化rule
-        initRules(exeRules);
+    // // 根据exeRules初始化rule
+    // initRules(exeRules);
 
-        // 设置默认可见性约束
-        setDefaultVisibilityConstraints();
-    }
+    // // 设置默认可见性约束
+    // setDefaultVisibilityConstraints();
+    // }
 
     /**
      * 根据外部传入的部件约束（求和约束）设置对应的参数输入值
@@ -385,7 +391,7 @@ public abstract class ModuleBaseAlgImpl {
                 "sumPars_" + (attrCode == null ? "" : attrCode) + "_" + varName);
         boolean isWithoutAttr = attrCode == null || attrCode.isEmpty();
         for (Part part : atomicParts) {
-            PartVar partVar = getPartVar(part.getCode());
+            PartVar partVar = currentModuleAlg.getPartVar(part.getCode());
             int attrValue;
             if (isWithoutAttr) {
                 attrValue = 1;
@@ -446,45 +452,47 @@ public abstract class ModuleBaseAlgImpl {
         log.info("Executed  {} requested rules", exeRules.size());
     }
 
-    /**
-     * 初始化并执行规则方法
-     * 使用外部传入的 allRuleMethods 映射来选择要执行的规则
-     * 
-     * @param allRuleMethods 所有规则方法的映射表 (ruleCode -> Method)
-     */
-    public void initRule(Map<String, Method> allRuleMethods) {
-        if (allRuleMethods == null || allRuleMethods.isEmpty()) {
-            log.warn("allRuleMethods is null or empty, skip initRule");
-            return;
-        }
+    // /**
+    // * 初始化并执行规则方法
+    // * 使用外部传入的 allRuleMethods 映射来选择要执行的规则
+    // *
+    // * @param allRuleMethods 所有规则方法的映射表 (ruleCode -> Method)
+    // */
+    // public void initRule(Map<String, Method> allRuleMethods) {
+    // if (allRuleMethods == null || allRuleMethods.isEmpty()) {
+    // log.warn("allRuleMethods is null or empty, skip initRule");
+    // return;
+    // }
 
-        if (module == null || module.getAllRules() == null) {
-            log.warn("Module or module.getAllRules() is null, skip initRule");
-            return;
-        }
+    // if (module == null || module.getAllRules() == null) {
+    // log.warn("Module or module.getAllRules() is null, skip initRule");
+    // return;
+    // }
 
-        List<Rule> rules = module.getAllRules();
-        for (Rule rule : rules) {
-            String ruleCode = rule.getCode();
-            Method ruleMethod = allRuleMethods.get(ruleCode);
-            if (ruleMethod != null) {
-                ruleMethods.put(ruleCode, ruleMethod);
-                log.info("Registered rule method: {} -> {}", ruleCode, ruleMethod.getName());
+    // List<Rule> rules = module.getAllRules();
+    // for (Rule rule : rules) {
+    // String ruleCode = rule.getCode();
+    // Method ruleMethod = allRuleMethods.get(ruleCode);
+    // if (ruleMethod != null) {
+    // ruleMethods.put(ruleCode, ruleMethod);
+    // log.info("Registered rule method: {} -> {}", ruleCode, ruleMethod.getName());
 
-                // 检查是否是PriorityRule，如果是则构建优先级约束
-                if (RuleTypeConstants.isPriorityRule(rule.getRuleSchemaTypeFullName())) {
-                    buildPriorityConstraint(rule);
-                }
+    // // 检查是否是PriorityRule，如果是则构建优先级约束
+    // if (RuleTypeConstants.isPriorityRule(rule.getRuleSchemaTypeFullName())) {
+    // buildPriorityConstraint(rule);
+    // }
 
-                // 执行规则方法
-                executeRuleMethod(ruleCode, ruleMethod);
-            } else {
-                log.error("Rule method not found in allRuleMethods for rule code: {}", ruleCode);
-                throw new AlgLoaderException("Rule method not found in allRuleMethods for rule code: " + ruleCode);
-            }
-        }
-        log.info("Initialized and executed {} rules", ruleMethods.size());
-    }
+    // // 执行规则方法
+    // executeRuleMethod(ruleCode, ruleMethod);
+    // } else {
+    // log.error("Rule method not found in allRuleMethods for rule code: {}",
+    // ruleCode);
+    // throw new AlgLoaderException("Rule method not found in allRuleMethods for
+    // rule code: " + ruleCode);
+    // }
+    // }
+    // log.info("Initialized and executed {} rules", ruleMethods.size());
+    // }
 
     private IModule getRuleCurrentModule(String ruleCode) {
         Optional<Rule> ruleOpt = module.getRule(ruleCode);
@@ -538,6 +546,12 @@ public abstract class ModuleBaseAlgImpl {
      * @throws AlgLoaderException 异常
      */
     protected void executeRuleMethod(String ruleCode, Method method) {
+        setCurrentModule4Rule(this, this);
+        executeRuleMethod(this, ruleCode, method);
+        setCurrentModule4Rule(this, null);
+    }
+
+    protected void executeRuleMethod(IModuleAlg moduleAlgFile, String ruleCode, Method method) {
         if (method == null) {
             log.error("Rule method not found for execution: " + ruleCode);
             throw new AlgLoaderException("Rule method not found for execution: " + ruleCode);
@@ -548,7 +562,7 @@ public abstract class ModuleBaseAlgImpl {
 
             // 执行规则方法
             method.setAccessible(true);
-            method.invoke(this);
+            method.invoke(moduleAlgFile);
             log.info("Executed rule method: {}", method.getName());
         } catch (IllegalAccessException | InvocationTargetException e) {
             log.error("Failed to execute rule method: " + method.getName(), e);
@@ -610,7 +624,7 @@ public abstract class ModuleBaseAlgImpl {
         }
 
         // 初始化所有paras
-        for (Para para : module.getAllParas()) {
+        for (Para para : module.getParas()) {
             if (para != null && para.getCode() != null) {
                 ParaVar paraVar = initParaVar(para);
                 paraMap.put(para.getCode(), paraVar);
@@ -619,7 +633,7 @@ public abstract class ModuleBaseAlgImpl {
         log.info("Initialized {} para variables", paraMap.size());
 
         // 初始化所有parts（原子部件）
-        for (Part part : module.getAllAtomicParts()) {
+        for (Part part : module.getAtomicParts()) {
             if (part != null && part.getCode() != null) {
                 PartVar partVar = initPartVar(part);
                 partMap.put(part.getCode(), partVar);
@@ -748,7 +762,8 @@ public abstract class ModuleBaseAlgImpl {
      * @param partConstraintFromReqs 部件约束列表
      * @return 按partCategoryCode分组的映射
      */
-    protected Map<String, List<ParConstraint>> groupConstraintsByPartCategory(List<ParConstraint> partConstraintFromReqs) {
+    protected Map<String, List<ParConstraint>> groupConstraintsByPartCategory(
+            List<ParConstraint> partConstraintFromReqs) {
         Map<String, List<ParConstraint>> result = new LinkedHashMap<>();
         if (partConstraintFromReqs == null || partConstraintFromReqs.isEmpty()) {
             return result;
@@ -792,12 +807,16 @@ public abstract class ModuleBaseAlgImpl {
      * @return 规则代码到方法对象的映射
      */
     protected Map<String, Method> buildAllRuleMethods(IModule module) {
+        return buildAllRuleMethods(module, this);
+    }
+
+    protected Map<String, Method> buildAllRuleMethods(IModule module, IModuleAlg moduleAlgFile) {
         if (module == null || module.getAllRules() == null) {
             return new HashMap<>();
         }
 
         // 获取当前类的所有方法
-        Method[] methods = this.getClass().getDeclaredMethods();
+        Method[] methods = moduleAlgFile.getClass().getDeclaredMethods();
         Map<String, Method> allMethods = new HashMap<>();
 
         // 构建方法名到Method对象的映射
@@ -832,17 +851,17 @@ public abstract class ModuleBaseAlgImpl {
      *
      * @throws AlgLoaderException 异常
      */
-    protected void writeBackToFields() throws AlgLoaderException {
-        Map<String, Field> fieldMap = getAllFieldVariables();
-
+    protected void writeBackToFields(IModuleAlg moduleAlgFile) throws AlgLoaderException {
+        Map<String, Field> fieldMap = getAllFieldVariables(moduleAlgFile);
+        ModuleBaseAlgImpl algFileImpl = (ModuleBaseAlgImpl) moduleAlgFile;
         // 处理PartVar
         for (Map.Entry<String, PartVar> entry : partMap.entrySet()) {
             String code = entry.getKey();
             PartVar partVar = entry.getValue();
             Field field = fieldMap.get(code);
             if (field != null) {
-                Var<?> tVar = newPartVar(partVar);
-                setVariableField(tVar, field);
+                Var<?> tVar = algFileImpl.newPartVar(partVar);
+                setVariableField(moduleAlgFile, tVar, field);
             }
         }
 
@@ -852,45 +871,8 @@ public abstract class ModuleBaseAlgImpl {
             ParaVar paraVar = entry.getValue();
             Field field = fieldMap.get(code);
             if (field != null) {
-                Var<?> tVar = newParaVar(paraVar);
-                setVariableField(tVar, field);
-            }
-        }
-    }
-
-    /**
-     * 将partMap和paraMap中的变量写回到对应的字段
-     */
-    protected void writeBackPartAndParaVars() {
-        Map<String, Field> fieldMap = getAllFieldVariables();
-
-        // 处理PartVar
-        for (Map.Entry<String, PartVar> entry : partMap.entrySet()) {
-            String code = entry.getKey();
-            PartVar partVar = entry.getValue();
-            Field field = fieldMap.get(code);
-            if (field != null) {
-                try {
-                    field.set(this, partVar);
-                    log.debug("Wrote back PartVar to field: {}", code);
-                } catch (IllegalAccessException e) {
-                    log.error("Failed to write back PartVar to field: {}", code, e);
-                }
-            }
-        }
-
-        // 处理ParaVar
-        for (Map.Entry<String, ParaVar> entry : paraMap.entrySet()) {
-            String code = entry.getKey();
-            ParaVar paraVar = entry.getValue();
-            Field field = fieldMap.get(code);
-            if (field != null) {
-                try {
-                    field.set(this, paraVar);
-                    log.debug("Wrote back ParaVar to field: {}", code);
-                } catch (IllegalAccessException e) {
-                    log.error("Failed to write back ParaVar to field: {}", code, e);
-                }
+                Var<?> tVar = algFileImpl.newParaVar(paraVar);
+                setVariableField(moduleAlgFile, tVar, field);
             }
         }
     }
@@ -900,30 +882,58 @@ public abstract class ModuleBaseAlgImpl {
      *
      * @param allRuleMethods 所有规则方法映射
      */
-    protected void executeModuleRules(Map<String, Method> allRuleMethods) {
+    protected void executeModuleRules(IModuleAlg moduleAlgFile, Map<String, Method> allRuleMethods) {
         if (module == null || module.getAllRules() == null || allRuleMethods == null) {
             return;
         }
 
-        List<Rule> moduleRules = filterRulesByFatherCode(module.getAllRules(), null);
+        List<Rule> moduleRules = module.getRules();
         for (Rule rule : moduleRules) {
             String ruleCode = rule.getCode();
             Method method = allRuleMethods.get(ruleCode);
-            if (method != null) {
-                executeRuleMethod(ruleCode, method);
+            if (method == null) {
+                log.error("Rule method not found for rule code: {} in class {}", ruleCode, this.getClass().getName());
+                throw new AlgLoaderException("Rule method not found for rule code: " + ruleCode + " in class "
+                        + this.getClass().getName());
             }
+            model.addRuleSeperator(ruleCode);
+            setCurrentModule4Rule(moduleAlgFile, this);
+            executeRuleMethod(moduleAlgFile, ruleCode, method);
+            setCurrentModule4Rule(moduleAlgFile, null);
         }
+    }
+
+    private void setCurrentModule4Rule(IModuleAlg moduleAlgFile, ModuleBaseAlgImpl tmpModuleAlg) {
+        ModuleBaseAlgImpl algFileImpl = (ModuleBaseAlgImpl) moduleAlgFile;
+        algFileImpl.currentModule = (tmpModuleAlg == null ? null : tmpModuleAlg.getModule());
+        algFileImpl.currentModuleAlg = tmpModuleAlg;
+
     }
 
     /**
      * 初始化模块算法实例（基类实现）
      * 按partCategoryCode对partConstraintFromReqs进行分组，然后初始化本层和子层的变量与规则
      *
-     * @param model                    CP约束模型
-     * @param module                   模块对象
-     * @param partConstraintFromReqs   来自请求的部件约束列表
+     * @param model                  CP约束模型
+     * @param module                 模块对象
+     * @param partConstraintFromReqs 来自请求的部件约束列表
      */
-    public void init(AlgCPModel model, IModule module, List<ParConstraint> partConstraintFromReqs) {
+    public void init(AlgCPModel model, IModule module, List<ParConstraint> partConstraintFromReqs,
+            Map<String, Method> allRuleMethods, IModuleAlg moduleAlgFile) {
+        initInternal(model, module, partConstraintFromReqs, allRuleMethods, moduleAlgFile);
+    }
+
+    // public void init(AlgCPModel model, IModule module, List<ParConstraint>
+    // partConstraintFromReqs) {
+
+    // // 构建规则方法映射
+    // Map<String, Method> allRuleMethods = buildAllRuleMethods(module);
+    // initInternal(model, module, partConstraintFromReqs, allRuleMethods,
+    // module.getAlg());
+    // }
+
+    private void initInternal(AlgCPModel model, IModule module, List<ParConstraint> partConstraintFromReqs,
+            Map<String, Method> allRuleMethods, IModuleAlg moduleAlgFile) {
         // Module级别
         this.model = model;
         this.module = module;
@@ -932,33 +942,28 @@ public abstract class ModuleBaseAlgImpl {
         this.compatibleConstraintAlg = new CompatibleConstraintAlg(model);
         initModelAfter(model);
 
-        // 构建规则方法映射
-        Map<String, Method> allRuleMethods = buildAllRuleMethods(module);
-
         // 初始化本层变量（paras和parts）
         initAll();
 
         // 设置输入变量
         setInputVariables(partConstraintFromReqs);
 
-        // 设置默认可见性约束
-        setDefaultVisibilityConstraints();
-
         // 将变量写回字段
         try {
-            writeBackToFields();
+            writeBackToFields(moduleAlgFile);
         } catch (AlgLoaderException e) {
             log.error("Failed to write back variables to fields", e);
             throw new AlgLoaderException("Failed to write back variables to fields", e);
         }
 
         // 执行本层的规则
-        executeModuleRules(allRuleMethods);
+        executeModuleRules(moduleAlgFile, allRuleMethods);
 
-        // 对本层的paras和parts执行writeBackToFields
-        writeBackPartAndParaVars();
+        // 设置默认可见性约束
+        setDefaultVisibilityConstraints();
 
-        log.info("ModuleBaseAlgImpl initialized with module: {}", module != null ? module.getClass().getSimpleName() : "null");
+        log.info("ModuleBaseAlgImpl initialized with module: {}",
+                module != null ? module.getClass().getSimpleName() : "null");
     }
 
     /**
@@ -993,9 +998,7 @@ public abstract class ModuleBaseAlgImpl {
      * @param internalPartVar 内部部件变量
      * @return 创建的部件变量
      */
-    protected Var<?> newPartVar(PartVar internalPartVar) {
-        return internalPartVar;
-    }
+    protected abstract Var<?> newPartVar(PartVar internalPartVar);
 
     /**
      * 创建参数变量, 继承类可以重载
@@ -1003,9 +1006,27 @@ public abstract class ModuleBaseAlgImpl {
      * @param internalParaVar 内部参数变量
      * @return 创建的参数变量
      */
-    protected Var<?> newParaVar(ParaVar internalParaVar) {
-        return internalParaVar;
-    }
+    protected abstract Var<?> newParaVar(ParaVar internalParaVar);
+
+    // /**
+    // * 创建部件变量, 继承类可以重载
+    // *
+    // * @param internalPartVar 内部部件变量
+    // * @return 创建的部件变量
+    // */
+    // protected Var<?> newPartVar(PartVar internalPartVar) {
+    // return internalPartVar;
+    // }
+
+    // /**
+    // * 创建参数变量, 继承类可以重载
+    // *
+    // * @param internalParaVar 内部参数变量
+    // * @return 创建的参数变量
+    // */
+    // protected Var<?> newParaVar(ParaVar internalParaVar) {
+    // return internalParaVar;
+    // }
 
     /**
      * 设置单个变量字段
@@ -1015,12 +1036,17 @@ public abstract class ModuleBaseAlgImpl {
      * @throws AlgLoaderException 异常
      */
     protected void setVariableField(Var<?> v, Field field) throws AlgLoaderException {
+        setVariableField(this, v, field);
+    }
+
+    protected void setVariableField(IModuleAlg moduleAlgFile, Var<?> v, Field field) throws AlgLoaderException {
         if (field == null) {
             log.error("Field not found for code: null {}", v.getCode());
             throw new AlgLoaderException("Field not found for code: null " + v.getCode());
         }
         try {
-            field.set(this, v);
+            field.setAccessible(true);
+            field.set(moduleAlgFile, v);
         } catch (IllegalArgumentException | IllegalAccessException e) {
             log.error("Failed to write back variable to field: " + v.getCode(), e);
             throw new AlgLoaderException("Failed to write back variable to field: " + v.getCode(), e);
@@ -1032,8 +1058,23 @@ public abstract class ModuleBaseAlgImpl {
      * 
      * @return 字段映射表
      */
-    protected Map<String, Field> getAllFieldVariables() {
+    protected Map<String, Field> getAllFieldVariables() {// TODO delete
         Field[] fields = this.getClass().getDeclaredFields();
+        Map<String, Field> fieldMap = new HashMap<>();
+        for (Field field : fields) {
+            field.setAccessible(true);
+            fieldMap.put(extractCodeFromFieldName(field.getName()), field);
+        }
+        return fieldMap;
+    }
+
+    /**
+     * 算法文件类，获取所有字段变量
+     * 
+     * @return 字段映射表
+     */
+    protected Map<String, Field> getAllFieldVariables(IModuleAlg moduleAlgFile) {
+        Field[] fields = moduleAlgFile.getClass().getDeclaredFields();
         Map<String, Field> fieldMap = new HashMap<>();
         for (Field field : fields) {
             field.setAccessible(true);
@@ -1444,18 +1485,6 @@ public abstract class ModuleBaseAlgImpl {
     }
 
     /**
-     * 获取当前层的部件列表（用于sum4Parts）
-     * 如果currentModule不为空，则获取currentModule的部件，否则获取module的部件
-     */
-    // @Override
-    protected List<Part> getParts4Sum() {
-        if (currentModule != null) {
-            return currentModule.getAllAtomicParts();
-        }
-        return module.getAllAtomicParts();
-    }
-
-    /**
      * 通用的部件求和方法，根据指定的变量获取函数计算总和
      * 
      * @param cofAttrCode        属性代码，如果为null或空则使用默认值1
@@ -1468,8 +1497,7 @@ public abstract class ModuleBaseAlgImpl {
     protected PartAlgCPLinearExpr sum4Parts(String cofAttrCode,
             Function<PartVar, LinearArgument> varGetter, String varName, String filtedConditionStr) {
         PriorityConstraint tempConstraint = new PriorityConstraint();
-        List<Part> atomicParts = getParts4Sum();
-
+        List<Part> atomicParts = currentModule.getAtomicParts();
         if (filtedConditionStr != null && !filtedConditionStr.trim().isEmpty()) {
             atomicParts = FilterExpressionExecutor.doSelect(atomicParts, filtedConditionStr);
             log.info("Priority-Filtered parts: {} in sum4Parts", PartUtils.toShortString(atomicParts));
@@ -1653,14 +1681,14 @@ public abstract class ModuleBaseAlgImpl {
      * @return filtered list of atomic parts
      */
     public List<PartVar> getInternalPartVars(String filtedConditionStr) {
-        List<Part> atomicParts = module.getAllAtomicParts();
+        List<Part> atomicParts = currentModule.getAtomicParts();
         if (filtedConditionStr != null && !filtedConditionStr.trim().isEmpty()) {
             atomicParts = FilterExpressionExecutor.doSelect(atomicParts, filtedConditionStr);
             log.info("Priority-Filtered parts: {} in getPartVars", PartUtils.toShortString(atomicParts));
         }
         List<PartVar> partVars = new ArrayList<>();
         for (Part part : atomicParts) {
-            partVars.add(getPartVar(part.getCode()));
+            partVars.add(currentModuleAlg.getPartVar(part.getCode()));
         }
         return partVars;
     }

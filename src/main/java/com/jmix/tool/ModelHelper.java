@@ -2,9 +2,9 @@ package com.jmix.tool;
 
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.logic.Rule;
-import com.jmix.executor.impl.algmodel.ConstraintAlg;
 import com.jmix.executor.impl.util.CommHelper;
 import com.jmix.executor.model.AlgLoaderException;
+import com.jmix.executor.southinf.IModuleAlg;
 import com.jmix.tool.artbuilder.ModuleAlgArtifactGenerator;
 import com.jmix.tool.artbuilder.impl.ModuleVarInfo;
 import com.jmix.tool.bbuilder.ModuleGenneratorByAnno;
@@ -220,7 +220,7 @@ public class ModelHelper {
 
             // 生成Module
             @SuppressWarnings("unchecked")
-            Class<? extends ConstraintAlg> constraintAlgClass = (Class<? extends ConstraintAlg>) injectedClazz;
+            Class<? extends IModuleAlg> constraintAlgClass = (Class<? extends IModuleAlg>) injectedClazz;
             Module module = ModuleGenneratorByAnno.build(constraintAlgClass, tempPath);
 
             // 检查是否需要注入

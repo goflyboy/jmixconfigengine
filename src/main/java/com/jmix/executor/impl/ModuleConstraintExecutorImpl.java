@@ -430,7 +430,8 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
         // 可按需设置更多参数
         ModuleInstSolutionCallBack cb = new ModuleInstSolutionCallBack(module, alg.getVars(), alg.getOtherVarMap());
         CpSolverStatus status = solver.solve(model.getCpModel(), cb);
-
+        log.info("solver  models:\n");
+        model.printModelSummary();
         return new RunInferParasRsp(status, cb, alg.getModel(), solver);
     }
 
@@ -457,11 +458,14 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
                     relativePair.getSecond().stream().map(RefProgObjSchema::getProgObjCode)
                             .collect(java.util.stream.Collectors.toList()));
 
-            // 调用新的initModel方法
-            alg.initModel(model, module, relativePair.getFirst(), relativePair.getSecond(), null);
+            // 调用新的initModel方法,
+            // alg.initModel(model, module, relativePair.getFirst(),
+            // relativePair.getSecond(), null);
+            alg.init(model, module, null);
         } else {
             // 全量加载模型
-            alg.initModel(model, module, null);
+            // alg.initModel(model, module, null);
+            alg.init(model, module, null);
         }
 
         // 根据请求初始化约束模型

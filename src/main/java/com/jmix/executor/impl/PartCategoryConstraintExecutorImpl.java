@@ -1,5 +1,6 @@
 package com.jmix.executor.impl;
 
+import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartCategory;
 import com.jmix.executor.cmodel.ModuleInst;
@@ -65,13 +66,18 @@ public class PartCategoryConstraintExecutorImpl extends ModuleBaseConstraintExec
             }
             SolverResult sr = null;
             // 检查是否有优先级规则，如果有则使用分级求解
+            Module moduleClone = module.clone();
+
             if (filteredCategory.hasPriorityRule()) {
                 PartCategory mergedFilteredCategory = buildMergedFilteredCategory(originalCategory,
                         partConstraintFromReqs);
-                sr = solveWithPriorityConstraints(mergedFilteredCategory,
+                moduleClone.addPartCategory(mergedFilteredCategory);
+                sr = solveWithPriorityConstraints(
+                        moduleClone,
                         partCategoryReq, partConstraintFromReqs);
             } else {
-                sr = solveWithOutPriorityConstraints(filteredCategory, partCategoryReq, partConstraintFromReqs);
+                moduleClone.addPartCategory(filteredCategory);
+                sr = solveWithOutPriorityConstraints(moduleClone, partCategoryReq, partConstraintFromReqs);
             }
             return Result.success(sr.getSolutions());
 

@@ -20,12 +20,12 @@ import com.jmix.executor.bmodel.logic.RefProgObjSchema;
 import com.jmix.executor.bmodel.logic.Rule;
 import com.jmix.executor.bmodel.logic.RuleTypeConstants;
 import com.jmix.executor.bmodel.para.Para;
-import com.jmix.executor.impl.algmodel.ConstraintAlg;
 import com.jmix.executor.impl.algmodel.ParaVar;
 import com.jmix.executor.impl.algmodel.PartCategoryVar;
 import com.jmix.executor.impl.algmodel.PartVar;
 import com.jmix.executor.impl.util.ModuleUtils;
 import com.jmix.executor.model.AlgLoaderException;
+import com.jmix.executor.southinf.IModuleAlg;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
 import com.jmix.tool.bbuilder.anno.CompatiableRuleAnno;
 import com.jmix.tool.bbuilder.anno.DAttrAnno1;
@@ -85,7 +85,7 @@ public final class ModuleGenneratorByAnno {
      * @param moduleAlgClazz 约束算法类
      * @return 构建的Module对象
      */
-    public static Module buildModule(Class<? extends ConstraintAlg> moduleAlgClazz) {
+    public static Module buildModule(Class<? extends IModuleAlg> moduleAlgClazz) {
         Module module = new Module();
 
         // 1. 根据ModuleAnno信息创建Module
@@ -126,7 +126,7 @@ public final class ModuleGenneratorByAnno {
      * @param resourcePath   资源路径
      * @return 构建的Module对象
      */
-    public static Module build(Class<? extends ConstraintAlg> moduleAlgClazz, String resourcePath) {
+    public static Module build(Class<? extends IModuleAlg> moduleAlgClazz, String resourcePath) {
         Module module = buildModule(moduleAlgClazz);
 
         // 保存Module到文件

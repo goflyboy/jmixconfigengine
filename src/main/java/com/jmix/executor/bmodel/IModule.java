@@ -51,6 +51,13 @@ public interface IModule extends IOnto {
     List<Part> getAllAtomicParts();
 
     /**
+     * 获取原子部件列表
+     *
+     * @return 原子部件列表（partType为ATOMIC的部件）
+     */
+    List<Part> getAtomicParts();
+
+    /**
      * 根据部件分类编码获取原子部件列表
      *
      * @param partCategoryCode 部件分类编码

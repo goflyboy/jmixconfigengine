@@ -12,6 +12,7 @@ import com.jmix.executor.cmodel.SolverResult;
 import com.jmix.executor.impl.algmodel.AlgCPModel;
 import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
 import com.jmix.executor.impl.algmodel.PartAlgCPLinearExpr;
+import com.jmix.executor.impl.algmodel.PartCategoryAlgImpl;
 import com.jmix.executor.model.AttrFunConstant;
 import com.jmix.executor.model.ConstraintConfig;
 import com.jmix.executor.model.InferPartCategoryReq;
@@ -197,7 +198,7 @@ public abstract class ModuleBaseConstraintExecutorImpl {
         AlgCPModel optModel = new AlgCPModel();
         optModel.setIsAttachRelax(false);
         optModel.setConfictedRelaxVars(new ArrayList<>());
-        optAlg.initModel(optModel, filteredModuleBase, partConstraintFromReqs);
+        optAlg.init(optModel, filteredModuleBase, partConstraintFromReqs);
         initModelByReq(partCategoryReq, optAlg);
         initModelByPriorityConstraints(partConstraintFromReqs, optAlg);
         optAlg.addRelaxObjectFunction();
@@ -276,8 +277,11 @@ public abstract class ModuleBaseConstraintExecutorImpl {
     protected void initModelByPriorityConstraints(
             List<ParConstraint> partConstraintFromReqs, ModuleAlgImpl alg) {
         for (ParConstraint partConstraint : partConstraintFromReqs) {
+            PartCategoryAlgImpl partCategoryAlg = alg
+                    .getPartCategoryAlg(partConstraint.getFilteredCategory().getCode());
             if (partConstraint.getFilteredCategory() != null) {
-                alg.sumFunConstraint(partConstraint.getFilteredCategory().getAllAtomicParts(), partConstraint);
+                partCategoryAlg.sumFunConstraint(partConstraint.getFilteredCategory().getAllAtomicParts(),
+                        partConstraint);
             }
         }
     }

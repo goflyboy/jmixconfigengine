@@ -437,4 +437,14 @@ public class ModuleBase extends Onto {
         super.clone(to);
         // 过滤后的atomicParts和partCategorys都可能被过滤掉，不复制
     }
+
+    /**
+     * 添加部件分类
+     * 
+     * @param partCategory 部件分类
+     */
+    @JsonIgnore
+    public void addPartCategory(PartCategory partCategory) {
+        partCategorys.add(partCategory);
+    }
 }

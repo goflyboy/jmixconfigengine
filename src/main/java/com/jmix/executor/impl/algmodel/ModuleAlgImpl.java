@@ -3,11 +3,15 @@ package com.jmix.executor.impl.algmodel;
 import com.jmix.executor.bmodel.IModule;
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.PartCategory;
+import com.jmix.executor.model.ParConstraint;
+import com.jmix.executor.southinf.IModuleAlg;
 
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,7 +22,7 @@ import java.util.Map;
  * @since 2025-04-05
  */
 @Slf4j
-public class ModuleAlgImpl extends ModuleBaseAlgImpl implements ConstraintAlg {
+public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
 
     /**
      * 部件分类算法实例映射表
@@ -30,22 +34,21 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements ConstraintAlg {
      * 按partCategoryCode对partConstraintFromReqs进行分组，然后初始化本层和子层的变量与规则
      * 重写基类方法，添加PartCategoryAlgImpl的初始化
      *
-     * @param model                    CP约束模型
-     * @param module                   模块对象
-     * @param partConstraintFromReqs   来自请求的部件约束列表
+     * @param model                  CP约束模型
+     * @param module                 模块对象
+     * @param partConstraintFromReqs 来自请求的部件约束列表
      */
-    @Override
     public void init(AlgCPModel model, IModule module,
-                     java.util.List<com.jmix.executor.model.ParConstraint> partConstraintFromReqs) {
+            List<ParConstraint> partConstraintFromReqs) {
+        // 构建规则方法映射
+        Map<String, Method> allRuleMethods = buildAllRuleMethods(module, this);
+
         // 调用基类初始化
-        super.init(model, module, partConstraintFromReqs);
+        super.init(model, module, new ArrayList<>(), allRuleMethods, this);
 
         // 按partCategoryCode对partConstraintFromReqs进行分组
-        Map<String, java.util.List<com.jmix.executor.model.ParConstraint>> partConstraintFromReqMap =
-                groupConstraintsByPartCategory(partConstraintFromReqs);
-
-        // 构建规则方法映射
-        Map<String, Method> allRuleMethods = buildAllRuleMethods(module);
+        Map<String, List<ParConstraint>> partConstraintFromReqMap = groupConstraintsByPartCategory(
+                partConstraintFromReqs);
 
         // 如果module有PartCategorys，则对每个PartCategory创建并初始化PartCategoryAlgImpl
         if (module instanceof Module) {
@@ -53,14 +56,14 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements ConstraintAlg {
             if (bModule.getPartCategorys() != null && !bModule.getPartCategorys().isEmpty()) {
                 for (PartCategory partCategory : bModule.getPartCategorys()) {
                     String categoryCode = partCategory.getCode();
-                    java.util.List<com.jmix.executor.model.ParConstraint> pc4PartConstraintFromReqs =
-                            partConstraintFromReqMap.get(categoryCode);
+                    List<ParConstraint> pc4PartConstraintFromReqs = partConstraintFromReqMap
+                            .get(categoryCode);
 
                     PartCategoryAlgImpl pcAlg = new PartCategoryAlgImpl();
-                    pcAlg.init(model, partCategory, pc4PartConstraintFromReqs, allRuleMethods);
+                    pcAlg.init(model, (IModule) partCategory, pc4PartConstraintFromReqs, allRuleMethods, this);
 
                     // 执行PartCategoryAlgImpl的规则
-                    pcAlg.initRule(allRuleMethods);
+                    // pcAlg.initRule(allRuleMethods);
 
                     partCategoryAlgs.put(categoryCode, pcAlg);
                 }
@@ -114,5 +117,15 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements ConstraintAlg {
      */
     public Map<String, ParaVar> getParaMap() {
         return paraMap;
+    }
+
+    @Override
+    protected Var<?> newPartVar(PartVar internalPartVar) {
+        return internalPartVar;
+    }
+
+    @Override
+    protected Var<?> newParaVar(ParaVar internalParaVar) {
+        return internalParaVar;
     }
 }

@@ -1136,7 +1136,11 @@ public class AlgCPModel {
         log.info("\n" + "=".repeat(80));
 
         log.info("\nObjectFuntionDetail: ");
-        log.info(objectExpr.toDetailString());
+        if (objectExpr != null) {
+            log.info(objectExpr.toDetailString());
+        } else {
+            log.info("null");
+        }
         log.info("\n" + "=".repeat(80));
 
     }

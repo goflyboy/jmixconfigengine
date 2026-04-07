@@ -114,7 +114,7 @@ public class ModulePacker {
         // ModuleAlgImpl)
         // 否则就是单文件，com.jmix.scenario.ruletest.ParaIsHiddenTest (ParaIsHiddenTest extends
         // ModuleScenarioTestBase)
-        return ConstraintAlgImpl.class.isAssignableFrom(cpClassName)
+        return ModuleAlgImpl.class.isAssignableFrom(cpClassName)
                 && cpClassName.getEnclosingClass() == null
                 && !cpClassName.getSimpleName().endsWith("Test");
     }
