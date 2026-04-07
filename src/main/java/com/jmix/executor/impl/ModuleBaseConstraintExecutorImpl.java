@@ -217,8 +217,7 @@ public abstract class ModuleBaseConstraintExecutorImpl {
         optSolver.getParameters().setNumSearchWorkers(1);
         optSolver.getParameters().setEnumerateAllSolutions(true);
         optSolver.getParameters().setMaxTimeInSeconds(10);
-        ModuleInstSolutionCallBack optCb = new ModuleInstSolutionCallBack(module, optAlg.getVars(),
-                optAlg.getOtherVarMap(), optAlg);
+        ModuleInstSolutionCallBack optCb = new ModuleInstSolutionCallBack(module, optAlg);
 
         log.info("solver  models:\n");
         optModel.printModelSummary();

@@ -655,7 +655,6 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         paraVar.setBase(para);
 
         if (para.getAssignType() == AssignType.INPUT) {
-            registerVar(code, paraVar);
             return paraVar;
         }
 
@@ -687,7 +686,6 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
                 throw new AlgLoaderException("Para type not supported: " + para.getParaType());
         }
         paraVar.setIsHidden(newBoolVar(f(ParaVar.HIDDEN_PATTERN, code)));
-        registerVar(code, paraVar);
         return paraVar;
     }
 
@@ -709,7 +707,6 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         model.addGreaterOrEqual(partVar.getQty(), 1).onlyEnforceIf(partVar.getIsSelected());
         model.addEquality(partVar.getQty(), 0).onlyEnforceIf(partVar.getIsSelected().not());
 
-        registerVar(part.getCode(), partVar);
         return partVar;
     }
 
@@ -736,7 +733,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * 
      * @return PartVar列表
      */
-    public List<PartVar> getAllPartVars() {
+    public List<PartVar> getPartVars() {
         return new ArrayList<>(partMap.values());
     }
 
@@ -745,7 +742,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * 
      * @return ParaVar列表
      */
-    public List<ParaVar> getAllParaVars() {
+    public List<ParaVar> getParaVars() {
         return new ArrayList<>(paraMap.values());
     }
 
@@ -1212,21 +1209,8 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         return module;
     }
 
-    /**
-     * 获取参数变量
-     * 
-     * @param code 变量代码
-     * @return 参数变量实例
-     * @throws AlgLoaderException 异常
-     */
     public ParaVar getParaVar(String code) {
-        Var<?> var = getVar(code);
-        if (var == null || !(var instanceof ParaVar)) {
-            log.error("ParaVar not found for code: {}", code);
-            throw new AlgLoaderException("ParaVar not found for code: " + code);
-        }
-        return (ParaVar) var;
-
+        return paraMap.get(code);
     }
 
     /**
@@ -1237,46 +1221,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * @throws AlgLoaderException 异常
      */
     public PartVar getPartVar(String code) {
-        Var<?> var = getVar(code);
-        if (var == null || !(var instanceof PartVar)) {
-            log.error("PartVar not found for code: {}", code);
-            throw new AlgLoaderException("PartVar not found for code: " + code);
-        }
-        return (PartVar) var;
-    }
-
-    /**
-     * 获取所有变量列表
-     * 
-     * @return 变量列表
-     */
-    public List<Var<?>> getVars() {
-        return new ArrayList<>(varMap.values());
-    }
-
-    /**
-     * 注册变量
-     * 
-     * @param code 变量代码
-     * @param var  变量实例
-     */
-    public void registerVar(String code, Var<?> var) {
-        if (code != null && var != null) {
-            varMap.put(code, var);
-        }
-    }
-
-    private Var<?> getRegisterVar(String code) {
-        return varMap.get(code);
-    }
-
-    /**
-     * 获取其他变量映射
-     * 
-     * @return 其他变量映射Map
-     */
-    public Map<String, OtherVar> getOtherVarMap() {
-        return model.getOtherVarMap();
+        return partMap.get(code);
     }
 
     /**
@@ -1319,7 +1264,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         ParaVar paraVar = new ParaVar();
         paraVar.setBase(para);
         if (para.getAssignType() == AssignType.INPUT) {
-            registerVar(code, paraVar);
+            // registerVar(code, paraVar);
             return paraVar;
         }
 
@@ -1351,7 +1296,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
                 throw new AlgLoaderException("Para type not supported: " + para.getParaType());
         }
         paraVar.setIsHidden(newBoolVar(f(ParaVar.HIDDEN_PATTERN, code)));
-        registerVar(code, paraVar);
+        // registerVar(code, paraVar);
         return paraVar;
     }
 
@@ -1377,7 +1322,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
 
     // TODO Delete
     protected PartVar createPartVar(Part part) {
-        Var<?> tempVar = getRegisterVar(part.getCode());
+        Var<?> tempVar = null;// getRegisterVar(part.getCode());
         if (null != tempVar) {
             return (PartVar) tempVar;
         }
@@ -1392,7 +1337,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         model.addGreaterOrEqual(partVar.getQty(), 1).onlyEnforceIf(partVar.getIsSelected());
         model.addEquality(partVar.getQty(), 0).onlyEnforceIf(partVar.getIsSelected().not());
 
-        registerVar(part.getCode(), partVar);
+        // registerVar(part.getCode(), partVar);
         return partVar;
     }
 

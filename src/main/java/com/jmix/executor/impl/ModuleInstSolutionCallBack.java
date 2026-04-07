@@ -1,19 +1,22 @@
 package com.jmix.executor.impl;
 
 import com.jmix.executor.bmodel.Module;
+import com.jmix.executor.bmodel.ModuleBase;
+import com.jmix.executor.bmodel.PartCategory;
 import com.jmix.executor.bmodel.base.AssignType;
 import com.jmix.executor.cmodel.ModuleBaseInst;
 import com.jmix.executor.cmodel.ModuleInst;
 import com.jmix.executor.cmodel.ParaInst;
+import com.jmix.executor.cmodel.PartCategoryInst;
 import com.jmix.executor.cmodel.PartInst;
 import com.jmix.executor.cmodel.SolverResult;
 import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
+import com.jmix.executor.impl.algmodel.ModuleBaseAlgImpl;
 import com.jmix.executor.impl.algmodel.OtherVar;
 import com.jmix.executor.impl.algmodel.ParaVar;
 import com.jmix.executor.impl.algmodel.PartAlgCPLinearExpr;
+import com.jmix.executor.impl.algmodel.PartCategoryAlgImpl;
 import com.jmix.executor.impl.algmodel.PartVar;
-import com.jmix.executor.impl.algmodel.Var;
-import com.jmix.executor.model.AlgLoaderException;
 
 import com.google.ortools.sat.CpSolverSolutionCallback;
 
@@ -21,7 +24,6 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,8 +40,6 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
 
     private final Module module;
 
-    private final List<Var<?>> vars;
-
     // private final List<ModuleInst> allSolutions = new ArrayList<>();
 
     // 第几个解
@@ -49,7 +49,7 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
     private Map<String, OtherVar> otherVarMap;
 
     // 约束算法实现，用于查询优先级约束
-    private ModuleAlgImpl alg;
+    private ModuleAlgImpl moduleAlg;
 
     // 最大解数量限制，0表示无限制
     private int maxSolutionNum = 0;
@@ -61,54 +61,53 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
     /**
      * 构造函数
      * 
-     * @param module 模块对象
-     * @param vars   变量列表
-     */
-    public ModuleInstSolutionCallBack(Module module, List<Var<?>> vars) {
-        this.vars = vars != null ? vars : Collections.emptyList();
-        this.module = module;
-    }
-
-    /**
-     * 构造函数
-     * 
-     * @param module      模块对象
-     * @param vars        变量列表
-     * @param otherVarMap 其他变量映射
-     */
-    public ModuleInstSolutionCallBack(Module module, List<Var<?>> vars, Map<String, OtherVar> otherVarMap) {
-        this(module, vars);
-        this.otherVarMap = otherVarMap;
-    }
-
-    /**
-     * 构造函数
-     * 
      * @param module      模块对象
      * @param vars        变量列表
      * @param otherVarMap 其他变量映射
      * @param alg         约束算法实现
      */
-    public ModuleInstSolutionCallBack(Module module, List<Var<?>> vars, Map<String, OtherVar> otherVarMap,
-            ModuleAlgImpl alg) {
-        this(module, vars, otherVarMap);
-        this.alg = alg;
-        this.priorityExpr = alg.queryMergerPriorityConstraintExpr();
+    public ModuleInstSolutionCallBack(Module module,
+            ModuleAlgImpl moduleAlg) {
+        this.module = module;
+        this.moduleAlg = moduleAlg;
+        this.priorityExpr = moduleAlg.queryMergerPriorityConstraintExpr();
     }
 
-    /**
-     * 构造函数
-     * 
-     * @param module         模块对象
-     * @param vars           变量列表
-     * @param otherVarMap    其他变量映射
-     * @param alg            约束算法实现
-     * @param maxSolutionNum 最大解数量限制，0表示无限制
-     */
-    public ModuleInstSolutionCallBack(Module module, List<Var<?>> vars, Map<String, OtherVar> otherVarMap,
-            ModuleAlgImpl alg, int maxSolutionNum) {
-        this(module, vars, otherVarMap, alg);
-        this.maxSolutionNum = maxSolutionNum;
+    private ModuleInst buildModuleInst(ModuleAlgImpl moduleAlg, int instanceId) {
+        ModuleInst bInst = new ModuleInst();
+        Module module = (Module) moduleAlg.getModule();
+        bInst.setId(module.getId());
+        buildModuleBaseInst(moduleAlg, instanceId, bInst);
+        for (PartCategoryAlgImpl partCategoryAlg : moduleAlg.getPartCategoryAlgs()) {
+            PartCategoryInst pInst = buildPartCategoryInst(partCategoryAlg, instanceId);
+            bInst.addPartCategoryInst(pInst);
+        }
+        return bInst;
+    }
+
+    private PartCategoryInst buildPartCategoryInst(PartCategoryAlgImpl moduleAlg, int instanceId) {
+        PartCategoryInst bInst = new PartCategoryInst();
+        PartCategory partCategory = (PartCategory) moduleAlg.getModule();
+        buildModuleBaseInst(moduleAlg, instanceId, bInst);
+        return bInst;
+    }
+
+    private ModuleBaseInst buildModuleBaseInst(ModuleBaseAlgImpl moduleAlg, int instanceId, ModuleBaseInst bInst) {
+        // ModuleBaseInst moduleBaseInst = new ModuleBaseInst();
+        // moduleBaseInst.setId(module.getId());
+        ModuleBase base = (ModuleBase) moduleAlg.getModule();
+        bInst.setCode(base.getCode());
+        bInst.setShortCode(base.getShortCode());
+        bInst.setInstanceId(solutionIndex);
+        for (ParaVar pv : moduleAlg.getParaVars()) {
+            ParaInst pi = toParaInst(pv);
+            bInst.addParaInst(pi);
+        }
+        for (PartVar partVar : moduleAlg.getPartVars()) {
+            PartInst inst = toPartInst(partVar);
+            bInst.addPartInst(inst);
+        }
+        return bInst;
     }
 
     @Override
@@ -117,22 +116,24 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
         solutionIndex++;
         log.info("-------------varInfos-solutionIndex:{}----------- \n {}", solutionIndex);
         // 创建ModuleInst实例，instanceId从0开始
-        ModuleInst moduleInst = createModuleInst(module, solutionIndex);
+        ModuleInst moduleInst = buildModuleInst(moduleAlg, solutionIndex);
+        // ModuleInst moduleInst = createModuleInst(module, solutionIndex);
 
-        for (Var<?> v : vars) {
-            if (v instanceof ParaVar) {
-                ParaVar pv = (ParaVar) v;
-                ParaInst pi = toParaInst(pv);
-                moduleInst.addParaInst(pi);
-            } else if (v instanceof PartVar) {
-                PartVar partVar = (PartVar) v;
-                PartInst inst = toPartInst(partVar);
-                moduleInst.addPartInst(inst);
-            } else {
-                log.error("Unsupported variable type: {}", v.getClass().getSimpleName());
-                throw new AlgLoaderException("Unsupported variable type: " + v.getClass().getSimpleName());
-            }
-        }
+        // for (Var<?> v : alg.getVars()) {
+        // if (v instanceof ParaVar) {
+        // ParaVar pv = (ParaVar) v;
+        // ParaInst pi = toParaInst(pv);
+        // moduleInst.addParaInst(pi);
+        // } else if (v instanceof PartVar) {
+        // PartVar partVar = (PartVar) v;
+        // PartInst inst = toPartInst(partVar);
+        // moduleInst.addPartInst(inst);
+        // } else {
+        // log.error("Unsupported variable type: {}", v.getClass().getSimpleName());
+        // throw new AlgLoaderException("Unsupported variable type: " +
+        // v.getClass().getSimpleName());
+        // }
+        // }
 
         // 处理其他变量
         processOtherVariables(moduleInst);

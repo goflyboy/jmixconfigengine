@@ -84,12 +84,12 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
     }
 
     /**
-     * 获取所有部件分类算法实例
-     *
-     * @return 部件分类算法映射表
+     * 获取所有部件分类算法实例列表
+     * 
+     * @return 部件分类算法实例列表
      */
-    public Map<String, PartCategoryAlgImpl> getPartCategoryAlgs() {
-        return partCategoryAlgs;
+    public List<PartCategoryAlgImpl> getPartCategoryAlgs() {
+        return new ArrayList<>(partCategoryAlgs.values());
     }
 
     /**
