@@ -47,16 +47,16 @@ public class PartVar extends Var<IPart> {
     /**
      * 部件数量Var的命名模式
      */
-    public static final String QTY_PATTERN = VAR_PATTERN_PREFIX + "%s." + QTY_SHORT_NAME;
+    public static final String QTY_PATTERN = VAR_PATTERN_PREFIX + "%s%s." + QTY_SHORT_NAME;
 
     /**
      * 显示隐藏Var的命名模式
      */
-    public static final String HIDDEN_PATTERN = VAR_PATTERN_PREFIX + "%s." + HIDDEN_SHORT_NAME;
+    public static final String HIDDEN_PATTERN = VAR_PATTERN_PREFIX + "%s%s." + HIDDEN_SHORT_NAME;
     /**
      * 选中隐藏Var的命名模式
      */
-    public static final String ISSELECTED_PATTERN = VAR_PATTERN_PREFIX + "%s." + ISSELECTED_SHORT_NAME;
+    public static final String ISSELECTED_PATTERN = VAR_PATTERN_PREFIX + "%s%s." + ISSELECTED_SHORT_NAME;
 
     /**
      * 部件的数量值

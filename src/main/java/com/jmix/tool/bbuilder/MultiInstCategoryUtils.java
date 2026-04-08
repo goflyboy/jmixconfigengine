@@ -8,6 +8,7 @@ import com.jmix.executor.bmodel.attr.DynamicAttribute;
 import com.jmix.executor.bmodel.attr.DynamicAttributerOption;
 import com.jmix.executor.bmodel.logic.Rule;
 import com.jmix.executor.bmodel.para.Para;
+import com.jmix.executor.cmodel.ModuleInst;
 import com.jmix.tool.bbuilder.anno.PartAnno;
 
 import com.google.common.base.Strings;
@@ -44,6 +45,15 @@ public final class MultiInstCategoryUtils {
     public static final String EX_INST_CODES = "EX_INST_CODES";
 
     /**
+     * 实例的名称
+     */
+    public static final char INST_PREFIX_CHAR = 'I';
+    /**
+     * 实例的名称的长度
+     */
+    public static final int INST_NAME_LENGTH = 2;
+
+    /**
      * 最大实例数量限制
      */
     private static final int MAX_INST_COUNT = 10;
@@ -52,6 +62,30 @@ public final class MultiInstCategoryUtils {
      * 实例编码正则表达式：字母开头，后跟实例名称(I0, I1, driveI0等)
      */
     private static final Pattern INST_CODE_PATTERN = Pattern.compile("^([A-Za-z]+)(I\\d+)$");
+
+    public static boolean isMultiInstCategory(PartCategory partCategory) {
+        return isMultiInstCategory(partCategory.getCode());
+    }
+
+    public static int getInstId(String code) {
+        if (isMultiInstCategory(code)) {
+            return Integer.parseInt(code.substring(code.length() - 1));
+        }
+        return ModuleInst.DEFAULT_INSTANCE_ID;
+    }
+
+    public static boolean isMultiInstCategory(String code) {
+        if (Strings.isNullOrEmpty(code)) {
+            return false;
+        }
+        if (code.length() <= INST_NAME_LENGTH) {
+            return false;
+        }
+        if (code.charAt(code.length() - 2) == INST_PREFIX_CHAR && Character.isDigit(code.charAt(code.length() - 1))) {
+            return true;
+        }
+        return false;
+    }
 
     /**
      * 处理模块中的多实例分类
@@ -154,15 +188,6 @@ public final class MultiInstCategoryUtils {
             }
         }
         dst.setParas(clonedParas);
-
-        // // 克隆rules（Rule没有clone方法，需要手动克隆）
-        // List<Rule> clonedRules = new ArrayList<>();
-        // if (org.getRules() != null) {
-        // for (Rule rule : org.getRules()) {
-        // clonedRules.add(cloneRule(rule));
-        // }
-        // }
-        // dst.setRules(clonedRules);
 
         // 克隆dynAttr
         if (org.getDynAttr() != null) {

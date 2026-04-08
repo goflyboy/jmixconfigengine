@@ -11,6 +11,7 @@ import com.jmix.executor.impl.util.FilterExpressionExecutor.FilterCondition;
 import com.jmix.executor.model.AttrFunConstant;
 import com.jmix.executor.model.PartConstantAttr;
 import com.jmix.executor.model.PartConstraintReq;
+import com.jmix.tool.bbuilder.MultiInstCategoryUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Strings;
@@ -45,6 +46,24 @@ public class PartCategory extends ModuleBase implements IModule, IPart {
     public PartCategory() {
         super();
         this.setPartType(PartType.CATEGORY);
+    }
+
+    /**
+     * 是否是请求多实例
+     * 
+     * @return 是否是请求多实例
+     */
+    public boolean isReqMutiInst() {
+        return MultiInstCategoryUtils.isMultiInstCategory(this);
+    }
+
+    /**
+     * 获取实例ID
+     * 
+     * @return 实例ID
+     */
+    public int getInstId() {
+        return MultiInstCategoryUtils.getInstId(this.getCode());
     }
 
     /**

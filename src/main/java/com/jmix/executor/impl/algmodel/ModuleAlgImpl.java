@@ -38,7 +38,6 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
      * 部件分类算法实例映射表
      */
     protected Map<String, PartCategoryAlgImpl> partCategoryAlgs = new LinkedHashMap<>();
-    private List<PartCategoryAlgImpl> partCategoryAlgImpls;
 
     /**
      * 初始化模块算法实例

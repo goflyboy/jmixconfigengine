@@ -34,17 +34,17 @@ public class ParaVar extends Var<Para> {
     /**
      * 参数值Var的命名模式
      */
-    public static final String VALUE_PATTERN = VAR_PATTERN_PREFIX + "value.%s";
+    public static final String VALUE_PATTERN = VAR_PATTERN_PREFIX + "value.%s%s";
 
     /**
      * 显示隐藏Var的命名模式
      */
-    public static final String HIDDEN_PATTERN = VAR_PATTERN_PREFIX + "isHidden.%s";
+    public static final String HIDDEN_PATTERN = VAR_PATTERN_PREFIX + "isHidden.%s%s";
 
     /**
      * 参数选项Var的命名模式
      */
-    public static final String OPTIONS_PATTERN = VAR_PATTERN_PREFIX + "options.%s.%s";
+    public static final String OPTIONS_PATTERN = VAR_PATTERN_PREFIX + "options.%s%s.%s";
 
     /**
      * 参数值Var的短名称

@@ -2,7 +2,6 @@ package com.jmix.executor.impl.algmodel;
 
 import com.jmix.executor.bmodel.IModule;
 import com.jmix.executor.bmodel.Part;
-import com.jmix.executor.bmodel.PartCategory;
 import com.jmix.executor.bmodel.PartUtils;
 import com.jmix.executor.bmodel.attr.DynamicAttributerOption;
 import com.jmix.executor.bmodel.base.AssignType;
@@ -11,6 +10,7 @@ import com.jmix.executor.bmodel.logic.PriorityStrategy;
 import com.jmix.executor.bmodel.logic.Rule;
 import com.jmix.executor.bmodel.logic.RuleTypeConstants;
 import com.jmix.executor.bmodel.para.Para;
+import com.jmix.executor.cmodel.ModuleInst;
 import com.jmix.executor.impl.PriorityConstraint;
 import com.jmix.executor.impl.util.FilterExpressionExecutor;
 import com.jmix.executor.model.AlgLoaderException;
@@ -99,6 +99,15 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * 当前模块算法实例
      */
     protected ModuleBaseAlgImpl currentModuleAlg;
+
+    /**
+     * 获取实例ID
+     * 
+     * @return 实例ID
+     */
+    public int getInstId() {
+        return ModuleInst.DEFAULT_INSTANCE_ID;
+    }
 
     /**
      * 是否有优先类规则
@@ -221,48 +230,6 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
             model.addEquality(partVar.getIsHidden(), 0);
         }
     }
-
-    // /**
-    // * 根据module.getRules构建ruleMethods映射
-    // * 通过反射获取所有带有@CodeRuleAnno注解的方法，并建立规则代码到方法的映射关系
-    // *
-    // * @throws AlgLoaderException 异常
-    // */
-    // private void buildRuleMethods() {
-    // if (module == null || module.getAllRules() == null) {
-    // return;
-    // }
-
-    // // 获取当前类的所有方法
-    // Method[] methods = this.getClass().getDeclaredMethods();
-    // Map<String, Method> allMethods = new HashMap<>();
-
-    // // 构建方法名到Method对象的映射
-    // for (Method method : methods) {
-    // allMethods.put(method.getName(), method);
-    // }
-
-    // // 根据module.getRules来构建ruleMethods
-    // for (Rule rule : module.getAllRules()) {
-    // String ruleCode = rule.getCode();
-    // Method method = allMethods.get(ruleCode);
-    // if (method != null) {
-    // ruleMethods.put(ruleCode, method);
-    // log.info("Built rule method mapping: {} -> {}", ruleCode, method.getName());
-
-    // // 检查rule.ruleSchemaTypeFullName是否为PriorityRule，如果是则构建优先级约束
-    // if (RuleTypeConstants.isPriorityRule(rule.getRuleSchemaTypeFullName())) {
-    // buildPriorityConstraint(rule);
-    // }
-    // } else {
-    // log.error("Rule method not found for rule code: {}", ruleCode);
-    // throw new AlgLoaderException("Rule method not found for rule code: " +
-    // ruleCode);
-    // }
-    // }
-
-    // log.info("Built {} rule methods from module rules", ruleMethods.size());
-    // }
 
     /**
      * 构建优先级约束的表达式字符串和模板
@@ -408,25 +375,6 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         return algExpr;
     }
 
-    private IModule getRuleCurrentModule(String ruleCode) {
-        Optional<Rule> ruleOpt = module.getRule(ruleCode);
-        if (!ruleOpt.isPresent()) {
-            // 打日志，报错
-            log.error("Rule not found for rule code: {}", ruleCode);
-            throw new AlgLoaderException("Rule not found for rule code: " + ruleCode);
-        }
-        Rule rule = ruleOpt.get();
-        if (rule.getFatherCode() == null || rule.getFatherCode().isEmpty()) {
-            return module;
-        }
-        PartCategory partCategory = module.findPartCategory(rule.getFatherCode());
-        if (partCategory == null) {
-            log.error("PartCategory not found for rule code: {}", ruleCode);
-            throw new AlgLoaderException("PartCategory not found for rule code: " + ruleCode);
-        }
-        return partCategory;
-    }
-
     /**
      * 添加松弛目标函数
      * 目标函数：最小化需要松弛的约束数量（带权重）
@@ -539,11 +487,11 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         if (para.getAssignType() == AssignType.INPUT) {
             return paraVar;
         }
-
+        String ipf = toInstPrefix();
         switch (para.getParaType()) {
             case INTEGER:
                 paraVar.setValue(newIntVar(Integer.parseInt(para.getMinValue()), Integer.parseInt(para.getMaxValue()),
-                        f(ParaVar.VALUE_PATTERN, code)));
+                        f(ParaVar.VALUE_PATTERN, ipf, code)));
                 break;
             case ENUM:
                 List<DynamicAttributerOption> options = para.getOptions();
@@ -551,7 +499,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
                     log.error("Para options not found for code: {}", code);
                     throw new AlgLoaderException("Para options not found for code: " + code);
                 }
-                paraVar.setValue(newIntVarFromDomain(para.getOptionIds(), f(ParaVar.VALUE_PATTERN, code)));
+                paraVar.setValue(newIntVarFromDomain(para.getOptionIds(), f(ParaVar.VALUE_PATTERN, ipf, code)));
 
                 for (DynamicAttributerOption option : options) {
                     ParaOptionVar optionVar = createParaOptionVar(para.getCode(), option.getCode());
@@ -567,8 +515,13 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
                 log.error("Para type not supported: {}", para.getParaType());
                 throw new AlgLoaderException("Para type not supported: " + para.getParaType());
         }
-        paraVar.setIsHidden(newBoolVar(f(ParaVar.HIDDEN_PATTERN, code)));
+        paraVar.setIsHidden(newBoolVar(f(ParaVar.HIDDEN_PATTERN, ipf, code)));
         return paraVar;
+    }
+
+    private String toInstPrefix() {
+        final String prefix = (getInstId() == ModuleInst.DEFAULT_INSTANCE_ID ? "" : "_I" + getInstId());
+        return prefix;
     }
 
     /**
@@ -579,11 +532,12 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * @return 创建的部件变量
      */
     protected PartVar initPartVar(Part part) {
+        String ipf = toInstPrefix();
         PartVar partVar = new PartVar();
         partVar.setBase(part);
-        partVar.setQty(newIntVar(0, part.getMaxQuantity(), f(PartVar.QTY_PATTERN, part.getCode())));
-        partVar.setIsHidden(newBoolVar(f(PartVar.HIDDEN_PATTERN, part.getCode())));
-        partVar.setIsSelected(newBoolVar(f(PartVar.ISSELECTED_PATTERN, part.getCode())));
+        partVar.setQty(newIntVar(0, part.getMaxQuantity(), f(PartVar.QTY_PATTERN, ipf, part.getCode())));
+        partVar.setIsHidden(newBoolVar(f(PartVar.HIDDEN_PATTERN, ipf, part.getCode())));
+        partVar.setIsSelected(newBoolVar(f(PartVar.ISSELECTED_PATTERN, ipf, part.getCode())));
 
         // 添加Qty和IsSelected的关系
         model.addGreaterOrEqual(partVar.getQty(), 1).onlyEnforceIf(partVar.getIsSelected());
@@ -1047,6 +1001,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * @return 创建的参数选项变量
      */
     protected ParaOptionVar createParaOptionVar(String paraCode, String optionCode) {
+        String ipf = toInstPrefix();
         Optional<Para> paraOpt = module != null ? module.getPara(paraCode) : Optional.empty();
         if (!paraOpt.isPresent()) {
             log.error("Para not found for code: {}", paraCode);
@@ -1060,7 +1015,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         }
         DynamicAttributerOption option = optionOpt.get();
         ParaOptionVar optionVar = new ParaOptionVar(option);
-        optionVar.setIsSelectedVar(newBoolVar(f(ParaVar.OPTIONS_PATTERN, paraCode, option.getCode())));
+        optionVar.setIsSelectedVar(newBoolVar(f(ParaVar.OPTIONS_PATTERN, ipf, paraCode, option.getCode())));
         return optionVar;
     }
 

@@ -12,11 +12,21 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class PartCategoryAlgImpl extends ModuleBaseAlgImpl {
+
     /**
      * 默认构造函数
      */
     public PartCategoryAlgImpl() {
         super();
+    }
+
+    /**
+     * 获取实例ID
+     * 
+     * @return 实例ID
+     */
+    public int getInstId() {
+        return getPartCategory().getInstId();
     }
 
     public PartCategory getPartCategory() {
@@ -39,6 +49,6 @@ public class PartCategoryAlgImpl extends ModuleBaseAlgImpl {
 
     @Override
     public String toString() {
-        return getPartCategory().getCode();
+        return getPartCategory().getCode() + "[" + getPartCategory().getInstId() + "]";
     }
 }
