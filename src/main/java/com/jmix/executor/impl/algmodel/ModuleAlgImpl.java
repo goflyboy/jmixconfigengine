@@ -9,6 +9,7 @@ import com.jmix.executor.impl.util.FilterExpressionExecutor;
 import com.jmix.executor.model.AlgLoaderException;
 import com.jmix.executor.model.ParConstraint;
 import com.jmix.executor.southinf.IModuleAlg;
+import com.jmix.tool.bbuilder.MultiInstCategoryUtils;
 
 import com.google.ortools.sat.LinearArgument;
 
@@ -101,6 +102,23 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
      */
     public PartCategoryAlgImpl getPartCategoryAlg(String categoryCode) {
         return partCategoryAlgs.get(categoryCode);
+    }
+
+    /**
+     * 获取部件分类算法实例
+     *
+     * @param categoryCodeInstPrefix 部件分类代码前缀
+     * @return PartCategoryAlgImpl实例
+     */
+    public List<PartCategoryAlgImpl> getPartCategoryAlgByInstPrefix(String categoryCodeInstPrefix) {
+        String instPrefix = categoryCodeInstPrefix + String.valueOf(MultiInstCategoryUtils.INST_PREFIX_CHAR);
+        List<PartCategoryAlgImpl> partCategoryAlgImpls = new ArrayList<>();
+        for (PartCategoryAlgImpl partCategoryAlgImpl : partCategoryAlgs.values()) {
+            if (partCategoryAlgImpl.getCategoryCode().startsWith(instPrefix)) {
+                partCategoryAlgImpls.add(partCategoryAlgImpl);
+            }
+        }
+        return partCategoryAlgImpls;
     }
 
     /**
@@ -404,5 +422,40 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
      */
     public PartAlgCPLinearExpr sum4Quantity(String filtedConditionStr) {
         return sum4Quantity(null, filtedConditionStr);
+    }
+
+    public void addParaEqual(String sumParaCode, String instSumParaCode) {
+        // 动态表达式 addParaEqual("driveSumQuantity", "drive:SumQuantity");
+        ParaVar sumParaVar = this.getParaVar(sumParaCode);
+        if (sumParaVar == null) {
+            // 打日志，抛异常
+            log.error("ParaVar not found for code: {}", sumParaCode);
+            throw new AlgLoaderException("ParaVar not found for code: " + sumParaCode);
+        }
+        // instSumParaCode,如："drive:SumQuantity", 解析出drive，SumQuantity
+        String[] parts = instSumParaCode.split(":");
+        if (parts.length != 2) {
+            // 打日志，抛异常
+            log.error("instSumParaCode is invalid: {}", instSumParaCode);
+            throw new AlgLoaderException("instSumParaCode is invalid: " + instSumParaCode);
+        }
+
+        String partCategoryCodePrefix = parts[0].trim();
+        String sumQuantityCode = parts[1].trim();
+        // expr=sumParaVar.value + sumParaVar.value + ...
+        PartAlgCPLinearExpr paraSumExpr = model.newPartLinearExpr("addParaEqual" + instSumParaCode);
+        List<PartCategoryAlgImpl> partCategoryAlgImpls = this.getPartCategoryAlgByInstPrefix(partCategoryCodePrefix);
+        for (PartCategoryAlgImpl partCategoryAlgImpl : partCategoryAlgImpls) {
+            ParaVar instParaVar = partCategoryAlgImpl.getParaVar(sumQuantityCode);
+            if (instParaVar == null) {
+                // 打日志，抛异常
+                log.error("ParaVar not found for code: {}", sumQuantityCode);
+                throw new AlgLoaderException("ParaVar not found for code: " + sumQuantityCode);
+            }
+            paraSumExpr.addTerm(instParaVar.getValue(), 1);
+        }
+
+        // 构建等式
+        model.addEquality(sumParaVar.getValue(), paraSumExpr.build());
     }
 }

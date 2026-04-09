@@ -117,24 +117,49 @@ public class MultiReqTest extends ModuleScenarioTestBase {
         @PartAnno(fatherCode = "cpu", attrs = { "18", "1024", "5" }, price = 800)
         private PartVar cpu4;
 
-        @ParaAnno(fatherCode = "cpu", type = ParaType.INTEGER, assignType = AssignType.INPUT)
-        private ParaVar cpuSumCores; // 输入参数 TODO:不需要建立，应该从引擎干掉
+        // @ParaAnno(fatherCode = "cpu", type = ParaType.INTEGER, assignType =
+        // AssignType.INPUT)
+        // private ParaVar cpuSumCores; // 输入参数 TODO:不需要建立，应该从引擎干掉
 
-        @ParaAnno(fatherCode = "cpu", type = ParaType.INTEGER, assignType = AssignType.INPUT)
-        private ParaVar cpuSumMemory; // 输入参数
+        // @ParaAnno(fatherCode = "cpu", type = ParaType.INTEGER, assignType =
+        // AssignType.INPUT)
+        // private ParaVar cpuSumMemory; // 输入参数
+        // 改动点3：分类2(多）多个请求的整体要求，需要有整体汇总
 
-        // 额外增加的
+        // 额外增加的，前置计算的规则
         @CodeRuleAnno(normalNaturalCode = "应用各个请求的总数量和容量等于总的容量数") // 为了兼容总实例的数量总和的关系
         private void logic4ReqMutiInst() {
+            // 这是一个动态表达式，支持这种可能更好： driveI*.SumCapacity
             // drive.SumCapacity = driveI1.SumCapacity + driveI2.SumCapacity
             addParaEqual("driveSumCapacity", "drive:SumCapacity");
             addParaEqual("driveSumQuantity", "drive:SumQuantity");
+            // TODO: 场景维度1：逻辑是不完备的，如果是部分I1，I2， I1是S，I2是Q，怎么办？，类似这种的总的就没有意义？
+            // 维度2：没有最优，其实是比较简单的？ total = I1.Q + I2.Q + I3.Q(多实例，这个怎么做的？ I1.1 +I2.1 == I1.2
+            // ,优先使用单实例来满足，除非的他数量有限制？)
+            // 维度2： 怎么表达 先把第一个配满，再配递给第二个实例？--*
+            // inputTotal
+            // I1.Q =min (inputTotal,maxQ) inputTotal = inputTotal - I1.Q
+            // I2.Q =min (inputTotal,maxQ) inputTotal = inputTotal - I2.Q
+
+            // 维度3：多实例和 多选和单选有关， 多选-两层分配： I1.PT1.Q + I1.PT2.Q = 2 I1.PT1.Q=2 I1.Q + I2.Q = 2
+            // 本质是对数学公式是一样的？
+            // 原则，在输入时候，构建多实例（前置计算）
+            // ----可能有多实例的输入算法？ --** 根据输入来创建创建多实例的逻辑？
+            // idea: 思路，用小模型？
+            // 创建多实例的灵魂性，交给小模型 ?
+            // https://chat.deepseek.com/a/chat/s/2f7b8c11-b17f-4fa5-9e12-4fc50df0f71f
+            // 求解器就纯粹的校验就可以？ ***
+            // 根本原因的：他是的固定的，动态的，很难用数学公式表达 ? 变量场景不出来？ --实例1，实例2？
+
         }
 
-        void addParaEqual(String sumParaCode, String instSumParaCode) {
-            // 动态表达式
-
-        }
+        // private void logicPreCompute() {
+        // if (SumCapacity.getIsHasInputed()) {
+        // driveSumCapacity.setHasInputed(true);
+        // } else {
+        // driveSumQuantity.setHasInputed(false);
+        // }
+        // }
 
         @CodeRuleAnno(normalNaturalCode = "4核的CPU不兼容固态硬盘")
         private void logicAB1() {
@@ -182,6 +207,7 @@ public class MultiReqTest extends ModuleScenarioTestBase {
             // 改动点3-1：增加sum4Quantity的partCatagoryCodesStr参数，支持多实例的情况
             PartAlgCPLinearExpr totalCapacity = sum4Quantity("driveI0,driveI1", "Capacity", "").name("totalCapacity");
             // 如果是容量需求
+            // 改动点5：怎么判断 driveSumCapacity是否有输入？前置计算+ 输入条件判断？ --
             if (driveSumCapacity.getIsHasInputed()) {
                 int requiredCapacity = driveSumCapacity.getInputValue();
 
