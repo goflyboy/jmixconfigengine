@@ -12,6 +12,7 @@ import com.jmix.executor.bmodel.attr.DynamicAttributerOption;
 import com.jmix.executor.bmodel.attr.InstanceDynAttrValue;
 import com.jmix.executor.bmodel.attr.InstanceDynAttrValueItem;
 import com.jmix.executor.bmodel.base.Pair;
+import com.jmix.executor.bmodel.logic.CalcStage;
 import com.jmix.executor.bmodel.logic.CodeRuleSchema;
 import com.jmix.executor.bmodel.logic.CompatiableRuleSchema;
 import com.jmix.executor.bmodel.logic.ExprSchema;
@@ -437,6 +438,9 @@ public final class ModuleGenneratorByAnno {
         rule.setNormalNaturalCode(anno.normalNaturalCode());
         rule.setRuleSchemaTypeFullName("CDSL.V5.Struct.CodeRule");
         rule.setFatherCode(anno.fatherCode());
+
+        // 设置计算阶段
+        rule.setCalcStage(anno.calcStage());
 
         // 创建CodeRuleSchema
         CodeRuleSchema schema = new CodeRuleSchema();

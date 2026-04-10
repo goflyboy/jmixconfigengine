@@ -1,5 +1,6 @@
 package com.jmix.executor.bmodel;
 
+import com.jmix.executor.bmodel.logic.CalcStage;
 import com.jmix.executor.bmodel.logic.Rule;
 import com.jmix.executor.bmodel.para.Para;
 
@@ -86,5 +87,14 @@ public interface IModule extends IOnto {
      * @return 优先级规则列表
      */
     List<Rule> queryPriorityRules();
+
+    /**
+     * 获取指定计算阶段的所有规则列表（包括子分类中的规则）
+     * 递归收集所有子分类中的规则
+     *
+     * @param calcStage 计算阶段
+     * @return 指定计算阶段的所有规则列表
+     */
+    List<Rule> getAllRules(CalcStage calcStage);
 
 }

@@ -167,6 +167,10 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
         for (PartCategory partCategory : startModule.getPartCategorys()) {
             req = partConstraintReqMap.get(partCategory.getCode());
             if (req == null) {
+                // 如果是多实例的情况，默认是放进去的，TODO：是不是一个也没有的时候也补充一个
+                if (partCategory.isReqMutiInst()) {
+                    continue;
+                }
                 result.addPart(partCategory); // 完全挪过来
             } else {
                 filterPartCategory = partCategory.filterClone(req);

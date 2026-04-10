@@ -4,6 +4,7 @@ import com.jmix.coretest.ConstraintAlgImplTestBase;
 import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.executor.bmodel.attr.DynamicAttributeType;
 import com.jmix.executor.bmodel.base.AssignType;
+import com.jmix.executor.bmodel.logic.CalcStage;
 import com.jmix.executor.bmodel.logic.PriorityStrategy;
 import com.jmix.executor.bmodel.para.ParaType;
 import com.jmix.executor.impl.algmodel.AlgCPLinearExpr;
@@ -22,11 +23,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 @Slf4j
-public class MultiReqTest extends ModuleScenarioTestBase {
+public class MultReq4MultiReqTest extends ModuleScenarioTestBase {
 
     // ---------------模型的定义start----------------------------------------
     @ModuleAnno(id = 123L)
-    static public class MultiReqConstraint extends ConstraintAlgImplTestBase {
+    static public class MultReq4MultiConstraint extends ConstraintAlgImplTestBase {
 
         // 硬盘部件分类定义--严格按层级结构定义（顺序很重要），部件的attrs也要按定义的顺序来
         @PartAnno(instCodes = "driveI0,driveI1")
@@ -70,6 +71,7 @@ public class MultiReqTest extends ModuleScenarioTestBase {
         // 机械硬盘实例3
         @PartAnno(fatherCode = "drive", attrs = { "9000", "3", "md" }, price = 60)
         private PartVar md3;
+
         // 改动4：原来属于分类2（多）的参数，由于属于整个分类2，当前多实例化，只能提升到产品级fatherCode = "drive"-> ""
         @ParaAnno(fatherCode = "", type = ParaType.INTEGER, assignType = AssignType.INPUT)
         private ParaVar driveSumCapacity;// 输入参数
@@ -121,18 +123,17 @@ public class MultiReqTest extends ModuleScenarioTestBase {
         // AssignType.INPUT)
         // private ParaVar cpuSumCores; // 输入参数 TODO:不需要建立，应该从引擎干掉
 
-        // @ParaAnno(fatherCode = "cpu", type = ParaType.INTEGER, assignType =
-        // AssignType.INPUT)
-        // private ParaVar cpuSumMemory; // 输入参数
+        @ParaAnno(fatherCode = "cpu", type = ParaType.INTEGER, assignType = AssignType.INPUT)
+        private ParaVar SumMemory; // 输入参数
         // 改动点3：分类2(多）多个请求的整体要求，需要有整体汇总
 
         // 额外增加的，前置计算的规则
-        @CodeRuleAnno(normalNaturalCode = "应用各个请求的总数量和容量等于总的容量数") // 为了兼容总实例的数量总和的关系
+        @CodeRuleAnno(calcStage = CalcStage.PRE, normalNaturalCode = "应用各个请求的总数量和容量等于总的容量数") // 为了兼容总实例的数量总和的关系
         private void logic4ReqMutiInst() {
             // 这是一个动态表达式，支持这种可能更好： driveI*.SumCapacity
             // drive.SumCapacity = driveI1.SumCapacity + driveI2.SumCapacity
-            addParaEqual("driveSumCapacity", "drive:SumCapacity");
-            addParaEqual("driveSumQuantity", "drive:SumQuantity");
+            addControlParaEqual("driveSumCapacity", "drive:SumCapacity");
+            addControlParaEqual("driveSumQuantity", "drive:SumQuantity");
             // TODO: 场景维度1：逻辑是不完备的，如果是部分I1，I2， I1是S，I2是Q，怎么办？，类似这种的总的就没有意义？
             // 维度2：没有最优，其实是比较简单的？ total = I1.Q + I2.Q + I3.Q(多实例，这个怎么做的？ I1.1 +I2.1 == I1.2
             // ,优先使用单实例来满足，除非的他数量有限制？)
@@ -153,19 +154,25 @@ public class MultiReqTest extends ModuleScenarioTestBase {
 
         }
 
+        // // 额外增加的，前置计算的规则
+        // @CodeRuleAnno(normalNaturalCode = "前置计算") // 为了兼容总实例的数量总和的关系
         // private void logicPreCompute() {
         // if (SumCapacity.getIsHasInputed()) {
-        // driveSumCapacity.setHasInputed(true);
+        // driveSumCapacity.setIsHasInputed(true);
         // } else {
-        // driveSumQuantity.setHasInputed(false);
+        // driveSumQuantity.setIsHasInputed(false);
         // }
         // }
+        // 改动点1：分类1（单)->分类2（多），需要设置为拆分为多条规则
+        @CodeRuleAnno(normalNaturalCode = "4核的CPU不兼容固态硬盘")
+        private void logicAB1_I0() {
+            // 不能这样：每个分类需要独立校验，inCompatible("logicAB1", "cpu:CoreNum=4", "drive*:Type=sd");
+            inCompatible("logicAB1_I0", "cpu:CoreNum=4", "driveI0:Type=sd");
+        }
 
         @CodeRuleAnno(normalNaturalCode = "4核的CPU不兼容固态硬盘")
-        private void logicAB1() {
-            // 改动点1：分类1（单)->分类2（多），需要设置为拆分为多条规则
-            inCompatible("logicAB1", "cpu:CoreNum=4", "driveI0:Type=sd");
-            inCompatible("logicAB1", "cpu:CoreNum=4", "driveI1:Type=sd");
+        private void logicAB1_I1() {
+            inCompatible("logicAB1_I1", "cpu:CoreNum=4", "driveI1:Type=sd");
         }
 
         @CodeRuleAnno(fatherCode = "cpu", normalNaturalCode = "仅能使用一种CPU")
@@ -205,7 +212,7 @@ public class MultiReqTest extends ModuleScenarioTestBase {
         @PriorityRuleAnno(fatherCode = "", normalNaturalCode = " 优先使用高容量硬盘", strategy = PriorityStrategy.MIN)
         private void logicB2() {
             // 改动点3-1：增加sum4Quantity的partCatagoryCodesStr参数，支持多实例的情况
-            PartAlgCPLinearExpr totalCapacity = sum4Quantity("driveI0,driveI1", "Capacity", "").name("totalCapacity");
+            PartAlgCPLinearExpr totalCapacity = sum4Quantity("drive*", "Capacity", "").name("totalCapacity");
             // 如果是容量需求
             // 改动点5：怎么判断 driveSumCapacity是否有输入？前置计算+ 输入条件判断？ --
             if (driveSumCapacity.getIsHasInputed()) {
@@ -218,7 +225,7 @@ public class MultiReqTest extends ModuleScenarioTestBase {
                 PartAlgCPLinearExpr objectiveExpr = model.newPartLinearExpr("ObjectiveFun");
 
                 // a2.使用高容量硬盘 -> "被选择部件单容量总和越大越好"
-                PartAlgCPLinearExpr highCapacityExpr = sum4Selected("driveI0,driveI1", "Capacity", "")
+                PartAlgCPLinearExpr highCapacityExpr = sum4Selected("drive*", "Capacity", "")
                         .name("highCapacityExpr");
                 objectiveExpr.addExpr(highCapacityExpr, -100);
 
@@ -229,7 +236,7 @@ public class MultiReqTest extends ModuleScenarioTestBase {
                 objectiveExpr.addExpr(excessCapacityExpr, 1);
 
                 // a4.在满足容量需求的前提下， 配置的部件数量越少越好
-                PartAlgCPLinearExpr excessQuantityExpr = sum4Quantity("driveI0,driveI1", "", "")
+                PartAlgCPLinearExpr excessQuantityExpr = sum4Quantity("drive*", "", "")
                         .name("excessQuantityExpr");
                 objectiveExpr.addExpr(excessQuantityExpr, 800);
                 model.setObjectExpr(objectiveExpr);
@@ -240,19 +247,19 @@ public class MultiReqTest extends ModuleScenarioTestBase {
                 // int requiredQty = Integer.parseInt(req.getAttrValue());
                 int requiredQuantity = driveSumQuantity.getInputValue();
                 // a1.满足输入总数量需求 totalQuantity >= requiredQuantity
-                PartAlgCPLinearExpr totalQuantity = sum4Quantity("driveI0,driveI1", "", "").name("totalQuantity");
+                PartAlgCPLinearExpr totalQuantity = sum4Quantity("drive*", "", "").name("totalQuantity");
                 model.addGreaterOrEqual(totalQuantity, requiredQuantity);
 
                 // 创建目标函数
                 PartAlgCPLinearExpr objectiveExpr = model.newPartLinearExpr("ObjectiveFunQty");
 
                 // a2.使用高容量硬盘 -> "被选择部件单容量总和越大越好"
-                PartAlgCPLinearExpr highCapacityExpr = sum4Selected("driveI0,driveI1", "Capacity", "")
+                PartAlgCPLinearExpr highCapacityExpr = sum4Selected("drive*", "Capacity", "")
                         .name("highCapacityExpr");
                 objectiveExpr.addExpr(highCapacityExpr, -1);
 
                 // a3.在满足数量需求的前提下，数量越接近需求数量越好
-                PartAlgCPLinearExpr excessQuantityExpr = sum4Quantity("driveI0,driveI1", "", "")
+                PartAlgCPLinearExpr excessQuantityExpr = sum4Quantity("drive*", "", "")
                         .name("excessQuantityExpr");
                 excessQuantityExpr.addConstant(-requiredQuantity);
                 model.setObjectExpr(objectiveExpr);
@@ -263,8 +270,8 @@ public class MultiReqTest extends ModuleScenarioTestBase {
     }
     // ---------------模型的定义end----------------------------------------
 
-    public MultiReqTest() {
-        super(MultiReqConstraint.class);
+    public MultReq4MultiReqTest() {
+        super(MultReq4MultiConstraint.class);
     }
 
     @Test

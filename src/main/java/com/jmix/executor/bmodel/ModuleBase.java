@@ -1,5 +1,6 @@
 package com.jmix.executor.bmodel;
 
+import com.jmix.executor.bmodel.logic.CalcStage;
 import com.jmix.executor.bmodel.logic.Rule;
 import com.jmix.executor.bmodel.logic.RuleTypeConstants;
 import com.jmix.executor.bmodel.para.Para;
@@ -15,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * 模块基类
@@ -154,6 +156,31 @@ public class ModuleBase extends Onto {
         // 递归收集所有子分类中的规则
         for (PartCategory partCategory : partCategorys) {
             allRules.addAll(partCategory.getAllRules());
+        }
+        return allRules;
+    }
+
+    /**
+     * 获取指定计算阶段的所有规则列表（包括子分类中的规则）
+     * 递归收集所有子分类中的规则
+     * 
+     * @param calcStage 计算阶段
+     * @return 指定计算阶段的所有规则列表
+     */
+    @JsonIgnore
+    public List<Rule> getAllRules(CalcStage calcStage) {
+        if (calcStage == null) {
+            return new ArrayList<>();
+        }
+        List<Rule> allRules = new ArrayList<>();
+        // 添加当前模块的规则
+        List<Rule> rules = getRules(calcStage);
+        if (rules != null) {
+            allRules.addAll(rules);
+        }
+        // 递归收集所有子分类中的规则
+        for (PartCategory partCategory : partCategorys) {
+            allRules.addAll(partCategory.getAllRules(calcStage));
         }
         return allRules;
     }

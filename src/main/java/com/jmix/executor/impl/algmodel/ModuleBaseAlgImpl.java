@@ -5,6 +5,7 @@ import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartUtils;
 import com.jmix.executor.bmodel.attr.DynamicAttributerOption;
 import com.jmix.executor.bmodel.base.AssignType;
+import com.jmix.executor.bmodel.logic.CalcStage;
 import com.jmix.executor.bmodel.logic.PriorityRuleSchema;
 import com.jmix.executor.bmodel.logic.PriorityStrategy;
 import com.jmix.executor.bmodel.logic.Rule;
@@ -181,8 +182,9 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
             if (pt == null) {
                 continue;
             }
-            String ontoCode = pt.getFilteredCategory().getCode();
-            String paraCode = ontoCode + "Sum" + pt.getSumAttrCode();
+            // 多实例后，不支持这种方式，ontoCode = pt.getFilteredCategory().getCode(); String paraCode =
+            // ontoCode + "Sum" + pt.getSumAttrCode();
+            String paraCode = "Sum" + pt.getSumAttrCode();
 
             ParaVar pVar = this.getParaVar(paraCode);
             if (pVar != null) {
@@ -695,12 +697,13 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      *
      * @param allRuleMethods 所有规则方法映射
      */
-    protected void executeModuleRules(IModuleAlg moduleAlgFile, Map<String, Method> allRuleMethods) {
+    protected void executeModuleRules(IModuleAlg moduleAlgFile, Map<String, Method> allRuleMethods,
+            CalcStage calcStage) {
         if (module == null || module.getAllRules() == null || allRuleMethods == null) {
             return;
         }
 
-        List<Rule> moduleRules = module.getRules();
+        List<Rule> moduleRules = module.getRules(calcStage);
         for (Rule rule : moduleRules) {
             String ruleCode = rule.getCode();
             Method method = allRuleMethods.get(ruleCode);
@@ -745,9 +748,9 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         log.info("ModuleBaseAlgImpl initRules {}", module.getClass().getSimpleName());
     }
 
-    protected void initRules(Map<String, Method> allRuleMethods, IModuleAlg moduleAlgFile) {
+    protected void initRules(Map<String, Method> allRuleMethods, IModuleAlg moduleAlgFile, CalcStage calcStage) {
         // 执行本层的规则
-        executeModuleRules(moduleAlgFile, allRuleMethods);
+        executeModuleRules(moduleAlgFile, allRuleMethods, calcStage);
 
         // 设置默认可见性约束
         setDefaultVisibilityConstraints();

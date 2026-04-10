@@ -182,8 +182,6 @@ public final class MultiInstCategoryUtils {
             for (Para para : org.getParas()) {
                 Para clonedPara = clonePara(para);
                 clonedPara.setFatherCode(newCode);
-                // 为了兼容前期setInputVariables的逻辑，这里暂时这么适配，后续统一改
-                clonedPara.setCode(newCode + "" + para.getCode());
                 clonedParas.add(clonedPara);
             }
         }

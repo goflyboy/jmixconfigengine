@@ -1,14 +1,14 @@
 package com.jmix.executor.cmodel;
 
+import com.jmix.tool.bbuilder.MultiInstCategoryUtils;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * 模块实例类
@@ -251,12 +251,10 @@ public class ModuleInst extends ModuleBaseInst {
     }
 
     private boolean hasMuitiPartCategoryInst(List<PartCategoryInst> pCategoryInsts) {
-        Set<String> pcCodes = new HashSet<>();
         for (PartCategoryInst pCategoryInst : pCategoryInsts) {
-            if (pcCodes.contains(pCategoryInst.getCode())) {
+            if (MultiInstCategoryUtils.isMultiInstCategory(pCategoryInst.getCode())) {
                 return true;
             }
-            pcCodes.add(pCategoryInst.getCode());
         }
         return false;
     }

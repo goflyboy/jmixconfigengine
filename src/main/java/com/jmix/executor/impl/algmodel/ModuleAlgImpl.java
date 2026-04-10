@@ -5,6 +5,7 @@ import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartCategory;
 import com.jmix.executor.bmodel.PartUtils;
+import com.jmix.executor.bmodel.logic.CalcStage;
 import com.jmix.executor.impl.util.FilterExpressionExecutor;
 import com.jmix.executor.model.AlgLoaderException;
 import com.jmix.executor.model.ParConstraint;
@@ -52,7 +53,23 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
     public void init(AlgCPModel model, IModule module,
             List<ParConstraint> partConstraintFromReqs) {
         initData(model, module, partConstraintFromReqs, this);
-        initRules(this);
+
+        // preCalculate
+        preCalculate();
+
+        // midCalculate
+        initRules(this, CalcStage.MID);
+
+        // postCalculate
+    }
+
+    private void preCalculate() {
+        log.info("preCalculate: module={}", getModule().getCode());
+        // 暂时支持模块级前置计算，主要是对控制变量进行初始化
+        if (!(module instanceof Module)) {
+            return;
+        }
+        initRules(this, CalcStage.PRE);
     }
 
     protected void initData(AlgCPModel model, IModule module, List<ParConstraint> partConstraintFromReqs,
@@ -81,17 +98,17 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
         log.info("ModuleAlgImpl initialized with {} partCategory algorithms", partCategoryAlgs.size());
     }
 
-    protected void initRules(IModuleAlg moduleAlgFile) {
+    protected void initRules(IModuleAlg moduleAlgFile, CalcStage calcStage) {
         Map<String, Method> allRuleMethods = buildAllRuleMethods(module, this);
         // 先本身这个模块的前置算法
 
         // 如果module有PartCategorys，则对每个PartCategory创建并初始化PartCategoryAlgImpl
         for (PartCategoryAlgImpl partCategoryAlgImpl : this.getPartCategoryAlgs()) {
-            partCategoryAlgImpl.initRules(allRuleMethods, moduleAlgFile);
+            partCategoryAlgImpl.initRules(allRuleMethods, moduleAlgFile, calcStage);
         }
 
         // 执行本身这个模块的后置算法
-        this.initRules(allRuleMethods, moduleAlgFile);
+        this.initRules(allRuleMethods, moduleAlgFile, calcStage);
     }
 
     /**
@@ -219,8 +236,8 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
         PartCategoryAlgImpl partCategoryAlgImpl = this.getPartCategoryAlg(partCategoryCode);
         if (partCategoryAlgImpl == null) {
             // 打日志，抛异常
-            log.error("partCategoryAlgImpl is invalid, cannot filter part expr");
-            throw new AlgLoaderException("partCategoryAlgImpl is invalid, cannot filter part expr");
+            log.warn("partCategoryAlgImpl is invalid, cannot filter part expr");
+            return partsExpr;
         }
         // 获取该分类下的所有原子部件
         List<Part> atomicParts = partCategoryAlgImpl.getModule().getAllAtomicParts();
@@ -371,6 +388,14 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
 
     private List<PartCategoryAlgImpl> toPartCategoryAlgImpls(String partCategoryCodesStr) {
         List<PartCategoryAlgImpl> partCategoryAlgImpls = new ArrayList<>();
+        if (partCategoryCodesStr.isEmpty()) {
+            return partCategoryAlgImpls;
+        }
+        if (partCategoryCodesStr.contains("*")) {
+            String partCategoryCodePrefix = partCategoryCodesStr.replace("*", "");
+            partCategoryAlgImpls.addAll(getPartCategoryAlgByInstPrefix(partCategoryCodePrefix));
+            return partCategoryAlgImpls;
+        }
         String[] categoryCodes = partCategoryCodesStr.split(",");
         for (String categoryCode : categoryCodes) {
             partCategoryAlgImpls.add(getPartCategoryAlg(categoryCode));
@@ -424,7 +449,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
         return sum4Quantity(null, filtedConditionStr);
     }
 
-    public void addParaEqual(String sumParaCode, String instSumParaCode) {
+    public void addControlParaEqual(String sumParaCode, String instSumParaCode) {
         // 动态表达式 addParaEqual("driveSumQuantity", "drive:SumQuantity");
         ParaVar sumParaVar = this.getParaVar(sumParaCode);
         if (sumParaVar == null) {
@@ -443,19 +468,38 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
         String partCategoryCodePrefix = parts[0].trim();
         String sumQuantityCode = parts[1].trim();
         // expr=sumParaVar.value + sumParaVar.value + ...
-        PartAlgCPLinearExpr paraSumExpr = model.newPartLinearExpr("addParaEqual" + instSumParaCode);
         List<PartCategoryAlgImpl> partCategoryAlgImpls = this.getPartCategoryAlgByInstPrefix(partCategoryCodePrefix);
-        for (PartCategoryAlgImpl partCategoryAlgImpl : partCategoryAlgImpls) {
-            ParaVar instParaVar = partCategoryAlgImpl.getParaVar(sumQuantityCode);
-            if (instParaVar == null) {
-                // 打日志，抛异常
-                log.error("ParaVar not found for code: {}", sumQuantityCode);
-                throw new AlgLoaderException("ParaVar not found for code: " + sumQuantityCode);
+        if (partCategoryAlgImpls.isEmpty()) {
+            // 打日志，抛异常
+            log.warn("PartCategoryAlgImpl not found for code: {}", partCategoryCodePrefix);
+            sumParaVar.setHasInputed(false);
+        } else {
+            Integer sumInputValue = 0;
+            boolean hasInput = false;
+            for (PartCategoryAlgImpl partCategoryAlgImpl : partCategoryAlgImpls) {
+                ParaVar instParaVar = partCategoryAlgImpl.getParaVar(sumQuantityCode);
+                if (instParaVar == null || instParaVar.getInputValue() == null) {
+                    // 打日志，抛异常
+                    log.error("ParaVar not found for code: {}", sumQuantityCode);
+                    // 暂时不抛异常 throw new AlgLoaderException("ParaVar not found for code: " +
+                    // sumQuantityCode);
+                    // issue:是不是总有一个控制参数是有输入的，方便执行（对结果进行校验）
+                    continue;
+                }
+                // paraSumExpr.addTerm(instParaVar.getInputValue(), 1);
+                sumInputValue += instParaVar.getInputValue();
+                hasInput = true;
             }
-            paraSumExpr.addTerm(instParaVar.getValue(), 1);
+            if (hasInput) {
+                // 构建等式
+                sumParaVar.setHasInputed(true);
+                sumParaVar.setInputValue(sumInputValue);
+
+            } else {
+                sumParaVar.setHasInputed(false);
+            }
+
         }
 
-        // 构建等式
-        model.addEquality(sumParaVar.getValue(), paraSumExpr.build());
     }
 }

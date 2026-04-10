@@ -80,7 +80,13 @@ public class ConstraintAlgImplTestBase extends ModuleAlgImpl {
         }
 
         public Boolean getIsHasInputed() {
-            return internal != null ? internal.getIsHasInputed() : Boolean.FALSE;
+            return internal != null ? internal.getHasInputed() : Boolean.FALSE;
+        }
+
+        public void setIsHasInputed(Boolean hasInputed) {
+            if (internal != null) {
+                internal.setHasInputed(hasInputed);
+            }
         }
     }
 

@@ -1,5 +1,7 @@
 package com.jmix.tool.bbuilder.anno;
 
+import com.jmix.executor.bmodel.logic.CalcStage;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -27,4 +29,10 @@ public @interface CodeRuleAnno {
      * 父部件编码，如果为null或空字符串，则规则添加到Module中；否则添加到对应的PartCategory中
      */
     String fatherCode() default "";
+
+    /**
+     * 计算阶段
+     * 用于指定规则在哪个计算阶段执行
+     */
+    CalcStage calcStage() default CalcStage.MID;
 }

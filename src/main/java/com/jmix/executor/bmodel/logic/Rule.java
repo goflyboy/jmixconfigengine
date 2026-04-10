@@ -73,6 +73,12 @@ public class Rule extends Extensible {
     private String fatherCode = "";
 
     /**
+     * 计算阶段
+     * 用于指定规则在哪个计算阶段执行
+     */
+    private CalcStage calcStage = CalcStage.MID;
+
+    /**
      * 获取规则左侧引用的编程对象列表
      * 
      * @return 左侧引用的编程对象列表

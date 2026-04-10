@@ -23,11 +23,11 @@ import com.jmix.tool.bbuilder.anno.PriorityRuleAnno;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class MultiPCTest extends ModuleScenarioTestBase {
+public class Onto4MultiPCTest extends ModuleScenarioTestBase {
 
     // ---------------模型的定义start----------------------------------------
     @ModuleAnno(id = 123L)
-    static public class MultiPCConstraint extends ModuleAlg {
+    static public class Onto4MultiPCConstraint extends ModuleAlg {
 
         // 硬盘部件分类定义--严格按层级结构定义（顺序很重要），部件的attrs也要按定义的顺序来
         @PartAnno()
@@ -98,7 +98,7 @@ public class MultiPCTest extends ModuleScenarioTestBase {
 
                 PartAlgCPLinearExpr totalCapacity = sum4Quantity("Capacity", "").name("totalCapacity");
                 // 如果是容量需求
-                if (driveSumCapacity.getIsHasInputed()) {
+                if (driveSumCapacity.getHasInputed()) {
                     int requiredCapacity = driveSumCapacity.getInputValue();
 
                     // a1.满足输入容量需求 totalCapacity >= requiredCapacity
@@ -215,7 +215,7 @@ public class MultiPCTest extends ModuleScenarioTestBase {
     }
     // ---------------模型的定义end----------------------------------------
 
-    public MultiPCTest() {
+    public Onto4MultiPCTest() {
         // super(MultiPCConstraint.class); TODO
         super(null);
     }

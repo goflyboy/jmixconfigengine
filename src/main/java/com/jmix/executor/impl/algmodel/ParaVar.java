@@ -85,7 +85,16 @@ public class ParaVar extends Var<Para> {
     /**
      * 是否已输入
      */
-    private Boolean isHasInputed = false;
+    private Boolean hasInputed = false;
+
+    /**
+     * 设置是否已输入（兼容旧代码）
+     * 
+     * @param hasInputed 是否已输入
+     */
+    public void setIsHasInputed(Boolean hasInputed) {
+        this.hasInputed = hasInputed;
+    }
 
     /**
      * 根据代码ID获取参数选项变量
