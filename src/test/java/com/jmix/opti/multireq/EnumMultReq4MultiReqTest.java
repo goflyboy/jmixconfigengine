@@ -23,11 +23,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 @Slf4j
-public class MultReq4MultiReqTest extends ModuleScenarioTestBase {
+public class EnumMultReq4MultiReqTest extends ModuleScenarioTestBase {
 
     // ---------------模型的定义start----------------------------------------
     @ModuleAnno(id = 123L)
-    static public class MultReq4MultiConstraint extends ConstraintAlgImplTestBase {
+    static public class EnumMultReqMultiInstConstraint extends ConstraintAlgImplTestBase {
 
         // 硬盘部件分类定义--严格按层级结构定义（顺序很重要），部件的attrs也要按定义的顺序来
         @PartAnno(instCodes = "driveI0,driveI1")
@@ -270,8 +270,8 @@ public class MultReq4MultiReqTest extends ModuleScenarioTestBase {
     }
     // ---------------模型的定义end----------------------------------------
 
-    public MultReq4MultiReqTest() {
-        super(MultReq4MultiConstraint.class);
+    public EnumMultReq4MultiReqTest() {
+        super(EnumMultReqMultiInstConstraint.class);
     }
 
     @Test
