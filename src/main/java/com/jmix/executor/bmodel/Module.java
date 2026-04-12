@@ -105,13 +105,23 @@ public class Module extends ModuleBase implements IModule {
         // 2、shortCodes(P1:Size, P2:Color,PT1:part1,PT2:part2)
         StringBuilder sb = new StringBuilder();
         sb.append("ProgObjs(");
-        for (Para para : this.getParas()) {
-            sb.append(para.getShortCode()).append(":").append(para.getCode()).append(",");
-        }
-        for (IPart part : getAllParts()) {
-            sb.append(part.getShortCode()).append(":").append(part.getCode()).append(",");
+        getProgObjShortCodeMemo(this, sb);
+        for (PartCategory partCategory : this.getPartCategorys()) {
+            getProgObjShortCodeMemo(partCategory, sb);
+            sb.append(",");
         }
         sb.append(")");
+        return sb.toString();
+    }
+
+    public String getProgObjShortCodeMemo(ModuleBase moduleBase, StringBuilder sb) {
+        // 2、shortCodes(P1:Size, P2:Color,PT1:part1,PT2:part2)
+        for (Para para : moduleBase.getParas()) {
+            sb.append(para.getShortCode()).append(":").append(para.getCode()).append(",");
+        }
+        for (IPart part : moduleBase.getAtomicParts()) {
+            sb.append(part.getShortCode()).append(":").append(part.getCode()).append(",");
+        }
         return sb.toString();
     }
 

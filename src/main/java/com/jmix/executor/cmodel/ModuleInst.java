@@ -226,28 +226,22 @@ public class ModuleInst extends ModuleBaseInst {
     }
 
     private void toShortString(StringBuilder sb, boolean isSimple, List<PartCategoryInst> pCategoryInsts) {
-        if (hasMuitiPartCategoryInst(pCategoryInsts)) {
-            // 分类的
-            int index = 0;
-            for (PartCategoryInst partCategory : this.partCategorys) {
-                index++;
-                String prefix = partCategory.getCode();
-                prefix = "_I" + partCategory.getInstanceId() + "{";
-                sb.append(prefix).append(partCategory.toShortString(isSimple)).append("}");
-                if (!(index == this.partCategorys.size())) { // isLast
-                    sb.append(",");
-                }
-            }
-        } else {
-            int index = 0;
-            for (PartCategoryInst partCategory : this.partCategorys) {
-                index++;
-                sb.append(partCategory.toShortString(isSimple));
-                if (!(index == this.partCategorys.size())) { // isLast
-                    sb.append(",");
-                }
+        // 分类的
+        int index = 0;
+        boolean isMulti = false;
+        for (PartCategoryInst partCategory : this.partCategorys) {
+            index++;
+            String prefix = "";
+            isMulti = MultiInstCategoryUtils.isMultiInstCategory(partCategory.getCode());
+            prefix = isMulti ? "I" + partCategory.getInstanceId() + "{" : "";
+            sb.append(prefix).append(partCategory.toShortString(isSimple));
+            prefix = isMulti ? "}" : "";
+            sb.append(prefix);
+            if (!(index == this.partCategorys.size())) { // isLast
+                sb.append(",");
             }
         }
+
     }
 
     private boolean hasMuitiPartCategoryInst(List<PartCategoryInst> pCategoryInsts) {

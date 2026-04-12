@@ -2,7 +2,6 @@ package com.jmix.executor.impl;
 
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.ModuleBase;
-import com.jmix.executor.bmodel.PartCategory;
 import com.jmix.executor.bmodel.base.AssignType;
 import com.jmix.executor.cmodel.ModuleBaseInst;
 import com.jmix.executor.cmodel.ModuleInst;
@@ -79,7 +78,7 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
         bInst.setId(module.getId());
         buildModuleBaseInst(moduleAlg, instanceId, bInst);
         for (PartCategoryAlgImpl partCategoryAlg : moduleAlg.getPartCategoryAlgs()) {
-            PartCategoryInst pInst = buildPartCategoryInst(partCategoryAlg, instanceId);
+            PartCategoryInst pInst = buildPartCategoryInst(partCategoryAlg, partCategoryAlg.getInstId());
             bInst.addPartCategoryInst(pInst);
         }
         return bInst;
@@ -87,18 +86,15 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
 
     private PartCategoryInst buildPartCategoryInst(PartCategoryAlgImpl moduleAlg, int instanceId) {
         PartCategoryInst bInst = new PartCategoryInst();
-        PartCategory partCategory = (PartCategory) moduleAlg.getModule();
         buildModuleBaseInst(moduleAlg, instanceId, bInst);
         return bInst;
     }
 
     private ModuleBaseInst buildModuleBaseInst(ModuleBaseAlgImpl moduleAlg, int instanceId, ModuleBaseInst bInst) {
-        // ModuleBaseInst moduleBaseInst = new ModuleBaseInst();
-        // moduleBaseInst.setId(module.getId());
         ModuleBase base = (ModuleBase) moduleAlg.getModule();
         bInst.setCode(base.getCode());
         bInst.setShortCode(base.getShortCode());
-        bInst.setInstanceId(solutionIndex);
+        bInst.setInstanceId(instanceId);
         for (ParaVar pv : moduleAlg.getParaVars()) {
             ParaInst pi = toParaInst(pv);
             bInst.addParaInst(pi);
@@ -117,23 +113,6 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
         log.info("-------------varInfos-solutionIndex:{}----------- \n {}", solutionIndex);
         // 创建ModuleInst实例，instanceId从0开始
         ModuleInst moduleInst = buildModuleInst(moduleAlg, solutionIndex);
-        // ModuleInst moduleInst = createModuleInst(module, solutionIndex);
-
-        // for (Var<?> v : alg.getVars()) {
-        // if (v instanceof ParaVar) {
-        // ParaVar pv = (ParaVar) v;
-        // ParaInst pi = toParaInst(pv);
-        // moduleInst.addParaInst(pi);
-        // } else if (v instanceof PartVar) {
-        // PartVar partVar = (PartVar) v;
-        // PartInst inst = toPartInst(partVar);
-        // moduleInst.addPartInst(inst);
-        // } else {
-        // log.error("Unsupported variable type: {}", v.getClass().getSimpleName());
-        // throw new AlgLoaderException("Unsupported variable type: " +
-        // v.getClass().getSimpleName());
-        // }
-        // }
 
         // 处理其他变量
         processOtherVariables(moduleInst);
