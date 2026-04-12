@@ -96,4 +96,11 @@ public @interface PartAnno {
      * 实例code列表
      */
     String instCodes() default "";
+
+    /**
+     * 是否支持多实例
+     * 用于约束算法的多实例处理，默认为false
+     * 当设置为true时，该部件分类将支持多实例复制
+     */
+    boolean supportMultiInst() default false;
 }

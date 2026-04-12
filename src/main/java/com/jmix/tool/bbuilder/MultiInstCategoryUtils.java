@@ -45,6 +45,11 @@ public final class MultiInstCategoryUtils {
     public static final String EX_INST_CODES = "EX_INST_CODES";
 
     /**
+     * 支持多实例扩展属性键名
+     */
+    public static final String EX_SUPPORT_MULTI_INST = "EX_SUPPORT_MULTI_INST";
+
+    /**
      * 实例的名称
      */
     public static final char INST_PREFIX_CHAR = 'I';
@@ -407,7 +412,7 @@ public final class MultiInstCategoryUtils {
     }
 
     /**
-     * 设置实例编码到Part
+     * 设置实例编码和是否支持多实例到Part
      *
      * @param partAnno PartAnno注解
      * @param part     Part对象
@@ -421,6 +426,14 @@ public final class MultiInstCategoryUtils {
         if (!Strings.isNullOrEmpty(instCodes)) {
             part.setExtAttr(EX_INST_CODES, instCodes);
             log.debug("Set instCodes '{}' for part '{}'", instCodes, part.getCode());
+        }
+
+        // 设置是否支持多实例
+        boolean supportMultiInst = partAnno.supportMultiInst();
+        part.setSupportMultiInst(supportMultiInst);
+        if (supportMultiInst) {
+            part.setExtAttr(EX_SUPPORT_MULTI_INST, "true");
+            log.debug("Set supportMultiInst=true for part '{}'", part.getCode());
         }
     }
 

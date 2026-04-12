@@ -44,6 +44,13 @@ public class PartCategory extends ModuleBase implements IModule, IPart {
      */
     private PartType partType = PartType.ATOMIC;
 
+    /**
+     * 是否支持多实例
+     * 用于约束算法的多实例处理，默认为false
+     * 当设置为true时，该部件分类将支持多实例复制
+     */
+    private boolean supportMultiInst = false;
+
     public PartCategory() {
         super();
         this.setPartType(PartType.CATEGORY);
@@ -79,6 +86,7 @@ public class PartCategory extends ModuleBase implements IModule, IPart {
         super.clone(to);
         // 复制PartCategory特有的属性
         to.setPartType(this.getPartType());
+        to.setSupportMultiInst(this.isSupportMultiInst());
         // 调用init方法初始化映射表
         to.init();
         return to;

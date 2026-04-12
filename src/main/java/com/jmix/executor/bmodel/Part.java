@@ -45,6 +45,13 @@ public class Part extends Onto implements IPart {
     private Integer maxQuantity = MAX_QUANTITY;
 
     /**
+     * 是否支持多实例
+     * 用于约束算法的多实例处理，默认为false
+     * 当设置为true时，该部件将支持多实例复制
+     */
+    private boolean supportMultiInst = false;
+
+    /**
      * 获取默认数量
      * 
      * @return 默认数量
@@ -67,6 +74,7 @@ public class Part extends Onto implements IPart {
         to.setPartType(this.getPartType());
         to.setPrice(this.getPrice());
         to.setMaxQuantity(this.getMaxQuantity());
+        to.setSupportMultiInst(this.isSupportMultiInst());
         return to;
     }
 

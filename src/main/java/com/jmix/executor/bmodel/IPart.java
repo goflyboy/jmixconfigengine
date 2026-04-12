@@ -59,4 +59,19 @@ public interface IPart extends IExtensible, IDynamicAttributable, Programmable {
      * @return
      */
     String getShortCode();
+
+    /**
+     * 获取是否支持多实例
+     * 用于约束算法的多实例处理，默认为false
+     * 
+     * @return 是否支持多实例
+     */
+    boolean isSupportMultiInst();
+
+    /**
+     * 设置是否支持多实例
+     * 
+     * @param supportMultiInst 是否支持多实例
+     */
+    void setSupportMultiInst(boolean supportMultiInst);
 }
