@@ -251,6 +251,17 @@ public class Onto extends ProgrammableObject<Integer> implements IOnto {
                 .collect(Collectors.toList());
     }
 
+    @JsonIgnore
+    public void addPara(Para para) {
+        getParas().add(para);
+        paraMap.put(para.getCode(), para);
+    }
+
+    @JsonIgnore
+    public void addRule(Rule rule) {
+        getRules().add(rule);
+    }
+
     /**
      * 克隆Onto对象
      *

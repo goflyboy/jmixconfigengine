@@ -61,7 +61,7 @@ public class PartCategory extends ModuleBase implements IModule, IPart {
      * 
      * @return 是否是请求多实例
      */
-    public boolean isReqMutiInst() {
+    public boolean isEnumMutiInst() {
         return MultiInstCategoryUtils.isMultiInstCategory(this);
     }
 

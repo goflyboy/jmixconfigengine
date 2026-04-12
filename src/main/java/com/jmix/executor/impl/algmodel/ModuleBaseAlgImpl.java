@@ -1,6 +1,7 @@
 package com.jmix.executor.impl.algmodel;
 
 import com.jmix.executor.bmodel.IModule;
+import com.jmix.executor.bmodel.ModuleBase;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartUtils;
 import com.jmix.executor.bmodel.attr.DynamicAttributerOption;
@@ -11,6 +12,7 @@ import com.jmix.executor.bmodel.logic.PriorityStrategy;
 import com.jmix.executor.bmodel.logic.Rule;
 import com.jmix.executor.bmodel.logic.RuleTypeConstants;
 import com.jmix.executor.bmodel.para.Para;
+import com.jmix.executor.bmodel.para.ParaType;
 import com.jmix.executor.cmodel.ModuleInst;
 import com.jmix.executor.impl.PriorityConstraint;
 import com.jmix.executor.impl.util.FilterExpressionExecutor;
@@ -187,15 +189,23 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
             String paraCode = "Sum" + pt.getSumAttrCode();
 
             ParaVar pVar = this.getParaVar(paraCode);
-            if (pVar != null) {
-                pVar.setInputValue(pt.getLeftValue());
-                pVar.setIsHasInputed(Boolean.TRUE);
-                log.info("Set input variable {} = {}", paraCode, pt.getLeftValue());
-            } else {
-                String msg = "ParaVar not found for input variable: " + paraCode;
-                log.error(msg);
-                throw new AlgLoaderException(msg);
+            if (pVar == null) {
+                Para para = new Para(); // 没有创建，则动态创建这个变量
+                para.setCode(paraCode);
+                para.setAssignType(AssignType.INPUT);
+                // 从对应的属性里面获取数据issue（min，max等）
+                para.setParaType(ParaType.INTEGER);
+                ModuleBase tempModule = (ModuleBase) module;
+                tempModule.addPara(para);
+                pVar = initParaVar(para);
+                paraMap.put(paraCode, pVar);
+                log.info("Dynamic created para: {}", para.getCode());
             }
+
+            pVar.setInputValue(pt.getLeftValue());
+            pVar.setIsHasInputed(Boolean.TRUE);
+            log.info("Set input variable {} = {}", paraCode, pt.getLeftValue());
+
         }
     }
 

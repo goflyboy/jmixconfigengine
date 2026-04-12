@@ -3,6 +3,7 @@ package com.jmix.executor.impl;
 import com.jmix.executor.ModuleConstraintExecutor;
 import com.jmix.executor.bmodel.IModule;
 import com.jmix.executor.bmodel.Module;
+import com.jmix.executor.bmodel.MultiInstPartCategory;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartCategory;
 import com.jmix.executor.bmodel.attr.DynamicAttribute;
@@ -116,11 +117,18 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
         return processProduct(module, partCategoryReq);
     }
 
-    private Map<String, PartConstraintReq> normalizePartConstraint(List<PartConstraintReq> orgReqs, IModule module) {
-        Map<String, PartConstraintReq> normalizedReqs = new HashMap<>();
+    private Map<String, List<PartConstraintReq>> normalizePartConstraint(List<PartConstraintReq> orgReqs,
+            IModule module) {
+        Map<String, List<PartConstraintReq>> normalizedReqs = new HashMap<>();
         for (PartConstraintReq orgReq : orgReqs) {
-            normalizedReqs.put(orgReq.getPartCategoryCode(), orgReq);
+            List<PartConstraintReq> reqs = normalizedReqs.get(orgReq.getPartCategoryCode());
+            if (reqs == null) {
+                reqs = new ArrayList<>();
+                normalizedReqs.put(orgReq.getPartCategoryCode(), reqs);
+            }
+            normalizedReqs.get(orgReq.getPartCategoryCode()).add(orgReq);
         }
+
         // 标准化， 1、每个rootCategory只有1个， 2、属于同一个rootCategory的PartConstraintReq，合并在一起
         // 3、原始需求中针对子的要转换为rootCategory
         return normalizedReqs;
@@ -134,7 +142,7 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
      */
     public Result<List<ModuleInst>> processProduct(Module startModule, InferPartCategoryReq partCategoryReq) {
         try {
-            Map<String, PartConstraintReq> partConstraintReqMap = normalizePartConstraint(
+            Map<String, List<PartConstraintReq>> partConstraintReqMap = normalizePartConstraint(
                     partCategoryReq.getPartConstraintReqs(), startModule);
             // 查找原始部件分类
             Pair<Module, List<ParConstraint>> filterResult = filterClone(startModule, partConstraintReqMap);
@@ -159,31 +167,50 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
     }
 
     private Pair<Module, List<ParConstraint>> filterClone(Module startModule,
-            Map<String, PartConstraintReq> partConstraintReqMap) {
+            Map<String, List<PartConstraintReq>> partConstraintReqMap) {
         Module result = startModule.clone();
         List<ParConstraint> partConstraintFromReqs = new ArrayList<>();
-        PartConstraintReq req = null;
+        List<PartConstraintReq> reqs = null;
         PartCategory filterPartCategory = null;
         for (PartCategory partCategory : startModule.getPartCategorys()) {
-            req = partConstraintReqMap.get(partCategory.getCode());
-            if (req == null) {
-                // 如果是多实例的情况，默认是放进去的，TODO：是不是一个也没有的时候也补充一个
-                if (partCategory.isReqMutiInst()) {
+            reqs = partConstraintReqMap.get(partCategory.getCode());
+            if (reqs == null) {
+                // 如果是穷举多实例的情况，默认是放进去的，TODO：是不是一个也没有的时候也补充一个
+                if (partCategory.isEnumMutiInst()) {
                     continue;
                 }
                 result.addPart(partCategory); // 完全挪过来
             } else {
-                filterPartCategory = partCategory.filterClone(req);
-                String msg = String.format("Priority-filtered aparts: {%s} by {%s}",
-                        filterPartCategory.getAllAtomicPartShortString(),
-                        req.getAttrWhereCondition());
-                log.info(msg);
-                if (filterPartCategory.getAllAtomicPartShortString().isEmpty()) {
-                    throw new AlgExecutorException(msg);
+                if (reqs.size() == 1) {
+                    PartConstraintReq req = reqs.get(0);
+                    filterPartCategory = partCategory.filterClone(req);
+                    String msg = String.format("Priority-filtered aparts: {%s} by {%s}",
+                            filterPartCategory.getAllAtomicPartShortString(),
+                            req.getAttrWhereCondition());
+                    log.info(msg);
+                    if (filterPartCategory.getAllAtomicPartShortString().isEmpty()) {
+                        throw new AlgExecutorException(msg);
+                    }
+                    result.addPart(filterPartCategory);
+                    PartCategoryConstraintExecutorImpl.resolveAddPartConstraint(
+                            filterPartCategory, req, partConstraintFromReqs);
+                } else {
+                    MultiInstPartCategory multiInstPartCategory = new MultiInstPartCategory();
+                    for (PartConstraintReq req : reqs) {
+                        filterPartCategory = partCategory.filterClone(req);
+                        String msg = String.format("Priority-filtered aparts: {%s} by {%s}",
+                                filterPartCategory.getAllAtomicPartShortString(),
+                                req.getAttrWhereCondition());
+                        log.info(msg);
+                        if (filterPartCategory.getAllAtomicPartShortString().isEmpty()) {
+                            throw new AlgExecutorException(msg);
+                        }
+                        result.addPart(filterPartCategory);
+                        PartCategoryConstraintExecutorImpl.resolveAddPartConstraint(
+                                filterPartCategory, req, partConstraintFromReqs);
+                        multiInstPartCategory.addPartCategory(filterPartCategory);
+                    }
                 }
-                result.addPart(filterPartCategory);
-                PartCategoryConstraintExecutorImpl.resolveAddPartConstraint(
-                        filterPartCategory, req, partConstraintFromReqs);
             }
         }
         return new Pair<>(result, partConstraintFromReqs);
