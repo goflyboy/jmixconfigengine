@@ -79,6 +79,21 @@ public class Rule extends Extensible {
     private CalcStage calcStage = CalcStage.MID;
 
     /**
+     * 左侧基数
+     */
+    private Cardinality leftCardinality = Cardinality.ONE;
+
+    /**
+     * 右侧基数
+     */
+    private Cardinality rightCardinality = Cardinality.ONE;
+
+    /**
+     * 作用范围
+     */
+    private EffectScope effectScope = EffectScope.SingleInst;
+
+    /**
      * 获取规则左侧引用的编程对象列表
      * 
      * @return 左侧引用的编程对象列表

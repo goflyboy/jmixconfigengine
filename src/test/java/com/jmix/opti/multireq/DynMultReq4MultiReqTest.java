@@ -3,11 +3,18 @@ package com.jmix.opti.multireq;
 import com.jmix.coretest.ConstraintAlgImplTestBase;
 import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.executor.bmodel.attr.DynamicAttributeType;
+import com.jmix.executor.bmodel.logic.Cardinality;
+import com.jmix.executor.bmodel.logic.EffectScope;
+import com.jmix.executor.bmodel.logic.PriorityStrategy;
+import com.jmix.executor.impl.algmodel.AlgCPLinearExpr;
+import com.jmix.executor.impl.algmodel.PartAlgCPLinearExpr;
+import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
 import com.jmix.tool.bbuilder.anno.DAttrAnno1;
 import com.jmix.tool.bbuilder.anno.DAttrAnno2;
 import com.jmix.tool.bbuilder.anno.DAttrAnno3;
 import com.jmix.tool.bbuilder.anno.ModuleAnno;
 import com.jmix.tool.bbuilder.anno.PartAnno;
+import com.jmix.tool.bbuilder.anno.PriorityRuleAnno;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -123,128 +130,108 @@ public class DynMultReq4MultiReqTest extends ModuleScenarioTestBase {
         // private ParaVar SumMemory; // 输入参数
         // 改动点3：分类2(多）多个请求的整体要求，需要有整体汇总
 
-        // // 改动点1：分类1（单)->分类2（多），需要设置为拆分为多条规则 Cardinality(1:N)
-        // @CodeRuleAnno(normalNaturalCode = "4核的CPU不兼容固态硬盘", leftCardinality =
-        // Cardinality.MANY, leftProObjsStr = "cpu:CoreNum|Quantity|Select",
-        // rightProObjsStr = "drive:Type|Quantity|Select")
-        // private void logicAB1() {// TODO： code的动态性怎么保障
-        // // 不能这样：每个分类需要独立校验，inCompatible("logicAB1", "cpu:CoreNum=4",
-        // "drive*:Type=sd");
-        // inCompatible("logicAB1", "cpu:CoreNum=4", "drive:Type=sd");
-        // }
+        // 改动点1：分类1（单)->分类2（多），需要设置为拆分为多条规则 Cardinality(1:N)
+        @CodeRuleAnno(normalNaturalCode = "4核的CPU不兼容固态硬盘", leftProObjsStr = "cpu:CoreNum|Quantity|Select", rightProObjsStr = "drive:Type|Quantity|Select", effectScope = EffectScope.SingleInst)
+        private void logicAB1() {
+            // TODO： code的动态性怎么保障
+            inCompatible("logicAB1", "cpu:CoreNum=4", "drive:Type=sd");
+        }
 
-        // // @CodeRuleAnno(normalNaturalCode = "4核的CPU不兼容固态硬盘")
-        // // private void logicAB1_I1() {
-        // // inCompatible("logicAB1_I1", "cpu:CoreNum=4", "driveI1:Type=sd");
-        // // }
+        @CodeRuleAnno(fatherCode = "cpu", normalNaturalCode = "仅能使用一种CPU", leftProObjsStr = "cpu:Selected")
+        private void logicA1() {
+            AlgCPLinearExpr cpuSelected = sum4Selected("").name("cpuSelected");
+            model.addLessOrEqual(cpuSelected, 1);
+        }
 
-        // @CodeRuleAnno(fatherCode = "cpu", normalNaturalCode = "仅能使用一种CPU",
-        // leftProObjsStr = "cpu:Selected")
-        // private void logicA1() {
-        // AlgCPLinearExpr cpuSelected = sum4Selected("").name("cpuSelected");
-        // model.addLessOrEqual(cpuSelected, 1);
-        // }
+        // // 改动点2：分类2(多）单个请求的要求，需要按实例维度把自己的规则复制多份
+        @CodeRuleAnno(fatherCode = "driveI0", normalNaturalCode = "固态硬盘必须配置同一种，并且最多配置2块")
+        private void logicB1_I0() {
+            // proRule1-natuarl: 固态硬盘必须配置同一种，并且最多配置2块
+            // proRule1-dsl: 拆分为proRule11和proRule11两条约束（和isSelected(S)、qty(Q)相关）
+            // proRule11-cRule: sd1.S + sd2.S <=1
+            AlgCPLinearExpr sdTypeSumNum = sum4Selected("Type=sd").name("sdTypeSumNum");
+            model.addLessOrEqual(sdTypeSumNum, 1);
+        }
 
-        // // // 改动点2：分类2(多）单个请求的要求，需要按实例维度把自己的规则复制多份
-        // // @CodeRuleAnno(fatherCode = "driveI0", normalNaturalCode =
-        // // "固态硬盘必须配置同一种，并且最多配置2块")
-        // // private void logicB1_I0() {
-        // // // proRule1-natuarl: 固态硬盘必须配置同一种，并且最多配置2块
-        // // // proRule1-dsl: 拆分为proRule11和proRule11两条约束（和isSelected(S)、qty(Q)相关）
-        // // // proRule11-cRule: sd1.S + sd2.S <=1
-        // // AlgCPLinearExpr sdTypeSumNum =
-        // sum4Selected("Type=sd").name("sdTypeSumNum");
-        // // model.addLessOrEqual(sdTypeSumNum, 1);
+        @CodeRuleAnno(fatherCode = "drive", normalNaturalCode = "固态硬盘必须配置同一种，并且最多配置2块",
+                leftProObjsStr = "drive:Select|Quantity", effectScope = EffectScope.SingleInst)
+        private void logicB1() {
+            // proRule1-natuarl: 固态硬盘必须配置同一种，并且最多配置2块
+            // proRule1-dsl: 拆分为proRule11和proRule11两条约束（和isSelected(S)、qty(Q)相关）
+            // proRule11-cRule: sd1.S + sd2.S <=1
+            AlgCPLinearExpr sdTypeSumNum = sum4Selected("Type=sd").name("sdTypeSumNum");
+            model.addLessOrEqual(sdTypeSumNum, 1);
 
-        // // // proRule12-cRule: sd1.Q + sd2.Q <= 2
-        // // AlgCPLinearExpr sdTypeSumQty =
-        // sum4Quantity("Type=sd").name("sdTypeSumQty");
-        // // model.addLessOrEqual(sdTypeSumQty, 2);
-        // // }
+            // proRule12-cRule: sd1.Q + sd2.Q <= 2
+            AlgCPLinearExpr sdTypeSumQty = sum4Quantity("Type=sd").name("sdTypeSumQty");
+            model.addLessOrEqual(sdTypeSumQty, 2);
+        }
 
-        // @CodeRuleAnno(fatherCode = "drive", normalNaturalCode =
-        // "固态硬盘必须配置同一种，并且最多配置2块"
-        // ，leftProObjsStr = "drive:Select|Quantity",effectScope
-        // =EffectScope.SingleInst)
-        // private void logicB1() {
-        // // proRule1-natuarl: 固态硬盘必须配置同一种，并且最多配置2块
-        // // proRule1-dsl: 拆分为proRule11和proRule11两条约束（和isSelected(S)、qty(Q)相关）
-        // // proRule11-cRule: sd1.S + sd2.S <=1
-        // AlgCPLinearExpr sdTypeSumNum = sum4Selected("Type=sd").name("sdTypeSumNum");
-        // model.addLessOrEqual(sdTypeSumNum, 1);
+        // 改动点3：分类2(多）多个请求的整体要求，需要有整体汇总
+        @PriorityRuleAnno(fatherCode = "drive", normalNaturalCode = " 优先使用高容量硬盘",
+                strategy = PriorityStrategy.MIN, effectScope = EffectScope.AllInst)
+        private void logicB2() {
+        // 改动点3-1：增加sum4Quantity的partCatagoryCodesStr参数，支持多实例的情况
+        PartAlgCPLinearExpr totalCapacity = sum4Quantity("drive*", "Capacity",
+        "").name("totalCapacity");
+        // 如果是容量需求
+        // 改动点5：怎么判断 driveSumCapacity是否有输入？前置计算+ 输入条件判断？ --
+        // if (driveSumCapacity.getIsHasInputed()) {
+        if (drive.getSumSumParaByAttr("Capacity").getIsHasInputed()) {
+        int requiredCapacity = drive.getSumSumParaByAttr("Capacity").getInputValue();
 
-        // // proRule12-cRule: sd1.Q + sd2.Q <= 2
-        // AlgCPLinearExpr sdTypeSumQty = sum4Quantity("Type=sd").name("sdTypeSumQty");
-        // model.addLessOrEqual(sdTypeSumQty, 2);
-        // }
+        // a1.满足输入容量需求 totalCapacity >= requiredCapacity
+        model.addGreaterOrEqual(totalCapacity, requiredCapacity);
 
-        // // 改动点3：分类2(多）多个请求的整体要求，需要有整体汇总
-        // @PriorityRuleAnno(fatherCode = "drive", normalNaturalCode = " 优先使用高容量硬盘",
-        // strategy = PriorityStrategy.MIN
-        // ,effectScope =EffectScope.AllInst)
-        // )
-        // private void logicB2() {
-        // // 改动点3-1：增加sum4Quantity的partCatagoryCodesStr参数，支持多实例的情况
-        // PartAlgCPLinearExpr totalCapacity = sum4Quantity("drive*", "Capacity",
-        // "").name("totalCapacity");
-        // // 如果是容量需求
-        // // 改动点5：怎么判断 driveSumCapacity是否有输入？前置计算+ 输入条件判断？ --
-        // // if (driveSumCapacity.getIsHasInputed()) {
-        // if (drive.getSumSumParaByAttr("Capacity").getIsHasInputed()) {
-        // int requiredCapacity = drive.getSumSumParaByAttr("Capacity").getInputValue();
+        // 创建目标函数
+        PartAlgCPLinearExpr objectiveExpr = model.newPartLinearExpr("ObjectiveFun");
 
-        // // a1.满足输入容量需求 totalCapacity >= requiredCapacity
-        // model.addGreaterOrEqual(totalCapacity, requiredCapacity);
+        // a2.使用高容量硬盘 -> "被选择部件单容量总和越大越好"
+        PartAlgCPLinearExpr highCapacityExpr = sum4Selected("drive*", "Capacity", "")
+        .name("highCapacityExpr");
+        objectiveExpr.addExpr(highCapacityExpr, -100);
 
-        // // 创建目标函数
-        // PartAlgCPLinearExpr objectiveExpr = model.newPartLinearExpr("ObjectiveFun");
+        // a3.在满足容量需求的前提下，容量越接近需求容量越好
+        PartAlgCPLinearExpr excessCapacityExpr =
+        model.newPartLinearExpr("excessCapacityExpr");
+        excessCapacityExpr.addExpr(totalCapacity, 1);
+        excessCapacityExpr.addConstant(-requiredCapacity);
+        objectiveExpr.addExpr(excessCapacityExpr, 1);
 
-        // // a2.使用高容量硬盘 -> "被选择部件单容量总和越大越好"
-        // PartAlgCPLinearExpr highCapacityExpr = sum4Selected("drive*", "Capacity", "")
-        // .name("highCapacityExpr");
-        // objectiveExpr.addExpr(highCapacityExpr, -100);
+        // a4.在满足容量需求的前提下， 配置的部件数量越少越好
+        PartAlgCPLinearExpr excessQuantityExpr = sum4Quantity("drive*", "", "")
+        .name("excessQuantityExpr");
+        objectiveExpr.addExpr(excessQuantityExpr, 800);
+        model.setObjectExpr(objectiveExpr);
+        updatePriorityObjectFuntion("logicB2", objectiveExpr);
 
-        // // a3.在满足容量需求的前提下，容量越接近需求容量越好
-        // PartAlgCPLinearExpr excessCapacityExpr =
-        // model.newPartLinearExpr("excessCapacityExpr");
-        // excessCapacityExpr.addExpr(totalCapacity, 1);
-        // excessCapacityExpr.addConstant(-requiredCapacity);
-        // objectiveExpr.addExpr(excessCapacityExpr, 1);
+        } else {// 给的数量qty总数
 
-        // // a4.在满足容量需求的前提下， 配置的部件数量越少越好
-        // PartAlgCPLinearExpr excessQuantityExpr = sum4Quantity("drive*", "", "")
-        // .name("excessQuantityExpr");
-        // objectiveExpr.addExpr(excessQuantityExpr, 800);
-        // model.setObjectExpr(objectiveExpr);
-        // updatePriorityObjectFuntion("logicB2", objectiveExpr);
+        // int requiredQty = Integer.parseInt(req.getAttrValue());
+        // int requiredQuantity = driveSumQuantity.getInputValue();
+        int requiredQuantity = drive.getSumSumParaByAttr("Quantity").getInputValue();
+        // a1.满足输入总数量需求 totalQuantity >= requiredQuantity
+        PartAlgCPLinearExpr totalQuantity = sum4Quantity("drive*", "",
+        "").name("totalQuantity");
+        model.addGreaterOrEqual(totalQuantity, requiredQuantity);
 
-        // } else {// 给的数量qty总数
+        // 创建目标函数
+        PartAlgCPLinearExpr objectiveExpr =
+        model.newPartLinearExpr("ObjectiveFunQty");
 
-        // // int requiredQty = Integer.parseInt(req.getAttrValue());
-        // // int requiredQuantity = driveSumQuantity.getInputValue();
-        // int requiredQuantity = drive.getSumSumParaByAttr("Quantity").getInputValue();
-        // // a1.满足输入总数量需求 totalQuantity >= requiredQuantity
-        // PartAlgCPLinearExpr totalQuantity = sum4Quantity("drive*", "",
-        // "").name("totalQuantity");
-        // model.addGreaterOrEqual(totalQuantity, requiredQuantity);
+        // a2.使用高容量硬盘 -> "被选择部件单容量总和越大越好"
+        PartAlgCPLinearExpr highCapacityExpr = sum4Selected("drive*", "Capacity", "")
+        .name("highCapacityExpr");
+        objectiveExpr.addExpr(highCapacityExpr, -1);
 
-        // // 创建目标函数
-        // PartAlgCPLinearExpr objectiveExpr =
-        // model.newPartLinearExpr("ObjectiveFunQty");
-
-        // // a2.使用高容量硬盘 -> "被选择部件单容量总和越大越好"
-        // PartAlgCPLinearExpr highCapacityExpr = sum4Selected("drive*", "Capacity", "")
-        // .name("highCapacityExpr");
-        // objectiveExpr.addExpr(highCapacityExpr, -1);
-
-        // // a3.在满足数量需求的前提下，数量越接近需求数量越好
-        // PartAlgCPLinearExpr excessQuantityExpr = sum4Quantity("drive*", "", "")
-        // .name("excessQuantityExpr");
-        // excessQuantityExpr.addConstant(-requiredQuantity);
-        // model.setObjectExpr(objectiveExpr);
-        // updatePriorityObjectFuntion("logicB2", objectiveExpr);
-        // }
-        // }
+        // a3.在满足数量需求的前提下，数量越接近需求数量越好
+        PartAlgCPLinearExpr excessQuantityExpr = sum4Quantity("drive*", "", "")
+        .name("excessQuantityExpr");
+        excessQuantityExpr.addConstant(-requiredQuantity);
+        model.setObjectExpr(objectiveExpr);
+        updatePriorityObjectFuntion("logicB2", objectiveExpr);
+        }
+        }
 
     }
     // ---------------模型的定义end----------------------------------------

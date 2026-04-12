@@ -23,12 +23,12 @@ public class CodeRuleSchema extends RuleSchema {
     /**
      * 引用编程对象,没有去重的
      */
-    private List<RefProgObjSchema> rightRefProgObjs;
+    private List<RefProgObjSchema> rightRefProgObjs = new ArrayList<>();
 
     /**
      * 引用编程对象,没有去重的
      */
-    private List<RefProgObjSchema> leftRefProgObjs;
+    private List<RefProgObjSchema> leftRefProgObjs = new ArrayList<>();
 
     /**
      * 获取左侧编程对象列表

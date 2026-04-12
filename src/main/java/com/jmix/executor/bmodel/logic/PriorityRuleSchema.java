@@ -21,13 +21,23 @@ public class PriorityRuleSchema extends RuleSchema {
      */
     private PriorityStrategy priorityStrategy;
 
+    /**
+     * 引用编程对象,没有去重的
+     */
+    private List<RefProgObjSchema> leftRefProgObjs = new ArrayList<>();
+
+    /**
+     * 引用编程对象,没有去重的
+     */
+    private List<RefProgObjSchema> rightRefProgObjs = new ArrayList<>();
+
     @Override
     public List<RefProgObjSchema> getFromLeftProgObjs() {
-        return new ArrayList<>();
+        return leftRefProgObjs != null ? leftRefProgObjs : new ArrayList<>();
     }
 
     @Override
     public List<RefProgObjSchema> getToRightProgObjs() {
-        return new ArrayList<>();
+        return rightRefProgObjs != null ? rightRefProgObjs : new ArrayList<>();
     }
 }

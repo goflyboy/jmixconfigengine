@@ -1,5 +1,6 @@
 package com.jmix.tool.bbuilder.anno;
 
+import com.jmix.executor.bmodel.logic.EffectScope;
 import com.jmix.executor.bmodel.logic.PriorityStrategy;
 
 import java.lang.annotation.ElementType;
@@ -44,4 +45,23 @@ public @interface PriorityRuleAnno {
      * 优先级策略
      */
     PriorityStrategy strategy() default PriorityStrategy.MAX;
+
+    /**
+     * 左侧编程对象描述字符串
+     * 格式：progObjCode:progObjField|progObjField
+     * 例如："drive:Select|Quantity"
+     */
+    String leftProObjsStr() default "";
+
+    /**
+     * 右侧编程对象描述字符串
+     * 格式：progObjCode:progObjField|progObjField
+     * 例如："drive:Select|Quantity"
+     */
+    String rightProObjsStr() default "";
+
+    /**
+     * 作用范围
+     */
+    EffectScope effectScope() default EffectScope.SingleInst;
 }

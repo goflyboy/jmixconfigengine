@@ -114,6 +114,10 @@ public class ConstraintAlgImplTestBase extends ModuleAlgImpl {
     }
 
     public class PartCategoryVar extends PartVar {
+
+        public ParaVar getSumSumParaByAttr(String attrCode) {
+            throw new UnsupportedOperationException("Not implemented");
+        }
     }
 
     /**

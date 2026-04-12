@@ -12,9 +12,11 @@ import com.jmix.executor.bmodel.attr.DynamicAttributerOption;
 import com.jmix.executor.bmodel.attr.InstanceDynAttrValue;
 import com.jmix.executor.bmodel.attr.InstanceDynAttrValueItem;
 import com.jmix.executor.bmodel.base.Pair;
+import com.jmix.executor.bmodel.logic.Cardinality;
 import com.jmix.executor.bmodel.logic.CalcStage;
 import com.jmix.executor.bmodel.logic.CodeRuleSchema;
 import com.jmix.executor.bmodel.logic.CompatiableRuleSchema;
+import com.jmix.executor.bmodel.logic.EffectScope;
 import com.jmix.executor.bmodel.logic.ExprSchema;
 import com.jmix.executor.bmodel.logic.PriorityRuleSchema;
 import com.jmix.executor.bmodel.logic.RefProgObjSchema;
@@ -355,6 +357,9 @@ public final class ModuleGenneratorByAnno {
         rule.setNormalNaturalCode(anno.normalNaturalCode());
         rule.setRuleSchemaTypeFullName("CDSL.V5.Struct.CompatibleRule");
 
+        // 设置作用范围
+        rule.setEffectScope(anno.effectScope());
+
         // 创建CompatibleRuleSchema
         CompatiableRuleSchema schema = new CompatiableRuleSchema();
         schema.setType("CompatibleRule");
@@ -377,6 +382,30 @@ public final class ModuleGenneratorByAnno {
             rightExpr.setRawCode(anno.rightExprCode());
             rightExpr.setRefProgObjs(generateRefProgObjSchemas(anno.rightExprCode(), module));
             schema.setRightExpr(rightExpr);
+        }
+
+        // 解析leftProObjsStr，设置额外的左侧编程对象
+        if (!anno.leftProObjsStr().isEmpty()) {
+            List<RefProgObjSchema> additionalLeftObjs = parseProObjsStr(anno.leftProObjsStr(), module);
+            ExprSchema leftExpr = schema.getLeftExpr();
+            if (leftExpr == null) {
+                leftExpr = new ExprSchema();
+                leftExpr.setRefProgObjs(new ArrayList<>());
+                schema.setLeftExpr(leftExpr);
+            }
+            leftExpr.getRefProgObjs().addAll(additionalLeftObjs);
+        }
+
+        // 解析rightProObjsStr，设置额外的右侧编程对象
+        if (!anno.rightProObjsStr().isEmpty()) {
+            List<RefProgObjSchema> additionalRightObjs = parseProObjsStr(anno.rightProObjsStr(), module);
+            ExprSchema rightExpr = schema.getRightExpr();
+            if (rightExpr == null) {
+                rightExpr = new ExprSchema();
+                rightExpr.setRefProgObjs(new ArrayList<>());
+                schema.setRightExpr(rightExpr);
+            }
+            rightExpr.getRefProgObjs().addAll(additionalRightObjs);
         }
 
         rule.setRawCode(schema);
@@ -407,10 +436,27 @@ public final class ModuleGenneratorByAnno {
         rule.setRuleSchemaTypeFullName(RuleTypeConstants.PRIORITY_RULE_FULL_NAME);
         rule.setFatherCode(anno.fatherCode());
 
+        // 设置作用范围
+        rule.setEffectScope(anno.effectScope());
+
         // 创建PriorityRuleSchema
         PriorityRuleSchema schema = new PriorityRuleSchema();
         schema.setVersion("1.0");
         schema.setPriorityStrategy(anno.strategy());
+        schema.setLeftRefProgObjs(new ArrayList<>());
+        schema.setRightRefProgObjs(new ArrayList<>());
+
+        // 解析leftProObjsStr，设置额外的左侧编程对象
+        if (!anno.leftProObjsStr().isEmpty()) {
+            List<RefProgObjSchema> additionalLeftObjs = parseProObjsStr(anno.leftProObjsStr(), module);
+            schema.getLeftRefProgObjs().addAll(additionalLeftObjs);
+        }
+
+        // 解析rightProObjsStr，设置额外的右侧编程对象
+        if (!anno.rightProObjsStr().isEmpty()) {
+            List<RefProgObjSchema> additionalRightObjs = parseProObjsStr(anno.rightProObjsStr(), module);
+            schema.getRightRefProgObjs().addAll(additionalRightObjs);
+        }
 
         rule.setRawCode(schema);
         return rule;
@@ -453,6 +499,25 @@ public final class ModuleGenneratorByAnno {
                 module);
         schema.setLeftRefProgObjs(leftRightRefProgObjs.get(0));
         schema.setRightRefProgObjs(leftRightRefProgObjs.get(1));
+
+        // 设置作用范围
+        rule.setEffectScope(anno.effectScope());
+
+        // 解析leftProObjsStr，设置额外的左侧编程对象
+        if (!anno.leftProObjsStr().isEmpty()) {
+            List<RefProgObjSchema> additionalLeftObjs = parseProObjsStr(anno.leftProObjsStr(), module);
+            for (RefProgObjSchema refProgObj : additionalLeftObjs) {
+                schema.getFromLeftProgObjs().add(refProgObj);
+            }
+        }
+
+        // 解析rightProObjsStr，设置额外的右侧编程对象
+        if (!anno.rightProObjsStr().isEmpty()) {
+            List<RefProgObjSchema> additionalRightObjs = parseProObjsStr(anno.rightProObjsStr(), module);
+            for (RefProgObjSchema refProgObj : additionalRightObjs) {
+                schema.getToRightProgObjs().add(refProgObj);
+            }
+        }
 
         rule.setRawCode(schema);
         return rule;
@@ -576,6 +641,70 @@ public final class ModuleGenneratorByAnno {
         }
 
         return Arrays.asList(leftRefProgObjs, rightRefProgObjs);
+    }
+
+    /**
+     * 解析编程对象描述字符串
+     * 格式：progObjCode:progObjField|progObjField
+     * 例如："drive:Select|Quantity" -> [RefProgObj(drive, Select), RefProgObj(drive, Quantity)]
+     *
+     * @param proObjsStr 编程对象描述字符串
+     * @param module     当前模块
+     * @return 解析后的引用编程对象列表
+     */
+    private static List<RefProgObjSchema> parseProObjsStr(String proObjsStr, Module module) {
+        List<RefProgObjSchema> refProgObjs = new ArrayList<>();
+
+        if (Strings.isNullOrEmpty(proObjsStr)) {
+            return refProgObjs;
+        }
+
+        // 按逗号分隔多个ProgObj
+        String[] objParts = proObjsStr.split(",");
+        for (String objPart : objParts) {
+            String trimmed = objPart.trim();
+            if (Strings.isNullOrEmpty(trimmed)) {
+                continue;
+            }
+
+            // 按冒号分隔progObjCode和属性列表
+            String[] codeAndFields = trimmed.split(":");
+            if (codeAndFields.length != 2) {
+                log.warn("Invalid proObjsStr format: {}, expected 'code:field1|field2'", trimmed);
+                continue;
+            }
+
+            String progObjCode = codeAndFields[0].trim();
+            String fieldsStr = codeAndFields[1].trim();
+
+            // 检查是Part还是Para
+            String progObjType;
+            if (module.getPara(progObjCode).isPresent()) {
+                progObjType = RefProgObjSchema.PROG_OBJ_TYPE_PARA;
+            } else if (module.getPart(progObjCode) != null) {
+                progObjType = RefProgObjSchema.PROG_OBJ_TYPE_PART;
+            } else {
+                log.warn("Object not found: {}", progObjCode);
+                continue;
+            }
+
+            // 按|分隔多个属性
+            String[] fields = fieldsStr.split("\\|");
+            for (String field : fields) {
+                String fieldTrimmed = field.trim();
+                if (Strings.isNullOrEmpty(fieldTrimmed)) {
+                    continue;
+                }
+
+                RefProgObjSchema refProgObj = new RefProgObjSchema();
+                refProgObj.setProgObjType(progObjType);
+                refProgObj.setProgObjCode(progObjCode);
+                refProgObj.setProgObjField(fieldTrimmed);
+                refProgObjs.add(refProgObj);
+            }
+        }
+
+        return refProgObjs;
     }
 
     /**

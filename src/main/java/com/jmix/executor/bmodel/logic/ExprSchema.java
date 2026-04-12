@@ -27,5 +27,5 @@ public class ExprSchema {
     /**
      * 引用的编程对象
      */
-    private List<RefProgObjSchema> refProgObjs;
+    private List<RefProgObjSchema> refProgObjs = new ArrayList<>();
 }

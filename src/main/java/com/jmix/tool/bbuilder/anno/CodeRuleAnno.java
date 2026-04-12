@@ -1,6 +1,7 @@
 package com.jmix.tool.bbuilder.anno;
 
 import com.jmix.executor.bmodel.logic.CalcStage;
+import com.jmix.executor.bmodel.logic.EffectScope;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -35,4 +36,23 @@ public @interface CodeRuleAnno {
      * 用于指定规则在哪个计算阶段执行
      */
     CalcStage calcStage() default CalcStage.MID;
+
+    /**
+     * 左侧编程对象描述字符串
+     * 格式：progObjCode:progObjField|progObjField
+     * 例如："drive:Select|Quantity"
+     */
+    String leftProObjsStr() default "";
+
+    /**
+     * 右侧编程对象描述字符串
+     * 格式：progObjCode:progObjField|progObjField
+     * 例如："drive:Select|Quantity"
+     */
+    String rightProObjsStr() default "";
+
+    /**
+     * 作用范围
+     */
+    EffectScope effectScope() default EffectScope.SingleInst;
 }
