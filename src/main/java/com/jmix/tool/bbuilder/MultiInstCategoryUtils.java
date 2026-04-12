@@ -429,11 +429,9 @@ public final class MultiInstCategoryUtils {
         }
 
         // 设置是否支持多实例
-        boolean supportMultiInst = partAnno.supportMultiInst();
-        part.setSupportMultiInst(supportMultiInst);
-        if (supportMultiInst) {
-            part.setExtAttr(EX_SUPPORT_MULTI_INST, "true");
-            log.debug("Set supportMultiInst=true for part '{}'", part.getCode());
+        if (part instanceof PartCategory) {
+            PartCategory partCategory = (PartCategory) part;
+            partCategory.setSupportMultiInst(partAnno.supportMultiInst());
         }
     }
 
@@ -463,4 +461,5 @@ public final class MultiInstCategoryUtils {
          */
         private String instId;
     }
+
 }
