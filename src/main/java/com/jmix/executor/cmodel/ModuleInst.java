@@ -1,7 +1,5 @@
 package com.jmix.executor.cmodel;
 
-import com.jmix.tool.bbuilder.MultiInstCategoryUtils;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
@@ -214,11 +212,10 @@ public class ModuleInst extends ModuleBaseInst {
      * @param isSimple 是否使用简单格式
      * @return 短字符串
      */
-    @Override
     public String toShortString(boolean isSimple) {
         StringBuilder sb = new StringBuilder();
         // 当前模块本身的
-        sb.append(super.toShortString(isSimple));
+        sb.append(super.toShortString(isSimple, 0));
         toShortString(sb, isSimple, this.getPartCategorys());
         // 添加优先级属性值信息
         appendPriorityAttrValuesInfo(sb);
@@ -228,28 +225,12 @@ public class ModuleInst extends ModuleBaseInst {
     private void toShortString(StringBuilder sb, boolean isSimple, List<PartCategoryInst> pCategoryInsts) {
         // 分类的
         int index = 0;
-        boolean isMulti = false;
         for (PartCategoryInst partCategory : this.partCategorys) {
             index++;
-            String prefix = "";
-            isMulti = MultiInstCategoryUtils.isMultiInstCategory(partCategory.getCode());
-            prefix = isMulti ? "I" + partCategory.getInstanceId() + "{" : "";
-            sb.append(prefix).append(partCategory.toShortString(isSimple));
-            prefix = isMulti ? "}" : "";
-            sb.append(prefix);
+            sb.append(partCategory.toShortString(isSimple, partCategory.getInstanceId()));
             if (!(index == this.partCategorys.size())) { // isLast
                 sb.append(",");
             }
         }
-
-    }
-
-    private boolean hasMuitiPartCategoryInst(List<PartCategoryInst> pCategoryInsts) {
-        for (PartCategoryInst pCategoryInst : pCategoryInsts) {
-            if (MultiInstCategoryUtils.isMultiInstCategory(pCategoryInst.getCode())) {
-                return true;
-            }
-        }
-        return false;
     }
 }

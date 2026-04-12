@@ -110,7 +110,8 @@ public class ModuleBaseInst {
      * @param isSimple 是否使用简单格式
      * @return 短字符串
      */
-    public String toShortString(boolean isSimple) {
+    public String toShortString(boolean isSimple, int instId) {
+        String prefix = instId > 0 ? "I" + instId + "_" : "";
         StringBuilder sb = new StringBuilder();
         // 对paras按code升序排序
         Collections.sort(paras, (a, b) -> a.getCode().compareTo(b.getCode()));
@@ -121,7 +122,7 @@ public class ModuleBaseInst {
             if (sb.length() > 0) {
                 sb.append(",");
             }
-            sb.append(para.toShortString());
+            sb.append(prefix).append(para.toShortString());
         }
 
         // 添加部件信息
@@ -129,7 +130,7 @@ public class ModuleBaseInst {
             if (sb.length() > 0) {
                 sb.append(",");
             }
-            sb.append(part.toShortString(isSimple));
+            sb.append(prefix).append(part.toShortString(isSimple));
         }
         // 添加其他变量信息
         appendOtherVariablesInfo(sb);

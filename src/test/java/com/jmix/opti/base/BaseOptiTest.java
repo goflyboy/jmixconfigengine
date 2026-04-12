@@ -84,10 +84,10 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
         private PartVar md3;
 
         @ParaAnno(fatherCode = "drive", type = ParaType.INTEGER, assignType = AssignType.INPUT)
-        private ParaVar driveSumCapacity;// 输入参数
+        private ParaVar SumCapacity;// 输入参数
 
         @ParaAnno(fatherCode = "drive", type = ParaType.INTEGER, assignType = AssignType.INPUT)
-        private ParaVar driveSumQuantity; // 输入参数
+        private ParaVar SumQuantity; // 输入参数
 
         // proRule1:固态硬盘必须配置同一种，并且最多配置2块
         @CodeRuleAnno(fatherCode = "drive", normalNaturalCode = "固态硬盘必须配置同一种，并且最多配置2块")
@@ -135,8 +135,8 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
             PartAlgCPLinearExpr mechTotalCapacity = sum4Quantity("Capacity", "fatherCode=md");
             // 如果是容量需求
             // if ("Capacity".equals(req.getAttrCode())) {
-            if (driveSumCapacity.getIsHasInputed()) {
-                int requiredCapacity = driveSumCapacity.getInputValue();
+            if (SumCapacity.getIsHasInputed()) {
+                int requiredCapacity = SumCapacity.getInputValue();
                 // 创建固态硬盘是否足够的布尔变量
                 BoolVar ssSufficient = model.newBoolVar(
                         "ssSufficient");
@@ -186,7 +186,7 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
                 PartAlgCPLinearExpr mechTotalQty = sum4Quantity("fatherCode=md");
 
                 // int requiredQty = Integer.parseInt(req.getAttrValue());
-                int requiredQty = driveSumQuantity.getInputValue();
+                int requiredQty = SumQuantity.getInputValue();
                 // 创建固态硬盘是否足够的布尔变量
                 BoolVar ssSufficientQty = (BoolVar) model.newBoolVar(
                         "ssSufficientQty");

@@ -885,3 +885,112 @@ _**Agent (default)**_
 <summary>Tool use: **edit_file_v2**</summary>
 
 </details></tool-use>
+
+_**Agent (default)**_
+
+<think>现在需要在 PartCategory 中也添加 getAllRules(CalcStage calcStage) 方法，因为它继承了 IModule 接口。
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2">
+
+<details><summary>Tool use: **edit_file_v2** • Edit file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\bmodel\PartCategory.java</summary>
+
+</details>
+
+</tool-use>
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2"><details>
+<summary>Tool use: **edit_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2">
+
+<details><summary>Tool use: **edit_file_v2** • Edit file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\bmodel\PartCategory.java</summary>
+
+</details>
+
+</tool-use>
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2"><details>
+<summary>Tool use: **edit_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>完成了所有修改。让我总结一下实现的内容。</think>
+
+已在 `ModuleBase` 和 `PartCategory` 中实现 `getAllRules(CalcStage calcStage)` 方法。
+
+## 修改内容
+
+### 1. `ModuleBase.java`
+在 `getAllRules()` 方法后面新增了 `getAllRules(CalcStage calcStage)` 方法：
+
+```141:163:src/main/java/com/jmix/executor/bmodel/ModuleBase.java
+    /**
+     * 获取指定计算阶段的所有规则列表（包括子分类中的规则）
+     * 递归收集所有子分类中的规则
+     * 
+     * @param calcStage 计算阶段
+     * @return 指定计算阶段的所有规则列表
+     */
+    @JsonIgnore
+    public List<Rule> getAllRules(CalcStage calcStage) {
+        if (calcStage == null) {
+            return new ArrayList<>();
+        }
+        List<Rule> allRules = new ArrayList<>();
+        // 添加当前模块的规则
+        List<Rule> rules = getRules(calcStage);
+        if (rules != null) {
+            allRules.addAll(rules);
+        }
+        // 递归收集所有子分类中的规则
+        for (PartCategory partCategory : partCategorys) {
+            allRules.addAll(partCategory.getAllRules(calcStage));
+        }
+        return allRules;
+    }
+```
+
+### 2. `PartCategory.java`
+同样实现了 `getAllRules(CalcStage calcStage)` 方法，并添加了 `CalcStage` 的 import：
+
+```475:498:src/main/java/com/jmix/executor/bmodel/PartCategory.java
+    /**
+     * 获取指定计算阶段的所有规则列表（包括子分类中的规则）
+     * 递归收集所有子分类中的规则
+     * 
+     * @param calcStage 计算阶段
+     * @return 指定计算阶段的所有规则列表
+     */
+    @Override
+    @JsonIgnore
+    public List<Rule> getAllRules(CalcStage calcStage) {
+        if (calcStage == null) {
+            return new ArrayList<>();
+        }
+        List<Rule> allRules = new ArrayList<>();
+        // 添加当前分类的规则
+        List<Rule> rules = getRules(calcStage);
+        if (rules != null) {
+            allRules.addAll(rules);
+        }
+        // 递归收集所有子分类中的规则
+        for (PartCategory subCategory : partCategorys) {
+            allRules.addAll(subCategory.getAllRules(calcStage));
+        }
+        return allRules;
+    }
+```
+
+两个实现类都通过调用父类 `Onto` 中的 `getRules(CalcStage calcStage)` 方法来过滤当前层的规则，然后递归收集所有子分类中指定计算阶段的规则。

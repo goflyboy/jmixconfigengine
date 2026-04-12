@@ -752,8 +752,10 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         // 执行本层的规则
         executeModuleRules(moduleAlgFile, allRuleMethods, calcStage);
 
-        // 设置默认可见性约束
-        setDefaultVisibilityConstraints();
+        if (calcStage == CalcStage.MID) {
+            // 设置默认可见性约束
+            setDefaultVisibilityConstraints();
+        }
 
         log.info("ModuleBaseAlgImpl initRules {}", module.getClass().getSimpleName());
     }

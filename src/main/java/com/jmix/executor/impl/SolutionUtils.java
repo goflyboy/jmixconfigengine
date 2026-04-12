@@ -1,9 +1,9 @@
 package com.jmix.executor.impl;
 
 import com.jmix.executor.bmodel.Module;
-import com.jmix.executor.impl.algmodel.OtherVar;
 import com.jmix.executor.cmodel.ModuleBaseInst;
 import com.jmix.executor.cmodel.ModuleInst;
+import com.jmix.executor.impl.algmodel.OtherVar;
 import com.jmix.executor.model.Result;
 
 import lombok.extern.slf4j.Slf4j;
@@ -49,20 +49,38 @@ public final class SolutionUtils {
         sb.append("1.Abbreviation explanation:").append(System.lineSeparator());
 
         // 1. shortCodes(P1:Size, P2:Color,PT1:part1)
-        sb.append("1.1. ").append(module.getProgObjShortCodeMemo()).append(System.lineSeparator());
+        try {
+            sb.append("1.1. ").append(module.getProgObjShortCodeMemo()).append(System.lineSeparator());
+        } catch (Exception e) {
+            log.warn("Failed to get ProgObjShortCodeMemo: {}", e.getMessage());
+            sb.append("1.1. <failed to get>").append(System.lineSeparator());
+        }
         // 2. Attrs(V:value, H:isHidden, Q:qty)
         sb.append("1.2. Attrs(V:value, H:isHidden, Q:qty,S:isSelected)").append(System.lineSeparator());
         // 3. Other Variable shortName
         sb.append("1.3. Other Variable shortName:").append(System.lineSeparator());
-        printOthers(solutions, sb);
+        try {
+            printOthers(solutions, sb);
+        } catch (Exception e) {
+            log.warn("Failed to print Others: {}", e.getMessage());
+        }
 
         // 4. Priority Attribute shortName
-        sb.append("1.4. Priority Attribute shortName:").append(solutions.get(0).getPriorityAttrShortCodeStr())
-                .append(System.lineSeparator());
+        try {
+            sb.append("1.4. Priority Attribute shortName:").append(solutions.get(0).getPriorityAttrShortCodeStr())
+                    .append(System.lineSeparator());
+        } catch (Exception e) {
+            log.warn("Failed to get PriorityAttrShortCodeStr: {}", e.getMessage());
+            sb.append("1.4. Priority Attribute shortName: <failed to get>").append(System.lineSeparator());
+        }
 
         sb.append("2.Solutions:").append(System.lineSeparator());
         // 打印解
-        printSolutionList(solutions, isSimple, sb);
+        try {
+            printSolutionList(solutions, isSimple, sb);
+        } catch (Exception e) {
+            log.warn("Failed to print solution list: {}", e.getMessage());
+        }
         sb.append(System.lineSeparator()).append("******************************************")
                 .append(System.lineSeparator());
         sb.append("3.Messages:").append(System.lineSeparator());
@@ -96,9 +114,16 @@ public final class SolutionUtils {
     }
 
     private static void printSolutionList(List<ModuleInst> solutions, boolean isSimple, StringBuilder sb) {
+        int max = 20; // 最多打印20个
         for (int i = 0; i < solutions.size(); i++) {
-            sb.append(" S_").append(i + 1).append(": ").append(solutions.get(i).toShortString(isSimple))
-                    .append(System.lineSeparator());
+            if (i < max) {
+                sb.append(" S_").append(i + 1).append(": ").append(solutions.get(i).toShortString(isSimple))
+                        .append(System.lineSeparator());
+            }
+            if (i == max) {
+                sb.append(" ... remaining solutions: ").append(solutions.size() - max).append(System.lineSeparator());
+                break;
+            }
         }
     }
 
