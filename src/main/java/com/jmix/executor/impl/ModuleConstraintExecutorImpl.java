@@ -535,7 +535,7 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
             IModule module = alg.getModule();
             PartCategory partCategory = null;
             if (module instanceof Module) {
-                partCategory = ((Module) module).findPartCategory(partCategoryCode);
+                partCategory = ((Module) module).getPartCategory(partCategoryCode);
             }
             if (partCategory == null) {
                 log.error("PartCategory not found: {}", partCategoryCode);

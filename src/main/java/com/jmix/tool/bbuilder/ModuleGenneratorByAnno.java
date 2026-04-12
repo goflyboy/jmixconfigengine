@@ -12,11 +12,8 @@ import com.jmix.executor.bmodel.attr.DynamicAttributerOption;
 import com.jmix.executor.bmodel.attr.InstanceDynAttrValue;
 import com.jmix.executor.bmodel.attr.InstanceDynAttrValueItem;
 import com.jmix.executor.bmodel.base.Pair;
-import com.jmix.executor.bmodel.logic.Cardinality;
-import com.jmix.executor.bmodel.logic.CalcStage;
 import com.jmix.executor.bmodel.logic.CodeRuleSchema;
 import com.jmix.executor.bmodel.logic.CompatiableRuleSchema;
-import com.jmix.executor.bmodel.logic.EffectScope;
 import com.jmix.executor.bmodel.logic.ExprSchema;
 import com.jmix.executor.bmodel.logic.PriorityRuleSchema;
 import com.jmix.executor.bmodel.logic.RefProgObjSchema;
@@ -384,29 +381,31 @@ public final class ModuleGenneratorByAnno {
             schema.setRightExpr(rightExpr);
         }
 
-        // 解析leftProObjsStr，设置额外的左侧编程对象
-        if (!anno.leftProObjsStr().isEmpty()) {
-            List<RefProgObjSchema> additionalLeftObjs = parseProObjsStr(anno.leftProObjsStr(), module);
-            ExprSchema leftExpr = schema.getLeftExpr();
-            if (leftExpr == null) {
-                leftExpr = new ExprSchema();
-                leftExpr.setRefProgObjs(new ArrayList<>());
-                schema.setLeftExpr(leftExpr);
-            }
-            leftExpr.getRefProgObjs().addAll(additionalLeftObjs);
-        }
+        // // 解析leftProObjsStr，设置额外的左侧编程对象
+        // if (!anno.leftProObjsStr().isEmpty()) {
+        // List<RefProgObjSchema> additionalLeftObjs =
+        // parseProObjsStr(anno.leftProObjsStr(), module);
+        // ExprSchema leftExpr = schema.getLeftExpr();
+        // if (leftExpr == null) {
+        // leftExpr = new ExprSchema();
+        // leftExpr.setRefProgObjs(new ArrayList<>());
+        // schema.setLeftExpr(leftExpr);
+        // }
+        // leftExpr.getRefProgObjs().addAll(additionalLeftObjs);
+        // }
 
-        // 解析rightProObjsStr，设置额外的右侧编程对象
-        if (!anno.rightProObjsStr().isEmpty()) {
-            List<RefProgObjSchema> additionalRightObjs = parseProObjsStr(anno.rightProObjsStr(), module);
-            ExprSchema rightExpr = schema.getRightExpr();
-            if (rightExpr == null) {
-                rightExpr = new ExprSchema();
-                rightExpr.setRefProgObjs(new ArrayList<>());
-                schema.setRightExpr(rightExpr);
-            }
-            rightExpr.getRefProgObjs().addAll(additionalRightObjs);
-        }
+        // // 解析rightProObjsStr，设置额外的右侧编程对象
+        // if (!anno.rightProObjsStr().isEmpty()) {
+        // List<RefProgObjSchema> additionalRightObjs =
+        // parseProObjsStr(anno.rightProObjsStr(), module);
+        // ExprSchema rightExpr = schema.getRightExpr();
+        // if (rightExpr == null) {
+        // rightExpr = new ExprSchema();
+        // rightExpr.setRefProgObjs(new ArrayList<>());
+        // schema.setRightExpr(rightExpr);
+        // }
+        // rightExpr.getRefProgObjs().addAll(additionalRightObjs);
+        // }
 
         rule.setRawCode(schema);
         return rule;
@@ -646,7 +645,8 @@ public final class ModuleGenneratorByAnno {
     /**
      * 解析编程对象描述字符串
      * 格式：progObjCode:progObjField|progObjField
-     * 例如："drive:Select|Quantity" -> [RefProgObj(drive, Select), RefProgObj(drive, Quantity)]
+     * 例如："drive:Select|Quantity" -> [RefProgObj(drive, Select), RefProgObj(drive,
+     * Quantity)]
      *
      * @param proObjsStr 编程对象描述字符串
      * @param module     当前模块
@@ -670,8 +670,8 @@ public final class ModuleGenneratorByAnno {
             // 按冒号分隔progObjCode和属性列表
             String[] codeAndFields = trimmed.split(":");
             if (codeAndFields.length != 2) {
-                log.warn("Invalid proObjsStr format: {}, expected 'code:field1|field2'", trimmed);
-                continue;
+                throw new AlgLoaderException(
+                        "Invalid proObjsStr format: " + trimmed + ", expected 'code:field1|field2'");
             }
 
             String progObjCode = codeAndFields[0].trim();
@@ -683,9 +683,10 @@ public final class ModuleGenneratorByAnno {
                 progObjType = RefProgObjSchema.PROG_OBJ_TYPE_PARA;
             } else if (module.getPart(progObjCode) != null) {
                 progObjType = RefProgObjSchema.PROG_OBJ_TYPE_PART;
+            } else if (module.getPartCategory(progObjCode) != null) {
+                progObjType = RefProgObjSchema.PROG_OBJ_TYPE_PARTCATEGORY;
             } else {
-                log.warn("Object not found: {}", progObjCode);
-                continue;
+                throw new AlgLoaderException("Object not found: " + progObjCode);
             }
 
             // 按|分隔多个属性

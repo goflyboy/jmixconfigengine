@@ -33,6 +33,11 @@ public class RefProgObjSchema {
     public static final String PROG_OBJ_TYPE_PART = "Part";
 
     /**
+     * 部件分类类型常量
+     */
+    public static final String PROG_OBJ_TYPE_PARTCATEGORY = "PartCategorys";
+
+    /**
      * 可编程对象类型
      */
     private String progObjType;

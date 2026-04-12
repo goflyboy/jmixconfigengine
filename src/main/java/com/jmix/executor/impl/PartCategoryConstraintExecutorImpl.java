@@ -41,7 +41,7 @@ public class PartCategoryConstraintExecutorImpl extends ModuleBaseConstraintExec
     public Result<List<ModuleInst>> doProcess(InferPartCategoryReq partCategoryReq) {
         try {
             // 查找原始部件分类
-            PartCategory originalCategory = module.findPartCategory(partCategoryReq.getPartCategoryCode());
+            PartCategory originalCategory = module.getPartCategory(partCategoryReq.getPartCategoryCode());
             if (originalCategory == null) {
                 log.error("PartCategory not found: {}", partCategoryReq.getPartCategoryCode());
                 return Result.failed("PartCategory not found: " + partCategoryReq.getPartCategoryCode());

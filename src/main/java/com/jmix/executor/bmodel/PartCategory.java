@@ -93,11 +93,11 @@ public class PartCategory extends ModuleBase implements IModule, IPart {
     }
 
     @Override
-    public PartCategory findPartCategory(String categoryCode) {
+    public PartCategory getPartCategory(String categoryCode) {
         if (this.getCode().equals(categoryCode)) {
             return this;
         }
-        return super.findPartCategory(categoryCode);
+        return super.getPartCategory(categoryCode);
     }
 
     /**
@@ -192,7 +192,7 @@ public class PartCategory extends ModuleBase implements IModule, IPart {
     // * @return 找到的PartCategory，如果未找到则返回null
     // */
     // @JsonIgnore
-    // private PartCategory findPartCategoryByCode(PartCategory category, String
+    // private PartCategory getPartCategoryByCode(PartCategory category, String
     // code) {
     // if (code == null || code.trim().isEmpty()) {
     // log.error("PartCategory code is null or empty");
@@ -212,7 +212,7 @@ public class PartCategory extends ModuleBase implements IModule, IPart {
     // }
     // // 递归在子分类中查找
     // for (PartCategory subCategory : category.partCategoryMap.values()) {
-    // PartCategory result = findPartCategoryByCode(subCategory, code);
+    // PartCategory result = getPartCategoryByCode(subCategory, code);
     // if (result != null) {
     // return result;
     // }

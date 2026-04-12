@@ -79,7 +79,7 @@ public interface IModule extends IOnto {
      * @param categoryCode 部件分类编码
      * @return 部件分类对象，如果不存在则返回null
      */
-    PartCategory findPartCategory(String categoryCode);
+    PartCategory getPartCategory(String categoryCode);
 
     /**
      * 查询所有优先级规则

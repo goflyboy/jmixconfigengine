@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * 模块基类
@@ -78,11 +77,11 @@ public class ModuleBase extends Onto {
      * @return 找到的PartCategory，如果未找到则返回null
      */
     @JsonIgnore
-    public PartCategory findPartCategory(String categoryCode) {
+    public PartCategory getPartCategory(String categoryCode) {
         PartCategory result = null;
         // 根据partCategorys初始化partCategoryMap
         for (PartCategory pc : this.partCategorys) {
-            result = findPartCategory(pc, categoryCode);
+            result = getPartCategory(pc, categoryCode);
             if (null != result) {
                 return result;
             }
@@ -90,14 +89,14 @@ public class ModuleBase extends Onto {
         return result;
     }
 
-    private PartCategory findPartCategory(PartCategory category, String categoryCode) {
+    private PartCategory getPartCategory(PartCategory category, String categoryCode) {
         if (category.getCode().equals(categoryCode)) {
             return category;
         }
         PartCategory result = null;
         // 根据partCategorys初始化partCategoryMap
         for (PartCategory pc : category.getPartCategorys()) {
-            result = findPartCategory(pc, categoryCode);
+            result = getPartCategory(pc, categoryCode);
             if (null != result) {
                 return result;
             }
@@ -241,7 +240,7 @@ public class ModuleBase extends Onto {
     @JsonIgnore
     public List<Part> getAllAtomicParts(String partCategoryCode) {
         List<Part> result = new ArrayList<>();
-        PartCategory category = findPartCategory(partCategoryCode);
+        PartCategory category = getPartCategory(partCategoryCode);
         if (category != null) {
             result.addAll(category.getAllAtomicParts());
         }
@@ -351,10 +350,10 @@ public class ModuleBase extends Onto {
             }
 
         } else if (part instanceof PartCategory) {
-            if (findPartCategory(part.getCode()) != null) {
-                log.warn("findPartCategory {}, has existed, will be ommited!", part.getCode());
+            if (getPartCategory(part.getCode()) != null) {
+                log.warn("getPartCategory {}, has existed, will be ommited!", part.getCode());
             } else {
-                PartCategory father = findPartCategory((part.getFatherCode()));
+                PartCategory father = getPartCategory((part.getFatherCode()));
                 if (null != father && !(father == this)) {
                     father.addPart(part);
                 }
@@ -407,7 +406,7 @@ public class ModuleBase extends Onto {
             }
             // 有父节点，分两种场景
             // A.不在带添加的列表中，已存在当前产品中
-            IPart fatherPart = findPartCategory((part.getFatherCode()));
+            IPart fatherPart = getPartCategory((part.getFatherCode()));
             if (null != fatherPart) {
                 ((PartCategory) fatherPart).addPart(part);
             } else {
