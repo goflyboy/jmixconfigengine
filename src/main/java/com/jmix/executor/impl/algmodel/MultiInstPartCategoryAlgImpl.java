@@ -1,8 +1,19 @@
 package com.jmix.executor.impl.algmodel;
 
-import com.jmix.executor.bmodel.PartCategory;
+import com.jmix.executor.bmodel.IModule;
+import com.jmix.executor.bmodel.base.Pair;
+import com.jmix.executor.bmodel.logic.CalcStage;
+import com.jmix.executor.impl.IPartCategoryInput;
+import com.jmix.executor.impl.MultiInstPartCategoryInput;
+import com.jmix.executor.impl.PartCategoryInput;
+import com.jmix.executor.southinf.IModuleAlg;
 
 import lombok.extern.slf4j.Slf4j;
+
+import java.lang.reflect.Method;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 部件分类级算法实现
@@ -12,6 +23,8 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl {
+
+    private Map<String, Pair<PartCategoryInput, PartCategoryAlgImpl>> partCategoryAlgs = new LinkedHashMap<>();
 
     /**
      * 默认构造函数
@@ -29,12 +42,32 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl {
         throw new UnsupportedOperationException("Unimplemented method 'getInstId'");
     }
 
-    public PartCategory getPartCategory() {
-        return (PartCategory) getModule();
+    public MultiInstPartCategoryInput getMultiInstPartCategoryInput() {
+        return (MultiInstPartCategoryInput) getModule();
     }
 
-    public String getCategoryCode() {
-        return getPartCategory().getCode();
+    public List<PartCategoryInput> getPartCategoryInputs() {
+        return getMultiInstPartCategoryInput().getPartCategoryInputs();
+    }
+
+    @Override
+    protected void initAll(IModuleAlg moduleAlgFile) {
+        for (PartCategoryInput partCategoryInput : this.getPartCategoryInputs()) {
+            PartCategoryAlgImpl partCategoryAlg = new PartCategoryAlgImpl();
+            partCategoryAlg.initData(model, (IModule) partCategoryInput.getFilteredCategory(), partCategoryInput,
+                    moduleAlgFile);
+            partCategoryAlgs.put(partCategoryInput.getPartCategoryCode(), Pair.of(partCategoryInput, partCategoryAlg));
+        }
+    }
+
+    protected void initRules(Map<String, Method> allRuleMethods, IModuleAlg moduleAlgFile, CalcStage calcStage) {
+        for (Pair<PartCategoryInput, PartCategoryAlgImpl> partCategoryAlg : partCategoryAlgs.values()) {
+            partCategoryAlg.getSecond().initRules(allRuleMethods, moduleAlgFile, calcStage);
+        }
+    }
+
+    protected void setInputVariable(IPartCategoryInput partCategoryInput) {
+        // 在initAll的initData已经完成了初始化，这里不需要
     }
 
     @Override
@@ -49,6 +82,6 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl {
 
     @Override
     public String toString() {
-        return getPartCategory().getCode() + "[" + getPartCategory().getInstId() + "]";
+        return getMultiInstPartCategoryInput().getPartCategoryCode() + "[" + "multiInst" + "]";
     }
 }

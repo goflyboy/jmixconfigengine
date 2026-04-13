@@ -6,9 +6,10 @@ import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartCategory;
 import com.jmix.executor.bmodel.PartUtils;
 import com.jmix.executor.bmodel.logic.CalcStage;
+import com.jmix.executor.impl.IPartCategoryInput;
+import com.jmix.executor.impl.MultiInstPartCategoryInput;
 import com.jmix.executor.impl.util.FilterExpressionExecutor;
 import com.jmix.executor.model.AlgLoaderException;
-import com.jmix.executor.model.ParConstraint;
 import com.jmix.executor.southinf.IModuleAlg;
 import com.jmix.tool.bbuilder.MultiInstCategoryUtils;
 
@@ -39,20 +40,20 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
     /**
      * 部件分类算法实例映射表
      */
-    protected Map<String, PartCategoryAlgImpl> partCategoryAlgs = new LinkedHashMap<>();
+    protected Map<String, ModuleBaseAlgImpl> partCategoryAlgs = new LinkedHashMap<>();
 
     /**
      * 初始化模块算法实例
-     * 按partCategoryCode对partConstraintFromReqs进行分组，然后初始化本层和子层的变量与规则
+     * 按partCategoryCode对partCategoryInputs进行分组，然后初始化本层和子层的变量与规则
      * 重写基类方法，添加PartCategoryAlgImpl的初始化
      *
-     * @param model                  CP约束模型
-     * @param module                 模块对象
-     * @param partConstraintFromReqs 来自请求的部件约束列表
+     * @param model              CP约束模型
+     * @param module             模块对象
+     * @param partCategoryInputs 来自请求的部件约束列表
      */
     public void init(AlgCPModel model, IModule module,
-            List<ParConstraint> partConstraintFromReqs) {
-        initData(model, module, partConstraintFromReqs, this);
+            List<IPartCategoryInput> partCategoryInputs) {
+        initData(model, module, partCategoryInputs, this);
 
         // preCalculate
         preCalculate();
@@ -72,26 +73,33 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
         initRules(this, CalcStage.PRE);
     }
 
-    protected void initData(AlgCPModel model, IModule module, List<ParConstraint> partConstraintFromReqs,
+    protected void initData(AlgCPModel model, IModule module, List<IPartCategoryInput> partCategoryInputs,
             IModuleAlg moduleAlgFile) {
         // 调用基类初始化
-        super.initData(model, module, new ArrayList<>(), this);
+        super.initData(model, module, null, this);
 
-        // 按partCategoryCode对partConstraintFromReqs进行分组
-        Map<String, List<ParConstraint>> partConstraintFromReqMap = groupConstraintsByPartCategory(
-                partConstraintFromReqs);
+        // 按partCategoryCode对partCategoryInputs进行分组
+        Map<String, IPartCategoryInput> partConstraintFromReqMap = new LinkedHashMap<>();
+        for (IPartCategoryInput partCategoryInput : partCategoryInputs) {
+            partConstraintFromReqMap.put(partCategoryInput.getPartCategoryCode(), partCategoryInput);
+        }
 
         // 如果module有PartCategorys，则对每个PartCategory创建并初始化PartCategoryAlgImpl
         if (module instanceof Module) {
             Module bModule = (Module) module;
             for (PartCategory partCategory : bModule.getPartCategorys()) {
                 String categoryCode = partCategory.getCode();
-                List<ParConstraint> pc4PartConstraintFromReqs = partConstraintFromReqMap
+                IPartCategoryInput pc4partCategoryInput = partConstraintFromReqMap
                         .get(categoryCode);
-
-                PartCategoryAlgImpl pcAlg = new PartCategoryAlgImpl();
-                pcAlg.initData(model, (IModule) partCategory, pc4PartConstraintFromReqs, this);
-
+                ModuleBaseAlgImpl pcAlg = null;
+                if (partCategory.isSupportMultiInst() && pc4partCategoryInput instanceof MultiInstPartCategoryInput) {
+                    pcAlg = new MultiInstPartCategoryAlgImpl();
+                    MultiInstPartCategoryInput multiInstPartCategoryInput = (MultiInstPartCategoryInput) pc4partCategoryInput;
+                    pcAlg.initData(model, (IModule) multiInstPartCategoryInput, pc4partCategoryInput, this);
+                } else {
+                    pcAlg = new PartCategoryAlgImpl();
+                    pcAlg.initData(model, (IModule) partCategory, pc4partCategoryInput, this);
+                }
                 partCategoryAlgs.put(categoryCode, pcAlg);
             }
         }
@@ -118,7 +126,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
      * @return PartCategoryAlgImpl实例
      */
     public PartCategoryAlgImpl getPartCategoryAlg(String categoryCode) {
-        return partCategoryAlgs.get(categoryCode);
+        return (PartCategoryAlgImpl) partCategoryAlgs.get(categoryCode);
     }
 
     /**
@@ -130,7 +138,9 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
     public List<PartCategoryAlgImpl> getPartCategoryAlgByInstPrefix(String categoryCodeInstPrefix) {
         String instPrefix = categoryCodeInstPrefix + String.valueOf(MultiInstCategoryUtils.INST_PREFIX_CHAR);
         List<PartCategoryAlgImpl> partCategoryAlgImpls = new ArrayList<>();
-        for (PartCategoryAlgImpl partCategoryAlgImpl : partCategoryAlgs.values()) {
+        PartCategoryAlgImpl partCategoryAlgImpl = null;
+        for (ModuleBaseAlgImpl partCategoryAlgImplTmp : partCategoryAlgs.values()) {
+            partCategoryAlgImpl = (PartCategoryAlgImpl) partCategoryAlgImplTmp;
             if (partCategoryAlgImpl.getCategoryCode().startsWith(instPrefix)) {
                 partCategoryAlgImpls.add(partCategoryAlgImpl);
             }
@@ -144,7 +154,8 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
      * @return 部件分类算法实例列表
      */
     public List<PartCategoryAlgImpl> getPartCategoryAlgs() {
-        return new ArrayList<>(partCategoryAlgs.values());
+        return new ArrayList<>(partCategoryAlgs.values().stream().map(t -> (PartCategoryAlgImpl) t)
+                .collect(Collectors.toList()));
     }
 
     /**

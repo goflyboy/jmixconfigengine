@@ -6,7 +6,6 @@ import com.jmix.executor.bmodel.PartCategory;
 import com.jmix.executor.cmodel.ModuleInst;
 import com.jmix.executor.cmodel.SolverResult;
 import com.jmix.executor.model.InferPartCategoryReq;
-import com.jmix.executor.model.ParConstraint;
 import com.jmix.executor.model.PartConstraintReq;
 import com.jmix.executor.model.Result;
 
@@ -49,7 +48,7 @@ public class PartCategoryConstraintExecutorImpl extends ModuleBaseConstraintExec
             log.info("Priority-orginal aparts: {}", originalCategory.getAllAtomicPartShortString());
             // 遍历所有部件约束请求，逐步过滤
             PartCategory filteredCategory = originalCategory;
-            List<ParConstraint> partConstraintFromReqs = new ArrayList<>();
+            List<IPartCategoryInput> partCategoryInputs = new ArrayList<>();
             for (PartConstraintReq partConstraintReq : partCategoryReq.getPartConstraintReqs()) {
                 // 一条partConstraintReq会被拆分两条规则，一条是过滤规则（根据where条件过滤），一条是约束规则（根据attrCode,
                 // attrComparator, attrValue构建约束表达式）
@@ -62,7 +61,9 @@ public class PartCategoryConstraintExecutorImpl extends ModuleBaseConstraintExec
                 if (filteredCategory.getAllAtomicPartShortString().isEmpty()) {
                     return Result.noSolution(msg);
                 }
-                resolveAddPartConstraint(filteredCategory, partConstraintReq, partConstraintFromReqs);
+                PartCategoryInput partCategoryInput = PartCategoryConstraintExecutorImpl.resolvePartCategoryInput(
+                        filteredCategory, partConstraintReq);
+                partCategoryInputs.add(partCategoryInput);
             }
             SolverResult sr = null;
             // 检查是否有优先级规则，如果有则使用分级求解
@@ -70,14 +71,14 @@ public class PartCategoryConstraintExecutorImpl extends ModuleBaseConstraintExec
 
             if (filteredCategory.hasPriorityRule()) {
                 PartCategory mergedFilteredCategory = buildMergedFilteredCategory(originalCategory,
-                        partConstraintFromReqs);
+                        partCategoryInputs);
                 moduleClone.addPartCategory(mergedFilteredCategory);
                 sr = solveWithPriorityConstraints(
                         moduleClone,
-                        partCategoryReq, partConstraintFromReqs);
+                        partCategoryReq, partCategoryInputs);
             } else {
                 moduleClone.addPartCategory(filteredCategory);
-                sr = solveWithOutPriorityConstraints(moduleClone, partCategoryReq, partConstraintFromReqs);
+                sr = solveWithOutPriorityConstraints(moduleClone, partCategoryReq, partCategoryInputs);
             }
             return Result.success(sr.getSolutions());
 
@@ -106,12 +107,12 @@ public class PartCategoryConstraintExecutorImpl extends ModuleBaseConstraintExec
      * - 含有父分类，则求并集
      * - 不含有父分类，补充没有在里面的子分类的部件
      *
-     * @param originalCategory       原始部件分类
-     * @param partConstraintFromReqs 部件约束列表
+     * @param originalCategory   原始部件分类
+     * @param partCategoryInputs 部件约束列表
      * @return 合并后的过滤分类
      */
     private PartCategory buildMergedFilteredCategory(PartCategory originalCategory,
-            List<ParConstraint> partConstraintFromReqs) {
+            List<IPartCategoryInput> partCategoryInputs) {
         // 实现案例
         // --drive PC
         // ----sd PC
@@ -136,7 +137,12 @@ public class PartCategoryConstraintExecutorImpl extends ModuleBaseConstraintExec
         Set<String> allPartCategoryCodes = new HashSet<>();
 
         // 收集所有约束请求的分类代码和原子部件
-        for (ParConstraint partConstraint : partConstraintFromReqs) {
+        for (IPartCategoryInput ipt : partCategoryInputs) {
+            if (!(ipt instanceof PartCategoryInput)) {
+                log.warn("ipt is not PartCategoryInput, code: " + ipt.getPartCategoryCode());
+                continue;
+            }
+            PartCategoryInput partConstraint = (PartCategoryInput) ipt;
             String categoryCode = partConstraint.getOrgReq().getPartCategoryCode();
             allPartCategoryCodes.add(categoryCode);
             // 合并原子部件

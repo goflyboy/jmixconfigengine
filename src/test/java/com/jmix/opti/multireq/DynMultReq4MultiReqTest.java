@@ -246,4 +246,13 @@ public class DynMultReq4MultiReqTest extends ModuleScenarioTestBase {
         assertSoluContain("cpu2(Q:20,H:0,S:1),md1(Q:5,H:0,S:1),sd1(0*),I1_md1(Q:5,H:0,S:1),I1_sd1(0*)");
     }
 
+    // @Test
+    public void sumsumReq() {
+        // 测试总sum 和 sumsum之间的关系？
+
+        // Natural-Input: 要求配置两组Speed=5400， 和一组Speed=7200，总容量>=10T, 要求4核的CPU的总内存>=512G
+        inferRecommendModule("drive.sumsum.Capcity>=10, drive: where Speed=5400", "drive: where Speed=5400",
+                "cpu:sum.Memory >=512 where CoreNum=4");
+        printSimpleSolutions();
+    }
 }

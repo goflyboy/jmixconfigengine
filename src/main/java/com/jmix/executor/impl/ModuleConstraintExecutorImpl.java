@@ -3,12 +3,13 @@ package com.jmix.executor.impl;
 import com.jmix.executor.ModuleConstraintExecutor;
 import com.jmix.executor.bmodel.IModule;
 import com.jmix.executor.bmodel.Module;
-import com.jmix.executor.bmodel.MultiInstPartCategory;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartCategory;
 import com.jmix.executor.bmodel.attr.DynamicAttribute;
 import com.jmix.executor.bmodel.base.Pair;
 import com.jmix.executor.bmodel.logic.RefProgObjSchema;
+import com.jmix.executor.bmodel.logic.Rule;
+import com.jmix.executor.bmodel.logic.RuleUtils;
 import com.jmix.executor.cmodel.ModuleInst;
 import com.jmix.executor.cmodel.ParaInst;
 import com.jmix.executor.cmodel.PartInst;
@@ -26,7 +27,6 @@ import com.jmix.executor.model.ExtensibleProcess;
 import com.jmix.executor.model.InferParasPostProcess;
 import com.jmix.executor.model.InferParasReq;
 import com.jmix.executor.model.InferPartCategoryReq;
-import com.jmix.executor.model.ParConstraint;
 import com.jmix.executor.model.PartConstraintReq;
 import com.jmix.executor.model.Result;
 import com.jmix.executor.model.RunInferParasRsp;
@@ -145,18 +145,18 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
             Map<String, List<PartConstraintReq>> partConstraintReqMap = normalizePartConstraint(
                     partCategoryReq.getPartConstraintReqs(), startModule);
             // 查找原始部件分类
-            Pair<Module, List<ParConstraint>> filterResult = filterClone(startModule, partConstraintReqMap);
+            Pair<Module, List<IPartCategoryInput>> filterResult = filterClone(startModule, partConstraintReqMap);
             Module filterModule = filterResult.getFirst();
             log.info("Priority-orignal module: {}", ModuleUtils.toShortString(startModule));
             log.info("Priority-filter module: {}", ModuleUtils.toShortString(filterModule));
-            List<ParConstraint> partConstraintFromReqs = filterResult.getSecond();
+            List<IPartCategoryInput> partCategoryInputs = filterResult.getSecond();
             SolverResult sr = null;
             // 检查是否有优先级规则，如果有则使用分级求解
             if (filterModule.hasAllPriorityRule()) {
                 sr = solveWithPriorityConstraints(filterModule,
-                        partCategoryReq, partConstraintFromReqs);
+                        partCategoryReq, partCategoryInputs);
             } else {
-                sr = solveWithOutPriorityConstraints(filterModule, partCategoryReq, partConstraintFromReqs);
+                sr = solveWithOutPriorityConstraints(filterModule, partCategoryReq, partCategoryInputs);
             }
             return Result.success(sr.getSolutions());
 
@@ -166,10 +166,10 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
         }
     }
 
-    private Pair<Module, List<ParConstraint>> filterClone(Module startModule,
+    private Pair<Module, List<IPartCategoryInput>> filterClone(Module startModule,
             Map<String, List<PartConstraintReq>> partConstraintReqMap) {
         Module result = startModule.clone();
-        List<ParConstraint> partConstraintFromReqs = new ArrayList<>();
+        List<IPartCategoryInput> partCategoryInputs = new ArrayList<>();
         List<PartConstraintReq> reqs = null;
         PartCategory filterPartCategory = null;
         for (PartCategory partCategory : startModule.getPartCategorys()) {
@@ -191,11 +191,14 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
                     if (filterPartCategory.getAllAtomicPartShortString().isEmpty()) {
                         throw new AlgExecutorException(msg);
                     }
-                    result.addPart(filterPartCategory);
-                    PartCategoryConstraintExecutorImpl.resolveAddPartConstraint(
-                            filterPartCategory, req, partConstraintFromReqs);
+                    // result.addPart(filterPartCategory);
+                    result.addPartCategory(filterPartCategory);
+                    PartCategoryInput partCategoryInput = PartCategoryConstraintExecutorImpl.resolvePartCategoryInput(
+                            filterPartCategory, req);
+                    partCategoryInputs.add(partCategoryInput);
                 } else {
-                    MultiInstPartCategory multiInstPartCategory = new MultiInstPartCategory();
+                    Pair<List<Rule>, List<Rule>> rulePair = RuleUtils.splitRules(partCategory.getRules());
+                    MultiInstPartCategoryInput multiInstPartCategoryInput = new MultiInstPartCategoryInput();
                     for (PartConstraintReq req : reqs) {
                         filterPartCategory = partCategory.filterClone(req);
                         String msg = String.format("Priority-filtered aparts: {%s} by {%s}",
@@ -205,15 +208,20 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
                         if (filterPartCategory.getAllAtomicPartShortString().isEmpty()) {
                             throw new AlgExecutorException(msg);
                         }
+                        filterPartCategory.setRules(rulePair.getFirst());
                         result.addPart(filterPartCategory);
-                        PartCategoryConstraintExecutorImpl.resolveAddPartConstraint(
-                                filterPartCategory, req, partConstraintFromReqs);
-                        multiInstPartCategory.addPartCategory(filterPartCategory);
+                        PartCategoryInput partCategoryInput = PartCategoryConstraintExecutorImpl
+                                .resolvePartCategoryInput(
+                                        filterPartCategory, req);
+                        multiInstPartCategoryInput.addPartCategoryInput(partCategoryInput);
                     }
+                    multiInstPartCategoryInput.setAllInstRules(rulePair.getSecond());
+                    result.addPartCategory(partCategory); // 放的是全的
+                    partCategoryInputs.add(multiInstPartCategoryInput);
                 }
             }
         }
-        return new Pair<>(result, partConstraintFromReqs);
+        return new Pair<>(result, partCategoryInputs);
     }
 
     @Override
@@ -584,12 +592,12 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
 
             // 根据result.second构建约束表达式
             if (AttrFunConstant.FUN_PREFIX_SUM.equals(result.getSecond())) {
-                ParConstraint parConstraint = new ParConstraint();
-                parConstraint.setSumAttrCode(result.getFirst().getCode());
-                parConstraint.setComparator(partConstraintReq.getAttrComparator());
-                parConstraint.setLeftValue(Integer.parseInt(partConstraintReq.getAttrValue()));
-                parConstraint.setOrgReq(partConstraintReq);
-                alg.sumFunConstraint(filterParts, parConstraint);
+                PartCategoryInput IPartCategoryInput = new PartCategoryInput();
+                IPartCategoryInput.setSumAttrCode(result.getFirst().getCode());
+                IPartCategoryInput.setComparator(partConstraintReq.getAttrComparator());
+                IPartCategoryInput.setLeftValue(Integer.parseInt(partConstraintReq.getAttrValue()));
+                IPartCategoryInput.setOrgReq(partConstraintReq);
+                alg.sumFunConstraint(filterParts, IPartCategoryInput);
                 alg.setPartUnSelected(unFilterParts);
             }
         }

@@ -12,11 +12,10 @@ import com.jmix.executor.cmodel.SolverResult;
 import com.jmix.executor.impl.algmodel.AlgCPModel;
 import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
 import com.jmix.executor.impl.algmodel.PartAlgCPLinearExpr;
-import com.jmix.executor.impl.algmodel.PartCategoryAlgImpl;
+import com.jmix.executor.model.AlgExecutorException;
 import com.jmix.executor.model.AttrFunConstant;
 import com.jmix.executor.model.ConstraintConfig;
 import com.jmix.executor.model.InferPartCategoryReq;
-import com.jmix.executor.model.ParConstraint;
 import com.jmix.executor.model.PartConstraintReq;
 import com.jmix.executor.model.Result;
 
@@ -65,9 +64,9 @@ public abstract class ModuleBaseConstraintExecutorImpl {
      */
     protected SolverResult solveWithOutPriorityConstraints(IModule filteredModuleBase,
             InferPartCategoryReq partCategoryReq,
-            List<ParConstraint> partConstraintFromReqs) {
+            List<IPartCategoryInput> partCategoryInputs) {
         log.info("no Priority-process starting........");
-        return invokerSolver(filteredModuleBase, partCategoryReq, partConstraintFromReqs, null);
+        return invokerSolver(filteredModuleBase, partCategoryReq, partCategoryInputs, null);
     }
 
     /**
@@ -75,10 +74,10 @@ public abstract class ModuleBaseConstraintExecutorImpl {
      */
     protected SolverResult solveWithPriorityConstraints(
             IModule filteredModuleBase, InferPartCategoryReq partCategoryReq,
-            List<ParConstraint> partConstraintFromReqs) {
+            List<IPartCategoryInput> partCategoryInputs) {
         log.info("Priority-process pconstraint-step1 max/min starting........");
         // 步骤1：对每个优先级规则优化求解最优解 minimize(objecFun)
-        SolverResult result = invokerSolver(filteredModuleBase, partCategoryReq, partConstraintFromReqs, null);
+        SolverResult result = invokerSolver(filteredModuleBase, partCategoryReq, partCategoryInputs, null);
 
         if (!result.hasSolution()) {
             result.setMessage("Cannot find solution in first step");
@@ -129,7 +128,7 @@ public abstract class ModuleBaseConstraintExecutorImpl {
             }
             log.info("Priority-process pconstraint-step2 Iteration {}: adjusting objective value to {}", execTimes,
                     objectValue);
-            result = invokerSolver(filteredModuleBase, partCategoryReq, partConstraintFromReqs, objectValue);
+            result = invokerSolver(filteredModuleBase, partCategoryReq, partCategoryInputs, objectValue);
 
         } while (execTimes < maxExecTimes
                 && result.getSolutions().size() <= availableSolutionNum);
@@ -190,7 +189,7 @@ public abstract class ModuleBaseConstraintExecutorImpl {
      */
     protected SolverResult invokerSolver(
             IModule filteredModuleBase, InferPartCategoryReq partCategoryReq,
-            List<ParConstraint> partConstraintFromReqs, Double adjustOptimalValue) {
+            List<IPartCategoryInput> partCategoryInputs, Double adjustOptimalValue) {
         log.info("invokerSolver starting........");
 
         // 步骤1：对每个优先级规则优化求解最优解
@@ -198,9 +197,8 @@ public abstract class ModuleBaseConstraintExecutorImpl {
         AlgCPModel optModel = new AlgCPModel();
         optModel.setIsAttachRelax(false);
         optModel.setConfictedRelaxVars(new ArrayList<>());
-        optAlg.init(optModel, filteredModuleBase, partConstraintFromReqs);
+        optAlg.init(optModel, filteredModuleBase, partCategoryInputs);
         initModelByReq(partCategoryReq, optAlg);
-        initModelByPriorityConstraints(partConstraintFromReqs, optAlg);
         optAlg.addRelaxObjectFunction();
         boolean hasPriorityRule = optAlg.hasPriorityRule();
         if (hasPriorityRule) {
@@ -271,45 +269,30 @@ public abstract class ModuleBaseConstraintExecutorImpl {
     }
 
     /**
-     * 根据请求初始化优先级约束模型
-     */
-    protected void initModelByPriorityConstraints(
-            List<ParConstraint> partConstraintFromReqs, ModuleAlgImpl alg) {
-        for (ParConstraint partConstraint : partConstraintFromReqs) {
-            PartCategoryAlgImpl partCategoryAlg = alg
-                    .getPartCategoryAlg(partConstraint.getFilteredCategory().getCode());
-            if (partConstraint.getFilteredCategory() != null) {
-                partCategoryAlg.sumFunConstraint(partConstraint.getFilteredCategory().getAllAtomicParts(),
-                        partConstraint);
-            }
-        }
-    }
-
-    /**
      * 解析并添加部件约束
      *
-     * @param filteredCategory       过滤后的部件分类
-     * @param partConstraintReq      部件约束请求
-     * @param partConstraintFromReqs 部件约束列表
+     * @param filteredCategory  过滤后的部件分类
+     * @param partConstraintReq 部件约束请求
      */
-    public static void resolveAddPartConstraint(PartCategory filteredCategory, PartConstraintReq partConstraintReq,
-            List<ParConstraint> partConstraintFromReqs) {
+    public static PartCategoryInput resolvePartCategoryInput(PartCategory filteredCategory,
+            PartConstraintReq partConstraintReq) {
         // 解析属性
         Pair<DynamicAttribute, String> result = filteredCategory.parseAttribute(
                 partConstraintReq.getAttrCode(),
                 filteredCategory.getDynAttrSchemas());
         if (!AttrFunConstant.FUN_PREFIX_SUM.equals(result.getSecond())) {
-            return;
+            log.error("attrCode is not sum function");
+            throw new AlgExecutorException("attrCode is not sum function");
         }
 
-        // 根据partConstraintReq构造ParConstraint
-        ParConstraint fromReq = new ParConstraint();
+        // 根据partConstraintReq构造IPartCategoryInput
+        PartCategoryInput fromReq = new PartCategoryInput();
         fromReq.setSumAttrCode(result.getFirst().getCode());
         fromReq.setComparator(partConstraintReq.getAttrComparator());
         fromReq.setLeftValue(Integer.parseInt(partConstraintReq.getAttrValue()));
         fromReq.setOrgReq(partConstraintReq);
         fromReq.setFilteredCategory(filteredCategory);
-        partConstraintFromReqs.add(fromReq);
+        return fromReq;
     }
 
     /**

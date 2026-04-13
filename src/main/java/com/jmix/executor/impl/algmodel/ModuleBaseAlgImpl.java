@@ -14,10 +14,11 @@ import com.jmix.executor.bmodel.logic.RuleTypeConstants;
 import com.jmix.executor.bmodel.para.Para;
 import com.jmix.executor.bmodel.para.ParaType;
 import com.jmix.executor.cmodel.ModuleInst;
+import com.jmix.executor.impl.IPartCategoryInput;
+import com.jmix.executor.impl.PartCategoryInput;
 import com.jmix.executor.impl.PriorityConstraint;
 import com.jmix.executor.impl.util.FilterExpressionExecutor;
 import com.jmix.executor.model.AlgLoaderException;
-import com.jmix.executor.model.ParConstraint;
 import com.jmix.executor.model.PartConstantAttr;
 import com.jmix.executor.southinf.IModuleAlg;
 
@@ -176,14 +177,29 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      *
      * @param partConstraints 部件约束列表，可以为null
      */
-    protected void setInputVariables(List<ParConstraint> partConstraints) {
+    protected void setInputVariable(IPartCategoryInput partCategoryInput) {
+        if (null == partCategoryInput) {
+            return;
+        }
+        List<IPartCategoryInput> partCategoryInputs = new ArrayList<>();
+        partCategoryInputs.add(partCategoryInput);
+        setInputVariables(partCategoryInputs);
+    }
+
+    protected void setInputVariables(List<IPartCategoryInput> partConstraints) {
         if (partConstraints == null || partConstraints.isEmpty()) {
             return;
         }
-        for (ParConstraint pt : partConstraints) {
-            if (pt == null) {
+        for (IPartCategoryInput ipt : partConstraints) {
+            if (ipt == null) {
                 continue;
             }
+            if (!(ipt instanceof PartCategoryInput)) {
+                log.error(null,
+                        new AlgLoaderException("ipt is not PartCategoryInput, code: " + ipt.getPartCategoryCode()));
+                throw new AlgLoaderException("ipt is not PartCategoryInput, code: " + ipt.getPartCategoryCode());
+            }
+            PartCategoryInput pt = (PartCategoryInput) ipt;
             // 多实例后，不支持这种方式，ontoCode = pt.getFilteredCategory().getCode(); String paraCode =
             // ontoCode + "Sum" + pt.getSumAttrCode();
             String paraCode = "Sum" + pt.getSumAttrCode();
@@ -304,7 +320,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * @param partConstraint 部件约束对象
      */
     public void sumFunConstraint(List<Part> sumParts,
-            ParConstraint partConstraint) {
+            PartCategoryInput partConstraint) {
         sumFunConstraint((PartCategoryAlgImpl) this, sumParts, partConstraint);
     }
 
@@ -316,7 +332,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * @param partConstraint      部件约束对象
      */
     protected void sumFunConstraint(PartCategoryAlgImpl partCategoryAlgImpl, List<Part> sumParts,
-            ParConstraint partConstraint) {
+            PartCategoryInput partConstraint) {
         if (sumParts == null || sumParts.isEmpty()) {
             log.warn("No parts found for sum constraint with attrCode: {}, comparator: {}, leftValue: {}",
                     partConstraint.getSumAttrCode(), partConstraint.getComparator(), partConstraint.getLeftValue());
@@ -328,7 +344,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         PriorityConstraint tempConstraint = new PriorityConstraint();
         String attrCode = partConstraint.getSumAttrCode();
         String varName = "Q";
-        java.util.function.Function<PartVar, LinearArgument> varGetter = PartVar::getQty;
+        Function<PartVar, LinearArgument> varGetter = PartVar::getQty;
 
         // 构建表达式，但使用传入的 sumParts 而不是 module.getAtomicParts()
         AlgCPLinearExpr sumFunExpr = buildSumConstraintExpressions(
@@ -459,7 +475,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * 遍历module的paras，创建ParaVar并放到paraMap
      * 遍历module的parts，创建PartVar并放到partMap
      */
-    protected void initAll() {
+    protected void initAll(IModuleAlg moduleAlgFile) {
         if (module == null) {
             log.warn("Module is null, skip initAll");
             return;
@@ -581,29 +597,6 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      */
     protected void onInitCustomVariables() {
         // 默认空实现，子类可以重写
-    }
-
-    /**
-     * 按partCategoryCode对partConstraintFromReqs进行分组
-     *
-     * @param partConstraintFromReqs 部件约束列表
-     * @return 按partCategoryCode分组的映射
-     */
-    protected Map<String, List<ParConstraint>> groupConstraintsByPartCategory(
-            List<ParConstraint> partConstraintFromReqs) {
-        Map<String, List<ParConstraint>> result = new LinkedHashMap<>();
-        if (partConstraintFromReqs == null || partConstraintFromReqs.isEmpty()) {
-            return result;
-        }
-
-        for (ParConstraint constraint : partConstraintFromReqs) {
-            if (constraint == null || constraint.getFilteredCategory() == null) {
-                continue;
-            }
-            String categoryCode = constraint.getFilteredCategory().getCode();
-            result.computeIfAbsent(categoryCode, k -> new java.util.ArrayList<>()).add(constraint);
-        }
-        return result;
     }
 
     /**
@@ -736,7 +729,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
 
     }
 
-    protected void initData(AlgCPModel model, IModule module, List<ParConstraint> partConstraintFromReqs,
+    protected void initData(AlgCPModel model, IModule module, IPartCategoryInput partCategoryInput,
             IModuleAlg moduleAlgFile) {
         // Module级别
         this.model = model;
@@ -747,10 +740,10 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         initModelAfter(model);
 
         // 初始化本层变量（paras和parts）
-        initAll();
+        initAll(moduleAlgFile);
 
         // 设置输入变量
-        setInputVariables(partConstraintFromReqs);
+        setInputVariable(partCategoryInput);
 
         // 将变量写回字段
         writeBackToFields(moduleAlgFile);

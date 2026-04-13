@@ -15,6 +15,12 @@ import java.util.Optional;
  * @since 2025-01-XX
  */
 public interface IOnto extends IDynamicAttributable {
+    /**
+     * 获取编码
+     *
+     * @return 编码
+     */
+    String getCode();
 
     /**
      * 获取参数列表
