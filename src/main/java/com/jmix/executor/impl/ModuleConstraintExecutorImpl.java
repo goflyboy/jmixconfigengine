@@ -199,6 +199,7 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
                 } else {
                     Pair<List<Rule>, List<Rule>> rulePair = RuleUtils.splitRules(partCategory.getRules());
                     MultiInstPartCategoryInput multiInstPartCategoryInput = new MultiInstPartCategoryInput();
+                    int instId = ModuleInst.DEFAULT_INSTANCE_ID;
                     for (PartConstraintReq req : reqs) {
                         filterPartCategory = partCategory.filterClone(req);
                         String msg = String.format("Priority-filtered aparts: {%s} by {%s}",
@@ -213,6 +214,7 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
                         PartCategoryInput partCategoryInput = PartCategoryConstraintExecutorImpl
                                 .resolvePartCategoryInput(
                                         filterPartCategory, req);
+                        partCategoryInput.setInstId(instId++);
                         multiInstPartCategoryInput.addPartCategoryInput(partCategoryInput);
                     }
                     multiInstPartCategoryInput.setAllInstRules(rulePair.getSecond());

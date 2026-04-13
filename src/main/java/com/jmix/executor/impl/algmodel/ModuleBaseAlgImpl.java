@@ -549,7 +549,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
     }
 
     private String toInstPrefix() {
-        final String prefix = (getInstId() == ModuleInst.DEFAULT_INSTANCE_ID ? "" : "_I" + getInstId());
+        final String prefix = (getInstId() == ModuleInst.DEFAULT_INSTANCE_ID ? "" : "I" + getInstId() + "_");
         return prefix;
     }
 
@@ -708,7 +708,20 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         }
 
         List<Rule> moduleRules = module.getRules(calcStage);
-        for (Rule rule : moduleRules) {
+        executeModuleRules(moduleRules, moduleAlgFile, allRuleMethods, calcStage);
+    }
+
+    /**
+     * 执行本层的规则
+     *
+     * @param allRuleMethods 所有规则方法映射
+     */
+    protected void executeModuleRules(List<Rule> rules, IModuleAlg moduleAlgFile, Map<String, Method> allRuleMethods,
+            CalcStage calcStage) {
+        if (rules == null || allRuleMethods == null) {
+            return;
+        }
+        for (Rule rule : rules) {
             String ruleCode = rule.getCode();
             Method method = allRuleMethods.get(ruleCode);
             if (method == null) {

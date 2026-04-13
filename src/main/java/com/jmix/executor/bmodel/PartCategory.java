@@ -70,8 +70,8 @@ public class PartCategory extends ModuleBase implements IModule, IPart {
      * 
      * @return 实例ID
      */
-    public int getInstId() {
-        return MultiInstCategoryUtils.getInstId(this.getCode());
+    public int getEnumInstId() {
+        return MultiInstCategoryUtils.getEnumInstId(this.getCode());
     }
 
     /**

@@ -130,7 +130,7 @@ public class DynMultReq4MultiReqTest extends ModuleScenarioTestBase {
         // 改动点3：分类2(多）多个请求的整体要求，需要有整体汇总
 
         // 改动点1：分类1（单)->分类2（多），需要设置为拆分为多条规则 Cardinality(1:N)
-        @CodeRuleAnno(normalNaturalCode = "4核的CPU不兼容固态硬盘", leftProObjsStr = "cpu:CoreNum|Quantity|Select", rightProObjsStr = "drive:Type|Quantity|Select", effectScope = EffectScope.SingleInst)
+        @CodeRuleAnno(normalNaturalCode = "4核的CPU不兼容固态硬盘", leftProObjsStr = "cpu:CoreNum|Quantity|Select", rightProObjsStr = "drive:Type|Quantity|Select")
         private void logicAB1() {
             // TODO： code的动态性怎么保障
             inCompatible("logicAB1", "cpu:CoreNum=4", "drive:Type=sd");
@@ -159,7 +159,7 @@ public class DynMultReq4MultiReqTest extends ModuleScenarioTestBase {
         @PriorityRuleAnno(fatherCode = "drive", normalNaturalCode = " 优先使用高容量硬盘", strategy = PriorityStrategy.MIN, effectScope = EffectScope.AllInst)
         private void logicB2() {
             // 改动点3-1：增加sum4Quantity的partCatagoryCodesStr参数，支持多实例的情况
-            PartAlgCPLinearExpr totalCapacity = sum4Quantity("drive", "Capacity",
+            PartAlgCPLinearExpr totalCapacity = sum4Quantity("Capacity",
                     "").name("totalCapacity");
             // 如果是容量需求
             // 改动点5：怎么判断 driveSumCapacity是否有输入？前置计算+ 输入条件判断？ --
@@ -174,7 +174,7 @@ public class DynMultReq4MultiReqTest extends ModuleScenarioTestBase {
                 PartAlgCPLinearExpr objectiveExpr = model.newPartLinearExpr("ObjectiveFun");
 
                 // a2.使用高容量硬盘 -> "被选择部件单容量总和越大越好"
-                PartAlgCPLinearExpr highCapacityExpr = sum4Selected("drive", "Capacity", "")
+                PartAlgCPLinearExpr highCapacityExpr = sum4Selected("Capacity", "")
                         .name("highCapacityExpr");
                 objectiveExpr.addExpr(highCapacityExpr, -100);
 
@@ -185,7 +185,7 @@ public class DynMultReq4MultiReqTest extends ModuleScenarioTestBase {
                 objectiveExpr.addExpr(excessCapacityExpr, 1);
 
                 // a4.在满足容量需求的前提下， 配置的部件数量越少越好
-                PartAlgCPLinearExpr excessQuantityExpr = sum4Quantity("drive", "", "")
+                PartAlgCPLinearExpr excessQuantityExpr = sum4Quantity("", "")
                         .name("excessQuantityExpr");
                 objectiveExpr.addExpr(excessQuantityExpr, 800);
                 model.setObjectExpr(objectiveExpr);
@@ -197,7 +197,7 @@ public class DynMultReq4MultiReqTest extends ModuleScenarioTestBase {
                 // int requiredQuantity = driveSumQuantity.getInputValue();
                 int requiredQuantity = drive.getSumSumParaByAttr("Quantity").getInputValue();
                 // a1.满足输入总数量需求 totalQuantity >= requiredQuantity
-                PartAlgCPLinearExpr totalQuantity = sum4Quantity("drive", "",
+                PartAlgCPLinearExpr totalQuantity = sum4Quantity("",
                         "").name("totalQuantity");
                 model.addGreaterOrEqual(totalQuantity, requiredQuantity);
 
@@ -205,12 +205,12 @@ public class DynMultReq4MultiReqTest extends ModuleScenarioTestBase {
                 PartAlgCPLinearExpr objectiveExpr = model.newPartLinearExpr("ObjectiveFunQty");
 
                 // a2.使用高容量硬盘 -> "被选择部件单容量总和越大越好"
-                PartAlgCPLinearExpr highCapacityExpr = sum4Selected("drive", "Capacity", "")
+                PartAlgCPLinearExpr highCapacityExpr = sum4Selected("Capacity", "")
                         .name("highCapacityExpr");
                 objectiveExpr.addExpr(highCapacityExpr, -1);
 
                 // a3.在满足数量需求的前提下，数量越接近需求数量越好
-                PartAlgCPLinearExpr excessQuantityExpr = sum4Quantity("drive", "", "")
+                PartAlgCPLinearExpr excessQuantityExpr = sum4Quantity("", "")
                         .name("excessQuantityExpr");
                 excessQuantityExpr.addConstant(-requiredQuantity);
                 model.setObjectExpr(objectiveExpr);

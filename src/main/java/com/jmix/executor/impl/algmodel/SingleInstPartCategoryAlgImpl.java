@@ -1,7 +1,12 @@
 package com.jmix.executor.impl.algmodel;
 
+import com.jmix.executor.bmodel.IModule;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartCategory;
+import com.jmix.executor.cmodel.ModuleInst;
+import com.jmix.executor.impl.IPartCategoryInput;
+import com.jmix.executor.impl.PartCategoryInput;
+import com.jmix.executor.southinf.IModuleAlg;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -15,12 +20,23 @@ import java.util.List;
  */
 @Slf4j
 public class SingleInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements PartCategoryAlgImpl {
-
+    /**
+     * 实例ID
+     */
+    private int instId = ModuleInst.DEFAULT_INSTANCE_ID;
     /**
      * 默认构造函数
      */
     public SingleInstPartCategoryAlgImpl() {
         super();
+    }
+
+    @Override
+    protected void initData(AlgCPModel model, IModule module, IPartCategoryInput partCategoryInput,
+            IModuleAlg moduleAlgFile) {
+                PartCategoryInput input = (PartCategoryInput) partCategoryInput;
+                  this.instId = input.getInstId();
+        super.initData(model, module, partCategoryInput, moduleAlgFile);      
     }
 
     /**
@@ -29,7 +45,7 @@ public class SingleInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements 
      * @return 实例ID
      */
     public int getInstId() {
-        return getPartCategory().getInstId();
+        return getPartCategory().isEnumMutiInst() ? getPartCategory().getEnumInstId() :instId;
     }
 
     public PartCategory getPartCategory() {
@@ -52,7 +68,7 @@ public class SingleInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements 
 
     @Override
     public String toString() {
-        return getPartCategory().getCode() + "[" + getPartCategory().getInstId() + "]";
+        return getPartCategory().getCode() + "[" + getPartCategory().getEnumInstId() + "]";
     }
 
     @Override
@@ -65,3 +81,4 @@ public class SingleInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements 
         return getPartCategory().getAtomicParts();
     }
 }
+M

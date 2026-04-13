@@ -393,9 +393,10 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
     // @Override
     protected PartAlgCPLinearExpr sum4Parts(PartCategoryAlgImpl partCategoryAlgImpl, String cofAttrCode,
             Function<PartVar, LinearArgument> varGetter, String varName, String filtedConditionStr) {
+        List<PartVar> allPartVars = partCategoryAlgImpl.getAllPartVars(filtedConditionStr);
         PartAlgCPLinearExpr expr = buildSumExpr(
                 cofAttrCode, varName, varGetter,
-                toFilterPartVar(partCategoryAlgImpl, filtedConditionStr));
+                allPartVars);
         return expr;
     }
 

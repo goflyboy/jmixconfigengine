@@ -54,7 +54,7 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
             SingleInstPartCategoryAlgImpl partCategoryAlg = new SingleInstPartCategoryAlgImpl();
             partCategoryAlg.initData(model, (IModule) partCategoryInput.getFilteredCategory(), partCategoryInput,
                     moduleAlgFile);
-            partCategoryAlgs.put(partCategoryInput.getPartCategoryCode(), Pair.of(partCategoryInput, partCategoryAlg));
+            partCategoryAlgs.put(partCategoryInput.getInsKey(), Pair.of(partCategoryInput, partCategoryAlg));
         }
     }
 
@@ -62,6 +62,10 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
         for (Pair<PartCategoryInput, SingleInstPartCategoryAlgImpl> partCategoryAlg : partCategoryAlgs.values()) {
             partCategoryAlg.getSecond().initRules(allRuleMethods, moduleAlgFile, calcStage);
         }
+
+        // 执行当前层的所有实例的规则
+        super.executeModuleRules(getMultiInstPartCategoryInput().getAllInstRules(), moduleAlgFile, allRuleMethods,
+                calcStage);
     }
 
     protected void setInputVariable(IPartCategoryInput partCategoryInput) {

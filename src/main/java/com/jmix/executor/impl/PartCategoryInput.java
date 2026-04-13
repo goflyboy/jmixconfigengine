@@ -1,6 +1,7 @@
 package com.jmix.executor.impl;
 
 import com.jmix.executor.bmodel.PartCategory;
+import com.jmix.executor.cmodel.ModuleInst;
 import com.jmix.executor.model.PartConstraintReq;
 
 import lombok.Data;
@@ -13,6 +14,10 @@ import lombok.Data;
  */
 @Data
 public class PartCategoryInput implements IPartCategoryInput {
+    /**
+     * 实例Id
+     */
+    private int instId = ModuleInst.DEFAULT_INSTANCE_ID;
     /**
      * 求和属性代码
      */
@@ -41,5 +46,9 @@ public class PartCategoryInput implements IPartCategoryInput {
     @Override
     public String getPartCategoryCode() {
         return orgReq.getPartCategoryCode();
+    }
+
+    public String getInsKey() {
+        return getPartCategoryCode() + "_" + getInstId();
     }
 }

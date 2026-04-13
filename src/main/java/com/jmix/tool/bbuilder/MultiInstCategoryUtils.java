@@ -72,7 +72,7 @@ public final class MultiInstCategoryUtils {
         return isMultiInstCategory(partCategory.getCode());
     }
 
-    public static int getInstId(String code) {
+    public static int getEnumInstId(String code) {
         if (isMultiInstCategory(code)) {
             return Integer.parseInt(code.substring(code.length() - 1));
         }
