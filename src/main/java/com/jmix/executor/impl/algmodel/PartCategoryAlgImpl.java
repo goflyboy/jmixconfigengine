@@ -1,8 +1,13 @@
 package com.jmix.executor.impl.algmodel;
 
-import com.jmix.executor.bmodel.PartCategory;
+import com.jmix.executor.bmodel.Part;
+import com.jmix.executor.bmodel.base.Pair;
+import com.jmix.executor.bmodel.logic.CalcStage;
+import com.jmix.executor.southinf.IModuleAlg;
 
-import lombok.extern.slf4j.Slf4j;
+import java.lang.reflect.Method;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 部件分类级算法实现
@@ -10,45 +15,20 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * @since 2025-12-27
  */
-@Slf4j
-public class PartCategoryAlgImpl extends ModuleBaseAlgImpl {
+public interface PartCategoryAlgImpl {
+    String getCategoryCode();
 
-    /**
-     * 默认构造函数
-     */
-    public PartCategoryAlgImpl() {
-        super();
-    }
+    List<Part> getAllAtomicParts();
 
-    /**
-     * 获取实例ID
-     * 
-     * @return 实例ID
-     */
-    public int getInstId() {
-        return getPartCategory().getInstId();
-    }
+    List<PartVar> getAllPartVars(String filterConditionStr);
 
-    public PartCategory getPartCategory() {
-        return (PartCategory) getModule();
-    }
+    Pair<List<PartVar>, List<PartVar>> filterAllPartVars(String filterConditionStr);
 
-    public String getCategoryCode() {
-        return getPartCategory().getCode();
-    }
+    List<Part> getAtomicParts();
 
-    @Override
-    protected Var<?> newPartVar(PartVar internalPartVar) {
-        throw new UnsupportedOperationException("Unimplemented method 'newPartVar'");
-    }
+    ParaVar getParaVar(String code);
 
-    @Override
-    protected Var<?> newParaVar(ParaVar internalParaVar) {
-        throw new UnsupportedOperationException("Unimplemented method 'newParaVar'");
-    }
+    PartVar getPartVar(String code);
 
-    @Override
-    public String toString() {
-        return getPartCategory().getCode() + "[" + getPartCategory().getInstId() + "]";
-    }
+    void initRules(Map<String, Method> allRuleMethods, IModuleAlg moduleAlgFile, CalcStage calcStage);
 }

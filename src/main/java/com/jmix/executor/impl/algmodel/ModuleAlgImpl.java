@@ -5,6 +5,7 @@ import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartCategory;
 import com.jmix.executor.bmodel.PartUtils;
+import com.jmix.executor.bmodel.base.Pair;
 import com.jmix.executor.bmodel.logic.CalcStage;
 import com.jmix.executor.impl.IPartCategoryInput;
 import com.jmix.executor.impl.MultiInstPartCategoryInput;
@@ -40,7 +41,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
     /**
      * 部件分类算法实例映射表
      */
-    protected Map<String, ModuleBaseAlgImpl> partCategoryAlgs = new LinkedHashMap<>();
+    protected Map<String, PartCategoryAlgImpl> partCategoryAlgs = new LinkedHashMap<>();
 
     /**
      * 初始化模块算法实例
@@ -97,10 +98,10 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
                     MultiInstPartCategoryInput multiInstPartCategoryInput = (MultiInstPartCategoryInput) pc4partCategoryInput;
                     pcAlg.initData(model, (IModule) multiInstPartCategoryInput, pc4partCategoryInput, this);
                 } else {
-                    pcAlg = new PartCategoryAlgImpl();
+                    pcAlg = new SingleInstPartCategoryAlgImpl();
                     pcAlg.initData(model, (IModule) partCategory, pc4partCategoryInput, this);
                 }
-                partCategoryAlgs.put(categoryCode, pcAlg);
+                partCategoryAlgs.put(categoryCode, (PartCategoryAlgImpl) pcAlg);
             }
         }
         log.info("ModuleAlgImpl initialized with {} partCategory algorithms", partCategoryAlgs.size());
@@ -138,9 +139,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
     public List<PartCategoryAlgImpl> getPartCategoryAlgByInstPrefix(String categoryCodeInstPrefix) {
         String instPrefix = categoryCodeInstPrefix + String.valueOf(MultiInstCategoryUtils.INST_PREFIX_CHAR);
         List<PartCategoryAlgImpl> partCategoryAlgImpls = new ArrayList<>();
-        PartCategoryAlgImpl partCategoryAlgImpl = null;
-        for (ModuleBaseAlgImpl partCategoryAlgImplTmp : partCategoryAlgs.values()) {
-            partCategoryAlgImpl = (PartCategoryAlgImpl) partCategoryAlgImplTmp;
+        for (PartCategoryAlgImpl partCategoryAlgImpl : partCategoryAlgs.values()) {
             if (partCategoryAlgImpl.getCategoryCode().startsWith(instPrefix)) {
                 partCategoryAlgImpls.add(partCategoryAlgImpl);
             }
@@ -154,8 +153,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
      * @return 部件分类算法实例列表
      */
     public List<PartCategoryAlgImpl> getPartCategoryAlgs() {
-        return new ArrayList<>(partCategoryAlgs.values().stream().map(t -> (PartCategoryAlgImpl) t)
-                .collect(Collectors.toList()));
+        return new ArrayList<>(partCategoryAlgs.values());
     }
 
     /**
@@ -250,27 +248,75 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
             log.warn("partCategoryAlgImpl is invalid, cannot filter part expr");
             return partsExpr;
         }
-        // 获取该分类下的所有原子部件
-        List<Part> atomicParts = partCategoryAlgImpl.getModule().getAllAtomicParts();
-
-        // 根据过滤条件筛选部件
-        List<Part> filterParts;
-        List<Part> noFilterParts;
-
-        if (filterConditionStr == null || filterConditionStr.isEmpty()) {
-            filterParts = new ArrayList<>();
-            noFilterParts = new ArrayList<>(atomicParts);
-        } else {
-            filterParts = FilterExpressionExecutor.doSelect(atomicParts, filterConditionStr);
-            noFilterParts = subPart(atomicParts, filterParts);
-        }
-
         // 转换为PartVar
-        partsExpr.setPartVars(toPartVar(partCategoryAlgImpl, atomicParts));
-        partsExpr.setFilterPartVars(toPartVar(partCategoryAlgImpl, filterParts));
-        partsExpr.setNoFilterPartVars(toPartVar(partCategoryAlgImpl, noFilterParts));
+        partsExpr.setPartVars(partCategoryAlgImpl.getAllPartVars(""));
+        Pair<List<PartVar>, List<PartVar>> partVars = partCategoryAlgImpl.filterAllPartVars(filterConditionStr);
+        partsExpr.setFilterPartVars(partVars.getFirst());
+        partsExpr.setNoFilterPartVars(partVars.getSecond());
         return partsExpr;
     }
+
+    // /**
+    // * 解析部件表达式字符串
+    // * 格式：fatherCode=xxx:filterCondition
+    // *
+    // * @param partExprStr 部件表达式字符串
+    // * @return PartsExpr
+    // */
+    // private PartsExpr filterPartExpr(String partExprStr) {
+    // if (partExprStr == null || partExprStr.isEmpty()) {
+    // // 打日志，抛异常
+    // log.error("partExprStr is null or empty, cannot filter part expr");
+    // throw new AlgLoaderException("partExprStr is null or empty, cannot filter
+    // part expr");
+    // }
+    // PartsExpr partsExpr = new PartsExpr();
+    // // 解析partCategoryCode和filterConditionStr
+    // String partCategoryCode = "";
+    // String filterConditionStr = "";
+
+    // int colonIndex = partExprStr.indexOf(':');
+    // if (colonIndex > 0) {
+    // partCategoryCode = partExprStr.substring(0, colonIndex);
+    // filterConditionStr = partExprStr.substring(colonIndex + 1);
+    // } else {
+    // // 打日志，抛异常
+    // log.error("partExprStr is invalid, cannot filter part expr");
+    // throw new AlgLoaderException("partExprStr is invalid, cannot filter part
+    // expr");
+    // }
+
+    // partsExpr.setFilterConditionStr(filterConditionStr);
+
+    // PartCategoryAlgImpl partCategoryAlgImpl =
+    // this.getPartCategoryAlg(partCategoryCode);
+    // if (partCategoryAlgImpl == null) {
+    // // 打日志，抛异常
+    // log.warn("partCategoryAlgImpl is invalid, cannot filter part expr");
+    // return partsExpr;
+    // }
+    // // 获取该分类下的所有原子部件
+    // List<Part> atomicParts = partCategoryAlgImpl.getAllAtomicParts();
+
+    // // 根据过滤条件筛选部件
+    // List<Part> filterParts;
+    // List<Part> noFilterParts;
+
+    // if (filterConditionStr == null || filterConditionStr.isEmpty()) {
+    // filterParts = new ArrayList<>();
+    // noFilterParts = new ArrayList<>(atomicParts);
+    // } else {
+    // filterParts = FilterExpressionExecutor.doSelect(atomicParts,
+    // filterConditionStr);
+    // noFilterParts = subPart(atomicParts, filterParts);
+    // }
+
+    // // 转换为PartVar
+    // partsExpr.setPartVars(toPartVar(partCategoryAlgImpl, atomicParts));
+    // partsExpr.setFilterPartVars(toPartVar(partCategoryAlgImpl, filterParts));
+    // partsExpr.setNoFilterPartVars(toPartVar(partCategoryAlgImpl, noFilterParts));
+    // return partsExpr;
+    // }
 
     /**
      * 将Part列表转换为PartVar列表
@@ -279,7 +325,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
      * @return PartVar列表
      */
     public List<PartVar> toFilterPartVar(PartCategoryAlgImpl partCategoryAlgImpl, String filtedConditionStr) {
-        List<Part> atomicParts = partCategoryAlgImpl.getModule().getAtomicParts();
+        List<Part> atomicParts = partCategoryAlgImpl.getAtomicParts();
         if (filtedConditionStr != null && !filtedConditionStr.trim().isEmpty()) {
             atomicParts = FilterExpressionExecutor.doSelect(atomicParts, filtedConditionStr);
             log.info("Priority-Filtered parts: {} in sum4Parts", PartUtils.toShortString(atomicParts));

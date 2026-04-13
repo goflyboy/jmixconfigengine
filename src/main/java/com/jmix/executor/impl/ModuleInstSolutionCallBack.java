@@ -11,11 +11,13 @@ import com.jmix.executor.cmodel.PartInst;
 import com.jmix.executor.cmodel.SolverResult;
 import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
 import com.jmix.executor.impl.algmodel.ModuleBaseAlgImpl;
+import com.jmix.executor.impl.algmodel.MultiInstPartCategoryAlgImpl;
 import com.jmix.executor.impl.algmodel.OtherVar;
 import com.jmix.executor.impl.algmodel.ParaVar;
 import com.jmix.executor.impl.algmodel.PartAlgCPLinearExpr;
 import com.jmix.executor.impl.algmodel.PartCategoryAlgImpl;
 import com.jmix.executor.impl.algmodel.PartVar;
+import com.jmix.executor.impl.algmodel.SingleInstPartCategoryAlgImpl;
 
 import com.google.ortools.sat.CpSolverSolutionCallback;
 
@@ -78,15 +80,27 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
         bInst.setId(module.getId());
         buildModuleBaseInst(moduleAlg, instanceId, bInst);
         for (PartCategoryAlgImpl partCategoryAlg : moduleAlg.getPartCategoryAlgs()) {
-            PartCategoryInst pInst = buildPartCategoryInst(partCategoryAlg, partCategoryAlg.getInstId());
-            bInst.addPartCategoryInst(pInst);
+            if (partCategoryAlg instanceof MultiInstPartCategoryAlgImpl) {
+                MultiInstPartCategoryAlgImpl multiInstPartCategoryAlg = (MultiInstPartCategoryAlgImpl) partCategoryAlg;
+                for (SingleInstPartCategoryAlgImpl singleInstPartCategoryAlg : multiInstPartCategoryAlg
+                        .getPartCategoryInsts()) {
+                    PartCategoryInst pInst = buildPartCategoryInst(singleInstPartCategoryAlg,
+                            singleInstPartCategoryAlg.getInstId());
+                    bInst.addPartCategoryInst(pInst);
+                }
+            } else {
+                SingleInstPartCategoryAlgImpl singleInstPartCategoryAlg = (SingleInstPartCategoryAlgImpl) partCategoryAlg;
+                PartCategoryInst pInst = buildPartCategoryInst(singleInstPartCategoryAlg,
+                        singleInstPartCategoryAlg.getInstId());
+                bInst.addPartCategoryInst(pInst);
+            }
         }
         return bInst;
     }
 
     private PartCategoryInst buildPartCategoryInst(PartCategoryAlgImpl moduleAlg, int instanceId) {
         PartCategoryInst bInst = new PartCategoryInst();
-        buildModuleBaseInst(moduleAlg, instanceId, bInst);
+        buildModuleBaseInst((ModuleBaseAlgImpl) moduleAlg, instanceId, bInst);
         return bInst;
     }
 

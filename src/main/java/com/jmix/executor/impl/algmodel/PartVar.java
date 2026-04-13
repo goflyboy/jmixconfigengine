@@ -1,6 +1,7 @@
 package com.jmix.executor.impl.algmodel;
 
 import com.jmix.executor.bmodel.IPart;
+import com.jmix.executor.bmodel.base.IExtensible;
 
 import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.CpSolverSolutionCallback;
@@ -22,7 +23,7 @@ import java.util.Map;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class PartVar extends Var<IPart> {
+public class PartVar extends Var<IPart> implements IExtensible {
 
     /**
      * 部件数量Var的短名称
@@ -117,5 +118,35 @@ public class PartVar extends Var<IPart> {
                 this.isHidden == null ? "null" : solutionCallback.value(this.isHidden),
                 ISSELECTED_SHORT_NAME,
                 this.isSelected == null ? "null" : solutionCallback.value(this.isSelected));
+    }
+
+    @Override
+    public void setExtAttrs(Map<String, String> extAttrs) {
+        getBase().setExtAttrs(extAttrs);
+    }
+
+    @Override
+    public Map<String, String> getExtAttrs() {
+        return getBase().getExtAttrs();
+    }
+
+    @Override
+    public String getExtAttr(String key) {
+        return getBase().getExtAttr(key);
+    }
+
+    @Override
+    public void setExtAttr(String key, String value) {
+        getBase().setExtAttr(key, value);
+    }
+
+    @Override
+    public String getExtSchema() {
+        return getBase().getExtSchema();
+    }
+
+    @Override
+    public void setExtSchema(String extSchema) {
+        getBase().setExtSchema(extSchema);
     }
 }

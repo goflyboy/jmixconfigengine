@@ -6,6 +6,7 @@ import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartUtils;
 import com.jmix.executor.bmodel.attr.DynamicAttributerOption;
 import com.jmix.executor.bmodel.base.AssignType;
+import com.jmix.executor.bmodel.base.Pair;
 import com.jmix.executor.bmodel.logic.CalcStage;
 import com.jmix.executor.bmodel.logic.PriorityRuleSchema;
 import com.jmix.executor.bmodel.logic.PriorityStrategy;
@@ -751,7 +752,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         log.info("ModuleBaseAlgImpl initRules {}", module.getClass().getSimpleName());
     }
 
-    protected void initRules(Map<String, Method> allRuleMethods, IModuleAlg moduleAlgFile, CalcStage calcStage) {
+    public void initRules(Map<String, Method> allRuleMethods, IModuleAlg moduleAlgFile, CalcStage calcStage) {
         // 执行本层的规则
         executeModuleRules(moduleAlgFile, allRuleMethods, calcStage);
 
@@ -1328,4 +1329,29 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         log.info("Set part unselected: code={}, isSelected=0, qty=0", part.getCode());
     }
 
+    public List<PartVar> getAllPartVars(String filterConditionStr) {
+        if (filterConditionStr == null || filterConditionStr.isEmpty()) {
+            return new ArrayList<>(partMap.values());
+        } else {
+            return FilterExpressionExecutor.doSelect(new ArrayList<>(partMap.values()), filterConditionStr);
+        }
+    }
+
+    /**
+     * 过滤所有部件变量
+     * 
+     * @param filterConditionStr
+     * @return 第一个是过滤后，第一个没有过滤的
+     */
+    public Pair<List<PartVar>, List<PartVar>> filterAllPartVars(String filterConditionStr) {
+        List<PartVar> filterPartVars = getAllPartVars(filterConditionStr);
+        Set<String> filterPartVarCodes = filterPartVars.stream().map(PartVar::getCode).collect(Collectors.toSet());
+        List<PartVar> noFilterPartVars = new ArrayList<>();
+        for (PartVar partVar : partMap.values()) {
+            if (!filterPartVarCodes.contains(partVar.getCode())) {
+                noFilterPartVars.add(partVar);
+            }
+        }
+        return Pair.of(filterPartVars, noFilterPartVars);
+    }
 }

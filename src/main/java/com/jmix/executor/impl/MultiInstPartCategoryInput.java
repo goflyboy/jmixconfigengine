@@ -177,4 +177,9 @@ public class MultiInstPartCategoryInput implements IPartCategoryInput, IModule {
     public String getPartCategoryCode() {
         return partCategoryInputs.get(0).getPartCategoryCode();
     }
+
+    @Override
+    public String getCode() {
+        return getPartCategoryCode();
+    }
 }
