@@ -1,6 +1,5 @@
 package com.jmix.executor.impl.algmodel;
 
-import com.jmix.executor.bmodel.AttrParaType;
 import com.jmix.executor.bmodel.IModule;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.base.Pair;
@@ -50,7 +49,7 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
     }
 
     @Override
-    protected void initAll(IModuleAlg moduleAlgFile, AttrParaType aType) {
+    protected void initAll(IModuleAlg moduleAlgFile) {
         for (PartCategoryInput partCategoryInput : this.getPartCategoryInputs()) {
             SingleInstPartCategoryAlgImpl partCategoryAlg = new SingleInstPartCategoryAlgImpl();
             partCategoryAlg.initData(model, (IModule) partCategoryInput.getFilteredCategory(), partCategoryInput,
@@ -111,6 +110,14 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
     @Override
     public ParaVar getParaVar(String code) {
         throw new UnsupportedOperationException("Unimplemented method 'getParaVar'");
+    }
+
+    public ParaVar getSumSumParaByAttr(String attrCode) {
+        throw new UnsupportedOperationException("Unimplemented method 'getSumSumParaByAttr'");
+    }
+
+    public ParaVar getSumParaByAttr(String attrCode) {
+        throw new UnsupportedOperationException("Unimplemented method 'getSumParaByAttr'");
     }
 
     @Override

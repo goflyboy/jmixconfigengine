@@ -30,5 +30,21 @@ public interface PartCategoryAlgImpl {
 
     PartVar getPartVar(String code);
 
+    /**
+     * 根据属性代码获取汇总参数（SumSum类型）
+     * 
+     * @param attrCode 属性代码
+     * @return 对应的参数变量
+     */
+    ParaVar getSumSumParaByAttr(String attrCode);
+
+    /**
+     * 根据属性代码获取汇总参数（Sum类型）
+     * 
+     * @param attrCode 属性代码
+     * @return 对应的参数变量
+     */
+    ParaVar getSumParaByAttr(String attrCode);
+
     void initRules(Map<String, Method> allRuleMethods, IModuleAlg moduleAlgFile, CalcStage calcStage);
 }

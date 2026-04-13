@@ -1,7 +1,6 @@
 package com.jmix.executor.impl.algmodel;
 
 import com.jmix.executor.bmodel.AttrPara;
-import com.jmix.executor.bmodel.AttrParaType;
 import com.jmix.executor.bmodel.IModule;
 import com.jmix.executor.bmodel.ModuleBase;
 import com.jmix.executor.bmodel.Part;
@@ -102,6 +101,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * 当前模块,算法当前执行模块
      */
     protected IModule currentModule;
+
     /**
      * 当前模块算法实例
      */
@@ -488,7 +488,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * 遍历module的paras，创建ParaVar并放到paraMap
      * 遍历module的parts，创建PartVar并放到partMap
      */
-    protected void initAll(IModuleAlg moduleAlgFile, AttrParaType aType) {
+    protected void initAll(IModuleAlg moduleAlgFile) {
         if (module == null) {
             log.warn("Module is null, skip initAll");
             return;
@@ -515,7 +515,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
 
         // 初始化AttrParas，创建对应的Para和ParaVar
         if (module instanceof ModuleBase) {
-            newAttrParaVar(module.getAttrParas());
+            newAttrParaVar(((ModuleBase) module).getAttrParas());
         }
     }
 
@@ -815,7 +815,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         initModelAfter(model);
 
         // 初始化本层变量（paras和parts）
-        initAll(moduleAlgFile, AttrParaType.SUM);
+        initAll(moduleAlgFile);
 
         // 设置输入变量
         setInputVariable(partCategoryInput);
@@ -884,7 +884,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * 
      * @return 字段映射表
      */
-    protected Map<String, Field> getAllFieldVariables() {// TODO delete
+    protected Map<String, Field> getAllFieldVariables() { // TODO delete
         Field[] fields = this.getClass().getDeclaredFields();
         Map<String, Field> fieldMap = new HashMap<>();
         for (Field field : fields) {
@@ -1021,6 +1021,24 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
 
     public ParaVar getParaVar(String code) {
         return paraMap.get(code);
+    }
+
+    public ParaVar getSumSumParaByAttr(String attrCode) {
+        ParaVar paraVar = paraMap.get(attrCode);
+        if (paraVar == null) {
+            log.error("ParaVar not found for attrCode: {}", attrCode);
+            throw new AlgLoaderException("ParaVar not found for attrCode: " + attrCode);
+        }
+        return paraVar;
+    }
+
+    public ParaVar getSumParaByAttr(String attrCode) {
+        ParaVar paraVar = paraMap.get(attrCode);
+        if (paraVar == null) {
+            log.error("ParaVar not found for attrCode: {}", attrCode);
+            throw new AlgLoaderException("ParaVar not found for attrCode: " + attrCode);
+        }
+        return paraVar;
     }
 
     /**

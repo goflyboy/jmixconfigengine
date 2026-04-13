@@ -4,7 +4,9 @@ import com.jmix.executor.bmodel.IModule;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.para.Para;
 import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
+import com.jmix.executor.impl.algmodel.ModuleBaseAlgImpl;
 import com.jmix.executor.impl.algmodel.ParaOptionVar;
+import com.jmix.executor.impl.algmodel.PartCategoryAlgImpl;
 import com.jmix.executor.impl.algmodel.Var;
 import com.jmix.executor.model.AlgLoaderException;
 import com.jmix.executor.southinf.IModuleAlg;
@@ -15,6 +17,7 @@ import com.google.ortools.sat.IntVar;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -122,12 +125,54 @@ public class ConstraintAlgImplTestBase extends ModuleAlgImpl {
      * @param moduleAlg
      */
     protected void afterInitParas(IModule module, IModuleAlg moduleAlg) {
-        // TODO
+        List<PartCategoryAlgImpl> partCategoryAlgImpls = this.getPartCategoryAlgs();
+
+        // 获取当前类的所有字段
+        Map<String, Field> fieldMap = new HashMap<>();
+        for (Field field : this.getClass().getDeclaredFields()) {
+            field.setAccessible(true);
+            fieldMap.put(field.getName(), field);
+        }
+
+        // 遍历partCategoryAlgImpls，创建PartCategoryVar并设置到对应的字段上
+        for (PartCategoryAlgImpl partCategoryAlgImpl : partCategoryAlgImpls) {
+            String categoryCode = partCategoryAlgImpl.getCategoryCode();
+            Field field = fieldMap.get(categoryCode);
+
+            if (field != null && PartCategoryVar.class.isAssignableFrom(field.getType())) {
+                try {
+                    // 创建PartCategoryVar
+                    PartCategoryVar partCategoryVar = new PartCategoryVar();
+                    partCategoryVar.setAlgImpl((ModuleBaseAlgImpl) partCategoryAlgImpl);
+
+                    // 设置到字段上
+                    field.set(this, partCategoryVar);
+                    log.info("Set PartCategoryVar for field: {}, categoryCode: {}", field.getName(), categoryCode);
+                } catch (IllegalAccessException e) {
+                    log.error("Failed to set PartCategoryVar for field: {}", field.getName(), e);
+                }
+            }
+        }
     }
 
     public class PartCategoryVar extends PartVar {
+        /**
+         * 引用到内部算法实现
+         */
+        private ModuleBaseAlgImpl algImpl;
+
+        public void setAlgImpl(ModuleBaseAlgImpl algImpl) {
+            this.algImpl = algImpl;
+        }
+
         public ParaVar getSumSumParaByAttr(String attrCode) {
-            throw new UnsupportedOperationException("Not implemented");
+            com.jmix.executor.impl.algmodel.ParaVar tmpVar = algImpl.getSumSumParaByAttr(attrCode);
+            return toParaVar(tmpVar);
+        }
+
+        public ParaVar getSumParaByAttr(String attrCode) {
+            com.jmix.executor.impl.algmodel.ParaVar tmpVar = algImpl.getSumParaByAttr(attrCode);
+            return toParaVar(tmpVar);
         }
     }
 
@@ -153,6 +198,19 @@ public class ConstraintAlgImplTestBase extends ModuleAlgImpl {
      * @return 创建的参数变量
      */
     protected Var<?> newParaVar(com.jmix.executor.impl.algmodel.ParaVar internalParaVar) {
+        return toParaVar(internalParaVar);
+    }
+
+    /**
+     * 将内部ParaVar转换为测试用的ParaVar
+     * 
+     * @param internalParaVar 内部参数变量
+     * @return 转换后的参数变量
+     */
+    public static ParaVar toParaVar(com.jmix.executor.impl.algmodel.ParaVar internalParaVar) {
+        if (internalParaVar == null) {
+            return null;
+        }
         ParaVar paraVar = new ParaVar();
         paraVar.setBase(internalParaVar.getBase());
         paraVar.internal = internalParaVar;
