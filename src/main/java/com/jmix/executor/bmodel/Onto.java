@@ -41,6 +41,11 @@ public class Onto extends ProgrammableObject<Integer> implements IOnto {
     private List<Para> paras = new ArrayList<>();
 
     /**
+     * 属性参数列表，用于描述需要对哪些属性进行汇总计算
+     */
+    private List<AttrPara> attrParas = new ArrayList<>();
+
+    /**
      * 规则列表
      */
     private List<Rule> rules = new ArrayList<>();

@@ -1,11 +1,13 @@
 package com.jmix.coretest;
 
+import com.jmix.executor.bmodel.IModule;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.para.Para;
 import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
 import com.jmix.executor.impl.algmodel.ParaOptionVar;
 import com.jmix.executor.impl.algmodel.Var;
 import com.jmix.executor.model.AlgLoaderException;
+import com.jmix.executor.southinf.IModuleAlg;
 
 import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.IntVar;
@@ -113,8 +115,17 @@ public class ConstraintAlgImplTestBase extends ModuleAlgImpl {
         public BoolVar isSelected;
     }
 
-    public class PartCategoryVar extends PartVar {
+    /**
+     * 初始化Module后
+     * 
+     * @param module
+     * @param moduleAlg
+     */
+    protected void afterInitParas(IModule module, IModuleAlg moduleAlg) {
+        // TODO
+    }
 
+    public class PartCategoryVar extends PartVar {
         public ParaVar getSumSumParaByAttr(String attrCode) {
             throw new UnsupportedOperationException("Not implemented");
         }

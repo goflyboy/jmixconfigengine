@@ -1,5 +1,6 @@
 package com.jmix.executor.impl.algmodel;
 
+import com.jmix.executor.bmodel.AttrParaType;
 import com.jmix.executor.bmodel.IModule;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.base.Pair;
@@ -49,7 +50,7 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
     }
 
     @Override
-    protected void initAll(IModuleAlg moduleAlgFile) {
+    protected void initAll(IModuleAlg moduleAlgFile, AttrParaType aType) {
         for (PartCategoryInput partCategoryInput : this.getPartCategoryInputs()) {
             SingleInstPartCategoryAlgImpl partCategoryAlg = new SingleInstPartCategoryAlgImpl();
             partCategoryAlg.initData(model, (IModule) partCategoryInput.getFilteredCategory(), partCategoryInput,

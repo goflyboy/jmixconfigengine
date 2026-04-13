@@ -156,7 +156,7 @@ public class DynMultReq4MultiReqTest extends ModuleScenarioTestBase {
         }
 
         // 改动点3：分类2(多）多个请求的整体要求，需要有整体汇总
-        @PriorityRuleAnno(fatherCode = "drive", normalNaturalCode = " 优先使用高容量硬盘", strategy = PriorityStrategy.MIN, effectScope = EffectScope.AllInst)
+        @PriorityRuleAnno(fatherCode = "drive", normalNaturalCode = " 优先使用高容量硬盘", strategy = PriorityStrategy.MIN, effectScope = EffectScope.AllInst, attrParaCodes = "Capacity:SumSum,Quantity:SumSum")
         private void logicB2() {
             // 改动点3-1：增加sum4Quantity的partCatagoryCodesStr参数，支持多实例的情况
             PartAlgCPLinearExpr totalCapacity = sum4Quantity("Capacity",

@@ -24,6 +24,7 @@ public class SingleInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements 
      * 实例ID
      */
     private int instId = ModuleInst.DEFAULT_INSTANCE_ID;
+
     /**
      * 默认构造函数
      */
@@ -34,9 +35,9 @@ public class SingleInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements 
     @Override
     protected void initData(AlgCPModel model, IModule module, IPartCategoryInput partCategoryInput,
             IModuleAlg moduleAlgFile) {
-                PartCategoryInput input = (PartCategoryInput) partCategoryInput;
-                  this.instId = input.getInstId();
-        super.initData(model, module, partCategoryInput, moduleAlgFile);      
+        PartCategoryInput input = (PartCategoryInput) partCategoryInput;
+        this.instId = input.getInstId();
+        super.initData(model, module, partCategoryInput, moduleAlgFile);
     }
 
     /**
@@ -45,7 +46,7 @@ public class SingleInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements 
      * @return 实例ID
      */
     public int getInstId() {
-        return getPartCategory().isEnumMutiInst() ? getPartCategory().getEnumInstId() :instId;
+        return getPartCategory().isEnumMutiInst() ? getPartCategory().getEnumInstId() : instId;
     }
 
     public PartCategory getPartCategory() {
@@ -81,4 +82,3 @@ public class SingleInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements 
         return getPartCategory().getAtomicParts();
     }
 }
-M

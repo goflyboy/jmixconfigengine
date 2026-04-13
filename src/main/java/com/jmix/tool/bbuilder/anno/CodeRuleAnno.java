@@ -55,4 +55,11 @@ public @interface CodeRuleAnno {
      * 作用范围
      */
     EffectScope effectScope() default EffectScope.SingleInst;
+
+    /**
+     * 属性参数编码
+     * 格式：attrCode:Type,attrCode:Type
+     * 例如："Capacity:SumSum,Quantity:SumSum"
+     */
+    String attrParaCodes() default "";
 }

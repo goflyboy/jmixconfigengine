@@ -1,5 +1,7 @@
 package com.jmix.executor.impl.algmodel;
 
+import com.jmix.executor.bmodel.AttrPara;
+import com.jmix.executor.bmodel.AttrParaType;
 import com.jmix.executor.bmodel.IModule;
 import com.jmix.executor.bmodel.ModuleBase;
 import com.jmix.executor.bmodel.Part;
@@ -472,11 +474,21 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
     }
 
     /**
+     * 初始化Module后
+     * 
+     * @param module
+     * @param moduleAlg
+     */
+    protected void afterInitParas(IModule module, IModuleAlg moduleAlg) {
+
+    }
+
+    /**
      * 初始化所有变量（paras和parts）
      * 遍历module的paras，创建ParaVar并放到paraMap
      * 遍历module的parts，创建PartVar并放到partMap
      */
-    protected void initAll(IModuleAlg moduleAlgFile) {
+    protected void initAll(IModuleAlg moduleAlgFile, AttrParaType aType) {
         if (module == null) {
             log.warn("Module is null, skip initAll");
             return;
@@ -489,6 +501,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
                 paraMap.put(para.getCode(), paraVar);
             }
         }
+        afterInitParas(this.module, this);
         log.info("Initialized {} para variables", paraMap.size());
 
         // 初始化所有parts（原子部件）
@@ -499,6 +512,54 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
             }
         }
         log.info("Initialized {} part variables", partMap.size());
+
+        // 初始化AttrParas，创建对应的Para和ParaVar
+        if (module instanceof ModuleBase) {
+            newAttrParaVar(module.getAttrParas());
+        }
+    }
+
+    /**
+     * 初始化AttrParas，创建对应的Para和ParaVar
+     * 
+     * @param attrParas 属性参数列表
+     */
+    protected void newAttrParaVar(List<AttrPara> attrParas) {
+        if (attrParas == null || attrParas.isEmpty()) {
+            return;
+        }
+        for (AttrPara attrPara : attrParas) {
+            newAttrParaVar(attrPara);
+        }
+    }
+
+    /**
+     * 初始化单个AttrPara，创建对应的Para和ParaVar
+     * 
+     * @param attrPara 属性参数
+     */
+    protected void newAttrParaVar(AttrPara attrPara) {
+        if (attrPara == null || attrPara.getAttrCode() == null) {
+            return;
+        }
+        String paraCode = attrPara.getAttrCode();
+
+        // 如果已存在则跳过
+        if (paraMap.containsKey(paraCode)) {
+            log.info("Para already exists for attrCode: {}, skipping", paraCode);
+            return;
+        }
+
+        Para para = new Para();
+        para.setCode(paraCode);
+        para.setAssignType(AssignType.INPUT);
+        // 从对应的属性里面获取数据issue（min，max等）
+        para.setParaType(ParaType.INTEGER);
+        ModuleBase tempModule = (ModuleBase) module;
+        tempModule.addPara(para);
+        ParaVar pVar = initParaVar(para);
+        paraMap.put(paraCode, pVar);
+        log.info("Dynamic created para for AttrPara: {}", paraCode);
     }
 
     /**
@@ -754,7 +815,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         initModelAfter(model);
 
         // 初始化本层变量（paras和parts）
-        initAll(moduleAlgFile);
+        initAll(moduleAlgFile, AttrParaType.SUM);
 
         // 设置输入变量
         setInputVariable(partCategoryInput);

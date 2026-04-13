@@ -3,6 +3,8 @@ package com.jmix.tool.bbuilder;
 import com.jmix.executor.bmodel.IPart;
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.ModuleAlgArtifact;
+import com.jmix.executor.bmodel.AttrPara;
+import com.jmix.executor.bmodel.AttrParaType;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartCategory;
 import com.jmix.executor.bmodel.PartType;
@@ -381,31 +383,8 @@ public final class ModuleGenneratorByAnno {
             schema.setRightExpr(rightExpr);
         }
 
-        // // 解析leftProObjsStr，设置额外的左侧编程对象
-        // if (!anno.leftProObjsStr().isEmpty()) {
-        // List<RefProgObjSchema> additionalLeftObjs =
-        // parseProObjsStr(anno.leftProObjsStr(), module);
-        // ExprSchema leftExpr = schema.getLeftExpr();
-        // if (leftExpr == null) {
-        // leftExpr = new ExprSchema();
-        // leftExpr.setRefProgObjs(new ArrayList<>());
-        // schema.setLeftExpr(leftExpr);
-        // }
-        // leftExpr.getRefProgObjs().addAll(additionalLeftObjs);
-        // }
-
-        // // 解析rightProObjsStr，设置额外的右侧编程对象
-        // if (!anno.rightProObjsStr().isEmpty()) {
-        // List<RefProgObjSchema> additionalRightObjs =
-        // parseProObjsStr(anno.rightProObjsStr(), module);
-        // ExprSchema rightExpr = schema.getRightExpr();
-        // if (rightExpr == null) {
-        // rightExpr = new ExprSchema();
-        // rightExpr.setRefProgObjs(new ArrayList<>());
-        // schema.setRightExpr(rightExpr);
-        // }
-        // rightExpr.getRefProgObjs().addAll(additionalRightObjs);
-        // }
+        // 解析attrParaCodes，设置属性参数
+        parseAndAddAttrParas(anno.attrParaCodes(), module);
 
         rule.setRawCode(schema);
         return rule;
@@ -456,6 +435,9 @@ public final class ModuleGenneratorByAnno {
             List<RefProgObjSchema> additionalRightObjs = parseProObjsStr(anno.rightProObjsStr(), module);
             schema.getRightRefProgObjs().addAll(additionalRightObjs);
         }
+
+        // 解析attrParaCodes，设置属性参数
+        parseAndAddAttrParas(anno.attrParaCodes(), module);
 
         rule.setRawCode(schema);
         return rule;
@@ -517,6 +499,9 @@ public final class ModuleGenneratorByAnno {
                 schema.getToRightProgObjs().add(refProgObj);
             }
         }
+
+        // 解析attrParaCodes，设置属性参数
+        parseAndAddAttrParas(anno.attrParaCodes(), module);
 
         rule.setRawCode(schema);
         return rule;
@@ -724,6 +709,50 @@ public final class ModuleGenneratorByAnno {
                 }
             }
             module.setExtAttrs(extAttrs);
+        }
+    }
+
+    /**
+     * 解析attrParaCodes并添加到module的attrParas列表中
+     * 格式：attrCode:Type,attrCode:Type
+     * 例如："Capacity:SumSum,Quantity:SumSum"
+     * 
+     * @param attrParaCodes 属性参数编码字符串
+     * @param module        模块对象
+     */
+    private static void parseAndAddAttrParas(String attrParaCodes, Module module) {
+        if (Strings.isNullOrEmpty(attrParaCodes)) {
+            return;
+        }
+
+        // 按逗号分隔多个AttrPara
+        String[] attrParaParts = attrParaCodes.split(",");
+        for (String attrParaStr : attrParaParts) {
+            String trimmed = attrParaStr.trim();
+            if (Strings.isNullOrEmpty(trimmed)) {
+                continue;
+            }
+
+            // 按冒号分隔attrCode和Type
+            String[] codeAndType = trimmed.split(":");
+            if (codeAndType.length != 2) {
+                log.warn("Invalid attrPara format: {}, expected 'attrCode:Type'", trimmed);
+                continue;
+            }
+
+            String attrCode = codeAndType[0].trim();
+            String typeStr = codeAndType[1].trim();
+
+            // 解析类型
+            AttrParaType type = AttrParaType.valueOf(typeStr);
+
+            // 创建AttrPara并添加到module
+            AttrPara attrPara = new AttrPara();
+            attrPara.setAttrCode(attrCode);
+            attrPara.setType(type);
+            module.getAttrParas().add(attrPara);
+
+            log.info("Added AttrPara: attrCode={}, type={}", attrCode, type);
         }
     }
 
