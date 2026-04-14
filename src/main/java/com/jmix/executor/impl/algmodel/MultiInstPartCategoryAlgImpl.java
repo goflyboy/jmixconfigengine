@@ -54,6 +54,7 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
         super.initData(model, module, partCategoryInput, moduleAlgFile);
         MultiInstPartCategoryInput multiInstPartCategoryInput = (MultiInstPartCategoryInput) partCategoryInput;
         newAttrParaVar(multiInstPartCategoryInput.getSumSumAttrParas());
+        super.initInput(model, module, partCategoryInput, moduleAlgFile);
     }
 
     protected void afterSetInputVariable() {
@@ -68,6 +69,7 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
                 ParaVar sumSumParaVar = getSumSumParaByAttr(attrPara.getAttrCode());
                 if (!sumSumParaVar.getHasInputed()) {
                     sumSumParaVar.setInputValue(hasSetSumPara.getSecond());
+                    sumSumParaVar.setHasInputed(true);
                 }
             }
         }
@@ -83,7 +85,6 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
             if (pv != null && pv.getHasInputed()) {
                 hasSet = true;
                 sumSumValue += pv.getInputValue();
-                break;
             } else {
                 // throw exception,log error
                 log.warn("SumSumPara " + sumSumPara.getAttrCode()
@@ -105,6 +106,8 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
     }
 
     public void initRules(Map<String, Method> allRuleMethods, IModuleAlg moduleAlgFile, CalcStage calcStage) {
+        super.buildPriorityConstraint(getMultiInstPartCategoryInput());
+
         for (Pair<PartCategoryInput, SingleInstPartCategoryAlgImpl> partCategoryAlg : partCategoryAlgs.values()) {
             partCategoryAlg.getSecond().initRules(allRuleMethods, moduleAlgFile, calcStage);
         }

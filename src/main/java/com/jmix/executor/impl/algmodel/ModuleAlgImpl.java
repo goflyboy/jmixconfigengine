@@ -7,8 +7,12 @@ import com.jmix.executor.bmodel.PartCategory;
 import com.jmix.executor.bmodel.PartUtils;
 import com.jmix.executor.bmodel.base.Pair;
 import com.jmix.executor.bmodel.logic.CalcStage;
+import com.jmix.executor.bmodel.logic.PriorityRuleSchema;
+import com.jmix.executor.bmodel.logic.PriorityStrategy;
+import com.jmix.executor.bmodel.logic.Rule;
 import com.jmix.executor.impl.MultiInstPartCategoryInput;
 import com.jmix.executor.impl.PartCategoryInputBase;
+import com.jmix.executor.impl.PriorityConstraint;
 import com.jmix.executor.impl.util.FilterExpressionExecutor;
 import com.jmix.executor.model.AlgLoaderException;
 import com.jmix.executor.southinf.IModuleAlg;
@@ -22,6 +26,7 @@ import org.apache.logging.log4j.util.Strings;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -115,12 +120,16 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
                 partCategoryAlgs.put(categoryCode, (PartCategoryAlgImpl) pcAlg);
             }
         }
+        super.initInput(model, module, null, this);
         log.info("ModuleAlgImpl initialized with {} partCategory algorithms", partCategoryAlgs.size());
     }
 
     protected void initRules(IModuleAlg moduleAlgFile, CalcStage calcStage) {
         Map<String, Method> allRuleMethods = buildAllRuleMethods(module, this);
         // 先本身这个模块的前置算法
+
+        // 先构建本模块的优先类规则
+        buildPriorityConstraint(module);
 
         // 如果module有PartCategorys，则对每个PartCategory创建并初始化PartCategoryAlgImpl
         for (PartCategoryAlgImpl partCategoryAlgImpl : this.getPartCategoryAlgs()) {
@@ -129,6 +138,70 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
 
         // 执行本身这个模块的后置算法
         this.initRules(allRuleMethods, moduleAlgFile, calcStage);
+    }
+
+    /**
+     * 是否有优先类规则
+     * 
+     * @return exr
+     */
+    public boolean hasPriorityRule() {
+        return !getAllPriorityConstraintMap().isEmpty();
+    }
+
+    private Map<String, PriorityConstraint> getAllPriorityConstraintMap() {
+        // ruleCode -> PriorityConstraint
+        Map<String, PriorityConstraint> priorityConstraints = new HashMap<>();
+        if (getPriorityConstraint() != null) {
+            priorityConstraints.put(getPriorityConstraint().getRule().getCode(), getPriorityConstraint());
+        }
+        for (PartCategoryAlgImpl partCategoryAlgImpl : getPartCategoryAlgs()) {
+            PriorityConstraint priorityConstraint = ((ModuleBaseAlgImpl) partCategoryAlgImpl).getPriorityConstraint();
+            if (priorityConstraint != null) {
+                priorityConstraints.put(
+                        priorityConstraint.getRule().getCode(), priorityConstraint);
+            }
+        }
+        return priorityConstraints;
+    }
+
+    /**
+     * 获取所有的Priority合并后的表达式
+     *
+     * @return exr
+     */
+    public PartAlgCPLinearExpr queryMergerPriorityConstraintExpr() {
+        PartAlgCPLinearExpr mergedExpr = model.newPartLinearExpr("merged_priority_expr");
+        for (PriorityConstraint pc : getAllPriorityConstraintMap().values()) {
+            Rule rule = pc.getRule();
+            PriorityRuleSchema schema = (PriorityRuleSchema) rule.getRawCode();
+            PriorityStrategy strategy = schema.getPriorityStrategy();
+            // int weight = schema.getWeight();
+            int coff = strategy == PriorityStrategy.MAX ? -1 : 1;
+            mergedExpr.addExpr(pc.getExpr(), coff);
+        }
+        return mergedExpr;
+    }
+
+    /**
+     * Update or create priority objective function for given attribute code.
+     *
+     * @param attrCode attribute code
+     * @param expr     expression containing part-term metadata and numeric terms
+     */
+    public void updatePriorityObjectFuntion(String ruleCode, PartAlgCPLinearExpr expr) {
+        if (ruleCode == null || ruleCode.isEmpty()) {
+            log.warn("ruleCode is null or empty, skip updating priority objective");
+            return;
+        }
+        PriorityConstraint pConstraint = getAllPriorityConstraintMap().get(ruleCode);
+        if (pConstraint == null) {
+            log.error("PriorityConstraint not found for ruleCode: {}", ruleCode);
+            throw new AlgLoaderException("PriorityConstraint not found for ruleCode: " + ruleCode);
+        }
+        pConstraint.setExpr(expr);
+        log.info("Updated priority objective for ruleCode {}: expr={}", ruleCode,
+                expr != null ? expr.toString() : "null");
     }
 
     /**

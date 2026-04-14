@@ -13,7 +13,6 @@ import com.jmix.executor.impl.algmodel.AlgCPModel;
 import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
 import com.jmix.executor.impl.algmodel.PartAlgCPLinearExpr;
 import com.jmix.executor.model.AlgExecutorException;
-import com.jmix.executor.model.AttrFunConstant;
 import com.jmix.executor.model.ConstraintConfig;
 import com.jmix.executor.model.InferPartCategoryReq;
 import com.jmix.executor.model.PartConstraintReq;
@@ -277,12 +276,10 @@ public abstract class ModuleBaseConstraintExecutorImpl {
     public static PartCategoryInput toPartCategoryInput(PartCategory filteredCategory,
             PartConstraintReq partConstraintReq) {
         // 解析属性
-        Pair<DynamicAttribute, String> result = filteredCategory.parseAttribute(
-                partConstraintReq.getAttrCode(),
-                filteredCategory.getDynAttrSchemas());
-        if (!AttrFunConstant.FUN_PREFIX_SUM.equals(result.getSecond())) {
-            log.error("attrCode is not sum function");
-            throw new AlgExecutorException("attrCode is not sum function");
+        DynamicAttribute dynAttrSchema = filteredCategory.getDynAttrSchema(partConstraintReq.getAttrCode());
+        if (dynAttrSchema == null) {
+            log.error("attrCode is not found");
+            throw new AlgExecutorException("attrCode is not found");
         }
 
         // 根据partConstraintReq构造IPartCategoryInput

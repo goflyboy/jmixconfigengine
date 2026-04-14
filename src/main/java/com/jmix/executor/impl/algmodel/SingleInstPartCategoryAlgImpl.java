@@ -3,6 +3,7 @@ package com.jmix.executor.impl.algmodel;
 import com.jmix.executor.bmodel.IModule;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartCategory;
+import com.jmix.executor.bmodel.logic.CalcStage;
 import com.jmix.executor.cmodel.ModuleInst;
 import com.jmix.executor.impl.PartCategoryInput;
 import com.jmix.executor.impl.PartCategoryInputBase;
@@ -10,7 +11,9 @@ import com.jmix.executor.southinf.IModuleAlg;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 部件分类级算法实现
@@ -39,6 +42,12 @@ public class SingleInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements 
         this.instId = input.getInstId();
         super.initData(model, module, partCategoryInput, moduleAlgFile);
         newAttrParaVar(input.getSumAttrParas());
+        super.initInput(model, module, partCategoryInput, moduleAlgFile);
+    }
+
+    public void initRules(Map<String, Method> allRuleMethods, IModuleAlg moduleAlgFile, CalcStage calcStage) {
+        super.buildPriorityConstraint(getModule()); // 先构建本部件分类的优先类规则
+        super.initRules(allRuleMethods, moduleAlgFile, calcStage);
     }
 
     /**

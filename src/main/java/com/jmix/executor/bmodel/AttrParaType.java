@@ -1,10 +1,13 @@
 package com.jmix.executor.bmodel;
 
+import lombok.ToString;
+
 /**
  * 属性参数类型枚举
  * 
  * @since 2026-04-13
  */
+@ToString
 public enum AttrParaType {
 
     /**

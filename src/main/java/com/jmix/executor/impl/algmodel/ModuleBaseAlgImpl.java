@@ -10,9 +10,7 @@ import com.jmix.executor.bmodel.base.AssignType;
 import com.jmix.executor.bmodel.base.Pair;
 import com.jmix.executor.bmodel.logic.CalcStage;
 import com.jmix.executor.bmodel.logic.PriorityRuleSchema;
-import com.jmix.executor.bmodel.logic.PriorityStrategy;
 import com.jmix.executor.bmodel.logic.Rule;
-import com.jmix.executor.bmodel.logic.RuleTypeConstants;
 import com.jmix.executor.bmodel.para.Para;
 import com.jmix.executor.bmodel.para.ParaType;
 import com.jmix.executor.cmodel.ModuleInst;
@@ -30,6 +28,8 @@ import com.google.ortools.sat.LinearArgument;
 import com.google.ortools.sat.Literal;
 import com.google.ortools.util.Domain;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Field;
@@ -88,9 +88,11 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
     protected Map<String, Method> ruleMethods = new HashMap<>();
 
     /**
-     * 优先级约束映射表，存储属性代码到优先级约束的映射
+     * 优先级约束映射表，存储属性代码到优先级约束的映射，仅能支持一条优先级约束
      */
-    protected Map<String, PriorityConstraint> priorityRuleMap = new HashMap<>();
+    @Getter
+    @Setter
+    protected PriorityConstraint priorityConstraint;
 
     /**
      * 兼容性约束算法实例
@@ -114,54 +116,6 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      */
     public int getInstId() {
         return ModuleInst.DEFAULT_INSTANCE_ID;
-    }
-
-    /**
-     * 是否有优先类规则
-     * 
-     * @return exr
-     */
-    public boolean hasPriorityRule() {
-        return !priorityRuleMap.isEmpty();
-    }
-
-    /**
-     * 获取所有的Priority合并后的表达式
-     *
-     * @return exr
-     */
-    public PartAlgCPLinearExpr queryMergerPriorityConstraintExpr() {
-        PartAlgCPLinearExpr mergedExpr = model.newPartLinearExpr("merged_priority_expr");
-        for (PriorityConstraint pc : priorityRuleMap.values()) {
-            Rule rule = pc.getRule();
-            PriorityRuleSchema schema = (PriorityRuleSchema) rule.getRawCode();
-            PriorityStrategy strategy = schema.getPriorityStrategy();
-            // int weight = schema.getWeight();
-            int coff = strategy == PriorityStrategy.MAX ? -1 : 1;
-            mergedExpr.addExpr(pc.getExpr(), coff);
-        }
-        return mergedExpr;
-    }
-
-    /**
-     * Update or create priority objective function for given attribute code.
-     *
-     * @param attrCode attribute code
-     * @param expr     expression containing part-term metadata and numeric terms
-     */
-    public void updatePriorityObjectFuntion(String ruleCode, PartAlgCPLinearExpr expr) {
-        if (ruleCode == null || ruleCode.isEmpty()) {
-            log.warn("ruleCode is null or empty, skip updating priority objective");
-            return;
-        }
-        PriorityConstraint pConstraint = priorityRuleMap.get(ruleCode);
-        if (pConstraint == null) {
-            log.error("PriorityConstraint not found for ruleCode: {}", ruleCode);
-            throw new AlgLoaderException("PriorityConstraint not found for ruleCode: " + ruleCode);
-        }
-        pConstraint.setExpr(expr);
-        log.info("Updated priority objective for ruleCode {}: expr={}", ruleCode,
-                expr != null ? expr.toString() : "null");
     }
 
     /**
@@ -293,22 +247,6 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         }
 
         return algExpr;
-    }
-
-    /**
-     * 构建优先级约束
-     * 
-     * @param rule 规则对象
-     */
-    protected void buildPriorityConstraint(Rule rule) {
-        if (rule.getRawCode() == null || !(rule.getRawCode() instanceof PriorityRuleSchema)) {
-            log.warn("Rule rawCode is not PriorityRuleSchema for rule: {}", rule.getCode());
-            return;
-        }
-        PriorityConstraint pConstraint = new PriorityConstraint();
-        pConstraint.setRule(rule);
-        // 存储到 priorityRuleMap，使用 attrCode 作为 key
-        priorityRuleMap.put(rule.getCode(), pConstraint);
     }
 
     /**
@@ -694,11 +632,10 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
             if (method != null) {
                 ruleMethods.put(ruleCode, method);
                 log.info("Built rule method mapping: {} -> {}", ruleCode, method.getName());
-
-                // 检查是否是PriorityRule，如果是则构建优先级约束
-                if (RuleTypeConstants.isPriorityRule(rule.getRuleSchemaTypeFullName())) {
-                    buildPriorityConstraint(rule);
-                }
+                // // 检查是否是PriorityRule，如果是则构建优先级约束
+                // if (RuleTypeConstants.isPriorityRule(rule.getRuleSchemaTypeFullName())) {
+                // buildPriorityConstraint(rule);
+                // }
             } else {
                 log.warn("Rule method not found for rule code: {} in class {}", ruleCode, this.getClass().getName());
             }
@@ -706,6 +643,28 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
 
         log.info("Built {} rule methods from module rules", ruleMethods.size());
         return ruleMethods;
+    }
+
+    protected void buildPriorityConstraint(IModule module) {
+        module.getPriorityRules().forEach(rule -> buildPriorityConstraint(rule));
+        for (Rule rule : module.getPriorityRules()) {
+            buildPriorityConstraint(rule);
+        }
+    }
+
+    /**
+     * 构建优先级约束
+     * 
+     * @param rule 规则对象
+     */
+    protected void buildPriorityConstraint(Rule rule) {
+        if (rule.getRawCode() == null || !(rule.getRawCode() instanceof PriorityRuleSchema)) {
+            log.warn("Rule rawCode is not PriorityRuleSchema for rule: {}", rule.getCode());
+            return;
+        }
+        PriorityConstraint pConstraint = new PriorityConstraint();
+        pConstraint.setRule(rule);
+        setPriorityConstraint(pConstraint);
     }
 
     /**
@@ -796,7 +755,10 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
 
         // 初始化本层变量（paras和parts）
         initAll(moduleAlgFile);
+    }
 
+    protected void initInput(AlgCPModel model, IModule module, PartCategoryInputBase partCategoryInput,
+            IModuleAlg moduleAlgFile) {
         // 设置输入变量
         setInputVariable(partCategoryInput);
         afterSetInputVariable();
@@ -804,7 +766,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         // 将变量写回字段
         writeBackToFields(moduleAlgFile);
 
-        log.info("ModuleBaseAlgImpl initRules {}", module.getClass().getSimpleName());
+        log.info("ModuleBaseAlgImpl initInput {}", module.getClass().getSimpleName());
     }
 
     protected void afterSetInputVariable() {
@@ -1040,28 +1002,6 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      */
     public PartVar getPartVar(String code) {
         return partMap.get(code);
-    }
-
-    /**
-     * 获取优先级规则映射表
-     * 
-     * @return 优先级规则映射表
-     */
-    public Map<String, PriorityConstraint> getPriorityRuleMap() {
-        return priorityRuleMap;
-    }
-
-    /**
-     * 根据属性代码查询优先级约束
-     * 
-     * @param attrCode 属性代码
-     * @return 优先级约束，如果不存在则返回null
-     */
-    public PriorityConstraint queryPriorityConstraint(String attrCode) {
-        if (attrCode == null || attrCode.isEmpty()) {
-            return null;
-        }
-        return priorityRuleMap.get(attrCode);
     }
 
     /**
