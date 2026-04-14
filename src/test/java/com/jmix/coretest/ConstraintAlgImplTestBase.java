@@ -124,7 +124,7 @@ public class ConstraintAlgImplTestBase extends ModuleAlgImpl {
      * @param module
      * @param moduleAlg
      */
-    protected void afterInitParas(IModule module, IModuleAlg moduleAlg) {
+    protected void afterInitData(IModule module, IModuleAlg moduleAlg) {
         List<PartCategoryAlgImpl> partCategoryAlgImpls = this.getPartCategoryAlgs();
 
         // 获取当前类的所有字段

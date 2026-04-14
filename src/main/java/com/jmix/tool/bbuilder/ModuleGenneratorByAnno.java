@@ -1,10 +1,10 @@
 package com.jmix.tool.bbuilder;
 
+import com.jmix.executor.bmodel.AttrPara;
+import com.jmix.executor.bmodel.AttrParaType;
 import com.jmix.executor.bmodel.IPart;
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.ModuleAlgArtifact;
-import com.jmix.executor.bmodel.AttrPara;
-import com.jmix.executor.bmodel.AttrParaType;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartCategory;
 import com.jmix.executor.bmodel.PartType;
@@ -60,6 +60,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 基于注解的模块生成器
@@ -273,6 +275,8 @@ public final class ModuleGenneratorByAnno {
             // 检查是否有CompatiableRuleAnno注解
             CompatiableRuleAnno compatiableRuleAnno = method.getAnnotation(CompatiableRuleAnno.class);
             if (compatiableRuleAnno != null) {
+                addAttrParaToModuleOrPartCategory(compatiableRuleAnno.fatherCode(),
+                        parseAndAddAttrParas(compatiableRuleAnno.attrParaCodes()), module);
                 Rule rule = createCompatibleRule(method, compatiableRuleAnno, module);
                 if (rule != null) {
                     // CompatiableRuleAnno 没有 fatherCode，默认添加到 Module
@@ -283,6 +287,8 @@ public final class ModuleGenneratorByAnno {
             // 检查是否有PriorityRuleAnno注解
             PriorityRuleAnno priorityRuleAnno = method.getAnnotation(PriorityRuleAnno.class);
             if (priorityRuleAnno != null) {
+                addAttrParaToModuleOrPartCategory(priorityRuleAnno.fatherCode(),
+                        parseAndAddAttrParas(priorityRuleAnno.attrParaCodes()), module);
                 Rule rule = createPriorityRule(method, priorityRuleAnno, module);
                 if (rule != null) {
                     addRuleToModuleOrPartCategory(rule, module, moduleRules);
@@ -292,6 +298,8 @@ public final class ModuleGenneratorByAnno {
             // 检查是否有CodeRuleAnno注解
             CodeRuleAnno codeRuleAnno = method.getAnnotation(CodeRuleAnno.class);
             if (codeRuleAnno != null) {
+                addAttrParaToModuleOrPartCategory(codeRuleAnno.fatherCode(),
+                        parseAndAddAttrParas(codeRuleAnno.attrParaCodes()), module);
                 Rule rule = createCodeRule(method, codeRuleAnno, module);
                 if (rule != null) {
                     addRuleToModuleOrPartCategory(rule, module, moduleRules);
@@ -302,9 +310,39 @@ public final class ModuleGenneratorByAnno {
         return moduleRules;
     }
 
+    private static void addAttrParaToModuleOrPartCategory(String fatherCode, List<AttrPara> attrParas, Module module) {
+        if (attrParas.isEmpty()) {
+            return;
+        }
+        if (Strings.isNullOrEmpty(fatherCode)) {
+            // fatherCode 为 null 或空字符串，添加到 Module
+            module.getAttrParas().addAll(deleteDuplicate(module.getAttrParas(), attrParas));
+        } else {
+            // fatherCode 不为空，添加到对应的 PartCategory
+            IPart part = module.getPart(fatherCode);
+            if (part instanceof PartCategory) {
+                PartCategory partCategory = (PartCategory) part;
+                partCategory.getAttrParas().addAll(deleteDuplicate(partCategory.getAttrParas(), attrParas));
+            } else {
+                log.error("PartCategory '{}' not found for attrParas '{}'..., adding to Module instead",
+                        fatherCode, attrParas.get(0).getAttrCode());
+                throw new AlgLoaderException("PartCategory '" + fatherCode + "' not found for attrParas '"
+                        + attrParas.get(0).getAttrCode() + "...', adding to Module instead");
+            }
+        }
+    }
+
+    private static List<AttrPara> deleteDuplicate(List<AttrPara> existAttrParas, List<AttrPara> newAttrParas) {
+        Set<String> attrCodes = existAttrParas.stream()
+                .map(attrPara -> attrPara.getAttrCode() + ":" + attrPara.getType()).collect(Collectors.toSet());
+        return newAttrParas.stream()
+                .filter(attrPara -> !attrCodes.contains(attrPara.getAttrCode() + ":" + attrPara.getType()))
+                .collect(Collectors.toList());
+    }
+
     /**
      * 将规则添加到 Module 或 PartCategory
-     * 根据规则的 fatherCode 字段决定添加到哪个位置
+     * 根据规则的 fatherCode 字段决定添加到哪个位置s
      * 
      * @param rule        规则对象
      * @param module      模块对象
@@ -383,9 +421,6 @@ public final class ModuleGenneratorByAnno {
             schema.setRightExpr(rightExpr);
         }
 
-        // 解析attrParaCodes，设置属性参数
-        parseAndAddAttrParas(anno.attrParaCodes(), module);
-
         rule.setRawCode(schema);
         return rule;
     }
@@ -435,10 +470,6 @@ public final class ModuleGenneratorByAnno {
             List<RefProgObjSchema> additionalRightObjs = parseProObjsStr(anno.rightProObjsStr(), module);
             schema.getRightRefProgObjs().addAll(additionalRightObjs);
         }
-
-        // 解析attrParaCodes，设置属性参数
-        parseAndAddAttrParas(anno.attrParaCodes(), module);
-
         rule.setRawCode(schema);
         return rule;
     }
@@ -499,9 +530,6 @@ public final class ModuleGenneratorByAnno {
                 schema.getToRightProgObjs().add(refProgObj);
             }
         }
-
-        // 解析attrParaCodes，设置属性参数
-        parseAndAddAttrParas(anno.attrParaCodes(), module);
 
         rule.setRawCode(schema);
         return rule;
@@ -718,13 +746,12 @@ public final class ModuleGenneratorByAnno {
      * 例如："Capacity:SumSum,Quantity:SumSum"
      * 
      * @param attrParaCodes 属性参数编码字符串
-     * @param module        模块对象
      */
-    private static void parseAndAddAttrParas(String attrParaCodes, Module module) {
+    private static List<AttrPara> parseAndAddAttrParas(String attrParaCodes) {
         if (Strings.isNullOrEmpty(attrParaCodes)) {
-            return;
+            return new ArrayList<>();
         }
-
+        List<AttrPara> attrParas = new ArrayList<>();
         // 按逗号分隔多个AttrPara
         String[] attrParaParts = attrParaCodes.split(",");
         for (String attrParaStr : attrParaParts) {
@@ -750,10 +777,11 @@ public final class ModuleGenneratorByAnno {
             AttrPara attrPara = new AttrPara();
             attrPara.setAttrCode(attrCode);
             attrPara.setType(type);
-            module.getAttrParas().add(attrPara);
+            attrParas.add(attrPara);
 
             log.info("Added AttrPara: attrCode={}, type={}", attrCode, type);
         }
+        return attrParas;
     }
 
     /**

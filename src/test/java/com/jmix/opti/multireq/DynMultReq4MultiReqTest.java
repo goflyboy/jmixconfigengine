@@ -122,7 +122,7 @@ public class DynMultReq4MultiReqTest extends ModuleScenarioTestBase {
 
         // @ParaAnno(fatherCode = "cpu", type = ParaType.INTEGER, assignType =
         // AssignType.INPUT)
-        // private ParaVar cpuSumCores; // 输入参数 TODO:不需要建立，应该从引擎干掉
+        // private ParaVar cpuSumCores; // 输入参数 TODO:不需要建立，应该从引擎干掉 TODO
 
         // @ParaAnno(fatherCode = "cpu", type = ParaType.INTEGER, assignType =
         // AssignType.INPUT)
@@ -228,7 +228,7 @@ public class DynMultReq4MultiReqTest extends ModuleScenarioTestBase {
     @Test
     public void oneReq() {
         // Natural-Input: 要求机械硬盘容量>=5T, 要求4核的CPU的总内存>=512G
-        inferRecommendModule("drive:sum.Capacity >=5 where Speed=5400", "cpu:sum.Memory >=512 where CoreNum=4");
+        inferRecommendModule("drive:Sum_Capacity >=5 where Speed=5400", "cpu:Sum_Memory >=512 where CoreNum=4");
         printSimpleSolutions();
         // 变化点5-1：要求为保持输入的简洁见，如果仅输出一个实例，则和原来多单实例一样，不加实例名
         assertSoluContain(1, "cpu2(Q:2,H:0,S:1),md1(Q:5,H:0,S:1),sd1(0*)");
@@ -238,8 +238,8 @@ public class DynMultReq4MultiReqTest extends ModuleScenarioTestBase {
     @Test
     public void twoReq() {
         // Natural-Input: 要求机械硬盘容量>=5T, 要求机械硬盘容量>=5T, 要求4核的CPU的总内存>=512G
-        inferRecommendModule("drive:sum.Capacity >=5 where Speed=5400", "drive:sum.Capacity >=5 where Speed=5400",
-                "cpu:sum.Memory >=512 where CoreNum=4");
+        inferRecommendModule("drive:Sum_Capacity >=5 where Speed=5400", "drive:Sum_Capacity >=5 where Speed=5400",
+                "cpu:Sum_Memory >=512 where CoreNum=4");
         printSimpleSolutions();
         // 变化点5-2：要求为保持输入的简洁见，如果输出多个实例，后面的需要加上实名名称I1
         assertSoluContain(1, "cpu2(Q:2,H:0,S:1),md1(Q:5,H:0,S:1),sd1(0*),I1_md1(Q:5,H:0,S:1),I1_sd1(0*)");
@@ -251,8 +251,8 @@ public class DynMultReq4MultiReqTest extends ModuleScenarioTestBase {
         // 测试总sum 和 sumsum之间的关系？
 
         // Natural-Input: 要求配置两组Speed=5400， 和一组Speed=7200，总容量>=10T, 要求4核的CPU的总内存>=512G
-        inferRecommendModule("drive.sumsum.Capcity>=10, drive: where Speed=5400", "drive: where Speed=5400",
-                "cpu:sum.Memory >=512 where CoreNum=4");
+        inferRecommendModule("drive.SumSum_Capcity>=10, drive: where Speed=5400", "drive: where Speed=5400",
+                "cpu:Sum_Memory >=512 where CoreNum=4");
         printSimpleSolutions();
     }
 }

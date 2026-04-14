@@ -238,7 +238,7 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
     @Test
     public void firstBase() {
         // 测试点：父层category，=表达式
-        inferRecommend("drive", "drive:sum.Quantity ==2 where Speed=5400");
+        inferRecommend("drive", "drive:Sum_Quantity ==2 where Speed=5400");
         // Print solutions for debugging
         printSimpleSolutions();
         assertSoluContain(1, "md1(0*),sd1(Q:2,H:0,S:1)");
@@ -246,7 +246,7 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
         assertSoluContain(3, "md1(Q:2,H:0,S:1),sd1(0*)");
 
         // Req:
-        // drive:sum.Quantity ==2 where Speed=5400
+        // drive:Sum_Quantity ==2 where Speed=5400
         // md1.Q* + sd1.Q* == 2
 
         // proRule1:固态硬盘必须配置同一种，并且最多配置2块
@@ -266,7 +266,7 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
     // ...
     @Test
     public void testCase0_CapacityGreaterEqual6Speed5400() {
-        inferRecommend("drive", "drive:sum.Capacity >=6 where Speed = 5400");
+        inferRecommend("drive", "drive:Sum_Capacity >=6 where Speed = 5400");
         printSimpleSolutions();
         assertSoluContain(1, "md1(0*),sd1(Q:2,H:0,S:1)");
         assertSoluContain("md1(Q:3,H:0,S:1),sd1(Q:1,H:0,S:1)");
@@ -274,7 +274,7 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
 
     @Test
     public void testCase1_CapacityGreaterEqual5Speed5400() {
-        inferRecommend("drive", "drive:sum.Capacity >=5 where Speed = 5400");
+        inferRecommend("drive", "drive:Sum_Capacity >=5 where Speed = 5400");
         printSimpleSolutions();
         assertSoluContain(1, "md1(0*),sd1(Q:2,H:0,S:1)");
         assertSoluContain("md1(Q:2,H:0,S:1),sd1(Q:1,H:0,S:1)");
@@ -282,14 +282,14 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
 
     @Test
     public void testCase2_CapacityGreaterEqual7Speed5400() {
-        inferRecommend("drive", "drive:sum.Capacity >=7 where Speed = 5400");
+        inferRecommend("drive", "drive:Sum_Capacity >=7 where Speed = 5400");
         printSimpleSolutions();
         assertSoluContain(1, "md1(Q:1,H:0,S:1),sd1(Q:2,H:0,S:1)");
     }
 
     @Test
     public void testCase3_QtyGreaterEqual3Speed5400() {
-        inferRecommend("drive", "drive:sum.Quantity >=3 where Speed = 5400");
+        inferRecommend("drive", "drive:Sum_Quantity >=3 where Speed = 5400");
         printSimpleSolutions();
         assertSoluContain(1, "md1(Q:1,H:0,S:1),sd1(Q:2,H:0,S:1)");
         assertSoluContain("md1(Q:2,H:0,S:1),sd1(Q:1,H:0,S:1)");
@@ -297,7 +297,7 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
 
     @Test
     public void testCase5_CapacityGreaterEqual5NoSpeedFilter() {
-        inferRecommend("drive", "drive:sum.Capacity >=5");
+        inferRecommend("drive", "drive:Sum_Capacity >=5");
         printSimpleSolutions();
         assertSoluContain(1, "md1(0*),md2(0*),md3(0*),sd1(Q:2,H:0,S:1),sd2(0*),sd3(0*)");
         // issue: sd1.Q=1,md2.Q=2 为什么没有出来
@@ -305,7 +305,7 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
 
     @Test
     public void testCase6_QuantityGreaterEqual2NoSpeedFilter() {
-        inferRecommend("drive", "drive:sum.Quantity >=2");
+        inferRecommend("drive", "drive:Sum_Quantity >=2");
         printSimpleSolutions();
         assertSoluContain(1, "md1(0*),md2(0*),md3(0*),sd1(0*),sd2(0*),sd3(Q:2,H:0,S:1)");
         assertSoluContain(2, "md1(0*),md2(0*),md3(0*),sd1(0*),sd2(Q:2,H:0,S:1),sd3(0*)");
@@ -314,7 +314,7 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
 
     @Test
     public void testCase7_QuantityGreaterEqual3NoSpeedFilter() {
-        inferRecommend("drive", "drive:sum.Quantity >=3");
+        inferRecommend("drive", "drive:Sum_Quantity >=3");
         printSimpleSolutions();
         assertSoluContain(1, "md1(Q:1,H:0,S:1),md2(0*),md3(0*),sd1(0*),sd2(0*),sd3(Q:2,H:0,S:1)");
         assertSoluContain(2, "md1(0*),md2(Q:1,H:0,S:1),md3(0*),sd1(0*),sd2(0*),sd3(Q:2,H:0,S:1)");
@@ -324,7 +324,7 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
     // 要求5400速率的固态硬盘2块
     @Test
     public void testNoSpeedRequirement() {
-        inferRecommend("drive", "drive:sum.Quantity ==2 where Speed=3000");
+        inferRecommend("drive", "drive:Sum_Quantity ==2 where Speed=3000");
         // resultAssert().assertSolutionSizeEqual(0);
     }
 }

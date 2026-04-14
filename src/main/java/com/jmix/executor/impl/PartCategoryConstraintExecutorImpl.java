@@ -48,7 +48,7 @@ public class PartCategoryConstraintExecutorImpl extends ModuleBaseConstraintExec
             log.info("Priority-orginal aparts: {}", originalCategory.getAllAtomicPartShortString());
             // 遍历所有部件约束请求，逐步过滤
             PartCategory filteredCategory = originalCategory;
-            List<IPartCategoryInput> partCategoryInputs = new ArrayList<>();
+            List<PartCategoryInputBase> partCategoryInputs = new ArrayList<>();
             for (PartConstraintReq partConstraintReq : partCategoryReq.getPartConstraintReqs()) {
                 // 一条partConstraintReq会被拆分两条规则，一条是过滤规则（根据where条件过滤），一条是约束规则（根据attrCode,
                 // attrComparator, attrValue构建约束表达式）
@@ -61,7 +61,7 @@ public class PartCategoryConstraintExecutorImpl extends ModuleBaseConstraintExec
                 if (filteredCategory.getAllAtomicPartShortString().isEmpty()) {
                     return Result.noSolution(msg);
                 }
-                PartCategoryInput partCategoryInput = PartCategoryConstraintExecutorImpl.resolvePartCategoryInput(
+                PartCategoryInput partCategoryInput = PartCategoryConstraintExecutorImpl.toPartCategoryInput(
                         filteredCategory, partConstraintReq);
                 partCategoryInputs.add(partCategoryInput);
             }
@@ -112,7 +112,7 @@ public class PartCategoryConstraintExecutorImpl extends ModuleBaseConstraintExec
      * @return 合并后的过滤分类
      */
     private PartCategory buildMergedFilteredCategory(PartCategory originalCategory,
-            List<IPartCategoryInput> partCategoryInputs) {
+            List<PartCategoryInputBase> partCategoryInputs) {
         // 实现案例
         // --drive PC
         // ----sd PC
@@ -137,7 +137,7 @@ public class PartCategoryConstraintExecutorImpl extends ModuleBaseConstraintExec
         Set<String> allPartCategoryCodes = new HashSet<>();
 
         // 收集所有约束请求的分类代码和原子部件
-        for (IPartCategoryInput ipt : partCategoryInputs) {
+        for (PartCategoryInputBase ipt : partCategoryInputs) {
             if (!(ipt instanceof PartCategoryInput)) {
                 log.warn("ipt is not PartCategoryInput, code: " + ipt.getPartCategoryCode());
                 continue;

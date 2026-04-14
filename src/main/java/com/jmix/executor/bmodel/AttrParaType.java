@@ -6,15 +6,21 @@ package com.jmix.executor.bmodel;
  * @since 2026-04-13
  */
 public enum AttrParaType {
+
     /**
      * 对每个分类实例的汇总（考虑单选和多选）
      */
-    SUM(10),
-    
+    Sum(10),
+
     /**
      * 对每个分类所有的实例值汇总，对应输入多实例
      */
-    SUMSUM(20);
+    SumSum(20),
+
+    /**
+     * 某个部件原始的值，不是汇总的
+     */
+    Org(30);
 
     private final int code;
 

@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.jmix.executor.bmodel.AttrParaType;
 import com.jmix.executor.bmodel.IPart;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartCategory;
@@ -195,7 +196,8 @@ public class PartCategoryTest {
     public void testQueryWithInstanceAttribute() {
         PartConstraintReq req = new PartConstraintReq();
         req.setPartCategoryCode("drive");
-        req.setAttrCode("sum.Capacity");
+        req.setAttrType(AttrParaType.Sum);
+        req.setAttrCode("Capacity");
         req.setAttrWhereCondition("Speed like %5400%");
 
         PartCategory result = driveCategory.filterClone(req);
@@ -232,7 +234,7 @@ public class PartCategoryTest {
     public void testQueryWithNoInstanceAttribute() {
         PartConstraintReq req = new PartConstraintReq();
         req.setPartCategoryCode("solidDrive");
-        req.setAttrCode("sum.Quantity");
+        req.setAttrCode("Quantity");
         req.setAttrWhereCondition("Speed like %5400%");
 
         PartCategory results = solidDriveCategory.filterClone(req);
@@ -260,12 +262,12 @@ public class PartCategoryTest {
      */
     @Test
     public void testParseAttribute() {
-        // 测试sum.Capacity
-        Pair<DynamicAttribute, String> result = driveCategory.parseAttribute("sum.Capacity",
+        // 测试Capacity
+        Pair<DynamicAttribute, String> result = driveCategory.parseAttribute("Sum_Capacity",
                 driveCategory.getDynAttrSchemas());
         assertNotNull(result, "Parse result should not be null");
         assertEquals("Capacity", result.getFirst().getCode(), "Attribute code should be Capacity");
-        assertEquals("sum", result.getSecond(), "Function should be sum");
+        assertEquals("Sum", result.getSecond(), "Function should be sum");
 
         // 测试普通属性
         Pair<DynamicAttribute, String> result2 = driveCategory.parseAttribute("Speed",

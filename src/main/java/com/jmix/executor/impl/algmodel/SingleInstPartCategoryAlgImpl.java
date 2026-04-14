@@ -4,8 +4,8 @@ import com.jmix.executor.bmodel.IModule;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartCategory;
 import com.jmix.executor.cmodel.ModuleInst;
-import com.jmix.executor.impl.IPartCategoryInput;
 import com.jmix.executor.impl.PartCategoryInput;
+import com.jmix.executor.impl.PartCategoryInputBase;
 import com.jmix.executor.southinf.IModuleAlg;
 
 import lombok.extern.slf4j.Slf4j;
@@ -33,11 +33,12 @@ public class SingleInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements 
     }
 
     @Override
-    protected void initData(AlgCPModel model, IModule module, IPartCategoryInput partCategoryInput,
+    protected void initData(AlgCPModel model, IModule module, PartCategoryInputBase partCategoryInput,
             IModuleAlg moduleAlgFile) {
         PartCategoryInput input = (PartCategoryInput) partCategoryInput;
         this.instId = input.getInstId();
         super.initData(model, module, partCategoryInput, moduleAlgFile);
+        newAttrParaVar(input.getSumAttrParas());
     }
 
     /**

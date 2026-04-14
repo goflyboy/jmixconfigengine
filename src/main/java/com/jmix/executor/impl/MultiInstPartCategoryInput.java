@@ -1,5 +1,6 @@
 package com.jmix.executor.impl;
 
+import com.jmix.executor.bmodel.AttrPara;
 import com.jmix.executor.bmodel.IModule;
 import com.jmix.executor.bmodel.IPart;
 import com.jmix.executor.bmodel.Part;
@@ -25,10 +26,13 @@ import java.util.stream.Collectors;
  * @since 2025-01-XX
  */
 @Data
-public class MultiInstPartCategoryInput implements IPartCategoryInput, IModule {
+public class MultiInstPartCategoryInput extends PartCategoryInputBase implements IModule {
+
     private List<PartCategoryInput> partCategoryInputs = new ArrayList<>();
+
     private List<Rule> allInstRules = new ArrayList<>();
-    private List<Para> sumsumAttrParas = new ArrayList<>();
+
+    private List<AttrPara> sumSumAttrParas = new ArrayList<>();
 
     public List<PartCategoryInput> getPartCategoryInputs() {
         return partCategoryInputs;
@@ -40,12 +44,12 @@ public class MultiInstPartCategoryInput implements IPartCategoryInput, IModule {
 
     @Override
     public List<Para> getParas() {
-        return sumsumAttrParas;
+        throw new UnsupportedOperationException("Unimplemented method 'getParas'");
     }
 
     @Override
     public Optional<Para> getPara(String code) {
-        return sumsumAttrParas.stream().filter(para -> para.getCode().equals(code)).findFirst();
+        throw new UnsupportedOperationException("Unimplemented method 'getPara'");
     }
 
     @Override

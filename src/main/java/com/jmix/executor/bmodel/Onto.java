@@ -86,6 +86,13 @@ public class Onto extends ProgrammableObject<Integer> implements IOnto {
         // 其他初始化逻辑将在Module的init方法中实现
     }
 
+    @JsonIgnore
+    public List<AttrPara> getAttrParas(AttrParaType type) {
+        return attrParas.stream()
+                .filter(attrPara -> attrPara.getType() == type)
+                .collect(Collectors.toList());
+    }
+
     /**
      * 初始化短代码
      */

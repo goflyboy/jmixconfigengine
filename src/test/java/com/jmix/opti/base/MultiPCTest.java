@@ -213,7 +213,7 @@ public class MultiPCTest extends ModuleScenarioTestBase {
     @Test
     public void mixInCompatibleLeftYRightY() {
         // Natural-Input: 要求5400速率的硬盘容量>=5T, 要求4核的CPU的总内存>=512G
-        // DSL-Input: drive:sum.Capacity >=5 where Speed=5400, cpu:sum.Memory >=512
+        // DSL-Input: drive:Sum_Capacity >=5 where Speed=5400, cpu:Sum_Memory >=512
         // where CoreNum=4
         // Struct-Input: req1F,req1C(sd1.Q*3 + md1*1 >=5), req2F,req2C(cpu2.Q*256 >=512)
         // 测试点：
@@ -232,7 +232,7 @@ public class MultiPCTest extends ModuleScenarioTestBase {
         // ----1. "4核的CPU的总内存>=512G" -->cpu2.Q =2
         // ---LogicAB1(排除sd1) + "5400速率"(sd1,md1),只有md1，满足要求
         // --根据req1C,的md1.Q = 5
-        inferRecommendModule("drive:sum.Capacity >=5 where Speed=5400", "cpu:sum.Memory >=512 where CoreNum=4");
+        inferRecommendModule("drive:Sum_Capacity >=5 where Speed=5400", "cpu:Sum_Memory >=512 where CoreNum=4");
         printSimpleSolutions();
         assertSoluContain(1, "cpu2(Q:2,H:0,S:1),md1(Q:5,H:0,S:1),sd1(0*)");
         assertSoluContain("cpu2(Q:20,H:0,S:1),md1(Q:5,H:0,S:1),sd1(0*)");
@@ -242,7 +242,7 @@ public class MultiPCTest extends ModuleScenarioTestBase {
     public void mixInCompatibleLeftYRightN() {
         // Natural-Input: 要求机械硬盘容量>=5T, 要求4核的CPU的总内存>=512G
 
-        inferRecommendModule("drive:sum.Capacity >=5 where Type=md", "cpu:sum.Memory >=512 where CoreNum=4");
+        inferRecommendModule("drive:Sum_Capacity >=5 where Type=md", "cpu:Sum_Memory >=512 where CoreNum=4");
         printSimpleSolutions();
         assertSoluContain(1, "cpu2(Q:20,H:0,S:1),md1(0*),md2(Q:1,H:0,S:1),md3(Q:1,H:0,S:1)");
         // TODO: 怎么让cpu1从1开始

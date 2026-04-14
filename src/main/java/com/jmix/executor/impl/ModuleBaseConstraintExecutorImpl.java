@@ -64,7 +64,7 @@ public abstract class ModuleBaseConstraintExecutorImpl {
      */
     protected SolverResult solveWithOutPriorityConstraints(IModule filteredModuleBase,
             InferPartCategoryReq partCategoryReq,
-            List<IPartCategoryInput> partCategoryInputs) {
+            List<PartCategoryInputBase> partCategoryInputs) {
         log.info("no Priority-process starting........");
         return invokerSolver(filteredModuleBase, partCategoryReq, partCategoryInputs, null);
     }
@@ -74,7 +74,7 @@ public abstract class ModuleBaseConstraintExecutorImpl {
      */
     protected SolverResult solveWithPriorityConstraints(
             IModule filteredModuleBase, InferPartCategoryReq partCategoryReq,
-            List<IPartCategoryInput> partCategoryInputs) {
+            List<PartCategoryInputBase> partCategoryInputs) {
         log.info("Priority-process pconstraint-step1 max/min starting........");
         // 步骤1：对每个优先级规则优化求解最优解 minimize(objecFun)
         SolverResult result = invokerSolver(filteredModuleBase, partCategoryReq, partCategoryInputs, null);
@@ -189,7 +189,7 @@ public abstract class ModuleBaseConstraintExecutorImpl {
      */
     protected SolverResult invokerSolver(
             IModule filteredModuleBase, InferPartCategoryReq partCategoryReq,
-            List<IPartCategoryInput> partCategoryInputs, Double adjustOptimalValue) {
+            List<PartCategoryInputBase> partCategoryInputs, Double adjustOptimalValue) {
         log.info("invokerSolver starting........");
 
         // 步骤1：对每个优先级规则优化求解最优解
@@ -274,7 +274,7 @@ public abstract class ModuleBaseConstraintExecutorImpl {
      * @param filteredCategory  过滤后的部件分类
      * @param partConstraintReq 部件约束请求
      */
-    public static PartCategoryInput resolvePartCategoryInput(PartCategory filteredCategory,
+    public static PartCategoryInput toPartCategoryInput(PartCategory filteredCategory,
             PartConstraintReq partConstraintReq) {
         // 解析属性
         Pair<DynamicAttribute, String> result = filteredCategory.parseAttribute(
@@ -287,12 +287,24 @@ public abstract class ModuleBaseConstraintExecutorImpl {
 
         // 根据partConstraintReq构造IPartCategoryInput
         PartCategoryInput fromReq = new PartCategoryInput();
-        fromReq.setSumAttrCode(result.getFirst().getCode());
-        fromReq.setComparator(partConstraintReq.getAttrComparator());
-        fromReq.setLeftValue(Integer.parseInt(partConstraintReq.getAttrValue()));
-        fromReq.setOrgReq(partConstraintReq);
+        setPartCategoryInputBase(fromReq, partConstraintReq);
         fromReq.setFilteredCategory(filteredCategory);
         return fromReq;
+    }
+
+    /**
+     * 设置PartCategoryInputBase
+     * 
+     * @param partCategoryInput
+     * @param partConstraintReq
+     */
+    public static void setPartCategoryInputBase(PartCategoryInputBase partCategoryInput,
+            PartConstraintReq partConstraintReq) {
+        partCategoryInput.setSumAttrCode(partConstraintReq.getAttrCode());
+        partCategoryInput.setAttrType(partConstraintReq.getAttrType());
+        partCategoryInput.setComparator(partConstraintReq.getAttrComparator());
+        partCategoryInput.setLeftValue(Integer.parseInt(partConstraintReq.getAttrValue()));
+        partCategoryInput.setOrgReq(partConstraintReq);
     }
 
     /**

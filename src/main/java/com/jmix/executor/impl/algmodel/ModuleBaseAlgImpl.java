@@ -1,8 +1,8 @@
 package com.jmix.executor.impl.algmodel;
 
 import com.jmix.executor.bmodel.AttrPara;
+import com.jmix.executor.bmodel.AttrParaType;
 import com.jmix.executor.bmodel.IModule;
-import com.jmix.executor.bmodel.ModuleBase;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartUtils;
 import com.jmix.executor.bmodel.attr.DynamicAttributerOption;
@@ -16,8 +16,8 @@ import com.jmix.executor.bmodel.logic.RuleTypeConstants;
 import com.jmix.executor.bmodel.para.Para;
 import com.jmix.executor.bmodel.para.ParaType;
 import com.jmix.executor.cmodel.ModuleInst;
-import com.jmix.executor.impl.IPartCategoryInput;
 import com.jmix.executor.impl.PartCategoryInput;
+import com.jmix.executor.impl.PartCategoryInputBase;
 import com.jmix.executor.impl.PriorityConstraint;
 import com.jmix.executor.impl.util.FilterExpressionExecutor;
 import com.jmix.executor.model.AlgLoaderException;
@@ -180,20 +180,20 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      *
      * @param partConstraints 部件约束列表，可以为null
      */
-    protected void setInputVariable(IPartCategoryInput partCategoryInput) {
+    protected void setInputVariable(PartCategoryInputBase partCategoryInput) {
         if (null == partCategoryInput) {
             return;
         }
-        List<IPartCategoryInput> partCategoryInputs = new ArrayList<>();
+        List<PartCategoryInputBase> partCategoryInputs = new ArrayList<>();
         partCategoryInputs.add(partCategoryInput);
         setInputVariables(partCategoryInputs);
     }
 
-    protected void setInputVariables(List<IPartCategoryInput> partConstraints) {
+    protected void setInputVariables(List<PartCategoryInputBase> partConstraints) {
         if (partConstraints == null || partConstraints.isEmpty()) {
             return;
         }
-        for (IPartCategoryInput ipt : partConstraints) {
+        for (PartCategoryInputBase ipt : partConstraints) {
             if (ipt == null) {
                 continue;
             }
@@ -205,20 +205,15 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
             PartCategoryInput pt = (PartCategoryInput) ipt;
             // 多实例后，不支持这种方式，ontoCode = pt.getFilteredCategory().getCode(); String paraCode =
             // ontoCode + "Sum" + pt.getSumAttrCode();
-            String paraCode = "Sum" + pt.getSumAttrCode();
+
+            String paraCode = AttrParaType.Sum.name() + AttrPara.CODE_SEPARATOR + pt.getSumAttrCode();
 
             ParaVar pVar = this.getParaVar(paraCode);
             if (pVar == null) {
-                Para para = new Para(); // 没有创建，则动态创建这个变量
-                para.setCode(paraCode);
-                para.setAssignType(AssignType.INPUT);
-                // 从对应的属性里面获取数据issue（min，max等）
-                para.setParaType(ParaType.INTEGER);
-                ModuleBase tempModule = (ModuleBase) module;
-                tempModule.addPara(para);
-                pVar = initParaVar(para);
-                paraMap.put(paraCode, pVar);
-                log.info("Dynamic created para: {}", para.getCode());
+                pVar = newAttrParaVar(paraCode);
+                log.info("Dynamic created para: {}", paraCode);
+            } else {
+                log.info("Para already exists for paraCode: {}, skipping", paraCode);
             }
 
             pVar.setInputValue(pt.getLeftValue());
@@ -474,16 +469,6 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
     }
 
     /**
-     * 初始化Module后
-     * 
-     * @param module
-     * @param moduleAlg
-     */
-    protected void afterInitParas(IModule module, IModuleAlg moduleAlg) {
-
-    }
-
-    /**
      * 初始化所有变量（paras和parts）
      * 遍历module的paras，创建ParaVar并放到paraMap
      * 遍历module的parts，创建PartVar并放到partMap
@@ -501,7 +486,6 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
                 paraMap.put(para.getCode(), paraVar);
             }
         }
-        afterInitParas(this.module, this);
         log.info("Initialized {} para variables", paraMap.size());
 
         // 初始化所有parts（原子部件）
@@ -512,11 +496,6 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
             }
         }
         log.info("Initialized {} part variables", partMap.size());
-
-        // 初始化AttrParas，创建对应的Para和ParaVar
-        if (module instanceof ModuleBase) {
-            newAttrParaVar(((ModuleBase) module).getAttrParas());
-        }
     }
 
     /**
@@ -542,24 +521,25 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         if (attrPara == null || attrPara.getAttrCode() == null) {
             return;
         }
-        String paraCode = attrPara.getAttrCode();
+        String paraCode = attrPara.getType().name() + AttrPara.CODE_SEPARATOR + attrPara.getAttrCode();
+        newAttrParaVar(paraCode);
+    }
 
-        // 如果已存在则跳过
+    protected ParaVar newAttrParaVar(String paraCode) {
         if (paraMap.containsKey(paraCode)) {
-            log.info("Para already exists for attrCode: {}, skipping", paraCode);
-            return;
+            log.error("Para already exists for attrCode: {}, skipping", paraCode);
+            throw new AlgLoaderException("Para already exists for attrCode: " + paraCode);
         }
-
         Para para = new Para();
         para.setCode(paraCode);
         para.setAssignType(AssignType.INPUT);
         // 从对应的属性里面获取数据issue（min，max等）
         para.setParaType(ParaType.INTEGER);
-        ModuleBase tempModule = (ModuleBase) module;
-        tempModule.addPara(para);
+        // ModuleBase tempModule = (ModuleBase) module;
+        // tempModule.addPara(para);
         ParaVar pVar = initParaVar(para);
         paraMap.put(paraCode, pVar);
-        log.info("Dynamic created para for AttrPara: {}", paraCode);
+        return pVar;
     }
 
     /**
@@ -804,7 +784,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
 
     }
 
-    protected void initData(AlgCPModel model, IModule module, IPartCategoryInput partCategoryInput,
+    protected void initData(AlgCPModel model, IModule module, PartCategoryInputBase partCategoryInput,
             IModuleAlg moduleAlgFile) {
         // Module级别
         this.model = model;
@@ -819,11 +799,16 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
 
         // 设置输入变量
         setInputVariable(partCategoryInput);
+        afterSetInputVariable();
 
         // 将变量写回字段
         writeBackToFields(moduleAlgFile);
 
         log.info("ModuleBaseAlgImpl initRules {}", module.getClass().getSimpleName());
+    }
+
+    protected void afterSetInputVariable() {
+        // 方便扩展，子类可以重写
     }
 
     public void initRules(Map<String, Method> allRuleMethods, IModuleAlg moduleAlgFile, CalcStage calcStage) {
@@ -1024,7 +1009,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
     }
 
     public ParaVar getSumSumParaByAttr(String attrCode) {
-        ParaVar paraVar = paraMap.get(attrCode);
+        ParaVar paraVar = paraMap.get(AttrParaType.SumSum.name() + AttrPara.CODE_SEPARATOR + attrCode);
         if (paraVar == null) {
             log.error("ParaVar not found for attrCode: {}", attrCode);
             throw new AlgLoaderException("ParaVar not found for attrCode: " + attrCode);
@@ -1032,8 +1017,13 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         return paraVar;
     }
 
+    public ParaVar getSumParaByAttrInternal(String attrCode) {
+        ParaVar paraVar = paraMap.get(AttrParaType.Sum.name() + AttrPara.CODE_SEPARATOR + attrCode);
+        return paraVar;
+    }
+
     public ParaVar getSumParaByAttr(String attrCode) {
-        ParaVar paraVar = paraMap.get(attrCode);
+        ParaVar paraVar = getSumParaByAttrInternal(attrCode);
         if (paraVar == null) {
             log.error("ParaVar not found for attrCode: {}", attrCode);
             throw new AlgLoaderException("ParaVar not found for attrCode: " + attrCode);

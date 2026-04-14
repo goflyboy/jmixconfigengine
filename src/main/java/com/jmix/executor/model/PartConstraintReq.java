@@ -1,5 +1,7 @@
 package com.jmix.executor.model;
 
+import com.jmix.executor.bmodel.AttrParaType;
+
 import lombok.Data;
 
 /**
@@ -10,6 +12,10 @@ import lombok.Data;
  */
 @Data
 public class PartConstraintReq {
+    /**
+     * 属性类型
+     */
+    private AttrParaType attrType = AttrParaType.Sum;
 
     /**
      * 属性代码
@@ -40,7 +46,7 @@ public class PartConstraintReq {
      * 生成短字符串表示
      * 格式：partCategoryCode:attrCode attrComparator attrValue where
      * attrWhereCondition
-     * 示例："drive:sum.Capacity >=5 where Speed like %5400%"
+     * 示例："drive:Sum_Capacity >=5 where Speed like %5400%"
      * 
      * @return 短字符串表示
      */

@@ -1,12 +1,13 @@
 package com.jmix.executor.impl.algmodel;
 
+import com.jmix.executor.bmodel.AttrPara;
 import com.jmix.executor.bmodel.IModule;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.base.Pair;
 import com.jmix.executor.bmodel.logic.CalcStage;
-import com.jmix.executor.impl.IPartCategoryInput;
 import com.jmix.executor.impl.MultiInstPartCategoryInput;
 import com.jmix.executor.impl.PartCategoryInput;
+import com.jmix.executor.impl.PartCategoryInputBase;
 import com.jmix.executor.southinf.IModuleAlg;
 
 import lombok.extern.slf4j.Slf4j;
@@ -48,6 +49,51 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
         return getMultiInstPartCategoryInput().getPartCategoryInputs();
     }
 
+    protected void initData(AlgCPModel model, IModule module, PartCategoryInputBase partCategoryInput,
+            IModuleAlg moduleAlgFile) {
+        super.initData(model, module, partCategoryInput, moduleAlgFile);
+        MultiInstPartCategoryInput multiInstPartCategoryInput = (MultiInstPartCategoryInput) partCategoryInput;
+        newAttrParaVar(multiInstPartCategoryInput.getSumSumAttrParas());
+    }
+
+    protected void afterSetInputVariable() {
+        // 设置 总总 和 总变量的关系
+        List<AttrPara> sumSumAttrParas = getMultiInstPartCategoryInput().getSumSumAttrParas();
+        for (AttrPara attrPara : sumSumAttrParas) {
+            // 有一个已经输入，则汇总也设置数据
+            // 如果汇总已经输入，一输入的为准
+            // 总总参，和总参的关系，后续支持写逻辑（多个总总之间issue, 总参和下面的变量的关系）
+            Pair<Boolean, Integer> hasSetSumPara = hasSetSumPara(attrPara);
+            if (hasSetSumPara.getFirst()) {
+                ParaVar sumSumParaVar = getSumSumParaByAttr(attrPara.getAttrCode());
+                if (!sumSumParaVar.getHasInputed()) {
+                    sumSumParaVar.setInputValue(hasSetSumPara.getSecond());
+                }
+            }
+        }
+    }
+
+    // 判断本总总参在其子类是否已经设置, 有一个设置了，则为设置
+    private Pair<Boolean, Integer> hasSetSumPara(AttrPara sumSumPara) {
+        boolean hasSet = false;
+        int sumSumValue = 0;
+        ParaVar pv = null;
+        for (SingleInstPartCategoryAlgImpl partCategoryAlg : getPartCategoryInsts()) {
+            pv = partCategoryAlg.getSumParaByAttrInternal(sumSumPara.getAttrCode());
+            if (pv != null && pv.getHasInputed()) {
+                hasSet = true;
+                sumSumValue += pv.getInputValue();
+                break;
+            } else {
+                // throw exception,log error
+                log.warn("SumSumPara " + sumSumPara.getAttrCode()
+                        + " is not set or not inputed in the child PartCategoryAlg");
+                continue;
+            }
+        }
+        return new Pair<>(hasSet, sumSumValue);
+    }
+
     @Override
     protected void initAll(IModuleAlg moduleAlgFile) {
         for (PartCategoryInput partCategoryInput : this.getPartCategoryInputs()) {
@@ -68,7 +114,7 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
                 calcStage);
     }
 
-    protected void setInputVariable(IPartCategoryInput partCategoryInput) {
+    protected void setInputVariable(PartCategoryInputBase partCategoryInput) {
         // 在initAll的initData已经完成了初始化，这里不需要
     }
 
@@ -113,7 +159,7 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
     }
 
     public ParaVar getSumSumParaByAttr(String attrCode) {
-        throw new UnsupportedOperationException("Unimplemented method 'getSumSumParaByAttr'");
+        return super.getSumSumParaByAttr(attrCode);
     }
 
     public ParaVar getSumParaByAttr(String attrCode) {

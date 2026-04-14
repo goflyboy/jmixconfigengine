@@ -10,12 +10,16 @@ import lombok.Data;
 @Data
 public class AttrPara {
     /**
+     * 属性参数编码分隔符
+     */
+    public static final String CODE_SEPARATOR = "_";
+    /**
      * 属性编码
      */
     private String attrCode;
-    
+
     /**
      * 参数类型，默认为SUM
      */
-    private AttrParaType type = AttrParaType.SUM;
+    private AttrParaType type = AttrParaType.Sum;
 }

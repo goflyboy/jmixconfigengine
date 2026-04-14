@@ -7,8 +7,8 @@ import com.jmix.executor.bmodel.PartCategory;
 import com.jmix.executor.bmodel.PartUtils;
 import com.jmix.executor.bmodel.base.Pair;
 import com.jmix.executor.bmodel.logic.CalcStage;
-import com.jmix.executor.impl.IPartCategoryInput;
 import com.jmix.executor.impl.MultiInstPartCategoryInput;
+import com.jmix.executor.impl.PartCategoryInputBase;
 import com.jmix.executor.impl.util.FilterExpressionExecutor;
 import com.jmix.executor.model.AlgLoaderException;
 import com.jmix.executor.southinf.IModuleAlg;
@@ -53,9 +53,10 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
      * @param partCategoryInputs 来自请求的部件约束列表
      */
     public void init(AlgCPModel model, IModule module,
-            List<IPartCategoryInput> partCategoryInputs) {
+            List<PartCategoryInputBase> partCategoryInputs) {
         initData(model, module, partCategoryInputs, this);
 
+        afterInitData(this.module, this);
         // preCalculate
         preCalculate();
 
@@ -63,6 +64,16 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
         initRules(this, CalcStage.MID);
 
         // postCalculate
+    }
+
+    /**
+     * 初始化Module后
+     * 
+     * @param module
+     * @param moduleAlg
+     */
+    protected void afterInitData(IModule module, IModuleAlg moduleAlg) {
+
     }
 
     private void preCalculate() {
@@ -74,14 +85,14 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
         initRules(this, CalcStage.PRE);
     }
 
-    protected void initData(AlgCPModel model, IModule module, List<IPartCategoryInput> partCategoryInputs,
+    protected void initData(AlgCPModel model, IModule module, List<PartCategoryInputBase> partCategoryInputs,
             IModuleAlg moduleAlgFile) {
         // 调用基类初始化
         super.initData(model, module, null, this);
 
         // 按partCategoryCode对partCategoryInputs进行分组
-        Map<String, IPartCategoryInput> partConstraintFromReqMap = new LinkedHashMap<>();
-        for (IPartCategoryInput partCategoryInput : partCategoryInputs) {
+        Map<String, PartCategoryInputBase> partConstraintFromReqMap = new LinkedHashMap<>();
+        for (PartCategoryInputBase partCategoryInput : partCategoryInputs) {
             partConstraintFromReqMap.put(partCategoryInput.getPartCategoryCode(), partCategoryInput);
         }
 
@@ -90,7 +101,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
             Module bModule = (Module) module;
             for (PartCategory partCategory : bModule.getPartCategorys()) {
                 String categoryCode = partCategory.getCode();
-                IPartCategoryInput pc4partCategoryInput = partConstraintFromReqMap
+                PartCategoryInputBase pc4partCategoryInput = partConstraintFromReqMap
                         .get(categoryCode);
                 ModuleBaseAlgImpl pcAlg = null;
                 if (partCategory.isSupportMultiInst() && pc4partCategoryInput instanceof MultiInstPartCategoryInput) {

@@ -269,12 +269,12 @@ public class PartCategory extends ModuleBase implements IModule, IPart {
      */
     @JsonIgnore
     public Pair<DynamicAttribute, String> parseAttribute(String orgAttrCode, List<DynamicAttribute> dynAttrSchemas) {
-        // 解析逻辑，例如："sum.Capacity" -> DynamicAttribute{Capacity}, "sum"
+        // 解析逻辑，例如："Sum_Capacity" -> DynamicAttribute{Capacity}, "Sum"
         String funPrefix = "";
         String attrCode = orgAttrCode;
 
-        if (orgAttrCode.contains(".")) {
-            String[] parts = orgAttrCode.split("\\.", 2);
+        if (orgAttrCode.contains(AttrPara.CODE_SEPARATOR)) {
+            String[] parts = orgAttrCode.split(AttrPara.CODE_SEPARATOR, 2);
             funPrefix = parts[0];
             attrCode = parts[1];
         }

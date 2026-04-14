@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jmix.executor.ModuleConstraintExecutor;
+import com.jmix.executor.bmodel.AttrPara;
+import com.jmix.executor.bmodel.AttrParaType;
 import com.jmix.executor.bmodel.IPart;
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.para.Para;
@@ -616,7 +618,7 @@ public abstract class ModuleScenarioTestBase {
      * 将字符串约束请求转换为PartConstraintReq列表
      *
      * @param partCategory 部件类别
-     * @param strReqs      字符串约束请求数组，格式如："sd:sum.Quantity ==2 where Speed=5400"
+     * @param strReqs      字符串约束请求数组，格式如："sd:Sum_Quantity ==2 where Speed=5400"
      * @return PartConstraintReq列表
      */
     protected List<PartConstraintReq> toPartConstraintReqs(String partCategory, String... strReqs) {
@@ -626,7 +628,7 @@ public abstract class ModuleScenarioTestBase {
             PartConstraintReq req = new PartConstraintReq();
 
             // 解析格式：reqPartCategory:attrCode comparator value where condition
-            // 示例："sd:sum.Quantity ==2 where Speed=5400"
+            // 示例："sd:Sum_Quantity ==2 where Speed=5400"
             String[] categoryParts = strReq.split(":", 2);
             String reqPartCategory;
             String remainingStr;
@@ -651,11 +653,20 @@ public abstract class ModuleScenarioTestBase {
             // 解析属性表达式：attrCode comparator value
             String attrExpr = parts[0].trim();
             // 使用正则表达式解析：支持==, !=, <, >, <=, >=等比较符
-            Pattern pattern = java.util.regex.Pattern.compile("(.+?)\\s*(==|!=|<=|>=|<|>)\\s*(.+)");
+            Pattern pattern = Pattern
+                    .compile("([A-Za-z_][A-Za-z0-9_]*)\\s*(==|!=|<=|>=|<|>)\\s*(\\d+)");
+
             Matcher matcher = pattern.matcher(attrExpr);
 
             if (matcher.matches()) {
-                req.setAttrCode(matcher.group(1).trim());
+                String mergedAttrCode = matcher.group(1).trim();
+                String[] mergedParts = mergedAttrCode.split(AttrPara.CODE_SEPARATOR);
+                if (mergedParts.length == 2) {
+                    req.setAttrType(AttrParaType.valueOf(mergedParts[0]));
+                    req.setAttrCode(mergedParts[1]);
+                } else {
+                    throw new IllegalArgumentException("Invalid attribute expression format: " + attrExpr);
+                }
                 req.setAttrComparator(matcher.group(2).trim());
                 req.setAttrValue(matcher.group(3).trim());
             } else {
