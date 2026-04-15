@@ -23,7 +23,6 @@ import com.jmix.executor.impl.util.ModuleUtils;
 import com.jmix.executor.impl.util.ReqUtils;
 import com.jmix.executor.model.AlgExecutorException;
 import com.jmix.executor.model.AlgLoaderException;
-import com.jmix.executor.model.AttrFunConstant;
 import com.jmix.executor.model.ConstraintConfig;
 import com.jmix.executor.model.ExtensibleProcess;
 import com.jmix.executor.model.InferParasPostProcess;
@@ -144,21 +143,24 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
      */
     public Result<List<ModuleInst>> processProduct(Module startModule, InferPartCategoryReq partCategoryReq) {
         try {
+            ModuleInput moduleInput = new ModuleInput();
+
             Map<String, List<PartConstraintReq>> partConstraintReqMap = normalizePartConstraint(
                     partCategoryReq.getPartConstraintReqs(), startModule);
             // 查找原始部件分类
             Pair<Module, List<PartCategoryInputBase>> filterResult = filterClone(startModule, partConstraintReqMap);
+            moduleInput.setPartCategoryInputs(filterResult.getSecond());
+            moduleInput.setPartCategoryReq(partCategoryReq);
+
             Module filterModule = filterResult.getFirst();
             log.info("Priority-orignal module: {}", ModuleUtils.toShortString(startModule));
             log.info("Priority-filter module: {}", ModuleUtils.toShortString(filterModule));
-            List<PartCategoryInputBase> partCategoryInputs = filterResult.getSecond();
             SolverResult sr = null;
             // 检查是否有优先级规则，如果有则使用分级求解
             if (filterModule.hasAllPriorityRule()) {
-                sr = solveWithPriorityConstraints(filterModule,
-                        partCategoryReq, partCategoryInputs);
+                sr = solveWithPriorityConstraints(filterModule, moduleInput);
             } else {
-                sr = solveWithOutPriorityConstraints(filterModule, partCategoryReq, partCategoryInputs);
+                sr = solveWithOutPriorityConstraints(filterModule, moduleInput);
             }
             return Result.success(sr.getSolutions());
 
@@ -606,16 +608,17 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
             Pair<DynamicAttribute, String> result = partCategory.parseAttribute(partConstraintReq.getAttrCode(),
                     partCategory.getDynAttrSchemas());
 
-            // 根据result.second构建约束表达式
-            if (AttrFunConstant.FUN_PREFIX_SUM.equals(result.getSecond())) {
-                PartCategoryInput partCategoryInput = new PartCategoryInput();
-                partCategoryInput.setSumAttrCode(result.getFirst().getCode());
-                partCategoryInput.setComparator(partConstraintReq.getAttrComparator());
-                partCategoryInput.setLeftValue(Integer.parseInt(partConstraintReq.getAttrValue()));
-                partCategoryInput.setOrgReq(partConstraintReq);
-                alg.sumFunConstraint(filterParts, partCategoryInput);
-                alg.setPartUnSelected(unFilterParts);
-            }
+            // // 根据result.second构建约束表达式
+            // if (AttrFunConstant.FUN_PREFIX_SUM.equals(result.getSecond())) {
+            // PartCategoryInput partCategoryInput = new PartCategoryInput();
+            // partCategoryInput.setSumAttrCode(result.getFirst().getCode());
+            // partCategoryInput.setComparator(partConstraintReq.getAttrComparator());
+            // partCategoryInput.setLeftValue(Integer.parseInt(partConstraintReq.getAttrValue()));
+            // partCategoryInput.setOrgReq(partConstraintReq);
+            // alg.sumFunConstraint(filterParts, partCategoryInput);
+            // alg.setPartUnSelected(unFilterParts);
+            // }
+            throw new UnsupportedOperationException("Not implemented");
         }
     }
 

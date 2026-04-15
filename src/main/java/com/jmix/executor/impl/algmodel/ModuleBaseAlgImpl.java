@@ -14,7 +14,7 @@ import com.jmix.executor.bmodel.logic.Rule;
 import com.jmix.executor.bmodel.para.Para;
 import com.jmix.executor.bmodel.para.ParaType;
 import com.jmix.executor.cmodel.ModuleInst;
-import com.jmix.executor.impl.PartCategoryInput;
+import com.jmix.executor.impl.IModuleInput;
 import com.jmix.executor.impl.PartCategoryInputBase;
 import com.jmix.executor.impl.PriorityConstraint;
 import com.jmix.executor.impl.util.FilterExpressionExecutor;
@@ -31,6 +31,8 @@ import com.google.ortools.util.Domain;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.logging.log4j.util.Strings;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -110,6 +112,11 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
     protected ModuleBaseAlgImpl currentModuleAlg;
 
     /**
+     * 当前部件约束
+     */
+    protected IModuleInput moduleInput;
+
+    /**
      * 获取实例ID
      * 
      * @return 实例ID
@@ -134,47 +141,37 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      *
      * @param partConstraints 部件约束列表，可以为null
      */
-    protected void setInputVariable(PartCategoryInputBase partCategoryInput) {
+    protected void setPartCategoryInput(PartCategoryInputBase partCategoryInput) {
         if (null == partCategoryInput) {
             return;
         }
-        List<PartCategoryInputBase> partCategoryInputs = new ArrayList<>();
-        partCategoryInputs.add(partCategoryInput);
-        setInputVariables(partCategoryInputs);
+        setPartCategoryInputVariales(partCategoryInput);
+        if (Strings.isNotEmpty(partCategoryInput.getComparator())) {
+            model.addRuleSeperator("input_constraint_" + partCategoryInput.getPartCategoryCode() + this.getInstId());
+            sumFunConstraint(this, partCategoryInput);
+        }
     }
 
-    protected void setInputVariables(List<PartCategoryInputBase> partConstraints) {
-        if (partConstraints == null || partConstraints.isEmpty()) {
+    protected void setPartCategoryInputVariales(PartCategoryInputBase ipt) {
+        if (!Strings.isNotEmpty(ipt.getSumAttrCode())) {
             return;
         }
-        for (PartCategoryInputBase ipt : partConstraints) {
-            if (ipt == null) {
-                continue;
-            }
-            if (!(ipt instanceof PartCategoryInput)) {
-                log.error(null,
-                        new AlgLoaderException("ipt is not PartCategoryInput, code: " + ipt.getPartCategoryCode()));
-                throw new AlgLoaderException("ipt is not PartCategoryInput, code: " + ipt.getPartCategoryCode());
-            }
-            PartCategoryInput pt = (PartCategoryInput) ipt;
-            // 多实例后，不支持这种方式，ontoCode = pt.getFilteredCategory().getCode(); String paraCode =
-            // ontoCode + "Sum" + pt.getSumAttrCode();
+        // 多实例后，不支持这种方式，ontoCode = pt.getFilteredCategory().getCode(); String paraCode =
+        // ontoCode + "Sum" + pt.getSumAttrCode();
+        String paraCode = AttrParaType.Sum.name() + AttrPara.CODE_SEPARATOR + ipt.getSumAttrCode();
 
-            String paraCode = AttrParaType.Sum.name() + AttrPara.CODE_SEPARATOR + pt.getSumAttrCode();
-
-            ParaVar pVar = this.getParaVar(paraCode);
-            if (pVar == null) {
-                pVar = newAttrParaVar(paraCode);
-                log.info("Dynamic created para: {}", paraCode);
-            } else {
-                log.info("Para already exists for paraCode: {}, skipping", paraCode);
-            }
-
-            pVar.setInputValue(pt.getLeftValue());
-            pVar.setIsHasInputed(Boolean.TRUE);
-            log.info("Set input variable {} = {}", paraCode, pt.getLeftValue());
-
+        ParaVar pVar = this.getParaVar(paraCode);
+        if (pVar == null) {
+            pVar = newAttrParaVar(paraCode);
+            log.info("Dynamic created para: {}", paraCode);
+        } else {
+            log.info("Para already exists for paraCode: {}, skipping", paraCode);
         }
+
+        pVar.setInputValue(ipt.getLeftValue());
+        pVar.setIsHasInputed(Boolean.TRUE);
+        log.info("Set input variable {} = {}", paraCode, ipt.getLeftValue());
+
     }
 
     /**
@@ -210,28 +207,6 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
             model.addEquality(partVar.getIsHidden(), 0);
         }
     }
-
-    // /**
-    // * 构建优先级约束的表达式字符串和模板
-    // *
-    // * @param pConstraint 优先级约束对象
-    // * @param attrCode 属性代码
-    // * @param varName 变量名称（"S" 或 "Q"）
-    // * @param varGetter 从PartVar获取LinearArgument的函数（如getIsSelected或getQty）
-    // * @param atomicParts 原子部件列表
-    // * @return 构建的AlgCPLinearExpr表达式
-    // */
-    // protected PartAlgCPLinearExpr
-    // buildPriorityConstraintExpressions(PriorityConstraint pConstraint, String
-    // attrCode,
-    // String varName, Function<PartVar, LinearArgument> varGetter, List<PartVar>
-    // partVars) {
-    // PartAlgCPLinearExpr algExpr = buildSumExpr(attrCode, varName, varGetter,
-    // partVars);
-    // // 设置表达式字符串和AlgCPLinearExpr
-    // pConstraint.setExpr(algExpr);
-    // return algExpr;
-    // }
 
     protected PartAlgCPLinearExpr buildSumExprInternal(PartAlgCPLinearExpr algExpr,
             PartCategoryAlgImpl partCategoryAlgImpl, String attrCode,
@@ -276,22 +251,8 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
 
     protected void sumFunConstraint(ModuleBaseAlgImpl moduleBaseAlgImpl,
             PartCategoryInputBase partConstraint) {
+        // 子类继承实现
     }
-
-    // protected void sumFunConstraint(PartCategoryAlgImpl partCategoryAlgImpl,
-    // PartCategoryInput partConstraint) {
-    // PartAlgCPLinearExpr sumFunExpr = buildSumExpr(partCategoryAlgImpl,
-    // partConstraint.getSumAttrCode(), "Q",
-    // PartVar::getQty, "");
-    // // 应用约束
-    // ComparisonOperator operator =
-    // ComparisonOperator.fromSymbol(partConstraint.getComparator());
-    // operator.applyConstraint(model, sumFunExpr, partConstraint.getLeftValue());
-    // log.info("Priority-Added sum constraint: {} for {}",
-    // sumFunExpr.getExprStr(),
-    // partConstraint.getOrgReq() != null ? partConstraint.getOrgReq().toString() :
-    // "null");
-    // }
 
     /**
      * 添加松弛目标函数
@@ -698,12 +659,12 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
 
     }
 
-    protected void initData(AlgCPModel model, IModule module, PartCategoryInputBase partCategoryInput,
+    protected void initData(AlgCPModel model, IModule module, IModuleInput moduleInput,
             IModuleAlg moduleAlgFile) {
         // Module级别
         this.model = model;
         this.module = module;
-
+        this.moduleInput = moduleInput;
         // 初始化兼容性约束算法实例
         this.compatibleConstraintAlg = new CompatibleConstraintAlg(model);
         initModelAfter(model);
@@ -712,30 +673,11 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         initAll(moduleAlgFile);
     }
 
-    protected void initInput(AlgCPModel model, IModule module, PartCategoryInputBase partCategoryInput,
-            IModuleAlg moduleAlgFile) {
-        // 设置输入变量
-        setInputVariable(partCategoryInput);
-        afterSetInputVariable();
-
+    protected void initInput(IModuleAlg moduleAlgFile) {
         // 将变量写回字段
         writeBackToFields(moduleAlgFile);
 
         log.info("ModuleBaseAlgImpl initInput {}", module.getClass().getSimpleName());
-    }
-
-    /**
-     * 根据请求初始化优先级约束模型
-     */
-    protected void initModelByPriorityConstraints(PartCategoryInputBase partCategoryInput) {
-
-        this.sumFunConstraint(
-                partConstraint);
-
-    }
-
-    protected void afterSetInputVariable() {
-        // 方便扩展，子类可以重写
     }
 
     public void initRules(Map<String, Method> allRuleMethods, IModuleAlg moduleAlgFile, CalcStage calcStage) {

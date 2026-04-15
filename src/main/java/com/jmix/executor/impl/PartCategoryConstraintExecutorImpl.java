@@ -65,6 +65,9 @@ public class PartCategoryConstraintExecutorImpl extends ModuleBaseConstraintExec
                         filteredCategory, partConstraintReq);
                 partCategoryInputs.add(partCategoryInput);
             }
+            ModuleInput moduleInput = new ModuleInput();
+            moduleInput.setPartCategoryInputs(partCategoryInputs);
+            moduleInput.setPartCategoryReq(partCategoryReq);
             SolverResult sr = null;
             // 检查是否有优先级规则，如果有则使用分级求解
             Module moduleClone = module.clone();
@@ -74,11 +77,10 @@ public class PartCategoryConstraintExecutorImpl extends ModuleBaseConstraintExec
                         partCategoryInputs);
                 moduleClone.addPartCategory(mergedFilteredCategory);
                 sr = solveWithPriorityConstraints(
-                        moduleClone,
-                        partCategoryReq, partCategoryInputs);
+                        moduleClone, moduleInput);
             } else {
                 moduleClone.addPartCategory(filteredCategory);
-                sr = solveWithOutPriorityConstraints(moduleClone, partCategoryReq, partCategoryInputs);
+                sr = solveWithOutPriorityConstraints(moduleClone, moduleInput);
             }
             return Result.success(sr.getSolutions());
 

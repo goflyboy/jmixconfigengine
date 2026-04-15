@@ -5,6 +5,7 @@ import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartCategory;
 import com.jmix.executor.bmodel.logic.CalcStage;
 import com.jmix.executor.cmodel.ModuleInst;
+import com.jmix.executor.impl.IModuleInput;
 import com.jmix.executor.impl.PartCategoryInput;
 import com.jmix.executor.impl.PartCategoryInputBase;
 import com.jmix.executor.southinf.IModuleAlg;
@@ -36,13 +37,18 @@ public class SingleInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements 
     }
 
     @Override
-    protected void initData(AlgCPModel model, IModule module, PartCategoryInputBase partCategoryInput,
+    protected void initData(AlgCPModel model, IModule module, IModuleInput moduleInput,
             IModuleAlg moduleAlgFile) {
-        PartCategoryInput input = (PartCategoryInput) partCategoryInput;
+        PartCategoryInput input = (PartCategoryInput) moduleInput;
         this.instId = input.getInstId();
-        super.initData(model, module, partCategoryInput, moduleAlgFile);
+        super.initData(model, module, moduleInput, moduleAlgFile);
+    }
+
+    @Override
+    public void initInput(IModuleAlg moduleAlgFile) {
+        PartCategoryInput input = (PartCategoryInput) (this.moduleInput);
         newAttrParaVar(input.getSumAttrParas());
-        super.initInput(model, module, partCategoryInput, moduleAlgFile);
+        super.initInput(moduleAlgFile);
     }
 
     public void initRules(Map<String, Method> allRuleMethods, IModuleAlg moduleAlgFile, CalcStage calcStage) {
@@ -90,5 +96,21 @@ public class SingleInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements 
     @Override
     public List<Part> getAtomicParts() {
         return getPartCategory().getAtomicParts();
+    }
+
+    protected void sumFunConstraint(ModuleBaseAlgImpl moduleBaseAlgImplTmp,
+            PartCategoryInputBase partConstraintTmp) {
+        SingleInstPartCategoryAlgImpl singleInstPartCategoryAlgImpl = (SingleInstPartCategoryAlgImpl) moduleBaseAlgImplTmp;
+        PartCategoryInput partConstraint = (PartCategoryInput) partConstraintTmp;
+        PartAlgCPLinearExpr sumFunExpr = buildSumExpr(
+                singleInstPartCategoryAlgImpl,
+                partConstraint.getSumAttrCode(), "Q",
+                PartVar::getQty, "");
+        // 应用约束
+        ComparisonOperator operator = ComparisonOperator.fromSymbol(partConstraint.getComparator());
+        operator.applyConstraint(model, sumFunExpr, partConstraint.getLeftValue());
+        log.info("Priority-Added sum constraint: {} for {}",
+                sumFunExpr.getExprStr(),
+                partConstraint.getOrgReq() != null ? partConstraint.getOrgReq().toString() : "null");
     }
 }

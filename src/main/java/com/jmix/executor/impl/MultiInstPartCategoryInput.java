@@ -44,7 +44,7 @@ public class MultiInstPartCategoryInput extends PartCategoryInputBase implements
 
     @Override
     public List<Para> getParas() {
-        throw new UnsupportedOperationException("Unimplemented method 'getParas'");
+        return new ArrayList<>();
     }
 
     @Override
@@ -149,7 +149,7 @@ public class MultiInstPartCategoryInput extends PartCategoryInputBase implements
 
     @Override
     public List<Part> getAtomicParts() {
-        throw new UnsupportedOperationException("Unimplemented method 'getAtomicParts'");
+        return new ArrayList<>();
     }
 
     @Override

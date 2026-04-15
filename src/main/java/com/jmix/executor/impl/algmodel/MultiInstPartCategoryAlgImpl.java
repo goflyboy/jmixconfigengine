@@ -58,12 +58,16 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
     protected void initData(AlgCPModel model, IModule module, PartCategoryInputBase partCategoryInput,
             IModuleAlg moduleAlgFile) {
         super.initData(model, module, partCategoryInput, moduleAlgFile);
-        MultiInstPartCategoryInput multiInstPartCategoryInput = (MultiInstPartCategoryInput) partCategoryInput;
-        newAttrParaVar(multiInstPartCategoryInput.getSumSumAttrParas());
-        super.initInput(model, module, partCategoryInput, moduleAlgFile);
+        for (PartCategoryInput partCategoryInputInst : this.getPartCategoryInputs()) {
+            SingleInstPartCategoryAlgImpl partCategoryAlg = new SingleInstPartCategoryAlgImpl();
+            partCategoryAlg.initData(model, (IModule) partCategoryInputInst.getFilteredCategory(),
+                    partCategoryInputInst,
+                    moduleAlgFile);
+            partCategoryAlgs.put(partCategoryInputInst.getInsKey(), Pair.of(partCategoryInputInst, partCategoryAlg));
+        }
     }
 
-    protected void afterSetInputVariable() {
+    protected void setSumSumToSumAttrParaRelation() {
         // 设置 总总 和 总变量的关系
         List<AttrPara> sumSumAttrParas = getMultiInstPartCategoryInput().getSumSumAttrParas();
         for (AttrPara attrPara : sumSumAttrParas) {
@@ -101,15 +105,18 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
         return new Pair<>(hasSet, sumSumValue);
     }
 
-    @Override
-    protected void initAll(IModuleAlg moduleAlgFile) {
-        for (PartCategoryInput partCategoryInput : this.getPartCategoryInputs()) {
-            SingleInstPartCategoryAlgImpl partCategoryAlg = new SingleInstPartCategoryAlgImpl();
-            partCategoryAlg.initData(model, (IModule) partCategoryInput.getFilteredCategory(), partCategoryInput,
-                    moduleAlgFile);
-            partCategoryAlgs.put(partCategoryInput.getInsKey(), Pair.of(partCategoryInput, partCategoryAlg));
-        }
-    }
+    // @Override
+    // protected void initAll(IModuleAlg moduleAlgFile) {
+    // for (PartCategoryInput partCategoryInput : this.getPartCategoryInputs()) {
+    // SingleInstPartCategoryAlgImpl partCategoryAlg = new
+    // SingleInstPartCategoryAlgImpl();
+    // partCategoryAlg.initData(model, (IModule)
+    // partCategoryInput.getFilteredCategory(), partCategoryInput,
+    // moduleAlgFile);
+    // partCategoryAlgs.put(partCategoryInput.getInsKey(),
+    // Pair.of(partCategoryInput, partCategoryAlg));
+    // }
+    // }
 
     public void initRules(Map<String, Method> allRuleMethods, IModuleAlg moduleAlgFile, CalcStage calcStage) {
         super.buildPriorityConstraint(getMultiInstPartCategoryInput());
@@ -123,8 +130,37 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
                 calcStage);
     }
 
-    protected void setInputVariable(PartCategoryInputBase partCategoryInput) {
-        // 在initAll的initData已经完成了初始化，这里不需要
+    @Override
+    public void initInput(IModuleAlg moduleAlgFile) {
+        MultiInstPartCategoryInput multiInstPartCategoryInput = (MultiInstPartCategoryInput) this.moduleInput;
+        newAttrParaVar(multiInstPartCategoryInput.getSumSumAttrParas());
+        super.initInput(moduleAlgFile);
+        setPartCategoryInput(multiInstPartCategoryInput);
+        for (PartCategoryAlgImpl partCategoryAlg : this.getPartCategoryInsts()) {
+            partCategoryAlg.initInput(moduleAlgFile);
+        }
+        setSumSumToSumAttrParaRelation();
+    }
+
+    protected void sumFunConstraint(ModuleBaseAlgImpl moduleBaseAlgImplTmp,
+            PartCategoryInputBase partConstraintTmp) {
+        MultiInstPartCategoryAlgImpl multiInstPartCategoryAlgImpl = (MultiInstPartCategoryAlgImpl) moduleBaseAlgImplTmp;
+        PartCategoryInput partConstraint = (PartCategoryInput) partConstraintTmp;
+        PartAlgCPLinearExpr sumFunExpr = new PartAlgCPLinearExpr(
+                multiInstPartCategoryAlgImpl.getCategoryCode() + "_" + multiInstPartCategoryAlgImpl.getInstId()
+                        + "_sumFunConstraint");
+        List<SingleInstPartCategoryAlgImpl> partCategoryAlgImpls = multiInstPartCategoryAlgImpl.getPartCategoryInsts();
+        for (SingleInstPartCategoryAlgImpl partCategoryAlgImpl : partCategoryAlgImpls) {
+            buildSumExprInternal(sumFunExpr, partCategoryAlgImpl,
+                    partConstraint.getSumAttrCode(), "Q",
+                    PartVar::getQty, "");
+        }
+        // 应用约束
+        ComparisonOperator operator = ComparisonOperator.fromSymbol(partConstraint.getComparator());
+        operator.applyConstraint(model, sumFunExpr, partConstraint.getLeftValue());
+        log.info("Priority-Added sum constraint: {} for {}",
+                sumFunExpr.getExprStr(),
+                partConstraint.getOrgReq() != null ? partConstraint.getOrgReq().toString() : "null");
     }
 
     @Override
@@ -164,7 +200,7 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
 
     @Override
     public ParaVar getParaVar(String code) {
-        throw new UnsupportedOperationException("Unimplemented method 'getParaVar'");
+        return super.getParaVar(code);
     }
 
     public ParaVar getSumSumParaByAttr(String attrCode) {

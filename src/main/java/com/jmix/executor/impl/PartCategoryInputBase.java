@@ -6,7 +6,7 @@ import com.jmix.executor.model.PartConstraintReq;
 import lombok.Data;
 
 @Data
-public abstract class PartCategoryInputBase {
+public abstract class PartCategoryInputBase implements IModuleInput {
     /**
      * 获取部件分类代码
      * 

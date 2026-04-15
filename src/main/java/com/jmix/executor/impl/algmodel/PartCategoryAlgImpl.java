@@ -50,4 +50,6 @@ public interface PartCategoryAlgImpl {
     ParaVar getSumParaByAttr(String attrCode);
 
     void initRules(Map<String, Method> allRuleMethods, IModuleAlg moduleAlgFile, CalcStage calcStage);
+
+    void initInput(IModuleAlg moduleAlgFile);
 }

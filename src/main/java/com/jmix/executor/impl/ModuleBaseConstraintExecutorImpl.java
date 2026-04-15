@@ -6,8 +6,6 @@ import com.jmix.executor.bmodel.PartCategory;
 import com.jmix.executor.bmodel.attr.DynamicAttribute;
 import com.jmix.executor.bmodel.base.Pair;
 import com.jmix.executor.cmodel.ModuleInst;
-import com.jmix.executor.cmodel.ParaInst;
-import com.jmix.executor.cmodel.PartInst;
 import com.jmix.executor.cmodel.SolverResult;
 import com.jmix.executor.impl.algmodel.AlgCPModel;
 import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
@@ -63,22 +61,19 @@ public abstract class ModuleBaseConstraintExecutorImpl {
      * @param partCategoryReq    部件分类请求
      * @return 求解结果
      */
-    protected SolverResult solveWithOutPriorityConstraints(IModule filteredModuleBase,
-            InferPartCategoryReq partCategoryReq,
-            List<PartCategoryInputBase> partCategoryInputs) {
+    protected SolverResult solveWithOutPriorityConstraints(IModule filteredModuleBase, ModuleInput moduleInput) {
         log.info("no Priority-process starting........");
-        return invokerSolver(filteredModuleBase, partCategoryReq, partCategoryInputs, null);
+        return invokerSolver(filteredModuleBase, moduleInput, null);
     }
 
     /**
      * 主求解方法-带优先级约束
      */
     protected SolverResult solveWithPriorityConstraints(
-            IModule filteredModuleBase, InferPartCategoryReq partCategoryReq,
-            List<PartCategoryInputBase> partCategoryInputs) {
+            IModule filteredModuleBase, ModuleInput moduleInput) {
         log.info("Priority-process pconstraint-step1 max/min starting........");
         // 步骤1：对每个优先级规则优化求解最优解 minimize(objecFun)
-        SolverResult result = invokerSolver(filteredModuleBase, partCategoryReq, partCategoryInputs, null);
+        SolverResult result = invokerSolver(filteredModuleBase, moduleInput, null);
 
         if (!result.hasSolution()) {
             result.setMessage("Cannot find solution in first step");
@@ -129,7 +124,7 @@ public abstract class ModuleBaseConstraintExecutorImpl {
             }
             log.info("Priority-process pconstraint-step2 Iteration {}: adjusting objective value to {}", execTimes,
                     objectValue);
-            result = invokerSolver(filteredModuleBase, partCategoryReq, partCategoryInputs, objectValue);
+            result = invokerSolver(filteredModuleBase, moduleInput, objectValue);
 
         } while (execTimes < maxExecTimes
                 && result.getSolutions().size() <= availableSolutionNum);
@@ -189,8 +184,7 @@ public abstract class ModuleBaseConstraintExecutorImpl {
      * 求解器调用入口
      */
     protected SolverResult invokerSolver(
-            IModule filteredModuleBase, InferPartCategoryReq partCategoryReq,
-            List<PartCategoryInputBase> partCategoryInputs, Double adjustOptimalValue) {
+            IModule filteredModuleBase, ModuleInput moduleInput, Double adjustOptimalValue) {
         log.info("invokerSolver starting........");
 
         // 步骤1：对每个优先级规则优化求解最优解
@@ -198,8 +192,8 @@ public abstract class ModuleBaseConstraintExecutorImpl {
         AlgCPModel optModel = new AlgCPModel();
         optModel.setIsAttachRelax(false);
         optModel.setConfictedRelaxVars(new ArrayList<>());
-        optAlg.init(optModel, filteredModuleBase, partCategoryInputs);
-        initModelByReq(partCategoryReq, optAlg);
+        optAlg.init(optModel, filteredModuleBase, moduleInput);
+        // initModelByReq(moduleInput, optAlg);
         optAlg.addRelaxObjectFunction();
         boolean hasPriorityRule = optAlg.hasPriorityRule();
         if (hasPriorityRule) {
@@ -250,22 +244,6 @@ public abstract class ModuleBaseConstraintExecutorImpl {
         solutions.sort((a, b) -> -Double.compare(b.getPriorityOverallValue(), a.getPriorityOverallValue()));
         for (int i = 0; i < solutions.size(); i++) {
             solutions.get(i).setPrioritySortNo(i + 1);
-        }
-    }
-
-    /**
-     * 根据请求初始化约束模型
-     */
-    protected void initModelByReq(InferPartCategoryReq req, ModuleAlgImpl alg) {
-        if (req.getPreParaInsts() != null) {
-            for (ParaInst paraInst : req.getPreParaInsts()) {
-                alg.addParaEquality(paraInst.getCode(), paraInst.getValue());
-            }
-        }
-        if (req.getPrePartInsts() != null) {
-            for (PartInst partInst : req.getPrePartInsts()) {
-                alg.addPartEquality(partInst.getCode(), partInst.getQuantity());
-            }
         }
     }
 

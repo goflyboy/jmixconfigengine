@@ -10,11 +10,15 @@ import com.jmix.executor.bmodel.logic.CalcStage;
 import com.jmix.executor.bmodel.logic.PriorityRuleSchema;
 import com.jmix.executor.bmodel.logic.PriorityStrategy;
 import com.jmix.executor.bmodel.logic.Rule;
+import com.jmix.executor.cmodel.ParaInst;
+import com.jmix.executor.cmodel.PartInst;
+import com.jmix.executor.impl.ModuleInput;
 import com.jmix.executor.impl.MultiInstPartCategoryInput;
 import com.jmix.executor.impl.PartCategoryInputBase;
 import com.jmix.executor.impl.PriorityConstraint;
 import com.jmix.executor.impl.util.FilterExpressionExecutor;
 import com.jmix.executor.model.AlgLoaderException;
+import com.jmix.executor.model.InferPartCategoryReq;
 import com.jmix.executor.southinf.IModuleAlg;
 import com.jmix.tool.bbuilder.MultiInstCategoryUtils;
 
@@ -58,17 +62,64 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
      * @param partCategoryInputs 来自请求的部件约束列表
      */
     public void init(AlgCPModel model, IModule module,
-            List<PartCategoryInputBase> partCategoryInputs) {
-        initData(model, module, partCategoryInputs, this);
+            ModuleInput moduleInput) {
+        initData(model, module, moduleInput, this);
 
         afterInitData(this.module, this);
+
+        initInput();
+
         // preCalculate
         preCalculate();
 
         // midCalculate
         initRules(this, CalcStage.MID);
-
         // postCalculate
+    }
+
+    // /**
+    // * 根据请求初始化约束模型
+    // */
+    // protected void initModelByReq(InferPartCategoryReq req, ModuleAlgImpl alg) {
+    // if (req.getPreParaInsts() != null) {
+    // for (ParaInst paraInst : req.getPreParaInsts()) {
+    // alg.addParaEquality(paraInst.getCode(), paraInst.getValue());
+    // }
+    // }
+    // if (req.getPrePartInsts() != null) {
+    // for (PartInst partInst : req.getPrePartInsts()) {
+    // alg.addPartEquality(partInst.getCode(), partInst.getQuantity());
+    // }
+    // }
+    // }
+
+    private ModuleInput getModuleInput() {
+        return (ModuleInput) this.moduleInput;
+    }
+
+    protected void initInput() {
+        super.initInput(this);
+
+        // 本模块的初始化
+        ModuleInput moduleInput = getModuleInput();
+        InferPartCategoryReq req = moduleInput.getPartCategoryReq();
+        if (req.getPreParaInsts() != null) {
+            for (ParaInst paraInst : req.getPreParaInsts()) {
+                this.addParaEquality(paraInst.getCode(), paraInst.getValue());
+            }
+        }
+        if (req.getPrePartInsts() != null) {
+            for (PartInst partInst : req.getPrePartInsts()) {
+                this.addPartEquality(partInst.getCode(), partInst.getQuantity());
+            }
+        }
+
+        // 分类的input初始化
+        // 如果module有PartCategorys，则对每个PartCategory创建并初始化PartCategoryAlgImpl
+        for (PartCategoryAlgImpl partCategoryAlgImpl : this.getPartCategoryAlgs()) {
+            partCategoryAlgImpl.initInput(this);
+        }
+
     }
 
     /**
@@ -90,14 +141,15 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
         initRules(this, CalcStage.PRE);
     }
 
-    protected void initData(AlgCPModel model, IModule module, List<PartCategoryInputBase> partCategoryInputs,
+    protected void initData(AlgCPModel model, IModule module,
+            ModuleInput moduleInput,
             IModuleAlg moduleAlgFile) {
         // 调用基类初始化
-        super.initData(model, module, null, this);
+        super.initData(model, module, moduleInput, this);
 
         // 按partCategoryCode对partCategoryInputs进行分组
         Map<String, PartCategoryInputBase> partConstraintFromReqMap = new LinkedHashMap<>();
-        for (PartCategoryInputBase partCategoryInput : partCategoryInputs) {
+        for (PartCategoryInputBase partCategoryInput : moduleInput.getPartCategoryInputs()) {
             partConstraintFromReqMap.put(partCategoryInput.getPartCategoryCode(), partCategoryInput);
         }
 
@@ -120,7 +172,6 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
                 partCategoryAlgs.put(categoryCode, (PartCategoryAlgImpl) pcAlg);
             }
         }
-        super.initInput(model, module, null, this);
         log.info("ModuleAlgImpl initialized with {} partCategory algorithms", partCategoryAlgs.size());
     }
 
