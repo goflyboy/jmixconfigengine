@@ -225,9 +225,13 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
         List<Integer> exprVariablesValues = new ArrayList<>();
         // 遍历表达式变量
         for (PriorityConstraint.PartTerm exprVariable : priorityExpr.getPartTerms()) {
-            PartInst pInst = moduleInst.queryPart(exprVariable.getPartCode());
+            PartInst pInst = moduleInst.queryPart(exprVariable.getPartCategoryCode(), exprVariable.getInstId(),
+                    exprVariable.getPartCode());
             if (pInst == null) {
                 exprVariablesValues.add(0);
+                log.error("PartInst not found: partCategoryCode={}, instId={}, partCode={}",
+                        exprVariable.getPartCategoryCode(), exprVariable.getInstId(), exprVariable.getPartCode());
+
             } else {
                 if (exprVariable.getTermValue().equals(PartVar.ISSELECTED_SHORT_NAME)) {
                     exprVariablesValues.add(pInst.isSelected() ? 1 : 0);

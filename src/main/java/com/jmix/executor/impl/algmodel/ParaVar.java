@@ -1,6 +1,7 @@
 package com.jmix.executor.impl.algmodel;
 
 import com.jmix.executor.bmodel.para.Para;
+import com.jmix.executor.cmodel.ModuleInst;
 import com.jmix.executor.model.AlgLoaderException;
 
 import com.google.ortools.sat.BoolVar;
@@ -60,6 +61,10 @@ public class ParaVar extends Var<Para> {
      * 参数选项Var的短名称
      */
     public static final String OPTIONS_SHORT_NAME = "O";
+    /**
+     * 实例ID
+     */
+    private int instId = ModuleInst.DEFAULT_INSTANCE_ID;
 
     /**
      * 参数值状态

@@ -1,6 +1,7 @@
 package com.jmix.executor.cmodel;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.base.Strings;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -112,18 +113,16 @@ public class ModuleInst extends ModuleBaseInst {
      * @param partCode 部件代码
      * @return 部件实例，如果不存在则返回null
      */
-    @Override
-    public PartInst queryPart(String partCode) {
+    @JsonIgnore
+    public PartInst queryPart(String partCategoryCode, int instId, String partCode) {
         // 先在当前层查找
-        PartInst partInst = super.queryPart(partCode);
-        if (partInst != null) {
-            return partInst;
+        if (Strings.isNullOrEmpty(partCategoryCode)) {
+            return super.queryPart(partCode);
         }
-        // 在所有子PartCategoryInst中查找
+        // 在当前层查找
         for (PartCategoryInst partCategoryInst : partCategorys) {
-            partInst = partCategoryInst.queryPart(partCode);
-            if (partInst != null) {
-                return partInst;
+            if (partCategoryInst.getCode().equals(partCategoryCode) && partCategoryInst.getInstanceId() == instId) {
+                return partCategoryInst.queryPart(partCode);
             }
         }
         return null;

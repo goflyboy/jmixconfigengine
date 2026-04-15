@@ -448,24 +448,6 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
     }
 
     /**
-     * 计算子部件列表
-     * 从allParts中移除subParts
-     * 
-     * @param allParts 全部部件列表
-     * @param subParts 要移除的部件列表
-     * @return 剩余部件列表
-     */
-    private List<Part> subPart(List<Part> allParts, List<Part> subParts) {
-        if (subParts == null || subParts.isEmpty()) {
-            return new ArrayList<>(allParts);
-        }
-
-        List<Part> result = new ArrayList<>(allParts);
-        result.removeAll(subParts);
-        return result;
-    }
-
-    /**
      * 通用的部件求和方法，根据指定的变量获取函数计算总和
      * 
      * @param cofAttrCode        属性代码，如果为null或空则使用默认值1
@@ -477,10 +459,10 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
     // @Override
     protected PartAlgCPLinearExpr sum4Parts(PartCategoryAlgImpl partCategoryAlgImpl, String cofAttrCode,
             Function<PartVar, LinearArgument> varGetter, String varName, String filtedConditionStr) {
-        List<PartVar> allPartVars = partCategoryAlgImpl.getAllPartVars(filtedConditionStr);
         PartAlgCPLinearExpr expr = buildSumExpr(
+                partCategoryAlgImpl,
                 cofAttrCode, varName, varGetter,
-                allPartVars);
+                filtedConditionStr);
         return expr;
     }
 
@@ -498,13 +480,10 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
             return sum4Selected(cofAttrCode, filtedConditionStr);
         }
         List<PartCategoryAlgImpl> partCategoryAlgImpls = toPartCategoryAlgImpls(partCategoryCodesStr);
-        List<PartVar> allPartVars = new ArrayList<>();
-        for (PartCategoryAlgImpl partCategoryAlgImpl : partCategoryAlgImpls) {
-            allPartVars.addAll(toFilterPartVar(partCategoryAlgImpl, filtedConditionStr));
-        }
 
-        return buildSumExpr(cofAttrCode, PartVar.ISSELECTED_SHORT_NAME, PartVar::getIsSelected,
-                allPartVars);
+        return buildSumExpr(
+                partCategoryAlgImpls, cofAttrCode, PartVar.ISSELECTED_SHORT_NAME, PartVar::getIsSelected,
+                filtedConditionStr);
     }
 
     /**
@@ -521,11 +500,8 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
             return sum4Quantity(cofAttrCode, filtedConditionStr);
         }
         List<PartCategoryAlgImpl> partCategoryAlgImpls = toPartCategoryAlgImpls(partCategoryCodesStr);
-        List<PartVar> allPartVars = new ArrayList<>();
-        for (PartCategoryAlgImpl partCategoryAlgImpl : partCategoryAlgImpls) {
-            allPartVars.addAll(toFilterPartVar(partCategoryAlgImpl, filtedConditionStr));
-        }
-        return buildSumExpr(cofAttrCode, PartVar.QTY_SHORT_NAME, PartVar::getQty, allPartVars);
+        return buildSumExpr(partCategoryAlgImpls, cofAttrCode, PartVar.QTY_SHORT_NAME, PartVar::getQty,
+                filtedConditionStr);
     }
 
     private List<PartCategoryAlgImpl> toPartCategoryAlgImpls(String partCategoryCodesStr) {

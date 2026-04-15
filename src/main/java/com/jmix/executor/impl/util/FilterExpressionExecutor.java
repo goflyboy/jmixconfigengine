@@ -1,6 +1,7 @@
 package com.jmix.executor.impl.util;
 
 import com.jmix.executor.bmodel.Part;
+import com.jmix.executor.bmodel.attr.IDynamicAttributable;
 import com.jmix.executor.bmodel.attr.InstanceDynAttrValueItem;
 import com.jmix.executor.bmodel.base.Extensible;
 import com.jmix.executor.bmodel.base.IExtensible;
@@ -11,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.util.ReflectionUtils;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -416,8 +418,8 @@ public final class FilterExpressionExecutor {
     private static Optional<Object> getFieldValue(Object object, String fieldName) {
         try {
             // Try to get extended attributes first
-            if (object instanceof Extensible) {
-                Extensible extensible = (Extensible) object;
+            if (object instanceof IExtensible) {
+                IExtensible extensible = (IExtensible) object;
                 String extValue = extensible.getExtAttr(fieldName);
                 if (extValue != null) {
                     log.info("Getting field value from extended attributes - field: {}, value: {}", fieldName,
@@ -426,8 +428,8 @@ public final class FilterExpressionExecutor {
                 }
             }
             // Try to get dyn attributes first
-            if (object instanceof Part) {
-                Part part = (Part) object;
+            if (object instanceof IDynamicAttributable) {
+                IDynamicAttributable part = (IDynamicAttributable) object;
                 String attValue = part.getAttr(fieldName);
                 if (attValue != null) {
                     log.info("Getting field value from dyn attributes - field: {}, value: {}", fieldName,
@@ -447,7 +449,7 @@ public final class FilterExpressionExecutor {
             }
 
             // Get field from cache or find it using Spring ReflectionUtils
-            java.lang.reflect.Field field = getFieldFromCache(object.getClass(), fieldName);
+            Field field = getFieldFromCache(object.getClass(), fieldName);
             if (field != null) {
                 field.setAccessible(true);
                 Object value = field.get(object);

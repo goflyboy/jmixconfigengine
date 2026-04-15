@@ -166,9 +166,19 @@ public class PriorityConstraint {
     @Data
     public static class PartTerm {
         /**
-         * 索引
+         * 索引，总的，按分类平铺（压扁）
          */
         private int index;
+
+        /**
+         * 当前部件所属的部件分类代码，如果是产品级，则为空
+         */
+        private String partCategoryCode;
+
+        /**
+         * 实例ID
+         */
+        private int instId;
 
         /**
          * 部件代码

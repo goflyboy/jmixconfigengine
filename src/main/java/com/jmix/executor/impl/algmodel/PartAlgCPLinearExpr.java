@@ -1,5 +1,6 @@
 package com.jmix.executor.impl.algmodel;
 
+import com.jmix.executor.cmodel.ModuleInst;
 import com.jmix.executor.impl.PriorityConstraint;
 
 import com.google.ortools.sat.BoolVar;
@@ -115,14 +116,19 @@ public class PartAlgCPLinearExpr extends AlgCPLinearExpr {
         return this;
     }
 
+    private String getPrefix(int instId) {
+        return instId == ModuleInst.DEFAULT_INSTANCE_ID ? "" : "I" + instId + "_";
+    }
+
     /**
      * Add a part term with explicit varName (e.g. "S" or "Q").
      */
-    public void addTerm(PartVar partVar, IntVar var, long coefficient, String varName) {
+    public void addTerm(String partCategoryCode, PartVar partVar, IntVar var, long coefficient, String varName) {
         int attrValue = (int) coefficient;
 
         // build expression string parts
-        String shortCode = partVar.getBase().getShortCode();
+        String prefix = getPrefix(partVar.getInstId());
+        String shortCode = prefix + partVar.getBase().getShortCode();
         termStrs.add(attrValue + "*" + shortCode + "." + varName);
         termTemplates.add(attrValue + "*" + "%d");
         termTemplateStrs.add(attrValue + "*" + shortCode + "." + varName + "_%d");
@@ -130,6 +136,8 @@ public class PartAlgCPLinearExpr extends AlgCPLinearExpr {
         // create PartTerm
         PriorityConstraint.PartTerm term = new PriorityConstraint.PartTerm();
         term.setIndex(termIndex);
+        term.setPartCategoryCode(partCategoryCode);
+        term.setInstId(partVar.getInstId());
         term.setPartCode(partVar.getCode());
         term.setTermValue(varName);
         partTerms.add(term);
@@ -167,15 +175,15 @@ public class PartAlgCPLinearExpr extends AlgCPLinearExpr {
     /**
      * Convenience overload that uses default varName "Q".
      */
-    public void addTerm(PartVar partVar, IntVar var, long coefficient) {
-        addTerm(partVar, var, coefficient, PartVar.QTY_SHORT_NAME);
+    public void addTerm(String partCategoryCode, PartVar partVar, IntVar var, long coefficient) {
+        addTerm(partCategoryCode, partVar, var, coefficient, PartVar.QTY_SHORT_NAME);
     }
 
     /**
      * Convenience overload that uses default varName "Q".
      */
-    public void addTerm(PartVar partVar, BoolVar var, long coefficient) {
-        addTerm(partVar, var, coefficient, PartVar.ISSELECTED_SHORT_NAME);
+    public void addTerm(String partCategoryCode, PartVar partVar, BoolVar var, long coefficient) {
+        addTerm(partCategoryCode, partVar, var, coefficient, PartVar.ISSELECTED_SHORT_NAME);
     }
 
     /**
@@ -222,6 +230,8 @@ public class PartAlgCPLinearExpr extends AlgCPLinearExpr {
         for (PriorityConstraint.PartTerm t : expr.getPartTerms()) {
             PriorityConstraint.PartTerm newTerm = new PriorityConstraint.PartTerm();
             newTerm.setIndex(termIndex++);
+            newTerm.setPartCategoryCode(t.getPartCategoryCode());
+            newTerm.setInstId(t.getInstId());
             newTerm.setPartCode(t.getPartCode());
             newTerm.setTermValue(t.getTermValue());
             partTerms.add(newTerm);

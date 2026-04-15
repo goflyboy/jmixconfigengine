@@ -26,6 +26,11 @@ public class ModuleBaseInst {
     public static final int DEFAULT_INSTANCE_ID = 0;
 
     /**
+     * 无序的实例ID常量
+     */
+    public static final int INVALID_INSTANCE_ID = -1;
+
+    /**
      * 其他变量值键名
      * 用于存储其他变量的值映射，格式：v1:1,v2:2,v3:3,v4:1
      */

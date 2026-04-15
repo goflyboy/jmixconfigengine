@@ -16,6 +16,9 @@ import java.util.Map;
  * @since 2025-12-27
  */
 public interface PartCategoryAlgImpl {
+
+    int getInstId();
+
     String getCategoryCode();
 
     List<Part> getAllAtomicParts();

@@ -211,29 +211,33 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         }
     }
 
-    /**
-     * 构建优先级约束的表达式字符串和模板
-     * 
-     * @param pConstraint 优先级约束对象
-     * @param attrCode    属性代码
-     * @param varName     变量名称（"S" 或 "Q"）
-     * @param varGetter   从PartVar获取LinearArgument的函数（如getIsSelected或getQty）
-     * @param atomicParts 原子部件列表
-     * @return 构建的AlgCPLinearExpr表达式
-     */
-    protected PartAlgCPLinearExpr buildPriorityConstraintExpressions(PriorityConstraint pConstraint, String attrCode,
-            String varName, Function<PartVar, LinearArgument> varGetter, List<PartVar> partVars) {
-        PartAlgCPLinearExpr algExpr = buildSumExpr(attrCode, varName, varGetter, partVars);
-        // 设置表达式字符串和AlgCPLinearExpr
-        pConstraint.setExpr(algExpr);
-        return algExpr;
-    }
+    // /**
+    // * 构建优先级约束的表达式字符串和模板
+    // *
+    // * @param pConstraint 优先级约束对象
+    // * @param attrCode 属性代码
+    // * @param varName 变量名称（"S" 或 "Q"）
+    // * @param varGetter 从PartVar获取LinearArgument的函数（如getIsSelected或getQty）
+    // * @param atomicParts 原子部件列表
+    // * @return 构建的AlgCPLinearExpr表达式
+    // */
+    // protected PartAlgCPLinearExpr
+    // buildPriorityConstraintExpressions(PriorityConstraint pConstraint, String
+    // attrCode,
+    // String varName, Function<PartVar, LinearArgument> varGetter, List<PartVar>
+    // partVars) {
+    // PartAlgCPLinearExpr algExpr = buildSumExpr(attrCode, varName, varGetter,
+    // partVars);
+    // // 设置表达式字符串和AlgCPLinearExpr
+    // pConstraint.setExpr(algExpr);
+    // return algExpr;
+    // }
 
-    protected PartAlgCPLinearExpr buildSumExpr(String attrCode,
-            String varName, Function<PartVar, LinearArgument> varGetter, List<PartVar> partVars) {
-        PartAlgCPLinearExpr algExpr = new PartAlgCPLinearExpr(
-                "sumPars_" + (attrCode == null ? "" : attrCode) + "_" + varName);
+    protected PartAlgCPLinearExpr buildSumExprInternal(PartAlgCPLinearExpr algExpr,
+            PartCategoryAlgImpl partCategoryAlgImpl, String attrCode,
+            String varName, Function<PartVar, LinearArgument> varGetter, String filtedConditionStr) {
         boolean isWithoutAttr = attrCode == null || attrCode.isEmpty();
+        List<PartVar> partVars = partCategoryAlgImpl.getAllPartVars(filtedConditionStr);
         for (PartVar partVar : partVars) {
             int attrValue;
             if (isWithoutAttr) {
@@ -243,10 +247,31 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
             } else {
                 attrValue = Integer.parseInt(partVar.getBase().getAttr(attrCode));
             }
-            algExpr.addTerm(partVar, (IntVar) varGetter.apply(partVar), attrValue, varName);
+            algExpr.addTerm(partCategoryAlgImpl.getCategoryCode(), partVar, (IntVar) varGetter.apply(partVar),
+                    attrValue, varName);
         }
 
         return algExpr;
+    }
+
+    protected PartAlgCPLinearExpr buildSumExpr(List<PartCategoryAlgImpl> partCategoryAlgImpls, String attrCode,
+            String varName, Function<PartVar, LinearArgument> varGetter, String filtedConditionStr) {
+        PartAlgCPLinearExpr algExpr = new PartAlgCPLinearExpr(
+                partCategoryAlgImpls.get(0).getCategoryCode() + "_" + partCategoryAlgImpls.get(0).getInstId()
+                        + "_sumPars_"
+                        + (attrCode == null ? "" : attrCode) + "_" + varName);
+        for (PartCategoryAlgImpl partCategoryAlgImpl : partCategoryAlgImpls) {
+            buildSumExprInternal(algExpr, partCategoryAlgImpl, attrCode, varName, varGetter, filtedConditionStr);
+        }
+        return algExpr;
+    }
+
+    protected PartAlgCPLinearExpr buildSumExpr(PartCategoryAlgImpl partCategoryAlgImpl, String attrCode,
+            String varName, Function<PartVar, LinearArgument> varGetter, String filtedConditionStr) {
+        PartAlgCPLinearExpr algExpr = new PartAlgCPLinearExpr(
+                partCategoryAlgImpl.getCategoryCode() + "_" + partCategoryAlgImpl.getInstId() + "_sumPars_"
+                        + (attrCode == null ? "" : attrCode) + "_" + varName);
+        return buildSumExprInternal(algExpr, partCategoryAlgImpl, attrCode, varName, varGetter, filtedConditionStr);
     }
 
     /**
@@ -331,7 +356,8 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
             }
 
             // add term via PartAlgCPLinearExpr to capture metadata and numeric term
-            algExpr.addTerm(partVar, (IntVar) varGetter.apply(partVar), attrValue, varName);
+            algExpr.addTerm(partCategoryAlgImpl.getCategoryCode(), partVar, (IntVar) varGetter.apply(partVar),
+                    attrValue, varName);
         }
 
         // 设置表达式字符串和AlgCPLinearExpr
@@ -524,6 +550,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
                 throw new AlgLoaderException("Para type not supported: " + para.getParaType());
         }
         paraVar.setIsHidden(newBoolVar(f(ParaVar.HIDDEN_PATTERN, ipf, code)));
+        paraVar.setInstId(getInstId());
         return paraVar;
     }
 
@@ -546,7 +573,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         partVar.setQty(newIntVar(0, part.getMaxQuantity(), f(PartVar.QTY_PATTERN, ipf, part.getCode())));
         partVar.setIsHidden(newBoolVar(f(PartVar.HIDDEN_PATTERN, ipf, part.getCode())));
         partVar.setIsSelected(newBoolVar(f(PartVar.ISSELECTED_PATTERN, ipf, part.getCode())));
-
+        partVar.setInstId(getInstId());
         // 添加Qty和IsSelected的关系
         model.addGreaterOrEqual(partVar.getQty(), 1).onlyEnforceIf(partVar.getIsSelected());
         model.addEquality(partVar.getQty(), 0).onlyEnforceIf(partVar.getIsSelected().not());

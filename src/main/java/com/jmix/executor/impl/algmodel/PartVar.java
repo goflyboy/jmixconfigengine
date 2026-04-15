@@ -1,7 +1,11 @@
 package com.jmix.executor.impl.algmodel;
 
 import com.jmix.executor.bmodel.IPart;
+import com.jmix.executor.bmodel.Part;
+import com.jmix.executor.bmodel.attr.DynamicAttribute;
+import com.jmix.executor.bmodel.attr.IDynamicAttributable;
 import com.jmix.executor.bmodel.base.IExtensible;
+import com.jmix.executor.cmodel.ModuleInst;
 
 import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.CpSolverSolutionCallback;
@@ -23,7 +27,7 @@ import java.util.Map;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class PartVar extends Var<IPart> implements IExtensible {
+public class PartVar extends Var<IPart> implements IExtensible, IDynamicAttributable {
 
     /**
      * 部件数量Var的短名称
@@ -58,6 +62,11 @@ public class PartVar extends Var<IPart> implements IExtensible {
      * 选中隐藏Var的命名模式
      */
     public static final String ISSELECTED_PATTERN = VAR_PATTERN_PREFIX + "%s%s." + ISSELECTED_SHORT_NAME;
+
+    /**
+     * 实例ID
+     */
+    private int instId = ModuleInst.DEFAULT_INSTANCE_ID;
 
     /**
      * 部件的数量值
@@ -148,5 +157,55 @@ public class PartVar extends Var<IPart> implements IExtensible {
     @Override
     public void setExtSchema(String extSchema) {
         getBase().setExtSchema(extSchema);
+    }
+
+    @Override
+    public Map<String, String> getDynAttr() {
+        return getBase().getDynAttr();
+    }
+
+    @Override
+    public void setDynAttr(Map<String, String> dynAttr) {
+        getBase().setDynAttr(dynAttr);
+    }
+
+    @Override
+    public void setAttr(String key, String value) {
+        getBase().setAttr(key, value);
+    }
+
+    @Override
+    public String getAttr(String key) {
+        String result = getBase().getAttr(key);
+        if (result == null) {
+            Part part = (Part) getBase();
+            if (key.equals("fatherCode")) {
+                result = part.getFatherCode();
+            }
+            if (key.equals("code")) {
+                result = part.getCode();
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public List<DynamicAttribute> getDynAttrSchemas() {
+        return getBase().getDynAttrSchemas();
+    }
+
+    @Override
+    public void setDynAttrSchemas(List<DynamicAttribute> dynAttrSchemas) {
+        getBase().setDynAttrSchemas(dynAttrSchemas);
+    }
+
+    @Override
+    public DynamicAttribute getDynAttrSchema(String code) {
+        return getBase().getDynAttrSchema(code);
+    }
+
+    @Override
+    public void setDynAttrSchema(String code, DynamicAttribute dynAttrSchema) {
+        getBase().setDynAttrSchema(code, dynAttrSchema);
     }
 }

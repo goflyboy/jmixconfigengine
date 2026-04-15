@@ -36,7 +36,9 @@ import java.util.List;
 public abstract class ModuleBaseConstraintExecutorImpl {
 
     protected Module module;
+
     protected ConstraintConfig config;
+
     protected ModuleAlgClassLoader moduleAlgClassLoader;
 
     public void init(Module module, ConstraintConfig config,
@@ -215,7 +217,7 @@ public abstract class ModuleBaseConstraintExecutorImpl {
         optSolver.getParameters().setEnumerateAllSolutions(true);
         optSolver.getParameters().setMaxTimeInSeconds(10);
         ModuleInstSolutionCallBack optCb = new ModuleInstSolutionCallBack(module, optAlg);
-
+        optCb.setMaxSolutionNum(config.getMaxSolutionNum());
         log.info("solver  models:\n");
         optModel.printModelSummary();
         CpSolverStatus optStatus = optSolver.solve(optModel.getCpModel(), optCb);

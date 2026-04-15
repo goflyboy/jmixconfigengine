@@ -5,6 +5,7 @@ import com.jmix.executor.bmodel.IModule;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.base.Pair;
 import com.jmix.executor.bmodel.logic.CalcStage;
+import com.jmix.executor.cmodel.ModuleInst;
 import com.jmix.executor.impl.MultiInstPartCategoryInput;
 import com.jmix.executor.impl.PartCategoryInput;
 import com.jmix.executor.impl.PartCategoryInputBase;
@@ -35,6 +36,11 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
      */
     public MultiInstPartCategoryAlgImpl() {
         super();
+    }
+
+    @Override
+    public int getInstId() {
+        return ModuleInst.INVALID_INSTANCE_ID;
     }
 
     public List<SingleInstPartCategoryAlgImpl> getPartCategoryInsts() {

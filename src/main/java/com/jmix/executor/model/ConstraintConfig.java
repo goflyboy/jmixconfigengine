@@ -21,6 +21,12 @@ public class ConstraintConfig {
     public static final int LOAD_TYPE_FULL = 1;
 
     /**
+     * 
+     * 最大解数量限制，0表示无限制
+     */
+    private int maxSolutionNum = 20;
+
+    /**
      * 是否Attach方式调试，true-工程内class加载，可直接调试算， false-jar包方式加载，不可以调试
      */
     private boolean isAttachedDebug = false;

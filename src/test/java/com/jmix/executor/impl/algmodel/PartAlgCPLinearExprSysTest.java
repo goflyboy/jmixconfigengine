@@ -48,8 +48,8 @@ public class PartAlgCPLinearExprSysTest {
 
         // 创建表达式: diff = P1.Q - P2.Q
         PartAlgCPLinearExpr diffExpr = new PartAlgCPLinearExpr("diff");
-        diffExpr.addTerm(pv1, pv1.getQty(), 1);
-        diffExpr.addTerm(pv2, pv2.getQty(), -1);
+        diffExpr.addTerm("", pv1, pv1.getQty(), 1);
+        diffExpr.addTerm("", pv2, pv2.getQty(), -1);
 
         // 添加绝对值约束
         PartAlgCPLinearExpr absExpr = new PartAlgCPLinearExpr("abs");

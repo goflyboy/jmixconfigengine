@@ -35,8 +35,8 @@ public class PartAlgCPLinearExprTest {
         PartVar pv2 = ofPart("P2");
 
         PartAlgCPLinearExpr expr1 = new PartAlgCPLinearExpr("expr1");
-        expr1.addTerm(pv1, pv1.getQty(), 1);
-        expr1.addTerm(pv2, pv2.getQty(), 3);
+        expr1.addTerm("", pv1, pv1.getQty(), 1);
+        expr1.addTerm("", pv2, pv2.getQty(), 3);
         expr1.addConstant(5);
         log.info(expr1.toString());
 
@@ -53,8 +53,8 @@ public class PartAlgCPLinearExprTest {
         PartVar pv2 = ofPart("P2");
 
         PartAlgCPLinearExpr expr1 = new PartAlgCPLinearExpr("expr1");
-        expr1.addTerm(pv1, pv1.getQty(), -1);
-        expr1.addTerm(pv2, pv2.getQty(), -3);
+        expr1.addTerm("", pv1, pv1.getQty(), -1);
+        expr1.addTerm("", pv2, pv2.getQty(), -3);
         expr1.addConstant(5);
         log.info(expr1.toString());
 
@@ -72,13 +72,13 @@ public class PartAlgCPLinearExprTest {
         PartVar pv3 = ofPart("P3");
 
         PartAlgCPLinearExpr expr1 = new PartAlgCPLinearExpr("expr1");
-        expr1.addTerm(pv1, pv1.getQty(), 1);
-        expr1.addTerm(pv2, pv2.getQty(), 3);
+        expr1.addTerm("", pv1, pv1.getQty(), 1);
+        expr1.addTerm("", pv2, pv2.getQty(), 3);
         expr1.addConstant(5);
         log.info(expr1.toString());
 
         PartAlgCPLinearExpr expr2 = new PartAlgCPLinearExpr("expr2");
-        expr2.addTerm(pv3, pv1.getQty(), -30);
+        expr2.addTerm("", pv3, pv1.getQty(), -30);
         log.info(expr2.toString());
 
         PartAlgCPLinearExpr expr = new PartAlgCPLinearExpr("expr");
@@ -101,13 +101,13 @@ public class PartAlgCPLinearExprTest {
         PartVar pv3 = ofPart("P3");
 
         PartAlgCPLinearExpr expr1 = new PartAlgCPLinearExpr("expr1");
-        expr1.addTerm(pv1, pv1.getQty(), 1);
-        expr1.addTerm(pv2, pv2.getQty(), 3);
+        expr1.addTerm("", pv1, pv1.getQty(), 1);
+        expr1.addTerm("", pv2, pv2.getQty(), 3);
         expr1.addConstant(5);
         log.info(expr1.toString());
 
         PartAlgCPLinearExpr expr2 = new PartAlgCPLinearExpr("expr2");
-        expr2.addTerm(pv3, pv1.getQty(), -30);
+        expr2.addTerm("", pv3, pv1.getQty(), -30);
         log.info(expr2.toString());
 
         PartAlgCPLinearExpr expr11 = new PartAlgCPLinearExpr("expr11");
@@ -134,8 +134,8 @@ public class PartAlgCPLinearExprTest {
 
         // P1.Q + 3*P2.Q + 5
         PartAlgCPLinearExpr expr1 = new PartAlgCPLinearExpr("expr1");
-        expr1.addTerm(pv1, pv1.getQty(), 1);
-        expr1.addTerm(pv2, pv2.getQty(), 3);
+        expr1.addTerm("", pv1, pv1.getQty(), 1);
+        expr1.addTerm("", pv2, pv2.getQty(), 3);
         expr1.addConstant(5);
         log.info(expr1.toDetailString());
         // |P1.Q + 3*P2.Q + 5|
