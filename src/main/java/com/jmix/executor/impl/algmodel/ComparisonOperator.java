@@ -9,7 +9,7 @@ package com.jmix.executor.impl.algmodel;
 public enum ComparisonOperator {
     EQUAL("==") {
         @Override
-        public void applyConstraint(AlgCPModel cpModel, AlgCPLinearExpr expr, int value) {
+        public void applyConstraint(AlgCPModel cpModel, PartAlgCPLinearExpr expr, int value) {
             cpModel.addEquality(expr, value);
         }
 
@@ -20,7 +20,7 @@ public enum ComparisonOperator {
     },
     NOT_EQUAL("!=") {
         @Override
-        public void applyConstraint(AlgCPModel cpModel, AlgCPLinearExpr expr, int value) {
+        public void applyConstraint(AlgCPModel cpModel, PartAlgCPLinearExpr expr, int value) {
             cpModel.addDifferent(expr, value);
         }
 
@@ -31,7 +31,7 @@ public enum ComparisonOperator {
     },
     LESS_THAN("<") {
         @Override
-        public void applyConstraint(AlgCPModel cpModel, AlgCPLinearExpr expr, int value) {
+        public void applyConstraint(AlgCPModel cpModel, PartAlgCPLinearExpr expr, int value) {
             cpModel.addLessThan(expr, value);
         }
 
@@ -42,7 +42,7 @@ public enum ComparisonOperator {
     },
     LESS_OR_EQUAL("<=") {
         @Override
-        public void applyConstraint(AlgCPModel cpModel, AlgCPLinearExpr expr, int value) {
+        public void applyConstraint(AlgCPModel cpModel, PartAlgCPLinearExpr expr, int value) {
             cpModel.addLessOrEqual(expr, value);
         }
 
@@ -53,7 +53,7 @@ public enum ComparisonOperator {
     },
     GREATER_THAN(">") {
         @Override
-        public void applyConstraint(AlgCPModel cpModel, AlgCPLinearExpr expr, int value) {
+        public void applyConstraint(AlgCPModel cpModel, PartAlgCPLinearExpr expr, int value) {
             cpModel.addGreaterThan(expr, value);
         }
 
@@ -64,7 +64,7 @@ public enum ComparisonOperator {
     },
     GREATER_OR_EQUAL(">=") {
         @Override
-        public void applyConstraint(AlgCPModel cpModel, AlgCPLinearExpr expr, int value) {
+        public void applyConstraint(AlgCPModel cpModel, PartAlgCPLinearExpr expr, int value) {
             cpModel.addGreaterOrEqual(expr, value);
         }
 
@@ -96,7 +96,7 @@ public enum ComparisonOperator {
      * @param expr    线性表达式
      * @param value   比较值
      */
-    public abstract void applyConstraint(AlgCPModel cpModel, AlgCPLinearExpr expr, int value);
+    public abstract void applyConstraint(AlgCPModel cpModel, PartAlgCPLinearExpr expr, int value);
 
     /**
      * 获取公式字符串表示

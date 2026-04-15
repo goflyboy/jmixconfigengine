@@ -274,96 +274,24 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         return buildSumExprInternal(algExpr, partCategoryAlgImpl, attrCode, varName, varGetter, filtedConditionStr);
     }
 
-    /**
-     * 添加求和函数约束
-     *
-     * @param sumParts       求和的部件列表
-     * @param partConstraint 部件约束对象
-     */
-    public void sumFunConstraint(List<Part> sumParts,
-            PartCategoryInput partConstraint) {
-        sumFunConstraint((PartCategoryAlgImpl) this, sumParts, partConstraint);
+    protected void sumFunConstraint(ModuleBaseAlgImpl moduleBaseAlgImpl,
+            PartCategoryInputBase partConstraint) {
     }
 
-    /**
-     * 添加求和函数约束
-     *
-     * @param partCategoryAlgImpl 部件分类算法实现类
-     * @param sumParts            求和的部件列表
-     * @param partConstraint      部件约束对象
-     */
-    protected void sumFunConstraint(PartCategoryAlgImpl partCategoryAlgImpl, List<Part> sumParts,
-            PartCategoryInput partConstraint) {
-        if (sumParts == null || sumParts.isEmpty()) {
-            log.warn("No parts found for sum constraint with attrCode: {}, comparator: {}, leftValue: {}",
-                    partConstraint.getSumAttrCode(), partConstraint.getComparator(), partConstraint.getLeftValue());
-            return;
-        }
-
-        // 使用 buildPriorityConstraintExpressions 的逻辑构建表达式
-        // 创建一个临时的 PriorityConstraint 对象来复用构建逻辑
-        PriorityConstraint tempConstraint = new PriorityConstraint();
-        String attrCode = partConstraint.getSumAttrCode();
-        String varName = "Q";
-        Function<PartVar, LinearArgument> varGetter = PartVar::getQty;
-
-        // 构建表达式，但使用传入的 sumParts 而不是 module.getAtomicParts()
-        AlgCPLinearExpr sumFunExpr = buildSumConstraintExpressions(
-                partCategoryAlgImpl, tempConstraint, sumParts, attrCode, varName,
-                varGetter);
-        String sumFormulaBase = tempConstraint.getExprStr();
-
-        // 应用约束
-        ComparisonOperator operator = ComparisonOperator.fromSymbol(partConstraint.getComparator());
-        operator.applyConstraint(model, sumFunExpr, partConstraint.getLeftValue());
-        String sumFormula = operator.getFormulaString(sumFormulaBase, partConstraint.getLeftValue());
-
-        log.info("Priority-Added sum constraint: {} for {}", sumFormula,
-                partConstraint.getOrgReq() != null ? partConstraint.getOrgReq().toString() : "null");
-    }
-
-    /**
-     * 构建求和约束表达式（基于 buildPriorityConstraintExpressions 的逻辑）
-     * 
-     * @param pConstraint 优先级约束对象（用于存储表达式信息）
-     * @param sumParts    求和的部件列表
-     * @param attrCode    属性代码
-     * @param varName     变量名称（"S" 或 "Q"）
-     * @param varGetter   从PartVar获取LinearArgument的函数（如getIsSelected或getQty）
-     * @return 构建的AlgCPLinearExpr表达式
-     */
-    private PartAlgCPLinearExpr buildSumConstraintExpressions(PartCategoryAlgImpl partCategoryAlgImpl,
-            PriorityConstraint pConstraint, List<Part> sumParts,
-            String attrCode, String varName, Function<PartVar, LinearArgument> varGetter) {
-        PartAlgCPLinearExpr algExpr = new PartAlgCPLinearExpr("sum_constraint_" + attrCode + "_" + varName);
-        boolean isWithoutAttr = attrCode == null || attrCode.isEmpty();
-
-        for (Part part : sumParts) {
-            PartVar partVar = partCategoryAlgImpl.getPartVar(part.getCode());
-            if (partVar.getQty() == null) {
-                log.error("PartVar quantity is null for part code: {}, cannot create sum constraint", part.getCode());
-                throw new AlgLoaderException("PartVar quantity is null for part code: " + part.getCode()
-                        + ", cannot create sum constraint");
-            }
-
-            int attrValue;
-            if (isWithoutAttr) {
-                attrValue = 1;
-            } else if (PartConstantAttr.Quantity.getCode().equals(attrCode)) {
-                attrValue = 1;
-            } else {
-                attrValue = Integer.parseInt(part.getAttr(attrCode));
-            }
-
-            // add term via PartAlgCPLinearExpr to capture metadata and numeric term
-            algExpr.addTerm(partCategoryAlgImpl.getCategoryCode(), partVar, (IntVar) varGetter.apply(partVar),
-                    attrValue, varName);
-        }
-
-        // 设置表达式字符串和AlgCPLinearExpr
-        pConstraint.setExpr(algExpr);
-        return algExpr;
-    }
+    // protected void sumFunConstraint(PartCategoryAlgImpl partCategoryAlgImpl,
+    // PartCategoryInput partConstraint) {
+    // PartAlgCPLinearExpr sumFunExpr = buildSumExpr(partCategoryAlgImpl,
+    // partConstraint.getSumAttrCode(), "Q",
+    // PartVar::getQty, "");
+    // // 应用约束
+    // ComparisonOperator operator =
+    // ComparisonOperator.fromSymbol(partConstraint.getComparator());
+    // operator.applyConstraint(model, sumFunExpr, partConstraint.getLeftValue());
+    // log.info("Priority-Added sum constraint: {} for {}",
+    // sumFunExpr.getExprStr(),
+    // partConstraint.getOrgReq() != null ? partConstraint.getOrgReq().toString() :
+    // "null");
+    // }
 
     /**
      * 添加松弛目标函数
@@ -794,6 +722,16 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         writeBackToFields(moduleAlgFile);
 
         log.info("ModuleBaseAlgImpl initInput {}", module.getClass().getSimpleName());
+    }
+
+    /**
+     * 根据请求初始化优先级约束模型
+     */
+    protected void initModelByPriorityConstraints(PartCategoryInputBase partCategoryInput) {
+
+        this.sumFunConstraint(
+                partConstraint);
+
     }
 
     protected void afterSetInputVariable() {
