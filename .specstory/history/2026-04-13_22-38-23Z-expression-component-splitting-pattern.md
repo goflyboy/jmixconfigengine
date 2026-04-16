@@ -25,4 +25,51 @@ Pattern pattern = java.util.regex.Pattern.compile("(_+?)\\s*(==|!=|<=|>=|<|>)\\s
 2. `(==|!=|<=|>=|<|>)` - 匹配操作符
 3. `(_+)` - 匹配一个下划线
 
-用户实际上
+用户实际上想要的是：
+- 第一个捕获组：属性名（如 `Sum_Capacity`），这应该匹配字母、数字、下划线的组合
+- 第二个捕获组：操作符（>=, <=, >, <, ==, !=）
+- 第三个捕获组：值（如 `5`），这应该匹配数字
+
+正确的正则表达式应该是：
+```java
+Pattern pattern = java.util.regex.Pattern.compile("([A-Za-z_][A-Za-z0-9_]*)\\s*(==|!=|<=|>=|<|>)\\s*(\\d+)");
+```
+
+或者更宽松一些：
+```java
+Pattern pattern = java.util.regex.Pattern.compile("(\\w+)\\s*(==|!=|<=|>=|<|>)\\s*(\\S+)");
+```
+
+让我看看用户选中的代码上下文，给出正确的建议。
+</think>
+
+当前的正则表达式有问题，它试图匹配下划线而不是属性名和值。
+
+正确的正则表达式应该是：
+
+```java
+Pattern pattern = java.util.regex.Pattern.compile("([A-Za-z_][A-Za-z0-9_]*)\\s*(==|!=|<=|>=|<|>)\\s*(\\d+)");
+```
+
+**解释：**
+- `([A-Za-z_][A-Za-z0-9_]*)` - 第一个捕获组：属性名，以字母或下划线开头，后续是字母、数字、下划线
+- `(==|!=|<=|>=|<|>)` - 第二个捕获组：操作符
+- `(\\d+)` - 第三个捕获组：数字值
+
+**使用示例：**
+
+```java
+String attrExpr = "Sum_Capacity >= 5";
+Matcher matcher = pattern.matcher(attrExpr);
+if (matcher.matches()) {
+    String attrName = matcher.group(1);  // "Sum_Capacity"
+    String operator = matcher.group(2);  // ">="
+    String value = matcher.group(3);      // "5"
+}
+```
+
+如果你希望值部分也支持小数或负数，可以改为：
+
+```java
+Pattern pattern = java.util.regex.Pattern.compile("([A-Za-z_][A-Za-z0-9_]*)\\s*(==|!=|<=|>=|<|>)\\s*(-?\\d+(?:\\.\\d+)?)");
+```

@@ -334,19 +334,15 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
 
         // 初始化所有paras
         for (Para para : module.getParas()) {
-            if (para != null && para.getCode() != null) {
-                ParaVar paraVar = initParaVar(para);
-                paraMap.put(para.getCode(), paraVar);
-            }
+            ParaVar paraVar = initParaVar(para);
+            paraMap.put(para.getCode(), paraVar);
         }
         log.info("Initialized {} para variables", paraMap.size());
 
         // 初始化所有parts（原子部件）
         for (Part part : module.getAtomicParts()) {
-            if (part != null && part.getCode() != null) {
-                PartVar partVar = initPartVar(part);
-                partMap.put(part.getCode(), partVar);
-            }
+            PartVar partVar = initPartVar(part);
+            partMap.put(part.getCode(), partVar);
         }
         log.info("Initialized {} part variables", partMap.size());
     }
@@ -878,26 +874,11 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
     }
 
     public ParaVar getSumSumParaByAttr(String attrCode) {
-        ParaVar paraVar = paraMap.get(AttrParaType.SumSum.name() + AttrPara.CODE_SEPARATOR + attrCode);
-        if (paraVar == null) {
-            log.error("ParaVar not found for attrCode: {}", attrCode);
-            throw new AlgLoaderException("ParaVar not found for attrCode: " + attrCode);
-        }
-        return paraVar;
-    }
-
-    public ParaVar getSumParaByAttrInternal(String attrCode) {
-        ParaVar paraVar = paraMap.get(AttrParaType.Sum.name() + AttrPara.CODE_SEPARATOR + attrCode);
-        return paraVar;
+        throw new UnsupportedOperationException("Unimplemented method 'getSumSumParaByAttr'");
     }
 
     public ParaVar getSumParaByAttr(String attrCode) {
-        ParaVar paraVar = getSumParaByAttrInternal(attrCode);
-        if (paraVar == null) {
-            log.error("ParaVar not found for attrCode: {}", attrCode);
-            throw new AlgLoaderException("ParaVar not found for attrCode: " + attrCode);
-        }
-        return paraVar;
+        throw new UnsupportedOperationException("Unimplemented method 'getSumParaByAttr'");
     }
 
     /**
@@ -1282,5 +1263,9 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
             }
         }
         return Pair.of(filterPartVars, noFilterPartVars);
+    }
+
+    public String toString() {
+        return this.module.getCode();
     }
 }

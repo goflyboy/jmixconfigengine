@@ -200,7 +200,7 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
                     PartCategoryInput partCategoryInput = PartCategoryConstraintExecutorImpl
                             .toPartCategoryInput(
                                     filterPartCategory, req);
-                    partCategoryInput.setSumAttrParas(partCategory.getAttrParas());
+                    partCategoryInput.setSumAttrParas(partCategory.getAttrParas(AttrParaType.Sum));
                     partCategoryInputs.add(partCategoryInput);
                 } else {
                     Pair<List<Rule>, List<Rule>> rulePair = RuleUtils.splitRules(partCategory.getRules());
@@ -224,7 +224,6 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
                             throw new AlgExecutorException(msg);
                         }
                         filterPartCategory.setRules(rulePair.getFirst());
-                        result.addPart(filterPartCategory);
                         PartCategoryInput partCategoryInput = PartCategoryConstraintExecutorImpl
                                 .toPartCategoryInput(
                                         filterPartCategory, req);
@@ -518,6 +517,8 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
             // 调用新的initModel方法,
             // alg.initModel(model, module, relativePair.getFirst(),
             // relativePair.getSecond(), null);
+            ModuleInput moduleInput = new ModuleInput();
+
             alg.init(model, module, null);
         } else {
             // 全量加载模型

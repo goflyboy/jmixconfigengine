@@ -1,14 +1,17 @@
 package com.jmix.executor.impl.algmodel;
 
 import com.jmix.executor.bmodel.AttrPara;
+import com.jmix.executor.bmodel.AttrParaType;
 import com.jmix.executor.bmodel.IModule;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.base.Pair;
 import com.jmix.executor.bmodel.logic.CalcStage;
 import com.jmix.executor.cmodel.ModuleInst;
+import com.jmix.executor.impl.IModuleInput;
 import com.jmix.executor.impl.MultiInstPartCategoryInput;
 import com.jmix.executor.impl.PartCategoryInput;
 import com.jmix.executor.impl.PartCategoryInputBase;
+import com.jmix.executor.model.AlgLoaderException;
 import com.jmix.executor.southinf.IModuleAlg;
 
 import lombok.extern.slf4j.Slf4j;
@@ -55,15 +58,22 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
         return getMultiInstPartCategoryInput().getPartCategoryInputs();
     }
 
-    protected void initData(AlgCPModel model, IModule module, PartCategoryInputBase partCategoryInput,
+    protected void initData(AlgCPModel model, IModule module,
+            IModuleInput partCategoryInput,
             IModuleAlg moduleAlgFile) {
         super.initData(model, module, partCategoryInput, moduleAlgFile);
         for (PartCategoryInput partCategoryInputInst : this.getPartCategoryInputs()) {
             SingleInstPartCategoryAlgImpl partCategoryAlg = new SingleInstPartCategoryAlgImpl();
+            if (partCategoryAlgs.containsKey(partCategoryInputInst.getInsKey())) {
+                log.error("PartCategoryInputInst " + partCategoryInputInst.getInsKey()
+                        + " already exists, skipping");
+                throw new AlgLoaderException("PartCategoryInputInst " + partCategoryInputInst.getInsKey()
+                        + " already exists, skipping");
+            }
+            partCategoryAlgs.put(partCategoryInputInst.getInsKey(), Pair.of(partCategoryInputInst, partCategoryAlg));
             partCategoryAlg.initData(model, (IModule) partCategoryInputInst.getFilteredCategory(),
                     partCategoryInputInst,
                     moduleAlgFile);
-            partCategoryAlgs.put(partCategoryInputInst.getInsKey(), Pair.of(partCategoryInputInst, partCategoryAlg));
         }
     }
 
@@ -204,7 +214,12 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
     }
 
     public ParaVar getSumSumParaByAttr(String attrCode) {
-        return super.getSumSumParaByAttr(attrCode);
+        ParaVar paraVar = super.getParaVar(AttrParaType.SumSum.name() + AttrPara.CODE_SEPARATOR + attrCode);
+        if (paraVar == null) {
+            log.error("ParaVar not found for attrCode: {}", attrCode);
+            throw new AlgLoaderException("ParaVar not found for attrCode: " + attrCode);
+        }
+        return paraVar;
     }
 
     public ParaVar getSumParaByAttr(String attrCode) {

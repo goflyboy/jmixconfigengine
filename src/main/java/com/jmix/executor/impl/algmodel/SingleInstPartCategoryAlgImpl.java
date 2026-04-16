@@ -1,5 +1,7 @@
 package com.jmix.executor.impl.algmodel;
 
+import com.jmix.executor.bmodel.AttrPara;
+import com.jmix.executor.bmodel.AttrParaType;
 import com.jmix.executor.bmodel.IModule;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartCategory;
@@ -8,6 +10,7 @@ import com.jmix.executor.cmodel.ModuleInst;
 import com.jmix.executor.impl.IModuleInput;
 import com.jmix.executor.impl.PartCategoryInput;
 import com.jmix.executor.impl.PartCategoryInputBase;
+import com.jmix.executor.model.AlgLoaderException;
 import com.jmix.executor.southinf.IModuleAlg;
 
 import lombok.extern.slf4j.Slf4j;
@@ -49,6 +52,7 @@ public class SingleInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements 
         PartCategoryInput input = (PartCategoryInput) (this.moduleInput);
         newAttrParaVar(input.getSumAttrParas());
         super.initInput(moduleAlgFile);
+        setPartCategoryInput(input);
     }
 
     public void initRules(Map<String, Method> allRuleMethods, IModuleAlg moduleAlgFile, CalcStage calcStage) {
@@ -96,6 +100,25 @@ public class SingleInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements 
     @Override
     public List<Part> getAtomicParts() {
         return getPartCategory().getAtomicParts();
+    }
+
+    public ParaVar getSumSumParaByAttr(String attrCode) {
+        // 如果一个支持多实例的分类，仅初始化了一个分类，则需要把访问sumsum转变为sum的访问
+        return getSumParaByAttr(attrCode);
+    }
+
+    public ParaVar getSumParaByAttr(String attrCode) {
+        ParaVar paraVar = super.getParaVar(AttrParaType.Sum.name() + AttrPara.CODE_SEPARATOR + attrCode);
+        if (paraVar == null) {
+            log.error("ParaVar not found for attrCode: {}", attrCode);
+            throw new AlgLoaderException("ParaVar not found for attrCode: " + attrCode);
+        }
+        return paraVar;
+    }
+
+    public ParaVar getSumParaByAttrInternal(String attrCode) {
+        ParaVar paraVar = paraMap.get(AttrParaType.Sum.name() + AttrPara.CODE_SEPARATOR + attrCode);
+        return paraVar;
     }
 
     protected void sumFunConstraint(ModuleBaseAlgImpl moduleBaseAlgImplTmp,

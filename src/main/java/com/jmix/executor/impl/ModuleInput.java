@@ -4,6 +4,7 @@ import com.jmix.executor.model.InferPartCategoryReq;
 
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,7 +16,7 @@ import java.util.List;
 @Data
 public class ModuleInput implements IModuleInput {
 
-    private List<PartCategoryInputBase> partCategoryInputs;
+    private List<PartCategoryInputBase> partCategoryInputs = new ArrayList<>();
 
     private InferPartCategoryReq partCategoryReq; // 后续待整理
 }

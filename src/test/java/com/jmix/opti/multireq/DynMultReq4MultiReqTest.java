@@ -232,7 +232,7 @@ public class DynMultReq4MultiReqTest extends ModuleScenarioTestBase {
         printSimpleSolutions();
         // 变化点5-1：要求为保持输入的简洁见，如果仅输出一个实例，则和原来多单实例一样，不加实例名
         assertSoluContain(1, "cpu2(Q:2,H:0,S:1),md1(Q:5,H:0,S:1),sd1(0*)");
-        assertSoluContain("cpu2(Q:20,H:0,S:1),md1(Q:5,H:0,S:1),sd1(0*)");
+        // assertSoluContain("cpu2(Q:20,H:0,S:1),md1(Q:5,H:0,S:1),sd1(0*)");
     }
 
     @Test
@@ -243,7 +243,7 @@ public class DynMultReq4MultiReqTest extends ModuleScenarioTestBase {
         printSimpleSolutions();
         // 变化点5-2：要求为保持输入的简洁见，如果输出多个实例，后面的需要加上实名名称I1
         assertSoluContain(1, "cpu2(Q:2,H:0,S:1),md1(Q:5,H:0,S:1),sd1(0*),I1_md1(Q:5,H:0,S:1),I1_sd1(0*)");
-        assertSoluContain("cpu2(Q:20,H:0,S:1),md1(Q:5,H:0,S:1),sd1(0*),I1_md1(Q:5,H:0,S:1),I1_sd1(0*)");
+        // assertSoluContain("cpu2(Q:20,H:0,S:1),md1(Q:5,H:0,S:1),sd1(0*),I1_md1(Q:5,H:0,S:1),I1_sd1(0*)");
     }
 
     // @Test

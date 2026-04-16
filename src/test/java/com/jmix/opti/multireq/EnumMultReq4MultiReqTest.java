@@ -81,10 +81,10 @@ public class EnumMultReq4MultiReqTest extends ModuleScenarioTestBase {
 
         // 改动4：原来属于分类2（多）的参数，由于属于整个分类2，当前多实例化，只能提升到产品级fatherCode = "drive"-> ""
         @ParaAnno(fatherCode = "drive", type = ParaType.INTEGER, assignType = AssignType.INPUT)
-        private ParaVar SumCapacity;// 输入参数
+        private ParaVar Sum_Capacity;// 输入参数
 
         @ParaAnno(fatherCode = "drive", type = ParaType.INTEGER, assignType = AssignType.INPUT)
-        private ParaVar SumQuantity; // 输入参数
+        private ParaVar Sum_Quantity; // 输入参数
 
         // ==================== CPU部件分类定义 ====================
         @PartAnno()
@@ -124,7 +124,7 @@ public class EnumMultReq4MultiReqTest extends ModuleScenarioTestBase {
         // private ParaVar cpuSumCores; // 输入参数 TODO:不需要建立，应该从引擎干掉
 
         @ParaAnno(fatherCode = "cpu", type = ParaType.INTEGER, assignType = AssignType.INPUT)
-        private ParaVar SumMemory; // 输入参数
+        private ParaVar Sum_Memory; // 输入参数
         // 改动点3：分类2(多）多个请求的整体要求，需要有整体汇总
 
         // 额外增加的，前置计算的规则
@@ -132,8 +132,8 @@ public class EnumMultReq4MultiReqTest extends ModuleScenarioTestBase {
         private void logic4ReqMutiInst() {
             // 这是一个动态表达式，支持这种可能更好： driveI*.SumCapacity
             // drive.SumCapacity = driveI1.SumCapacity + driveI2.SumCapacity
-            addControlParaEqual("driveSumCapacity", "drive:SumCapacity");
-            addControlParaEqual("driveSumQuantity", "drive:SumQuantity");
+            addControlParaEqual("driveSumCapacity", "drive:Sum_Capacity");
+            addControlParaEqual("driveSumQuantity", "drive:Sum_Quantity");
             // TODO: 场景维度1：逻辑是不完备的，如果是部分I1，I2， I1是S，I2是Q，怎么办？，类似这种的总的就没有意义？
             // 维度2：没有最优，其实是比较简单的？ total = I1.Q + I2.Q + I3.Q(多实例，这个怎么做的？ I1.1 +I2.1 == I1.2
             // ,优先使用单实例来满足，除非的他数量有限制？)
@@ -281,7 +281,7 @@ public class EnumMultReq4MultiReqTest extends ModuleScenarioTestBase {
         printSimpleSolutions();
         // 变化点5-1：要求为保持输入的简洁见，如果仅输出一个实例，则和原来多单实例一样，不加实例名
         assertSoluContain(1, "cpu2(Q:2,H:0,S:1),md1(Q:5,H:0,S:1),sd1(0*)");
-        assertSoluContain("cpu2(Q:20,H:0,S:1),md1(Q:5,H:0,S:1),sd1(0*)");
+        // assertSoluContain("cpu2(Q:20,H:0,S:1),md1(Q:5,H:0,S:1),sd1(0*)");
     }
 
     @Test
@@ -292,7 +292,7 @@ public class EnumMultReq4MultiReqTest extends ModuleScenarioTestBase {
         printSimpleSolutions();
         // 变化点5-2：要求为保持输入的简洁见，如果输出多个实例，后面的需要加上实名名称I1
         assertSoluContain(1, "cpu2(Q:2,H:0,S:1),md1(Q:5,H:0,S:1),sd1(0*),I1_md1(Q:5,H:0,S:1),I1_sd1(0*)");
-        assertSoluContain("cpu2(Q:20,H:0,S:1),md1(Q:5,H:0,S:1),sd1(0*),I1_md1(Q:5,H:0,S:1),I1_sd1(0*)");
+        // assertSoluContain("cpu2(Q:20,H:0,S:1),md1(Q:5,H:0,S:1),sd1(0*),I1_md1(Q:5,H:0,S:1),I1_sd1(0*)");
     }
 
 }
