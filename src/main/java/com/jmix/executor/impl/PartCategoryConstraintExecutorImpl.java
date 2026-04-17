@@ -67,7 +67,7 @@ public class PartCategoryConstraintExecutorImpl extends ModuleBaseConstraintExec
             }
             ModuleInput moduleInput = new ModuleInput();
             moduleInput.setPartCategoryInputs(partCategoryInputs);
-            moduleInput.setPartCategoryReq(partCategoryReq);
+
             SolverResult sr = null;
             // 检查是否有优先级规则，如果有则使用分级求解
             Module moduleClone = module.clone();

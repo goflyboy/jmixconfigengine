@@ -256,7 +256,7 @@ public class PartCategory extends ModuleBase implements IModule, IPart {
         FilterCondition filterCondition = filterConditionOpt.get();
         String fieldName = filterCondition.getFieldName();
 
-        DynamicAttribute attr = findAttribute(fieldName, dynAttrSchemas);
+        DynamicAttribute attr = getAttribute(fieldName, dynAttrSchemas);
         return Pair.of(attr, AttrFunConstant.FUN_PREFIX_EMPTY);
     }
 
@@ -279,7 +279,7 @@ public class PartCategory extends ModuleBase implements IModule, IPart {
             attrCode = parts[1];
         }
 
-        DynamicAttribute attr = findAttribute(attrCode, dynAttrSchemas);
+        DynamicAttribute attr = getAttribute(attrCode, dynAttrSchemas);
         return Pair.of(attr, funPrefix);
     }
 
@@ -292,7 +292,7 @@ public class PartCategory extends ModuleBase implements IModule, IPart {
      * @throws IllegalArgumentException 当属性未找到时抛出
      */
     @JsonIgnore
-    private DynamicAttribute findAttribute(String attrCode, List<DynamicAttribute> dynAttrSchemas) {
+    public DynamicAttribute getAttribute(String attrCode, List<DynamicAttribute> dynAttrSchemas) {
         // 首先在动态属性schema列表中查找
         for (DynamicAttribute attr : dynAttrSchemas) {
             if (attr.getCode().equals(attrCode)) {
@@ -505,5 +505,22 @@ public class PartCategory extends ModuleBase implements IModule, IPart {
             allRules.addAll(subCategory.getAllRules(calcStage));
         }
         return allRules;
+    }
+
+    @Override
+    public DynamicAttribute getDynAttrSchema(String code) {
+        DynamicAttribute cAttr = getDynAttrSchemas().stream()
+                .filter(attr -> code.equals(attr.getCode()))
+                .findFirst()
+                .orElse(null);
+        if (cAttr != null) {
+            return cAttr;
+        }
+        // 如果在schema列表中找不到，则在常量属性中查找
+        cAttr = PartConstantAttr.getAttr(code);
+        if (cAttr != null) {
+            return cAttr;
+        }
+        return null;
     }
 }

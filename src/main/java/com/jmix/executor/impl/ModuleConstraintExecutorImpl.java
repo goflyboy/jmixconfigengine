@@ -121,6 +121,9 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
     private Map<String, List<PartConstraintReq>> normalizePartConstraint(List<PartConstraintReq> orgReqs,
             IModule module) {
         Map<String, List<PartConstraintReq>> normalizedReqs = new HashMap<>();
+        if (orgReqs == null) {
+            return normalizedReqs;
+        }
         for (PartConstraintReq orgReq : orgReqs) {
             List<PartConstraintReq> reqs = normalizedReqs.get(orgReq.getPartCategoryCode());
             if (reqs == null) {
@@ -150,7 +153,6 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
             // 查找原始部件分类
             Pair<Module, List<PartCategoryInputBase>> filterResult = filterClone(startModule, partConstraintReqMap);
             moduleInput.setPartCategoryInputs(filterResult.getSecond());
-            moduleInput.setPartCategoryReq(partCategoryReq);
 
             Module filterModule = filterResult.getFirst();
             log.info("Priority-orignal module: {}", ModuleUtils.toShortString(startModule));
@@ -170,7 +172,7 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
         }
     }
 
-    private Pair<Module, List<PartCategoryInputBase>> filterClone(Module startModule,
+    public static Pair<Module, List<PartCategoryInputBase>> filterClone(Module startModule,
             Map<String, List<PartConstraintReq>> partConstraintReqMap) {
         Module result = startModule.clone();
         List<PartCategoryInputBase> partCategoryInputs = new ArrayList<>();
@@ -514,28 +516,41 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
                     relativePair.getSecond().stream().map(RefProgObjSchema::getProgObjCode)
                             .collect(java.util.stream.Collectors.toList()));
 
-            // 调用新的initModel方法,
-            // alg.initModel(model, module, relativePair.getFirst(),
-            // relativePair.getSecond(), null);
-            ModuleInput moduleInput = new ModuleInput();
-
-            alg.init(model, module, null);
+            // 调用新的initModel方法,issue:差量后续实现
+            alg.init(model, module, toModuleInput(module, req));
         } else {
             // 全量加载模型
-            // alg.initModel(model, module, null);
-            alg.init(model, module, null);
+            alg.init(model, module, toModuleInput(module, req));
         }
 
-        // 根据请求初始化约束模型
-        initModelByReq(req, alg);
+        // // 根据请求初始化约束模型
+        // initModelByReq(req, alg);
 
         // 添加松弛目标函数, 方便调试
         alg.addRelaxObjectFunction();
         return alg;
     }
 
+    private ModuleInput toModuleInput(Module startModule, InferParasReq req) {
+        ModuleInput moduleInput = new ModuleInput();
+        moduleInput.setModuleId(startModule.getId());
+        moduleInput.setModuleCode(startModule.getCode());
+        moduleInput.setMainPartInst(req.getMainPartInst());
+        moduleInput.setPreParaInsts(req.getPreParaInsts());
+        moduleInput.setPrePartInsts(req.getPrePartInsts());
+        // moduleInput.setPartConstraintReqs(req.getPartConstraintReqs());
+        moduleInput.setEnumerateAllSolution(req.isEnumerateAllSolution());
+        // moduleInput.setPartCategoryCode(req.getPartCategoryCode());
+        Map<String, List<PartConstraintReq>> partConstraintReqMap = normalizePartConstraint(req.getPartConstraintReqs(),
+                startModule);
+        Pair<Module, List<PartCategoryInputBase>> filterResult = ModuleConstraintExecutorImpl.filterClone(startModule,
+                partConstraintReqMap);
+        moduleInput.setPartCategoryInputs(filterResult.getSecond());
+        return moduleInput;
+    }
+
     /**
-     * 根据请求初始化约束模型
+     * 根据请求初始化约束模型,TODO:delete
      * 
      * @param req 参数反推请求
      * @param alg 约束算法实现
@@ -576,7 +591,7 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
     }
 
     /**
-     * 添加部件约束请求
+     * 添加部件约束请求 todelete
      *
      * @param alg                约束算法实现
      * @param partCategoryCode   部件分类代码

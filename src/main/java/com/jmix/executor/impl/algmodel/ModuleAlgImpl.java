@@ -18,7 +18,6 @@ import com.jmix.executor.impl.PartCategoryInputBase;
 import com.jmix.executor.impl.PriorityConstraint;
 import com.jmix.executor.impl.util.FilterExpressionExecutor;
 import com.jmix.executor.model.AlgLoaderException;
-import com.jmix.executor.model.InferPartCategoryReq;
 import com.jmix.executor.southinf.IModuleAlg;
 import com.jmix.tool.bbuilder.MultiInstCategoryUtils;
 
@@ -77,22 +76,6 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
         // postCalculate
     }
 
-    // /**
-    // * 根据请求初始化约束模型
-    // */
-    // protected void initModelByReq(InferPartCategoryReq req, ModuleAlgImpl alg) {
-    // if (req.getPreParaInsts() != null) {
-    // for (ParaInst paraInst : req.getPreParaInsts()) {
-    // alg.addParaEquality(paraInst.getCode(), paraInst.getValue());
-    // }
-    // }
-    // if (req.getPrePartInsts() != null) {
-    // for (PartInst partInst : req.getPrePartInsts()) {
-    // alg.addPartEquality(partInst.getCode(), partInst.getQuantity());
-    // }
-    // }
-    // }
-
     private ModuleInput getModuleInput() {
         return (ModuleInput) this.moduleInput;
     }
@@ -101,8 +84,10 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
         super.initInput(this);
 
         // 本模块的初始化
-        ModuleInput moduleInput = getModuleInput();
-        InferPartCategoryReq req = moduleInput.getPartCategoryReq();
+        ModuleInput req = getModuleInput();
+        if (req.getMainPartInst() != null) {
+            this.addPartEquality(req.getMainPartInst().getCode(), req.getMainPartInst().getQuantity());
+        }
         if (req.getPreParaInsts() != null) {
             for (ParaInst paraInst : req.getPreParaInsts()) {
                 this.addParaEquality(paraInst.getCode(), paraInst.getValue());

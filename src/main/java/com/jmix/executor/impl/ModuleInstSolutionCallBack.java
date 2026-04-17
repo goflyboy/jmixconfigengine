@@ -244,21 +244,4 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
         double calculatedValue = PriorityConstraint.calcToString(priorityExpr, exprVariablesValues);
         moduleInst.setPriorityOverallValue(calculatedValue);
     }
-
-    /**
-     * 创建ModuleInst实例
-     * 
-     * @param module     模块对象
-     * @param instanceId 实例ID，默认为0
-     * @return ModuleInst实例
-     */
-    private static ModuleInst createModuleInst(Module module, int instanceId) {
-        ModuleInst moduleInst = new ModuleInst();
-        moduleInst.setId(module.getId());
-        moduleInst.setCode(module.getCode());
-        // 设置ModuleInst的shortCode
-        moduleInst.setShortCode(module.getShortCode());
-        moduleInst.setInstanceId(instanceId);
-        return moduleInst;
-    }
 }
