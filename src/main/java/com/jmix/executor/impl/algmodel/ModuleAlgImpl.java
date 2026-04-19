@@ -7,6 +7,7 @@ import com.jmix.executor.bmodel.PartCategory;
 import com.jmix.executor.bmodel.PartUtils;
 import com.jmix.executor.bmodel.base.Pair;
 import com.jmix.executor.bmodel.logic.CalcStage;
+import com.jmix.executor.bmodel.logic.Cardinality;
 import com.jmix.executor.bmodel.logic.PriorityRuleSchema;
 import com.jmix.executor.bmodel.logic.PriorityStrategy;
 import com.jmix.executor.bmodel.logic.Rule;
@@ -51,6 +52,13 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
      */
     protected Map<String, PartCategoryAlgImpl> partCategoryAlgs = new LinkedHashMap<>();
 
+    // 左表达式部件分类算法实例，仅针对oneMany规则
+    private SingleInstPartCategoryAlgImpl currentLeftPartCategoryAlgImpl = null;
+    // 右表达式部件分类算法实例，仅针对oneMany规则
+    private SingleInstPartCategoryAlgImpl currentRightPartCategoryAlgImpl = null;
+    // 当前规则后缀，仅针对oneMany规则
+    private String currrentRulePostName = "";
+
     /**
      * 初始化模块算法实例
      * 按partCategoryCode对partCategoryInputs进行分组，然后初始化本层和子层的变量与规则
@@ -74,6 +82,52 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
         // midCalculate
         initRules(this, CalcStage.MID);
         // postCalculate
+    }
+
+    // 重写父类的方法
+    protected void executeRuleMethod(Rule rule, IModuleAlg moduleAlgFile, Method method) {
+        if (isOneManyRule(rule)) {
+            executeRuleMethod4OneManyRule(rule, moduleAlgFile, method);
+        } else {
+            super.executeRuleMethod(rule, moduleAlgFile, method);
+        }
+    }
+
+    private boolean isOneManyRule(Rule rule) {
+        return rule.getLeftCardinality() == Cardinality.ONE && rule.getRightCardinality() == Cardinality.MANY;
+    }
+
+    // 执行类似logicAB1(1-*)的用例
+    private void executeRuleMethod4OneManyRule(Rule rule, IModuleAlg moduleAlgFile, Method method) {
+        String leftPartCategoryCode = rule.getLeftCategoryCode();
+        String rightPartCategoryCode = rule.getRightCategoryCode();
+        if (Strings.isEmpty(leftPartCategoryCode) || Strings.isEmpty(rightPartCategoryCode)) {
+            log.error("leftPartCategoryCode or rightPartCategoryCode is null, cannot execute one many rule");
+            throw new AlgLoaderException(
+                    "leftPartCategoryCode or rightPartCategoryCode is null, cannot execute one many rule");
+        }
+        SingleInstPartCategoryAlgImpl leftPartCategoryAlgImpl = (SingleInstPartCategoryAlgImpl) getPartCategoryAlg(
+                leftPartCategoryCode);
+        MultiInstPartCategoryAlgImpl rightPartCategoryAlgImpl = (MultiInstPartCategoryAlgImpl) getPartCategoryAlg(
+                rightPartCategoryCode);
+        if (leftPartCategoryAlgImpl == null || rightPartCategoryAlgImpl == null) {
+            log.error("leftPartCategoryAlgImpl or rightPartCategoryAlgImpl is null, cannot execute one many rule");
+            throw new AlgLoaderException(
+                    "leftPartCategoryAlgImpl or rightPartCategoryAlgImpl is null, cannot execute one many rule");
+        }
+        for (SingleInstPartCategoryAlgImpl rightPartCategoryAlgImplItem : rightPartCategoryAlgImpl
+                .getPartCategoryInsts()) {
+
+            currentLeftPartCategoryAlgImpl = leftPartCategoryAlgImpl;
+            currentRightPartCategoryAlgImpl = rightPartCategoryAlgImplItem;
+            currrentRulePostName = currentLeftPartCategoryAlgImpl.getCategoryCode() + "_"
+                    + currentRightPartCategoryAlgImpl.getCategoryCode() + ".I"
+                    + currentRightPartCategoryAlgImpl.getInstId();
+            super.executeRuleMethod(rule, moduleAlgFile, method);
+            currentLeftPartCategoryAlgImpl = null;
+            currentRightPartCategoryAlgImpl = null;
+        }
+
     }
 
     private ModuleInput getModuleInput() {
@@ -321,25 +375,18 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
      * @param rightPartsExprStr 右侧部件表达式字符串
      */
     public void inCompatible(String ruleCode, String leftPartsExprStr, String rightPartsExprStr) {
-        PartsExpr left = filterPartExpr(leftPartsExprStr);
-        PartsExpr right = filterPartExpr(rightPartsExprStr);
+        PartsExpr left = filterPartExpr(leftPartsExprStr, true);
+        PartsExpr right = filterPartExpr(rightPartsExprStr, false);
 
         if (left.isEmpty4FilterPars() || right.isEmpty4FilterPars()) {
             log.info("Skip inCompatible constraint: {} - left or right filter is empty", ruleCode);
             return;
         }
 
-        compatibleConstraintAlg.addCompatibleConstraintInCompatible(ruleCode, left, right);
+        compatibleConstraintAlg.addCompatibleConstraintInCompatible(ruleCode + currrentRulePostName, left, right);
     }
 
-    /**
-     * 解析部件表达式字符串
-     * 格式：fatherCode=xxx:filterCondition
-     * 
-     * @param partExprStr 部件表达式字符串
-     * @return PartsExpr
-     */
-    private PartsExpr filterPartExpr(String partExprStr) {
+    private PartsExpr filterPartExpr(String partExprStr, boolean isLeft) {
         if (partExprStr == null || partExprStr.isEmpty()) {
             // 打日志，抛异常
             log.error("partExprStr is null or empty, cannot filter part expr");
@@ -362,7 +409,19 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
 
         partsExpr.setFilterConditionStr(filterConditionStr);
 
-        PartCategoryAlgImpl partCategoryAlgImpl = this.getPartCategoryAlg(partCategoryCode);
+        PartCategoryAlgImpl partCategoryAlgImpl = isLeft ? currentLeftPartCategoryAlgImpl
+                : currentRightPartCategoryAlgImpl;
+        if (partCategoryAlgImpl == null) {
+            // 兼容以前的
+            partCategoryAlgImpl = this.getPartCategoryAlg(partCategoryCode);
+        } else {
+            if (partCategoryAlgImpl.getCategoryCode() != partCategoryCode) {
+                // 打日志，抛异常
+                log.warn("partCategoryAlgImpl is invalid, cannot filter part expr");
+                throw new AlgLoaderException("partCategoryAlgImpl is invalid, cannot filter part expr");
+            }
+        }
+
         if (partCategoryAlgImpl == null) {
             // 打日志，抛异常
             log.warn("partCategoryAlgImpl is invalid, cannot filter part expr");

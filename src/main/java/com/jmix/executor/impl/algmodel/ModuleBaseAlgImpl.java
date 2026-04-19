@@ -281,25 +281,25 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
 
     /**
      * 执行单个规则方法
-     * 
+     *
      * @param ruleCode 规则代码
      * @param method   规则方法
      * @throws AlgLoaderException 异常
      */
-    protected void executeRuleMethod(String ruleCode, Method method) {
+    protected void executeRuleMethod(Rule rule, Method method) {
         setCurrentModule4Rule(this, this);
-        executeRuleMethod(this, ruleCode, method);
+        executeRuleMethod(rule, this, method);
         setCurrentModule4Rule(this, null);
     }
 
-    protected void executeRuleMethod(IModuleAlg moduleAlgFile, String ruleCode, Method method) {
+    protected void executeRuleMethod(Rule rule, IModuleAlg moduleAlgFile, Method method) {
         if (method == null) {
-            log.error("Rule method not found for execution: " + ruleCode);
-            throw new AlgLoaderException("Rule method not found for execution: " + ruleCode);
+            log.error("Rule method not found for execution: " + rule.getCode());
+            throw new AlgLoaderException("Rule method not found for execution: " + rule.getCode());
         }
         try {
             // 设置当前松弛变量名称
-            this.model.setRelax4CustomRule(ruleCode);
+            this.model.setRelax4CustomRule(rule.getCode());
 
             // 执行规则方法
             method.setAccessible(true);
@@ -643,7 +643,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
             }
             model.addRuleSeperator(ruleCode);
             setCurrentModule4Rule(moduleAlgFile, this);
-            executeRuleMethod(moduleAlgFile, ruleCode, method);
+            executeRuleMethod(rule, moduleAlgFile, method);
             setCurrentModule4Rule(moduleAlgFile, null);
         }
     }
