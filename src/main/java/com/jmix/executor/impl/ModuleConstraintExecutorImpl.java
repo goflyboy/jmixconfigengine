@@ -5,9 +5,7 @@ import com.jmix.executor.bmodel.AttrPara;
 import com.jmix.executor.bmodel.AttrParaType;
 import com.jmix.executor.bmodel.IModule;
 import com.jmix.executor.bmodel.Module;
-import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartCategory;
-import com.jmix.executor.bmodel.attr.DynamicAttribute;
 import com.jmix.executor.bmodel.base.Pair;
 import com.jmix.executor.bmodel.logic.RefProgObjSchema;
 import com.jmix.executor.bmodel.logic.Rule;
@@ -588,54 +586,6 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
         cReq.setEnumerateAllSolution(req.isEnumerateAllSolution());
         cReq.setPartCategoryCode(req.getPartCategoryCode());
         return cReq;
-    }
-
-    /**
-     * 添加部件约束请求 todelete
-     *
-     * @param alg                约束算法实现
-     * @param partCategoryCode   部件分类代码
-     * @param partConstraintReqs 部件约束请求列表
-     */
-    private void addPartConstraintReqs(ModuleAlgImpl alg, String partCategoryCode,
-            List<PartConstraintReq> partConstraintReqs) {
-        for (PartConstraintReq partConstraintReq : partConstraintReqs) {
-            // 从module中找到对应的PartCategory
-            IModule module = alg.getModule();
-            PartCategory partCategory = null;
-            if (module instanceof Module) {
-                partCategory = ((Module) module).getPartCategory(partCategoryCode);
-            }
-            if (partCategory == null) {
-                log.error("PartCategory not found: {}", partCategoryCode);
-                continue;
-            }
-
-            // 查询满足条件的PartCategory
-            PartCategory filteredCategory = partCategory.filterClone(partConstraintReq);
-
-            // 获取所有叶子部件
-            List<Part> filterParts = filteredCategory.getAtomicParts();
-            log.info("filterParts size: {} after filter req.whereCondition: {}", filterParts.size(),
-                    partConstraintReq.getAttrWhereCondition());
-            List<Part> unFilterParts = PartCategory.calcUnFilterLeafParts(partCategory, filterParts);
-
-            // 解析属性
-            Pair<DynamicAttribute, String> result = partCategory.parseAttribute(partConstraintReq.getAttrCode(),
-                    partCategory.getDynAttrSchemas());
-
-            // // 根据result.second构建约束表达式
-            // if (AttrFunConstant.FUN_PREFIX_SUM.equals(result.getSecond())) {
-            // PartCategoryInput partCategoryInput = new PartCategoryInput();
-            // partCategoryInput.setSumAttrCode(result.getFirst().getCode());
-            // partCategoryInput.setComparator(partConstraintReq.getAttrComparator());
-            // partCategoryInput.setLeftValue(Integer.parseInt(partConstraintReq.getAttrValue()));
-            // partCategoryInput.setOrgReq(partConstraintReq);
-            // alg.sumFunConstraint(filterParts, partCategoryInput);
-            // alg.setPartUnSelected(unFilterParts);
-            // }
-            throw new UnsupportedOperationException("Not implemented");
-        }
     }
 
     /**

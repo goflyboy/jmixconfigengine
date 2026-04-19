@@ -1,6 +1,7 @@
 package com.jmix.tool.bbuilder.anno;
 
 import com.jmix.executor.bmodel.logic.CalcStage;
+import com.jmix.executor.bmodel.logic.Cardinality;
 import com.jmix.executor.bmodel.logic.EffectScope;
 
 import java.lang.annotation.ElementType;
@@ -55,6 +56,16 @@ public @interface CodeRuleAnno {
      * 作用范围
      */
     EffectScope effectScope() default EffectScope.SingleInst;
+
+    /**
+     * 左侧基数
+     */
+    Cardinality leftCardinality() default Cardinality.ONE;
+
+    /**
+     * 右侧基数
+     */
+    Cardinality rightCardinality() default Cardinality.ONE;
 
     /**
      * 属性参数编码

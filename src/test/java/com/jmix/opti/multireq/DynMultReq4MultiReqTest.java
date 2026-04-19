@@ -3,6 +3,7 @@ package com.jmix.opti.multireq;
 import com.jmix.coretest.ConstraintAlgImplTestBase;
 import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.executor.bmodel.attr.DynamicAttributeType;
+import com.jmix.executor.bmodel.logic.Cardinality;
 import com.jmix.executor.bmodel.logic.EffectScope;
 import com.jmix.executor.bmodel.logic.PriorityStrategy;
 import com.jmix.executor.impl.algmodel.AlgCPLinearExpr;
@@ -130,7 +131,7 @@ public class DynMultReq4MultiReqTest extends ModuleScenarioTestBase {
         // 改动点3：分类2(多）多个请求的整体要求，需要有整体汇总
 
         // 改动点1：分类1（单)->分类2（多），需要设置为拆分为多条规则 Cardinality(1:N)
-        @CodeRuleAnno(normalNaturalCode = "4核的CPU不兼容固态硬盘", leftProObjsStr = "cpu:CoreNum|Quantity|Select", rightProObjsStr = "drive:Type|Quantity|Select")
+        @CodeRuleAnno(normalNaturalCode = "4核的CPU不兼容固态硬盘", leftProObjsStr = "cpu:CoreNum|Quantity|Select", rightProObjsStr = "drive:Type|Quantity|Select", leftCardinality = Cardinality.ONE, rightCardinality = Cardinality.MANY)
         private void logicAB1() {
             // TODO： code的动态性怎么保障
             inCompatible("logicAB1", "cpu:CoreNum=4", "drive:Type=sd");

@@ -1,6 +1,8 @@
 package com.jmix.tool.artbuilder.impl;
 
 import com.jmix.executor.bmodel.base.Extensible;
+import com.jmix.executor.bmodel.logic.Cardinality;
+import com.jmix.executor.bmodel.logic.EffectScope;
 import com.jmix.executor.bmodel.logic.RuleTypeConstants;
 
 import lombok.Data;
@@ -101,4 +103,19 @@ public class RuleInfo {
     public boolean isCalculateRule() {
         return RuleTypeConstants.isCalculateRule(this.ruleSchemaTypeFullName);
     }
+
+    /**
+     * 左侧基数
+     */
+    private Cardinality leftCardinality = Cardinality.ONE;
+
+    /**
+     * 右侧基数
+     */
+    private Cardinality rightCardinality = Cardinality.ONE;
+
+    /**
+     * 作用范围
+     */
+    private EffectScope effectScope = EffectScope.SingleInst;
 }
