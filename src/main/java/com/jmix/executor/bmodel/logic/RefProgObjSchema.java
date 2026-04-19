@@ -35,7 +35,7 @@ public class RefProgObjSchema {
     /**
      * 部件分类类型常量
      */
-    public static final String PROG_OBJ_TYPE_PARTCATEGORY = "PartCategorys";
+    public static final String PROG_OBJ_TYPE_PARTCATEGORY = "PartCategory";
 
     /**
      * 可编程对象类型

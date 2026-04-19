@@ -11,8 +11,6 @@ import com.jmix.executor.bmodel.logic.RefProgObjSchema;
 import com.jmix.executor.bmodel.logic.Rule;
 import com.jmix.executor.bmodel.logic.RuleUtils;
 import com.jmix.executor.cmodel.ModuleInst;
-import com.jmix.executor.cmodel.ParaInst;
-import com.jmix.executor.cmodel.PartInst;
 import com.jmix.executor.cmodel.SolverResult;
 import com.jmix.executor.impl.algmodel.AlgCPModel;
 import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
@@ -545,31 +543,6 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
                 partConstraintReqMap);
         moduleInput.setPartCategoryInputs(filterResult.getSecond());
         return moduleInput;
-    }
-
-    /**
-     * 根据请求初始化约束模型,TODO:delete
-     * 
-     * @param req 参数反推请求
-     * @param alg 约束算法实现
-     */
-    private void initModelByReq(InferParasReq req, ModuleAlgImpl alg) {
-        if (req.getMainPartInst() != null) {
-            alg.addPartEquality(req.getMainPartInst().getCode(), req.getMainPartInst().getQuantity());
-        }
-        if (req.getPreParaInsts() != null) {
-            for (ParaInst paraInst : req.getPreParaInsts()) {
-                alg.addParaEquality(paraInst.getCode(), paraInst.getValue());
-            }
-        }
-        if (req.getPrePartInsts() != null) {
-            for (PartInst partInst : req.getPrePartInsts()) {
-                alg.addPartEquality(partInst.getCode(), partInst.getQuantity());
-            }
-        }
-        if (req.getPartConstraintReqs() != null) {
-            addPartConstraintReqs(alg, req.getPartCategoryCode(), req.getPartConstraintReqs());
-        }
     }
 
     /**

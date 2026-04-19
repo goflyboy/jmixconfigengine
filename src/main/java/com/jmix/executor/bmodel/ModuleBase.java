@@ -112,7 +112,7 @@ public class ModuleBase extends Onto {
      * @return
      */
     @JsonIgnore
-    public Part findAtomicPart(String partCode) {
+    public Part getAtomicPart(String partCode) {
         if (atomicPartMap == null || atomicPartMap.isEmpty()) {
             // 根据parts初始化partMap
             for (Part part : atomicParts) {
@@ -342,7 +342,7 @@ public class ModuleBase extends Onto {
     @JsonIgnore
     public void addPart(IPart part) {
         if (part instanceof Part) {
-            if (findAtomicPart(part.getCode()) != null) {
+            if (getAtomicPart(part.getCode()) != null) {
                 log.warn("part {}, has existed, will be ommited!", part.getCode());
             } else {
                 atomicParts.add((Part) part);

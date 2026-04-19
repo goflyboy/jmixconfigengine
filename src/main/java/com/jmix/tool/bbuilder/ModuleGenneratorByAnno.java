@@ -496,7 +496,8 @@ public final class ModuleGenneratorByAnno {
         rule.setNormalNaturalCode(anno.normalNaturalCode());
         rule.setRuleSchemaTypeFullName("CDSL.V5.Struct.CodeRule");
         rule.setFatherCode(anno.fatherCode());
-
+        rule.setLeftCardinality(anno.leftCardinality());
+        rule.setRightCardinality(anno.rightCardinality());
         // 设置计算阶段
         rule.setCalcStage(anno.calcStage());
 
@@ -694,7 +695,7 @@ public final class ModuleGenneratorByAnno {
             String progObjType;
             if (module.getPara(progObjCode).isPresent()) {
                 progObjType = RefProgObjSchema.PROG_OBJ_TYPE_PARA;
-            } else if (module.getPart(progObjCode) != null) {
+            } else if (module.getAtomicPart(progObjCode) != null) {
                 progObjType = RefProgObjSchema.PROG_OBJ_TYPE_PART;
             } else if (module.getPartCategory(progObjCode) != null) {
                 progObjType = RefProgObjSchema.PROG_OBJ_TYPE_PARTCATEGORY;

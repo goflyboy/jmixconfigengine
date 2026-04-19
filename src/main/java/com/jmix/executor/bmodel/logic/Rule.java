@@ -119,20 +119,23 @@ public class Rule extends Extensible {
         return rawCode.getToRightProgObjs();
     }
 
+    @JsonIgnore
     public String getLeftCategoryCode() {
         return getCategoryCode(getFromLeftProgObjs());
     }
 
+    @JsonIgnore
     public String getRightCategoryCode() {
         return getCategoryCode(getToRightProgObjs());
     }
 
+    @JsonIgnore
     private String getCategoryCode(List<RefProgObjSchema> refProgObjs) {
         if (refProgObjs == null || refProgObjs.isEmpty()) {
             return null;
         }
         for (RefProgObjSchema refProgObj : refProgObjs) {
-            if (refProgObj.getProgObjType().equals("PartCategory")) {
+            if (refProgObj.getProgObjType().equals(RefProgObjSchema.PROG_OBJ_TYPE_PARTCATEGORY)) {
                 return refProgObj.getProgObjCode();
             }
         }

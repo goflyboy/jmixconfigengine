@@ -108,18 +108,30 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
         }
         SingleInstPartCategoryAlgImpl leftPartCategoryAlgImpl = (SingleInstPartCategoryAlgImpl) getPartCategoryAlg(
                 leftPartCategoryCode);
-        MultiInstPartCategoryAlgImpl rightPartCategoryAlgImpl = (MultiInstPartCategoryAlgImpl) getPartCategoryAlg(
+        PartCategoryAlgImpl rightPartCategoryAlgImpl = getPartCategoryAlg(
                 rightPartCategoryCode);
         if (leftPartCategoryAlgImpl == null || rightPartCategoryAlgImpl == null) {
             log.error("leftPartCategoryAlgImpl or rightPartCategoryAlgImpl is null, cannot execute one many rule");
             throw new AlgLoaderException(
                     "leftPartCategoryAlgImpl or rightPartCategoryAlgImpl is null, cannot execute one many rule");
         }
-        for (SingleInstPartCategoryAlgImpl rightPartCategoryAlgImplItem : rightPartCategoryAlgImpl
-                .getPartCategoryInsts()) {
+        if (rightPartCategoryAlgImpl instanceof MultiInstPartCategoryAlgImpl) {
+            MultiInstPartCategoryAlgImpl multiInstPartCategoryAlgImpl = (MultiInstPartCategoryAlgImpl) rightPartCategoryAlgImpl;
+            for (SingleInstPartCategoryAlgImpl rightPartCategoryAlgImplItem : multiInstPartCategoryAlgImpl
+                    .getPartCategoryInsts()) {
 
+                currentLeftPartCategoryAlgImpl = leftPartCategoryAlgImpl;
+                currentRightPartCategoryAlgImpl = rightPartCategoryAlgImplItem;
+                currrentRulePostName = currentLeftPartCategoryAlgImpl.getCategoryCode() + "_"
+                        + currentRightPartCategoryAlgImpl.getCategoryCode() + ".I"
+                        + currentRightPartCategoryAlgImpl.getInstId();
+                super.executeRuleMethod(rule, moduleAlgFile, method);
+                currentLeftPartCategoryAlgImpl = null;
+                currentRightPartCategoryAlgImpl = null;
+            }
+        } else {
             currentLeftPartCategoryAlgImpl = leftPartCategoryAlgImpl;
-            currentRightPartCategoryAlgImpl = rightPartCategoryAlgImplItem;
+            currentRightPartCategoryAlgImpl = (SingleInstPartCategoryAlgImpl) rightPartCategoryAlgImpl;
             currrentRulePostName = currentLeftPartCategoryAlgImpl.getCategoryCode() + "_"
                     + currentRightPartCategoryAlgImpl.getCategoryCode() + ".I"
                     + currentRightPartCategoryAlgImpl.getInstId();
@@ -415,7 +427,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
             // 兼容以前的
             partCategoryAlgImpl = this.getPartCategoryAlg(partCategoryCode);
         } else {
-            if (partCategoryAlgImpl.getCategoryCode() != partCategoryCode) {
+            if (!partCategoryAlgImpl.getCategoryCode().equals(partCategoryCode)) {
                 // 打日志，抛异常
                 log.warn("partCategoryAlgImpl is invalid, cannot filter part expr");
                 throw new AlgLoaderException("partCategoryAlgImpl is invalid, cannot filter part expr");
