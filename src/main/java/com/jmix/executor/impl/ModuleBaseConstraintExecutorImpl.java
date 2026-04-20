@@ -3,14 +3,12 @@ package com.jmix.executor.impl;
 import com.jmix.executor.bmodel.IModule;
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.PartCategory;
-import com.jmix.executor.bmodel.attr.DynamicAttribute;
 import com.jmix.executor.bmodel.base.Pair;
 import com.jmix.executor.cmodel.ModuleInst;
 import com.jmix.executor.cmodel.SolverResult;
 import com.jmix.executor.impl.algmodel.AlgCPModel;
 import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
 import com.jmix.executor.impl.algmodel.PartAlgCPLinearExpr;
-import com.jmix.executor.model.AlgExecutorException;
 import com.jmix.executor.model.ConstraintConfig;
 import com.jmix.executor.model.InferPartCategoryReq;
 import com.jmix.executor.model.PartConstraintReq;
@@ -255,13 +253,6 @@ public abstract class ModuleBaseConstraintExecutorImpl {
      */
     public static PartCategoryInput toPartCategoryInput(PartCategory filteredCategory,
             PartConstraintReq partConstraintReq) {
-        // 解析属性
-        DynamicAttribute dynAttrSchema = filteredCategory.getDynAttrSchema(partConstraintReq.getAttrCode());
-        if (dynAttrSchema == null) {
-            log.error("attrCode is not found");
-            throw new AlgExecutorException("attrCode is not found");
-        }
-
         // 根据partConstraintReq构造IPartCategoryInput
         PartCategoryInput fromReq = new PartCategoryInput();
         setPartCategoryInputBase(fromReq, partConstraintReq);
@@ -280,7 +271,9 @@ public abstract class ModuleBaseConstraintExecutorImpl {
         partCategoryInput.setSumAttrCode(partConstraintReq.getAttrCode());
         partCategoryInput.setAttrType(partConstraintReq.getAttrType());
         partCategoryInput.setComparator(partConstraintReq.getAttrComparator());
-        partCategoryInput.setLeftValue(Integer.parseInt(partConstraintReq.getAttrValue()));
+        if (partConstraintReq.getAttrComparator() != null) {
+            partCategoryInput.setLeftValue(Integer.parseInt(partConstraintReq.getAttrValue()));
+        }
         partCategoryInput.setOrgReq(partConstraintReq);
     }
 

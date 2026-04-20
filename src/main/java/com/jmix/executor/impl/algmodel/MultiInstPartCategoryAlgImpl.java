@@ -155,7 +155,7 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
     protected void sumFunConstraint(ModuleBaseAlgImpl moduleBaseAlgImplTmp,
             PartCategoryInputBase partConstraintTmp) {
         MultiInstPartCategoryAlgImpl multiInstPartCategoryAlgImpl = (MultiInstPartCategoryAlgImpl) moduleBaseAlgImplTmp;
-        PartCategoryInput partConstraint = (PartCategoryInput) partConstraintTmp;
+        MultiInstPartCategoryInput partConstraint = (MultiInstPartCategoryInput) partConstraintTmp;
         PartAlgCPLinearExpr sumFunExpr = new PartAlgCPLinearExpr(
                 multiInstPartCategoryAlgImpl.getCategoryCode() + "_" + multiInstPartCategoryAlgImpl.getInstId()
                         + "_sumFunConstraint");

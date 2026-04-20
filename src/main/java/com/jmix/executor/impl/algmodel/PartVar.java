@@ -13,6 +13,7 @@ import com.google.ortools.sat.IntVar;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,6 +28,7 @@ import java.util.Map;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
+@Slf4j
 public class PartVar extends Var<IPart> implements IExtensible, IDynamicAttributable {
 
     /**
@@ -187,6 +189,23 @@ public class PartVar extends Var<IPart> implements IExtensible, IDynamicAttribut
             }
         }
         return result;
+    }
+
+    public int getAttr4Int(String attrCode) {
+        return getAttr4IntDefault(attrCode, null);
+    }
+
+    public int getAttr4IntDefault(String attrCode, Integer defaultValue) {
+        String attrValue = getBase().getAttr(attrCode);
+        if (attrValue == null && defaultValue == null) {
+            log.error("code={},attrCode={} is not found and defaultValue is not set", getCode(), attrCode);
+            throw new IllegalArgumentException(
+                    String.format("code=%s,attrCode=%s is not found and defaultValue is not set", getCode(), attrCode));
+        }
+        if (attrValue != null) {
+            return Integer.parseInt(attrValue);
+        }
+        return defaultValue;
     }
 
     @Override

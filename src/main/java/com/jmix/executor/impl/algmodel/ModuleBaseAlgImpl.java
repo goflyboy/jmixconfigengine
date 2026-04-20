@@ -1,7 +1,6 @@
 package com.jmix.executor.impl.algmodel;
 
 import com.jmix.executor.bmodel.AttrPara;
-import com.jmix.executor.bmodel.AttrParaType;
 import com.jmix.executor.bmodel.IModule;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartUtils;
@@ -158,7 +157,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         }
         // 多实例后，不支持这种方式，ontoCode = pt.getFilteredCategory().getCode(); String paraCode =
         // ontoCode + "Sum" + pt.getSumAttrCode();
-        String paraCode = AttrParaType.Sum.name() + AttrPara.CODE_SEPARATOR + ipt.getSumAttrCode();
+        String paraCode = ipt.getAttrType().name() + AttrPara.CODE_SEPARATOR + ipt.getSumAttrCode();
 
         ParaVar pVar = this.getParaVar(paraCode);
         if (pVar == null) {
@@ -220,7 +219,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
             } else if (PartConstantAttr.Quantity.getCode().equals(attrCode)) {
                 attrValue = 1;
             } else {
-                attrValue = Integer.parseInt(partVar.getBase().getAttr(attrCode));
+                attrValue = partVar.getAttr4Int(attrCode);
             }
             algExpr.addTerm(partCategoryAlgImpl.getCategoryCode(), partVar, (IntVar) varGetter.apply(partVar),
                     attrValue, varName);

@@ -642,41 +642,78 @@ public abstract class ModuleScenarioTestBase {
             }
             req.setPartCategoryCode(reqPartCategory);
 
-            // 解析格式：attrCode comparator value where condition
-            String[] parts = remainingStr.split(" where ");
-            if (parts.length == 2) {
-                req.setAttrWhereCondition(parts[1].trim());
-            } else if (parts.length != 1) {
-                throw new IllegalArgumentException("Invalid constraint format: " + strReq);
-            }
-
-            // 解析属性表达式：attrCode comparator value
-            String attrExpr = parts[0].trim();
-            // 使用正则表达式解析：支持==, !=, <, >, <=, >=等比较符
-            Pattern pattern = Pattern
-                    .compile("([A-Za-z_][A-Za-z0-9_]*)\\s*(==|!=|<=|>=|<|>)\\s*(\\d+)");
-
-            Matcher matcher = pattern.matcher(attrExpr);
-
-            if (matcher.matches()) {
-                String mergedAttrCode = matcher.group(1).trim();
-                String[] mergedParts = mergedAttrCode.split(AttrPara.CODE_SEPARATOR);
-                if (mergedParts.length == 2) {
-                    req.setAttrType(AttrParaType.valueOf(mergedParts[0]));
-                    req.setAttrCode(mergedParts[1]);
-                } else {
-                    throw new IllegalArgumentException("Invalid attribute expression format: " + attrExpr);
-                }
-                req.setAttrComparator(matcher.group(2).trim());
-                req.setAttrValue(matcher.group(3).trim());
-            } else {
-                throw new IllegalArgumentException("Invalid attribute expression format: " + attrExpr);
-            }
+            // 解析属性表达式：支持三种场景
+            // 场景1：仅有过滤条件，如 "where Speed=5400"
+            // 场景2：仅有汇总条件，如 "Sum_Capacity >=5"
+            // 场景3：同时有汇总条件和过滤条件，如 "Sum_Capacity >=5 where Speed=5400"
+            parseAttrExpr(remainingStr, req);
 
             reqs.add(req);
         }
 
         return reqs;
+    }
+
+    /**
+     * 解析属性表达式为PartConstraintReq
+     * 支持三种场景：
+     * 场景1：仅有过滤条件，如 "where Speed=5400" -> attrWhereCondition="Speed=5400", attrComparator=null
+     * 场景2：仅有汇总条件，如 "Sum_Capacity >=5" -> attrWhereCondition=null, attrType=Sum, attrCode=Capacity, attrComparator=">=", attrValue="5"
+     * 场景3：同时有汇总条件和过滤条件，如 "Sum_Capacity >=5 where Speed=5400" -> 同时设置两个条件
+     *
+     * @param attrExpr 属性表达式（可能包含 where 子句）
+     * @param req 部件约束请求对象，用于设置解析结果
+     */
+    protected void parseAttrExpr(String attrExpr, PartConstraintReq req) {
+        String trimmedExpr = attrExpr.trim();
+
+        // 处理 where 子句（过滤条件）
+        // 支持多种格式：",where XXX", "where XXX", ", where XXX"
+        int whereIndex = -1;
+        String whereCondition = null;
+
+        // 先尝试 " where " (前后都有空格)
+        whereIndex = trimmedExpr.indexOf(" where ");
+        if (whereIndex >= 0) {
+            whereCondition = trimmedExpr.substring(whereIndex + 7).trim();
+            trimmedExpr = trimmedExpr.substring(0, whereIndex).trim();
+        } else {
+            // 再尝试 "where " (前面没有空格)
+            whereIndex = trimmedExpr.indexOf("where ");
+            if (whereIndex >= 0) {
+                whereCondition = trimmedExpr.substring(whereIndex + 6).trim();
+                trimmedExpr = trimmedExpr.substring(0, whereIndex).trim();
+            }
+        }
+
+        if (whereCondition != null && !whereCondition.isEmpty()) {
+            req.setAttrWhereCondition(whereCondition);
+        }
+
+        // 解析汇总条件部分
+        if (trimmedExpr.isEmpty()) {
+            // 场景1：仅有过滤条件，没有汇总条件
+            return;
+        }
+
+        // 使用正则表达式解析：attrCode comparator value
+        Pattern pattern = Pattern.compile("([A-Za-z_][A-Za-z0-9_]*)\\s*(==|!=|<=|>=|<|>)\\s*(\\d+)");
+        Matcher matcher = pattern.matcher(trimmedExpr);
+
+        if (matcher.matches()) {
+            String mergedAttrCode = matcher.group(1).trim();
+            String[] mergedParts = mergedAttrCode.split(AttrPara.CODE_SEPARATOR);
+            if (mergedParts.length == 2) {
+                req.setAttrType(AttrParaType.valueOf(mergedParts[0]));
+                req.setAttrCode(mergedParts[1]);
+            } else {
+                throw new IllegalArgumentException("Invalid attribute expression format: " + trimmedExpr);
+            }
+            req.setAttrComparator(matcher.group(2).trim());
+            req.setAttrValue(matcher.group(3).trim());
+        } else {
+            throw new IllegalArgumentException("Invalid attribute expression format: " + trimmedExpr);
+        }
     }
 
     /**
