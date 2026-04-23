@@ -1188,3 +1188,143 @@ _**Agent (default)**_
 12. 修订历史
 
 如果后续检测过程中有任何需要调整或补充的内容，请随时告诉我。
+
+---
+
+_**User**_
+
+@docnext/CORE-DESIGN.md 请刷新一下 3.1.1 类层次结构 一module base它其实包含了参数和part。 
+
+---
+
+_**Agent (default)**_
+
+<think>
+用户指出类层次结构需要更新，说 ModuleBase 实际上包含了参数（Para）和部件（Part）。让我看一下代码来理解正确的继承关系。
+
+从之前读取的代码来看：
+- `ModuleBase extends Onto` 
+- `Onto` 是基类，可能包含 `paras` 和 `rules`
+- `ModuleBase` 包含 `atomicParts` 和 `partCategorys`
+
+所以正确的结构应该是：
+- Onto (基类，包含 paras, rules)
+  - ModuleBase
+    - Module
+    - PartCategory
+
+让我先读取 Onto 类来确认。
+</think>
+
+让我先看一下 Onto 类的结构来确认继承关系。
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\bmodel\Onto.java</summary>
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
+<summary>Tool use: **read_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+现在我明白了。Onto 是所有领域对象的基类，它包含：
+- paras (参数列表)
+- attrParas (属性参数列表)
+- rules (规则列表)
+- dynAttr (动态属性)
+- dynAttrSchemas (动态属性定义)
+
+所以类层次结构应该是：
+
+```
+ProgrammableObject (基类)
+    │
+    └── Onto (本体基类)
+          │
+          ├── Part (部件 - 包含 paras, rules, attrParas)
+          │
+          └── ModuleBase (模块/分类基类)
+                │
+                ├── Module (模块 - 包含 paras, atomicParts, partCategorys, rules)
+                │
+                └── PartCategory (部件分类 - 包含 paras, atomicParts, partCategorys, rules)
+```
+
+关键是 ModuleBase 继承自 Onto，所以它也包含 paras、rules、attrParas 等字段。
+</think>
+
+明白了！`Onto` 是基类，包含了 `paras`、`rules`、`attrParas` 等核心字段。`ModuleBase` 继承自 `Onto`，所以它本身就包含了参数和规则。让我更新类层次结构。
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: d:\01.code\mygithub\jmixconfigengine\docnext\CORE-DESIGN.md</summary>
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
+<summary>Tool use: **read_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+Let me read more to find the section 3.1.1 that needs to be updated.
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: d:\01.code\mygithub\jmixconfigengine\docnext\CORE-DESIGN.md</summary>
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
+<summary>Tool use: **read_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: </summary>
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
+<summary>Tool use: **read_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2">
+
+<details><summary>Tool use: **edit_file_v2**</summary>
+
+Status: **loading**
+
+</details>
+
+</tool-use>
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2"><details>
+<summary>Tool use: **edit_file_v2**</summary>
+
+</details></tool-use>
