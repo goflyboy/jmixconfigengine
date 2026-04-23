@@ -25,4 +25,628 @@ enum Cardinality{
 _**Agent (default)**_
 
 <think>
-用户想要
+用户想要：
+1. 创建一个 Cardinality 枚举
+2. 在 Rule、CodeRuleAnno 等类中添加属性
+
+让我先查看相关的文件来了解现有的结构。
+</think>
+
+我来帮你完成这两个任务。首先让我查看相关的文件结构。
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\tool\bbuilder\anno\CodeRuleAnno.java</summary>
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
+<summary>Tool use: **read_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="search" data-tool-name="glob_file_search">
+<details>
+<summary>Tool use: **glob_file_search** • Searched codebase "" • **1** result in **1** directory</summary>
+
+Directory: **** (1 file)
+
+| File |
+|------|
+| `.\src\main\java\com\jmix\executor\bmodel\logic\Rule.java` |
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="search" data-tool-name="glob_file_search"><details>
+<summary>Tool use: **glob_file_search**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="search" data-tool-name="glob_file_search">
+<details>
+<summary>Tool use: **glob_file_search** • Searched codebase "" • **1** result in **1** directory</summary>
+
+Directory: **** (1 file)
+
+| File |
+|------|
+| `.\src\main\java\com\jmix\executor\bmodel\logic\EffectScope.java` |
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="search" data-tool-name="glob_file_search"><details>
+<summary>Tool use: **glob_file_search**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+好的，我找到了相关文件。让我读取 Rule.java 和 EffectScope.java 文件的内容。
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\bmodel\logic\Rule.java</summary>
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
+<summary>Tool use: **read_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\bmodel\logic\EffectScope.java</summary>
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
+<summary>Tool use: **read_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+现在我了解了现有的代码结构。我看到：
+
+1. `Cardinality` 枚举似乎已经存在于 `Rule.java` 中（因为 `Rule.java` 使用了 `Cardinality.ONE`）
+2. `Rule.java` 已经有了 `leftCardinality`、`rightCardinality` 和 `effectScope` 属性
+3. `EffectScope` 枚举已经存在
+
+让我搜索 `Cardinality` 枚举的定义位置。
+</think>
+
+我看到 `Rule.java` 中已经引用了 `Cardinality`，让我查找这个枚举的定义位置。
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="unknown" data-tool-name="ripgrep_raw_search">
+<details>
+<summary>Tool use: **ripgrep_raw_search**</summary>
+
+
+Parameters:
+
+```json
+{
+  "caseInsensitive": false,
+  "outputMode": "content",
+  "pattern": "enum Cardinality"
+}
+```
+Additional data:
+
+```json
+{
+  "isPruned": true,
+  "outputMode": "content",
+  "pattern": "enum Cardinality",
+  "topFiles": [
+    {
+      "matchCount": 1,
+      "uri": ".\\.specstory\\history\\2026-04-15_23-43-20Z-cardinality-attributes-in-rule-classes.md"
+    },
+    {
+      "matchCount": 1,
+      "uri": ".\\doc\\输入多实例.md"
+    },
+    {
+      "matchCount": 1,
+      "uri": ".\\.specstory\\history\\2026-04-12_10-46-24Z-multi-instance-support-implementation.md"
+    },
+    {
+      "matchCount": 1,
+      "uri": ".\\src\\main\\java\\com\\jmix\\executor\\bmodel\\logic\\Cardinality.java"
+    }
+  ],
+  "totalFiles": 4,
+  "totalMatches": 4
+}
+```
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="unknown" data-tool-name="ripgrep_raw_search"><details>
+<summary>Tool use: **ripgrep_raw_search**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+Cardinality 枚举已经存在。让我检查一下 CodeRuleAnno 是否需要添加 Cardinality 属性。
+</think>
+
+`Cardinality` 枚举已存在。让我检查一下它的内容，然后确定需要修改哪些文件。
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\bmodel\logic\Cardinality.java</summary>
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
+<summary>Tool use: **read_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+好的，现在我了解了情况：
+
+1. `Cardinality` 枚举已经存在，包含 `ONE(10)` 和 `MANY(20)` 两个值。
+2. `Rule.java` 已经有 `leftCardinality` 和 `rightCardinality` 属性。
+3. `Rule.java` 已经有 `effectScope` 属性。
+4. `CodeRuleAnno.java` 已经有 `effectScope` 属性。
+
+现在我需要检查 `CodeRuleAnno.java` 是否缺少 `leftCardinality` 和 `rightCardinality` 属性。根据之前读取的内容，`CodeRuleAnno.java` 没有这两个属性。
+
+让我检查其他可能需要添加这些属性的类。
+</think>
+
+`Cardinality` 枚举和 `Rule.java` 中的属性都已存在。`CodeRuleAnno` 注解缺少 `leftCardinality` 和 `rightCardinality` 属性。让我检查其他可能需要添加这些属性的类。
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="unknown" data-tool-name="ripgrep_raw_search">
+<details>
+<summary>Tool use: **ripgrep_raw_search**</summary>
+
+
+Parameters:
+
+```json
+{
+  "caseInsensitive": false,
+  "glob": "*.java",
+  "outputMode": "content",
+  "pattern": "class.*Rule"
+}
+```
+Additional data:
+
+```json
+{
+  "isPruned": true,
+  "outputMode": "content",
+  "pattern": "class.*Rule",
+  "topFiles": [
+    {
+      "matchCount": 1,
+      "uri": ".\\src\\main\\java\\com\\jmix\\executor\\bmodel\\logic\\RuleUtils.java"
+    },
+    {
+      "matchCount": 1,
+      "uri": ".\\src\\main\\java\\com\\jmix\\executor\\bmodel\\logic\\CodeRuleSchema.java"
+    },
+    {
+      "matchCount": 1,
+      "uri": ".\\src\\main\\java\\com\\jmix\\executor\\bmodel\\logic\\PriorityRuleSchema.java"
+    },
+    {
+      "matchCount": 2,
+      "uri": ".\\src\\main\\java\\com\\jmix\\executor\\bmodel\\logic\\Rule.java"
+    },
+    {
+      "matchCount": 3,
+      "uri": ".\\src\\main\\java\\com\\jmix\\executor\\impl\\ModuleAlgClassLoader.java"
+    },
+    {
+      "matchCount": 2,
+      "uri": ".\\src\\test\\java\\com\\jmix\\scenario\\ruletest\\CalculateRuleIfThenTest.java"
+    },
+    {
+      "matchCount": 2,
+      "uri": ".\\src\\test\\java\\com\\jmix\\scenario\\ruletest\\CompatibleRuleRequireTest.java"
+    },
+    {
+      "matchCount": 2,
+      "uri": ".\\src\\test\\java\\com\\jmix\\scenario\\ruletest\\CompatibleRuleIncompatibleTest.java"
+    },
+    {
+      "matchCount": 2,
+      "uri": ".\\src\\test\\java\\com\\jmix\\scenario\\ruletest\\CompatibleRuleCodependentTest.java"
+    },
+    {
+      "matchCount": 2,
+      "uri": ".\\src\\test\\java\\com\\jmix\\tool\\autoruletest\\InjectCompatibleRuleTest.java"
+    },
+    {
+      "matchCount": 2,
+      "uri": ".\\src\\test\\java\\com\\jmix\\scenario\\ruletest\\CalculateRuleSimpleTest.java"
+    },
+    {
+      "matchCount": 1,
+      "uri": ".\\src\\test\\java\\com\\jmix\\tool\\autoruletest\\AnnotationRuleTest.java"
+    },
+    {
+      "matchCount": 2,
+      "uri": ".\\src\\test\\java\\com\\jmix\\tool\\autoruletest\\AnnotationRuleIntegrationTest.java"
+    },
+    {
+      "matchCount": 1,
+      "uri": ".\\src\\main\\java\\com\\jmix\\tool\\artbuilder\\impl\\RuleInfo.java"
+    },
+    {
+      "matchCount": 1,
+      "uri": ".\\src\\main\\java\\com\\jmix\\executor\\bmodel\\logic\\CompatiableRuleSchema.java"
+    },
+    {
+      "matchCount": 1,
+      "uri": ".\\src\\main\\java\\com\\jmix\\executor\\bmodel\\logic\\CalculateRuleSchema.java"
+    },
+    {
+      "matchCount": 4,
+      "uri": ".\\src\\main\\java\\com\\jmix\\executor\\bmodel\\logic\\RuleSchema.java"
+    }
+  ],
+  "totalFiles": 17,
+  "totalMatches": 36
+}
+```
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="unknown" data-tool-name="ripgrep_raw_search"><details>
+<summary>Tool use: **ripgrep_raw_search**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+现在我了解了项目结构。根据用户的需求：
+
+1. Cardinality 枚举已经存在（`Cardinality.java`），不需要创建
+2. `Rule.java` 已经有 `leftCardinality` 和 `rightCardinality` 属性
+3. `CodeRuleAnno` 注解缺少 `leftCardinality` 和 `rightCardinality` 属性
+
+让我检查一下是否还有其他 Rule 相关的类需要添加这些属性。让我查看 RuleSchema 和相关的类。
+</think>
+
+让我查看 `RuleSchema` 类和其他相关的规则类。
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\bmodel\logic\RuleSchema.java</summary>
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
+<summary>Tool use: **read_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\bmodel\logic\CodeRuleSchema.java</summary>
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
+<summary>Tool use: **read_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\tool\artbuilder\impl\RuleInfo.java</summary>
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
+<summary>Tool use: **read_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+现在我明白了任务：
+
+1. `Cardinality` 枚举已经存在且内容正确
+2. `Rule.java` 中已经有 `leftCardinality`、`rightCardinality` 和 `effectScope` 属性
+3. `EffectScope.java` 已存在
+4. `CodeRuleAnno` 注解需要添加 `leftCardinality` 和 `rightCardinality` 属性
+
+用户要求在 `Rule`、`CodeRuleAnno` 等类中添加这些属性。看起来 `Rule` 已经完成了。我需要检查 `CodeRuleAnno` 并添加缺失的属性。
+
+让我开始修改：
+</think>
+
+现在我了解了当前状态：
+- `Cardinality` 枚举已存在
+- `Rule.java` 已经有 `leftCardinality`、`rightCardinality` 和 `effectScope` 属性
+- `CodeRuleAnno` 缺少 `leftCardinality` 和 `rightCardinality` 属性
+
+让我为 `CodeRuleAnno` 添加这两个属性。
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2">
+
+<details><summary>Tool use: **edit_file_v2** • Edit file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\tool\bbuilder\anno\CodeRuleAnno.java</summary>
+
+</details>
+
+</tool-use>
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2"><details>
+<summary>Tool use: **edit_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+现在我需要检查 `RuleInfo` 类是否也需要添加这些属性。根据用户的需求，需要在"类Rule、CodeRuleAnno等"添加属性，所以 `RuleInfo` 可能也需要添加这些属性。
+
+让我再看看 `RuleInfo` 是否需要添加这些属性，以及是否还有其他类需要添加。
+</think>
+
+现在让我检查 `RuleInfo` 类是否也需要添加这些属性。
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2">
+
+<details><summary>Tool use: **edit_file_v2** • Edit file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\tool\artbuilder\impl\RuleInfo.java</summary>
+
+</details>
+
+</tool-use>
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2"><details>
+<summary>Tool use: **edit_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+现在我需要在 RuleInfo 类中添加 leftCardinality、rightCardinality 和 effectScope 属性。
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2">
+
+<details><summary>Tool use: **edit_file_v2** • Edit file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\tool\artbuilder\impl\RuleInfo.java</summary>
+
+</details>
+
+</tool-use>
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2"><details>
+<summary>Tool use: **edit_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+Let me verify the changes by reading the updated files to ensure everything is correct.
+</think>
+
+让我验证修改后的文件内容。
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\tool\bbuilder\anno\CodeRuleAnno.java</summary>
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
+<summary>Tool use: **read_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\tool\artbuilder\impl\RuleInfo.java</summary>
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
+<summary>Tool use: **read_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+我注意到 `CodeRuleAnno` 缺少 `Cardinality` 的 import 语句。让我修复这个问题。
+</think>
+
+我注意到 `CodeRuleAnno.java` 需要添加 `Cardinality` 的 import。
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2">
+
+<details><summary>Tool use: **edit_file_v2** • Edit file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\tool\bbuilder\anno\CodeRuleAnno.java</summary>
+
+</details>
+
+</tool-use>
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2"><details>
+<summary>Tool use: **edit_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+现在让我检查 linter 错误，确保修改是正确的。
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="unknown" data-tool-name="read_lints">
+<details>
+<summary>Tool use: **read_lints**</summary>
+
+
+Parameters:
+
+```json
+{
+  "paths": [
+    "d:\\01.code\\mygithub\\jmixconfigengine\\src\\main\\java\\com\\jmix\\tool\\bbuilder\\anno\\CodeRuleAnno.java",
+    "d:\\01.code\\mygithub\\jmixconfigengine\\src\\main\\java\\com\\jmix\\tool\\artbuilder\\impl\\RuleInfo.java"
+  ]
+}
+```
+Result:
+
+```json
+{
+  "linterErrorsByFile": [
+    {
+      "relativeWorkspacePath": "d:\\01.code\\mygithub\\jmixconfigengine\\src\\main\\java\\com\\jmix\\tool\\bbuilder\\anno\\CodeRuleAnno.java"
+    },
+    {
+      "relativeWorkspacePath": "d:\\01.code\\mygithub\\jmixconfigengine\\src\\main\\java\\com\\jmix\\tool\\artbuilder\\impl\\RuleInfo.java"
+    }
+  ]
+}
+```
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="unknown" data-tool-name="read_lints"><details>
+<summary>Tool use: **read_lints**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+修改完成，让我总结一下所做的更改：
+
+1. `Cardinality` 枚举已经存在，不需要创建
+2. `Rule.java` 已经有 `leftCardinality`、`rightCardinality` 和 `effectScope` 属性
+3. `CodeRuleAnno.java` 添加了：
+   - 导入 `Cardinality` 枚举
+   - `leftCardinality()` 属性，默认值 `Cardinality.ONE`
+   - `rightCardinality()` 属性，默认值 `Cardinality.ONE`
+4. `RuleInfo.java` 添加了：
+   - 导入 `Cardinality` 和 `EffectScope` 枚举
+   - `leftCardinality` 属性
+   - `rightCardinality` 属性
+   - `effectScope` 属性
+</think>
+
+已完成所有修改。总结如下：
+
+**1. Cardinality 枚举** - 已存在，无需修改
+
+```java
+public enum Cardinality {
+    ONE(10),   // 1:1，N:1中的1
+    MANY(20);  // 1:N，M:N中的N（*）
+}
+```
+
+**2. 已有的属性（无需修改）**
+- `Rule.java` - 已包含 `leftCardinality`、`rightCardinality` 和 `effectScope` 属性
+
+**3. CodeRuleAnno.java** - 新增了两个属性：
+
+```java
+// 导入
+import com.jmix.executor.bmodel.logic.Cardinality;
+
+// 新增属性
+Cardinality leftCardinality() default Cardinality.ONE;
+Cardinality rightCardinality() default Cardinality.ONE;
+```
+
+**4. RuleInfo.java** - 新增了三个属性：
+
+```java
+// 导入
+import com.jmix.executor.bmodel.logic.Cardinality;
+import com.jmix.executor.bmodel.logic.EffectScope;
+
+// 新增属性
+private Cardinality leftCardinality = Cardinality.ONE;
+private Cardinality rightCardinality = Cardinality.ONE;
+private EffectScope effectScope = EffectScope.SingleInst;
+```
