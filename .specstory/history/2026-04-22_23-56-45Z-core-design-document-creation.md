@@ -1301,8 +1301,41 @@ _**Agent (default)**_
 
 _**Agent (default)**_
 
+<think>
+现在我明白了类层次结构。需要更正的是：
+1. `Onto` 是基类，包含了 `paras`、`rules`、`attrParas`、`dynAttrSchemas` 等核心字段
+2. `ModuleBase` 继承自 `Onto`
+3. `Part` 也继承自 `Onto`
+4. `Module` 继承自 `ModuleBase`
+
+所以类层次应该是：
+
+```
+ProgrammableObject
+    │
+    └── Onto (基类，包含 paras, rules, attrParas, dynAttrSchemas)
+          │
+          ├── ModuleBase (模块/分类基类)
+          │     │
+          │     ├── Module (模块)
+          │     │
+          │     └── PartCategory (部件分类)
+          │           │
+          │           └── Part (部件)  ← Part 继承 Onto，而不是 PartCategory
+          │
+          └── Para (参数)  ← Para 可能独立，或者 Para 也在 Onto 下
+```
+
+让我再确认一下 Para 的继承关系。
+</think>
+
+让我确认一下 Para 的继承关系。
+
+
+_**Agent (default)**_
+
 <tool-use data-tool-type="read" data-tool-name="read_file_v2">
-<details><summary>Tool use: **read_file_v2** • Read file: </summary>
+<details><summary>Tool use: **read_file_v2** • Read file: d:\01.code\mygithub\jmixconfigengine\src\main\java\com\jmix\executor\bmodel\para\Para.java</summary>
 
 </details>
 </tool-use>
@@ -1314,11 +1347,48 @@ _**Agent (default)**_
 
 _**Agent (default)**_
 
+<think>
+好的，现在我完全理解了类层次结构：
+
+- `Onto` (基类) - 包含 `paras`, `rules`, `attrParas`, `dynAttr` 等
+  - `ModuleBase` - 继承 Onto，包含 `atomicParts`, `partCategorys`
+    - `Module` - 模块
+    - `PartCategory` - 部件分类
+  - `Para` - 继承 DynamicAttribute（不是继承 Onto）
+
+所以正确的类层次结构应该是：
+
+```
+ProgrammableObject (基类)
+  │
+  └── Onto (本体基类，包含 paras, rules, attrParas, dynAttr...)
+        │
+        ├── ModuleBase (模块/分类基类，包含 atomicParts, partCategorys)
+        │     │
+        │     ├── Module (模块)
+        │     │     │
+        │     │     └── PartCategory (部件分类)
+        │     │           │
+        │     │           └── Part (部件)
+        │     │
+        │     └── (其他继承 ModuleBase 的类)
+        │
+        └── (其他继承 Onto 的类)
+
+Para (参数) - 继承自 DynamicAttribute
+```
+
+现在让我更新文档。
+</think>
+
+明白了！`Onto` 是包含 `paras`、`rules`、`attrParas` 等的基类，`Para` 是继承自 `DynamicAttribute`，不是 `Onto`。让我更新类层次结构。
+
+
+_**Agent (default)**_
+
 <tool-use data-tool-type="write" data-tool-name="edit_file_v2">
 
-<details><summary>Tool use: **edit_file_v2**</summary>
-
-Status: **loading**
+<details><summary>Tool use: **edit_file_v2** • Edit file: d:\01.code\mygithub\jmixconfigengine\docnext\CORE-DESIGN.md</summary>
 
 </details>
 
@@ -1328,3 +1398,76 @@ Status: **loading**
 <summary>Tool use: **edit_file_v2**</summary>
 
 </details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+我已经更新了类层次结构，现在需要看一下是否还有其他需要调整的地方。让我检查一下是否还有需要更新的内容。
+</think>
+
+已更新类层次结构，修正了以下内容：
+
+1. **增加 `ProgrammableObject<T>` 基类**：作为 `Onto` 的父类
+2. **明确 `Onto` 的核心字段**：标注 `paras`、`rules`、`attrParas`、`dynAttr` 等在 `Onto` 中定义
+3. **明确 `Para` 的继承关系**：`Para` 继承自 `DynamicAttribute`，不是 `Onto` 的子类
+4. **添加关键说明**：解释各基类的职责
+
+当前类层次结构：
+
+```
+ProgrammableObject<T> (基类)
+  │
+  └── Onto (本体基类，包含 paras, rules, attrParas, dynAttr...)
+        │
+        ├── ModuleBase (模块/分类基类，包含 atomicParts, partCategorys)
+        │     │
+        │     ├── Module (模块)
+        │     │     │
+        │     │     └── PartCategory (部件分类)
+        │     │           │
+        │     │           └── Part (部件)
+        │
+        └── Para (参数) - 继承自 DynamicAttribute
+```
+
+还有其他需要调整的地方吗？
+
+---
+
+_**User**_
+
+没有了
+
+---
+
+_**Agent (default)**_
+
+<think>
+用户表示没有其他问题了，文档 CORE-DESIGN.md 已经完成更新。
+</think>
+
+好的，`docnext/CORE-DESIGN.md` 文档已完成更新。
+
+## 最终文档结构
+
+1. **概述** - 核心能力与目标用户
+2. **架构概述** - 六层架构 + 对称设计模式
+3. **核心概念**
+   - 领域模型层 (Module/PartCategory/Part/Para)
+   - 执行器层
+   - 算法模块层
+   - 结果模型层
+   - 变量系统
+   - 规则表达方式
+   - 依赖关系图
+4. **组件设计** - 各组件详解
+5. **约束类型**
+6. **属性聚合类型 (AttrParaType)**
+7. **执行模型**
+8. **API 参考**
+9. **典型应用场景**
+10. **数据流图**
+11. **术语表**
+12. **修订历史**
+
+如后续有新的设计变更或需求，随时可以继续完善文档。
