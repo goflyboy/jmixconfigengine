@@ -582,9 +582,10 @@ public void testDoSelect_WithCodeFilter() { ... }
 ### 5.3 断言规范
 
 ```java
-// 场景测试：使用高级断言
-assertSoluContain(1, "sd1(Q:2,H:0,S:1)");
-assertSoluContain("md1(Q:3,H:0,S:1),sd1(Q:1,H:0,S:1)");
+// 场景测试：使用高级断言,确保可行的解正确（优先）
+assertSoluContain(1, "sd1(Q:2,H:0,S:1)");//第1个解的sd1的数量是2，是选中状态
+assertSoluContain(2, "sd1(Q:1,H:0,S:1)");//第2个解的sd1的数量是1，是选中状态
+assertSoluContain("md1(Q:3,H:0,S:1),sd1(Q:1,H:0,S:1)");//返回的解中，其中又一个解是md1的数量是3，sd1的数量是1
 
 // 逻辑测试：使用结果断言
 resultAssert()
