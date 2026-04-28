@@ -9,6 +9,7 @@ import com.google.ortools.sat.CpModel;
 import com.google.ortools.sat.CpModelProto;
 import com.google.ortools.sat.CpSolver;
 import com.google.ortools.sat.CpSolverStatus;
+import com.google.ortools.sat.DecisionStrategyProto;
 import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.LinearArgument;
 import com.google.ortools.sat.Literal;
@@ -1086,6 +1087,22 @@ public class AlgCPModel {
      */
     public void clearObjective() {
         cpModel.clearObjective();
+    }
+
+    /**
+     * 添加决策策略
+     * 封装 OR-Tools 的 addDecisionStrategy，控制变量分支顺序
+     *
+     * @param variables         目标变量数组
+     * @param selectionStrategy 变量选择策略
+     * @param reductionStrategy 域缩减策略
+     */
+    public void addDecisionStrategy(IntVar[] variables,
+            DecisionStrategyProto.VariableSelectionStrategy selectionStrategy,
+            DecisionStrategyProto.DomainReductionStrategy reductionStrategy) {
+        cpModel.addDecisionStrategy(variables, selectionStrategy, reductionStrategy);
+        log.info("Decision strategy added: {} vars, selection={}, reduction={}",
+                variables.length, selectionStrategy, reductionStrategy);
     }
 
     /**

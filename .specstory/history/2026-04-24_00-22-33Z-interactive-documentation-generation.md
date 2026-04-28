@@ -1435,9 +1435,7 @@ _**Agent (default)**_
 
 <tool-use data-tool-type="write" data-tool-name="edit_file_v2">
 
-<details><summary>Tool use: **edit_file_v2**</summary>
-
-Status: **loading**
+<details><summary>Tool use: **edit_file_v2** • Edit file: d:\01.code\mygithub\jmixconfigengine\doc\RFC-0001-Decision-Strategy.md</summary>
 
 </details>
 
@@ -1447,3 +1445,175 @@ Status: **loading**
 <summary>Tool use: **edit_file_v2**</summary>
 
 </details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+现在需要更新策略配置示例部分，移除 StrategyConfig 中的 partCategoryCode。
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2">
+
+<details><summary>Tool use: **edit_file_v2** • Edit file: d:\01.code\mygithub\jmixconfigengine\doc\RFC-0001-Decision-Strategy.md</summary>
+
+</details>
+
+</tool-use>
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2"><details>
+<summary>Tool use: **edit_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+让我检查一下是否还有其他地方引用了 StrategyConfig.partCategoryCode 需要更新的。
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: d:\01.code\mygithub\jmixconfigengine\doc\RFC-0001-Decision-Strategy.md</summary>
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
+<summary>Tool use: **read_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+我需要更新实现方案中的 ModuleAlgImpl 部分，因为现在不再需要通过 StrategyConfig 获取 partCategoryCode 了，而是通过 PartConstraintReq 来获取。
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2">
+
+<details><summary>Tool use: **edit_file_v2** • Edit file: d:\01.code\mygithub\jmixconfigengine\doc\RFC-0001-Decision-Strategy.md</summary>
+
+</details>
+
+</tool-use>
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2"><details>
+<summary>Tool use: **edit_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+现在让我更新验收准则和边界条件中的描述，确保与新的设计保持一致。
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: d:\01.code\mygithub\jmixconfigengine\doc\RFC-0001-Decision-Strategy.md</summary>
+
+</details>
+</tool-use>
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2"><details>
+<summary>Tool use: **read_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+边界条件部分也需要更新，因为 StrategyConfig 中已经没有 partCategoryCode 了，所以第一行需要改成从 PartConstraintReq 获取。
+</think>
+
+
+
+
+_**Agent (default)**_
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2">
+
+<details><summary>Tool use: **edit_file_v2** • Edit file: d:\01.code\mygithub\jmixconfigengine\doc\RFC-0001-Decision-Strategy.md</summary>
+
+</details>
+
+</tool-use>
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2"><details>
+<summary>Tool use: **edit_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+Let me also update the test framework section to remove the partCategoryCode from the strategy syntax.
+</think>
+
+
+
+
+_**Agent (default)**_
+
+Incorrect tool arguments
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2"><details>
+<summary>Tool use: **edit_file_v2**</summary>
+
+</details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+测试框架示例已经是正确的格式了（没有在策略语法中使用 partCategoryCode）。文档更新已完成。
+</think>
+
+---
+
+文档已更新完成。主要变更：
+
+### 3.1.2 StrategyConfig 简化
+
+```java
+public class StrategyConfig {
+    /** 策略类型：ASCENDING / DESCENDING / UNSPECIFIED */
+    private StrategyType strategyType;
+
+    /** 排序属性代码（如 "price"、"capacity"、"speed"） */
+    private String sortAttributeCode;
+}
+```
+
+### 3.3.2 调用流程更新
+
+```java
+// 在遍历 PartConstraintReqs 时调用
+for (PartConstraintReq req : partConstraintReqs) {
+    List<StrategyConfig> strategies = req.getDecisionStrategies();
+    if (strategies != null && !strategies.isEmpty()) {
+        applyDecisionStrategies(req, strategies);  // 传入 req 以获取 partCategoryCode
+    }
+}
+```
+
+---
+
+请审阅是否还有其他需要调整的地方。
