@@ -1141,9 +1141,7 @@ _**Agent (default)**_
 
 <tool-use data-tool-type="write" data-tool-name="edit_file_v2">
 
-<details><summary>Tool use: **edit_file_v2**</summary>
-
-Status: **loading**
+<details><summary>Tool use: **edit_file_v2** • Edit file: d:\01.code\mygithub\jmixconfigengine\doc\ACCEPTANCE.md</summary>
 
 </details>
 
@@ -1153,3 +1151,26 @@ Status: **loading**
 <summary>Tool use: **edit_file_v2**</summary>
 
 </details></tool-use>
+
+_**Agent (default)**_
+
+<think>
+现在让我删除docbackup目录下的临时文件（如果用户确认后），并给用户一个总结。
+</think>
+
+验收准则文档已完成！
+
+**文档位置**：`doc/ACCEPTANCE.md`
+
+**包含内容**：
+1. **第一部分**：验收准则（6条核心原则：逻辑完备、用例独立、数据极简、复用参考、大模型验证、自动化回归）
+2. **第二部分**：测试数据构建规范（极简原则 + 注解使用说明）
+3. **第三部分**：验收用例集（8个标准用例，覆盖逻辑/场景/API测试）
+4. **第四部分**：大模型验证流程（Prompt生成器规范）
+5. **第五部分**：自动化测试规范（命名、断言、回归测试集）
+6. **附录**：术语表、参考文件、检查清单
+
+**后续使用流程**：
+```
+新增功能 → 复制参考测试 → 简化数据 → 编写用例 → 大模型验证 → 纳入回归测试
+```
