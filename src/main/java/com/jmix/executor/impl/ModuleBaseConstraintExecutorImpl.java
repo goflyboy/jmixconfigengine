@@ -16,6 +16,7 @@ import com.jmix.executor.model.Result;
 
 import com.google.ortools.sat.CpSolver;
 import com.google.ortools.sat.CpSolverStatus;
+import com.google.ortools.sat.SatParameters;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -208,6 +209,10 @@ public abstract class ModuleBaseConstraintExecutorImpl {
         optSolver.getParameters().setNumSearchWorkers(1);
         optSolver.getParameters().setEnumerateAllSolutions(true);
         optSolver.getParameters().setMaxTimeInSeconds(10);
+        if (optModel.hasDecisionStrategies()) {
+            optSolver.getParameters().setSearchBranching(SatParameters.SearchBranching.FIXED_SEARCH);
+            log.info("FIXED_SEARCH enabled for decision strategies in opt solver");
+        }
         ModuleInstSolutionCallBack optCb = new ModuleInstSolutionCallBack(module, optAlg);
         optCb.setMaxSolutionNum(config.getMaxSolutionNum());
         log.info("solver  models:\n");

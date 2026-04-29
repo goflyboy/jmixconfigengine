@@ -34,6 +34,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.google.common.base.Strings;
 import com.google.ortools.sat.CpSolver;
 import com.google.ortools.sat.CpSolverStatus;
+import com.google.ortools.sat.SatParameters;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -480,6 +481,10 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
         CpSolver solver = new CpSolver();
         solver.getParameters().setEnumerateAllSolutions(req.isEnumerateAllSolution());
         solver.getParameters().setNumSearchWorkers(1); // 单线程搜索，防止有重复解
+        if (model.hasDecisionStrategies()) {
+            solver.getParameters().setSearchBranching(SatParameters.SearchBranching.FIXED_SEARCH);
+            log.info("FIXED_SEARCH enabled for decision strategies");
+        }
         log.info("solver parameters:\n" + solver.getParameters().toString());
         // 可按需设置更多参数
         ModuleInstSolutionCallBack cb = new ModuleInstSolutionCallBack(module, alg);

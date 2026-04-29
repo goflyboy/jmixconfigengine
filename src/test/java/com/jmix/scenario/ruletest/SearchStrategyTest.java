@@ -71,7 +71,7 @@ public class SearchStrategyTest extends ModuleScenarioTestBase {
 
     /**
      * SEARCH-001-1: CPU ASCENDING by price.
-     * First solution should contain CPU2 (price=5, cheapest).
+     * First solution should contain CPU2 (price=5, cheapest) selected with qty=1.
      */
     @Test
     public void testSearch001_AscendingPrice_Cpu() {
@@ -79,12 +79,12 @@ public class SearchStrategyTest extends ModuleScenarioTestBase {
                 "cpu: [strategy=ASCENDING:price]",
                 "disk:");
         printSolutions();
-        assertSoluContain(1, "cpu2");
+        assertSoluContain(1, "cpu2(Q:1,H:0,S:1)");
     }
 
     /**
      * SEARCH-001-2: CPU DESCENDING by price.
-     * First solution should contain CPU3 (price=100, most expensive).
+     * First solution should contain CPU3 (price=100, most expensive) selected with qty=1.
      */
     @Test
     public void testSearch001_DescendingPrice_Cpu() {
@@ -92,7 +92,7 @@ public class SearchStrategyTest extends ModuleScenarioTestBase {
                 "cpu: [strategy=DESCENDING:price]",
                 "disk:");
         printSolutions();
-        assertSoluContain(1, "cpu3");
+        assertSoluContain(1, "cpu3(Q:1,H:0,S:1)");
     }
 
     /**
@@ -110,8 +110,8 @@ public class SearchStrategyTest extends ModuleScenarioTestBase {
 
     /**
      * SEARCH-002-1: CPU ASCENDING + Disk ASCENDING.
-     * First solution should contain CPU2(price=5).
-     * Disk ASCENDING: cheaper disk (ds2, price=30) preferred.
+     * First solution: cpu2 selected (price=5, cheapest), PT2 selected (price=30, cheaper disk).
+     * PT1=disk1(price=50, code len>4), PT2=disk2(price=30, code len>4).
      */
     @Test
     public void testSearch002_CpuAscending_DiskAscending() {
@@ -119,15 +119,13 @@ public class SearchStrategyTest extends ModuleScenarioTestBase {
                 "cpu: [strategy=ASCENDING:price]",
                 "disk: [strategy=ASCENDING:price]");
         printSolutions();
-        assertSoluContain(1, "cpu2");
-        // ds1=PT1 (price=50), ds2=PT2 (price=30), ASCENDING prefers ds2
-        assertSoluContain(1, "PT2");
+        assertSoluContain(1, "cpu2(Q:1,H:0,S:1)");
+        assertSoluContain(1, "PT2(Q:1,H:0,S:1)");
     }
 
     /**
      * SEARCH-002-2: CPU DESCENDING + Disk DESCENDING.
-     * First solution should contain CPU3(price=100).
-     * Disk DESCENDING: expensive disk (ds1, price=50) preferred.
+     * First solution: cpu3 selected (price=100, most expensive), PT1 selected (price=50, expensive disk).
      */
     @Test
     public void testSearch002_CpuDescending_DiskDescending() {
@@ -135,15 +133,13 @@ public class SearchStrategyTest extends ModuleScenarioTestBase {
                 "cpu: [strategy=DESCENDING:price]",
                 "disk: [strategy=DESCENDING:price]");
         printSolutions();
-        assertSoluContain(1, "cpu3");
-        // ds1=PT1 (price=50), ds2=PT2 (price=30), DESCENDING prefers ds1
-        assertSoluContain(1, "PT1");
+        assertSoluContain(1, "cpu3(Q:1,H:0,S:1)");
+        assertSoluContain(1, "PT1(Q:1,H:0,S:1)");
     }
 
     /**
      * SEARCH-002-3: CPU ASCENDING + Disk DESCENDING.
-     * First solution should contain CPU2(price=5).
-     * Disk DESCENDING: expensive disk (ds1, price=50) preferred.
+     * First solution: cpu2 selected (price=5), PT1 selected (price=50, expensive disk first).
      */
     @Test
     public void testSearch002_CpuAscending_DiskDescending() {
@@ -151,7 +147,7 @@ public class SearchStrategyTest extends ModuleScenarioTestBase {
                 "cpu: [strategy=ASCENDING:price]",
                 "disk: [strategy=DESCENDING:price]");
         printSolutions();
-        assertSoluContain(1, "cpu2");
-        assertSoluContain(1, "PT1");
+        assertSoluContain(1, "cpu2(Q:1,H:0,S:1)");
+        assertSoluContain(1, "PT1(Q:1,H:0,S:1)");
     }
 }

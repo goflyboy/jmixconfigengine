@@ -1083,6 +1083,11 @@ public class AlgCPModel {
     }
 
     /**
+     * Whether any decision strategies have been added to this model.
+     */
+    private boolean hasDecisionStrategies = false;
+
+    /**
      * 清除目标函数
      */
     public void clearObjective() {
@@ -1101,8 +1106,13 @@ public class AlgCPModel {
             DecisionStrategyProto.VariableSelectionStrategy selectionStrategy,
             DecisionStrategyProto.DomainReductionStrategy reductionStrategy) {
         cpModel.addDecisionStrategy(variables, selectionStrategy, reductionStrategy);
+        hasDecisionStrategies = true;
         log.info("Decision strategy added: {} vars, selection={}, reduction={}",
                 variables.length, selectionStrategy, reductionStrategy);
+    }
+
+    public boolean hasDecisionStrategies() {
+        return hasDecisionStrategies;
     }
 
     /**
