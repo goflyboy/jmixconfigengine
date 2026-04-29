@@ -21,6 +21,8 @@ import com.jmix.executor.model.ConstraintConfig;
 import com.jmix.executor.model.InferParasReq;
 import com.jmix.executor.model.PartConstraintReq;
 import com.jmix.executor.model.Result;
+import com.jmix.executor.model.StrategyConfig;
+import com.jmix.executor.model.StrategyType;
 import com.jmix.tool.bbuilder.ModuleGenneratorByAnno;
 import com.jmix.tool.impl.ModulePacker;
 
@@ -627,18 +629,21 @@ public abstract class ModuleScenarioTestBase {
         for (String strReq : strReqs) {
             PartConstraintReq req = new PartConstraintReq();
 
+            // Parse strategy syntax: [strategy=ASCENDING:price]
+            String remainingStr = parseStrategyConfig(strReq, req);
+
             // 解析格式：reqPartCategory:attrCode comparator value where condition
             // 示例："sd:Sum_Quantity ==2 where Speed=5400"
-            String[] categoryParts = strReq.split(":", 2);
+            String[] categoryParts = remainingStr.split(":", 2);
             String reqPartCategory;
-            String remainingStr;
+            String attrExprStr;
             if (categoryParts.length == 2) {
                 reqPartCategory = categoryParts[0].trim();
-                remainingStr = categoryParts[1].trim();
+                attrExprStr = categoryParts[1].trim();
             } else {
                 // 如果没有:，则使用默认的partCategory
                 reqPartCategory = partCategory;
-                remainingStr = strReq;
+                attrExprStr = remainingStr;
             }
             req.setPartCategoryCode(reqPartCategory);
 
@@ -646,12 +651,36 @@ public abstract class ModuleScenarioTestBase {
             // 场景1：仅有过滤条件，如 "where Speed=5400"
             // 场景2：仅有汇总条件，如 "Sum_Capacity >=5"
             // 场景3：同时有汇总条件和过滤条件，如 "Sum_Capacity >=5 where Speed=5400"
-            parseAttrExpr(remainingStr, req);
+            parseAttrExpr(attrExprStr, req);
 
             reqs.add(req);
         }
 
         return reqs;
+    }
+
+    /**
+     * Parse strategy configuration from the constraint request string.
+     * Syntax: [strategy=ASCENDING:price] or [strategy=DESCENDING:attrCode]
+     *
+     * @param strReq the full constraint request string
+     * @param req    the PartConstraintReq to populate
+     * @return the remaining string after removing strategy configuration
+     */
+    private String parseStrategyConfig(String strReq, PartConstraintReq req) {
+        Pattern strategyPattern = Pattern.compile("\\[strategy=(ASCENDING|DESCENDING|UNSPECIFIED):(\\w+)\\]");
+        Matcher matcher = strategyPattern.matcher(strReq);
+        if (matcher.find()) {
+            StrategyConfig config = new StrategyConfig();
+            config.setStrategyType(StrategyType.valueOf(matcher.group(1)));
+            config.setSortAttributeCode(matcher.group(2));
+            List<StrategyConfig> strategies = new ArrayList<>();
+            strategies.add(config);
+            req.setDecisionStrategies(strategies);
+            // Remove the strategy part from the string
+            return matcher.replaceFirst("").trim();
+        }
+        return strReq;
     }
 
     /**

@@ -15,13 +15,19 @@ import com.jmix.executor.cmodel.ParaInst;
 import com.jmix.executor.cmodel.PartInst;
 import com.jmix.executor.impl.ModuleInput;
 import com.jmix.executor.impl.MultiInstPartCategoryInput;
+import com.jmix.executor.impl.PartCategoryInput;
 import com.jmix.executor.impl.PartCategoryInputBase;
 import com.jmix.executor.impl.PriorityConstraint;
 import com.jmix.executor.impl.util.FilterExpressionExecutor;
 import com.jmix.executor.model.AlgLoaderException;
+import com.jmix.executor.model.PartConstraintReq;
+import com.jmix.executor.model.StrategyConfig;
+import com.jmix.executor.model.StrategyType;
 import com.jmix.executor.southinf.IModuleAlg;
 import com.jmix.tool.bbuilder.MultiInstCategoryUtils;
 
+import com.google.ortools.sat.DecisionStrategyProto;
+import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.LinearArgument;
 
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +36,7 @@ import org.apache.logging.log4j.util.Strings;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -78,6 +85,9 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
 
         // preCalculate
         preCalculate();
+
+        // apply decision strategies for ordering solution enumeration
+        applyDecisionStrategies();
 
         // midCalculate
         initRules(this, CalcStage.MID);
@@ -212,6 +222,12 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
                 PartCategoryInputBase pc4partCategoryInput = partConstraintFromReqMap
                         .get(categoryCode);
                 ModuleBaseAlgImpl pcAlg = null;
+                if (pc4partCategoryInput == null) {
+                    // No constraint for this PartCategory, create a default input
+                    PartCategoryInput defaultInput = new PartCategoryInput();
+                    defaultInput.setFilteredCategory(partCategory);
+                    pc4partCategoryInput = defaultInput;
+                }
                 if (partCategory.isSupportMultiInst() && pc4partCategoryInput instanceof MultiInstPartCategoryInput) {
                     pcAlg = new MultiInstPartCategoryAlgImpl();
                     MultiInstPartCategoryInput multiInstPartCategoryInput = (MultiInstPartCategoryInput) pc4partCategoryInput;
@@ -726,5 +742,101 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
 
         }
 
+    }
+
+    /**
+     * Apply decision strategies to part category variables.
+     * Called after all variables are created and before rule initialization.
+     */
+    private void applyDecisionStrategies() {
+        ModuleInput mi = getModuleInput();
+        if (mi == null || mi.getPartCategoryInputs() == null) {
+            return;
+        }
+        for (PartCategoryInputBase input : mi.getPartCategoryInputs()) {
+            PartConstraintReq orgReq = input.getOrgReq();
+            if (orgReq == null) {
+                continue;
+            }
+            List<StrategyConfig> strategies = orgReq.getDecisionStrategies();
+            if (strategies == null || strategies.isEmpty()) {
+                continue;
+            }
+
+            String partCategoryCode = input.getPartCategoryCode();
+
+            if (input instanceof MultiInstPartCategoryInput) {
+                MultiInstPartCategoryInput multiInput = (MultiInstPartCategoryInput) input;
+                for (PartCategoryInput pcInput : multiInput.getPartCategoryInputs()) {
+                    PartCategoryAlgImpl pcAlg = getPartCategoryAlg(pcInput.getPartCategoryCode());
+                    if (pcAlg != null) {
+                        applyStrategies(pcAlg, strategies);
+                    }
+                }
+            } else {
+                PartCategoryAlgImpl pcAlg = getPartCategoryAlg(partCategoryCode);
+                if (pcAlg != null) {
+                    applyStrategies(pcAlg, strategies);
+                }
+            }
+        }
+    }
+
+    private void applyStrategies(PartCategoryAlgImpl pcAlg, List<StrategyConfig> strategies) {
+        for (StrategyConfig config : strategies) {
+            if (config.getStrategyType() == null || config.getStrategyType() == StrategyType.UNSPECIFIED) {
+                continue;
+            }
+            if (config.getSortAttributeCode() == null || config.getSortAttributeCode().isEmpty()) {
+                log.warn("Strategy has no sortAttributeCode, skipping");
+                continue;
+            }
+            applySingleStrategy(pcAlg, config);
+        }
+    }
+
+    private void applySingleStrategy(PartCategoryAlgImpl pcAlg, StrategyConfig config) {
+        List<PartVar> partVars = pcAlg.getAllPartVars("");
+        if (partVars.isEmpty()) {
+            log.warn("No part vars found for category {}, skipping strategy", pcAlg.getCategoryCode());
+            return;
+        }
+
+        String sortAttr = config.getSortAttributeCode();
+        boolean ascending = config.getStrategyType() == StrategyType.ASCENDING;
+
+        // Sort part vars by the sort attribute
+        partVars.sort(Comparator.comparingInt(pv -> getSortValue(pv, sortAttr)));
+
+        // Reverse for descending
+        if (!ascending) {
+            java.util.Collections.reverse(partVars);
+        }
+
+        // Get isSelected BoolVars (which are IntVars) in sorted order
+        IntVar[] vars = partVars.stream()
+                .map(PartVar::getIsSelected)
+                .toArray(IntVar[]::new);
+
+        // SELECT_MAX_VALUE: try selecting parts first, which means preferred parts
+        // (sorted first) get selected in early solutions
+        model.addDecisionStrategy(vars,
+                DecisionStrategyProto.VariableSelectionStrategy.CHOOSE_FIRST,
+                DecisionStrategyProto.DomainReductionStrategy.SELECT_MAX_VALUE);
+
+        log.info("Applied decision strategy: {} on {} vars for category {}, sortAttr={}",
+                config.getStrategyType(), vars.length, pcAlg.getCategoryCode(), sortAttr);
+    }
+
+    /**
+     * Get the integer sort value for a part variable by attribute code.
+     * Supports basic attributes like "price" and dynamic attributes.
+     */
+    private int getSortValue(PartVar partVar, String attrCode) {
+        if ("price".equals(attrCode) && partVar.getBase() instanceof Part) {
+            Long price = ((Part) partVar.getBase()).getPrice();
+            return price != null ? price.intValue() : 0;
+        }
+        return partVar.getAttr4Int(attrCode);
     }
 }

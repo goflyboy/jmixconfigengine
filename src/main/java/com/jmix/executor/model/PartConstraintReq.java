@@ -2,6 +2,8 @@ package com.jmix.executor.model;
 
 import com.jmix.executor.bmodel.AttrParaType;
 
+import java.util.List;
+
 import lombok.Data;
 
 /**
@@ -41,6 +43,12 @@ public class PartConstraintReq {
      * 部件分类代码（用于查询时指定具体的PartCategory）
      */
     private String partCategoryCode;
+
+    /**
+     * 决策策略列表
+     * 用于指定该部件分类的变量分支顺序
+     */
+    private List<StrategyConfig> decisionStrategies;
 
     /**
      * 生成短字符串表示
