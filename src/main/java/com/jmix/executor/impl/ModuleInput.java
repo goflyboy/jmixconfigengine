@@ -1,12 +1,15 @@
 package com.jmix.executor.impl;
 
+import com.jmix.executor.cmodel.ErrorInfo;
 import com.jmix.executor.cmodel.ParaInst;
 import com.jmix.executor.cmodel.PartInst;
 
 import lombok.Data;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 部件约束数据类
@@ -56,6 +59,12 @@ public class ModuleInput implements IModuleInput {
      * 部件分类输入列表
      */
     private List<PartCategoryInputBase> partCategoryInputs = new ArrayList<>();
+
+    /**
+     * 部件分类过滤错误信息映射，key 为 partCategoryCode
+     */
+    private Map<String, ErrorInfo> partCategoryErrorInfoMap = new LinkedHashMap<>();
+
     /**
      * 部件分类实例列表
      */

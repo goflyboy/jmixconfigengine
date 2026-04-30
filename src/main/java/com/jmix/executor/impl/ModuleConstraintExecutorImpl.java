@@ -10,7 +10,10 @@ import com.jmix.executor.bmodel.base.Pair;
 import com.jmix.executor.bmodel.logic.RefProgObjSchema;
 import com.jmix.executor.bmodel.logic.Rule;
 import com.jmix.executor.bmodel.logic.RuleUtils;
+import com.jmix.executor.cmodel.ErrorInfo;
+import com.jmix.executor.cmodel.InstErrorCode;
 import com.jmix.executor.cmodel.ModuleInst;
+import com.jmix.executor.cmodel.PartCategoryInst;
 import com.jmix.executor.cmodel.SolverResult;
 import com.jmix.executor.impl.algmodel.AlgCPModel;
 import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
@@ -42,6 +45,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -148,10 +152,11 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
             Map<String, List<PartConstraintReq>> partConstraintReqMap = normalizePartConstraint(
                     partCategoryReq.getPartConstraintReqs(), startModule);
             // 查找原始部件分类
-            Pair<Module, List<PartCategoryInputBase>> filterResult = filterClone(startModule, partConstraintReqMap);
-            moduleInput.setPartCategoryInputs(filterResult.getSecond());
+            FilterCloneResult filterResult = filterClone(startModule, partConstraintReqMap);
+            moduleInput.setPartCategoryInputs(filterResult.partCategoryInputs());
+            moduleInput.setPartCategoryErrorInfoMap(filterResult.errorInfoMap());
 
-            Module filterModule = filterResult.getFirst();
+            Module filterModule = filterResult.filteredModule();
             log.info("Priority-orignal module: {}", ModuleUtils.toShortString(startModule));
             log.info("Priority-filter module: {}", ModuleUtils.toShortString(filterModule));
             SolverResult sr = null;
@@ -161,6 +166,19 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
             } else {
                 sr = solveWithOutPriorityConstraints(filterModule, moduleInput);
             }
+            // 后处理：注入过滤为空的 PartCategoryInst 错误信息
+            injectPartCategoryErrors(sr.getSolutions(), filterResult.errorInfoMap());
+
+            if (filterResult.hasError()) {
+                // 判断是否所有有约束的分类都过滤为空
+                boolean allConstrainedEmpty = filterResult.errorInfoMap().size() == partConstraintReqMap.size();
+                if (sr.hasSolution() && !allConstrainedEmpty) {
+                    return Result.partialSuccess(sr.getSolutions(),
+                            "Partial success: some categories have empty filter results");
+                } else {
+                    return Result.noSolution("All categories have empty filter results");
+                }
+            }
             return Result.success(sr.getSolutions());
 
         } catch (Exception e) {
@@ -169,10 +187,11 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
         }
     }
 
-    public static Pair<Module, List<PartCategoryInputBase>> filterClone(Module startModule,
+    public static FilterCloneResult filterClone(Module startModule,
             Map<String, List<PartConstraintReq>> partConstraintReqMap) {
         Module result = startModule.clone();
         List<PartCategoryInputBase> partCategoryInputs = new ArrayList<>();
+        Map<String, ErrorInfo> errorInfoMap = new LinkedHashMap<>();
         List<PartConstraintReq> reqs = null;
         PartCategory filterPartCategory = null;
         for (PartCategory partCategory : startModule.getPartCategorys()) {
@@ -191,10 +210,13 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
                             filterPartCategory.getAllAtomicPartShortString(),
                             req.getAttrWhereCondition());
                     log.info(msg);
-                    if (filterPartCategory.getAllAtomicPartShortString().isEmpty()) {
-                        throw new AlgExecutorException(msg);
+                    if (filterPartCategory.getAllAtomicParts().isEmpty()) {
+                        log.warn("Filter empty for category {}: {}", partCategory.getCode(), msg);
+                        errorInfoMap.put(partCategory.getCode(),
+                                new ErrorInfo(InstErrorCode.FILTER_EMPTY,
+                                        "No parts found for condition: " + req.getAttrWhereCondition()
+                                                + " in category " + partCategory.getCode()));
                     }
-                    // result.addPart(filterPartCategory);
                     result.addPartCategory(filterPartCategory);
                     PartCategoryInput partCategoryInput = PartCategoryConstraintExecutorImpl
                             .toPartCategoryInput(
@@ -219,8 +241,14 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
                                 filterPartCategory.getAllAtomicPartShortString(),
                                 req.getAttrWhereCondition());
                         log.info(msg);
-                        if (filterPartCategory.getAllAtomicPartShortString().isEmpty()) {
-                            throw new AlgExecutorException(msg);
+                        if (filterPartCategory.getAllAtomicParts().isEmpty()) {
+                            log.warn("Filter empty for category {} inst {}: {}",
+                                    partCategory.getCode(), instId, msg);
+                            errorInfoMap.put(partCategory.getCode() + "_I" + instId,
+                                    new ErrorInfo(InstErrorCode.FILTER_EMPTY,
+                                            "No parts found for condition: " + req.getAttrWhereCondition()
+                                                    + " in category " + partCategory.getCode()
+                                                    + " instance " + instId));
                         }
                         filterPartCategory.setRules(rulePair.getFirst());
                         PartCategoryInput partCategoryInput = PartCategoryConstraintExecutorImpl
@@ -237,7 +265,41 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
                 }
             }
         }
-        return new Pair<>(result, partCategoryInputs);
+        return new FilterCloneResult(result, partCategoryInputs, errorInfoMap);
+    }
+
+    /**
+     * 将过滤为空的 PartCategory 错误信息注入到求解结果的 PartCategoryInst 中
+     */
+    private static void injectPartCategoryErrors(List<ModuleInst> solutions,
+            Map<String, ErrorInfo> errorInfoMap) {
+        if (errorInfoMap == null || errorInfoMap.isEmpty() || solutions == null) {
+            return;
+        }
+        for (ModuleInst solution : solutions) {
+            for (Map.Entry<String, ErrorInfo> entry : errorInfoMap.entrySet()) {
+                String key = entry.getKey();
+                ErrorInfo errorInfo = entry.getValue();
+                // 检查是否已存在对应的 PartCategoryInst
+                boolean found = false;
+                for (PartCategoryInst pcInst : solution.getPartCategorys()) {
+                    if (pcInst.getCode().equals(key)) {
+                        pcInst.setErrorCode(errorInfo.errorCode());
+                        pcInst.setErrorMessage(errorInfo.errorMessage());
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    // 创建新的 PartCategoryInst 承载错误信息
+                    PartCategoryInst errorInst = new PartCategoryInst();
+                    errorInst.setCode(key);
+                    errorInst.setErrorCode(errorInfo.errorCode());
+                    errorInst.setErrorMessage(errorInfo.errorMessage());
+                    solution.addPartCategoryInst(errorInst);
+                }
+            }
+        }
     }
 
     @Override
@@ -544,9 +606,10 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
         // moduleInput.setPartCategoryCode(req.getPartCategoryCode());
         Map<String, List<PartConstraintReq>> partConstraintReqMap = normalizePartConstraint(req.getPartConstraintReqs(),
                 startModule);
-        Pair<Module, List<PartCategoryInputBase>> filterResult = ModuleConstraintExecutorImpl.filterClone(startModule,
+        FilterCloneResult filterResult = ModuleConstraintExecutorImpl.filterClone(startModule,
                 partConstraintReqMap);
-        moduleInput.setPartCategoryInputs(filterResult.getSecond());
+        moduleInput.setPartCategoryInputs(filterResult.partCategoryInputs());
+        moduleInput.setPartCategoryErrorInfoMap(filterResult.errorInfoMap());
         return moduleInput;
     }
 

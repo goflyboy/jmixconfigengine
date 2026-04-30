@@ -1,8 +1,10 @@
 package com.jmix.executor.impl;
 
 import com.jmix.executor.bmodel.Module;
+import com.jmix.executor.cmodel.InstErrorCode;
 import com.jmix.executor.cmodel.ModuleBaseInst;
 import com.jmix.executor.cmodel.ModuleInst;
+import com.jmix.executor.cmodel.PartCategoryInst;
 import com.jmix.executor.impl.algmodel.OtherVar;
 import com.jmix.executor.model.Result;
 
@@ -87,6 +89,8 @@ public final class SolutionUtils {
         if (result != null) {
             sb.append(result.getMessage()).append(System.lineSeparator());
         }
+        // 打印错误信息
+        appendErrorInfo(solutions, sb);
         log.info(sb.toString());
     }
 
@@ -133,6 +137,30 @@ public final class SolutionUtils {
      * @param solutions 解决方案列表
      * @param sb        字符串构建器
      */
+    /**
+     * 打印解决方案中的错误信息
+     */
+    private static void appendErrorInfo(List<ModuleInst> solutions, StringBuilder sb) {
+        if (solutions == null || solutions.isEmpty()) {
+            return;
+        }
+        boolean hasError = false;
+        for (ModuleInst solution : solutions) {
+            for (PartCategoryInst pcInst : solution.getPartCategorys()) {
+                if (pcInst.getErrorCode() != InstErrorCode.NO_ERROR) {
+                    if (!hasError) {
+                        sb.append("4.Errors:").append(System.lineSeparator());
+                        hasError = true;
+                    }
+                    sb.append("  ").append(pcInst.getCode())
+                            .append(": ").append(InstErrorCode.toName(pcInst.getErrorCode()))
+                            .append(" - ").append(pcInst.getErrorMessage())
+                            .append(System.lineSeparator());
+                }
+            }
+        }
+    }
+
     private static void printOthers(List<ModuleInst> solutions, StringBuilder sb) {
         if (!solutions.isEmpty()) {
             ModuleInst firstSolution = solutions.get(0);

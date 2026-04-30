@@ -32,6 +32,11 @@ public class Result<T> {
     public static final int NO_SOLUTION = 2;
 
     /**
+     * 部分成功：至少一个分类正常返回解，但存在分类过滤为空
+     */
+    public static final int PARTIAL_SUCCESS = 3;
+
+    /**
      * 状态码
      */
     private int code = SUCCESS;
@@ -99,6 +104,22 @@ public class Result<T> {
     public static <X> Result<X> noSolution(String msg) {
         Result<X> r = new Result<>();
         r.setCode(NO_SOLUTION);
+        r.setMessage(msg);
+        return r;
+    }
+
+    /**
+     * 创建部分成功结果
+     *
+     * @param data 部分成功时返回的数据
+     * @param msg  描述消息
+     * @param <X>  数据类型
+     * @return 部分成功结果对象
+     */
+    public static <X> Result<X> partialSuccess(X data, String msg) {
+        Result<X> r = new Result<>();
+        r.setCode(PARTIAL_SUCCESS);
+        r.setData(data);
         r.setMessage(msg);
         return r;
     }
