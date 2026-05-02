@@ -33,6 +33,15 @@ public class SolverResult {
 
     private int iterationTimes = 0;// 迭代次数
 
+    /** true 表示 solutions 严格满足原始模型; false 表示部分解或无严格解 */
+    private boolean strictFeasible = true;
+
+    /** 原始模型求解状态, 诊断场景通常为 INFEASIBLE */
+    private String originalSolverStatus;
+
+    /** 无解诊断中被系统内部放宽的约束 */
+    private List<DiagnosticConstraint> diagnosticConstraints;
+
     /**
      * 是否有解
      * @return

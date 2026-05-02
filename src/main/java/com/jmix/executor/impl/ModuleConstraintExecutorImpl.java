@@ -10,6 +10,7 @@ import com.jmix.executor.bmodel.base.Pair;
 import com.jmix.executor.bmodel.logic.RefProgObjSchema;
 import com.jmix.executor.bmodel.logic.Rule;
 import com.jmix.executor.bmodel.logic.RuleUtils;
+import com.jmix.executor.cmodel.DiagnosticConstraint;
 import com.jmix.executor.cmodel.ErrorInfo;
 import com.jmix.executor.cmodel.InstErrorCode;
 import com.jmix.executor.cmodel.ModuleInst;
@@ -376,8 +377,11 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
                     && status != CpSolverStatus.INFEASIBLE) {
                 return Result.failed("solver status: " + status);
             }
-            if (status == CpSolverStatus.INFEASIBLE && config.isDebugByRelaxVar()) {
-                // 没有可行解，如果 debugByRelaxVar= true，则使用松弛变量检测冲突规则
+
+            // 原始模型无解时的松弛诊断: 请求级开关优先于全局配置
+            boolean effectiveRelax = req.isRelaxSolve() || config.isDebugByRelaxVar();
+            if (status == CpSolverStatus.INFEASIBLE && effectiveRelax) {
+                // 没有可行解，使用松弛变量检测冲突规则
                 Pair<List<RelaxVar>, RunInferParasRsp> rcResult = null;
                 List<RelaxVar> confictedRelaxs = new ArrayList<>();
 
@@ -389,12 +393,27 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
                 rcResult = runCalcConfictRules(module, req, true, confictedRelaxs);
                 confictedRelaxs.addAll(rcResult.getFirst());
 
-                Result<List<ModuleInst>> r = Result.noSolution(toConfictMessage(confictedRelaxs));
-
                 // 最后一次solution的解
                 List<ModuleInst> solutions = rcResult.getSecond().getSolutionCallBack().getSolverResult()
                         .getSolutions();
+
+                // 构建冲突诊断约束
+                List<DiagnosticConstraint> diagnosticConstraints = toDiagnosticConstraints(confictedRelaxs, module);
+
+                // 构建松弛后的SolverResult
+                SolverResult relaxedSr = new SolverResult();
+                relaxedSr.setSolutions(solutions);
+                relaxedSr.setStrictFeasible(false);
+                relaxedSr.setOriginalSolverStatus(CpSolverStatus.INFEASIBLE.toString());
+                relaxedSr.setSolverStatus(rcResult.getSecond().getStatus().toString());
+                relaxedSr.setDiagnosticConstraints(diagnosticConstraints);
+
+                String message = buildConflictMessage(confictedRelaxs, diagnosticConstraints, solutions.isEmpty());
+                relaxedSr.setMessage(message);
+
+                Result<List<ModuleInst>> r = Result.noSolution(message);
                 r.setData(solutions);
+                r.setSolverResult(relaxedSr);
                 return r;
             }
 
@@ -487,6 +506,82 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
             conflictMessage.append(confictedRelax.getRuleCode()).append(",");
         }
         return conflictMessage.toString();
+    }
+
+    /**
+     * 将冲突松弛变量列表转换为 DiagnosticConstraint 列表。
+     */
+    private List<DiagnosticConstraint> toDiagnosticConstraints(List<RelaxVar> confictedRelaxs, Module module) {
+        List<DiagnosticConstraint> result = new ArrayList<>();
+        for (RelaxVar relaxVar : confictedRelaxs) {
+            String ruleCode = relaxVar.getRuleCode();
+            DiagnosticConstraint dc = new DiagnosticConstraint();
+            dc.setCode(ruleCode);
+            dc.setWeight(relaxVar.getWeight());
+
+            if (ruleCode.startsWith("addPartEquality_") || ruleCode.startsWith("addParaEquality_")) {
+                dc.setConstraintType(DiagnosticConstraint.TYPE_INPUT);
+                dc.setNaturalCode("User input constraint");
+                dc.setSource("Para/Part");
+                dc.setDescription("User input constraint: " + ruleCode);
+            } else if (ruleCode.equals("hiddensrule") || ruleCode.startsWith("sys_")) {
+                dc.setConstraintType(DiagnosticConstraint.TYPE_SYSTEM);
+                dc.setNaturalCode("System constraint");
+                dc.setSource("System");
+                dc.setDescription("System-generated constraint: " + ruleCode);
+            } else {
+                dc.setConstraintType(DiagnosticConstraint.TYPE_RULE);
+                // 查找对应的 Rule 获取 naturalCode
+                Rule matchedRule = findRuleByCode(module, ruleCode);
+                if (matchedRule != null && matchedRule.getNormalNaturalCode() != null) {
+                    dc.setNaturalCode(matchedRule.getNormalNaturalCode());
+                } else {
+                    dc.setNaturalCode(ruleCode);
+                }
+                dc.setSource(module.getCode() != null ? module.getCode() : "Module");
+                dc.setDescription("Business rule " + ruleCode + " was relaxed to find a partial solution");
+            }
+            result.add(dc);
+        }
+        return result;
+    }
+
+    /**
+     * 根据 ruleCode 在 Module 中查找对应的 Rule。
+     */
+    private Rule findRuleByCode(Module module, String ruleCode) {
+        if (module.getRules() == null) {
+            return null;
+        }
+        for (Rule rule : module.getRules()) {
+            if (ruleCode.equals(rule.getCode())) {
+                return rule;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 构建冲突诊断消息，说明原始无解原因、被放宽的约束及部分解信息。
+     */
+    private static String buildConflictMessage(List<RelaxVar> confictedRelaxs,
+            List<DiagnosticConstraint> diagnosticConstraints, boolean relaxedStillInfeasible) {
+        if (relaxedStillInfeasible) {
+            return "Relaxed model is still infeasible after relaxing: "
+                    + diagnosticConstraints.stream()
+                            .map(DiagnosticConstraint::getCode)
+                            .reduce((a, b) -> a + ", " + b).orElse("");
+        }
+        StringBuilder msg = new StringBuilder();
+        msg.append("Original model infeasible: ");
+        List<String> conflictCodes = confictedRelaxs.stream()
+                .map(RelaxVar::getRuleCode)
+                .distinct()
+                .collect(java.util.stream.Collectors.toList());
+        msg.append(String.join("/", conflictCodes));
+        msg.append(" conflict; system relaxed ").append(conflictCodes.size() > 1 ? "them" : "it");
+        msg.append(" to find a partial solution");
+        return msg.toString();
     }
 
     private Pair<List<RelaxVar>, RunInferParasRsp> runCalcConfictRules(Module module,
@@ -601,6 +696,7 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
         moduleInput.setMainPartInst(req.getMainPartInst());
         moduleInput.setPreParaInsts(req.getPreParaInsts());
         moduleInput.setPrePartInsts(req.getPrePartInsts());
+        moduleInput.setRelaxSolve(req.isRelaxSolve());
         // moduleInput.setPartConstraintReqs(req.getPartConstraintReqs());
         moduleInput.setEnumerateAllSolution(req.isEnumerateAllSolution());
         // moduleInput.setPartCategoryCode(req.getPartCategoryCode());
@@ -626,6 +722,7 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
         cReq.setPartConstraintReqs(req.getPartConstraintReqs());
         cReq.setEnumerateAllSolution(req.isEnumerateAllSolution());
         cReq.setPartCategoryCode(req.getPartCategoryCode());
+        cReq.setRelaxSolve(req.isRelaxSolve());
         return cReq;
     }
 
