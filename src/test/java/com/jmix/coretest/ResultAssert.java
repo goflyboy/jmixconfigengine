@@ -1,10 +1,13 @@
 package com.jmix.coretest;
 
+import com.jmix.executor.cmodel.DiagnosticConstraint;
+import com.jmix.executor.cmodel.SolverResult;
 import com.jmix.executor.model.Result;
 
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * 结果断言类，提供链式API验证执行结果
@@ -290,12 +293,113 @@ public class ResultAssert {
 
     /**
      * 断言结果数据为空
-     * 
+     *
      * @return 当前ResultAssert实例，支持链式调用
      */
     public ResultAssert assertDataNull() {
         if (actualResult.getData() != null) {
             throw new AssertionError("Result data should be null");
+        }
+        return this;
+    }
+
+    // --------------- 冲突诊断断言 ---------------
+
+    private SolverResult requireSolverResult() {
+        SolverResult sr = actualResult.getSolverResult();
+        if (sr == null) {
+            throw new AssertionError("SolverResult is null, conflict diagnosis was not triggered");
+        }
+        return sr;
+    }
+
+    /**
+     * 断言 strictFeasible 等于期望值。
+     */
+    public ResultAssert assertStrictFeasible(boolean expected) {
+        SolverResult sr = requireSolverResult();
+        if (sr.isStrictFeasible() != expected) {
+            throw new AssertionError(String.format(
+                    "strictFeasible mismatch, expected: %s, actual: %s",
+                    expected, sr.isStrictFeasible()));
+        }
+        return this;
+    }
+
+    /**
+     * 断言 diagnosticConstraints 非空。
+     */
+    public ResultAssert assertHasDiagnosticConstraints() {
+        SolverResult sr = requireSolverResult();
+        List<DiagnosticConstraint> constraints = sr.getDiagnosticConstraints();
+        if (constraints == null || constraints.isEmpty()) {
+            throw new AssertionError("Expected diagnostic constraints to be non-empty");
+        }
+        return this;
+    }
+
+    /**
+     * 断言 diagnosticConstraints 包含指定的 code。
+     */
+    public ResultAssert assertDiagnosticConstraintsContains(String... codes) {
+        SolverResult sr = requireSolverResult();
+        List<DiagnosticConstraint> constraints = sr.getDiagnosticConstraints();
+        if (constraints == null) {
+            throw new AssertionError("diagnosticConstraints is null, expected non-null");
+        }
+        for (String code : codes) {
+            boolean found = constraints.stream()
+                    .anyMatch(dc -> code.equals(dc.getCode()));
+            if (!found) {
+                List<String> available = constraints.stream()
+                        .map(DiagnosticConstraint::getCode)
+                        .collect(java.util.stream.Collectors.toList());
+                throw new AssertionError(String.format(
+                        "diagnosticConstraints should contain '%s', but only found: %s",
+                        code, available));
+            }
+        }
+        return this;
+    }
+
+    /**
+     * 断言 diagnosticConstraints 为空（默认不松弛时）。
+     */
+    public ResultAssert assertNoDiagnosticConstraints() {
+        SolverResult sr = actualResult.getSolverResult();
+        if (sr != null) {
+            List<DiagnosticConstraint> constraints = sr.getDiagnosticConstraints();
+            if (constraints != null && !constraints.isEmpty()) {
+                throw new AssertionError("Expected no diagnostic constraints, but found: "
+                        + constraints.stream().map(DiagnosticConstraint::getCode)
+                                .collect(java.util.stream.Collectors.toList()));
+            }
+        }
+        return this;
+    }
+
+    /**
+     * 断言 solverResult.solutions 数量等于指定值（用于部分解计数）。
+     */
+    public ResultAssert assertPartialSolutionSizeEqual(int size) {
+        SolverResult sr = requireSolverResult();
+        int actual = sr.getSolutions() != null ? sr.getSolutions().size() : 0;
+        if (actual != size) {
+            throw new AssertionError(String.format(
+                    "Partial solution count mismatch, expected: %d, actual: %d", size, actual));
+        }
+        return this;
+    }
+
+    /**
+     * 断言 solverResult.solutions 数量不少于指定值（用于部分解计数）。
+     */
+    public ResultAssert assertPartialSolutionSizeGreaterThanOrEqual(int minSize) {
+        SolverResult sr = requireSolverResult();
+        int actual = sr.getSolutions() != null ? sr.getSolutions().size() : 0;
+        if (actual < minSize) {
+            throw new AssertionError(String.format(
+                    "Partial solution count should be >= %d, actual: %d", minSize, actual));
         }
         return this;
     }

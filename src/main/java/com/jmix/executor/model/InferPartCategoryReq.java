@@ -44,4 +44,9 @@ public class InferPartCategoryReq {
      * 最大solution的个数
      */
     private int maxSolutionNum = 10;
+
+    /**
+     * 是否允许本次请求在原始模型无解时执行松弛诊断。
+     */
+    private boolean relaxSolve = false;
 }

@@ -66,6 +66,11 @@ public class ModuleInput implements IModuleInput {
     private Map<String, ErrorInfo> partCategoryErrorInfoMap = new LinkedHashMap<>();
 
     /**
+     * 是否允许本次请求在原始模型无解时执行松弛诊断。
+     */
+    private boolean relaxSolve = false;
+
+    /**
      * 部件分类实例列表
      */
     // private List<PartCategoryInst> partCategorys = new ArrayList<>();

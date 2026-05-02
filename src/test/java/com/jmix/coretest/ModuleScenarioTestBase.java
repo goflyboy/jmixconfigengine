@@ -9,9 +9,11 @@ import com.jmix.executor.bmodel.AttrParaType;
 import com.jmix.executor.bmodel.IPart;
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.para.Para;
+import com.jmix.executor.cmodel.DiagnosticConstraint;
 import com.jmix.executor.cmodel.ModuleInst;
 import com.jmix.executor.cmodel.ParaInst;
 import com.jmix.executor.cmodel.PartInst;
+import com.jmix.executor.cmodel.SolverResult;
 import com.jmix.executor.impl.ModuleConstraintExecutorImpl;
 import com.jmix.executor.impl.SolutionUtils;
 import com.jmix.executor.impl.util.CommHelper;
@@ -218,7 +220,7 @@ public abstract class ModuleScenarioTestBase {
 
     /**
      * 根据多个参数值进行推理（可变参数版本）
-     * 
+     *
      * @param paraCodeValuePairs 参数代码和值的交替数组，格式：paraCode1, value1, paraCode2,
      *                           value2, ...
      * @return 推理结果
@@ -235,6 +237,56 @@ public abstract class ModuleScenarioTestBase {
         setResult(result);
         setSolutions(result.getData());
         return getSolutions();
+    }
+
+    /**
+     * 使用 relaxSolve=true 进行参数推理（冲突诊断模式）。
+     *
+     * @param paraCodeValuePairs 参数代码和值的交替数组
+     * @return 推理结果（部分解）
+     */
+    protected List<ModuleInst> inferParasByParaRelax(String... paraCodeValuePairs) {
+        InferParasReq req = new InferParasReq();
+        req.setModuleId(getModule().getId());
+        req.setEnumerateAllSolution(isEnumerateAllSolution());
+        req.setRelaxSolve(true);
+
+        req.setPreParaInsts(toPreParas(paraCodeValuePairs));
+
+        Result<List<ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(req);
+        setResult(result);
+        setSolutions(result.getData());
+        return getSolutions();
+    }
+
+    /**
+     * 校验部分解中包含期望的字符串（从 SolverResult.solutions 中查找）。
+     */
+    protected void assertPartialSoluContain(String... expectedSubstrings) {
+        SolverResult sr = getResult().getSolverResult();
+        if (sr == null || sr.getSolutions() == null || sr.getSolutions().isEmpty()) {
+            throw new AssertionError("No partial solutions available");
+        }
+        for (String expected : expectedSubstrings) {
+            boolean found = false;
+            for (ModuleInst solution : sr.getSolutions()) {
+                String solutionStr = solution.toShortString(true);
+                if (solutionStr != null && solutionStr.contains(expected)) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                StringBuilder errorMsg = new StringBuilder();
+                errorMsg.append("No partial solution found containing: ").append(expected);
+                errorMsg.append("\nAvailable partial solutions:");
+                for (int i = 0; i < sr.getSolutions().size(); i++) {
+                    errorMsg.append("\n  PS_").append(i + 1).append(": ")
+                            .append(sr.getSolutions().get(i).toShortString(true));
+                }
+                throw new AssertionError(errorMsg.toString());
+            }
+        }
     }
 
     /**

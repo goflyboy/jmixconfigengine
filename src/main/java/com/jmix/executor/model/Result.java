@@ -1,5 +1,7 @@
 package com.jmix.executor.model;
 
+import com.jmix.executor.cmodel.SolverResult;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,7 +11,7 @@ import java.util.Map;
 /**
  * 结果类
  * 用于封装操作结果，包含状态码、数据和消息
- * 
+ *
  * @since 2025-09-22
  */
 @Data
@@ -55,6 +57,12 @@ public class Result<T> {
      * 扩展属性
      */
     private Map<String, Object> extAttrs;
+
+    /**
+     * 求解器结果 — 承载冲突诊断等结构化信息。
+     * 仅当本次推理产生 SolverResult 时设置（正常路径 / 松弛诊断路径）。
+     */
+    private SolverResult solverResult;
 
     /**
      * 创建成功结果

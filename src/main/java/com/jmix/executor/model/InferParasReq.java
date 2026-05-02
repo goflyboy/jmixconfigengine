@@ -55,4 +55,10 @@ public class InferParasReq {
      * 部件分类代码
      */
     private String partCategoryCode;
+
+    /**
+     * 是否允许本次请求在原始模型无解时执行松弛诊断。
+     * 默认 false, 避免普通推理请求产生额外求解成本。
+     */
+    private boolean relaxSolve = false;
 }
