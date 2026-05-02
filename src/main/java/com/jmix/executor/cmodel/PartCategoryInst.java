@@ -24,6 +24,16 @@ public class PartCategoryInst extends ModuleBaseInst {
     private List<PartCategoryInst> partCategorys = new ArrayList<>();
 
     /**
+     * 错误码，0 表示无错误
+     */
+    private int errorCode = InstErrorCode.NO_ERROR;
+
+    /**
+     * 错误消息，包含详细的上下文信息方便定位
+     */
+    private String errorMessage;
+
+    /**
      * 获取所有部件实例（当前层 + 所有子PartCategoryInst的部件）
      *
      * @return 所有部件实例列表
@@ -62,6 +72,15 @@ public class PartCategoryInst extends ModuleBaseInst {
      */
     public void addPartCategoryInst(PartCategoryInst partCategoryInst) {
         partCategorys.add(partCategoryInst);
+    }
+
+    @Override
+    public String toShortString(boolean isSimple, int instId) {
+        if (errorCode != InstErrorCode.NO_ERROR) {
+            String prefix = instId > 0 ? "I" + instId + "_" : "";
+            return prefix + getCode() + ":" + InstErrorCode.toName(errorCode);
+        }
+        return super.toShortString(isSimple, instId);
     }
 
     /**

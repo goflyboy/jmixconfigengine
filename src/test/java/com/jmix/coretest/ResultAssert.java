@@ -250,7 +250,7 @@ public class ResultAssert {
 
     /**
      * 断言无解
-     * 
+     *
      * @return 当前ResultAssert实例，支持链式调用
      */
     public ResultAssert assertNoSolution() {
@@ -258,6 +258,20 @@ public class ResultAssert {
             throw new AssertionError(String.format(
                     "Expected no solution, actual result code: %d",
                     actualResult.getCode()));
+        }
+        return this;
+    }
+
+    /**
+     * 断言部分成功
+     *
+     * @return 当前ResultAssert实例，支持链式调用
+     */
+    public ResultAssert assertPartialSuccess() {
+        if (actualResult.getCode() != Result.PARTIAL_SUCCESS) {
+            throw new AssertionError(String.format(
+                    "Expected partial success, actual result code: %d, message: %s",
+                    actualResult.getCode(), actualResult.getMessage()));
         }
         return this;
     }
