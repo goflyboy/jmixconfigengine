@@ -14,6 +14,7 @@ import com.jmix.executor.bmodel.para.Para;
 import com.jmix.executor.bmodel.para.ParaType;
 import com.jmix.executor.cmodel.ModuleInst;
 import com.jmix.executor.impl.IModuleInput;
+import com.jmix.executor.impl.ModuleInstAccessor;
 import com.jmix.executor.impl.PartCategoryInputBase;
 import com.jmix.executor.impl.PriorityConstraint;
 import com.jmix.executor.impl.util.FilterExpressionExecutor;
@@ -114,6 +115,11 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * 当前部件约束
      */
     protected IModuleInput moduleInput;
+
+    /**
+     * 当前模块实例访问器，用于POST阶段读写ModuleInst
+     */
+    private ModuleInstAccessor currentModuleInstAccessor;
 
     /**
      * 获取实例ID
@@ -1266,5 +1272,153 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
 
     public String toString() {
         return this.module.getCode();
+    }
+
+    // ==================== ModuleInstAccessor binding ====================
+
+    /**
+     * 绑定当前ModuleInst访问器，用于POST阶段读写实例数据
+     */
+    public void bindModuleInstAccessor(ModuleInstAccessor accessor) {
+        this.currentModuleInstAccessor = accessor;
+    }
+
+    /**
+     * 清理当前ModuleInst访问器
+     */
+    public void clearModuleInstAccessor() {
+        this.currentModuleInstAccessor = null;
+    }
+
+    /**
+     * 获取当前ModuleInst访问器，仅在POST上下文可用
+     */
+    protected ModuleInstAccessor currentModuleInstAccessor() {
+        if (currentModuleInstAccessor == null) {
+            throw new AlgLoaderException(
+                    "ModuleInstAccessor is not bound. This method is only available in POST context.");
+        }
+        return currentModuleInstAccessor;
+    }
+
+    // ==================== forwarding methods to ModuleInstAccessor ====================
+
+    public String getDynAttr(String partCategoryCode, String attrCode) {
+        return currentModuleInstAccessor().getDynAttr(partCategoryCode, attrCode);
+    }
+
+    public String getDynAttr(String partCategoryCode, int instId, String attrCode) {
+        return currentModuleInstAccessor().getDynAttr(partCategoryCode, instId, attrCode);
+    }
+
+    public List<String> getDynAttrValues(String partCategoryCode, String attrCode) {
+        return currentModuleInstAccessor().getDynAttrValues(partCategoryCode, attrCode);
+    }
+
+    public List<String> getDynAttrValues(String partCategoryCode, int instId, String attrCode) {
+        return currentModuleInstAccessor().getDynAttrValues(partCategoryCode, instId, attrCode);
+    }
+
+    public String getSumDynAttr(String partCategoryCode, String attrCode) {
+        return currentModuleInstAccessor().getSumDynAttr(partCategoryCode, attrCode);
+    }
+
+    public String getSumDynAttr(String partCategoryCode, int instId, String attrCode) {
+        return currentModuleInstAccessor().getSumDynAttr(partCategoryCode, instId, attrCode);
+    }
+
+    public int getQuantity(String partCategoryCode) {
+        return currentModuleInstAccessor().getQuantity(partCategoryCode);
+    }
+
+    public int getQuantity(String partCategoryCode, int instId) {
+        return currentModuleInstAccessor().getQuantity(partCategoryCode, instId);
+    }
+
+    public List<Integer> getInstanceIds(String partCategoryCode) {
+        return currentModuleInstAccessor().getInstanceIds(partCategoryCode);
+    }
+
+    public void setParaValue(String paraCode, String value) {
+        currentModuleInstAccessor().setParaValue(paraCode, value);
+    }
+
+    public void setParaValue(String partCategoryCode, String paraCode, String value) {
+        currentModuleInstAccessor().setParaValue(partCategoryCode, paraCode, value);
+    }
+
+    public void setParaValue(String partCategoryCode, int instId, String paraCode, String value) {
+        currentModuleInstAccessor().setParaValue(partCategoryCode, instId, paraCode, value);
+    }
+
+    public String getParaValue(String paraCode) {
+        return currentModuleInstAccessor().getParaValue(paraCode);
+    }
+
+    public String getParaValue(String partCategoryCode, String paraCode) {
+        return currentModuleInstAccessor().getParaValue(partCategoryCode, paraCode);
+    }
+
+    public String getParaValue(String partCategoryCode, int instId, String paraCode) {
+        return currentModuleInstAccessor().getParaValue(partCategoryCode, instId, paraCode);
+    }
+
+    // ==================== type conversion helpers ====================
+
+    protected int toInt(String value) {
+        if (value == null || value.isEmpty()) {
+            throw new AlgLoaderException("Cannot convert null or empty string to int");
+        }
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            throw new AlgLoaderException("Cannot convert '" + value + "' to int", e);
+        }
+    }
+
+    protected long toLong(String value) {
+        if (value == null || value.isEmpty()) {
+            throw new AlgLoaderException("Cannot convert null or empty string to long");
+        }
+        try {
+            return Long.parseLong(value);
+        } catch (NumberFormatException e) {
+            throw new AlgLoaderException("Cannot convert '" + value + "' to long", e);
+        }
+    }
+
+    protected double toDouble(String value) {
+        if (value == null || value.isEmpty()) {
+            throw new AlgLoaderException("Cannot convert null or empty string to double");
+        }
+        try {
+            return Double.parseDouble(value);
+        } catch (NumberFormatException e) {
+            throw new AlgLoaderException("Cannot convert '" + value + "' to double", e);
+        }
+    }
+
+    protected String toString(Object value) {
+        return String.valueOf(value);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected <T> T toValue(String value, Class<T> targetType) {
+        if (value == null || value.isEmpty()) {
+            throw new AlgLoaderException("Cannot convert null or empty string to " + targetType.getSimpleName());
+        }
+        if (targetType == String.class) {
+            return (T) value;
+        }
+        if (targetType == Integer.class || targetType == int.class) {
+            return (T) Integer.valueOf(value);
+        }
+        if (targetType == Long.class || targetType == long.class) {
+            return (T) Long.valueOf(value);
+        }
+        if (targetType == Double.class || targetType == double.class) {
+            return (T) Double.valueOf(value);
+        }
+        throw new AlgLoaderException("Unsupported target type: " + targetType.getSimpleName());
     }
 }
