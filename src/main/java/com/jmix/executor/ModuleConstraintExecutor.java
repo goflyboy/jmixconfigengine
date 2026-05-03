@@ -3,8 +3,8 @@ package com.jmix.executor;
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.impl.ModuleConstraintExecutorImpl;
 import com.jmix.executor.model.ConstraintConfig;
-import com.jmix.executor.model.ExtensibleProcess;
 import com.jmix.executor.model.InferParasReq;
+import com.jmix.executor.model.ModulePostCalcReq;
 import com.jmix.executor.cmodel.ModuleInst;
 import com.jmix.executor.model.Result;
 
@@ -69,18 +69,10 @@ public interface ModuleConstraintExecutor {
     Result<List<ModuleInst>> inferParas(InferParasReq req);
 
     /**
-     * 注册扩展处理器
-     * 
-     * @param eProcess 扩展处理器
-     * @return 注册结果
+     * 独立后置计算: 对已有解执行CalcStage.POST规则，写回派生参数
+     *
+     * @param req 后置计算请求
+     * @return 写入派生参数后的解列表
      */
-    Result<Void> registerExtensible(ExtensibleProcess eProcess);
-
-    /**
-     * 注销扩展处理器
-     * 
-     * @param eProcess 扩展处理器
-     * @return 注销结果
-     */
-    Result<Void> unregisterExtensible(ExtensibleProcess eProcess);
+    Result<List<ModuleInst>> postCalculate(ModulePostCalcReq req);
 }

@@ -24,10 +24,9 @@ import com.jmix.executor.impl.util.ReqUtils;
 import com.jmix.executor.model.AlgExecutorException;
 import com.jmix.executor.model.AlgLoaderException;
 import com.jmix.executor.model.ConstraintConfig;
-import com.jmix.executor.model.ExtensibleProcess;
-import com.jmix.executor.model.InferParasPostProcess;
 import com.jmix.executor.model.InferParasReq;
 import com.jmix.executor.model.InferPartCategoryReq;
+import com.jmix.executor.model.ModulePostCalcReq;
 import com.jmix.executor.model.PartConstraintReq;
 import com.jmix.executor.model.Result;
 import com.jmix.executor.model.RunInferParasRsp;
@@ -44,12 +43,10 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * 模块约束执行器实现类
@@ -64,8 +61,6 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
 
     private final Map<Long, ModuleAlgClassLoader> moduleAlgClassLoaderMap = new HashMap<>();
 
-    private final List<ExtensibleProcess> extensibleProcesses = new CopyOnWriteArrayList<>();
-
     private ConstraintConfig config;
 
     @Override
@@ -77,11 +72,6 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
 
     @Override
     public final Result<Void> fini() {
-        // 销毁所有扩展处理器
-        for (ExtensibleProcess process : extensibleProcesses) {
-            process.destroy();
-        }
-        extensibleProcesses.clear();
         moduleAlgClassLoaderMap.clear();
         moduleMap.clear();
         log.info("Module constraint executor finalized");
@@ -417,11 +407,15 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
                 return r;
             }
 
-            // 执行后处理
+            // 执行后处理: 对每个解执行CalcStage.POST规则
             List<ModuleInst> solutions = cb.getSolverResult().getSolutions();
-            solutions = executePostProcess(module, solutions);
+            ModulePostCalculator postCalculator = new ModulePostCalculator(module, cb.getModuleAlg());
+            Result<List<ModuleInst>> postResult = postCalculator.doCalc(solutions);
+            if (postResult.getCode() != Result.SUCCESS) {
+                return postResult;
+            }
 
-            return Result.success(solutions);
+            return Result.success(postResult.getData());
         } catch (AlgLoaderException | AlgExecutorException ex) {
             log.error("Failed to infer paras", ex);
             return Result.failed("exception: " + ex.getMessage());
@@ -429,39 +423,27 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
     }
 
     @Override
-    public Result<Void> registerExtensible(ExtensibleProcess eProcess) {
-        if (eProcess == null) {
-            return Result.failed("ExtensibleProcess is null");
+    public Result<List<ModuleInst>> postCalculate(ModulePostCalcReq req) {
+        if (req == null) {
+            return Result.failed("ModulePostCalcReq is null");
         }
-        if (extensibleProcesses.contains(eProcess)) {
-            log.warn("ExtensibleProcess already registered: {}", eProcess.getProcessName());
-            return Result.success(null);
+        if (req.getSolutions() == null || req.getSolutions().isEmpty()) {
+            return Result.failed("solutions is null or empty");
         }
-        Result<Void> initResult = eProcess.init();
-        if (initResult.getCode() != Result.SUCCESS) {
-            return Result.failed("Failed to initialize extensible process: " + initResult.getMessage());
+        try {
+            Module module = getModule(req.getModuleId(), req.getModuleCode());
+            module.init();
+            ModuleAlgClassLoader loader = getModuleClassLoader(module.getId());
+            if (loader == null) {
+                return Result.failed("ModuleAlgClassLoader not found for module: " + module.getId());
+            }
+            ModuleAlgImpl alg = loader.newConstraintAlg(module.getCode());
+            ModulePostCalculator postCalculator = new ModulePostCalculator(module, alg);
+            return postCalculator.doCalc(req.getSolutions());
+        } catch (AlgLoaderException ex) {
+            log.error("Failed to post calculate", ex);
+            return Result.failed("exception: " + ex.getMessage());
         }
-        extensibleProcesses.add(eProcess);
-        // 按优先级排序
-        extensibleProcesses.sort(Comparator.comparingInt(ExtensibleProcess::getPriority));
-        log.info("Registered extensible process: {} with priority: {}",
-                eProcess.getProcessName(), eProcess.getPriority());
-        return Result.success(null);
-    }
-
-    @Override
-    public Result<Void> unregisterExtensible(ExtensibleProcess eProcess) {
-        if (eProcess == null) {
-            return Result.failed("ExtensibleProcess is null");
-        }
-        if (!extensibleProcesses.contains(eProcess)) {
-            log.warn("ExtensibleProcess not registered: {}", eProcess.getProcessName());
-            return Result.success(null);
-        }
-        eProcess.destroy();
-        extensibleProcesses.remove(eProcess);
-        log.info("Unregistered extensible process: {}", eProcess.getProcessName());
-        return Result.success(null);
     }
 
     /**
@@ -747,45 +729,6 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
         log.error("Module not found: moduleId={}, moduleCode={}", moduleId, moduleCode);
         throw new AlgLoaderException(
                 String.format("Module not found: moduleId=%s, moduleCode=%s", moduleId, moduleCode));
-    }
-
-    /**
-     * 执行后处理
-     * 
-     * @param module    模块
-     * @param solutions 原始解决方案
-     * @return 处理后的解决方案
-     */
-    private List<ModuleInst> executePostProcess(Module module, List<ModuleInst> solutions) {
-        List<ModuleInst> result = solutions;
-
-        for (ExtensibleProcess process : extensibleProcesses) {
-            if (process instanceof InferParasPostProcess) {
-                result = applyPostProcess(module, result, (InferParasPostProcess) process);
-            }
-        }
-
-        return result;
-    }
-
-    /**
-     * 应用单个后处理流程
-     * 
-     * @param module        模块
-     * @param currentResult 当前结果
-     * @param postProcess   后处理流程
-     * @return 处理后的结果
-     */
-    private List<ModuleInst> applyPostProcess(Module module, List<ModuleInst> currentResult,
-            InferParasPostProcess postProcess) {
-        Result<List<ModuleInst>> processResult = postProcess.postProcess(module, currentResult);
-        if (processResult.getCode() != Result.SUCCESS || processResult.getData() == null) {
-            log.warn("Post process failed: {}, message: {}",
-                    postProcess.getClass().getSimpleName(), processResult.getMessage());
-            return currentResult;
-        }
-        log.info("Applied post process: {} successfully", postProcess.getClass().getSimpleName());
-        return processResult.getData();
     }
 
     /**

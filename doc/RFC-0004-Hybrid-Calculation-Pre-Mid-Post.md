@@ -16,8 +16,9 @@
 | 默认行为 | `@CodeRuleAnno` 默认仍为 `CalcStage.MID`, 保持现有约束规则行为不变 |
 | 首期范围 | 优先补齐 `CalcStage.POST`: 对每个 `ModuleInst` 解执行后置计算 |
 | 输出参数 | 复用现有 `AssignType.INPUT`, 表示不进入 CP 模型、可由 POST 直接写回的派生参数 |
-| 访问接口 | 新增 `ModuleInstAccessor` 接口, 由 `ModuleBaseAlgImpl` 继承实现 |
-| 集成模式 | 支持求解回调中自动执行 POST, 也支持对已有 `ModuleInst` 独立执行 POST |
+| 访问接口 | 新增 `ModuleInstAccessorImpl` 实现, `ModuleBaseAlgImpl` 通过持有并委托调用复用这套逻辑 |
+| 集成模式 | 默认在 CP-SAT 求解完成、所有解收集完毕后批量执行 POST; 也支持对已有 `ModuleInst` 独立执行 POST |
+| 扩展后处理 | 删除现有 `ExtensibleProcess` / `InferParasPostProcess` 链路, 由 `ModulePostCalculator` 替代 |
 | 兼容策略 | 现有 `CalcStage.PRE` 规则暂不改变执行语义, 首期只实现 POST |
 
 ---
@@ -108,10 +109,17 @@ Result<List<ModuleInst>>
 首期实现聚焦 POST:
 
 1. 求解器按现有方式构建模型并求解。
-2. `ModuleInstSolutionCallBack` 每拿到一个解后，先构造 `ModuleInst`。
-3. 回调调用 `ModulePostCalculator.doCalc(moduleInst)`。
-4. POST 规则通过 `ModuleInstAccessor` 读取当前解并写回参数。
-5. 计算完成后的 `ModuleInst` 再加入 `SolverResult.solutions`。
+2. `ModuleInstSolutionCallBack` 只负责构造并收集 `ModuleInst`，不执行 POST 反射规则。
+3. `solver.solve(...)` 返回后，执行器取得完整解列表。
+4. `ModulePostCalculator` 对解列表批量执行 `CalcStage.POST` 规则。
+5. POST 规则通过 `ModuleInstAccessor` 读取当前解并写回参数。
+6. POST 全部成功后返回写回派生参数的 `Result<List<ModuleInst>>`。
+
+POST 不在 CP-SAT 回调线程内执行，原因是:
+
+- 避免 Java 反射和业务计算阻塞求解器枚举解。
+- POST 异常可以在求解后统一转换成 `Result.failed(...)`。
+- POST 只修改 `ModuleInst` 结果对象，不参与 CP 模型回溯和剪枝。
 
 ### 3.2 阶段与命名
 
@@ -151,8 +159,9 @@ public enum CalcStage {
 需要在本次重构中明确并修正以下行为:
 
 - `ModuleBaseAlgImpl.initParaVar()` 遇到 `AssignType.INPUT` 时不创建 `IntVar`、`BoolVar` 或选项选择变量。
-- `AssignType.INPUT` 参数未被请求赋值时，仍应在 `ModuleInst` 中生成对应 `ParaInst`，初始 `value` 可为 `null`。
-- POST 执行后通过 `setParaValue(...)` 写回这些 `ParaInst.value`。
+- `AssignType.INPUT` 参数的 `ParaVar` 和 `ParaInst` 构建保持现有实现逻辑，不在本 RFC 中额外重构。
+- POST 执行后通过 `setParaValue(...)` 写回已定义参数的 `ParaInst.value`。
+- 如果 `setParaValue(...)` 找不到对应参数定义或实例参数，应抛出明确异常，不静默创建未知参数。
 - MID 约束规则不应引用未创建 CP 变量的 `AssignType.INPUT` 参数；若引用，应在执行时给出清晰异常。
 
 示例:
@@ -170,7 +179,7 @@ private ParaVar pSumCapacity;
 
 #### 3.4.1 ModuleInstAccessor
 
-新增实例访问接口，并由 `ModuleBaseAlgImpl` 继承实现。这样生成式规则代码仍然写在 `ConstraintAlgImplTestBase` / `ModuleAlgImpl` 子类中，可以直接调用 `getDynAttr(...)`、`getSumDynAttr(...)`、`setParaValue(...)`，不需要额外注入一个 accessor 对象。
+新增实例访问接口，并单独提供 `ModuleInstAccessorImpl` 实现。`ModuleBaseAlgImpl` 不直接承载具体实例读写逻辑，而是持有一个当前上下文的 accessor 并转发调用。这样生成式规则代码仍然写在 `ConstraintAlgImplTestBase` / `ModuleAlgImpl` 子类中，可以直接调用 `getDynAttr(...)`、`getSumDynAttr(...)`、`setParaValue(...)`，同时求解后批量执行和独立 `postCalculate(...)` 两个场景复用同一套 accessor 实现。
 
 ```java
 public interface ModuleInstAccessor {
@@ -191,41 +200,72 @@ public interface ModuleInstAccessor {
 
     String getDynAttr(String partCategoryCode, int instId, String attrCode);
 
+    List<String> getDynAttrValues(String partCategoryCode, String attrCode);
+
+    List<String> getDynAttrValues(String partCategoryCode, int instId, String attrCode);
+
     String getSumDynAttr(String partCategoryCode, String attrCode);
 
     String getSumDynAttr(String partCategoryCode, int instId, String attrCode);
+
+    int getQuantity(String partCategoryCode);
+
+    int getQuantity(String partCategoryCode, int instId);
+
+    List<Integer> getInstanceIds(String partCategoryCode);
 }
 ```
 
 ```java
-public class ModuleBaseAlgImpl implements ModuleInstAccessor {
+public class ModuleInstAccessorImpl implements ModuleInstAccessor {
 
-    private ModuleInst currentModuleInst;
+    private final Module module;
+    private final ModuleInst moduleInst;
 
-    void bindModuleInst(ModuleInst solution) {
-        this.currentModuleInst = solution;
-    }
-
-    void clearModuleInst() {
-        this.currentModuleInst = null;
-    }
-
-    protected ModuleInst currentModuleInst() {
-        if (currentModuleInst == null) {
-            throw new AlgLoaderException(
-                    "ModuleInst is not bound. This method is only available in POST context.");
-        }
-        return currentModuleInst;
+    public ModuleInstAccessorImpl(Module module, ModuleInst moduleInst) {
+        this.module = module;
+        this.moduleInst = moduleInst;
     }
 
     @Override
     public String getDynAttr(String partCategoryCode, String attrCode) {
-        // 从 currentModuleInst 读取第一个有效部件的静态动态属性
+        // 从 moduleInst 读取第一个有效部件的静态动态属性
     }
 
     @Override
     public void setParaValue(String paraCode, String value) {
-        // 写回 currentModuleInst 的模块级 ParaInst
+        // 写回 moduleInst 的模块级 ParaInst
+    }
+}
+```
+
+```java
+public class ModuleBaseAlgImpl {
+
+    private ModuleInstAccessor currentModuleInstAccessor;
+
+    void bindModuleInstAccessor(ModuleInstAccessor accessor) {
+        this.currentModuleInstAccessor = accessor;
+    }
+
+    void clearModuleInstAccessor() {
+        this.currentModuleInstAccessor = null;
+    }
+
+    protected ModuleInstAccessor currentModuleInstAccessor() {
+        if (currentModuleInstAccessor == null) {
+            throw new AlgLoaderException(
+                    "ModuleInstAccessor is not bound. This method is only available in POST context.");
+        }
+        return currentModuleInstAccessor;
+    }
+
+    public String getDynAttr(String partCategoryCode, String attrCode) {
+        return currentModuleInstAccessor().getDynAttr(partCategoryCode, attrCode);
+    }
+
+    public void setParaValue(String paraCode, String value) {
+        currentModuleInstAccessor().setParaValue(paraCode, value);
     }
 }
 ```
@@ -236,7 +276,11 @@ public class ModuleBaseAlgImpl implements ModuleInstAccessor {
 - `setParaValue(String partCategoryCode, String paraCode, String value)`: 写分类参数；若分类存在多个实例，默认写第一个匹配实例。
 - `setParaValue(String partCategoryCode, int instId, String paraCode, String value)`: 写指定分类实例参数。
 - `getDynAttr(...)`: 读取当前解中某分类选中部件的动态属性；若匹配多个有效部件，返回稳定遍历顺序下的第一个有效部件。
+- `getDynAttr(...)`: 若没有有效部件，返回 `null`。
+- `getDynAttrValues(...)`: 返回匹配范围内所有有效部件的属性值列表；没有有效部件时返回空列表；列表不按 `quantity` 展开。
 - `getSumDynAttr(...)`: 对当前解中有效部件的指定属性做数量加权求和。
+- `getQuantity(...)`: 返回匹配范围内有效部件的数量总和；没有有效部件时返回 `0`。
+- `getInstanceIds(...)`: 返回指定部件分类在当前 `ModuleInst` 中出现的实例 ID 列表，用于多实例 POST 规则遍历。
 - 带 `instId` 的重载用于多实例分类的精确访问；不带 `instId` 的重载面向单实例或简单场景，多实例下默认使用第一个匹配实例。
 
 有效部件建议定义为:
@@ -249,16 +293,30 @@ partInst.isSelected == true && partInst.quantity > 0
 
 #### 3.4.2 后置规则辅助方法
 
-`ModuleBaseAlgImpl` 实现 `ModuleInstAccessor` 后，后置规则可以直接调用接口方法。只需要补充少量通用转换方法:
+`ModuleBaseAlgImpl` 持有 `ModuleInstAccessorImpl` 后，后置规则可以继续直接调用 `getDynAttr(...)`、`getSumDynAttr(...)`、`setParaValue(...)` 这些转发方法。为减少业务规则中的重复解析逻辑，同时补充常用类型转换方法:
 
 ```java
 protected int toInt(String value);
+
+protected long toLong(String value);
+
+protected double toDouble(String value);
+
+protected String toString(Object value);
+
+protected <T> T toValue(String value, Class<T> targetType);
 ```
+
+约定:
+
+- `toInt/toLong/toDouble` 遇到 `null` 或空字符串时抛出明确异常。
+- `toString(Object value)` 使用 `String.valueOf(value)` 语义，`null` 转为 `"null"`。
+- `toValue(String value, Class<T> targetType)` 首期支持 `String`、`Integer/int`、`Long/long`、`Double/double`，后续按需扩展。
 
 这些方法只允许在实例计算上下文中使用。若 POST 以外阶段调用，应抛出清晰异常:
 
 ```text
-ModuleInst is not bound. This method is only available in POST context.
+ModuleInstAccessor is not bound. This method is only available in POST context.
 ```
 
 ### 3.5 后置计算器
@@ -268,10 +326,13 @@ ModuleInst is not bound. This method is only available in POST context.
 ```java
 public class ModulePostCalculator {
 
-    public void doCalc(ModuleInst solution) {
-        // 1. 将当前解绑定到 ModuleBaseAlgImpl
-        // 2. 依次执行 CalcStage.POST 规则
-        // 3. 清理上下文
+    public Result<List<ModuleInst>> doCalc(List<ModuleInst> solutions) {
+        // 1. 遍历所有解
+        // 2. 对每个解创建 ModuleInstAccessorImpl
+        // 3. 绑定到 ModuleBaseAlgImpl
+        // 4. 依次执行 CalcStage.POST 规则
+        // 5. 清理上下文
+        // 6. 任一解失败则返回 Result.failed(...)
     }
 }
 ```
@@ -290,20 +351,33 @@ public class ModulePostCalculator {
         this.postRuleMethods = scanPostRuleMethods(module, moduleAlg);
     }
 
-    public void doCalc(ModuleInst solution) {
-        moduleAlg.bindModuleInst(solution);
-        try {
-            for (RuleMethod ruleMethod : postRuleMethods) {
-                ruleMethod.invoke(moduleAlg);
+    public Result<List<ModuleInst>> doCalc(List<ModuleInst> solutions) {
+        for (int i = 0; i < solutions.size(); i++) {
+            ModuleInst solution = solutions.get(i);
+            ModuleInstAccessor accessor = new ModuleInstAccessorImpl(module, solution);
+            moduleAlg.bindModuleInstAccessor(accessor);
+            try {
+                for (RuleMethod ruleMethod : postRuleMethods) {
+                    ruleMethod.invoke(moduleAlg);
+                }
+            } catch (RuntimeException ex) {
+                return Result.failed("POST rule failed, solutionIndex=" + (i + 1)
+                        + ", message=" + ex.getMessage());
+            } finally {
+                moduleAlg.clearModuleInstAccessor();
             }
-        } finally {
-            moduleAlg.clearModuleInst();
         }
+        return Result.success(solutions);
     }
 }
 ```
 
-`postRuleMethods` 应在求解前或回调初始化时扫描并缓存，避免每个解重复反射扫描。
+`postRuleMethods` 应在求解前扫描并缓存，避免每个解重复反射扫描。扫描规则:
+
+- 使用 `module.getAllRules(CalcStage.POST)` 获取模块、部件分类、子部件分类上的全部 POST 规则。
+- 使用现有 `buildAllRuleMethods(module, moduleAlg)` 建立 ruleCode 到 Java 方法的映射。
+- 按 `getAllRules(CalcStage.POST)` 返回顺序执行，保持现有 module -> PartCategory -> 子 PartCategory 的层级顺序。
+- 多实例分类的 POST 规则不通过重复反射调用来隐式遍历实例；规则内部使用 `getInstanceIds(partCategoryCode)` 和带 `instId` 的 accessor 方法显式遍历。
 
 ### 3.6 求解链路集成
 
@@ -314,24 +388,38 @@ ModuleInstSolutionCallBack cb = new ModuleInstSolutionCallBack(module, alg);
 CpSolverStatus status = solver.solve(model.getCpModel(), cb);
 ```
 
-建议扩展为:
+本 RFC 决定不改造 `ModuleInstSolutionCallBack` 来执行 POST。回调内只构建解，POST 在 `solver.solve(...)` 返回后批量执行:
 
 ```java
-ModulePostCalculator postCalculator = new ModulePostCalculator(module, alg);
-ModuleInstSolutionCallBack cb = new ModuleInstSolutionCallBack(module, alg, postCalculator);
+ModuleInstSolutionCallBack cb = new ModuleInstSolutionCallBack(module, alg);
 CpSolverStatus status = solver.solve(model.getCpModel(), cb);
+
+List<ModuleInst> solutions = cb.getSolverResult().getSolutions();
+Result<List<ModuleInst>> postResult =
+        new ModulePostCalculator(module, alg).doCalc(solutions);
+if (postResult.getCode() != Result.SUCCESS) {
+    return postResult;
+}
+return Result.success(postResult.getData());
 ```
 
-回调执行顺序:
+执行顺序:
 
 ```text
-onSolutionCallback()
+runInferParas(req)
   |
-  |-- buildModuleInst(...)
-  |-- processOtherVariables(...)
-  |-- processPriorityValues(...)
-  |-- postCalculator.doCalc(moduleInst)
-  |-- solverResult.addSolution(moduleInst)
+  |-- initConstraintModel(...)
+  |-- solver.solve(model, callback)
+  |     |
+  |     |-- callback.onSolutionCallback()
+  |           |-- buildModuleInst(...)
+  |           |-- processOtherVariables(...)
+  |           |-- processPriorityValues(...)
+  |           |-- solverResult.addSolution(moduleInst)
+  |
+  |-- solutions = callback.solverResult.solutions
+  |-- postCalculator.doCalc(solutions)
+  |-- return Result.success(solutionsWithPostValues)
 ```
 
 如果 POST 规则抛出异常:
@@ -340,7 +428,32 @@ onSolutionCallback()
 - 错误消息必须包含 ruleCode、ruleName/methodName、solutionIndex。
 - 不应静默丢弃失败的解。
 
-### 3.7 独立后置计算模式
+冲突诊断的松弛部分解首期保持现有返回逻辑，不自动执行 POST。若调用方需要对部分解补算派生参数，可以显式调用 `postCalculate(ModulePostCalcReq)`。
+
+### 3.7 与 ExtensibleProcess 的关系
+
+现有 `ModuleConstraintExecutorImpl` 中存在 `ExtensibleProcess` / `InferParasPostProcess` 链路:
+
+```text
+registerExtensible(ExtensibleProcess)
+  -> executePostProcess(module, solutions)
+  -> InferParasPostProcess.postProcess(module, solutions)
+```
+
+本 RFC 决定删除这套链路，由 `CalcStage.POST` + `ModulePostCalculator` 取代。理由:
+
+- `ExtensibleProcess` 是执行器外部扩展点，不和规则模型、`@CodeRuleAnno`、`CalcStage` 统一。
+- 现有使用较少，和本 RFC 的规则式 POST 能力重叠。
+- 删除后避免出现两套后处理入口和顺序问题。
+
+实现要求:
+
+- 移除 `ModuleConstraintExecutor.registerExtensible/unregisterExtensible` 及实现类中的注册列表。
+- 移除 `executePostProcess(...)` 和 `applyPostProcess(...)`。
+- 移除或迁移 `ExtensibleProcess`、`InferParasPostProcess` 及相关 demo 测试。
+- 原 `executePostProcess(module, solutions)` 的位置改为调用 `ModulePostCalculator.doCalc(solutions)`。
+
+### 3.8 独立后置计算模式
 
 除求解时自动执行 POST 外，还需要提供对已有解独立执行后置计算的能力。
 
@@ -366,7 +479,7 @@ public interface ModuleConstraintExecutor {
 
 1. 根据 `moduleId/moduleCode` 加载 `Module` 和生成式算法类。
 2. 创建 `ModulePostCalculator`。
-3. 对 `req.solutions` 逐个执行 POST。
+3. 调用 `ModulePostCalculator.doCalc(req.solutions)` 批量执行 POST。
 4. 返回写入派生参数后的 `ModuleInst` 列表。
 
 该模式用于:
@@ -375,7 +488,7 @@ public interface ModuleConstraintExecutor {
 - 调试 POST 规则，不希望重新执行 CP 求解。
 - 业务接口需要把“求解”和“派生计算”拆开调度。
 
-### 3.8 PRE 阶段的后续扩展
+### 3.9 PRE 阶段的后续扩展
 
 PRE 的目标是对输入进行普通 Java 预处理，例如:
 
@@ -405,7 +518,7 @@ private void preRule() {
 
 该方案不在首期强制实现。
 
-### 3.9 代码示例
+### 3.10 代码示例
 
 可在 `BaseOptiTest` 上简化出一个 POST 场景:
 
@@ -497,6 +610,12 @@ public class PostCalcRuleTest extends ModuleScenarioTestBase {
         @ParaAnno(code = "pFirstCapacity", type = ParaType.INTEGER, assignType = AssignType.INPUT)
         private ParaVar pFirstCapacity;
 
+        @ParaAnno(code = "pDriveQuantity", type = ParaType.INTEGER, assignType = AssignType.INPUT)
+        private ParaVar pDriveQuantity;
+
+        @ParaAnno(code = "pDriveAttrCount", type = ParaType.INTEGER, assignType = AssignType.INPUT)
+        private ParaVar pDriveAttrCount;
+
         @ParaAnno(fatherCode = "drive", code = "pSumCapacity",
                 type = ParaType.INTEGER, assignType = AssignType.INPUT)
         private ParaVar pSumCapacity;
@@ -507,6 +626,8 @@ public class PostCalcRuleTest extends ModuleScenarioTestBase {
             setParaValue("pDriveSumCapacity", String.valueOf(sum));
             setParaValue("drive", "pSumCapacity", String.valueOf(sum));
             setParaValue("pFirstCapacity", getDynAttr("drive", "Capacity"));
+            setParaValue("pDriveQuantity", toString(getQuantity("drive")));
+            setParaValue("pDriveAttrCount", toString(getDynAttrValues("drive", "Capacity").size()));
         }
     }
 
@@ -523,6 +644,7 @@ public class PostCalcRuleTest extends ModuleScenarioTestBase {
         resultAssert().assertSuccess();
         assertSoluContain("pDriveSumCapacity(V:6,H:0)");
         assertSoluContain("pSumCapacity(V:6,H:0)");
+        assertSoluContain("pDriveQuantity(V:2,H:0)");
     }
 
     @Test
@@ -532,6 +654,7 @@ public class PostCalcRuleTest extends ModuleScenarioTestBase {
 
         resultAssert().assertSuccess();
         assertSoluContain("md1(Q:1,H:0,S:1),sd1(Q:1,H:0,S:1),pFirstCapacity(V:1,H:0)");
+        assertSoluContain("md1(Q:1,H:0,S:1),sd1(Q:1,H:0,S:1),pDriveAttrCount(V:2,H:0)");
     }
 
     @Test
@@ -568,10 +691,12 @@ public void testStandalonePostCalculate() {
 
 验收点:
 
-- `CalcStage.POST` 在每个 `ModuleInst` 生成后自动执行。
+- `CalcStage.POST` 在 CP-SAT 求解完成后对每个 `ModuleInst` 批量执行。
 - `AssignType.INPUT` 输出参数不进入 CP 模型，但能被 POST 写回。
 - `getSumDynAttr("drive", "Capacity")` 按有效部件的 `quantity * Capacity` 求和。
 - `getDynAttr("drive", "Capacity")` 多个有效部件时返回第一个。
+- `getDynAttrValues("drive", "Capacity")` 能返回所有有效部件属性值。
+- `getQuantity("drive")` 能返回有效部件数量总和。
 - `postCalculate(ModulePostCalcReq)` 可对已有 `ModuleInst` 独立补算。
 
 ### 4.2 边界条件
@@ -583,7 +708,10 @@ public void testStandalonePostCalculate() {
 | 分类不存在 | `getSumDynAttr("unknown", "Capacity")` | 抛出明确异常 |
 | 多实例分类未指定 instId | `getDynAttr("drive", "Capacity")` 且存在多个 drive 实例 | 默认读取第一个匹配实例；精确读取使用 `getDynAttr("drive", instId, "Capacity")` |
 | 多实例分类指定 instId | `getDynAttr("drive", 1, "Capacity")` | 读取 `instanceId=1` 的分类实例 |
+| 有效部件为空 | `getDynAttr("drive", "Capacity")` | 返回 `null` |
+| 有效部件为空 | `getDynAttrValues("drive", "Capacity")` | 返回空列表 |
 | 有效部件为空 | `getSumDynAttr("drive", "Capacity")` | 返回 `"0"` |
+| 有效部件为空 | `getQuantity("drive")` | 返回 `0` |
 | 属性缺失 | 有效部件缺少 `Capacity` | 抛出明确异常 |
 | POST 修改参数后 | 同一解继续返回 | `ModuleInst` 中参数值为 POST 写入值 |
 
@@ -603,13 +731,15 @@ public void testStandalonePostCalculate() {
 | --- | --- | --- | --- |
 | 1 | 确认命名: 复用 `CalcStage` 还是新增 `CalcType` | P0 | 已确认: 复用 `CalcStage` |
 | 2 | 梳理 `AssignType.INPUT` 参数初始化和结果写回, 确保不创建 CP 变量 | P0 | 待开始 |
-| 3 | 新增 `ModuleInstAccessor` 接口, 并由 `ModuleBaseAlgImpl` 继承实现 | P0 | 待开始 |
-| 4 | 在 `ModuleBaseAlgImpl` 增加当前 `ModuleInst` 绑定与清理逻辑 | P0 | 待开始 |
-| 5 | 新增 `ModulePostCalculator`, 扫描并执行 `CalcStage.POST` 规则 | P0 | 待开始 |
-| 6 | 在 `ModuleInstSolutionCallBack` 中集成 POST 执行 | P0 | 待开始 |
-| 7 | 新增独立 `postCalculate(ModulePostCalcReq)` 对外接口 | P1 | 待开始 |
-| 8 | 补充 `BaseOptiTest` 简化验收用例 | P0 | 待开始 |
-| 9 | 梳理 PRE 纯代码执行模式并决定是否另起 RFC | P2 | 已确认: 首期不做 |
+| 3 | 新增 `ModuleInstAccessor` 接口和 `ModuleInstAccessorImpl` 实现 | P0 | 待开始 |
+| 4 | 在 `ModuleBaseAlgImpl` 增加 accessor 绑定、清理和转发逻辑 | P0 | 待开始 |
+| 5 | 补充 `getDynAttrValues/getQuantity/getInstanceIds` 和类型转换方法 | P0 | 待开始 |
+| 6 | 新增 `ModulePostCalculator`, 使用 `module.getAllRules(CalcStage.POST)` 扫描并执行 POST 规则 | P0 | 待开始 |
+| 7 | 在 `solver.solve(...)` 返回后批量执行 POST, 不在 `ModuleInstSolutionCallBack` 中执行 | P0 | 待开始 |
+| 8 | 删除 `ExtensibleProcess` / `InferParasPostProcess` / `executePostProcess` 旧链路 | P0 | 待开始 |
+| 9 | 新增独立 `postCalculate(ModulePostCalcReq)` 对外接口 | P1 | 待开始 |
+| 10 | 补充 `PostCalcRuleTest` 简化验收用例 | P0 | 待开始 |
+| 11 | 梳理 PRE 纯代码执行模式并决定是否另起 RFC | P2 | 已确认: 首期不做 |
 
 ---
 
@@ -621,6 +751,8 @@ public void testStandalonePostCalculate() {
 - `src/main/java/com/jmix/tool/bbuilder/anno/CodeRuleAnno.java`
 - `src/main/java/com/jmix/executor/impl/algmodel/ModuleAlgImpl.java`
 - `src/main/java/com/jmix/executor/impl/ModuleInstSolutionCallBack.java`
+- `src/main/java/com/jmix/executor/model/ExtensibleProcess.java`
+- `src/main/java/com/jmix/executor/model/InferParasPostProcess.java`
 - `src/test/java/com/jmix/opti/base/BaseOptiTest.java`
 
 ---
@@ -649,4 +781,28 @@ Q5. 首期是否只实现 POST？PRE 的纯 Java 输入预处理是否需要与 
 
 Q6. `ModuleInstAccessor` 应独立实现，还是由现有算法基类实现？
 
-结论: 由 `ModuleBaseAlgImpl` 继承实现 `ModuleInstAccessor`。POST 执行时将当前 `ModuleInst` 绑定到算法实例，规则方法直接调用继承来的访问方法。
+结论: 增加独立的 `ModuleInstAccessorImpl` 实现 `ModuleInstAccessor`。`ModuleBaseAlgImpl` 只负责持有当前 accessor 并转发调用，这样求解后批量执行和独立 `postCalculate(...)` 两种场景可以复用同一套实例访问逻辑。
+
+Q7. POST 应在 CP-SAT 回调内执行，还是求解完成后批量执行？
+
+结论: 求解完成后批量执行。`ModuleInstSolutionCallBack` 只收集解，不执行 POST 反射规则。
+
+Q8. 现有 `ExtensibleProcess` / `InferParasPostProcess` 链路如何处理？
+
+结论: 删除旧链路，由 `CalcStage.POST` 和 `ModulePostCalculator` 统一承接后置计算。
+
+Q9. `getDynAttr` 在没有有效部件时如何返回？
+
+结论: `getDynAttr` 返回 `null`，`getDynAttrValues` 返回空列表，`getSumDynAttr` 返回 `"0"`，`getQuantity` 返回 `0`。
+
+Q10. POST 规则是否需要遍历/聚合 API？
+
+结论: 需要。新增 `getDynAttrValues(...)`、`getQuantity(...)`、`getInstanceIds(...)`。
+
+Q11. 类型转换方法是否只保留 `toInt`？
+
+结论: 不只保留 `toInt`。新增 `toLong`、`toDouble`、`toString(Object)`、`toValue(String, Class<T>)`。
+
+Q12. POST 规则扫描是否递归覆盖 PartCategory 层规则？
+
+结论: 是。使用 `module.getAllRules(CalcStage.POST)` 获取模块和所有层级 PartCategory 的 POST 规则。

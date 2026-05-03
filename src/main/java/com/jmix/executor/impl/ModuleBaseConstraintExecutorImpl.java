@@ -237,6 +237,18 @@ public abstract class ModuleBaseConstraintExecutorImpl {
         sortSolutionsByPriority(sr.getSolutions());
         log.info("solutions: \n {}",
                 SolutionUtils.toSolutionString(sr.getSolutions()));
+
+        // 后置计算: 对每个解执行CalcStage.POST规则
+        if (module != null && optAlg != null && sr.hasSolution()) {
+            ModulePostCalculator postCalculator = new ModulePostCalculator(module, optAlg);
+            Result<List<ModuleInst>> postResult = postCalculator.doCalc(sr.getSolutions());
+            if (postResult.getCode() == Result.SUCCESS) {
+                sr.setSolutions(postResult.getData());
+            } else {
+                log.warn("POST calculation failed: {}", postResult.getMessage());
+            }
+        }
+
         return sr;
     }
 
