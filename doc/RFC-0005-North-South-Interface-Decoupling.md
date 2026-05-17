@@ -175,7 +175,15 @@ com.jmix.executor.southinf
   ConstraintAlgBase
   ConstraintContext
   ConstraintModel
-  ModuleRuleExecution
+
+com.jmix.executor.southinf.view
+  OntoView
+  ModuleInstView
+  PartCategoryInstView
+  PartCategoryInstSumView
+  PartInstView
+  ParameterInstView
+  QuantityInstView
 
 com.jmix.executor.southinf.var
   Var
@@ -407,7 +415,7 @@ public class MyConstraint extends ConstraintAlgBase {
 | 变量访问 | `ConstraintVarRegistry` | 按 code 获取参数、Part、PartCategory 变量 |
 | 变量 facade | `ParaVar`, `PartVar`, `PartCategoryVar` | 业务规则操作的稳定变量对象 |
 | 模型接口 | `ConstraintModel`, `ConstraintRef` | 添加等式、不等式、蕴含、兼容关系、目标函数等约束 |
-| 规则执行 | `ModuleRuleExecution` | 执行一段业务规则时读取模块定义、单个配置解并按权限写回 |
+| 规则执行/实例访问 | `ModuleInstView`, `OntoView`, `PartCategoryInstSumView` | POST/execute 阶段以单个配置解为入口读取实例并按对象写回 |
 
 ##### 3.2.7.1 算法入口
 
@@ -417,9 +425,9 @@ public interface ConstraintAlgorithm {
     void bind(ConstraintContext context);
 }
 
-public abstract class ConstraintAlgBase implements ConstraintAlgorithm {
+public abstract class ConstraintAlgBase implements ConstraintAlgorithm, ModuleInstView {
     protected ConstraintModel model();
-    protected ModuleRuleExecution execute();
+    protected ModuleInstView moduleInst();
 
     protected ParaVar para(String code);
     protected PartVar part(String code);
@@ -446,8 +454,8 @@ public class ServerConstraint extends ConstraintAlgBase {
 
     @CodeRuleAnno
     private void rule2() {
-        execute().setParameter("totalCapacity",
-                String.valueOf(execute().solution().partCategory("drive").sumAttrAsInt("Capacity")));
+        PartCategoryInstSumView drive = partCategorySum("drive");
+        parameter("totalCapacity").setValue(String.valueOf(drive.sumDynAttr4Int("Capacity")));
     }
 }
 ```
@@ -459,12 +467,12 @@ public interface ConstraintContext {
     AlgorithmDescriptor descriptor();
     ConstraintModel model();
     ConstraintVarRegistry vars();
-    ModuleRuleExecution execute();
+    ModuleInstView moduleInst();
     ConstraintCapabilities capabilities();
 }
 ```
 
-`ConstraintContext` 是南向 API 的统一入口。算法不直接持有 `ModuleAlgImpl`、`AlgCPModel`、`ModuleInstAccessorImpl`。
+`ConstraintContext` 是南向 API 的统一入口。算法不直接持有 `ModuleAlgImpl`、`AlgCPModel`、`ModuleInstAccessorImpl`。`moduleInst()` 只在 POST/execute 等已经存在单个配置解的阶段可用；`ConstraintAlgBase` 实现 `ModuleInstView` 并将相关方法转发给当前配置解，使规则方法可以直接调用 `parameter(...)`、`partCategory(...)`、`partCategorySum(...)`。
 
 ##### 3.2.7.3 变量注册表
 
@@ -560,73 +568,103 @@ model().greaterOrEqual(cpu1.quantity(), 1);
 model().compatibilityRequire("rule1", size.option("large"), cpu1.selected());
 ```
 
-##### 3.2.7.6 execute 规则执行接口
+##### 3.2.7.6 单个配置解访问接口
 
-`execute` 表示执行一段业务规则。它不是写参数专用接口，也不是一个脱离领域对象的原始上下文。规则执行时面对的是“模块定义 + 单个配置解”，其中单个配置解抽象为与现有 `ModuleInst` 对应的接口。
+POST/execute 规则不再使用脱离领域对象的执行上下文。规则面对的是一个单个配置解：`ModuleInstView`。`ConstraintAlgBase` 实现 `ModuleInstView`，因此产品规则可以直接从模块实例出发，继续进入 PartCategory、Part、Parameter。
 
 ```java
-public interface ModuleRuleExecution {
-    ModuleDefinitionView moduleDefinition();
-    ModuleInstView solution();
+public interface OntoView {
+    String code();
+    String extAttr(String extAttrKey);
+    int extAttr4Int(String extAttrKey);
 
-    void setParameter(String parameterCode, String value);
-    void setParameter(String partCategoryCode, String parameterCode, String value);
-    void setParameter(String partCategoryCode, int instanceId, String parameterCode, String value);
+    String dynAttr(String dynAttrKey);
+    int dynAttr4Int(String dynAttrKey);
+    void setDynAttr(String dynAttrKey, String dynAttrValue);
 }
 
-public interface ModuleInstView {
+public interface ModuleInstView extends OntoView {
     Long moduleId();
-    String moduleCode();
     String instanceConfigId();
     int quantity();
 
-    List<ParameterInstView> parameters();
-    ParameterInstView parameter(String parameterCode);
+    ParameterInstView parameter(String code);
+    PartInstView part(String code);
 
-    List<PartCategoryInstView> partCategories();
-    List<PartCategoryInstView> partCategories(String partCategoryCode);
-    PartCategoryInstView partCategory(String partCategoryCode);
-    PartCategoryInstView partCategory(String partCategoryCode, int instanceId);
-
-    List<PartInstView> parts();
-    List<PartInstView> allParts();
-    PartInstView part(String partCategoryCode, int instanceId, String partCode);
+    PartCategoryInstView partCategory(String code);
+    PartCategoryInstView partCategory(String code, int instId);
+    PartCategoryInstSumView partCategorySum(String code);
 }
 
-public interface PartCategoryInstView {
-    String code();
+public interface QuantityInstView extends OntoView {
+    int quantity();
+    void setQuantity(int quantity);
+}
+
+public interface PartCategoryInstView extends QuantityInstView {
     int instanceId();
-    int quantity();
 
-    List<ParameterInstView> parameters();
-    ParameterInstView parameter(String parameterCode);
-
-    List<PartCategoryInstView> partCategories();
+    ParameterInstView parameter(String code);
+    PartInstView part(String code);
     List<PartInstView> parts();
-    List<PartInstView> selectedParts();
-    PartInstView part(String partCode);
-
-    String attr(String attrCode);
-    int attrAsInt(String attrCode);
-    int sumAttrAsInt(String attrCode);
 }
 
-public interface PartInstView {
-    String code();
-    int quantity();
+public interface PartCategoryInstSumView extends OntoView {
+    PartCategoryInstView inst(int instId);
+    List<PartCategoryInstView> insts();
+
+    String sumDynAttr(String dynAttrKey);
+    int sumDynAttr4Int(String dynAttrKey);
+
+    List<String> dynAttrs(String dynAttrKey);
+    List<Integer> dynAttrs4Int(String dynAttrKey);
+}
+
+public interface PartInstView extends QuantityInstView {
     boolean selected();
-    String attr(String attrCode);
-    int attrAsInt(String attrCode);
 }
 
-public interface ParameterInstView {
-    String code();
+public interface ParameterInstView extends OntoView {
     String value();
-    boolean hidden();
+    void setValue(String value);
 }
 ```
 
-首期建议 `execute` 默认只允许通过 `ModuleRuleExecution` 写参数值。是否允许写 Part 数量、选择状态、错误信息，由 Q7 再确认。
+属性读写边界：
+
+- `extAttr/extAttr4Int` 读取基础扩展属性，只读，不提供修改方法。
+- `dynAttr/dynAttr4Int` 读取当前实例动态属性；`setDynAttr` 允许规则写回动态属性值。
+- `ParameterInstView.setValue` 写参数值。
+- `QuantityInstView.setQuantity` 写 Part 或 PartCategory 实例数量。
+- 不允许通过 view 替换 `ModuleInst`、`PartCategoryInst`、`PartInst` 的对象结构；只能通过明确方法修改值。
+
+POST 规则迁移示例：
+
+```java
+// before
+@CodeRuleAnno(calcStage = CalcStage.POST)
+private void postRule() {
+    int sum = toInt(getSumDynAttr("drive", "Capacity"));
+    setParaValue("pDriveSumCapacity", String.valueOf(sum));
+    setParaValue("drive", "pSumCapacity", String.valueOf(sum));
+    setParaValue("pFirstCapacity", getDynAttr("drive", "Capacity"));
+    setParaValue("pDriveQuantity", toString(getQuantity("drive")));
+    setParaValue("pDriveAttrCount", toString(getDynAttrValues("drive", "Capacity").size()));
+}
+
+// after
+@CodeRuleAnno(calcStage = CalcStage.POST)
+private void postRule() {
+    PartCategoryInstSumView drive = partCategorySum("drive");
+    int sum = drive.sumDynAttr4Int("Capacity");
+
+    parameter("pDriveSumCapacity").setValue(String.valueOf(sum));
+    drive.inst(0).parameter("pSumCapacity").setValue(String.valueOf(sum));
+    parameter("pFirstCapacity").setValue(drive.inst(0).dynAttr("Capacity"));
+    parameter("pDriveQuantity").setValue(toString(drive.inst(0).quantity()));
+    parameter("pDriveAttrCount").setValue(toString(drive.dynAttrs("Capacity").size()));
+}
+```
 
 ### 3.3 北向接口设计
 
@@ -981,10 +1019,10 @@ public interface ModuleConstraintExecutor {
 
 ### 3.4 基础配置与实例访问接口抽取
 
-这里说的“定义只读 view、实例只读 view、execute 规则接口”，含义如下：
+这里说的“定义只读 view、实例 view、execute 规则接口”，含义如下：
 
 - 定义只读 view：业务规则可以读取模块、PartCategory、Part、Parameter 的定义数据，例如部件编码、父分类、价格、动态属性定义，但不能修改这些定义。
-- 实例只读 view：业务规则可以读取本次求解出的单个配置解，例如某个 PartCategory 下选中了哪些 Part、数量是多少、动态属性值是什么，但不能直接改 `cmodel` 实例结构。
+- 实例 view：业务规则可以读取本次求解出的单个配置解，例如某个 PartCategory 下选中了哪些 Part、数量是多少、动态属性值是什么；规则只能通过 `setValue`、`setQuantity`、`setDynAttr` 这类明确方法写值，不能直接改 `cmodel` 实例结构。
 - execute 规则接口：执行一段业务规则。它不是“写参数接口”，而是一个规则执行入口；规则执行过程中可以读取定义和单个配置解，并按接口允许的能力写回结果。
 
 换句话说，这一节要解决的是：当前 PATCFG 等引擎可直接访问的数据不要绑定在 `Module`、`PartCategory`、`Part`、`ModuleInst`、`PartInst` 的具体实现类上，而是通过一组稳定领域接口访问。这样内部数据结构升级时，业务规则仍然面对同一套读写契约。
@@ -997,13 +1035,17 @@ com.jmix.executor.api.view
   PartCategoryDefinitionView
   PartDefinitionView
   ParameterDefinitionView
+
+com.jmix.executor.southinf.view
+  OntoView
   ModuleInstView
   PartCategoryInstView
+  PartCategoryInstSumView
   PartInstView
   ParameterInstView
+  QuantityInstView
 
 com.jmix.executor.southinf
-  ModuleRuleExecution
   ModuleInstAccessor
 ```
 
@@ -1013,35 +1055,27 @@ com.jmix.executor.southinf
 | --- | --- | --- |
 | `ModuleInst` | `ModuleInstView` | 单个配置解的稳定访问入口 |
 | `PartCategoryInst` | `PartCategoryInstView` | 配置解中的 PartCategory 实例 |
+| 多实例 `PartCategoryInst` | `PartCategoryInstSumView` | 同一个 PartCategory 多实例的汇总视图 |
 | `PartInst` | `PartInstView` | 配置解中的 Part 实例 |
 | `ParaInst` | `ParameterInstView` | 配置解中的参数值 |
 
 ```java
 public interface ModuleInstAccessor {
     ModuleDefinitionView moduleDefinition();
-    ModuleInstView solution();
-
-    PartCategoryInstView partCategory(String partCategoryCode);
-    PartCategoryInstView partCategory(String partCategoryCode, int instanceId);
-    List<PartCategoryInstView> partCategories(String partCategoryCode);
-
-    PartInstView part(String partCategoryCode, int instanceId, String partCode);
-    List<PartInstView> selectedParts(String partCategoryCode);
-
-    ParameterInstView parameter(String parameterCode);
+    ModuleInstView moduleInst();
 }
 ```
 
-`ModuleInstAccessor` 是公共访问契约，`ModuleInstAccessorImpl` 只是内部适配器。适配器可以继续包装当前 `cmodel.ModuleInst`，但业务规则和 PATCFG 这类访问方只能依赖接口。
+`ModuleInstAccessor` 是公共访问契约，`ModuleInstAccessorImpl` 只是内部适配器。适配器可以继续包装当前 `cmodel.ModuleInst`，但业务规则和 PATCFG 这类访问方只能依赖 `ModuleInstView` 及其下钻对象。
 
 execute 规则使用：
 
 ```java
 @CodeRuleAnno
 private void calcPrice() {
-    ModuleInstView solution = execute().solution();
-    int driveCapacity = solution.partCategory("drive").sumAttrAsInt("Capacity");
-    execute().setParameter("driveCapacity", String.valueOf(driveCapacity));
+    PartCategoryInstSumView drive = partCategorySum("drive");
+    int driveCapacity = drive.sumDynAttr4Int("Capacity");
+    parameter("driveCapacity").setValue(String.valueOf(driveCapacity));
 }
 ```
 
@@ -1064,10 +1098,13 @@ ModuleInstAccessorImpl
 | 能力 | 示例 | 是否允许修改 |
 | --- | --- | --- |
 | 读取定义数据 | 读取部件价格、动态属性、父分类 | 否 |
-| 读取实例数据 | 读取选中部件、数量、实例 id、属性值 | 否 |
-| 执行规则 | `execute` 执行一段价格、容量、校验或派生计算规则 | 按规则执行上下文授权 |
+| 读取实例数据 | 读取选中部件、数量、实例 id、扩展属性、动态属性值 | 否 |
+| 写参数值 | `parameter("p1").setValue("10")` | 是 |
+| 写实例动态属性 | `partCategory("drive").setDynAttr("Capacity", "8")` | 是 |
+| 写数量 | `part("ssd1").setQuantity(2)` | 是 |
+| 执行规则 | `execute` 执行一段价格、容量、校验或派生计算规则 | 按规则阶段授权 |
 
-execute 规则接口的写能力需要单独定义权限边界。首期建议默认只允许写参数值；是否允许写回部件数量、选择状态、错误信息等能力，需要在实现前进一步确认。
+execute 规则接口的写能力需要单独定义权限边界。首期可以开放参数值、动态属性值、数量三类明确写入；选择状态、错误信息、诊断信息等能力需要另行设计专门接口，避免通过通用 view 暗中修改。
 
 ### 3.5 兼容适配路径
 
@@ -1449,13 +1486,16 @@ Q6. “部件/参数/约束” 是否作为并列层级？
 
 Q7. 基础配置与实例访问接口首期具体开放哪些读写能力？
 
-当前建议首期只开放三类：
+当前建议首期开放以下能力：
 
 - 读取配置定义：读模块、PartCategory、Part、Parameter 的定义属性。
-- 读取计算实例：读本次解中的 PartCategory 实例、选中部件、数量、动态属性值。
-- execute 规则接口：执行一段业务规则。它不是单独的写参数接口；写参数只是 execute 规则可能产生的一种结果。
+- 读取计算实例：读本次解中的 PartCategory 实例、Part 实例、数量、扩展属性、动态属性值。
+- 写参数值：通过 `ParameterInstView.setValue` 写回。
+- 写动态属性：通过 `OntoView.setDynAttr` 写回。
+- 写数量：通过 `QuantityInstView.setQuantity` 写回。
+- execute 规则接口：执行一段业务规则。它不是单独的写参数接口；写参数、写动态属性、写数量都是 execute 规则可能产生的结果。
 
-仍需确认：execute 规则首期允许写哪些结果。建议默认只允许写参数值；是否允许写回部件数量、选择状态、错误信息、诊断信息，需要在实现前进一步确认。
+仍需确认：选择状态、错误信息、诊断信息是否需要进入首期接口。当前建议不要放入通用 view，后续如需要应设计专门接口。
 
 ---
 
