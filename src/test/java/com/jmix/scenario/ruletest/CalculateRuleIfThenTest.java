@@ -1,6 +1,9 @@
 package com.jmix.scenario.ruletest;
 
-import com.jmix.coretest.ConstraintAlgImplTestBase;
+import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.var.ParaVar;
+import com.jmix.executor.southinf.var.PartCategoryVar;
+import com.jmix.executor.southinf.var.PartVar;
 import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.executor.model.ConstraintConfig;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
@@ -36,7 +39,7 @@ public class CalculateRuleIfThenTest extends ModuleScenarioTestBase {
      * @since 2025-09-23
      */
     @ModuleAnno(id = 123L)
-    public static class CalculateRuleConstraint extends ConstraintAlgImplTestBase {
+    public static class CalculateRuleConstraint extends ConstraintAlgBase {
 
         @ParaAnno(defaultValue = "op11", options = { "op11", "op12", "op13" })
         private ParaVar p1Var;
@@ -57,11 +60,11 @@ public class CalculateRuleIfThenTest extends ModuleScenarioTestBase {
          */
         public void addConstraintRule2() {
 
-            // if(p1Var.value ==op11 && p2Var.value == op21 ) {
-            // pt1Var.qty = 1;
+            // if(p1Var.valueVar() ==op11 && p2Var.valueVar() == op21 ) {
+            // pt1Var.quantityVar() = 1;
             // }
             // else {
-            // pt1Var.qty = 3
+            // pt1Var.quantityVar() = 3
             // }
 
             // 创建条件变量：颜色是红色且尺寸是小号
@@ -69,22 +72,22 @@ public class CalculateRuleIfThenTest extends ModuleScenarioTestBase {
 
             // 实现条件逻辑：redAndSmall = (p1== op11) AND (p2 == op21)
             model.addBoolAnd(new Literal[] {
-                    this.p1Var.getParaOptionByCode("op11").getIsSelectedVar(),
-                    this.p2Var.getParaOptionByCode("op21").getIsSelectedVar()
+                    this.p1Var.option("op11").selectedVar(),
+                    this.p2Var.option("op21").selectedVar()
             }).onlyEnforceIf(op11Andop21);
 
             // 如果不是红色且小号的组合，则op11Andop2为false
             model.addBoolOr(new Literal[] {
-                    this.p1Var.getParaOptionByCode("op11").getIsSelectedVar().not(),
-                    this.p2Var.getParaOptionByCode("op21").getIsSelectedVar().not()
+                    this.p1Var.option("op11").selectedVar().not(),
+                    this.p2Var.option("op21").selectedVar().not()
             }).onlyEnforceIf(op11Andop21.not());
 
             // 根据条件设置pt1Var的数量
             // 如果op11Andop2为true，则pt1Var数量为1
-            model.addEquality(pt1Var.qty, 1).onlyEnforceIf(op11Andop21);
+            model.addEquality(pt1Var.quantityVar(), 1).onlyEnforceIf(op11Andop21);
 
             // 如果op11Andop2为false，则pt1Var数量为3
-            model.addEquality(pt1Var.qty, 3).onlyEnforceIf(op11Andop21.not());
+            model.addEquality(pt1Var.quantityVar(), 3).onlyEnforceIf(op11Andop21.not());
         }
     }
 

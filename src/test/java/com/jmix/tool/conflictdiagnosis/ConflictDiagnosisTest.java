@@ -1,6 +1,9 @@
 package com.jmix.tool.conflictdiagnosis;
 
-import com.jmix.coretest.ConstraintAlgImplTestBase;
+import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.var.ParaVar;
+import com.jmix.executor.southinf.var.PartCategoryVar;
+import com.jmix.executor.southinf.var.PartVar;
 import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.executor.impl.algmodel.AlgCPLinearExpr;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
@@ -22,41 +25,41 @@ import org.junit.jupiter.api.Test;
 public class ConflictDiagnosisTest extends ModuleScenarioTestBase {
 
     @ModuleAnno(id = 1001L)
-    static public class Conflict001Constraint extends ConstraintAlgImplTestBase {
+    static public class Conflict001Constraint extends ConstraintAlgBase {
         @PartAnno(maxQuantity = 50)
         private PartVar x;
 
         @PartAnno(maxQuantity = 50)
         private PartVar y;
 
-        // rule1: x.qty + y.qty < 20
-        @CodeRuleAnno(normalNaturalCode = "x.qty + y.qty < 20")
+        // rule1: x.quantityVar() + y.quantityVar() < 20
+        @CodeRuleAnno(normalNaturalCode = "x.quantityVar() + y.quantityVar() < 20")
         private void rule1() {
             AlgCPLinearExpr sumXY = new AlgCPLinearExpr("sum_x_y");
-            sumXY.addTerm(x.qty, 1);
-            sumXY.addTerm(y.qty, 1);
+            sumXY.addTerm(x.quantityVar(), 1);
+            sumXY.addTerm(y.quantityVar(), 1);
             model.addLessThan(sumXY, 20);
         }
 
-        // rule2: x.qty - y.qty > 10
-        @CodeRuleAnno(normalNaturalCode = "x.qty - y.qty > 10")
+        // rule2: x.quantityVar() - y.quantityVar() > 10
+        @CodeRuleAnno(normalNaturalCode = "x.quantityVar() - y.quantityVar() > 10")
         private void rule2() {
             AlgCPLinearExpr diffXY = AlgCPLinearExpr.weightedSum(
-                    new IntVar[]{x.qty, y.qty}, new long[]{1, -1});
+                    new IntVar[]{x.quantityVar(), y.quantityVar()}, new long[]{1, -1});
             model.addGreaterThan(diffXY, 10);
         }
 
-        // rule3: y.qty > 45
-        @CodeRuleAnno(normalNaturalCode = "y.qty > 45")
+        // rule3: y.quantityVar() > 45
+        @CodeRuleAnno(normalNaturalCode = "y.quantityVar() > 45")
         private void rule3() {
-            model.addGreaterThan(y.qty, 45);
+            model.addGreaterThan(y.quantityVar(), 45);
         }
 
-        // rule4: x.qty + 2 * y.qty > 10
-        @CodeRuleAnno(normalNaturalCode = "x.qty + 2 * y.qty > 10")
+        // rule4: x.quantityVar() + 2 * y.quantityVar() > 10
+        @CodeRuleAnno(normalNaturalCode = "x.quantityVar() + 2 * y.quantityVar() > 10")
         private void rule4() {
             AlgCPLinearExpr sumX2Y = AlgCPLinearExpr.weightedSum(
-                    new IntVar[]{x.qty, y.qty}, new long[]{1, 2});
+                    new IntVar[]{x.quantityVar(), y.quantityVar()}, new long[]{1, 2});
             model.addGreaterThan(sumX2Y, 10);
         }
     }

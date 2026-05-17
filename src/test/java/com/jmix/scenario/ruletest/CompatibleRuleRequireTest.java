@@ -1,6 +1,9 @@
 package com.jmix.scenario.ruletest;
 
-import com.jmix.coretest.ConstraintAlgImplTestBase;
+import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.var.ParaVar;
+import com.jmix.executor.southinf.var.PartCategoryVar;
+import com.jmix.executor.southinf.var.PartVar;
 import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.executor.model.ConstraintConfig;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
@@ -38,7 +41,7 @@ public class CompatibleRuleRequireTest extends ModuleScenarioTestBase {
      * @since 2025-09-23
      */
     @ModuleAnno(id = 123L)
-    public static class CompatibleRuleRequireConstraint extends ConstraintAlgImplTestBase {
+    public static class CompatibleRuleRequireConstraint extends ConstraintAlgBase {
         @ParaAnno(options = { "a1", "a2", "a3", "a4" })
         private ParaVar aVar;
 
@@ -47,7 +50,7 @@ public class CompatibleRuleRequireTest extends ModuleScenarioTestBase {
 
         @CodeRuleAnno
         private void initConstraint() {
-            // natural code: aVar.value in (a1,a3) Requires bVar.value in (b1,b2,b3)
+            // natural code: aVar.valueVar() in (a1,a3) Requires bVar.valueVar() in (b1,b2,b3)
             // A=(a1,a2,a3,a4)
             // B=(b1,b2,b3,b4)
             // 规则内容：(a1,a3) Requires (b1,b2,b3)，则CA=(a1,a3),CB=(b1,b2,b3)
@@ -69,25 +72,25 @@ public class CompatibleRuleRequireTest extends ModuleScenarioTestBase {
             // 创建条件变量：A是a1或a3
             BoolVar a1OrA3 = model.newBoolVar("a1OrA3");
             model.addBoolOr(new Literal[] {
-                    aVar.getParaOptionByCode("a1").getIsSelectedVar(),
-                    aVar.getParaOptionByCode("a3").getIsSelectedVar()
+                    aVar.option("a1").selectedVar(),
+                    aVar.option("a3").selectedVar()
             }).onlyEnforceIf(a1OrA3);
             model.addBoolAnd(new Literal[] {
-                    aVar.getParaOptionByCode("a1").getIsSelectedVar().not(),
-                    aVar.getParaOptionByCode("a3").getIsSelectedVar().not()
+                    aVar.option("a1").selectedVar().not(),
+                    aVar.option("a3").selectedVar().not()
             }).onlyEnforceIf(a1OrA3.not());
 
             // 创建条件变量：B是b1、b2或b3
             BoolVar b1OrB2OrB3 = model.newBoolVar("b1OrB2OrB3");
             model.addBoolOr(new Literal[] {
-                    bVar.getParaOptionByCode("b1").getIsSelectedVar(),
-                    bVar.getParaOptionByCode("b2").getIsSelectedVar(),
-                    bVar.getParaOptionByCode("b3").getIsSelectedVar()
+                    bVar.option("b1").selectedVar(),
+                    bVar.option("b2").selectedVar(),
+                    bVar.option("b3").selectedVar()
             }).onlyEnforceIf(b1OrB2OrB3);
             model.addBoolAnd(new Literal[] {
-                    bVar.getParaOptionByCode("b1").getIsSelectedVar().not(),
-                    bVar.getParaOptionByCode("b2").getIsSelectedVar().not(),
-                    bVar.getParaOptionByCode("b3").getIsSelectedVar().not()
+                    bVar.option("b1").selectedVar().not(),
+                    bVar.option("b2").selectedVar().not(),
+                    bVar.option("b3").selectedVar().not()
             }).onlyEnforceIf(b1OrB2OrB3.not());
 
             // 添加约束：如果A是a1或a3，则B必须是b1、b2或b3

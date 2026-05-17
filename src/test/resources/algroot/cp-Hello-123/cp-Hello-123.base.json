@@ -9,10 +9,6 @@
   "defaultValue" : null,
   "description" : "",
   "sortNo" : 0,
-  "id" : 123,
-  "version" : "1.0.0",
-  "packageName" : "com.jmix.scenario.hello",
-  "type" : "GENERAL",
   "paras" : [ "java.util.ArrayList", [ {
     "@type" : "Para",
     "extSchema" : "",
@@ -36,7 +32,8 @@
       "defaultValue" : "Red",
       "description" : null,
       "sortNo" : 1,
-      "codeId" : 1
+      "codeId" : 1,
+      "codeValue" : "Red"
     }, {
       "@type" : "DynamicAttributerOption",
       "extSchema" : null,
@@ -48,7 +45,8 @@
       "defaultValue" : "Black",
       "description" : null,
       "sortNo" : 2,
-      "codeId" : 2
+      "codeId" : 2,
+      "codeValue" : "Black"
     }, {
       "@type" : "DynamicAttributerOption",
       "extSchema" : null,
@@ -60,12 +58,16 @@
       "defaultValue" : "White",
       "description" : null,
       "sortNo" : 3,
-      "codeId" : 3
+      "codeId" : 3,
+      "codeValue" : "White"
     } ] ],
     "dynAttrType" : "E_INT",
     "value" : null,
+    "optionExtSchema" : null,
+    "instType" : 0,
     "valueLogics" : null,
     "paraType" : "ENUM",
+    "assignType" : "CALC",
     "minValue" : "-1000",
     "maxValue" : "1000",
     "refSpecCode" : null
@@ -92,7 +94,8 @@
       "defaultValue" : "Small",
       "description" : null,
       "sortNo" : 1,
-      "codeId" : 10
+      "codeId" : 10,
+      "codeValue" : "Small"
     }, {
       "@type" : "DynamicAttributerOption",
       "extSchema" : null,
@@ -104,7 +107,8 @@
       "defaultValue" : "Medium",
       "description" : null,
       "sortNo" : 2,
-      "codeId" : 20
+      "codeId" : 20,
+      "codeValue" : "Medium"
     }, {
       "@type" : "DynamicAttributerOption",
       "extSchema" : null,
@@ -116,36 +120,21 @@
       "defaultValue" : "Big",
       "description" : null,
       "sortNo" : 3,
-      "codeId" : 30
+      "codeId" : 30,
+      "codeValue" : "Big"
     } ] ],
     "dynAttrType" : "E_INT",
     "value" : null,
+    "optionExtSchema" : null,
+    "instType" : 0,
     "valueLogics" : null,
     "paraType" : "ENUM",
+    "assignType" : "CALC",
     "minValue" : "-1000",
     "maxValue" : "1000",
     "refSpecCode" : null
   } ] ],
-  "atomicParts" : [ "java.util.ArrayList", [ {
-    "@type" : "Part",
-    "extSchema" : "",
-    "extAttrs" : {
-      "@class" : "java.util.HashMap"
-    },
-    "code" : "tShirt11",
-    "fatherCode" : "",
-    "defaultValue" : 0,
-    "description" : "",
-    "sortNo" : 0,
-    "partType" : "ATOMIC",
-    "price" : 100,
-    "maxQuantity" : 20,
-    "dynAttr" : {
-      "@class" : "java.util.HashMap"
-    },
-    "dynAttrSchemas" : [ "java.util.ArrayList", [ ] ],
-    "dynAttrSchema" : null
-  } ] ],
+  "attrParas" : [ "java.util.ArrayList", [ ] ],
   "rules" : [ "java.util.ArrayList", [ {
     "@type" : "Rule",
     "extSchema" : null,
@@ -166,8 +155,46 @@
       "rightRefProgObjs" : [ "java.util.ArrayList", [ ] ],
       "leftRefProgObjs" : [ "java.util.ArrayList", [ ] ]
     },
-    "ruleSchemaTypeFullName" : "CDSL.V5.Struct.CodeRule"
+    "ruleSchemaTypeFullName" : "CDSL.V5.Struct.CodeRule",
+    "fatherCode" : "",
+    "calcStage" : "MID",
+    "leftCardinality" : "ONE",
+    "rightCardinality" : "ONE",
+    "effectScope" : "SingleInst"
   } ] ],
+  "dynAttr" : {
+    "@class" : "java.util.HashMap"
+  },
+  "dynAttrSchemas" : [ "java.util.ArrayList", [ ] ],
+  "dynAttrSchema" : null,
+  "atomicParts" : [ "java.util.ArrayList", [ {
+    "@type" : "Part",
+    "extSchema" : "",
+    "extAttrs" : {
+      "@class" : "java.util.HashMap"
+    },
+    "code" : "tShirt11",
+    "fatherCode" : "",
+    "defaultValue" : 0,
+    "description" : "",
+    "sortNo" : 0,
+    "paras" : [ "java.util.ArrayList", [ ] ],
+    "attrParas" : [ "java.util.ArrayList", [ ] ],
+    "rules" : [ "java.util.ArrayList", [ ] ],
+    "dynAttr" : {
+      "@class" : "java.util.HashMap"
+    },
+    "dynAttrSchemas" : [ "java.util.ArrayList", [ ] ],
+    "dynAttrSchema" : null,
+    "partType" : "ATOMIC",
+    "price" : 100,
+    "maxQuantity" : 20
+  } ] ],
+  "partCategorys" : [ "java.util.ArrayList", [ ] ],
+  "id" : 123,
+  "version" : "1.0.0",
+  "packageName" : "com.jmix.scenario.hello",
+  "type" : "GENERAL",
   "alg" : {
     "@type" : "ModuleAlgArtifact",
     "id" : 123,

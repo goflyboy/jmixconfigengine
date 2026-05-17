@@ -1,6 +1,9 @@
 package com.jmix.scenario.ruletest;
 
-import com.jmix.coretest.ConstraintAlgImplTestBase;
+import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.var.ParaVar;
+import com.jmix.executor.southinf.var.PartCategoryVar;
+import com.jmix.executor.southinf.var.PartVar;
 import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.executor.model.ConstraintConfig;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
@@ -32,7 +35,7 @@ public class SearchStrategyTest extends ModuleScenarioTestBase {
      * Constraint: at most one part selected per category.
      */
     @ModuleAnno(id = 123L)
-    public static class SearchConstraint extends ConstraintAlgImplTestBase {
+    public static class SearchConstraint extends ConstraintAlgBase {
 
         @PartAnno(code = "cpu")
         private PartCategoryVar cpu;
@@ -57,8 +60,8 @@ public class SearchStrategyTest extends ModuleScenarioTestBase {
 
         @CodeRuleAnno()
         private void rule1() {
-            model.addExactlyOne(new Literal[] { cpu1Var.isSelected, cpu2Var.isSelected, cpu3Var.isSelected });
-            model.addExactlyOne(new Literal[] { disk1Var.isSelected, disk2Var.isSelected });
+            model.addExactlyOne(new Literal[] { cpu1Var.selectedVar(), cpu2Var.selectedVar(), cpu3Var.selectedVar() });
+            model.addExactlyOne(new Literal[] { disk1Var.selectedVar(), disk2Var.selectedVar() });
         }
     }
 

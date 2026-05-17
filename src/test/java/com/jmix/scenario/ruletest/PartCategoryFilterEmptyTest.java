@@ -1,6 +1,9 @@
 package com.jmix.scenario.ruletest;
 
-import com.jmix.coretest.ConstraintAlgImplTestBase;
+import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.var.ParaVar;
+import com.jmix.executor.southinf.var.PartCategoryVar;
+import com.jmix.executor.southinf.var.PartVar;
 import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.executor.bmodel.attr.DynamicAttributeType;
 import com.jmix.executor.model.ConstraintConfig;
@@ -28,7 +31,7 @@ public class PartCategoryFilterEmptyTest extends ModuleScenarioTestBase {
 
     // ---------------模型定义----------------------------------------
     @ModuleAnno(id = 123L)
-    public static class FilterEmptyConstraint extends ConstraintAlgImplTestBase {
+    public static class FilterEmptyConstraint extends ConstraintAlgBase {
 
         @PartAnno(code = "cpu")
         @DAttrAnno1(code = "CoreNum", dynAttrType = DynamicAttributeType.E_STRING,

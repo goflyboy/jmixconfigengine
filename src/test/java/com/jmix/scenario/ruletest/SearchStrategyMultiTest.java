@@ -1,6 +1,9 @@
 package com.jmix.scenario.ruletest;
 
-import com.jmix.coretest.ConstraintAlgImplTestBase;
+import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.var.ParaVar;
+import com.jmix.executor.southinf.var.PartCategoryVar;
+import com.jmix.executor.southinf.var.PartVar;
 import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.executor.bmodel.attr.DynamicAttributeType;
 import com.jmix.executor.model.ConstraintConfig;
@@ -32,7 +35,7 @@ public class SearchStrategyMultiTest extends ModuleScenarioTestBase {
      * Constraint model for multi-instance strategy testing.
      */
     @ModuleAnno(id = 123L)
-    public static class MultiSearchConstraint extends ConstraintAlgImplTestBase {
+    public static class MultiSearchConstraint extends ConstraintAlgBase {
 
         // Single-instance CPU category
         @PartAnno(code = "cpu")
@@ -64,7 +67,7 @@ public class SearchStrategyMultiTest extends ModuleScenarioTestBase {
 
         @CodeRuleAnno()
         private void rule1() {
-            model.addAtMostOne(new Literal[] { cpu1Var.isSelected, cpu2Var.isSelected, cpu3Var.isSelected });
+            model.addAtMostOne(new Literal[] { cpu1Var.selectedVar(), cpu2Var.selectedVar(), cpu3Var.selectedVar() });
         }
     }
 

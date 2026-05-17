@@ -2,7 +2,10 @@ package com.jmix.scenario.perf20;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.jmix.coretest.ConstraintAlgImplTestBase;
+import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.var.ParaVar;
+import com.jmix.executor.southinf.var.PartCategoryVar;
+import com.jmix.executor.southinf.var.PartVar;
 import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.executor.model.ConstraintConfig;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
@@ -39,7 +42,7 @@ public class Perf20ParasTest extends ModuleScenarioTestBase {
      * @since 2025-09-23
      */
     @ModuleAnno(id = 123L)
-    private static class Perf20ParasConstraint extends ConstraintAlgImplTestBase {
+    private static class Perf20ParasConstraint extends ConstraintAlgBase {
         @ParaAnno(options = {
                 "op00101", "op00102", "op00103", "op00104", "op00105",
                 "op00106", "op00107", "op00108", "op00109", "op00110"
@@ -175,312 +178,312 @@ public class Perf20ParasTest extends ModuleScenarioTestBase {
         @PartAnno(maxQuantity = 10)
         private PartVar pt005;
 
-        @CodeRuleAnno(normalNaturalCode = "if p001.value == op00102 then p002.value != op00202")
+        @CodeRuleAnno(normalNaturalCode = "if p001.valueVar() == op00102 then p002.valueVar() != op00202")
         private void rule01() {
             BoolVar condition = model.newBoolVar("rule01_condition");
-            model.addEquality(p001.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p002.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p001.value, 2).onlyEnforceIf(condition.not());
+            model.addEquality(p001.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p002.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p001.valueVar(), 2).onlyEnforceIf(condition.not());
         }
 
-        @CodeRuleAnno(normalNaturalCode = "if p002.value == op00202 then p003.value != op00302")
+        @CodeRuleAnno(normalNaturalCode = "if p002.valueVar() == op00202 then p003.valueVar() != op00302")
         private void rule02() {
             BoolVar condition = model.newBoolVar("rule02_condition");
-            model.addEquality(p002.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p003.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p002.value, 2).onlyEnforceIf(condition.not());
+            model.addEquality(p002.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p003.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p002.valueVar(), 2).onlyEnforceIf(condition.not());
         }
 
-        @CodeRuleAnno(normalNaturalCode = "if p003.value == op00302 then p004.value != op00402")
+        @CodeRuleAnno(normalNaturalCode = "if p003.valueVar() == op00302 then p004.valueVar() != op00402")
         private void rule03() {
             BoolVar condition = model.newBoolVar("rule03_condition");
-            model.addEquality(p003.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p004.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p003.value, 2).onlyEnforceIf(condition.not());
+            model.addEquality(p003.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p004.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p003.valueVar(), 2).onlyEnforceIf(condition.not());
         }
 
-        @CodeRuleAnno(normalNaturalCode = "if p004.value == op00402 then p005.value != op00502")
+        @CodeRuleAnno(normalNaturalCode = "if p004.valueVar() == op00402 then p005.valueVar() != op00502")
         private void rule04() {
             BoolVar condition = model.newBoolVar("rule04_condition");
-            model.addEquality(p004.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p005.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p004.value, 2).onlyEnforceIf(condition.not());
+            model.addEquality(p004.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p005.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p004.valueVar(), 2).onlyEnforceIf(condition.not());
         }
 
-        @CodeRuleAnno(normalNaturalCode = "if p005.value == op00502 then p006.value != op00602")
+        @CodeRuleAnno(normalNaturalCode = "if p005.valueVar() == op00502 then p006.valueVar() != op00602")
         private void rule05() {
             BoolVar condition = model.newBoolVar("rule05_condition");
-            model.addEquality(p005.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p006.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p005.value, 2).onlyEnforceIf(condition.not());
+            model.addEquality(p005.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p006.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p005.valueVar(), 2).onlyEnforceIf(condition.not());
         }
 
-        @CodeRuleAnno(normalNaturalCode = "if p006.value == op00602 then p007.value != op00702")
+        @CodeRuleAnno(normalNaturalCode = "if p006.valueVar() == op00602 then p007.valueVar() != op00702")
         private void rule06() {
             BoolVar condition = model.newBoolVar("rule06_condition");
-            model.addEquality(p006.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p007.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p006.value, 2).onlyEnforceIf(condition.not());
+            model.addEquality(p006.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p007.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p006.valueVar(), 2).onlyEnforceIf(condition.not());
         }
 
-        @CodeRuleAnno(normalNaturalCode = "if p007.value == op00702 then p008.value != op00802")
+        @CodeRuleAnno(normalNaturalCode = "if p007.valueVar() == op00702 then p008.valueVar() != op00802")
         private void rule07() {
             BoolVar condition = model.newBoolVar("rule07_condition");
-            model.addEquality(p007.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p008.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p007.value, 2).onlyEnforceIf(condition.not());
+            model.addEquality(p007.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p008.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p007.valueVar(), 2).onlyEnforceIf(condition.not());
         }
 
-        @CodeRuleAnno(normalNaturalCode = "if p008.value == op00802 then p009.value != op00902")
+        @CodeRuleAnno(normalNaturalCode = "if p008.valueVar() == op00802 then p009.valueVar() != op00902")
         private void rule08() {
             BoolVar condition = model.newBoolVar("rule08_condition");
-            model.addEquality(p008.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p009.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p008.value, 2).onlyEnforceIf(condition.not());
+            model.addEquality(p008.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p009.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p008.valueVar(), 2).onlyEnforceIf(condition.not());
         }
 
-        @CodeRuleAnno(normalNaturalCode = "if p009.value == op00902 then p010.value != op01002")
+        @CodeRuleAnno(normalNaturalCode = "if p009.valueVar() == op00902 then p010.valueVar() != op01002")
         private void rule09() {
             BoolVar condition = model.newBoolVar("rule09_condition");
-            model.addEquality(p009.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p010.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p009.value, 2).onlyEnforceIf(condition.not());
+            model.addEquality(p009.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p010.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p009.valueVar(), 2).onlyEnforceIf(condition.not());
         }
 
-        @CodeRuleAnno(normalNaturalCode = "if p010.value == op01002 then p011.value != op01102")
+        @CodeRuleAnno(normalNaturalCode = "if p010.valueVar() == op01002 then p011.valueVar() != op01102")
         private void rule10() {
             BoolVar condition = model.newBoolVar("rule10_condition");
-            model.addEquality(p010.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p011.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p010.value, 2).onlyEnforceIf(condition.not());
+            model.addEquality(p010.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p011.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p010.valueVar(), 2).onlyEnforceIf(condition.not());
         }
 
-        @CodeRuleAnno(normalNaturalCode = "if p011.value == op01102 then p012.value != op01202")
+        @CodeRuleAnno(normalNaturalCode = "if p011.valueVar() == op01102 then p012.valueVar() != op01202")
         private void rule11() {
             BoolVar condition = model.newBoolVar("rule11_condition");
-            model.addEquality(p011.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p012.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p011.value, 2).onlyEnforceIf(condition.not());
+            model.addEquality(p011.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p012.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p011.valueVar(), 2).onlyEnforceIf(condition.not());
         }
 
-        @CodeRuleAnno(normalNaturalCode = "if p012.value == op01202 then p013.value != op01302")
+        @CodeRuleAnno(normalNaturalCode = "if p012.valueVar() == op01202 then p013.valueVar() != op01302")
         private void rule12() {
             BoolVar condition = model.newBoolVar("rule12_condition");
-            model.addEquality(p012.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p013.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p012.value, 2).onlyEnforceIf(condition.not());
+            model.addEquality(p012.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p013.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p012.valueVar(), 2).onlyEnforceIf(condition.not());
         }
 
-        @CodeRuleAnno(normalNaturalCode = "if p013.value == op01302 then p014.value != op01402")
+        @CodeRuleAnno(normalNaturalCode = "if p013.valueVar() == op01302 then p014.valueVar() != op01402")
         private void rule13() {
             BoolVar condition = model.newBoolVar("rule13_condition");
-            model.addEquality(p013.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p014.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p013.value, 2).onlyEnforceIf(condition.not());
+            model.addEquality(p013.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p014.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p013.valueVar(), 2).onlyEnforceIf(condition.not());
         }
 
-        @CodeRuleAnno(normalNaturalCode = "if p014.value == op01402 then p015.value != op01502")
+        @CodeRuleAnno(normalNaturalCode = "if p014.valueVar() == op01402 then p015.valueVar() != op01502")
         private void rule14() {
             BoolVar condition = model.newBoolVar("rule14_condition");
-            model.addEquality(p014.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p015.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p014.value, 2).onlyEnforceIf(condition.not());
+            model.addEquality(p014.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p015.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p014.valueVar(), 2).onlyEnforceIf(condition.not());
         }
 
-        @CodeRuleAnno(normalNaturalCode = "if p015.value == op01502 then p016.value != op01602")
+        @CodeRuleAnno(normalNaturalCode = "if p015.valueVar() == op01502 then p016.valueVar() != op01602")
         private void rule15() {
             BoolVar condition = model.newBoolVar("rule15_condition");
-            model.addEquality(p015.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p016.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p015.value, 2).onlyEnforceIf(condition.not());
+            model.addEquality(p015.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p016.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p015.valueVar(), 2).onlyEnforceIf(condition.not());
         }
 
-        @CodeRuleAnno(normalNaturalCode = "if p016.value == op01602 then p017.value != op01702")
+        @CodeRuleAnno(normalNaturalCode = "if p016.valueVar() == op01602 then p017.valueVar() != op01702")
         private void rule16() {
             BoolVar condition = model.newBoolVar("rule16_condition");
-            model.addEquality(p016.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p017.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p016.value, 2).onlyEnforceIf(condition.not());
+            model.addEquality(p016.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p017.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p016.valueVar(), 2).onlyEnforceIf(condition.not());
         }
 
-        @CodeRuleAnno(normalNaturalCode = "if p017.value == op01702 then p018.value != op01802")
+        @CodeRuleAnno(normalNaturalCode = "if p017.valueVar() == op01702 then p018.valueVar() != op01802")
         private void rule17() {
             BoolVar condition = model.newBoolVar("rule17_condition");
-            model.addEquality(p017.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p018.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p017.value, 2).onlyEnforceIf(condition.not());
+            model.addEquality(p017.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p018.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p017.valueVar(), 2).onlyEnforceIf(condition.not());
         }
 
-        @CodeRuleAnno(normalNaturalCode = "if p018.value == op01802 then p019.value != op01902")
+        @CodeRuleAnno(normalNaturalCode = "if p018.valueVar() == op01802 then p019.valueVar() != op01902")
         private void rule18() {
             BoolVar condition = model.newBoolVar("rule18_condition");
-            model.addEquality(p018.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p019.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p018.value, 2).onlyEnforceIf(condition.not());
+            model.addEquality(p018.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p019.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p018.valueVar(), 2).onlyEnforceIf(condition.not());
         }
 
-        @CodeRuleAnno(normalNaturalCode = "if p019.value == op01902 then p020.value != op02002")
+        @CodeRuleAnno(normalNaturalCode = "if p019.valueVar() == op01902 then p020.valueVar() != op02002")
         private void rule19() {
             BoolVar condition = model.newBoolVar("rule19_condition");
-            model.addEquality(p019.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p020.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p019.value, 2).onlyEnforceIf(condition.not());
+            model.addEquality(p019.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p020.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p019.valueVar(), 2).onlyEnforceIf(condition.not());
         }
 
-        @CodeRuleAnno(normalNaturalCode = "if p020.value == op02002 then p001.value != op00102")
+        @CodeRuleAnno(normalNaturalCode = "if p020.valueVar() == op02002 then p001.valueVar() != op00102")
         private void rule20() {
             BoolVar condition = model.newBoolVar("rule20_condition");
-            model.addEquality(p020.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p001.value, 2).onlyEnforceIf(condition);
-            model.addDifferent(p020.value, 2).onlyEnforceIf(condition.not());
+            model.addEquality(p020.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p001.valueVar(), 2).onlyEnforceIf(condition);
+            model.addDifferent(p020.valueVar(), 2).onlyEnforceIf(condition.not());
         }
 
-        @CodeRuleAnno(normalNaturalCode = "if(p011.value==op01101 && p012.value==op01201) then pt001.qty=1 "
-                + "else if(p011.value==op01102 && p012.value==op01202) then pt001.qty=2 else pt001.qty=3")
+        @CodeRuleAnno(normalNaturalCode = "if(p011.valueVar()==op01101 && p012.valueVar()==op01201) then pt001.quantityVar()=1 "
+                + "else if(p011.valueVar()==op01102 && p012.valueVar()==op01202) then pt001.quantityVar()=2 else pt001.quantityVar()=3")
         private void rule21() {
             BoolVar condition1 = model.newBoolVar("rule21_condition1");
             Literal[] cond1Literals = new Literal[] {
-                    p011.getParaOptionByCode("op01101").getIsSelectedVar(),
-                    p012.getParaOptionByCode("op01201").getIsSelectedVar()
+                    p011.option("op01101").selectedVar(),
+                    p012.option("op01201").selectedVar()
             };
             model.addBoolAnd(cond1Literals).onlyEnforceIf(condition1);
             model.addBoolOr(new Literal[] {
-                    p011.getParaOptionByCode("op01101").getIsSelectedVar().not(),
-                    p012.getParaOptionByCode("op01201").getIsSelectedVar().not()
+                    p011.option("op01101").selectedVar().not(),
+                    p012.option("op01201").selectedVar().not()
             }).onlyEnforceIf(condition1.not());
 
             BoolVar condition2 = model.newBoolVar("rule21_condition2");
             Literal[] cond2Literals = new Literal[] {
-                    p011.getParaOptionByCode("op01102").getIsSelectedVar(),
-                    p012.getParaOptionByCode("op01202").getIsSelectedVar()
+                    p011.option("op01102").selectedVar(),
+                    p012.option("op01202").selectedVar()
             };
             model.addBoolAnd(cond2Literals).onlyEnforceIf(condition2);
             model.addBoolOr(new Literal[] {
-                    p011.getParaOptionByCode("op01102").getIsSelectedVar().not(),
-                    p012.getParaOptionByCode("op01202").getIsSelectedVar().not()
+                    p011.option("op01102").selectedVar().not(),
+                    p012.option("op01202").selectedVar().not()
             }).onlyEnforceIf(condition2.not());
 
-            model.addEquality(pt001.qty, 1).onlyEnforceIf(condition1);
-            model.addEquality(pt001.qty, 2).onlyEnforceIf(condition2);
+            model.addEquality(pt001.quantityVar(), 1).onlyEnforceIf(condition1);
+            model.addEquality(pt001.quantityVar(), 2).onlyEnforceIf(condition2);
         }
 
-        @CodeRuleAnno(normalNaturalCode = "if(p013.value==op01301 && p014.value==op01401) then pt002.qty=1 "
-                + "else if(p013.value==op01302 && p014.value==op01402) then pt002.qty=2 else pt002.qty=3")
+        @CodeRuleAnno(normalNaturalCode = "if(p013.valueVar()==op01301 && p014.valueVar()==op01401) then pt002.quantityVar()=1 "
+                + "else if(p013.valueVar()==op01302 && p014.valueVar()==op01402) then pt002.quantityVar()=2 else pt002.quantityVar()=3")
         private void rule22() {
             BoolVar condition1 = model.newBoolVar("rule22_condition1");
             Literal[] cond1Literals = new Literal[] {
-                    p013.getParaOptionByCode("op01301").getIsSelectedVar(),
-                    p014.getParaOptionByCode("op01401").getIsSelectedVar()
+                    p013.option("op01301").selectedVar(),
+                    p014.option("op01401").selectedVar()
             };
             model.addBoolAnd(cond1Literals).onlyEnforceIf(condition1);
             model.addBoolOr(new Literal[] {
-                    p013.getParaOptionByCode("op01301").getIsSelectedVar().not(),
-                    p014.getParaOptionByCode("op01401").getIsSelectedVar().not()
+                    p013.option("op01301").selectedVar().not(),
+                    p014.option("op01401").selectedVar().not()
             }).onlyEnforceIf(condition1.not());
 
             BoolVar condition2 = model.newBoolVar("rule22_condition2");
             Literal[] cond2Literals = new Literal[] {
-                    p013.getParaOptionByCode("op01302").getIsSelectedVar(),
-                    p014.getParaOptionByCode("op01402").getIsSelectedVar()
+                    p013.option("op01302").selectedVar(),
+                    p014.option("op01402").selectedVar()
             };
             model.addBoolAnd(cond2Literals).onlyEnforceIf(condition2);
             model.addBoolOr(new Literal[] {
-                    p013.getParaOptionByCode("op01302").getIsSelectedVar().not(),
-                    p014.getParaOptionByCode("op01402").getIsSelectedVar().not()
+                    p013.option("op01302").selectedVar().not(),
+                    p014.option("op01402").selectedVar().not()
             }).onlyEnforceIf(condition2.not());
 
-            model.addEquality(pt002.qty, 1).onlyEnforceIf(condition1);
-            model.addEquality(pt002.qty, 2).onlyEnforceIf(condition2);
+            model.addEquality(pt002.quantityVar(), 1).onlyEnforceIf(condition1);
+            model.addEquality(pt002.quantityVar(), 2).onlyEnforceIf(condition2);
         }
 
-        @CodeRuleAnno(normalNaturalCode = "if(p015.value==op01501 && p016.value==op01601) then pt003.qty=1 "
-                + "else if(p015.value==op01502 && p016.value==op01602) then pt003.qty=2 else pt003.qty=3")
+        @CodeRuleAnno(normalNaturalCode = "if(p015.valueVar()==op01501 && p016.valueVar()==op01601) then pt003.quantityVar()=1 "
+                + "else if(p015.valueVar()==op01502 && p016.valueVar()==op01602) then pt003.quantityVar()=2 else pt003.quantityVar()=3")
         private void rule23() {
             BoolVar condition1 = model.newBoolVar("rule23_condition1");
             Literal[] cond1Literals = new Literal[] {
-                    p015.getParaOptionByCode("op01501").getIsSelectedVar(),
-                    p016.getParaOptionByCode("op01601").getIsSelectedVar()
+                    p015.option("op01501").selectedVar(),
+                    p016.option("op01601").selectedVar()
             };
             model.addBoolAnd(cond1Literals).onlyEnforceIf(condition1);
             model.addBoolOr(new Literal[] {
-                    p015.getParaOptionByCode("op01501").getIsSelectedVar().not(),
-                    p016.getParaOptionByCode("op01601").getIsSelectedVar().not()
+                    p015.option("op01501").selectedVar().not(),
+                    p016.option("op01601").selectedVar().not()
             }).onlyEnforceIf(condition1.not());
 
             BoolVar condition2 = model.newBoolVar("rule23_condition2");
             Literal[] cond2Literals = new Literal[] {
-                    p015.getParaOptionByCode("op01502").getIsSelectedVar(),
-                    p016.getParaOptionByCode("op01602").getIsSelectedVar()
+                    p015.option("op01502").selectedVar(),
+                    p016.option("op01602").selectedVar()
             };
             model.addBoolAnd(cond2Literals).onlyEnforceIf(condition2);
             model.addBoolOr(new Literal[] {
-                    p015.getParaOptionByCode("op01502").getIsSelectedVar().not(),
-                    p016.getParaOptionByCode("op01602").getIsSelectedVar().not()
+                    p015.option("op01502").selectedVar().not(),
+                    p016.option("op01602").selectedVar().not()
             }).onlyEnforceIf(condition2.not());
 
-            model.addEquality(pt003.qty, 1).onlyEnforceIf(condition1);
-            model.addEquality(pt003.qty, 2).onlyEnforceIf(condition2);
+            model.addEquality(pt003.quantityVar(), 1).onlyEnforceIf(condition1);
+            model.addEquality(pt003.quantityVar(), 2).onlyEnforceIf(condition2);
         }
 
-        @CodeRuleAnno(normalNaturalCode = "if(p017.value==op01701 && p018.value==op01801) then pt004.qty=1 "
-                + "else if(p017.value==op01702 && p018.value==op01802) then pt004.qty=2 else pt004.qty=3")
+        @CodeRuleAnno(normalNaturalCode = "if(p017.valueVar()==op01701 && p018.valueVar()==op01801) then pt004.quantityVar()=1 "
+                + "else if(p017.valueVar()==op01702 && p018.valueVar()==op01802) then pt004.quantityVar()=2 else pt004.quantityVar()=3")
         private void rule24() {
             BoolVar condition1 = model.newBoolVar("rule24_condition1");
             Literal[] cond1Literals = new Literal[] {
-                    p017.getParaOptionByCode("op01701").getIsSelectedVar(),
-                    p018.getParaOptionByCode("op01801").getIsSelectedVar()
+                    p017.option("op01701").selectedVar(),
+                    p018.option("op01801").selectedVar()
             };
             model.addBoolAnd(cond1Literals).onlyEnforceIf(condition1);
             model.addBoolOr(new Literal[] {
-                    p017.getParaOptionByCode("op01701").getIsSelectedVar().not(),
-                    p018.getParaOptionByCode("op01801").getIsSelectedVar().not()
+                    p017.option("op01701").selectedVar().not(),
+                    p018.option("op01801").selectedVar().not()
             }).onlyEnforceIf(condition1.not());
 
             BoolVar condition2 = model.newBoolVar("rule24_condition2");
             Literal[] cond2Literals = new Literal[] {
-                    p017.getParaOptionByCode("op01702").getIsSelectedVar(),
-                    p018.getParaOptionByCode("op01802").getIsSelectedVar()
+                    p017.option("op01702").selectedVar(),
+                    p018.option("op01802").selectedVar()
             };
             model.addBoolAnd(cond2Literals).onlyEnforceIf(condition2);
             model.addBoolOr(new Literal[] {
-                    p017.getParaOptionByCode("op01702").getIsSelectedVar().not(),
-                    p018.getParaOptionByCode("op01802").getIsSelectedVar().not()
+                    p017.option("op01702").selectedVar().not(),
+                    p018.option("op01802").selectedVar().not()
             }).onlyEnforceIf(condition2.not());
 
-            model.addEquality(pt004.qty, 1).onlyEnforceIf(condition1);
-            model.addEquality(pt004.qty, 2).onlyEnforceIf(condition2);
-            // model.addEquality((IntVar)pt004.qty, 3).onlyEnforceIf(condition1.not(),
+            model.addEquality(pt004.quantityVar(), 1).onlyEnforceIf(condition1);
+            model.addEquality(pt004.quantityVar(), 2).onlyEnforceIf(condition2);
+            // model.addEquality((IntVar)pt004.quantityVar(), 3).onlyEnforceIf(condition1.not(),
             // condition2.not());
         }
 
-        @CodeRuleAnno(normalNaturalCode = "if(p019.value==op01901 && p020.value==op02001) then pt005.qty=1 "
-                + "else if(p019.value==op01902 && p020.value==op02002) then pt005.qty=2 else pt005.qty=3")
+        @CodeRuleAnno(normalNaturalCode = "if(p019.valueVar()==op01901 && p020.valueVar()==op02001) then pt005.quantityVar()=1 "
+                + "else if(p019.valueVar()==op01902 && p020.valueVar()==op02002) then pt005.quantityVar()=2 else pt005.quantityVar()=3")
         private void rule25() {
             BoolVar condition1 = model.newBoolVar("rule25_condition1");
             Literal[] cond1Literals = new Literal[] {
-                    p019.getParaOptionByCode("op01901").getIsSelectedVar(),
-                    p020.getParaOptionByCode("op02001").getIsSelectedVar()
+                    p019.option("op01901").selectedVar(),
+                    p020.option("op02001").selectedVar()
             };
             model.addBoolAnd(cond1Literals).onlyEnforceIf(condition1);
             model.addBoolOr(new Literal[] {
-                    p019.getParaOptionByCode("op01901").getIsSelectedVar().not(),
-                    p020.getParaOptionByCode("op02001").getIsSelectedVar().not()
+                    p019.option("op01901").selectedVar().not(),
+                    p020.option("op02001").selectedVar().not()
             }).onlyEnforceIf(condition1.not());
 
             BoolVar condition2 = model.newBoolVar("rule25_condition2");
             Literal[] cond2Literals = new Literal[] {
-                    p019.getParaOptionByCode("op01902").getIsSelectedVar(),
-                    p020.getParaOptionByCode("op02002").getIsSelectedVar()
+                    p019.option("op01902").selectedVar(),
+                    p020.option("op02002").selectedVar()
             };
             model.addBoolAnd(cond2Literals).onlyEnforceIf(condition2);
             model.addBoolOr(new Literal[] {
-                    p019.getParaOptionByCode("op01902").getIsSelectedVar().not(),
-                    p020.getParaOptionByCode("op02002").getIsSelectedVar().not()
+                    p019.option("op01902").selectedVar().not(),
+                    p020.option("op02002").selectedVar().not()
             }).onlyEnforceIf(condition2.not());
 
-            model.addEquality(pt005.qty, 1).onlyEnforceIf(condition1);
-            model.addEquality(pt005.qty, 2).onlyEnforceIf(condition2);
-            // model.addEquality((IntVar)pt005.qty, 3).onlyEnforceIf(condition1.not(),
+            model.addEquality(pt005.quantityVar(), 1).onlyEnforceIf(condition1);
+            model.addEquality(pt005.quantityVar(), 2).onlyEnforceIf(condition2);
+            // model.addEquality((IntVar)pt005.quantityVar(), 3).onlyEnforceIf(condition1.not(),
             // condition2.not());
         }
     }

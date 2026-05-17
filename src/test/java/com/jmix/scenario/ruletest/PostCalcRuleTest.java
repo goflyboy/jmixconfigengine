@@ -3,7 +3,10 @@ package com.jmix.scenario.ruletest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.jmix.coretest.ConstraintAlgImplTestBase;
+import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.var.ParaVar;
+import com.jmix.executor.southinf.var.PartCategoryVar;
+import com.jmix.executor.southinf.var.PartVar;
 import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.executor.bmodel.attr.DynamicAttributeType;
 import com.jmix.executor.bmodel.base.AssignType;
@@ -37,7 +40,7 @@ public class PostCalcRuleTest extends ModuleScenarioTestBase {
     }
 
     @ModuleAnno(id = 123L)
-    public static class PostCalcConstraint extends ConstraintAlgImplTestBase {
+    public static class PostCalcConstraint extends ConstraintAlgBase {
 
         @PartAnno(code = "drive")
         @DAttrAnno2(code = "Speed", dynAttrType = DynamicAttributeType.E_STRING,

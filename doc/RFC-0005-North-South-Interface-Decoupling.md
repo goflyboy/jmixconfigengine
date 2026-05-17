@@ -409,6 +409,8 @@ public interface ParameterInstView extends OntoView {
 - 不再包含正式南向变量定义。
 - 测试代码改为继承生产级 `ConstraintAlgBase`，或使用专门 `ConstraintAlgTestSupport`。
 - `PartVar`、`ParaVar`、`PartCategoryVar` 的生产形态迁移到 `southinf.var`。
+- 旧测试用例统一迁移到 `ConstraintAlgBase` 和 `southinf.var` facade；测试 harness 可继续使用 `ModuleScenarioTestBase`。
+- 算法 jar 不再打包或预加载 `com.jmix.coretest.ConstraintAlgImplTestBase` 及其内部变量类。
 
 ---
 
@@ -490,14 +492,14 @@ private void postRule() {
 
 | 阶段 | 任务 | 优先级 | 状态 |
 | --- | --- | --- | --- |
-| 1 | 定义 `southinf` 稳定 API、变量 facade、版本注解和 descriptor | P0 | 待开始 |
-| 2 | 扩展 `ModuleAlgArtifact`，让类加载以 artifact 版本为准 | P0 | 待开始 |
-| 3 | 实现旧算法迁移/重新生成路径，并拒绝加载缺失版本的旧算法 | P0 | 待开始 |
-| 4 | 将 `ConstraintAlgImplTestBase` 中的临时变量迁移到生产 API 或测试 support | P0 | 待开始 |
-| 5 | 抽取 `ModuleInstView` 等单个配置解访问接口 | P0 | 待开始 |
-| 6 | 更新 POST 规则访问逻辑，使其通过 view 读写配置解 | P1 | 待开始 |
-| 7 | 更新算法代码生成模板，生成最新南向 API 代码 | P1 | 待开始 |
-| 8 | 增加静态依赖扫描，禁止新算法导入 `impl` 和 `coretest` | P1 | 待开始 |
+| 1 | 定义 `southinf` 稳定 API、变量 facade、版本注解和 descriptor | P0 | 已完成 |
+| 2 | 扩展 `ModuleAlgArtifact`，让类加载以 artifact 版本为准 | P0 | 已完成 |
+| 3 | 实现旧算法迁移/重新生成路径，并拒绝加载缺失版本的旧算法 | P0 | 已完成 |
+| 4 | 将 `ConstraintAlgImplTestBase` 中的临时变量迁移到生产 API 或测试 support | P0 | 已完成 |
+| 5 | 抽取 `ModuleInstView` 等单个配置解访问接口 | P0 | 已完成 |
+| 6 | 更新 POST 规则访问逻辑，使其通过 view 读写配置解 | P1 | 已完成 |
+| 7 | 更新算法代码生成模板，生成最新南向 API 代码 | P1 | 已完成 |
+| 8 | 增加静态依赖扫描，禁止新算法导入 `impl` 和 `coretest` | P1 | 已完成 |
 
 ---
 

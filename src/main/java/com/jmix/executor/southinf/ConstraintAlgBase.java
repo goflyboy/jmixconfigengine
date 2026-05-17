@@ -23,6 +23,7 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * V1 southbound base class. It exposes stable facade types while reusing the
@@ -90,6 +91,42 @@ public abstract class ConstraintAlgBase extends ModuleAlgImpl implements Constra
 
     protected PartCategoryVar partCategoryVar(String code) {
         return vars().partCategory(code);
+    }
+
+    protected List<PartVar> partVars() {
+        return partVars("");
+    }
+
+    protected List<PartVar> partVars(String filterCondition) {
+        return getInternalPartVars(filterCondition).stream()
+                .map(PartVar::new)
+                .collect(Collectors.toList());
+    }
+
+    protected void addVarAboutHiddenConstraints(ParaVar... hiddenVars) {
+        super.addVarAboutHiddenConstraints(hiddenVars);
+    }
+
+    protected void addVarAboutHiddenConstraints(PartVar... hiddenVars) {
+        super.addVarAboutHiddenConstraints(hiddenVars);
+    }
+
+    protected void addCompatibleConstraintRequires(String ruleCode, ParaVar leftParaVar,
+            List<String> leftParaFilterOptionCodes, ParaVar rightParaVar, List<String> rightParaFilterOptionCodes) {
+        super.addCompatibleConstraintRequires(ruleCode, leftParaVar.internal(), leftParaFilterOptionCodes,
+                rightParaVar.internal(), rightParaFilterOptionCodes);
+    }
+
+    protected void addCompatibleConstraintCoDependent(String ruleCode, ParaVar leftParaVar,
+            List<String> leftParaFilterOptionCodes, ParaVar rightParaVar, List<String> rightParaFilterOptionCodes) {
+        super.addCompatibleConstraintCoDependent(ruleCode, leftParaVar.internal(), leftParaFilterOptionCodes,
+                rightParaVar.internal(), rightParaFilterOptionCodes);
+    }
+
+    protected void addCompatibleConstraintInCompatible(String ruleCode, ParaVar leftParaVar,
+            List<String> leftParaFilterOptionCodes, ParaVar rightParaVar, List<String> rightParaFilterOptionCodes) {
+        super.addCompatibleConstraintInCompatible(ruleCode, leftParaVar.internal(), leftParaFilterOptionCodes,
+                rightParaVar.internal(), rightParaFilterOptionCodes);
     }
 
     @Override

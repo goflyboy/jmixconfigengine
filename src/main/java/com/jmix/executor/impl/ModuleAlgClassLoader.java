@@ -1,10 +1,5 @@
 package com.jmix.executor.impl;
 
-import static com.jmix.executor.bmodel.ModuleAlgArtifact.ALG_BASE_CLASS;
-import static com.jmix.executor.bmodel.ModuleAlgArtifact.ALG_PACKAGE;
-import static com.jmix.executor.bmodel.ModuleAlgArtifact.ALG_PARA_CLASS;
-import static com.jmix.executor.bmodel.ModuleAlgArtifact.ALG_PART_CLASS;
-
 import com.jmix.executor.bmodel.ModuleAlgArtifact;
 import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
 import com.jmix.executor.model.AlgLoaderException;
@@ -226,9 +221,6 @@ public class ModuleAlgClassLoader extends ClassLoader {
     private void preloadClassesFromJar(String jarFilePath) {
         String simpleConstraintRuleClassName = toSimpleConstraintClassName(algArtifact);
         JarEntry constraintJarEntry = null;
-        JarEntry algBaseJarEntry = null;
-        JarEntry algPartJarEntry = null;
-        JarEntry algParaJarEntry = null;
         try (JarFile jarFile = new JarFile(jarFilePath)) {
             Enumeration<JarEntry> entries = jarFile.entries();
             while (entries.hasMoreElements()) {
@@ -237,19 +229,10 @@ public class ModuleAlgClassLoader extends ClassLoader {
                 if (entryClassName.equals(simpleConstraintRuleClassName)
                         || entryClassName.equals(this.constraintRuleClassName)) {
                     constraintJarEntry = entry;
-                } else if (entryClassName.equals(ALG_BASE_CLASS)) {
-                    algBaseJarEntry = entry;
-                } else if (entryClassName.equals(ALG_PART_CLASS)) {
-                    algPartJarEntry = entry;
-                } else if (entryClassName.equals(ALG_PARA_CLASS)) {
-                    algParaJarEntry = entry;
                 } else {
                     continue;
                 }
             }
-            loadClassFromJar(ALG_PACKAGE + ALG_PART_CLASS, jarFile, algPartJarEntry);
-            loadClassFromJar(ALG_PACKAGE + ALG_PARA_CLASS, jarFile, algParaJarEntry);
-            loadClassFromJar(ALG_PACKAGE + ALG_BASE_CLASS, jarFile, algBaseJarEntry);
             loadClassFromJar(this.constraintRuleClassName, jarFile, constraintJarEntry);
         } catch (ClassFormatError | IOException e) {
             log.error("Failed to read jar file: {}", jarFilePath, e);

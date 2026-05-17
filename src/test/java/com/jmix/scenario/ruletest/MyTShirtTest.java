@@ -1,6 +1,9 @@
 package com.jmix.scenario.ruletest;
 
-import com.jmix.coretest.ConstraintAlgImplTestBase;
+import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.var.ParaVar;
+import com.jmix.executor.southinf.var.PartCategoryVar;
+import com.jmix.executor.southinf.var.PartVar;
 import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.executor.model.ConstraintConfig;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
@@ -37,7 +40,7 @@ public class MyTShirtTest extends ModuleScenarioTestBase {
      * @since 2025-09-23
      */
     @ModuleAnno(id = 123L)
-    public static class MyTShirtConstraint extends ConstraintAlgImplTestBase {
+    public static class MyTShirtConstraint extends ConstraintAlgBase {
         @ParaAnno(options = { "op11", "op12", "op13" })
         private ParaVar p1Var;
 
@@ -47,29 +50,29 @@ public class MyTShirtTest extends ModuleScenarioTestBase {
         @PartAnno
         private PartVar pt1Var;
 
-        @CodeRuleAnno(normalNaturalCode = "if(p1Var.value == op11 && p2Var.value == op21) then { pt1Var.qty = 1; } "
-                + "else { pt1Var.qty = 3; }")
+        @CodeRuleAnno(normalNaturalCode = "if(p1Var.valueVar() == op11 && p2Var.valueVar() == op21) then { pt1Var.quantityVar() = 1; } "
+                + "else { pt1Var.quantityVar() = 3; }")
         private void rule1() {
-            // if(p1Var.value == op11 && p2Var.value == op21) {
-            // pt1Var.qty = 1;
+            // if(p1Var.valueVar() == op11 && p2Var.valueVar() == op21) {
+            // pt1Var.quantityVar() = 1;
             // }
             // else {
-            // pt1Var.qty = 3;
+            // pt1Var.quantityVar() = 3;
             // }
 
             BoolVar condition = model.newBoolVar("condition");
             model.addBoolAnd(new Literal[] {
-                    p1Var.getParaOptionByCode("op11").getIsSelectedVar(),
-                    p2Var.getParaOptionByCode("op21").getIsSelectedVar()
+                    p1Var.option("op11").selectedVar(),
+                    p2Var.option("op21").selectedVar()
             }).onlyEnforceIf(condition);
 
             model.addBoolOr(new Literal[] {
-                    p1Var.getParaOptionByCode("op11").getIsSelectedVar().not(),
-                    p2Var.getParaOptionByCode("op21").getIsSelectedVar().not()
+                    p1Var.option("op11").selectedVar().not(),
+                    p2Var.option("op21").selectedVar().not()
             }).onlyEnforceIf(condition.not());
 
-            model.addEquality(pt1Var.qty, 1).onlyEnforceIf(condition);
-            model.addEquality(pt1Var.qty, 3).onlyEnforceIf(condition.not());
+            model.addEquality(pt1Var.quantityVar(), 1).onlyEnforceIf(condition);
+            model.addEquality(pt1Var.quantityVar(), 3).onlyEnforceIf(condition.not());
         }
     }
     // ---------------end----------------------------------------

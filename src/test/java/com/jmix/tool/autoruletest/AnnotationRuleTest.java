@@ -5,7 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import com.jmix.coretest.ConstraintAlgImplTestBase;
+import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.var.ParaVar;
+import com.jmix.executor.southinf.var.PartCategoryVar;
+import com.jmix.executor.southinf.var.PartVar;
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.logic.Rule;
 import com.jmix.executor.bmodel.para.ParaType;
@@ -37,7 +40,7 @@ import java.lang.reflect.Method;
  * @since 2025-09-23
  */
 @ModuleAnno(id = 123, code = "AnnotationRule", packageName = "com.jmix.configengine.scenario.ruletest", version = "1.0", description = "注解规则测试模块", sortNo = 1)
-public class AnnotationRuleTest extends ConstraintAlgImplTestBase {
+public class AnnotationRuleTest extends ConstraintAlgBase {
 
     @ParaAnno(description = "颜色参数", type = ParaType.ENUM, options = { "Red", "Blue", "Green" })
     private ParaVar colorVar;
@@ -51,7 +54,7 @@ public class AnnotationRuleTest extends ConstraintAlgImplTestBase {
     /**
      * 兼容性规则：如果颜色是红色，则部件1的数量必须是1
      */
-    @CompatiableRuleAnno(leftExprCode = "color.value==\"Red\"", operator = "Requires", rightExprCode = "part1.qty==1", normalNaturalCode = "如果颜色是红色，则部件1的数量必须是1")
+    @CompatiableRuleAnno(leftExprCode = "color.valueVar()==\"Red\"", operator = "Requires", rightExprCode = "part1.quantityVar()==1", normalNaturalCode = "如果颜色是红色，则部件1的数量必须是1")
     /**
      * 规则1：兼容性规则
      */
@@ -62,7 +65,7 @@ public class AnnotationRuleTest extends ConstraintAlgImplTestBase {
     /**
      * 代码规则：自定义逻辑
      */
-    @CodeRuleAnno(code = "if (color.value == \"Blue\" && size.value == \"Large\") { return false; }", normalNaturalCode = "蓝色大尺寸的组合不允许")
+    @CodeRuleAnno(code = "if (color.valueVar() == \"Blue\" && size.valueVar() == \"Large\") { return false; }", normalNaturalCode = "蓝色大尺寸的组合不允许")
     public void rule2() {
         // 代码规则不需要注入代码
     }
@@ -127,9 +130,9 @@ public class AnnotationRuleTest extends ConstraintAlgImplTestBase {
             CompatiableRuleAnno compatiableRuleAnno = rule1Method.getAnnotation(CompatiableRuleAnno.class);
 
             assertNotNull(compatiableRuleAnno, "CompatiableRuleAnno should not be null");
-            assertEquals(compatiableRuleAnno.leftExprCode(), "Color.value==\"Red\"", "Left expression should match");
+            assertEquals(compatiableRuleAnno.leftExprCode(), "Color.valueVar()==\"Red\"", "Left expression should match");
             assertEquals(compatiableRuleAnno.operator(), "Requires", "Operator should match");
-            assertEquals(compatiableRuleAnno.rightExprCode(), "Part1.qty==1", "Right expression should match");
+            assertEquals(compatiableRuleAnno.rightExprCode(), "Part1.quantityVar()==1", "Right expression should match");
 
             log.info("✓ CompatiableRuleAnno annotation parsing test passed");
         } catch (NoSuchMethodException e) {
@@ -142,8 +145,8 @@ public class AnnotationRuleTest extends ConstraintAlgImplTestBase {
             CodeRuleAnno codeRuleAnno = rule2Method.getAnnotation(CodeRuleAnno.class);
 
             assertNotNull(codeRuleAnno, "CodeRuleAnno should not be null");
-            assertTrue(codeRuleAnno.code().contains("Color.value"), "Code should contain Color.value");
-            assertTrue(codeRuleAnno.code().contains("Size.value"), "Code should contain Size.value");
+            assertTrue(codeRuleAnno.code().contains("Color.valueVar()"), "Code should contain Color.valueVar()");
+            assertTrue(codeRuleAnno.code().contains("Size.valueVar()"), "Code should contain Size.valueVar()");
 
             log.info("✓ CodeRuleAnno annotation parsing test passed");
         } catch (NoSuchMethodException e) {

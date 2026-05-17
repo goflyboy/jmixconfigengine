@@ -4,7 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.jmix.coretest.ConstraintAlgImplTestBase;
+import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.var.ParaVar;
+import com.jmix.executor.southinf.var.PartCategoryVar;
+import com.jmix.executor.southinf.var.PartVar;
 import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.executor.ModuleConstraintExecutor;
 import com.jmix.executor.bmodel.Module;
@@ -96,14 +99,14 @@ public class SouthboundApiDecouplingTest extends ModuleScenarioTestBase {
     }
 
     @ModuleAnno(id = 5006L)
-    public static class OldConstraint extends ConstraintAlgImplTestBase {
+    public static class OldConstraint extends ConstraintAlgBase {
 
         @PartAnno
-        private ConstraintAlgImplTestBase.PartVar part1;
+        private PartVar part1;
 
         @CodeRuleAnno
         private void rule1() {
-            model.addGreaterOrEqual(part1.qty, 1);
+            model.addGreaterOrEqual(part1.quantityVar(), 1);
         }
     }
 }

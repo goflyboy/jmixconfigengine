@@ -3,6 +3,9 @@ package com.jmix.executor.southinf.var;
 import com.jmix.executor.bmodel.para.Para;
 import com.jmix.executor.impl.algmodel.ParaVarImpl;
 
+import com.google.ortools.sat.BoolVar;
+import com.google.ortools.sat.IntVar;
+
 /**
  * Stable parameter variable facade.
  */
@@ -25,6 +28,14 @@ public class ParaVar extends SouthboundVarAdapter<Para> implements Var {
 
     public BoolExpr hidden() {
         return Exprs.boolExpr(internal.getIsHidden());
+    }
+
+    public IntVar valueVar() {
+        return internal.getValue();
+    }
+
+    public BoolVar hiddenVar() {
+        return internal.getIsHidden();
     }
 
     public ParaOptionVar option(String optionCode) {

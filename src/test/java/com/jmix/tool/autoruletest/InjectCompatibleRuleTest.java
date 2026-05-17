@@ -1,6 +1,9 @@
 package com.jmix.tool.autoruletest;
 
-import com.jmix.coretest.ConstraintAlgImplTestBase;
+import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.var.ParaVar;
+import com.jmix.executor.southinf.var.PartCategoryVar;
+import com.jmix.executor.southinf.var.PartVar;
 import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.executor.model.ConstraintConfig;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
@@ -34,7 +37,7 @@ public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
      * @since 2025-09-23
      */
     @ModuleAnno(id = 123L)
-    public static class InjectCompatibleRuleConstraint extends ConstraintAlgImplTestBase {
+    public static class InjectCompatibleRuleConstraint extends ConstraintAlgBase {
         @ParaAnno(options = { "Red", "Black", "White" })
         private ParaVar colorVar;
 
@@ -46,7 +49,7 @@ public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
             log.info("****************rule1****************");
         }
 
-        @CompatiableRuleAnno(leftExprCode = "colorVar.value == Red", operator = "Requires", rightExprCode = "sizeVar.value == Small")
+        @CompatiableRuleAnno(leftExprCode = "colorVar.valueVar() == Red", operator = "Requires", rightExprCode = "sizeVar.valueVar() == Small")
         private void rule2() {
 
             // 自动生成，请勿编辑--start
@@ -55,7 +58,7 @@ public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
 
         }
 
-        @CompatiableRuleAnno(leftExprCode = "colorVar.value == Black", operator = "CoDependent", rightExprCode = "sizeVar.value == Medium")
+        @CompatiableRuleAnno(leftExprCode = "colorVar.valueVar() == Black", operator = "CoDependent", rightExprCode = "sizeVar.valueVar() == Medium")
         private void rule3() {
 
             // 自动生成，请勿编辑--start
@@ -64,7 +67,7 @@ public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
 
         }
 
-        @CompatiableRuleAnno(leftExprCode = "colorVar.value == White", operator = "InCompatible", rightExprCode = "sizeVar.value == Big")
+        @CompatiableRuleAnno(leftExprCode = "colorVar.valueVar() == White", operator = "InCompatible", rightExprCode = "sizeVar.valueVar() == Big")
         private void rule4() {
 
             // 自动生成，请勿编辑--start

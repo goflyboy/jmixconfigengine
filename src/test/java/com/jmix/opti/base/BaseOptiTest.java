@@ -1,6 +1,9 @@
 package com.jmix.opti.base;
 
-import com.jmix.coretest.ConstraintAlgImplTestBase;
+import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.var.ParaVar;
+import com.jmix.executor.southinf.var.PartCategoryVar;
+import com.jmix.executor.southinf.var.PartVar;
 import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.executor.bmodel.attr.DynamicAttributeType;
 import com.jmix.executor.bmodel.base.AssignType;
@@ -31,7 +34,7 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
 
     // ---------------模型的定义start----------------------------------------
     @ModuleAnno(id = 123L)
-    static public class BaseOptiConstraint extends ConstraintAlgImplTestBase {
+    static public class BaseOptiConstraint extends ConstraintAlgBase {
         // 硬盘部件分类定义--严格按层级结构定义（顺序很重要），部件的attrs也要按定义的顺序来
         @PartAnno(code = "drive")
         @DAttrAnno2(code = "Speed", dynAttrType = DynamicAttributeType.E_STRING, optionExtSchema = "StringUnit", options = {
@@ -129,14 +132,14 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
 
         // 规则1: 固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量
         private void applyPriorityRule(AlgCPModel model) {
-            List<PartVar> partVars = getPartVars("");
+            List<PartVar> partVars = partVars("");
 
             PartAlgCPLinearExpr ssTotalCapacity = sum4Quantity("Capacity", "fatherCode=sd");
             PartAlgCPLinearExpr mechTotalCapacity = sum4Quantity("Capacity", "fatherCode=md");
             // 如果是容量需求
             // if ("Capacity".equals(req.getAttrCode())) {
-            if (Sum_Capacity.getIsHasInputed()) {
-                int requiredCapacity = Sum_Capacity.getInputValue();
+            if (Sum_Capacity.hasInput()) {
+                int requiredCapacity = Sum_Capacity.inputValue();
                 // 创建固态硬盘是否足够的布尔变量
                 BoolVar ssSufficient = model.newBoolVar(
                         "ssSufficient");
@@ -148,9 +151,9 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
                         requiredCapacity).onlyEnforceIf(ssSufficient.not());
 
                 // 规则1.1: 如果固态硬盘足够，则禁止使用机械硬盘
-                List<PartVar> mechanicalParts = getPartVars("fatherCode=md");
+                List<PartVar> mechanicalParts = partVars("fatherCode=md");
                 for (PartVar pv : mechanicalParts) {
-                    model.addEquality(pv.qty, 0).onlyEnforceIf(ssSufficient);
+                    model.addEquality(pv.quantityVar(), 0).onlyEnforceIf(ssSufficient);
                 }
 
                 // 创建目标函数
@@ -186,7 +189,7 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
                 PartAlgCPLinearExpr mechTotalQty = sum4Quantity("fatherCode=md");
 
                 // int requiredQty = Integer.parseInt(req.getAttrValue());
-                int requiredQty = Sum_Quantity.getInputValue();
+                int requiredQty = Sum_Quantity.inputValue();
                 // 创建固态硬盘是否足够的布尔变量
                 BoolVar ssSufficientQty = (BoolVar) model.newBoolVar(
                         "ssSufficientQty");
@@ -196,9 +199,9 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
                 model.addLessThan(ssTotalQty,
                         requiredQty).onlyEnforceIf(ssSufficientQty.not());
                 // 规则1.1: 如果固态硬盘足够，则禁止使用机械硬盘
-                List<PartVar> mechanicalParts = getPartVars("fatherCode=md");
+                List<PartVar> mechanicalParts = partVars("fatherCode=md");
                 for (PartVar pv : mechanicalParts) {
-                    model.addEquality(pv.qty, 0).onlyEnforceIf(ssSufficientQty);
+                    model.addEquality(pv.quantityVar(), 0).onlyEnforceIf(ssSufficientQty);
                 }
 
                 // 创建目标函数
@@ -261,8 +264,8 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
     // 输入：
     // strReq = " Capacity >=6 where Speed = 5400"
     // 输出：
-    // 解1： sd1.qty=2
-    // 解2： sd1.qty=1 md1.qty=3 //增配低速率容量
+    // 解1： sd1.quantityVar()=2
+    // 解2： sd1.quantityVar()=1 md1.quantityVar()=3 //增配低速率容量
     // ...
     @Test
     public void testCase0_CapacityGreaterEqual6Speed5400() {

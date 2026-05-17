@@ -3,6 +3,8 @@ package com.jmix.executor.southinf.var;
 import com.jmix.executor.bmodel.attr.DynamicAttributerOption;
 import com.jmix.executor.impl.algmodel.ParaOptionVarImpl;
 
+import com.google.ortools.sat.BoolVar;
+
 /**
  * Stable parameter option variable facade.
  */
@@ -21,6 +23,10 @@ public class ParaOptionVar extends SouthboundVarAdapter<DynamicAttributerOption>
 
     public BoolExpr selected() {
         return Exprs.boolExpr(internal.getIsSelectedVar());
+    }
+
+    public BoolVar selectedVar() {
+        return internal.getIsSelectedVar();
     }
 
     @Override
