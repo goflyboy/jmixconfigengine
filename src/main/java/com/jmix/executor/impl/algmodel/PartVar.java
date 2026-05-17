@@ -208,6 +208,17 @@ public class PartVar extends Var<IPart> implements IExtensible, IDynamicAttribut
         return defaultValue;
     }
 
+    /**
+     * Legacy accessor kept for older packaged algorithms.
+     */
+    public Map<String, BoolVar> getSubPartSelectedVars() {
+        Map<String, BoolVar> selectedVars = new HashMap<>();
+        for (Map.Entry<String, PartVar> entry : subPartMap.entrySet()) {
+            selectedVars.put(entry.getKey(), entry.getValue().getIsSelected());
+        }
+        return selectedVars;
+    }
+
     @Override
     public List<DynamicAttribute> getDynAttrSchemas() {
         return getBase().getDynAttrSchemas();

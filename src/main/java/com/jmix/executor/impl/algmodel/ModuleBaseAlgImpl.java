@@ -596,7 +596,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
             PartVar partVar = entry.getValue();
             Field field = fieldMap.get(code);
             if (field != null) {
-                Var<?> tVar = algFileImpl.newPartVar(partVar);
+                Var<?> tVar = algFileImpl.newPartVarForField(partVar, field);
                 setVariableField(moduleAlgFile, tVar, field);
             }
         }
@@ -607,7 +607,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
             ParaVar paraVar = entry.getValue();
             Field field = fieldMap.get(code);
             if (field != null) {
-                Var<?> tVar = algFileImpl.newParaVar(paraVar);
+                Var<?> tVar = algFileImpl.newParaVarForField(paraVar, field);
                 setVariableField(moduleAlgFile, tVar, field);
             }
         }
@@ -701,6 +701,10 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      */
     protected abstract Var<?> newPartVar(PartVar internalPartVar);
 
+    protected Var<?> newPartVarForField(PartVar internalPartVar, Field field) {
+        return newPartVar(internalPartVar);
+    }
+
     /**
      * 创建参数变量, 继承类可以重载
      * 
@@ -708,6 +712,10 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * @return 创建的参数变量
      */
     protected abstract Var<?> newParaVar(ParaVar internalParaVar);
+
+    protected Var<?> newParaVarForField(ParaVar internalParaVar, Field field) {
+        return newParaVar(internalParaVar);
+    }
 
     /**
      * 设置单个变量字段

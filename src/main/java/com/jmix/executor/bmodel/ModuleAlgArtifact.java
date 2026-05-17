@@ -87,6 +87,16 @@ public class ModuleAlgArtifact {
     private String parentClassName = "";
 
     /**
+     * Algorithm business version.
+     */
+    private String algorithmVersion;
+
+    /**
+     * Southbound API version required by the algorithm artifact.
+     */
+    private String southApiVersion;
+
+    /**
      * 获取模块目录名称
      * 
      * @return 模块目录名称，格式：cp-{moduleCode}-{moduleId}

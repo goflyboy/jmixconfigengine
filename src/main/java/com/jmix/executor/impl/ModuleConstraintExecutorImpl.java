@@ -87,10 +87,17 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
             if (m == null) {
                 continue;
             }
+            if (m.getAlg() == null) {
+                return Result.failed("module alg artifact is null for module: " + m.getCode());
+            }
             moduleMap.put(m.getId(), m);
             m.init();
             ModuleAlgClassLoader loader = ModuleAlgClassLoader.newInstance(config, m.getAlg());
-            loader.init();
+            try {
+                loader.init();
+            } catch (AlgLoaderException ex) {
+                return Result.failed(ex.getMessage());
+            }
             moduleAlgClassLoaderMap.put(m.getId(), loader);
         }
         log.info("Added modules: {}", modules.length);

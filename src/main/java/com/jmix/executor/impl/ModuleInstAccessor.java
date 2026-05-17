@@ -10,6 +10,33 @@ import java.util.List;
  */
 public interface ModuleInstAccessor {
 
+    Long getModuleId();
+
+    String getModuleCode();
+
+    String getInstanceConfigId();
+
+    int getModuleQuantity();
+
+    String getExtAttr(String extAttrKey);
+
+    String getExtAttr(String partCategoryCode, int instId, String extAttrKey);
+
+    String getExtAttr(String partCategoryCode, int instId, String partCode, String extAttrKey);
+
+    String getInstDynAttr(String dynAttrKey);
+
+    void setInstDynAttr(String dynAttrKey, String dynAttrValue);
+
+    String getInstDynAttr(String partCategoryCode, int instId, String dynAttrKey);
+
+    void setInstDynAttr(String partCategoryCode, int instId, String dynAttrKey, String dynAttrValue);
+
+    String getInstDynAttr(String partCategoryCode, int instId, String partCode, String dynAttrKey);
+
+    void setInstDynAttr(String partCategoryCode, int instId, String partCode, String dynAttrKey,
+            String dynAttrValue);
+
     void setParaValue(String paraCode, String value);
 
     void setParaValue(String partCategoryCode, String paraCode, String value);
@@ -37,6 +64,16 @@ public interface ModuleInstAccessor {
     int getQuantity(String partCategoryCode);
 
     int getQuantity(String partCategoryCode, int instId);
+
+    void setQuantity(String partCategoryCode, int instId, int quantity);
+
+    int getPartQuantity(String partCategoryCode, int instId, String partCode);
+
+    void setPartQuantity(String partCategoryCode, int instId, String partCode, int quantity);
+
+    boolean isPartSelected(String partCategoryCode, int instId, String partCode);
+
+    List<String> getPartCodes(String partCategoryCode, int instId);
 
     List<Integer> getInstanceIds(String partCategoryCode);
 }

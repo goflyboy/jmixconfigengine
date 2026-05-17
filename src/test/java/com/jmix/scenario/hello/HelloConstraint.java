@@ -1,6 +1,7 @@
 package com.jmix.scenario.hello;
 
 import com.jmix.coretest.ConstraintAlgImplTestBase;
+import com.jmix.executor.southinf.AlgorithmApiVersion;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
 import com.jmix.tool.bbuilder.anno.ModuleAnno;
 import com.jmix.tool.bbuilder.anno.ParaAnno;
@@ -15,6 +16,7 @@ import com.google.ortools.sat.Literal;
  * @since 2025-09-23
  */
 @ModuleAnno(id = 123L)
+@AlgorithmApiVersion(southApiVersion = "1.0", algorithmVersion = "hello-2026.05")
 public class HelloConstraint extends ConstraintAlgImplTestBase {
 
     @ParaAnno(defaultValue = "Red", options = { "Red:1", "Black:2", "White:3" })

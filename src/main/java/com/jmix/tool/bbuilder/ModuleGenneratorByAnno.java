@@ -5,6 +5,7 @@ import com.jmix.executor.bmodel.AttrParaType;
 import com.jmix.executor.bmodel.IPart;
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.ModuleAlgArtifact;
+import com.jmix.executor.southinf.AlgorithmApiVersion;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartCategory;
 import com.jmix.executor.bmodel.PartType;
@@ -1008,6 +1009,11 @@ public final class ModuleGenneratorByAnno {
         alg.setModuleCode(module.getCode());
         alg.setFileName(moduleAlgClazz.getName());
         alg.setPackageName(moduleAlgClazz.getPackage().getName());
+        AlgorithmApiVersion apiVersion = moduleAlgClazz.getAnnotation(AlgorithmApiVersion.class);
+        if (apiVersion != null) {
+            alg.setSouthApiVersion(apiVersion.southApiVersion());
+            alg.setAlgorithmVersion(apiVersion.algorithmVersion());
+        }
 
         // 检查是否为内部类，设置parentClassName
         Class<?> enclosingClass = moduleAlgClazz.getEnclosingClass();

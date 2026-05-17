@@ -1,6 +1,7 @@
 package com.jmix.executor.impl;
 
 import com.jmix.executor.bmodel.Module;
+import com.jmix.executor.bmodel.PartCategory;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.cmodel.ModuleBaseInst;
 import com.jmix.executor.cmodel.ModuleInst;
@@ -29,6 +30,84 @@ public class ModuleInstAccessorImpl implements ModuleInstAccessor {
     public ModuleInstAccessorImpl(Module module, ModuleInst moduleInst) {
         this.module = module;
         this.moduleInst = moduleInst;
+    }
+
+    // ==================== basic metadata ====================
+
+    @Override
+    public Long getModuleId() {
+        return moduleInst.getId();
+    }
+
+    @Override
+    public String getModuleCode() {
+        return moduleInst.getCode();
+    }
+
+    @Override
+    public String getInstanceConfigId() {
+        return moduleInst.getInstanceConfigId();
+    }
+
+    @Override
+    public int getModuleQuantity() {
+        return moduleInst.getQuantity() == null ? 0 : moduleInst.getQuantity();
+    }
+
+    // ==================== ext/dyn attrs ====================
+
+    @Override
+    public String getExtAttr(String extAttrKey) {
+        return module.getExtAttr(extAttrKey);
+    }
+
+    @Override
+    public String getExtAttr(String partCategoryCode, int instId, String extAttrKey) {
+        PartCategory category = module.getPartCategory(partCategoryCode);
+        if (category == null) {
+            throw new AlgLoaderException("PartCategory not found in module: " + partCategoryCode);
+        }
+        return category.getExtAttr(extAttrKey);
+    }
+
+    @Override
+    public String getExtAttr(String partCategoryCode, int instId, String partCode, String extAttrKey) {
+        return findPartModel(partCode).getExtAttr(extAttrKey);
+    }
+
+    @Override
+    public String getInstDynAttr(String dynAttrKey) {
+        return getMapValue(moduleInst.getExtAttrs(), dynAttrKey);
+    }
+
+    @Override
+    public void setInstDynAttr(String dynAttrKey, String dynAttrValue) {
+        moduleInst.getExtAttrs().put(dynAttrKey, dynAttrValue);
+    }
+
+    @Override
+    public String getInstDynAttr(String partCategoryCode, int instId, String dynAttrKey) {
+        return getMapValue(findPartCategoryInst(partCategoryCode, instId).getExtAttrs(), dynAttrKey);
+    }
+
+    @Override
+    public void setInstDynAttr(String partCategoryCode, int instId, String dynAttrKey, String dynAttrValue) {
+        findPartCategoryInst(partCategoryCode, instId).getExtAttrs().put(dynAttrKey, dynAttrValue);
+    }
+
+    @Override
+    public String getInstDynAttr(String partCategoryCode, int instId, String partCode, String dynAttrKey) {
+        return getMapValue(findPartInst(partCategoryCode, instId, partCode).getExtAttrs(), dynAttrKey);
+    }
+
+    @Override
+    public void setInstDynAttr(String partCategoryCode, int instId, String partCode, String dynAttrKey,
+            String dynAttrValue) {
+        PartInst partInst = findPartInst(partCategoryCode, instId, partCode);
+        if (partInst.getExtAttrs() == null) {
+            partInst.setExtAttrs(new java.util.HashMap<>());
+        }
+        partInst.getExtAttrs().put(dynAttrKey, dynAttrValue);
     }
 
     // ==================== setParaValue ====================
@@ -185,6 +264,40 @@ public class ModuleInstAccessorImpl implements ModuleInstAccessor {
         return totalQty;
     }
 
+    @Override
+    public void setQuantity(String partCategoryCode, int instId, int quantity) {
+        PartCategoryInst pcInst = findPartCategoryInst(partCategoryCode, instId);
+        pcInst.getExtAttrs().put("quantity", quantity);
+    }
+
+    @Override
+    public int getPartQuantity(String partCategoryCode, int instId, String partCode) {
+        PartInst partInst = findPartInst(partCategoryCode, instId, partCode);
+        return partInst.getQuantity() == null ? 0 : partInst.getQuantity();
+    }
+
+    @Override
+    public void setPartQuantity(String partCategoryCode, int instId, String partCode, int quantity) {
+        PartInst partInst = findPartInst(partCategoryCode, instId, partCode);
+        partInst.setQuantity(quantity);
+        partInst.setSelected(quantity > 0);
+    }
+
+    @Override
+    public boolean isPartSelected(String partCategoryCode, int instId, String partCode) {
+        return findPartInst(partCategoryCode, instId, partCode).isSelected();
+    }
+
+    @Override
+    public List<String> getPartCodes(String partCategoryCode, int instId) {
+        PartCategoryInst pcInst = findPartCategoryInst(partCategoryCode, instId);
+        List<String> codes = new ArrayList<>();
+        for (PartInst partInst : pcInst.getParts()) {
+            codes.add(partInst.getCode());
+        }
+        return codes;
+    }
+
     // ==================== getInstanceIds ====================
 
     @Override
@@ -238,6 +351,25 @@ public class ModuleInstAccessorImpl implements ModuleInstAccessor {
             }
         }
         throw new AlgLoaderException("Part not found in module: " + partCode);
+    }
+
+    private PartInst findPartInst(String partCategoryCode, int instId, String partCode) {
+        PartCategoryInst pcInst = findPartCategoryInst(partCategoryCode, instId);
+        PartInst partInst = pcInst.queryPart(partCode);
+        if (partInst == null) {
+            throw new AlgLoaderException(
+                    "PartInst not found: category=" + partCategoryCode + ", instId=" + instId
+                            + ", partCode=" + partCode);
+        }
+        return partInst;
+    }
+
+    private String getMapValue(java.util.Map<String, Object> map, String key) {
+        if (map == null) {
+            return null;
+        }
+        Object value = map.get(key);
+        return value == null ? null : String.valueOf(value);
     }
 
     private PartCategoryInst findPartCategoryInst(String partCategoryCode, int instId) {

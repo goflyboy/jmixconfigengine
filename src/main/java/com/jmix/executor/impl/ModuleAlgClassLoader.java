@@ -9,6 +9,7 @@ import com.jmix.executor.bmodel.ModuleAlgArtifact;
 import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
 import com.jmix.executor.model.AlgLoaderException;
 import com.jmix.executor.model.ConstraintConfig;
+import com.jmix.executor.southinf.AlgorithmApiVersion;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,6 +38,8 @@ import java.util.jar.JarFile;
  */
 @Slf4j
 public class ModuleAlgClassLoader extends ClassLoader {
+    public static final String LATEST_SOUTH_API_VERSION = "1.0";
+
     /**
      * 约束执行配置，决定调试模式与根目录等加载行为
      */
@@ -71,6 +74,7 @@ public class ModuleAlgClassLoader extends ClassLoader {
      * 初始化模块算法类加载器
      */
     public void init() {
+        validateArtifactApiVersion();
         // 构建完整的类名，支持内部类场景
         this.constraintRuleClassName = toFullConstraintClassName(algArtifact);
 
@@ -89,12 +93,14 @@ public class ModuleAlgClassLoader extends ClassLoader {
         Class<?> clazz = null;
         try {
             clazz = super.loadClass(this.constraintRuleClassName);
+            fillArtifactVersionFromAnnotation(clazz);
             log.info("Loaded class from local project: {}", constraintRuleClassName);
         } catch (ClassNotFoundException e) {
             log.error("Class not found: {}", constraintRuleClassName, e);
             throw new AlgLoaderException("Class not found: " + constraintRuleClassName, e);
         }
         if (clazz != null) {
+            validateResolvedApiVersion();
             classMap.put(constraintRuleClassName, clazz);
         } else {
             log.error("Class not found: clazz=null {}", constraintRuleClassName);
@@ -152,6 +158,66 @@ public class ModuleAlgClassLoader extends ClassLoader {
         return classNameBuilder.toString();
     }
 
+    private void validateArtifactApiVersion() {
+        String version = trimToNull(algArtifact.getSouthApiVersion());
+        if (version == null && !config.isAttachedDebug()) {
+            throw new AlgLoaderException(
+                    "southApiVersion is required for algorithm artifact "
+                            + algArtifact.getModuleCode()
+                            + ". Please regenerate the algorithm with southbound API "
+                            + LATEST_SOUTH_API_VERSION + ".");
+        }
+        if (version != null) {
+            validateSupportedApiVersion(version);
+        }
+    }
+
+    private void fillArtifactVersionFromAnnotation(Class<?> clazz) {
+        if (trimToNull(algArtifact.getSouthApiVersion()) != null) {
+            return;
+        }
+        AlgorithmApiVersion apiVersion = clazz.getAnnotation(AlgorithmApiVersion.class);
+        if (apiVersion == null) {
+            return;
+        }
+        algArtifact.setSouthApiVersion(apiVersion.southApiVersion());
+        algArtifact.setAlgorithmVersion(apiVersion.algorithmVersion());
+        log.info("Filled south API version from annotation: {}", apiVersion.southApiVersion());
+    }
+
+    private void validateResolvedApiVersion() {
+        String version = trimToNull(algArtifact.getSouthApiVersion());
+        if (version == null) {
+            if (config.isAttachedDebug()) {
+                log.warn("southApiVersion is missing for local debug algorithm: {}", algArtifact.getModuleCode());
+                return;
+            }
+            throw new AlgLoaderException(
+                    "southApiVersion is required for algorithm artifact "
+                            + algArtifact.getModuleCode()
+                            + ". Please regenerate the algorithm with southbound API "
+                            + LATEST_SOUTH_API_VERSION + ".");
+        }
+        validateSupportedApiVersion(version);
+    }
+
+    private void validateSupportedApiVersion(String version) {
+        if (LATEST_SOUTH_API_VERSION.equals(version)) {
+            return;
+        }
+        throw new AlgLoaderException(
+                "Unsupported southApiVersion " + version
+                        + " for module " + algArtifact.getModuleCode()
+                        + ". Engine supports " + LATEST_SOUTH_API_VERSION + ".");
+    }
+
+    private String trimToNull(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return null;
+        }
+        return value.trim();
+    }
+
     /**
      * 从jar包预加载所有class文件
      * 
@@ -168,7 +234,8 @@ public class ModuleAlgClassLoader extends ClassLoader {
             while (entries.hasMoreElements()) {
                 JarEntry entry = entries.nextElement();
                 String entryClassName = entry.getName().replace("/", ".").replace(".class", "");
-                if (entryClassName.equals(simpleConstraintRuleClassName)) {
+                if (entryClassName.equals(simpleConstraintRuleClassName)
+                        || entryClassName.equals(this.constraintRuleClassName)) {
                     constraintJarEntry = entry;
                 } else if (entryClassName.equals(ALG_BASE_CLASS)) {
                     algBaseJarEntry = entry;
@@ -196,9 +263,16 @@ public class ModuleAlgClassLoader extends ClassLoader {
             log.warn(className + "has loaed!, skipped");
             return classMap.get(className);
         }
+        if (entry == null) {
+            throw new AlgLoaderException("Class entry not found in jar: " + className);
+        }
         InputStream inputStream = jarFile.getInputStream(entry);
         byte[] classBytes = readAllBytes(inputStream);
         Class<?> clazz = super.defineClass(className, classBytes, 0, classBytes.length);
+        if (className.equals(this.constraintRuleClassName)) {
+            fillArtifactVersionFromAnnotation(clazz);
+            validateResolvedApiVersion();
+        }
         classMap.put(className, clazz);
         log.info("Loaded class from jar: {}", className);
         return clazz;

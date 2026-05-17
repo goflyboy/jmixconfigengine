@@ -5,6 +5,7 @@ import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.executor.bmodel.para.ParaType;
 import com.jmix.executor.impl.algmodel.AlgCPLinearExpr;
 import com.jmix.executor.model.ConstraintConfig;
+import com.jmix.executor.southinf.AlgorithmApiVersion;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
 import com.jmix.tool.bbuilder.anno.ModuleAnno;
 import com.jmix.tool.bbuilder.anno.ParaAnno;
@@ -39,6 +40,7 @@ public class ParaIsHiddenTest extends ModuleScenarioTestBase {
      * @since 2025-09-23
      */
     @ModuleAnno(id = 123L)
+    @AlgorithmApiVersion(southApiVersion = "1.0", algorithmVersion = "para-hidden-2026.05")
     public static class ParaIsHiddenConstraint extends ConstraintAlgImplTestBase {
         @ParaAnno(type = ParaType.INTEGER, defaultValue = "0", minValue = "0", maxValue = "3")
         private ParaVar p0;
