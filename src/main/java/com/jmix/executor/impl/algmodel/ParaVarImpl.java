@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Slf4j
-public class ParaVar extends Var<Para> {
+public class ParaVarImpl extends VarImpl<Para> {
     /**
      * 参数变量命名模式常量
      */
@@ -78,9 +78,9 @@ public class ParaVar extends Var<Para> {
     private BoolVar isHidden;
 
     /**
-     * 参数可选值的选中状态(CodeId -> ParaOptionVar)
+     * 参数可选值的选中状态(CodeId -> ParaOptionVarImpl)
      */
-    private Map<Integer, ParaOptionVar> optionSelectVars = new HashMap<>();
+    private Map<Integer, ParaOptionVarImpl> optionSelectVars = new HashMap<>();
 
     /**
      * 手工输入值
@@ -107,7 +107,7 @@ public class ParaVar extends Var<Para> {
      * @param codeId 选项的代码ID
      * @return 对应的参数选项变量，如果不存在则返回null
      */
-    public ParaOptionVar getParaOptionByCodeId(Integer codeId) {
+    public ParaOptionVarImpl getParaOptionByCodeId(Integer codeId) {
         return optionSelectVars.get(codeId);
     }
 
@@ -118,14 +118,14 @@ public class ParaVar extends Var<Para> {
      * @return 对应的参数选项变量
      * @throws AlgLoaderException 如果找不到对应的选项
      */
-    public ParaOptionVar getParaOptionByCode(String code) {
-        for (ParaOptionVar option : optionSelectVars.values()) {
+    public ParaOptionVarImpl getParaOptionByCode(String code) {
+        for (ParaOptionVarImpl option : optionSelectVars.values()) {
             if (code != null && code.equals(option.getCode())) {
                 return option;
             }
         }
-        log.error("ParaOptionVar not found for code: {}", code);
-        throw new AlgLoaderException("ParaOptionVar not found for code: " + code);
+        log.error("ParaOptionVarImpl not found for code: {}", code);
+        throw new AlgLoaderException("ParaOptionVarImpl not found for code: " + code);
     }
 
     /**
@@ -134,7 +134,7 @@ public class ParaVar extends Var<Para> {
      * @param codes 选项代码列表
      * @return 对应的参数选项变量列表
      */
-    public List<ParaOptionVar> getParaOptionByCodes(List<String> codes) {
+    public List<ParaOptionVarImpl> getParaOptionByCodes(List<String> codes) {
         return codes.stream()
                 .map(this::getParaOptionByCode)
                 .collect(Collectors.toList());
@@ -146,7 +146,7 @@ public class ParaVar extends Var<Para> {
      * @param exclusiveCodes 要排除的选项代码列表
      * @return 排除指定代码后的参数选项变量列表
      */
-    public List<ParaOptionVar> getParaOptionByExclusiveCodes(List<String> exclusiveCodes) {
+    public List<ParaOptionVarImpl> getParaOptionByExclusiveCodes(List<String> exclusiveCodes) {
         return optionSelectVars.values().stream()
                 .filter(option -> !exclusiveCodes.contains(option.getCode()))
                 .collect(Collectors.toList());
@@ -161,7 +161,7 @@ public class ParaVar extends Var<Para> {
 
         // 打印每个option的getVarString
         sb.append(", options=");
-        for (ParaOptionVar option : optionSelectVars.values()) {
+        for (ParaOptionVarImpl option : optionSelectVars.values()) {
             sb.append(option.getVarString(solutionCallback)).append(",");
         }
 

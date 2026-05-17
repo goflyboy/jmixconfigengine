@@ -16,12 +16,12 @@ import org.junit.jupiter.api.Test;
 public class PartAlgCPLinearExprTest {
     AlgCPModel model = new AlgCPModel();
 
-    private PartVar ofPart(String partCode) {
+    private PartVarImpl ofPart(String partCode) {
         Part part = new Part();
         part.setCode(partCode);
         part.setShortCode(partCode);
 
-        PartVar pv = new PartVar();
+        PartVarImpl pv = new PartVarImpl();
         pv.setBase(part);
         pv.setIsSelected(model.newBoolVar(partCode + "isSelected"));
         pv.setQty(model.newIntVar(0, 100, partCode + "qty"));
@@ -31,8 +31,8 @@ public class PartAlgCPLinearExprTest {
     @Test
     public void testAddTermConstant_basic() {
         // prepare PartVars with test bases
-        PartVar pv1 = ofPart("P1");
-        PartVar pv2 = ofPart("P2");
+        PartVarImpl pv1 = ofPart("P1");
+        PartVarImpl pv2 = ofPart("P2");
 
         PartAlgCPLinearExpr expr1 = new PartAlgCPLinearExpr("expr1");
         expr1.addTerm("", pv1, pv1.getQty(), 1);
@@ -49,8 +49,8 @@ public class PartAlgCPLinearExprTest {
     @Test
     public void testAddTermConstant_negative() {
         // prepare PartVars with test bases
-        PartVar pv1 = ofPart("P1");
-        PartVar pv2 = ofPart("P2");
+        PartVarImpl pv1 = ofPart("P1");
+        PartVarImpl pv2 = ofPart("P2");
 
         PartAlgCPLinearExpr expr1 = new PartAlgCPLinearExpr("expr1");
         expr1.addTerm("", pv1, pv1.getQty(), -1);
@@ -67,9 +67,9 @@ public class PartAlgCPLinearExprTest {
     @Test
     public void testAddExpr() {
         // prepare PartVars with test bases
-        PartVar pv1 = ofPart("P1");
-        PartVar pv2 = ofPart("P2");
-        PartVar pv3 = ofPart("P3");
+        PartVarImpl pv1 = ofPart("P1");
+        PartVarImpl pv2 = ofPart("P2");
+        PartVarImpl pv3 = ofPart("P3");
 
         PartAlgCPLinearExpr expr1 = new PartAlgCPLinearExpr("expr1");
         expr1.addTerm("", pv1, pv1.getQty(), 1);
@@ -96,9 +96,9 @@ public class PartAlgCPLinearExprTest {
     @Test
     public void testAddExprNest() {
         // prepare PartVars with test bases
-        PartVar pv1 = ofPart("P1");
-        PartVar pv2 = ofPart("P2");
-        PartVar pv3 = ofPart("P3");
+        PartVarImpl pv1 = ofPart("P1");
+        PartVarImpl pv2 = ofPart("P2");
+        PartVarImpl pv3 = ofPart("P3");
 
         PartAlgCPLinearExpr expr1 = new PartAlgCPLinearExpr("expr1");
         expr1.addTerm("", pv1, pv1.getQty(), 1);
@@ -129,8 +129,8 @@ public class PartAlgCPLinearExprTest {
     @Test
     public void testAbs() {
         // prepare PartVars with test bases
-        PartVar pv1 = ofPart("P1");
-        PartVar pv2 = ofPart("P2");
+        PartVarImpl pv1 = ofPart("P1");
+        PartVarImpl pv2 = ofPart("P2");
 
         // P1.Q + 3*P2.Q + 5
         PartAlgCPLinearExpr expr1 = new PartAlgCPLinearExpr("expr1");

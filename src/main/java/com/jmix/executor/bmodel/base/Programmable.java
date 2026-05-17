@@ -6,7 +6,7 @@ package com.jmix.executor.bmodel.base;
  * 
  * @since 2025-09-22
  */
-public interface Programmable extends com.jmix.executor.imodel.Programmable {
+public interface Programmable {
     /**
      * 获取编码
      * 

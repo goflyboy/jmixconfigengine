@@ -3,7 +3,10 @@ package com.jmix.executor.southinf;
 import com.jmix.executor.bmodel.IModule;
 import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
 import com.jmix.executor.impl.algmodel.ModuleBaseAlgImpl;
+import com.jmix.executor.impl.algmodel.ParaVarImpl;
 import com.jmix.executor.impl.algmodel.PartCategoryAlgImpl;
+import com.jmix.executor.impl.algmodel.PartVarImpl;
+import com.jmix.executor.impl.algmodel.VarImpl;
 import com.jmix.executor.impl.southbridge.SouthboundInstViews;
 import com.jmix.executor.impl.southbridge.SouthboundLatestBridge;
 import com.jmix.executor.model.AlgLoaderException;
@@ -90,7 +93,7 @@ public abstract class ConstraintAlgBase extends ModuleAlgImpl implements Constra
     }
 
     @Override
-    protected void afterInitData(IModule module, com.jmix.executor.southinf.IModuleAlg moduleAlg) {
+    protected void afterInitData(IModule module, IModuleAlg moduleAlg) {
         List<PartCategoryAlgImpl> partCategoryAlgImpls = getPartCategoryAlgs();
         Map<String, Field> fieldMap = new HashMap<>();
         for (Field field : moduleAlg.getClass().getDeclaredFields()) {
@@ -107,30 +110,26 @@ public abstract class ConstraintAlgBase extends ModuleAlgImpl implements Constra
     }
 
     @Override
-    protected com.jmix.executor.impl.algmodel.Var<?> newPartVar(
-            com.jmix.executor.impl.algmodel.PartVar internalPartVar) {
+    protected VarImpl<?> newPartVar(PartVarImpl internalPartVar) {
         return new PartVar(internalPartVar);
     }
 
     @Override
-    protected com.jmix.executor.impl.algmodel.Var<?> newParaVar(
-            com.jmix.executor.impl.algmodel.ParaVar internalParaVar) {
+    protected VarImpl<?> newParaVar(ParaVarImpl internalParaVar) {
         return new ParaVar(internalParaVar);
     }
 
     @Override
-    protected com.jmix.executor.impl.algmodel.Var<?> newPartVarForField(
-            com.jmix.executor.impl.algmodel.PartVar internalPartVar, Field field) {
-        if (com.jmix.executor.impl.algmodel.PartVar.class.isAssignableFrom(field.getType())) {
+    protected VarImpl<?> newPartVarForField(PartVarImpl internalPartVar, Field field) {
+        if (PartVarImpl.class.isAssignableFrom(field.getType())) {
             return internalPartVar;
         }
         return newPartVar(internalPartVar);
     }
 
     @Override
-    protected com.jmix.executor.impl.algmodel.Var<?> newParaVarForField(
-            com.jmix.executor.impl.algmodel.ParaVar internalParaVar, Field field) {
-        if (com.jmix.executor.impl.algmodel.ParaVar.class.isAssignableFrom(field.getType())) {
+    protected VarImpl<?> newParaVarForField(ParaVarImpl internalParaVar, Field field) {
+        if (ParaVarImpl.class.isAssignableFrom(field.getType())) {
             return internalParaVar;
         }
         return newParaVar(internalParaVar);

@@ -78,12 +78,12 @@ public class SingleInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements 
     }
 
     @Override
-    protected Var<?> newPartVar(PartVar internalPartVar) {
+    protected VarImpl<?> newPartVar(PartVarImpl internalPartVar) {
         throw new UnsupportedOperationException("Unimplemented method 'newPartVar'");
     }
 
     @Override
-    protected Var<?> newParaVar(ParaVar internalParaVar) {
+    protected VarImpl<?> newParaVar(ParaVarImpl internalParaVar) {
         throw new UnsupportedOperationException("Unimplemented method 'newParaVar'");
     }
 
@@ -102,22 +102,22 @@ public class SingleInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements 
         return getPartCategory().getAtomicParts();
     }
 
-    public ParaVar getSumSumParaByAttr(String attrCode) {
+    public ParaVarImpl getSumSumParaByAttr(String attrCode) {
         // 如果一个支持多实例的分类，仅初始化了一个分类，则需要把访问sumsum转变为sum的访问
         return getSumParaByAttr(attrCode);
     }
 
-    public ParaVar getSumParaByAttr(String attrCode) {
-        ParaVar paraVar = super.getParaVar(AttrParaType.Sum.name() + AttrPara.CODE_SEPARATOR + attrCode);
+    public ParaVarImpl getSumParaByAttr(String attrCode) {
+        ParaVarImpl paraVar = super.getParaVar(AttrParaType.Sum.name() + AttrPara.CODE_SEPARATOR + attrCode);
         if (paraVar == null) {
-            log.error("ParaVar not found for attrCode: {}", attrCode);
-            throw new AlgLoaderException("ParaVar not found for attrCode: " + attrCode);
+            log.error("ParaVarImpl not found for attrCode: {}", attrCode);
+            throw new AlgLoaderException("ParaVarImpl not found for attrCode: " + attrCode);
         }
         return paraVar;
     }
 
-    public ParaVar getSumParaByAttrInternal(String attrCode) {
-        ParaVar paraVar = paraMap.get(AttrParaType.Sum.name() + AttrPara.CODE_SEPARATOR + attrCode);
+    public ParaVarImpl getSumParaByAttrInternal(String attrCode) {
+        ParaVarImpl paraVar = paraMap.get(AttrParaType.Sum.name() + AttrPara.CODE_SEPARATOR + attrCode);
         return paraVar;
     }
 
@@ -128,7 +128,7 @@ public class SingleInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements 
         PartAlgCPLinearExpr sumFunExpr = buildSumExpr(
                 singleInstPartCategoryAlgImpl,
                 partConstraint.getSumAttrCode(), "Q",
-                PartVar::getQty, "");
+                PartVarImpl::getQty, "");
         // 应用约束
         ComparisonOperator operator = ComparisonOperator.fromSymbol(partConstraint.getComparator());
         operator.applyConstraint(model, sumFunExpr, partConstraint.getLeftValue());

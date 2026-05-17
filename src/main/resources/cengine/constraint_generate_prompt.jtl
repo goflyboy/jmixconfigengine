@@ -186,8 +186,9 @@ assertSolutionNum("P1:op11,P2:op21", 0);
 package ${packageName};
 
 import com.jmix.coretest.*; 
-import com.jmix.executor.imodel.*;
-import com.jmix.executor.imodel.anno.*; 
+import com.jmix.executor.southinf.*;
+import com.jmix.executor.southinf.var.*;
+import com.jmix.tool.bbuilder.anno.*;
 import com.google.ortools.sat.*; 
 import lombok.extern.slf4j.Slf4j; 
 import org.junit.jupiter.api.Test;
@@ -197,7 +198,8 @@ public class ${modelName}Test extends ModuleScenarioTestBase {
     
     //---------------模型的定义start----------------------------------------
     @ModuleAnno(id = 123L)
-    static public class ${modelName}Constraint extends ConstraintAlgImplTestBase {
+    @AlgorithmApiVersion(southApiVersion = "1.0", algorithmVersion = "generated")
+    static public class ${modelName}Constraint extends ConstraintAlgBase {
         ${userVariableModel}
         
         ${生成的约束代码}// 每个rule一个rule方法
@@ -262,8 +264,9 @@ else {
 package com.jmix.scenario
 
 import com.jmix.coretest.*; 
-import com.jmix.executor.imodel.*;
-import com.jmix.executor.imodel.anno.*; 
+import com.jmix.executor.southinf.*;
+import com.jmix.executor.southinf.var.*;
+import com.jmix.tool.bbuilder.anno.*;
 import com.google.ortools.sat.*; 
 import lombok.extern.slf4j.Slf4j; 
 import org.junit.jupiter.api.Test;
@@ -286,7 +289,8 @@ public class HelloSampleTest extends ModuleScenarioTestBase {
      * @since 2025-09-23
      */
     @ModuleAnno(id = 123L)
-    static public class HelloSampleConstraint extends ConstraintAlgImplTestBase {
+    @AlgorithmApiVersion(southApiVersion = "1.0", algorithmVersion = "generated")
+    static public class HelloSampleConstraint extends ConstraintAlgBase {
         @ParaAnno(
                 options = {"Red", "Black", "White"}
         )

@@ -372,7 +372,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
      *
      * @return 部件变量映射
      */
-    public Map<String, PartVar> getPartMap() {
+    public Map<String, PartVarImpl> getPartMap() {
         return partMap;
     }
 
@@ -381,17 +381,17 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
      *
      * @return 参数变量映射
      */
-    public Map<String, ParaVar> getParaMap() {
+    public Map<String, ParaVarImpl> getParaMap() {
         return paraMap;
     }
 
     @Override
-    protected Var<?> newPartVar(PartVar internalPartVar) {
+    protected VarImpl<?> newPartVar(PartVarImpl internalPartVar) {
         return internalPartVar;
     }
 
     @Override
-    protected Var<?> newParaVar(ParaVar internalParaVar) {
+    protected VarImpl<?> newParaVar(ParaVarImpl internalParaVar) {
         return internalParaVar;
     }
 
@@ -457,7 +457,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
         }
         // 转换为PartVar
         partsExpr.setPartVars(partCategoryAlgImpl.getAllPartVars(""));
-        Pair<List<PartVar>, List<PartVar>> partVars = partCategoryAlgImpl.filterAllPartVars(filterConditionStr);
+        Pair<List<PartVarImpl>, List<PartVarImpl>> partVars = partCategoryAlgImpl.filterAllPartVars(filterConditionStr);
         partsExpr.setFilterPartVars(partVars.getFirst());
         partsExpr.setNoFilterPartVars(partVars.getSecond());
         return partsExpr;
@@ -531,7 +531,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
      * @param parts Part列表
      * @return PartVar列表
      */
-    public List<PartVar> toFilterPartVar(PartCategoryAlgImpl partCategoryAlgImpl, String filtedConditionStr) {
+    public List<PartVarImpl> toFilterPartVar(PartCategoryAlgImpl partCategoryAlgImpl, String filtedConditionStr) {
         List<Part> atomicParts = partCategoryAlgImpl.getAtomicParts();
         if (filtedConditionStr != null && !filtedConditionStr.trim().isEmpty()) {
             atomicParts = FilterExpressionExecutor.doSelect(atomicParts, filtedConditionStr);
@@ -546,7 +546,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
      * @param parts Part列表
      * @return PartVar列表
      */
-    public List<PartVar> toPartVar(PartCategoryAlgImpl partCategoryAlgImpl, List<Part> parts) {
+    public List<PartVarImpl> toPartVar(PartCategoryAlgImpl partCategoryAlgImpl, List<Part> parts) {
         return parts.stream()
                 .map(t -> toPartVar(
                         partCategoryAlgImpl, t))
@@ -558,14 +558,14 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
      * 将Part对象转换为PartVar
      * 
      * @param part Part对象
-     * @return PartVar，如果不存在则返回null
+     * @return PartVarImpl，如果不存在则返回null
      */
-    public PartVar toPartVar(PartCategoryAlgImpl partCategoryAlgImpl, Part part) {
-        PartVar partVar = partCategoryAlgImpl.getPartVar(part.getCode());
+    public PartVarImpl toPartVar(PartCategoryAlgImpl partCategoryAlgImpl, Part part) {
+        PartVarImpl partVar = partCategoryAlgImpl.getPartVar(part.getCode());
         if (partVar == null) {
             // 打日志，抛异常
-            log.error("PartVar not found for code: {}", part.getCode());
-            throw new AlgLoaderException("PartVar not found for code: " + part.getCode());
+            log.error("PartVarImpl not found for code: {}", part.getCode());
+            throw new AlgLoaderException("PartVarImpl not found for code: " + part.getCode());
         }
         return partVar;
     }
@@ -581,7 +581,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
      */
     // @Override
     protected PartAlgCPLinearExpr sum4Parts(PartCategoryAlgImpl partCategoryAlgImpl, String cofAttrCode,
-            Function<PartVar, LinearArgument> varGetter, String varName, String filtedConditionStr) {
+            Function<PartVarImpl, LinearArgument> varGetter, String varName, String filtedConditionStr) {
         PartAlgCPLinearExpr expr = buildSumExpr(
                 partCategoryAlgImpl,
                 cofAttrCode, varName, varGetter,
@@ -605,7 +605,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
         List<PartCategoryAlgImpl> partCategoryAlgImpls = toPartCategoryAlgImpls(partCategoryCodesStr);
 
         return buildSumExpr(
-                partCategoryAlgImpls, cofAttrCode, PartVar.ISSELECTED_SHORT_NAME, PartVar::getIsSelected,
+                partCategoryAlgImpls, cofAttrCode, PartVarImpl.ISSELECTED_SHORT_NAME, PartVarImpl::getIsSelected,
                 filtedConditionStr);
     }
 
@@ -623,7 +623,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
             return sum4Quantity(cofAttrCode, filtedConditionStr);
         }
         List<PartCategoryAlgImpl> partCategoryAlgImpls = toPartCategoryAlgImpls(partCategoryCodesStr);
-        return buildSumExpr(partCategoryAlgImpls, cofAttrCode, PartVar.QTY_SHORT_NAME, PartVar::getQty,
+        return buildSumExpr(partCategoryAlgImpls, cofAttrCode, PartVarImpl.QTY_SHORT_NAME, PartVarImpl::getQty,
                 filtedConditionStr);
     }
 
@@ -654,8 +654,8 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
 
     public PartAlgCPLinearExpr sum4Selected(String cofAttrCode,
             String filtedConditionStr) {
-        return sum4Parts((PartCategoryAlgImpl) currentModuleAlg, cofAttrCode, PartVar::getIsSelected,
-                PartVar.ISSELECTED_SHORT_NAME, filtedConditionStr);
+        return sum4Parts((PartCategoryAlgImpl) currentModuleAlg, cofAttrCode, PartVarImpl::getIsSelected,
+                PartVarImpl.ISSELECTED_SHORT_NAME, filtedConditionStr);
     }
 
     /**
@@ -677,7 +677,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
      */
     public PartAlgCPLinearExpr sum4Quantity(String cofAttrCode, String filtedConditionStr) {
         return sum4Parts((PartCategoryAlgImpl) currentModuleAlg,
-                cofAttrCode, PartVar::getQty, PartVar.QTY_SHORT_NAME, filtedConditionStr);
+                cofAttrCode, PartVarImpl::getQty, PartVarImpl.QTY_SHORT_NAME, filtedConditionStr);
     }
 
     /**
@@ -692,11 +692,11 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
 
     public void addControlParaEqual(String sumParaCode, String instSumParaCode) {
         // 动态表达式 addParaEqual("driveSumQuantity", "drive:SumQuantity");
-        ParaVar sumParaVar = this.getParaVar(sumParaCode);
+        ParaVarImpl sumParaVar = this.getParaVar(sumParaCode);
         if (sumParaVar == null) {
             // 打日志，抛异常
-            log.error("ParaVar not found for code: {}", sumParaCode);
-            throw new AlgLoaderException("ParaVar not found for code: " + sumParaCode);
+            log.error("ParaVarImpl not found for code: {}", sumParaCode);
+            throw new AlgLoaderException("ParaVarImpl not found for code: " + sumParaCode);
         }
         // instSumParaCode,如："drive:SumQuantity", 解析出drive，SumQuantity
         String[] parts = instSumParaCode.split(":");
@@ -718,11 +718,11 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
             Integer sumInputValue = 0;
             boolean hasInput = false;
             for (PartCategoryAlgImpl partCategoryAlgImpl : partCategoryAlgImpls) {
-                ParaVar instParaVar = partCategoryAlgImpl.getParaVar(sumQuantityCode);
+                ParaVarImpl instParaVar = partCategoryAlgImpl.getParaVar(sumQuantityCode);
                 if (instParaVar == null || instParaVar.getInputValue() == null) {
                     // 打日志，抛异常
-                    log.error("ParaVar not found for code: {}", sumQuantityCode);
-                    // 暂时不抛异常 throw new AlgLoaderException("ParaVar not found for code: " +
+                    log.error("ParaVarImpl not found for code: {}", sumQuantityCode);
+                    // 暂时不抛异常 throw new AlgLoaderException("ParaVarImpl not found for code: " +
                     // sumQuantityCode);
                     // issue:是不是总有一个控制参数是有输入的，方便执行（对结果进行校验）
                     continue;
@@ -796,7 +796,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
     }
 
     private void applySingleStrategy(PartCategoryAlgImpl pcAlg, StrategyConfig config) {
-        List<PartVar> partVars = pcAlg.getAllPartVars("");
+        List<PartVarImpl> partVars = pcAlg.getAllPartVars("");
         if (partVars.isEmpty()) {
             log.warn("No part vars found for category {}, skipping strategy", pcAlg.getCategoryCode());
             return;
@@ -815,7 +815,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
 
         // Get isSelected BoolVars (which are IntVars) in sorted order
         IntVar[] vars = partVars.stream()
-                .map(PartVar::getIsSelected)
+                .map(PartVarImpl::getIsSelected)
                 .toArray(IntVar[]::new);
 
         // SELECT_MAX_VALUE: try selecting parts first, which means preferred parts
@@ -832,7 +832,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
      * Get the integer sort value for a part variable by attribute code.
      * Supports basic attributes like "price" and dynamic attributes.
      */
-    private int getSortValue(PartVar partVar, String attrCode) {
+    private int getSortValue(PartVarImpl partVar, String attrCode) {
         if ("price".equals(attrCode) && partVar.getBase() instanceof Part) {
             Long price = ((Part) partVar.getBase()).getPrice();
             return price != null ? price.intValue() : 0;

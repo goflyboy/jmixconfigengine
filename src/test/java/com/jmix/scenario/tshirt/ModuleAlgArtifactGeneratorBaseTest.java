@@ -128,7 +128,7 @@ public class ModuleAlgArtifactGeneratorBaseTest {
 
         // 验证基本结构
         assertTrue(content.contains("public class TShirtConstraint"), "生成的代码应该包含类定义");
-        assertTrue(content.contains("extends ConstraintAlgImplTestBase"), "生成的代码应该继承ConstraintAlgImplTestBase");
+        assertTrue(content.contains("extends ConstraintAlgBase"), "Generated code should extend ConstraintAlgBase");
 
         // 验证参数变量
         assertTrue(content.contains("private ParaVar colorVar"), "应该包含Color参数变量");
@@ -139,8 +139,8 @@ public class ModuleAlgArtifactGeneratorBaseTest {
         assertTrue(content.contains("private PartVar tShirt12Var"), "应该包含TShirt12部件变量");
 
         // 验证方法
-        assertTrue(content.contains("public void initVariables()"), "应该包含initVariables方法");
-        assertTrue(content.contains("public void initConstraint()"), "应该包含initConstraint方法");
+        assertTrue(content.contains("import com.jmix.executor.southinf.ConstraintAlgBase"),
+                "Should import southbound base class");
 
         // 验证约束规则方法
         assertTrue(content.contains("addConstraint_rule1"), "应该包含规则1的约束方法");

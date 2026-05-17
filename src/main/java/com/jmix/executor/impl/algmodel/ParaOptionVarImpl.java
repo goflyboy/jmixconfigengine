@@ -16,13 +16,13 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class ParaOptionVar extends Var<DynamicAttributerOption> {
+public class ParaOptionVarImpl extends VarImpl<DynamicAttributerOption> {
     /**
      * 参数选项的选中状态（布尔变量）
      */
     private BoolVar isSelectedVar;
 
-    public ParaOptionVar() {
+    public ParaOptionVarImpl() {
     }
 
     /**
@@ -30,7 +30,7 @@ public class ParaOptionVar extends Var<DynamicAttributerOption> {
      * 
      * @param base 参数选项基础对象
      */
-    public ParaOptionVar(DynamicAttributerOption base) {
+    public ParaOptionVarImpl(DynamicAttributerOption base) {
         this.base = base;
     }
 
@@ -40,7 +40,7 @@ public class ParaOptionVar extends Var<DynamicAttributerOption> {
      * @param base          参数选项基础对象
      * @param isSelectedVar 选中状态变量
      */
-    public ParaOptionVar(DynamicAttributerOption base, BoolVar isSelectedVar) {
+    public ParaOptionVarImpl(DynamicAttributerOption base, BoolVar isSelectedVar) {
         this.base = base;
         setIsSelectedVar(isSelectedVar);
     }

@@ -5,9 +5,11 @@ import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.para.Para;
 import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
 import com.jmix.executor.impl.algmodel.ModuleBaseAlgImpl;
-import com.jmix.executor.impl.algmodel.ParaOptionVar;
+import com.jmix.executor.impl.algmodel.ParaOptionVarImpl;
+import com.jmix.executor.impl.algmodel.ParaVarImpl;
 import com.jmix.executor.impl.algmodel.PartCategoryAlgImpl;
-import com.jmix.executor.impl.algmodel.Var;
+import com.jmix.executor.impl.algmodel.PartVarImpl;
+import com.jmix.executor.impl.algmodel.VarImpl;
 import com.jmix.executor.model.AlgLoaderException;
 import com.jmix.executor.southinf.IModuleAlg;
 
@@ -27,10 +29,10 @@ import java.util.Map;
 public class ConstraintAlgImplTestBase extends ModuleAlgImpl {
 
     /**
-     * 为了简化测试用例中算法的表达，类似:p1.value + p2.value 表达，不是 p1.getValue() + p2.getValue()
-     * 和@link com.jmix.executor.impl.algmodel.ParaVar/Part 类似，但不是继承，而是内部类
+     * 为了简化测试用例中算法的表达，类似 p1.value + p2.value 的表达，而不是
+     * p1.getValue() + p2.getValue()。和 ParaVarImpl/Part 类似，但不是继承，而是内部类。
      */
-    static public class ParaVar extends Var<Para> {
+    static public class ParaVar extends VarImpl<Para> {
 
         /**
          * 参数值状态
@@ -46,27 +48,27 @@ public class ConstraintAlgImplTestBase extends ModuleAlgImpl {
         /**
          * 参数可选值的选中状态(CodeId -> ParaOptionVar)
          */
-        public Map<Integer, ParaOptionVar> optionSelectVars = new HashMap<>();
+        public Map<Integer, ParaOptionVarImpl> optionSelectVars = new HashMap<>();
 
         /**
          * 根据代码ID获取参数选项变量
-         * 
+         *
          * @param codeId 选项的代码ID
          * @return 对应的参数选项变量，如果不存在则返回null
          */
-        public ParaOptionVar getParaOptionByCodeId(Integer codeId) {
+        public ParaOptionVarImpl getParaOptionByCodeId(Integer codeId) {
             return optionSelectVars.get(codeId);
         }
 
         /**
          * 根据代码获取参数选项变量
-         * 
+         *
          * @param code 选项的代码
          * @return 对应的参数选项变量
          * @throws AlgLoaderException 如果找不到对应的选项
          */
-        public ParaOptionVar getParaOptionByCode(String code) {
-            for (ParaOptionVar option : optionSelectVars.values()) {
+        public ParaOptionVarImpl getParaOptionByCode(String code) {
+            for (ParaOptionVarImpl option : optionSelectVars.values()) {
                 if (code != null && code.equals(option.getCode())) {
                     return option;
                 }
@@ -75,10 +77,9 @@ public class ConstraintAlgImplTestBase extends ModuleAlgImpl {
         }
 
         /**
-         * reference to internal implementation ParaVar, for delegating runtime values
-         * in tests
+         * Reference to internal implementation for delegating runtime values in tests.
          */
-        public com.jmix.executor.impl.algmodel.ParaVar internal;
+        public ParaVarImpl internal;
 
         public Integer getInputValue() {
             return internal != null ? internal.getInputValue() : null;
@@ -96,7 +97,7 @@ public class ConstraintAlgImplTestBase extends ModuleAlgImpl {
     }
 
     @Data
-    public class PartVar extends Var<Part> {
+    public class PartVar extends VarImpl<Part> {
         /**
          * 部件的数量值
          */
@@ -120,7 +121,7 @@ public class ConstraintAlgImplTestBase extends ModuleAlgImpl {
 
     /**
      * 初始化Module后
-     * 
+     *
      * @param module
      * @param moduleAlg
      */
@@ -166,23 +167,23 @@ public class ConstraintAlgImplTestBase extends ModuleAlgImpl {
         }
 
         public ParaVar getSumSumParaByAttr(String attrCode) {
-            com.jmix.executor.impl.algmodel.ParaVar tmpVar = algImpl.getSumSumParaByAttr(attrCode);
+            ParaVarImpl tmpVar = algImpl.getSumSumParaByAttr(attrCode);
             return toParaVar(tmpVar);
         }
 
         public ParaVar getSumParaByAttr(String attrCode) {
-            com.jmix.executor.impl.algmodel.ParaVar tmpVar = algImpl.getSumParaByAttr(attrCode);
+            ParaVarImpl tmpVar = algImpl.getSumParaByAttr(attrCode);
             return toParaVar(tmpVar);
         }
     }
 
     /**
-     * 创建部件变量, 继承类可以重载
+     * 创建部件变量，继承类可以重载
      *
      * @param internalPartVar 内部部件变量
      * @return 创建的部件变量
      */
-    protected Var<?> newPartVar(com.jmix.executor.impl.algmodel.PartVar internalPartVar) {
+    protected VarImpl<?> newPartVar(PartVarImpl internalPartVar) {
         PartVar partVar = new PartVar();
         partVar.setBase((Part) internalPartVar.getBase());
         partVar.qty = internalPartVar.getQty();
@@ -192,22 +193,22 @@ public class ConstraintAlgImplTestBase extends ModuleAlgImpl {
     }
 
     /**
-     * 创建参数变量, 继承类可以重载
-     * 
+     * 创建参数变量，继承类可以重载
+     *
      * @param internalParaVar 内部参数变量
      * @return 创建的参数变量
      */
-    protected Var<?> newParaVar(com.jmix.executor.impl.algmodel.ParaVar internalParaVar) {
+    protected VarImpl<?> newParaVar(ParaVarImpl internalParaVar) {
         return toParaVar(internalParaVar);
     }
 
     /**
      * 将内部ParaVar转换为测试用的ParaVar
-     * 
+     *
      * @param internalParaVar 内部参数变量
      * @return 转换后的参数变量
      */
-    public static ParaVar toParaVar(com.jmix.executor.impl.algmodel.ParaVar internalParaVar) {
+    public static ParaVar toParaVar(ParaVarImpl internalParaVar) {
         if (internalParaVar == null) {
             return null;
         }
@@ -242,9 +243,9 @@ public class ConstraintAlgImplTestBase extends ModuleAlgImpl {
     }
 
     public List<PartVar> getPartVars(String filtedConditionStr) {
-        List<com.jmix.executor.impl.algmodel.PartVar> partVars = super.getInternalPartVars(filtedConditionStr);
+        List<PartVarImpl> partVars = super.getInternalPartVars(filtedConditionStr);
         List<PartVar> result = new ArrayList<>();
-        for (com.jmix.executor.impl.algmodel.PartVar partVar : partVars) {
+        for (PartVarImpl partVar : partVars) {
             result.add((PartVar) newPartVar(partVar));
         }
         return result;

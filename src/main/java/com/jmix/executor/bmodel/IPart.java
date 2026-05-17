@@ -10,8 +10,7 @@ import com.jmix.executor.bmodel.base.Programmable;
  * 
  * @since 2025-01-XX
  */
-public interface IPart extends IExtensible, IDynamicAttributable, Programmable,
-        com.jmix.executor.imodel.Part {
+public interface IPart extends IExtensible, IDynamicAttributable, Programmable {
     /**
      * 获取部件类型
      * 

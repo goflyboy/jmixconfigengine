@@ -6,9 +6,9 @@ import com.jmix.executor.bmodel.base.AssignType;
 import com.jmix.executor.bmodel.logic.PriorityStrategy;
 import com.jmix.executor.bmodel.para.ParaType;
 import com.jmix.executor.impl.algmodel.AlgCPLinearExpr;
-import com.jmix.executor.impl.algmodel.ParaVar;
+import com.jmix.executor.impl.algmodel.ParaVarImpl;
 import com.jmix.executor.impl.algmodel.PartAlgCPLinearExpr;
-import com.jmix.executor.impl.algmodel.PartVar;
+import com.jmix.executor.impl.algmodel.PartVarImpl;
 import com.jmix.executor.southinf.ModuleAlg;
 import com.jmix.executor.southinf.PartCategoryAlg;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
@@ -49,36 +49,36 @@ public class Onto4MultiPCTest extends ModuleScenarioTestBase {
         static public class drive extends PartCategoryAlg {
             // 固态硬盘实例1
             @PartAnno(attrs = { "5400", "3", "sd" }, price = 50)
-            private PartVar sd1;
+            private PartVarImpl sd1;
 
             // 固态硬盘实例2
             @PartAnno(attrs = { "7200", "6", "sd" }, price = 80)
-            private PartVar sd2;
+            private PartVarImpl sd2;
 
             // 固态硬盘实例3
             @PartAnno(attrs = { "9000", "9", "sd" }, price = 90)
-            private PartVar sd3;
+            private PartVarImpl sd3;
 
             // 机械硬盘实例1
             @PartAnno(attrs = { "5400", "1", "md" }, price = 30)
-            private PartVar md1;
+            private PartVarImpl md1;
 
             // 机械硬盘实例2
             @PartAnno(attrs = { "7200", "2", "md" }, price = 40)
-            private PartVar md2;
+            private PartVarImpl md2;
 
             // 机械硬盘实例3
             @PartAnno(attrs = { "9000", "3", "md" }, price = 60)
-            private PartVar md3;
+            private PartVarImpl md3;
 
             @ParaAnno(type = ParaType.INTEGER, assignType = AssignType.INPUT)
-            private ParaVar driveSumCapacity;// 输入参数
+            private ParaVarImpl driveSumCapacity;// 输入参数
 
             @ParaAnno(type = ParaType.INTEGER, assignType = AssignType.INPUT)
-            private ParaVar driveSumQuantity; // 输入参数
+            private ParaVarImpl driveSumQuantity; // 输入参数
 
             @ParaAnno(type = ParaType.INTEGER, assignType = AssignType.INPUT)
-            public ParaVar p1; // 输入参数
+            public ParaVarImpl p1; // 输入参数
 
             @CodeRuleAnno(normalNaturalCode = "固态硬盘必须配置同一种，并且最多配置2块")
             private void logicB1() {
@@ -168,28 +168,28 @@ public class Onto4MultiPCTest extends ModuleScenarioTestBase {
 
             // CPU实例1: CoreNum=2, Memory=123, ConfigType=2
             @PartAnno(fatherCode = "cpu", attrs = { "2", "123", "2" }, price = 100)
-            private PartVar cpu1;
+            private PartVarImpl cpu1;
 
             // CPU实例2: CoreNum=4, Memory=256, ConfigType=2
             @PartAnno(fatherCode = "cpu", attrs = { "4", "256", "2" }, price = 200)
-            private PartVar cpu2;
+            private PartVarImpl cpu2;
 
             // CPU实例3: CoreNum=8, Memory=512, ConfigType=5
             @PartAnno(fatherCode = "cpu", attrs = { "8", "512", "5" }, price = 400)
-            private PartVar cpu3;
+            private PartVarImpl cpu3;
 
             // CPU实例4: CoreNum=18, Memory=1024, ConfigType=5
             @PartAnno(fatherCode = "cpu", attrs = { "18", "1024", "5" }, price = 800)
-            private PartVar cpu4;
+            private PartVarImpl cpu4;
 
             @ParaAnno(fatherCode = "cpu", type = ParaType.INTEGER, assignType = AssignType.INPUT)
-            private ParaVar cpuSumCores; // 输入参数 TODO:不需要建立，应该从引擎干掉
+            private ParaVarImpl cpuSumCores; // 输入参数 TODO:不需要建立，应该从引擎干掉
 
             @ParaAnno(fatherCode = "cpu", type = ParaType.INTEGER, assignType = AssignType.INPUT)
-            private ParaVar cpuSumMemory;
+            private ParaVarImpl cpuSumMemory;
 
             @ParaAnno(type = ParaType.INTEGER, assignType = AssignType.INPUT)
-            public ParaVar p1; // 输入参数
+            public ParaVarImpl p1; // 输入参数
 
             @CodeRuleAnno(fatherCode = "cpu", normalNaturalCode = "仅能使用一种CPU")
             private void logicA1() {

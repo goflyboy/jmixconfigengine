@@ -1,19 +1,21 @@
 package com.jmix.executor.southinf.var;
 
+import com.jmix.executor.bmodel.attr.DynamicAttributerOption;
+import com.jmix.executor.impl.algmodel.ParaOptionVarImpl;
+
 /**
  * Stable parameter option variable facade.
  */
-public class ParaOptionVar extends com.jmix.executor.impl.algmodel.Var<com.jmix.executor.bmodel.attr.DynamicAttributerOption>
-        implements Var {
+public class ParaOptionVar extends SouthboundVarAdapter<DynamicAttributerOption> implements Var {
 
-    private final com.jmix.executor.impl.algmodel.ParaOptionVar internal;
+    private final ParaOptionVarImpl internal;
 
-    public ParaOptionVar(com.jmix.executor.impl.algmodel.ParaOptionVar internal) {
+    public ParaOptionVar(ParaOptionVarImpl internal) {
         this.internal = internal;
         setBase(internal.getBase());
     }
 
-    public com.jmix.executor.impl.algmodel.ParaOptionVar internal() {
+    public ParaOptionVarImpl internal() {
         return internal;
     }
 

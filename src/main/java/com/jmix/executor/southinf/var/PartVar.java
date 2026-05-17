@@ -1,20 +1,21 @@
 package com.jmix.executor.southinf.var;
 
 import com.jmix.executor.bmodel.IPart;
+import com.jmix.executor.impl.algmodel.PartVarImpl;
 
 /**
  * Stable part variable facade.
  */
-public class PartVar extends com.jmix.executor.impl.algmodel.Var<IPart> implements Var {
+public class PartVar extends SouthboundVarAdapter<IPart> implements Var {
 
-    private final com.jmix.executor.impl.algmodel.PartVar internal;
+    private final PartVarImpl internal;
 
-    public PartVar(com.jmix.executor.impl.algmodel.PartVar internal) {
+    public PartVar(PartVarImpl internal) {
         this.internal = internal;
         setBase(internal.getBase());
     }
 
-    public com.jmix.executor.impl.algmodel.PartVar internal() {
+    public PartVarImpl internal() {
         return internal;
     }
 

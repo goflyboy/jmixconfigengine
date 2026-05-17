@@ -3,6 +3,7 @@ package com.jmix.executor.southinf.var;
 import com.jmix.executor.bmodel.IPart;
 import com.jmix.executor.impl.algmodel.ModuleBaseAlgImpl;
 import com.jmix.executor.impl.algmodel.PartCategoryAlgImpl;
+import com.jmix.executor.impl.algmodel.PartVarImpl;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,7 +20,7 @@ public class PartCategoryVar extends PartVar {
         this.categoryAlg = categoryAlg;
     }
 
-    public PartCategoryVar(com.jmix.executor.impl.algmodel.PartVar internal) {
+    public PartCategoryVar(PartVarImpl internal) {
         super(internal);
         this.categoryAlg = null;
     }
@@ -51,8 +52,8 @@ public class PartCategoryVar extends PartVar {
         }
     }
 
-    private static com.jmix.executor.impl.algmodel.PartVar newCategoryPartVar(PartCategoryAlgImpl categoryAlg) {
-        com.jmix.executor.impl.algmodel.PartVar partVar = new com.jmix.executor.impl.algmodel.PartVar();
+    private static PartVarImpl newCategoryPartVar(PartCategoryAlgImpl categoryAlg) {
+        PartVarImpl partVar = new PartVarImpl();
         if (((ModuleBaseAlgImpl) categoryAlg).getModule() instanceof IPart) {
             partVar.setBase((IPart) ((ModuleBaseAlgImpl) categoryAlg).getModule());
         }

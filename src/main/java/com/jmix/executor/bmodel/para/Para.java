@@ -22,7 +22,7 @@ import java.util.Optional;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class Para extends DynamicAttribute implements com.jmix.executor.imodel.Para {
+public class Para extends DynamicAttribute {
 
     /**
      * 参数默认最小值

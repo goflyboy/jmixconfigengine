@@ -17,17 +17,17 @@ public class PartsExpr {
     /**
      * 所有部件变量列表
      */
-    private List<PartVar> partVars = new ArrayList<>();
+    private List<PartVarImpl> partVars = new ArrayList<>();
 
     /**
      * 满足过滤条件的部件变量列表
      */
-    private List<PartVar> filterPartVars = new ArrayList<>();
+    private List<PartVarImpl> filterPartVars = new ArrayList<>();
 
     /**
      * 不满足过滤条件的部件变量列表
      */
-    private List<PartVar> noFilterPartVars = new ArrayList<>();
+    private List<PartVarImpl> noFilterPartVars = new ArrayList<>();
 
     /**
      * 过滤条件字符串

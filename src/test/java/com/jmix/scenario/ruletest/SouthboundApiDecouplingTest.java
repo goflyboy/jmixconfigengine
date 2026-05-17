@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.jmix.coretest.ConstraintAlgImplTestBase;
 import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.executor.ModuleConstraintExecutor;
 import com.jmix.executor.bmodel.Module;
@@ -95,10 +96,10 @@ public class SouthboundApiDecouplingTest extends ModuleScenarioTestBase {
     }
 
     @ModuleAnno(id = 5006L)
-    public static class OldConstraint extends com.jmix.coretest.ConstraintAlgImplTestBase {
+    public static class OldConstraint extends ConstraintAlgImplTestBase {
 
         @PartAnno
-        private com.jmix.coretest.ConstraintAlgImplTestBase.PartVar part1;
+        private ConstraintAlgImplTestBase.PartVar part1;
 
         @CodeRuleAnno
         private void rule1() {

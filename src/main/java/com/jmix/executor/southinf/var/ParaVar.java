@@ -1,20 +1,21 @@
 package com.jmix.executor.southinf.var;
 
 import com.jmix.executor.bmodel.para.Para;
+import com.jmix.executor.impl.algmodel.ParaVarImpl;
 
 /**
  * Stable parameter variable facade.
  */
-public class ParaVar extends com.jmix.executor.impl.algmodel.Var<Para> implements Var {
+public class ParaVar extends SouthboundVarAdapter<Para> implements Var {
 
-    private final com.jmix.executor.impl.algmodel.ParaVar internal;
+    private final ParaVarImpl internal;
 
-    public ParaVar(com.jmix.executor.impl.algmodel.ParaVar internal) {
+    public ParaVar(ParaVarImpl internal) {
         this.internal = internal;
         setBase(internal.getBase());
     }
 
-    public com.jmix.executor.impl.algmodel.ParaVar internal() {
+    public ParaVarImpl internal() {
         return internal;
     }
 

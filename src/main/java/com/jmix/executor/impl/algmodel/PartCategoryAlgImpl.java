@@ -23,15 +23,15 @@ public interface PartCategoryAlgImpl {
 
     List<Part> getAllAtomicParts();
 
-    List<PartVar> getAllPartVars(String filterConditionStr);
+    List<PartVarImpl> getAllPartVars(String filterConditionStr);
 
-    Pair<List<PartVar>, List<PartVar>> filterAllPartVars(String filterConditionStr);
+    Pair<List<PartVarImpl>, List<PartVarImpl>> filterAllPartVars(String filterConditionStr);
 
     List<Part> getAtomicParts();
 
-    ParaVar getParaVar(String code);
+    ParaVarImpl getParaVar(String code);
 
-    PartVar getPartVar(String code);
+    PartVarImpl getPartVar(String code);
 
     /**
      * 根据属性代码获取汇总参数（SumSum类型）
@@ -39,7 +39,7 @@ public interface PartCategoryAlgImpl {
      * @param attrCode 属性代码
      * @return 对应的参数变量
      */
-    ParaVar getSumSumParaByAttr(String attrCode);
+    ParaVarImpl getSumSumParaByAttr(String attrCode);
 
     /**
      * 根据属性代码获取汇总参数（Sum类型）
@@ -47,7 +47,7 @@ public interface PartCategoryAlgImpl {
      * @param attrCode 属性代码
      * @return 对应的参数变量
      */
-    ParaVar getSumParaByAttr(String attrCode);
+    ParaVarImpl getSumParaByAttr(String attrCode);
 
     void initRules(Map<String, Method> allRuleMethods, IModuleAlg moduleAlgFile, CalcStage calcStage);
 

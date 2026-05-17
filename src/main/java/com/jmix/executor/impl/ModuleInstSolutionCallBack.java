@@ -13,10 +13,10 @@ import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
 import com.jmix.executor.impl.algmodel.ModuleBaseAlgImpl;
 import com.jmix.executor.impl.algmodel.MultiInstPartCategoryAlgImpl;
 import com.jmix.executor.impl.algmodel.OtherVar;
-import com.jmix.executor.impl.algmodel.ParaVar;
+import com.jmix.executor.impl.algmodel.ParaVarImpl;
 import com.jmix.executor.impl.algmodel.PartAlgCPLinearExpr;
 import com.jmix.executor.impl.algmodel.PartCategoryAlgImpl;
-import com.jmix.executor.impl.algmodel.PartVar;
+import com.jmix.executor.impl.algmodel.PartVarImpl;
 import com.jmix.executor.impl.algmodel.SingleInstPartCategoryAlgImpl;
 
 import com.google.ortools.sat.CpSolverSolutionCallback;
@@ -109,11 +109,11 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
         bInst.setCode(base.getCode());
         bInst.setShortCode(base.getShortCode());
         bInst.setInstanceId(instanceId);
-        for (ParaVar pv : moduleAlg.getParaVars()) {
+        for (ParaVarImpl pv : moduleAlg.getParaVars()) {
             ParaInst pi = toParaInst(pv);
             bInst.addParaInst(pi);
         }
-        for (PartVar partVar : moduleAlg.getPartVars()) {
+        for (PartVarImpl partVar : moduleAlg.getPartVars()) {
             PartInst inst = toPartInst(partVar);
             bInst.addPartInst(inst);
         }
@@ -151,7 +151,7 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
      * @param pv ParaVar对象
      * @return ParaInst实例
      */
-    private ParaInst toParaInst(ParaVar pv) {
+    private ParaInst toParaInst(ParaVarImpl pv) {
         ParaInst pi = new ParaInst();
         pi.setCode(pv.getCode());
         // 从模块中获取对应的Para模型，设置shortCode
@@ -183,7 +183,7 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
      * @param partVar PartVar对象
      * @return PartInst实例
      */
-    private PartInst toPartInst(PartVar partVar) {
+    private PartInst toPartInst(PartVarImpl partVar) {
         PartInst inst = new PartInst();
         inst.setCode(partVar.getCode());
         // 从模块中获取对应的Part模型，设置shortCode
@@ -233,7 +233,7 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
                         exprVariable.getPartCategoryCode(), exprVariable.getInstId(), exprVariable.getPartCode());
 
             } else {
-                if (exprVariable.getTermValue().equals(PartVar.ISSELECTED_SHORT_NAME)) {
+                if (exprVariable.getTermValue().equals(PartVarImpl.ISSELECTED_SHORT_NAME)) {
                     exprVariablesValues.add(pInst.isSelected() ? 1 : 0);
                 } else {
                     exprVariablesValues.add(pInst.getQuantity() != null ? pInst.getQuantity() : 0);

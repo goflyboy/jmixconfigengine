@@ -6,5 +6,5 @@ package com.jmix.executor.impl.algmodel;
  *
  * @since 2025-12-27
  */
-public class PartCategoryVar extends PartVar {
+public class PartCategoryVarImpl extends PartVarImpl {
 }
