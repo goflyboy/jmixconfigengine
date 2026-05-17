@@ -9,7 +9,11 @@ import java.util.Collection;
 
 /**
  * Stable constraint model facade.
+ * 
+ * @deprecated Use {@link ModuleCPModel} instead, which provides a cleaner
+ *             CP-SAT oriented API.
  */
+@Deprecated
 public interface ConstraintModel {
 
     ConstraintRef equal(IntExpr left, long right);

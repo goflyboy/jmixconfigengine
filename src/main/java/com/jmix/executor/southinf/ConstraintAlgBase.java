@@ -37,7 +37,6 @@ public abstract class ConstraintAlgBase extends ModuleAlgImpl implements Constra
 
     private ConstraintVarRegistry varRegistry;
 
-    @Override
     public AlgorithmDescriptor descriptor() {
         if (context != null) {
             return context.descriptor();
@@ -52,7 +51,6 @@ public abstract class ConstraintAlgBase extends ModuleAlgImpl implements Constra
         return descriptor;
     }
 
-    @Override
     public void bind(ConstraintContext context) {
         this.context = context;
     }

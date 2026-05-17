@@ -1,11 +1,11 @@
 package com.jmix.executor.southinf;
 
 /**
- * Stable entry point implemented by southbound constraint algorithms.
+ * Constraint algorithm southbound interface.
+ * 
+ * @deprecated Use {@link ModuleAlgBase} instead.
  */
+@Deprecated
 public interface ConstraintAlgorithm {
 
-    AlgorithmDescriptor descriptor();
-
-    void bind(ConstraintContext context);
 }

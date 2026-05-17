@@ -1,16 +1,16 @@
-package com.jmix.executor.southinf.var;
+package com.jmix.executor.southinf.cp;
 
 import com.jmix.executor.southinf.version.SouthApiSince;
 import com.jmix.executor.southinf.version.SouthApiVersion;
 
 /**
- * Stable variable facade.
+ * CP-SAT integer variable facade.
  */
-public interface Var {
+public interface AlgCPIntVar extends AlgCPLinearArgument {
 
     @SouthApiSince(SouthApiVersion.V1_0)
-    String code();
+    long lowerBound();
 
     @SouthApiSince(SouthApiVersion.V1_0)
-    String name();
+    long upperBound();
 }

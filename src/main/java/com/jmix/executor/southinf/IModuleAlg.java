@@ -1,7 +1,7 @@
 package com.jmix.executor.southinf;
 
 /**
- * 模块算法南向接口
+ * Module algorithm southbound interface.
  */
 public interface IModuleAlg {
 

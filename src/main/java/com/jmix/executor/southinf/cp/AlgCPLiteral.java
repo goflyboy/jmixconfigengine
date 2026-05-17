@@ -1,19 +1,19 @@
-package com.jmix.executor.southinf.view;
+package com.jmix.executor.southinf.cp;
 
 import com.jmix.executor.southinf.version.SouthApiSince;
 import com.jmix.executor.southinf.version.SouthApiVersion;
 
 /**
- * View interface for part instance access.
+ * CP-SAT literal facade. Represents a boolean variable or its negation.
  */
-public interface PartInstView extends OntoView {
+public interface AlgCPLiteral extends AlgCPLinearArgument {
 
     @SouthApiSince(SouthApiVersion.V1_0)
-    int quantity();
+    AlgCPLiteral not();
 
     @SouthApiSince(SouthApiVersion.V1_0)
-    void setQuantity(int quantity);
+    boolean isNegated();
 
     @SouthApiSince(SouthApiVersion.V1_0)
-    boolean selected();
+    Object internal();
 }

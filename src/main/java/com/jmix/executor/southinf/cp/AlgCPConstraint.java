@@ -1,19 +1,19 @@
-package com.jmix.executor.southinf.view;
+package com.jmix.executor.southinf.cp;
 
 import com.jmix.executor.southinf.version.SouthApiSince;
 import com.jmix.executor.southinf.version.SouthApiVersion;
 
 /**
- * View interface for part instance access.
+ * CP-SAT constraint facade.
  */
-public interface PartInstView extends OntoView {
+public interface AlgCPConstraint {
 
     @SouthApiSince(SouthApiVersion.V1_0)
-    int quantity();
+    AlgCPConstraint onlyEnforceIf(AlgCPLiteral condition);
 
     @SouthApiSince(SouthApiVersion.V1_0)
-    void setQuantity(int quantity);
+    AlgCPConstraint onlyEnforceIf(AlgCPLiteral... conditions);
 
     @SouthApiSince(SouthApiVersion.V1_0)
-    boolean selected();
+    int index();
 }
