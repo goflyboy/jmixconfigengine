@@ -10,16 +10,16 @@
 
 本 RFC 提议在现有约束求解架构上引入“混合计算”模式: 继续使用 CP-SAT 约束求解处理需要多解枚举和组合搜索的主计算，同时允许部分前置/后置业务规则以普通 Java 代码方式直接运行。
 
-| 主题 | 决议 |
-| --- | --- |
-| 阶段枚举 | 优先复用现有 `CalcStage.PRE/MID/POST`; 业务文档中的 MAIN 对应代码中的 `MID` |
-| 默认行为 | `@CodeRuleAnno` 默认仍为 `CalcStage.MID`, 保持现有约束规则行为不变 |
-| 首期范围 | 优先补齐 `CalcStage.POST`: 对每个 `ModuleInst` 解执行后置计算 |
-| 输出参数 | 复用现有 `AssignType.INPUT`, 表示不进入 CP 模型、可由 POST 直接写回的派生参数 |
-| 访问接口 | 新增 `ModuleInstAccessorImpl` 实现, `ModuleBaseAlgImpl` 通过持有并委托调用复用这套逻辑 |
-| 集成模式 | 默认在 CP-SAT 求解完成、所有解收集完毕后批量执行 POST; 也支持对已有 `ModuleInst` 独立执行 POST |
+| 主题    | 决议                                                                                 |
+| ----- | ---------------------------------------------------------------------------------- |
+| 阶段枚举  | 优先复用现有 `CalcStage.PRE/MID/POST`; 业务文档中的 MAIN 对应代码中的 `MID`                          |
+| 默认行为  | `@CodeRuleAnno` 默认仍为 `CalcStage.MID`, 保持现有约束规则行为不变                                 |
+| 首期范围  | 优先补齐 `CalcStage.POST`: 对每个 `ModuleInst` 解执行后置计算                                    |
+| 输出参数  | 复用现有 `AssignType.INPUT`, 表示不进入 CP 模型、可由 POST 直接写回的派生参数                             |
+| 访问接口  | 新增 `ModuleInstAccessorImpl` 实现, `ModuleBaseAlgImpl` 通过持有并委托调用复用这套逻辑                |
+| 集成模式  | 默认在 CP-SAT 求解完成、所有解收集完毕后批量执行 POST; 也支持对已有 `ModuleInst` 独立执行 POST                   |
 | 扩展后处理 | 删除现有 `ExtensibleProcess` / `InferParasPostProcess` 链路, 由 `ModulePostCalculator` 替代 |
-| 兼容策略 | 现有 `CalcStage.PRE` 规则暂不改变执行语义, 首期只实现 POST |
+| 兼容策略  | 现有 `CalcStage.PRE` 规则暂不改变执行语义, 首期只实现 POST                                          |
 
 ---
 
@@ -135,10 +135,10 @@ public enum CalcStage {
 
 本 RFC 决定复用现有 `CalcStage`，不新增重复的 `CalcType`:
 
-| 业务说法 | 代码阶段 | 执行方式 |
-| --- | --- | --- |
-| pre | `CalcStage.PRE` | 现阶段保持原语义；后续可扩展为输入预处理 |
-| main | `CalcStage.MID` | 现有 CP-SAT 约束求解 |
+| 业务说法 | 代码阶段             | 执行方式                              |
+| ---- | ---------------- | --------------------------------- |
+| pre  | `CalcStage.PRE`  | 现阶段保持原语义；后续可扩展为输入预处理              |
+| main | `CalcStage.MID`  | 现有 CP-SAT 约束求解                    |
 | post | `CalcStage.POST` | 新增: 对每个 `ModuleInst` 直接执行 Java 代码 |
 
 业务文档中的 MAIN 统一映射到代码中的 `CalcStage.MID`。生成式代码、注解解析和执行链路均沿用 `@CodeRuleAnno(calcStage = ...)`。
@@ -701,19 +701,19 @@ public void testStandalonePostCalculate() {
 
 ### 4.2 边界条件
 
-| 条件 | 输入 | 预期行为 |
-| --- | --- | --- |
-| POST 规则列表为空 | 普通求解请求 | 不额外处理，解列表保持现有行为 |
-| 派生参数不存在 | `setParaValue("unknown", "1")` | 抛出明确异常，不自动创建未知参数 |
-| 分类不存在 | `getSumDynAttr("unknown", "Capacity")` | 抛出明确异常 |
+| 条件              | 输入                                               | 预期行为                                                         |
+| --------------- | ------------------------------------------------ | ------------------------------------------------------------ |
+| POST 规则列表为空     | 普通求解请求                                           | 不额外处理，解列表保持现有行为                                              |
+| 派生参数不存在         | `setParaValue("unknown", "1")`                   | 抛出明确异常，不自动创建未知参数                                             |
+| 分类不存在           | `getSumDynAttr("unknown", "Capacity")`           | 抛出明确异常                                                       |
 | 多实例分类未指定 instId | `getDynAttr("drive", "Capacity")` 且存在多个 drive 实例 | 默认读取第一个匹配实例；精确读取使用 `getDynAttr("drive", instId, "Capacity")` |
-| 多实例分类指定 instId | `getDynAttr("drive", 1, "Capacity")` | 读取 `instanceId=1` 的分类实例 |
-| 有效部件为空 | `getDynAttr("drive", "Capacity")` | 返回 `null` |
-| 有效部件为空 | `getDynAttrValues("drive", "Capacity")` | 返回空列表 |
-| 有效部件为空 | `getSumDynAttr("drive", "Capacity")` | 返回 `"0"` |
-| 有效部件为空 | `getQuantity("drive")` | 返回 `0` |
-| 属性缺失 | 有效部件缺少 `Capacity` | 抛出明确异常 |
-| POST 修改参数后 | 同一解继续返回 | `ModuleInst` 中参数值为 POST 写入值 |
+| 多实例分类指定 instId  | `getDynAttr("drive", 1, "Capacity")`             | 读取 `instanceId=1` 的分类实例                                      |
+| 有效部件为空          | `getDynAttr("drive", "Capacity")`                | 返回 `null`                                                    |
+| 有效部件为空          | `getDynAttrValues("drive", "Capacity")`          | 返回空列表                                                        |
+| 有效部件为空          | `getSumDynAttr("drive", "Capacity")`             | 返回 `"0"`                                                     |
+| 有效部件为空          | `getQuantity("drive")`                           | 返回 `0`                                                       |
+| 属性缺失            | 有效部件缺少 `Capacity`                                | 抛出明确异常                                                       |
+| POST 修改参数后      | 同一解继续返回                                          | `ModuleInst` 中参数值为 POST 写入值                                  |
 
 ### 4.3 回归测试
 
@@ -727,19 +727,19 @@ public void testStandalonePostCalculate() {
 
 ## 5. 实现计划
 
-| 阶段 | 任务 | 优先级 | 状态 |
-| --- | --- | --- | --- |
-| 1 | 确认命名: 复用 `CalcStage` 还是新增 `CalcType` | P0 | 已确认: 复用 `CalcStage` |
-| 2 | 梳理 `AssignType.INPUT` 参数初始化和结果写回, 确保不创建 CP 变量 | P0 | 待开始 |
-| 3 | 新增 `ModuleInstAccessor` 接口和 `ModuleInstAccessorImpl` 实现 | P0 | 待开始 |
-| 4 | 在 `ModuleBaseAlgImpl` 增加 accessor 绑定、清理和转发逻辑 | P0 | 待开始 |
-| 5 | 补充 `getDynAttrValues/getQuantity/getInstanceIds` 和类型转换方法 | P0 | 待开始 |
-| 6 | 新增 `ModulePostCalculator`, 使用 `module.getAllRules(CalcStage.POST)` 扫描并执行 POST 规则 | P0 | 待开始 |
-| 7 | 在 `solver.solve(...)` 返回后批量执行 POST, 不在 `ModuleInstSolutionCallBack` 中执行 | P0 | 待开始 |
-| 8 | 删除 `ExtensibleProcess` / `InferParasPostProcess` / `executePostProcess` 旧链路 | P0 | 待开始 |
-| 9 | 新增独立 `postCalculate(ModulePostCalcReq)` 对外接口 | P1 | 待开始 |
-| 10 | 补充 `PostCalcRuleTest` 简化验收用例 | P0 | 待开始 |
-| 11 | 梳理 PRE 纯代码执行模式并决定是否另起 RFC | P2 | 已确认: 首期不做 |
+| 阶段  | 任务                                                                               | 优先级 | 状态                  |
+| --- | -------------------------------------------------------------------------------- | --- | ------------------- |
+| 1   | 确认命名: 复用 `CalcStage` 还是新增 `CalcType`                                             | P0  | 已确认: 复用 `CalcStage` |
+| 2   | 梳理 `AssignType.INPUT` 参数初始化和结果写回, 确保不创建 CP 变量                                    | P0  | 待开始                 |
+| 3   | 新增 `ModuleInstAccessor` 接口和 `ModuleInstAccessorImpl` 实现                          | P0  | 待开始                 |
+| 4   | 在 `ModuleBaseAlgImpl` 增加 accessor 绑定、清理和转发逻辑                                     | P0  | 待开始                 |
+| 5   | 补充 `getDynAttrValues/getQuantity/getInstanceIds` 和类型转换方法                         | P0  | 待开始                 |
+| 6   | 新增 `ModulePostCalculator`, 使用 `module.getAllRules(CalcStage.POST)` 扫描并执行 POST 规则 | P0  | 待开始                 |
+| 7   | 在 `solver.solve(...)` 返回后批量执行 POST, 不在 `ModuleInstSolutionCallBack` 中执行          | P0  | 待开始                 |
+| 8   | 删除 `ExtensibleProcess` / `InferParasPostProcess` / `executePostProcess` 旧链路      | P0  | 待开始                 |
+| 9   | 新增独立 `postCalculate(ModulePostCalcReq)` 对外接口                                     | P1  | 待开始                 |
+| 10  | 补充 `PostCalcRuleTest` 简化验收用例                                                     | P0  | 待开始                 |
+| 11  | 梳理 PRE 纯代码执行模式并决定是否另起 RFC                                                        | P2  | 已确认: 首期不做           |
 
 ---
 
