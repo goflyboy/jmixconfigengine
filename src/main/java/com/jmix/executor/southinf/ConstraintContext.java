@@ -14,6 +14,4 @@ public interface ConstraintContext {
     ConstraintVarRegistry vars();
 
     ModuleInstView moduleInst();
-
-    ConstraintCapabilities capabilities();
 }

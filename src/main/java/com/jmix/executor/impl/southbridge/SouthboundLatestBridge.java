@@ -2,7 +2,6 @@ package com.jmix.executor.impl.southbridge;
 
 import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
 import com.jmix.executor.southinf.AlgorithmDescriptor;
-import com.jmix.executor.southinf.ConstraintCapabilities;
 import com.jmix.executor.southinf.ConstraintContext;
 import com.jmix.executor.southinf.ConstraintModel;
 import com.jmix.executor.southinf.ConstraintVarRegistry;
@@ -31,14 +30,10 @@ public class SouthboundLatestBridge implements ConstraintContext {
 
     private final ConstraintVarRegistry vars;
 
-    private final ConstraintCapabilities capabilities;
-
     public SouthboundLatestBridge(ModuleAlgImpl algorithm) {
         this.algorithm = algorithm;
         this.model = new ModelBridge(algorithm);
         this.vars = new VarRegistryBridge(algorithm);
-        this.capabilities = new ConstraintCapabilities() {
-        };
     }
 
     @Override
@@ -65,11 +60,6 @@ public class SouthboundLatestBridge implements ConstraintContext {
             return (ModuleInstView) algorithm;
         }
         throw new UnsupportedOperationException("ModuleInstView is only available for ConstraintAlgBase");
-    }
-
-    @Override
-    public ConstraintCapabilities capabilities() {
-        return capabilities;
     }
 
     private static class VarRegistryBridge implements ConstraintVarRegistry {
