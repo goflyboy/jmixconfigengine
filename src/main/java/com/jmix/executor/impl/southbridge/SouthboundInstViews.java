@@ -21,11 +21,11 @@ public final class SouthboundInstViews {
     private SouthboundInstViews() {
     }
 
-    public static class ModuleView implements ModuleInstView {
+    public static class ModuleInstViewImpl implements ModuleInstView {
 
         private final ModuleInstAccessor accessor;
 
-        public ModuleView(ModuleInstAccessor accessor) {
+        public ModuleInstViewImpl(ModuleInstAccessor accessor) {
             this.accessor = accessor;
         }
 
@@ -76,12 +76,12 @@ public final class SouthboundInstViews {
 
         @Override
         public ParameterInstView parameter(String code) {
-            return new ModuleParameterView(accessor, code);
+            return new ModuleParameterInstView(accessor, code);
         }
 
         @Override
         public PartInstView part(String code) {
-            return new PartView(accessor, "", ModuleBaseInst.DEFAULT_INSTANCE_ID, code);
+            return new PartInstViewImpl(accessor, "", ModuleBaseInst.DEFAULT_INSTANCE_ID, code);
         }
 
         @Override
@@ -91,22 +91,22 @@ public final class SouthboundInstViews {
 
         @Override
         public PartCategoryInstView partCategory(String code, int instId) {
-            return new PartCategoryView(accessor, code, instId);
+            return new PartCategoryInstViewImpl(accessor, code, instId);
         }
 
         @Override
         public PartCategoryInstSumView partCategorySum(String code) {
-            return new PartCategorySumView(accessor, code);
+            return new PartCategoryInstSumViewImpl(accessor, code);
         }
     }
 
-    private abstract static class BaseView implements OntoView {
+    private abstract static class BaseOntoView implements OntoView {
 
         protected final ModuleInstAccessor accessor;
 
         protected final String code;
 
-        BaseView(ModuleInstAccessor accessor, String code) {
+        BaseOntoView(ModuleInstAccessor accessor, String code) {
             this.accessor = accessor;
             this.code = code;
         }
@@ -127,9 +127,9 @@ public final class SouthboundInstViews {
         }
     }
 
-    private static class ModuleParameterView extends BaseView implements ParameterInstView {
+    private static class ModuleParameterInstView extends BaseOntoView implements ParameterInstView {
 
-        ModuleParameterView(ModuleInstAccessor accessor, String code) {
+        ModuleParameterInstView(ModuleInstAccessor accessor, String code) {
             super(accessor, code);
         }
 
@@ -159,13 +159,13 @@ public final class SouthboundInstViews {
         }
     }
 
-    private static class CategoryParameterView extends BaseView implements ParameterInstView {
+    private static class CategoryParameterInstView extends BaseOntoView implements ParameterInstView {
 
         private final String categoryCode;
 
         private final int instId;
 
-        CategoryParameterView(ModuleInstAccessor accessor, String categoryCode, int instId, String code) {
+        CategoryParameterInstView(ModuleInstAccessor accessor, String categoryCode, int instId, String code) {
             super(accessor, code);
             this.categoryCode = categoryCode;
             this.instId = instId;
@@ -197,11 +197,11 @@ public final class SouthboundInstViews {
         }
     }
 
-    private static class PartCategoryView extends BaseView implements PartCategoryInstView {
+    private static class PartCategoryInstViewImpl extends BaseOntoView implements PartCategoryInstView {
 
         private final int instId;
 
-        PartCategoryView(ModuleInstAccessor accessor, String code, int instId) {
+        PartCategoryInstViewImpl(ModuleInstAccessor accessor, String code, int instId) {
             super(accessor, code);
             this.instId = instId;
         }
@@ -219,18 +219,8 @@ public final class SouthboundInstViews {
         @Override
         public void setDynAttr(String dynAttrKey, String dynAttrValue) {
             accessor.setInstDynAttr(code, instId, dynAttrKey, dynAttrValue);
-        }
-
-        @Override
-        public int quantity() {
-            return accessor.getQuantity(code, instId);
-        }
-
-        @Override
-        public void setQuantity(int quantity) {
-            accessor.setQuantity(code, instId, quantity);
-        }
-
+        } 
+        
         @Override
         public int instanceId() {
             return instId;
@@ -238,12 +228,12 @@ public final class SouthboundInstViews {
 
         @Override
         public ParameterInstView parameter(String paraCode) {
-            return new CategoryParameterView(accessor, code, instId, paraCode);
+            return new CategoryParameterInstView(accessor, code, instId, paraCode);
         }
 
         @Override
         public PartInstView part(String partCode) {
-            return new PartView(accessor, code, instId, partCode);
+            return new PartInstViewImpl(accessor, code, instId, partCode);
         }
 
         @Override
@@ -252,11 +242,18 @@ public final class SouthboundInstViews {
                     .map(this::part)
                     .collect(Collectors.toList());
         }
+
+        @Override
+        public int sumQuantity() { 
+            return parts().stream()
+                    .map(PartInstView::quantity)
+                    .reduce(0, Integer::sum);
+        }
     }
 
-    private static class PartCategorySumView extends BaseView implements PartCategoryInstSumView {
+    private static class PartCategoryInstSumViewImpl extends BaseOntoView implements PartCategoryInstSumView {
 
-        PartCategorySumView(ModuleInstAccessor accessor, String code) {
+        PartCategoryInstSumViewImpl(ModuleInstAccessor accessor, String code) {
             super(accessor, code);
         }
 
@@ -277,7 +274,7 @@ public final class SouthboundInstViews {
 
         @Override
         public PartCategoryInstView inst(int instId) {
-            return new PartCategoryView(accessor, code, instId);
+            return new PartCategoryInstViewImpl(accessor, code, instId);
         }
 
         @Override
@@ -308,15 +305,22 @@ public final class SouthboundInstViews {
                     .map(value -> parseInt(value, dynAttrKey))
                     .collect(Collectors.toList());
         }
+
+        @Override
+        public int sumSumQuantity() {
+            return insts().stream()
+                    .map(PartCategoryInstView::sumQuantity)
+                    .reduce(0, Integer::sum);
+        }
     }
 
-    private static class PartView extends BaseView implements PartInstView {
+    private static class PartInstViewImpl extends BaseOntoView implements PartInstView {
 
         private final String categoryCode;
 
         private final int instId;
 
-        PartView(ModuleInstAccessor accessor, String categoryCode, int instId, String code) {
+        PartInstViewImpl(ModuleInstAccessor accessor, String categoryCode, int instId, String code) {
             super(accessor, code);
             this.categoryCode = categoryCode;
             this.instId = instId;

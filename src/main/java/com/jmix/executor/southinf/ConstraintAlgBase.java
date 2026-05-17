@@ -181,7 +181,7 @@ public abstract class ConstraintAlgBase extends ModuleAlgImpl implements Constra
 
     private ModuleInstView currentView() {
         try {
-            return new SouthboundInstViews.ModuleView(currentModuleInstAccessor());
+            return new SouthboundInstViews.ModuleInstViewImpl(currentModuleInstAccessor());
         } catch (AlgLoaderException ex) {
             throw ex;
         }

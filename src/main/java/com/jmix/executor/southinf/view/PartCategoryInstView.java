@@ -2,7 +2,8 @@ package com.jmix.executor.southinf.view;
 
 import java.util.List;
 
-public interface PartCategoryInstView extends QuantityInstView {
+public interface PartCategoryInstView extends OntoView {
+    int sumQuantity(); 
 
     int instanceId();
 
