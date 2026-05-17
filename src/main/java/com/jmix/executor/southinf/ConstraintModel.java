@@ -1,44 +1,66 @@
 package com.jmix.executor.southinf;
 
-import com.jmix.executor.southinf.var.BoolExpr;
-import com.jmix.executor.southinf.var.ConstraintRef;
-import com.jmix.executor.southinf.var.IntExpr;
-import com.jmix.executor.southinf.var.LinearExpr;
-
 import java.util.Collection;
 
 /**
  * Stable constraint model facade.
- * 
- * @deprecated Use {@link ModuleCPModel} instead, which provides a cleaner
- *             CP-SAT oriented API.
+ * This interface provides the legacy expression-based API for backward compatibility.
+ * New code should use {@link ModuleCPModel} directly.
  */
-@Deprecated
 public interface ConstraintModel {
 
-    ConstraintRef equal(IntExpr left, long right);
+    // Legacy expression-based methods
 
-    ConstraintRef equal(IntExpr left, IntExpr right);
+    com.jmix.executor.southinf.var.ConstraintRef equal(
+            com.jmix.executor.southinf.var.IntExpr left, long right);
 
-    ConstraintRef greaterOrEqual(IntExpr left, long right);
+    com.jmix.executor.southinf.var.ConstraintRef equal(
+            com.jmix.executor.southinf.var.IntExpr left,
+            com.jmix.executor.southinf.var.IntExpr right);
 
-    ConstraintRef greaterOrEqual(IntExpr left, IntExpr right);
+    com.jmix.executor.southinf.var.ConstraintRef greaterOrEqual(
+            com.jmix.executor.southinf.var.IntExpr left, long right);
 
-    ConstraintRef lessOrEqual(IntExpr left, long right);
+    com.jmix.executor.southinf.var.ConstraintRef greaterOrEqual(
+            com.jmix.executor.southinf.var.IntExpr left,
+            com.jmix.executor.southinf.var.IntExpr right);
 
-    ConstraintRef implication(BoolExpr left, BoolExpr right);
+    com.jmix.executor.southinf.var.ConstraintRef lessOrEqual(
+            com.jmix.executor.southinf.var.IntExpr left, long right);
 
-    ConstraintRef exactlyOne(Collection<BoolExpr> expressions);
+    com.jmix.executor.southinf.var.ConstraintRef implication(
+            com.jmix.executor.southinf.var.BoolExpr left,
+            com.jmix.executor.southinf.var.BoolExpr right);
 
-    ConstraintRef compatibilityRequire(String ruleCode, BoolExpr left, BoolExpr right);
+    com.jmix.executor.southinf.var.ConstraintRef exactlyOne(
+            Collection<com.jmix.executor.southinf.var.BoolExpr> expressions);
 
-    ConstraintRef compatibilityIncompatible(String ruleCode, BoolExpr left, BoolExpr right);
+    com.jmix.executor.southinf.var.ConstraintRef compatibilityRequire(
+            String ruleCode,
+            com.jmix.executor.southinf.var.BoolExpr left,
+            com.jmix.executor.southinf.var.BoolExpr right);
 
-    ConstraintRef compatibilityCoDependent(String ruleCode, BoolExpr left, BoolExpr right);
+    com.jmix.executor.southinf.var.ConstraintRef compatibilityIncompatible(
+            String ruleCode,
+            com.jmix.executor.southinf.var.BoolExpr left,
+            com.jmix.executor.southinf.var.BoolExpr right);
 
-    LinearExpr linearExpr(String name);
+    com.jmix.executor.southinf.var.ConstraintRef compatibilityCoDependent(
+            String ruleCode,
+            com.jmix.executor.southinf.var.BoolExpr left,
+            com.jmix.executor.southinf.var.BoolExpr right);
 
-    void minimize(LinearExpr expr);
+    com.jmix.executor.southinf.var.LinearExpr linearExpr(String name);
 
-    void maximize(LinearExpr expr);
+    /**
+     * Create a new linear expression.
+     * 
+     * @param name expression name
+     * @return new AlgCPLinearExpr
+     */
+    com.jmix.executor.impl.algmodel.AlgCPLinearExpr newLinearExpr(String name);
+
+    void minimize(com.jmix.executor.southinf.var.LinearExpr expr);
+
+    void maximize(com.jmix.executor.southinf.var.LinearExpr expr);
 }

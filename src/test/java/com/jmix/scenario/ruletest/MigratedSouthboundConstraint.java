@@ -1,6 +1,6 @@
 package com.jmix.scenario.ruletest;
 
-import com.jmix.executor.southinf.AlgorithmApiVersion;
+import com.jmix.tool.bbuilder.anno.AlgorithmApiVersion;
 import com.jmix.executor.southinf.ConstraintAlgBase;
 import com.jmix.executor.southinf.var.PartVar;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;

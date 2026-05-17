@@ -4,7 +4,7 @@ import com.jmix.executor.southinf.ConstraintAlgBase;
 import com.jmix.executor.southinf.var.ParaVar;
 import com.jmix.executor.southinf.var.PartCategoryVar;
 import com.jmix.executor.southinf.var.PartVar;
-import com.jmix.executor.southinf.AlgorithmApiVersion;
+import com.jmix.tool.bbuilder.anno.AlgorithmApiVersion;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
 import com.jmix.tool.bbuilder.anno.ModuleAnno;
 import com.jmix.tool.bbuilder.anno.ParaAnno;

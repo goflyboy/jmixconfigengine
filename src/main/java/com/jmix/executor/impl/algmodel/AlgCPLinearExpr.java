@@ -4,6 +4,8 @@ import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.LinearExpr;
 import com.google.ortools.sat.LinearExprBuilder;
+import com.jmix.executor.southinf.cp.AlgCPBoolVar;
+import com.jmix.executor.southinf.cp.AlgCPIntVar;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -245,6 +247,26 @@ public class AlgCPLinearExpr {
     }
 
     /**
+     * 添加IntVar项到表达式（带系数）
+     *
+     * @param var         变量
+     * @param coefficient 系数
+     */
+    public void addTerm(AlgCPIntVar var, long coefficient) {
+        addTerm(var.getIntVar(), coefficient);
+    }
+
+    /**
+     * 添加BoolVar项到表达式（带系数）
+     *
+     * @param var         变量
+     * @param coefficient 系数
+     */
+    public void addTerm(AlgCPBoolVar var, long coefficient) {
+        addTerm(var.getBoolVar(), coefficient);
+    }
+
+    /**
      * 批量添加多个项
      *
      * @param vars         变量数组
@@ -291,6 +313,17 @@ public class AlgCPLinearExpr {
      */
     public String getName() {
         return name;
+    }
+
+    /**
+     * 设置表达式名称（流式调用）
+     *
+     * @param name 表达式名称
+     * @return this
+     */
+    public AlgCPLinearExpr name(String name) {
+        this.name = name;
+        return this;
     }
 
     /**

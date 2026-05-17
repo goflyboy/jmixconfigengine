@@ -11,13 +11,16 @@ import com.jmix.executor.impl.IModuleInput;
 import com.jmix.executor.impl.PartCategoryInput;
 import com.jmix.executor.impl.PartCategoryInputBase;
 import com.jmix.executor.model.AlgLoaderException;
-import com.jmix.executor.southinf.IModuleAlg;
+import com.jmix.executor.bmodel.IModule;
+
+import com.google.ortools.sat.LinearArgument;
 
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * 部件分类级算法实现
@@ -135,5 +138,93 @@ public class SingleInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements 
         log.info("Priority-Added sum constraint: {} for {}",
                 sumFunExpr.getExprStr(),
                 partConstraint.getOrgReq() != null ? partConstraint.getOrgReq().toString() : "null");
+    }
+
+    /**
+     * 对选中的部件求和（不带属性系数）
+     *
+     * @param filtedConditionStr 过滤条件字符串
+     * @return 求和后的AlgCPLinearExpr表达式
+     */
+    public PartAlgCPLinearExpr sum4Selected(String filtedConditionStr) {
+        return sum4Parts(this, null, PartVarImpl::getIsSelected,
+                PartVarImpl.ISSELECTED_SHORT_NAME, filtedConditionStr);
+    }
+
+    /**
+     * 对选中的部件求和（带属性系数）
+     *
+     * @param cofAttrCode        属性代码，如果为null或空则使用默认值1
+     * @param filtedConditionStr 过滤条件字符串
+     * @return 求和后的AlgCPLinearExpr表达式
+     */
+    public PartAlgCPLinearExpr sum4Selected(String cofAttrCode, String filtedConditionStr) {
+        return sum4Parts(this, cofAttrCode, PartVarImpl::getIsSelected,
+                PartVarImpl.ISSELECTED_SHORT_NAME, filtedConditionStr);
+    }
+
+    /**
+     * 对指定部件分类的部件求和
+     *
+     * @param partCategoryAlgImpl 部件分类算法实现
+     * @param cofAttrCode         属性代码，如果为null或空则使用默认值1
+     * @param varGetter           变量获取函数
+     * @param varName             变量名称
+     * @param filtedConditionStr  过滤条件字符串
+     * @return 求和后的AlgCPLinearExpr表达式
+     */
+    protected PartAlgCPLinearExpr sum4Parts(PartCategoryAlgImpl partCategoryAlgImpl, String cofAttrCode,
+            Function<PartVarImpl, LinearArgument> varGetter, String varName, String filtedConditionStr) {
+        PartAlgCPLinearExpr expr = buildSumExpr(
+                partCategoryAlgImpl,
+                cofAttrCode, varName, varGetter,
+                filtedConditionStr);
+        return expr;
+    }
+
+    /**
+     * 对数量的部件求和（不带属性系数）
+     *
+     * @param filtedConditionStr 过滤条件字符串
+     * @return 求和后的AlgCPLinearExpr表达式
+     */
+    public PartAlgCPLinearExpr sum4Quantity(String filtedConditionStr) {
+        return sum4Quantity(null, filtedConditionStr);
+    }
+
+    /**
+     * 对数量的部件求和（带属性系数）
+     *
+     * @param cofAttrCode        属性代码，如果为null或空则使用默认值1
+     * @param filtedConditionStr 过滤条件字符串
+     * @return 求和后的AlgCPLinearExpr表达式
+     */
+    public PartAlgCPLinearExpr sum4Quantity(String cofAttrCode, String filtedConditionStr) {
+        return sum4Parts(this, cofAttrCode, PartVarImpl::getQty,
+                PartVarImpl.QTY_SHORT_NAME, filtedConditionStr);
+    }
+
+    /**
+     * 创建部件线性表达式
+     *
+     * @param name 表达式名称
+     * @return 新的PartAlgCPLinearExpr
+     */
+    public PartAlgCPLinearExpr newPartLinearExpr(String name) {
+        return new PartAlgCPLinearExpr(name);
+    }
+
+    /**
+     * 添加小于等于约束
+     */
+    public void addLessOrEqual(AlgCPLinearExpr expr, int value) {
+        model.addLessOrEqual(expr, value);
+    }
+
+    /**
+     * 添加大于等于约束
+     */
+    public void addGreaterOrEqual(AlgCPLinearExpr expr, int value) {
+        model.addGreaterOrEqual(expr, value);
     }
 }

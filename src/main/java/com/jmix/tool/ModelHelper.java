@@ -4,7 +4,7 @@ import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.logic.Rule;
 import com.jmix.executor.impl.util.CommHelper;
 import com.jmix.executor.model.AlgLoaderException;
-import com.jmix.executor.southinf.IModuleAlg;
+import com.jmix.executor.impl.algmodel.IModuleAlg;
 import com.jmix.tool.artbuilder.ModuleAlgArtifactGenerator;
 import com.jmix.tool.artbuilder.impl.ModuleVarInfo;
 import com.jmix.tool.bbuilder.ModuleGenneratorByAnno;

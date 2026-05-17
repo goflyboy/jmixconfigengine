@@ -7,7 +7,10 @@ import java.lang.annotation.Target;
 
 /**
  * Declares the southbound API version used by an algorithm source class.
+ * 
+ * @deprecated Use {@link com.jmix.tool.bbuilder.anno.AlgorithmApiVersion} instead.
  */
+@Deprecated
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface AlgorithmApiVersion {

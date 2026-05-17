@@ -11,6 +11,7 @@ import com.jmix.tool.bbuilder.anno.ModuleAnno;
 import com.jmix.tool.bbuilder.anno.PartAnno;
 
 import com.google.ortools.sat.BoolVar;
+import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.Literal;
 
 import lombok.extern.slf4j.Slf4j;
@@ -51,8 +52,8 @@ public class ConfictDebugIfThenTest extends ModuleScenarioTestBase {
         private void rule2() {
             // Create linear expression for sum of x and y quantities
             AlgCPLinearExpr sumXY = model.newLinearExpr("sum_x_y");
-            sumXY.addTerm(x.quantityVar(), 1);
-            sumXY.addTerm(y.quantityVar(), 1);
+            sumXY.addTerm((IntVar) x.quantityVar(), 1);
+            sumXY.addTerm((IntVar) y.quantityVar(), 1);
 
             // Add constraint: x.quantityVar() + y.quantityVar() > 10
             model.addGreaterThan(sumXY, 10);

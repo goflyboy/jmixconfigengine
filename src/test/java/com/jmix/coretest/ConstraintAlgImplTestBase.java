@@ -11,7 +11,7 @@ import com.jmix.executor.impl.algmodel.PartCategoryAlgImpl;
 import com.jmix.executor.impl.algmodel.PartVarImpl;
 import com.jmix.executor.impl.algmodel.VarImpl;
 import com.jmix.executor.model.AlgLoaderException;
-import com.jmix.executor.southinf.IModuleAlg;
+import com.jmix.executor.impl.algmodel.IModuleAlg;
 
 import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.IntVar;

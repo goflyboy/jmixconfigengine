@@ -3,7 +3,7 @@ package com.jmix.executor.impl.algmodel;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.base.Pair;
 import com.jmix.executor.bmodel.logic.CalcStage;
-import com.jmix.executor.southinf.IModuleAlg;
+import com.jmix.executor.bmodel.IModule;
 
 import java.lang.reflect.Method;
 import java.util.List;

@@ -12,7 +12,7 @@ import com.jmix.executor.impl.MultiInstPartCategoryInput;
 import com.jmix.executor.impl.PartCategoryInput;
 import com.jmix.executor.impl.PartCategoryInputBase;
 import com.jmix.executor.model.AlgLoaderException;
-import com.jmix.executor.southinf.IModuleAlg;
+import com.jmix.executor.bmodel.IModule;
 
 import lombok.extern.slf4j.Slf4j;
 

@@ -4,7 +4,7 @@ import com.jmix.executor.bmodel.ModuleAlgArtifact;
 import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
 import com.jmix.executor.model.AlgLoaderException;
 import com.jmix.executor.model.ConstraintConfig;
-import com.jmix.executor.southinf.AlgorithmApiVersion;
+import com.jmix.tool.bbuilder.anno.AlgorithmApiVersion;
 
 import lombok.extern.slf4j.Slf4j;
 

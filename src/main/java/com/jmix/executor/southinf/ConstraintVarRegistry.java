@@ -2,10 +2,8 @@ package com.jmix.executor.southinf;
 
 /**
  * Stable lookup facade for algorithm variables.
- * 
- * @deprecated Use {@link ModuleCPModel} instead, which includes these lookup methods.
+ * This is a simplified registry that delegates to the new southbound interface.
  */
-@Deprecated
 public interface ConstraintVarRegistry {
 
     com.jmix.executor.southinf.var.ParaVar para(String code);

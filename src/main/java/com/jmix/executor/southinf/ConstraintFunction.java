@@ -3,7 +3,7 @@ package com.jmix.executor.southinf;
 /**
  * Constraint function implementation.
  * 
- * @deprecated Use {@link com.jmix.executor.southinf.cp.AlgCPModel} instead.
+ * @deprecated Use {@link ModuleCPModel} instead.
  */
 @Deprecated
 public class ConstraintFunction {

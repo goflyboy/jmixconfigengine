@@ -20,7 +20,7 @@ import com.jmix.executor.impl.PriorityConstraint;
 import com.jmix.executor.impl.util.FilterExpressionExecutor;
 import com.jmix.executor.model.AlgLoaderException;
 import com.jmix.executor.model.PartConstantAttr;
-import com.jmix.executor.southinf.IModuleAlg;
+import com.jmix.executor.bmodel.IModule;
 
 import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.IntVar;

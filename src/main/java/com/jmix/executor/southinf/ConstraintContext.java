@@ -1,30 +1,25 @@
 package com.jmix.executor.southinf;
 
-import com.jmix.executor.southinf.view.ModuleInstView;
-
 /**
  * Runtime context visible to southbound algorithms.
- * 
- * @deprecated Use {@link ModuleAlgBase} instead, which provides direct access to
- *             {@link ModuleCPModel} and {@link ModuleInstView}.
+ * This is a simplified context that delegates to the new southbound interfaces.
  */
-@Deprecated
 public interface ConstraintContext {
 
     AlgorithmDescriptor descriptor();
 
     /**
-     * @deprecated Use {@link ModuleAlgBase#model()} instead.
+     * @deprecated Use {@link com.jmix.executor.southinf.ModuleCPModel} instead.
      */
     @Deprecated
     ConstraintModel model();
 
     /**
-     * @deprecated Use {@link ModuleAlgBase#model()} instead, which provides
-     *             variable lookup methods directly.
+     * @deprecated Use {@link com.jmix.executor.southinf.ModuleCPModel} instead,
+     *             which provides variable lookup methods directly.
      */
     @Deprecated
     ConstraintVarRegistry vars();
 
-    ModuleInstView moduleInst();
+    com.jmix.executor.southinf.view.ModuleInstView moduleInst();
 }

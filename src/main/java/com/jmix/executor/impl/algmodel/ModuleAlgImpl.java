@@ -23,7 +23,7 @@ import com.jmix.executor.model.AlgLoaderException;
 import com.jmix.executor.model.PartConstraintReq;
 import com.jmix.executor.model.StrategyConfig;
 import com.jmix.executor.model.StrategyType;
-import com.jmix.executor.southinf.IModuleAlg;
+import com.jmix.executor.bmodel.IModule;
 import com.jmix.tool.bbuilder.MultiInstCategoryUtils;
 
 import com.google.ortools.sat.DecisionStrategyProto;

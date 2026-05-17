@@ -1,5 +1,7 @@
 package com.jmix.executor.impl.southbridge;
 
+import com.jmix.executor.impl.algmodel.AlgCPModel;
+import com.jmix.executor.impl.algmodel.AlgCPLinearExpr;
 import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
 import com.jmix.executor.southinf.AlgorithmDescriptor;
 import com.jmix.executor.southinf.ConstraintContext;
@@ -25,14 +27,12 @@ import java.util.Collection;
 public class SouthboundLatestBridge implements ConstraintContext {
 
     private final ModuleAlgImpl algorithm;
-
     private final ConstraintModel model;
-
     private final ConstraintVarRegistry vars;
 
     public SouthboundLatestBridge(ModuleAlgImpl algorithm) {
         this.algorithm = algorithm;
-        this.model = new ModelBridge(algorithm);
+        this.model = new ModelBridge(algorithm.getModel(), algorithm);
         this.vars = new VarRegistryBridge(algorithm);
     }
 
@@ -63,7 +63,6 @@ public class SouthboundLatestBridge implements ConstraintContext {
     }
 
     private static class VarRegistryBridge implements ConstraintVarRegistry {
-
         private final ModuleAlgImpl algorithm;
 
         VarRegistryBridge(ModuleAlgImpl algorithm) {
@@ -87,41 +86,42 @@ public class SouthboundLatestBridge implements ConstraintContext {
     }
 
     private static class ModelBridge implements ConstraintModel {
-
+        private final AlgCPModel algModel;
         private final ModuleAlgImpl algorithm;
 
-        ModelBridge(ModuleAlgImpl algorithm) {
+        ModelBridge(AlgCPModel algModel, ModuleAlgImpl algorithm) {
+            this.algModel = algModel;
             this.algorithm = algorithm;
         }
 
         @Override
         public ConstraintRef equal(IntExpr left, long right) {
-            return Exprs.constraintRef(algorithm.getModel().addEquality(left.unwrap(), right));
+            return Exprs.constraintRef(algModel.addEquality(left.unwrap(), right));
         }
 
         @Override
         public ConstraintRef equal(IntExpr left, IntExpr right) {
-            return Exprs.constraintRef(algorithm.getModel().addEquality(left.unwrap(), right.unwrap()));
+            return Exprs.constraintRef(algModel.addEquality(left.unwrap(), right.unwrap()));
         }
 
         @Override
         public ConstraintRef greaterOrEqual(IntExpr left, long right) {
-            return Exprs.constraintRef(algorithm.getModel().addGreaterOrEqual(left.unwrap(), right));
+            return Exprs.constraintRef(algModel.addGreaterOrEqual(left.unwrap(), right));
         }
 
         @Override
         public ConstraintRef greaterOrEqual(IntExpr left, IntExpr right) {
-            return Exprs.constraintRef(algorithm.getModel().addGreaterOrEqual(left.unwrap(), right.unwrap()));
+            return Exprs.constraintRef(algModel.addGreaterOrEqual(left.unwrap(), right.unwrap()));
         }
 
         @Override
         public ConstraintRef lessOrEqual(IntExpr left, long right) {
-            return Exprs.constraintRef(algorithm.getModel().addLessOrEqual(left.unwrap(), right));
+            return Exprs.constraintRef(algModel.addLessOrEqual(left.unwrap(), right));
         }
 
         @Override
         public ConstraintRef implication(BoolExpr left, BoolExpr right) {
-            return Exprs.constraintRef(algorithm.getModel().addImplication(left.literal(), right.literal()));
+            return Exprs.constraintRef(algModel.addImplication(left.literal(), right.literal()));
         }
 
         @Override
@@ -129,7 +129,7 @@ public class SouthboundLatestBridge implements ConstraintContext {
             Literal[] literals = expressions.stream()
                     .map(BoolExpr::literal)
                     .toArray(Literal[]::new);
-            return Exprs.constraintRef(algorithm.getModel().addExactlyOne(literals));
+            return Exprs.constraintRef(algModel.addExactlyOne(literals));
         }
 
         @Override
@@ -140,8 +140,8 @@ public class SouthboundLatestBridge implements ConstraintContext {
         @Override
         public ConstraintRef compatibilityIncompatible(String ruleCode, BoolExpr left, BoolExpr right) {
             ConstraintRef ref = Exprs.constraintRef(
-                    algorithm.getModel().addImplication(left.literal(), right.literal().not()));
-            algorithm.getModel().addImplication(right.literal(), left.literal().not());
+                    algModel.addImplication(left.literal(), right.literal().not()));
+            algModel.addImplication(right.literal(), left.literal().not());
             return ref;
         }
 
@@ -154,17 +154,22 @@ public class SouthboundLatestBridge implements ConstraintContext {
 
         @Override
         public LinearExpr linearExpr(String name) {
-            return Exprs.linearExpr(algorithm.getModel().newLinearExpr(name));
+            return Exprs.linearExpr(algModel.newLinearExpr(name));
+        }
+
+        @Override
+        public AlgCPLinearExpr newLinearExpr(String name) {
+            return algModel.newLinearExpr(name);
         }
 
         @Override
         public void minimize(LinearExpr expr) {
-            algorithm.getModel().minimize(expr.unwrap());
+            algModel.minimize(expr.unwrap());
         }
 
         @Override
         public void maximize(LinearExpr expr) {
-            algorithm.getModel().maximize(expr.unwrap());
+            algModel.maximize(expr.unwrap());
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.jmix.executor.southinf;
 
 import com.jmix.executor.bmodel.IModule;
+import com.jmix.executor.impl.algmodel.IModuleAlg;
 import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
 import com.jmix.executor.impl.algmodel.ModuleBaseAlgImpl;
 import com.jmix.executor.impl.algmodel.ParaVarImpl;
@@ -18,6 +19,7 @@ import com.jmix.executor.southinf.view.ParameterInstView;
 import com.jmix.executor.southinf.view.PartCategoryInstSumView;
 import com.jmix.executor.southinf.view.PartCategoryInstView;
 import com.jmix.executor.southinf.view.PartInstView;
+import com.jmix.tool.bbuilder.anno.AlgorithmApiVersion;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
