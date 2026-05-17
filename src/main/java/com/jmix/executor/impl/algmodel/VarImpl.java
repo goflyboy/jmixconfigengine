@@ -11,7 +11,7 @@ import com.google.ortools.sat.CpSolverSolutionCallback;
  * @param <T> 可编程对象类型
  * @since 2025-09-22
  */
-public abstract class Var<T extends Programmable> implements Programmable {
+public abstract class VarImpl<T extends Programmable> implements Programmable {
     /**
      * 基础对象
      */
@@ -20,7 +20,7 @@ public abstract class Var<T extends Programmable> implements Programmable {
     /**
      * 默认构造函数
      */
-    protected Var() {
+    protected VarImpl() {
     }
 
     /**
@@ -28,7 +28,7 @@ public abstract class Var<T extends Programmable> implements Programmable {
      * 
      * @param base 基础对象
      */
-    protected Var(T base) {
+    protected VarImpl(T base) {
         this.base = base;
     }
 

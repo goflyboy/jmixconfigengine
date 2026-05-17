@@ -1,6 +1,9 @@
 package com.jmix.tool.confictdebugifthen;
 
-import com.jmix.coretest.ConstraintAlgImplTestBase;
+import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.var.ParaVar;
+import com.jmix.executor.southinf.var.PartCategoryVar;
+import com.jmix.executor.southinf.var.PartVar;
 import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.executor.impl.algmodel.AlgCPLinearExpr;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
@@ -19,7 +22,7 @@ public class ConfictDebugIfThenTest extends ModuleScenarioTestBase {
 
     // ---------------模型的定义start----------------------------------------
     @ModuleAnno(id = 123L)
-    static public class ConfictDebugIfThenConstraint extends ConstraintAlgImplTestBase {
+    static public class ConfictDebugIfThenConstraint extends ConstraintAlgBase {
         @PartAnno(maxQuantity = 50)
         private PartVar x;
 
@@ -29,83 +32,83 @@ public class ConfictDebugIfThenTest extends ModuleScenarioTestBase {
         @PartAnno(maxQuantity = 50)
         private PartVar z;
 
-        // rule1: if(x.qty > 10) then y.qty > 7
-        @CodeRuleAnno(normalNaturalCode = "if(x.qty > 10) then y.qty > 7")
+        // rule1: if(x.quantityVar() > 10) then y.quantityVar() > 7
+        @CodeRuleAnno(normalNaturalCode = "if(x.quantityVar() > 10) then y.quantityVar() > 7")
         private void rule1() {
             // Create condition variable: x quantity greater than 10
             BoolVar xGreaterThan10 = model.newBoolVar("rule1_xGreaterThan10");
 
-            // Set condition: x.qty > 10
-            model.addGreaterThan(x.qty, 10).onlyEnforceIf(xGreaterThan10);
-            model.addLessOrEqual(x.qty, 10).onlyEnforceIf(xGreaterThan10.not());
+            // Set condition: x.quantityVar() > 10
+            model.addGreaterThan(x.quantityVar(), 10).onlyEnforceIf(xGreaterThan10);
+            model.addLessOrEqual(x.quantityVar(), 10).onlyEnforceIf(xGreaterThan10.not());
 
-            // Then condition: y.qty > 7
-            model.addGreaterThan(y.qty, 7).onlyEnforceIf(xGreaterThan10);
+            // Then condition: y.quantityVar() > 7
+            model.addGreaterThan(y.quantityVar(), 7).onlyEnforceIf(xGreaterThan10);
         }
 
-        // rule2: x.qty + y.qty > 10
-        @CodeRuleAnno(normalNaturalCode = "x.qty + y.qty > 10")
+        // rule2: x.quantityVar() + y.quantityVar() > 10
+        @CodeRuleAnno(normalNaturalCode = "x.quantityVar() + y.quantityVar() > 10")
         private void rule2() {
             // Create linear expression for sum of x and y quantities
             AlgCPLinearExpr sumXY = model.newLinearExpr("sum_x_y");
-            sumXY.addTerm(x.qty, 1);
-            sumXY.addTerm(y.qty, 1);
+            sumXY.addTerm(x.quantityVar(), 1);
+            sumXY.addTerm(y.quantityVar(), 1);
 
-            // Add constraint: x.qty + y.qty > 10
+            // Add constraint: x.quantityVar() + y.quantityVar() > 10
             model.addGreaterThan(sumXY, 10);
         }
 
-        // rule31: y.qty > 48
-        @CodeRuleAnno(normalNaturalCode = "y.qty > 48")
+        // rule31: y.quantityVar() > 48
+        @CodeRuleAnno(normalNaturalCode = "y.quantityVar() > 48")
         private void rule31() {
-            // Add constraint: y.qty > 48
-            model.addGreaterThan(y.qty, 48);
+            // Add constraint: y.quantityVar() > 48
+            model.addGreaterThan(y.quantityVar(), 48);
         }
 
-        // rule32: y.qty > 45
-        @CodeRuleAnno(normalNaturalCode = "y.qty > 45")
+        // rule32: y.quantityVar() > 45
+        @CodeRuleAnno(normalNaturalCode = "y.quantityVar() > 45")
         private void rule32() {
-            // Add constraint: y.qty > 45
-            model.addGreaterThan(y.qty, 45);
+            // Add constraint: y.quantityVar() > 45
+            model.addGreaterThan(y.quantityVar(), 45);
         }
 
-        // rule4: if(x.qty > 5 and y.qty > 5) then z.qty < 10
-        @CodeRuleAnno(normalNaturalCode = "if(x.qty > 5 and y.qty > 5) then z.qty < 10")
+        // rule4: if(x.quantityVar() > 5 and y.quantityVar() > 5) then z.quantityVar() < 10
+        @CodeRuleAnno(normalNaturalCode = "if(x.quantityVar() > 5 and y.quantityVar() > 5) then z.quantityVar() < 10")
         private void rule4() {
             // Create condition variable: x quantity greater than 5 AND y quantity greater
             // than 5
             BoolVar xAndYGreaterThan5 = model.newBoolVar("rule4_xAndYGreaterThan5");
 
-            // Set condition: (x.qty > 5) AND (y.qty > 5)
+            // Set condition: (x.quantityVar() > 5) AND (y.quantityVar() > 5)
             BoolVar xGreaterThan5 = model.newBoolVar("rule4_xGreaterThan5");
             BoolVar yGreaterThan5 = model.newBoolVar("rule4_yGreaterThan5");
 
-            model.addGreaterThan(x.qty, 5).onlyEnforceIf(xGreaterThan5);
-            model.addLessOrEqual(x.qty, 5).onlyEnforceIf(xGreaterThan5.not());
+            model.addGreaterThan(x.quantityVar(), 5).onlyEnforceIf(xGreaterThan5);
+            model.addLessOrEqual(x.quantityVar(), 5).onlyEnforceIf(xGreaterThan5.not());
 
-            model.addGreaterThan(y.qty, 5).onlyEnforceIf(yGreaterThan5);
-            model.addLessOrEqual(y.qty, 5).onlyEnforceIf(yGreaterThan5.not());
+            model.addGreaterThan(y.quantityVar(), 5).onlyEnforceIf(yGreaterThan5);
+            model.addLessOrEqual(y.quantityVar(), 5).onlyEnforceIf(yGreaterThan5.not());
 
             model.addBoolAnd(new Literal[] { xGreaterThan5, yGreaterThan5 }).onlyEnforceIf(xAndYGreaterThan5);
             model.addBoolOr(new Literal[] { xGreaterThan5.not(), yGreaterThan5.not() })
                     .onlyEnforceIf(xAndYGreaterThan5.not());
 
-            // Then condition: z.qty < 10
-            model.addLessThan(z.qty, 10).onlyEnforceIf(xAndYGreaterThan5);
+            // Then condition: z.quantityVar() < 10
+            model.addLessThan(z.quantityVar(), 10).onlyEnforceIf(xAndYGreaterThan5);
         }
 
-        // rule5: y.qty < 10 （多条B1)
-        @CodeRuleAnno(normalNaturalCode = "y.qty < 10")
+        // rule5: y.quantityVar() < 10 （多条B1)
+        @CodeRuleAnno(normalNaturalCode = "y.quantityVar() < 10")
         private void rule51() {
-            // Add constraint: y.qty < 10
-            model.addLessThan(y.qty, 10);
+            // Add constraint: y.quantityVar() < 10
+            model.addLessThan(y.quantityVar(), 10);
         }
 
-        // rule6: y.qty < 15 （多条B2)
-        @CodeRuleAnno(normalNaturalCode = "y.qty < 15")
+        // rule6: y.quantityVar() < 15 （多条B2)
+        @CodeRuleAnno(normalNaturalCode = "y.quantityVar() < 15")
         private void rule52() {
-            // Add constraint: y.qty < 15
-            model.addLessThan(y.qty, 15);
+            // Add constraint: y.quantityVar() < 15
+            model.addLessThan(y.quantityVar(), 15);
         }
     }
     // ---------------模型的定义end----------------------------------------

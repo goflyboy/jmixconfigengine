@@ -1,165 +1,48 @@
 package ${module.packageName};
 
-import com.jmix.configengine.artifact.*;
-import com.google.ortools.sat.*;
-import java.util.*;
+import com.jmix.executor.southinf.AlgorithmApiVersion;
+import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.var.ParaVar;
+import com.jmix.executor.southinf.var.PartVar;
+import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
+import com.jmix.tool.bbuilder.anno.ModuleAnno;
+import com.jmix.tool.bbuilder.anno.ParaAnno;
+import com.jmix.tool.bbuilder.anno.PartAnno;
+
+import java.util.List;
 
 /**
- * 自动生成的约束类：${module.code}Constraint
+ * Generated constraint class for ${module.code}.
  */
-public class ${module.code}Constraint extends ConstraintAlgImpl {
-    
-    <#--参数变量声明 -->
-    <#list module.paras as para>
+@ModuleAnno(id = ${module.base.id?c})
+@AlgorithmApiVersion(southApiVersion = "1.0", algorithmVersion = "generated")
+public class ${module.code}Constraint extends ConstraintAlgBase {
+
+<#list module.paras as para>
+    @ParaAnno
     private ParaVar ${para.varName};
-    </#list>
-    
-    <#--Part变量声明 -->
-    <#list module.parts as part>
+</#list>
+
+<#list module.parts as part>
+    @PartAnno
     private PartVar ${part.varName};
-    </#list>
+</#list>
 
-    @Override
-    public void initVariables() {
-        //参数创建
-        <#list module.paras as para>
-            //参数${para.code}创建
-            this.${para.varName} = createParaVar("${para.code}");
-        </#list>
-        
-        //部件创建
-        <#list module.parts as part>
-            //部件${part.code}创建
-            this.${part.varName} = createPartVar("${part.code}");
-        </#list>
-    }
-
-    @Override
-    public void initConstraint() {
-        // 这里应该初始化约束，实际实现中需要CPModel
-        <#list module.rules as rule>
-        addConstraint_${rule.code}();
-        </#list>
-    }
-    
-    <#--生成约束定义 -->
-    <#list module.rules as rule>
-        //===================================调试信息===================================
-        // 规则: ${rule.code} - ${rule.name}
-        // isCompatibleRule(): ${rule.isCompatibleRule()?string}
-        // rule.left??: ${(rule.left??)?string}
-        // rule.right??: ${(rule.right??)?string}
-        // 条件判断结果: ${(rule.isCompatibleRule() && rule.left?? && rule.right??)?string}
-        //===================================调试信息===================================
-        
-        <#if rule.isCompatibleRule() && rule.left?? && rule.right??>
-        //===================================类型1===================================
-    /**
-     * 兼容性规则：${rule.name}
-     * 规则内容：${rule.normalNaturalCode}
-     */
-    public void addConstraint_${rule.code}() {
-        addCompatibleConstraint("${rule.code}", this.${rule.left.varName},
-        Arrays.asList(
-                <#list rule.rightFilterCodes as filterCode>
-                    "${filterCode}"<#if filterCode_has_next>,</#if>
-                </#list>
-        ), this.${rule.right.varName}, Arrays.asList(
-                <#list rule.leftFilterCodes as filterCode>
-                    "${filterCode}"<#if filterCode_has_next>,</#if>
-                </#list>
-        ));
-    }
-    /**
-     * 兼容性规则：${rule.name}
-     * 规则内容：${rule.normalNaturalCode}
-     */
-    public void addConstraint_${rule.code}_comment() { 
-            // left:确保只有一个颜色选项被选中,part要考虑TODO
-            model.addExactlyOne(this.${rule.left.varName}.optionSelectVars.values().stream()
-                .map(option -> option.getIsSelectedVar())
-                .toArray(BoolVar[]::new));
-            // right:确保只有一个颜色选项被选中,part要考虑TODO
-            model.addExactlyOne(this.${rule.right.varName}.optionSelectVars.values().stream()
-                .map(option -> option.getIsSelectedVar())
-                .toArray(BoolVar[]::new));
-
-            // 4. 定义筛选后的集合 Set1=(A1,A2,A3) =>筛出的结果A1，A2 (filterCodeIds)
-            // 左表达式：对Color.options执行filter("Color !="Red")的结果为：(Black=10, White=20)
-            BoolVar leftCond = model.newBoolVar("${rule.code}" + "_" + "leftCond");
-            <#if rule.leftFilterCodes?? && rule.leftFilterCodes?size gt 0>
-            model.addBoolOr(new Literal[]{
-                <#list rule.leftFilterCodes as filterCode>
-                this.${rule.left.varName}.getParaOptionByCode("${filterCode}").getIsSelectedVar()<#if filterCode_has_next>,</#if>
-                </#list>
-            }).onlyEnforceIf(leftCond);
-            model.addBoolAnd(new Literal[]{
-                <#list rule.leftFilterCodes as filterCode>
-                this.${rule.left.varName}.getParaOptionByCode("${filterCode}").getIsSelectedVar().not()<#if filterCode_has_next>,</#if>
-                </#list>
-            }).onlyEnforceIf(leftCond.not());
-            </#if>
-            
-            // 右表达式：对Color.options执行filter("Color !="Red")的结果为：(Black=10, White=20)
-            BoolVar rightCond = model.newBoolVar("${rule.code}" + "_" + "rightCond");
-            <#if rule.rightFilterCodes?? && rule.rightFilterCodes?size gt 0>
-            model.addBoolOr(new Literal[]{
-                <#list rule.rightFilterCodes as filterCode>
-                this.${rule.right.varName}.getParaOptionByCode("${filterCode}").getIsSelectedVar()<#if filterCode_has_next>,</#if>
-                </#list>
-            }).onlyEnforceIf(rightCond);
-            model.addBoolAnd(new Literal[]{
-                <#list rule.rightFilterCodes as filterCode>
-                this.${rule.right.varName}.getParaOptionByCode("${filterCode}").getIsSelectedVar().not()<#if filterCode_has_next>,</#if>
-                </#list>
-            }).onlyEnforceIf(rightCond.not());
-            </#if>
-            
-            // 5. 实现Codependent关系
-            <#if rule.leftFilterCodes?? && rule.leftFilterCodes?size gt 0 && rule.rightFilterCodes?? && rule.rightFilterCodes?size gt 0>
-            model.addEquality(leftCond, rightCond);
-            </#if> 
+<#list module.rules as rule>
+    @CodeRuleAnno(normalNaturalCode = "${(rule.normalNaturalCode!'')?js_string}")
+    private void ${rule.code}() {
+<#if rule.isCompatibleRule() && rule.left?? && rule.right??>
+        List.of(<#list rule.leftFilterCodes as filterCode>"${filterCode}"<#if filterCode_has_next>, </#if></#list>)
+                .forEach(option -> List.of(<#list rule.rightFilterCodes as filterCode>"${filterCode}"<#if filterCode_has_next>, </#if></#list>)
+                        .forEach(right -> model().compatibilityCoDependent("${rule.code}",
+                                ${rule.left.varName}.option(option).selected(),
+                                ${rule.right.varName}.option(right).selected())));
+<#elseif rule.isCalculateRule()>
+        throw new UnsupportedOperationException("Generated calculate rule is not implemented: ${rule.code}");
+<#else>
+        throw new UnsupportedOperationException("Generated rule type is not implemented: ${rule.code}");
+</#if>
     }
 
-
-        //===================================类型2===================================
-        <#elseif rule.isCalculateRule()>
-    /**
-     * 兼容性规则：${rule.name}
-     * 规则内容：${rule.normalNaturalCode}
-     */
-    public void addConstraint_${rule.code}() {
-        // TODO: 实现兼容性约束TODO 
-        System.out.println("Adding compatibility constraint: ${rule.name}");
-    }
-           
-       //===================================类型1===================================
-        <#else>
-    /**
-     * 未知规则类型：${rule.name}
-     * 规则内容：${rule.normalNaturalCode}
-     */
-    public void addConstraint_${rule.code}() {
-        System.out.println("Unknown rule type: ${rule.name}");
-    }
-        </#if>
-    </#list>
-    
-    /**
-     * 主方法，用于测试
-     */
-    public static void main(String[] args) {
-        ${module.code}Constraint constraint = new ${module.code}Constraint();
-        constraint.initVariables();
-        constraint.initConstraint();
-        
-        <#list module.rules as rule> 
-        constraint.addConstraint_${rule.code}();
-        </#list>
-        
-        System.out.println("Constraint rules execution completed");
-    }
-    @Override
-    protected void initModelAfter(CpModel model) {
-    }
+</#list>
 }

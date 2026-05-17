@@ -3,13 +3,18 @@ package com.jmix.scenario.ruletest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.jmix.coretest.ConstraintAlgImplTestBase;
+import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.var.ParaVar;
+import com.jmix.executor.southinf.var.PartCategoryVar;
+import com.jmix.executor.southinf.var.PartVar;
 import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.executor.bmodel.attr.DynamicAttributeType;
 import com.jmix.executor.bmodel.base.AssignType;
 import com.jmix.executor.bmodel.logic.CalcStage;
 import com.jmix.executor.bmodel.para.ParaType;
 import com.jmix.executor.cmodel.ModuleInst;
+import com.jmix.executor.cmodel.ParaInst;
+import com.jmix.executor.cmodel.PartCategoryInst;
 import com.jmix.executor.model.ConstraintConfig;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
 import com.jmix.tool.bbuilder.anno.DAttrAnno2;
@@ -35,7 +40,7 @@ public class PostCalcRuleTest extends ModuleScenarioTestBase {
     }
 
     @ModuleAnno(id = 123L)
-    public static class PostCalcConstraint extends ConstraintAlgImplTestBase {
+    public static class PostCalcConstraint extends ConstraintAlgBase {
 
         @PartAnno(code = "drive")
         @DAttrAnno2(code = "Speed", dynAttrType = DynamicAttributeType.E_STRING,
@@ -144,13 +149,13 @@ public class PostCalcRuleTest extends ModuleScenarioTestBase {
      * 在ModuleInst及其所有PartCategoryInst中查找指定code的ParaInst值
      */
     private String findParaValue(ModuleInst sol, String paraCode) {
-        for (com.jmix.executor.cmodel.ParaInst pi : sol.getParas()) {
+        for (ParaInst pi : sol.getParas()) {
             if (paraCode.equals(pi.getCode())) {
                 return pi.getValue();
             }
         }
-        for (com.jmix.executor.cmodel.PartCategoryInst pcInst : sol.getPartCategorys()) {
-            for (com.jmix.executor.cmodel.ParaInst pi : pcInst.getParas()) {
+        for (PartCategoryInst pcInst : sol.getPartCategorys()) {
+            for (ParaInst pi : pcInst.getParas()) {
                 if (paraCode.equals(pi.getCode())) {
                     return pi.getValue();
                 }

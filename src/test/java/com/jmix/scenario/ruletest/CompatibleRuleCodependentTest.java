@@ -1,6 +1,9 @@
 package com.jmix.scenario.ruletest;
 
-import com.jmix.coretest.ConstraintAlgImplTestBase;
+import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.var.ParaVar;
+import com.jmix.executor.southinf.var.PartCategoryVar;
+import com.jmix.executor.southinf.var.PartVar;
 import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.executor.model.ConstraintConfig;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
@@ -30,7 +33,7 @@ public class CompatibleRuleCodependentTest extends ModuleScenarioTestBase {
      * @since 2025-09-23
      */
     @ModuleAnno(id = 123L)
-    public static class CompatibleRuleCodependentConstraint extends ConstraintAlgImplTestBase {
+    public static class CompatibleRuleCodependentConstraint extends ConstraintAlgBase {
         @ParaAnno(options = { "a1", "a2", "a3", "a4", "a5" })
         private ParaVar aVar;
 
@@ -69,49 +72,49 @@ public class CompatibleRuleCodependentTest extends ModuleScenarioTestBase {
             // 创建条件变量：A在CA中
             BoolVar inCA = model.newBoolVar("inCA");
             model.addBoolOr(new Literal[] {
-                    aVar.getParaOptionByCode("a1").getIsSelectedVar(),
-                    aVar.getParaOptionByCode("a3").getIsSelectedVar()
+                    aVar.option("a1").selectedVar(),
+                    aVar.option("a3").selectedVar()
             }).onlyEnforceIf(inCA);
             model.addBoolAnd(new Literal[] {
-                    aVar.getParaOptionByCode("a1").getIsSelectedVar().not(),
-                    aVar.getParaOptionByCode("a3").getIsSelectedVar().not()
+                    aVar.option("a1").selectedVar().not(),
+                    aVar.option("a3").selectedVar().not()
             }).onlyEnforceIf(inCA.not());
 
             // 创建条件变量：B在CB中
             BoolVar inCB = model.newBoolVar("inCB");
             model.addBoolOr(new Literal[] {
-                    bVar.getParaOptionByCode("b1").getIsSelectedVar(),
-                    bVar.getParaOptionByCode("b2").getIsSelectedVar(),
-                    bVar.getParaOptionByCode("b3").getIsSelectedVar()
+                    bVar.option("b1").selectedVar(),
+                    bVar.option("b2").selectedVar(),
+                    bVar.option("b3").selectedVar()
             }).onlyEnforceIf(inCB);
             model.addBoolAnd(new Literal[] {
-                    bVar.getParaOptionByCode("b1").getIsSelectedVar().not(),
-                    bVar.getParaOptionByCode("b2").getIsSelectedVar().not(),
-                    bVar.getParaOptionByCode("b3").getIsSelectedVar().not()
+                    bVar.option("b1").selectedVar().not(),
+                    bVar.option("b2").selectedVar().not(),
+                    bVar.option("b3").selectedVar().not()
             }).onlyEnforceIf(inCB.not());
 
             // 创建条件变量：A不在CA中
             BoolVar notInCA = model.newBoolVar("notInCA");
             model.addBoolOr(new Literal[] {
-                    aVar.getParaOptionByCode("a2").getIsSelectedVar(),
-                    aVar.getParaOptionByCode("a4").getIsSelectedVar(),
-                    aVar.getParaOptionByCode("a5").getIsSelectedVar()
+                    aVar.option("a2").selectedVar(),
+                    aVar.option("a4").selectedVar(),
+                    aVar.option("a5").selectedVar()
             }).onlyEnforceIf(notInCA);
             model.addBoolAnd(new Literal[] {
-                    aVar.getParaOptionByCode("a2").getIsSelectedVar().not(),
-                    aVar.getParaOptionByCode("a4").getIsSelectedVar().not(),
-                    aVar.getParaOptionByCode("a5").getIsSelectedVar().not()
+                    aVar.option("a2").selectedVar().not(),
+                    aVar.option("a4").selectedVar().not(),
+                    aVar.option("a5").selectedVar().not()
             }).onlyEnforceIf(notInCA.not());
 
             // 创建条件变量：B不在CB中
             BoolVar notInCB = model.newBoolVar("notInCB");
             model.addBoolOr(new Literal[] {
-                    bVar.getParaOptionByCode("b4").getIsSelectedVar(),
-                    bVar.getParaOptionByCode("b5").getIsSelectedVar()
+                    bVar.option("b4").selectedVar(),
+                    bVar.option("b5").selectedVar()
             }).onlyEnforceIf(notInCB);
             model.addBoolAnd(new Literal[] {
-                    bVar.getParaOptionByCode("b4").getIsSelectedVar().not(),
-                    bVar.getParaOptionByCode("b5").getIsSelectedVar().not()
+                    bVar.option("b4").selectedVar().not(),
+                    bVar.option("b5").selectedVar().not()
             }).onlyEnforceIf(notInCB.not());
 
             // Codependent 双向约束：

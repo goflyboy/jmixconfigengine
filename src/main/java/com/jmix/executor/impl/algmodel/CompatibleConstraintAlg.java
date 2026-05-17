@@ -40,10 +40,10 @@ public class CompatibleConstraintAlg {
         // right：确保只有一个部件被选中
         addExactlyOneConstraint(rightPartsExpr.getPartVars());
         // 获取左侧和右侧的部件变量
-        List<PartVar> leftFilterParts = leftPartsExpr.getFilterPartVars();
-        List<PartVar> rightFilterParts = rightPartsExpr.getFilterPartVars();
-        List<PartVar> leftNoFilterParts = leftPartsExpr.getNoFilterPartVars();
-        List<PartVar> rightNoFilterParts = rightPartsExpr.getNoFilterPartVars();
+        List<PartVarImpl> leftFilterParts = leftPartsExpr.getFilterPartVars();
+        List<PartVarImpl> rightFilterParts = rightPartsExpr.getFilterPartVars();
+        List<PartVarImpl> leftNoFilterParts = leftPartsExpr.getNoFilterPartVars();
+        List<PartVarImpl> rightNoFilterParts = rightPartsExpr.getNoFilterPartVars();
 
         // 定义左侧条件：左侧过滤集合中至少一个被选中
         BoolVar leftCond = createSelectedCondition(ruleCode, leftFilterParts, "leftCond");
@@ -68,7 +68,7 @@ public class CompatibleConstraintAlg {
                 ruleCode, leftFilterParts.size(), rightFilterParts.size());
     }
 
-    private void addExactlyOneConstraint(List<PartVar> partVars) {
+    private void addExactlyOneConstraint(List<PartVarImpl> partVars) {
         model.addExactlyOne(partVars.stream()
                 .map(partVar -> partVar.getIsSelected())
                 .toArray(Literal[]::new));
@@ -82,7 +82,7 @@ public class CompatibleConstraintAlg {
      * @param conditionSuffix 条件后缀
      * @return 条件变量
      */
-    private BoolVar createSelectedCondition(String ruleCode, List<PartVar> partVars, String conditionSuffix) {
+    private BoolVar createSelectedCondition(String ruleCode, List<PartVarImpl> partVars, String conditionSuffix) {
 
         // 定义条件变量
         BoolVar condition = model.newBoolVar(ruleCode + "_" + conditionSuffix);

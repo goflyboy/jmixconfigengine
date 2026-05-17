@@ -1,6 +1,9 @@
 package com.jmix.opti.multireq;
 
-import com.jmix.coretest.ConstraintAlgImplTestBase;
+import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.var.ParaVar;
+import com.jmix.executor.southinf.var.PartCategoryVar;
+import com.jmix.executor.southinf.var.PartVar;
 import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.executor.bmodel.attr.DynamicAttributeType;
 import com.jmix.executor.bmodel.base.AssignType;
@@ -27,7 +30,7 @@ public class EnumMultReq4MultiReqTest extends ModuleScenarioTestBase {
 
     // ---------------模型的定义start----------------------------------------
     @ModuleAnno(id = 123L)
-    static public class EnumMultReqMultiInstConstraint extends ConstraintAlgImplTestBase {
+    static public class EnumMultReqMultiInstConstraint extends ConstraintAlgBase {
 
         // 硬盘部件分类定义--严格按层级结构定义（顺序很重要），部件的attrs也要按定义的顺序来
         @PartAnno(instCodes = "driveI0,driveI1")
@@ -157,7 +160,7 @@ public class EnumMultReq4MultiReqTest extends ModuleScenarioTestBase {
         // // 额外增加的，前置计算的规则
         // @CodeRuleAnno(normalNaturalCode = "前置计算") // 为了兼容总实例的数量总和的关系
         // private void logicPreCompute() {
-        // if (SumCapacity.getIsHasInputed()) {
+        // if (SumCapacity.hasInput()) {
         // driveSumCapacity.setIsHasInputed(true);
         // } else {
         // driveSumQuantity.setIsHasInputed(false);
@@ -215,8 +218,8 @@ public class EnumMultReq4MultiReqTest extends ModuleScenarioTestBase {
             PartAlgCPLinearExpr totalCapacity = sum4Quantity("drive*", "Capacity", "").name("totalCapacity");
             // 如果是容量需求
             // 改动点5：怎么判断 driveSumCapacity是否有输入？前置计算+ 输入条件判断？ --
-            if (driveSumCapacity.getIsHasInputed()) {
-                int requiredCapacity = driveSumCapacity.getInputValue();
+            if (driveSumCapacity.hasInput()) {
+                int requiredCapacity = driveSumCapacity.inputValue();
 
                 // a1.满足输入容量需求 totalCapacity >= requiredCapacity
                 model.addGreaterOrEqual(totalCapacity, requiredCapacity);
@@ -245,7 +248,7 @@ public class EnumMultReq4MultiReqTest extends ModuleScenarioTestBase {
             } else {// 给的数量qty总数
 
                 // int requiredQty = Integer.parseInt(req.getAttrValue());
-                int requiredQuantity = driveSumQuantity.getInputValue();
+                int requiredQuantity = driveSumQuantity.inputValue();
                 // a1.满足输入总数量需求 totalQuantity >= requiredQuantity
                 PartAlgCPLinearExpr totalQuantity = sum4Quantity("drive*", "", "").name("totalQuantity");
                 model.addGreaterOrEqual(totalQuantity, requiredQuantity);

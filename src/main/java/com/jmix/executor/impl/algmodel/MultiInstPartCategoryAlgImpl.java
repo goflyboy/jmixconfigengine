@@ -86,7 +86,7 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
             // 总总参，和总参的关系，后续支持写逻辑（多个总总之间issue, 总参和下面的变量的关系）
             Pair<Boolean, Integer> hasSetSumPara = hasSetSumPara(attrPara);
             if (hasSetSumPara.getFirst()) {
-                ParaVar sumSumParaVar = getSumSumParaByAttr(attrPara.getAttrCode());
+                ParaVarImpl sumSumParaVar = getSumSumParaByAttr(attrPara.getAttrCode());
                 if (!sumSumParaVar.getHasInputed()) {
                     sumSumParaVar.setInputValue(hasSetSumPara.getSecond());
                     sumSumParaVar.setHasInputed(true);
@@ -99,7 +99,7 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
     private Pair<Boolean, Integer> hasSetSumPara(AttrPara sumSumPara) {
         boolean hasSet = false;
         int sumSumValue = 0;
-        ParaVar pv = null;
+        ParaVarImpl pv = null;
         for (SingleInstPartCategoryAlgImpl partCategoryAlg : getPartCategoryInsts()) {
             pv = partCategoryAlg.getSumParaByAttrInternal(sumSumPara.getAttrCode());
             if (pv != null && pv.getHasInputed()) {
@@ -163,7 +163,7 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
         for (SingleInstPartCategoryAlgImpl partCategoryAlgImpl : partCategoryAlgImpls) {
             buildSumExprInternal(sumFunExpr, partCategoryAlgImpl,
                     partConstraint.getSumAttrCode(), "Q",
-                    PartVar::getQty, "");
+                    PartVarImpl::getQty, "");
         }
         // 应用约束
         ComparisonOperator operator = ComparisonOperator.fromSymbol(partConstraint.getComparator());
@@ -174,12 +174,12 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
     }
 
     @Override
-    protected Var<?> newPartVar(PartVar internalPartVar) {
+    protected VarImpl<?> newPartVar(PartVarImpl internalPartVar) {
         throw new UnsupportedOperationException("Unimplemented method 'newPartVar'");
     }
 
     @Override
-    protected Var<?> newParaVar(ParaVar internalParaVar) {
+    protected VarImpl<?> newParaVar(ParaVarImpl internalParaVar) {
         throw new UnsupportedOperationException("Unimplemented method 'newParaVar'");
     }
 
@@ -209,41 +209,41 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
     }
 
     @Override
-    public ParaVar getParaVar(String code) {
+    public ParaVarImpl getParaVar(String code) {
         return super.getParaVar(code);
     }
 
-    public ParaVar getSumSumParaByAttr(String attrCode) {
-        ParaVar paraVar = super.getParaVar(AttrParaType.SumSum.name() + AttrPara.CODE_SEPARATOR + attrCode);
+    public ParaVarImpl getSumSumParaByAttr(String attrCode) {
+        ParaVarImpl paraVar = super.getParaVar(AttrParaType.SumSum.name() + AttrPara.CODE_SEPARATOR + attrCode);
         if (paraVar == null) {
-            log.error("ParaVar not found for attrCode: {}", attrCode);
-            throw new AlgLoaderException("ParaVar not found for attrCode: " + attrCode);
+            log.error("ParaVarImpl not found for attrCode: {}", attrCode);
+            throw new AlgLoaderException("ParaVarImpl not found for attrCode: " + attrCode);
         }
         return paraVar;
     }
 
-    public ParaVar getSumParaByAttr(String attrCode) {
+    public ParaVarImpl getSumParaByAttr(String attrCode) {
         throw new UnsupportedOperationException("Unimplemented method 'getSumParaByAttr'");
     }
 
     @Override
-    public PartVar getPartVar(String code) {
+    public PartVarImpl getPartVar(String code) {
         throw new UnsupportedOperationException("Unimplemented method 'getPartVar'");
     }
 
     @Override
-    public List<PartVar> getAllPartVars(String filterConditionStr) {
-        List<PartVar> partVars = new ArrayList<>();
+    public List<PartVarImpl> getAllPartVars(String filterConditionStr) {
+        List<PartVarImpl> partVars = new ArrayList<>();
         for (Pair<PartCategoryInput, SingleInstPartCategoryAlgImpl> partCategoryAlg : partCategoryAlgs.values()) {
             partVars.addAll(partCategoryAlg.getSecond().getAllPartVars(filterConditionStr));
         }
         return partVars;
     }
 
-    public Pair<List<PartVar>, List<PartVar>> filterAllPartVars(String filterConditionStr) {
-        Pair<List<PartVar>, List<PartVar>> result = new Pair<>(new ArrayList<>(), new ArrayList<>());
+    public Pair<List<PartVarImpl>, List<PartVarImpl>> filterAllPartVars(String filterConditionStr) {
+        Pair<List<PartVarImpl>, List<PartVarImpl>> result = new Pair<>(new ArrayList<>(), new ArrayList<>());
         for (SingleInstPartCategoryAlgImpl partCategoryAlg : this.getPartCategoryInsts()) {
-            Pair<List<PartVar>, List<PartVar>> partVars = partCategoryAlg.filterAllPartVars(filterConditionStr);
+            Pair<List<PartVarImpl>, List<PartVarImpl>> partVars = partCategoryAlg.filterAllPartVars(filterConditionStr);
             result.getFirst().addAll(partVars.getFirst());
             result.getSecond().addAll(partVars.getSecond());
         }

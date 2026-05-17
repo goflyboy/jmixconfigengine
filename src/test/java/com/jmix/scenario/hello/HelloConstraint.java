@@ -1,6 +1,10 @@
 package com.jmix.scenario.hello;
 
-import com.jmix.coretest.ConstraintAlgImplTestBase;
+import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.var.ParaVar;
+import com.jmix.executor.southinf.var.PartCategoryVar;
+import com.jmix.executor.southinf.var.PartVar;
+import com.jmix.executor.southinf.AlgorithmApiVersion;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
 import com.jmix.tool.bbuilder.anno.ModuleAnno;
 import com.jmix.tool.bbuilder.anno.ParaAnno;
@@ -15,7 +19,8 @@ import com.google.ortools.sat.Literal;
  * @since 2025-09-23
  */
 @ModuleAnno(id = 123L)
-public class HelloConstraint extends ConstraintAlgImplTestBase {
+@AlgorithmApiVersion(southApiVersion = "1.0", algorithmVersion = "hello-2026.05")
+public class HelloConstraint extends ConstraintAlgBase {
 
     @ParaAnno(defaultValue = "Red", options = { "Red:1", "Black:2", "White:3" })
     private ParaVar colorVar;
@@ -35,11 +40,11 @@ public class HelloConstraint extends ConstraintAlgImplTestBase {
 
         // "Red-10", "Black-20", "White-30"
         // "Small-10", "Medium-20", "Big-30"
-        // if(colorVar.value ==Red && sizeVar.value == Small ) {
-        // tShirt11Var.qty = 1;
+        // if(colorVar.valueVar() ==Red && sizeVar.valueVar() == Small ) {
+        // tShirt11Var.quantityVar() = 1;
         // }
         // else {
-        // tShirt11Var.qty = 3
+        // tShirt11Var.quantityVar() = 3
         // }
 
         // 创建条件变量：颜色是红色且尺寸是小号
@@ -47,21 +52,21 @@ public class HelloConstraint extends ConstraintAlgImplTestBase {
 
         // 实现条件逻辑：redAndSmall = (Color == Red) AND (Size == Small)
         model.addBoolAnd(new Literal[] {
-                this.colorVar.getParaOptionByCode("Red").getIsSelectedVar(),
-                this.sizeVar.getParaOptionByCode("Small").getIsSelectedVar()
+                this.colorVar.option("Red").selectedVar(),
+                this.sizeVar.option("Small").selectedVar()
         }).onlyEnforceIf(redAndSmall);
 
         // 如果不是红色且小号的组合，则redAndSmall为false
         model.addBoolOr(new Literal[] {
-                this.colorVar.getParaOptionByCode("Red").getIsSelectedVar().not(),
-                this.sizeVar.getParaOptionByCode("Small").getIsSelectedVar().not()
+                this.colorVar.option("Red").selectedVar().not(),
+                this.sizeVar.option("Small").selectedVar().not()
         }).onlyEnforceIf(redAndSmall.not());
 
         // 根据条件设置TShirt11的数量
         // 如果redAndSmall为true，则TShirt11数量为1
-        model.addEquality(this.tShirt11Var.qty, 1).onlyEnforceIf(redAndSmall);
+        model.addEquality(this.tShirt11Var.quantityVar(), 1).onlyEnforceIf(redAndSmall);
 
         // 如果redAndSmall为false，则TShirt11数量为3
-        model.addEquality(this.tShirt11Var.qty, 3).onlyEnforceIf(redAndSmall.not());
+        model.addEquality(this.tShirt11Var.quantityVar(), 3).onlyEnforceIf(redAndSmall.not());
     }
 }

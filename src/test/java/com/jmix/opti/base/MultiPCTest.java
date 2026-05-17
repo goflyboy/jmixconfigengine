@@ -1,6 +1,9 @@
 package com.jmix.opti.base;
 
-import com.jmix.coretest.ConstraintAlgImplTestBase;
+import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.var.ParaVar;
+import com.jmix.executor.southinf.var.PartCategoryVar;
+import com.jmix.executor.southinf.var.PartVar;
 import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.executor.bmodel.attr.DynamicAttributeType;
 import com.jmix.executor.bmodel.base.AssignType;
@@ -26,7 +29,7 @@ public class MultiPCTest extends ModuleScenarioTestBase {
 
     // ---------------模型的定义start----------------------------------------
     @ModuleAnno(id = 123L)
-    static public class MultiPCConstraint extends ConstraintAlgImplTestBase {
+    static public class MultiPCConstraint extends ConstraintAlgBase {
 
         // 硬盘部件分类定义--严格按层级结构定义（顺序很重要），部件的attrs也要按定义的顺序来
         @PartAnno()
@@ -146,8 +149,8 @@ public class MultiPCTest extends ModuleScenarioTestBase {
 
             PartAlgCPLinearExpr totalCapacity = sum4Quantity("Capacity", "").name("totalCapacity");
             // 如果是容量需求
-            if (Sum_Capacity.getIsHasInputed()) {
-                int requiredCapacity = Sum_Capacity.getInputValue();
+            if (Sum_Capacity.hasInput()) {
+                int requiredCapacity = Sum_Capacity.inputValue();
 
                 // a1.满足输入容量需求 totalCapacity >= requiredCapacity
                 model.addGreaterOrEqual(totalCapacity, requiredCapacity);
@@ -174,7 +177,7 @@ public class MultiPCTest extends ModuleScenarioTestBase {
             } else {// 给的数量qty总数
 
                 // int requiredQty = Integer.parseInt(req.getAttrValue());
-                int requiredQuantity = Sum_Quantity.getInputValue();
+                int requiredQuantity = Sum_Quantity.inputValue();
                 // a1.满足输入总数量需求 totalQuantity >= requiredQuantity
                 PartAlgCPLinearExpr totalQuantity = sum4Quantity("", "").name("totalQuantity");
                 model.addGreaterOrEqual(totalQuantity, requiredQuantity);

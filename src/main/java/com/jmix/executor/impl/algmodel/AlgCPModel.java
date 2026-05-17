@@ -342,8 +342,8 @@ public class AlgCPModel {
         }
 
         // name不是以ParaVar.VAR_PATTERN_PREFIX 且
-        // PartVar.VAR_PATTERN_PREFIX开头，则添加到otherVarMap
-        if (!name.startsWith(ParaVar.VAR_PATTERN_PREFIX) && !name.startsWith(PartVar.VAR_PATTERN_PREFIX)) {
+        // PartVarImpl.VAR_PATTERN_PREFIX开头，则添加到otherVarMap
+        if (!name.startsWith(ParaVarImpl.VAR_PATTERN_PREFIX) && !name.startsWith(PartVarImpl.VAR_PATTERN_PREFIX)) {
             OtherVar otherVar = new OtherVar();
             otherVar.setCode(name);
             otherVar.setVar(tv);

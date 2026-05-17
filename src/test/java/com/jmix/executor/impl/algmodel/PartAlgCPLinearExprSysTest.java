@@ -26,12 +26,12 @@ public class PartAlgCPLinearExprSysTest {
         Loader.loadNativeLibraries();
     }
 
-    private PartVar ofPart(AlgCPModel model, String partCode) {
+    private PartVarImpl ofPart(AlgCPModel model, String partCode) {
         Part part = new Part();
         part.setCode(partCode);
         part.setShortCode(partCode);
 
-        PartVar pv = new PartVar();
+        PartVarImpl pv = new PartVarImpl();
         pv.setBase(part);
         pv.setIsSelected(model.newBoolVar(partCode + "isSelected"));
         pv.setQty(model.newIntVar(0, 100, partCode + "qty"));
@@ -43,8 +43,8 @@ public class PartAlgCPLinearExprSysTest {
         // 测试具体场景: P1.Q - P2.Q = 5 时，|P1.Q - P2.Q| = 5
         AlgCPModel model = new AlgCPModel();
 
-        PartVar pv1 = ofPart(model, "P1");
-        PartVar pv2 = ofPart(model, "P2");
+        PartVarImpl pv1 = ofPart(model, "P1");
+        PartVarImpl pv2 = ofPart(model, "P2");
 
         // 创建表达式: diff = P1.Q - P2.Q
         PartAlgCPLinearExpr diffExpr = new PartAlgCPLinearExpr("diff");

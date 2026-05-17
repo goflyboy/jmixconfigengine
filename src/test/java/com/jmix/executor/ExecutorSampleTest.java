@@ -15,7 +15,6 @@ import com.jmix.executor.model.Result;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -25,7 +24,6 @@ import java.util.List;
 @Slf4j
 public class ExecutorSampleTest {
     @Test
-    @Disabled
     public void helloSample() throws IOException {
         // Hello的模型说明，详细见 cp-Hello-123-sources.jar
         String moduleCode = "Hello";

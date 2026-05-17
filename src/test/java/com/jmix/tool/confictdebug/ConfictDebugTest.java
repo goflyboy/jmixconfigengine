@@ -1,6 +1,9 @@
 package com.jmix.tool.confictdebug;
 
-import com.jmix.coretest.ConstraintAlgImplTestBase;
+import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.var.ParaVar;
+import com.jmix.executor.southinf.var.PartCategoryVar;
+import com.jmix.executor.southinf.var.PartVar;
 import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.executor.impl.algmodel.AlgCPLinearExpr;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
@@ -18,48 +21,48 @@ public class ConfictDebugTest extends ModuleScenarioTestBase {
 
     // ---------------模型的定义start----------------------------------------
     @ModuleAnno(id = 123L)
-    static public class ConfictDebugConstraint extends ConstraintAlgImplTestBase {
+    static public class ConfictDebugConstraint extends ConstraintAlgBase {
         @PartAnno(maxQuantity = 50)
         private PartVar x;
 
         @PartAnno(maxQuantity = 50)
         private PartVar y;
 
-        // rule1: x.qty + y.qty < 20
-        @CodeRuleAnno(normalNaturalCode = "x.qty + y.qty < 20")
+        // rule1: x.quantityVar() + y.quantityVar() < 20
+        @CodeRuleAnno(normalNaturalCode = "x.quantityVar() + y.quantityVar() < 20")
         private void rule1() {
-            // Create linear expression for x.qty + y.qty
+            // Create linear expression for x.quantityVar() + y.quantityVar()
             AlgCPLinearExpr sumXY = new AlgCPLinearExpr("sum_x_y");
-            sumXY.addTerm(x.qty, 1);
-            sumXY.addTerm(y.qty, 1);
-            // Add constraint: x.qty + y.qty < 20
+            sumXY.addTerm(x.quantityVar(), 1);
+            sumXY.addTerm(y.quantityVar(), 1);
+            // Add constraint: x.quantityVar() + y.quantityVar() < 20
             model.addLessThan(sumXY, 20);
         }
 
-        // rule2: x.qty - y.qty > 10
-        @CodeRuleAnno(normalNaturalCode = "x.qty - y.qty > 10")
+        // rule2: x.quantityVar() - y.quantityVar() > 10
+        @CodeRuleAnno(normalNaturalCode = "x.quantityVar() - y.quantityVar() > 10")
         private void rule2() {
-            // Create linear expression for x.qty - y.qty
-            AlgCPLinearExpr diffXY = AlgCPLinearExpr.weightedSum(new IntVar[] { x.qty, y.qty },
+            // Create linear expression for x.quantityVar() - y.quantityVar()
+            AlgCPLinearExpr diffXY = AlgCPLinearExpr.weightedSum(new IntVar[] { x.quantityVar(), y.quantityVar() },
                     new long[] { 1, -1 });
-            // Add constraint: x.qty - y.qty > 10
+            // Add constraint: x.quantityVar() - y.quantityVar() > 10
             model.addGreaterThan(diffXY, 10);
         }
 
-        // rule3: y.qty > 45
-        @CodeRuleAnno(normalNaturalCode = "y.qty > 45")
+        // rule3: y.quantityVar() > 45
+        @CodeRuleAnno(normalNaturalCode = "y.quantityVar() > 45")
         private void rule3() {
-            // Add constraint: y.qty > 45
-            model.addGreaterThan(y.qty, 45);
+            // Add constraint: y.quantityVar() > 45
+            model.addGreaterThan(y.quantityVar(), 45);
         }
 
-        // rule4: x.qty + 2 * y.qty > 10
-        @CodeRuleAnno(normalNaturalCode = "x.qty + 2 * y.qty > 10")
+        // rule4: x.quantityVar() + 2 * y.quantityVar() > 10
+        @CodeRuleAnno(normalNaturalCode = "x.quantityVar() + 2 * y.quantityVar() > 10")
         private void rule4() {
-            // Create linear expression for x.qty + 2 * y.qty
-            AlgCPLinearExpr sumX2Y = AlgCPLinearExpr.weightedSum(new com.google.ortools.sat.IntVar[] { x.qty, y.qty },
+            // Create linear expression for x.quantityVar() + 2 * y.quantityVar()
+            AlgCPLinearExpr sumX2Y = AlgCPLinearExpr.weightedSum(new com.google.ortools.sat.IntVar[] { x.quantityVar(), y.quantityVar() },
                     new long[] { 1, 2 });
-            // Add constraint: x.qty + 2 * y.qty > 10
+            // Add constraint: x.quantityVar() + 2 * y.quantityVar() > 10
             model.addGreaterThan(sumX2Y, 10);
         }
     }

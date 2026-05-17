@@ -1,7 +1,6 @@
 package com.jmix.tool.impl;
 
 import com.jmix.executor.bmodel.Module;
-import com.jmix.executor.bmodel.ModuleAlgArtifact;
 import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
 import com.jmix.executor.impl.util.CommHelper;
 import com.jmix.executor.impl.util.ModuleUtils;
@@ -138,12 +137,6 @@ public class ModulePacker {
             log.info("Looking for class files in: {}", testClassesDir);
 
             List<File> classFiles = new ArrayList<>();
-
-            String baseClassRootDir = testClassesDir.substring(0, testClassesDir.lastIndexOf("\\com"));
-            baseClassRootDir = baseClassRootDir + File.separator + ModuleAlgArtifact.ALG_PACKAGE.replace(".", "\\");
-            findClassFiles(baseClassRootDir, ModuleAlgArtifact.ALG_BASE_CLASS, classFiles);
-            findClassFiles(baseClassRootDir, ModuleAlgArtifact.ALG_PART_CLASS, classFiles);
-            findClassFiles(baseClassRootDir, ModuleAlgArtifact.ALG_PARA_CLASS, classFiles);
 
             if (isMultifile) {
                 // 多文件模式：需要将ConstraintAlg类及测试类对应的class打成jar包

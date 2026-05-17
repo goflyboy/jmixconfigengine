@@ -5,6 +5,10 @@ import com.jmix.executor.bmodel.AttrParaType;
 import com.jmix.executor.bmodel.IPart;
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.ModuleAlgArtifact;
+import com.jmix.executor.southinf.AlgorithmApiVersion;
+import com.jmix.executor.southinf.var.ParaVar;
+import com.jmix.executor.southinf.var.PartCategoryVar;
+import com.jmix.executor.southinf.var.PartVar;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartCategory;
 import com.jmix.executor.bmodel.PartType;
@@ -22,9 +26,9 @@ import com.jmix.executor.bmodel.logic.RefProgObjSchema;
 import com.jmix.executor.bmodel.logic.Rule;
 import com.jmix.executor.bmodel.logic.RuleTypeConstants;
 import com.jmix.executor.bmodel.para.Para;
-import com.jmix.executor.impl.algmodel.ParaVar;
-import com.jmix.executor.impl.algmodel.PartCategoryVar;
-import com.jmix.executor.impl.algmodel.PartVar;
+import com.jmix.executor.impl.algmodel.ParaVarImpl;
+import com.jmix.executor.impl.algmodel.PartCategoryVarImpl;
+import com.jmix.executor.impl.algmodel.PartVarImpl;
 import com.jmix.executor.impl.util.ModuleUtils;
 import com.jmix.executor.model.AlgLoaderException;
 import com.jmix.executor.southinf.IModuleAlg;
@@ -197,7 +201,7 @@ public final class ModuleGenneratorByAnno {
 
         // 根据字段类型决定部件类型
         IPart ipart = null;
-        if (field.getType().getSimpleName().equals("PartCategoryVar")) {
+        if (isPartCategoryVarField(field)) {
             PartCategory part = new PartCategory();
             ipart = part;
             part.setPartType(PartType.CATEGORY);
@@ -799,13 +803,12 @@ public final class ModuleGenneratorByAnno {
         List<Field> partFields = new ArrayList<>();
         Map<String, String> fieldNameToPartCode = new HashMap<>();
         for (Field field : moduleAlgClazz.getDeclaredFields()) {
-            if (field.getType().getSimpleName().equals(ParaVar.class.getSimpleName())) {
+            if (isParaVarField(field)) {
                 Optional<Para> paraOpt = createParaFromField(field);
                 if (paraOpt.isPresent()) {
                     paras.add(paraOpt.get());
                 }
-            } else if (field.getType().getSimpleName().equals(PartVar.class.getSimpleName()) ||
-                    field.getType().getSimpleName().equals(PartCategoryVar.class.getSimpleName())) {
+            } else if (isPartLikeVarField(field)) {
                 Optional<IPart> partOpt = createPartFromField(field, partMap);
                 if (partOpt.isPresent()) {
                     partMap.put(partOpt.get().getCode(), partOpt.get());
@@ -837,8 +840,7 @@ public final class ModuleGenneratorByAnno {
 
         // 收集Part字段
         for (Field field : moduleAlgClazz.getDeclaredFields()) {
-            if (field.getType().getSimpleName().equals(PartVar.class.getSimpleName()) ||
-                    field.getType().getSimpleName().equals(PartCategoryVar.class.getSimpleName())) {
+            if (isPartLikeVarField(field)) {
                 Optional<IPart> partOpt = createPartFromField(field, partMap);
                 if (partOpt.isPresent()) {
                     partMap.put(partOpt.get().getCode(), partOpt.get());
@@ -850,7 +852,7 @@ public final class ModuleGenneratorByAnno {
 
         // 处理Para字段，根据fatherCode添加到对应的PartCategory
         for (Field field : moduleAlgClazz.getDeclaredFields()) {
-            if (field.getType().getSimpleName().equals(ParaVar.class.getSimpleName())) {
+            if (isParaVarField(field)) {
                 Optional<Para> paraOpt = createParaFromField(field);
                 if (paraOpt.isPresent()) {
                     Para para = paraOpt.get();
@@ -877,8 +879,7 @@ public final class ModuleGenneratorByAnno {
                         paras.add(para);
                     }
                 }
-            } else if (!field.getType().getSimpleName().equals(PartVar.class.getSimpleName()) &&
-                    !field.getType().getSimpleName().equals(PartCategoryVar.class.getSimpleName())) {
+            } else if (!isPartLikeVarField(field)) {
                 log.info("ignore field type: " + field.getType().getSimpleName());
             }
         }
@@ -894,6 +895,28 @@ public final class ModuleGenneratorByAnno {
      * @param fieldNameToPartCode 字段名到部件编码的映射
      * @param partOverrideMap     部件重写映射
      */
+    private static boolean isParaVarField(Field field) {
+        return ParaVarImpl.class.isAssignableFrom(field.getType())
+                || ParaVar.class.isAssignableFrom(field.getType())
+                || "ParaVar".equals(field.getType().getSimpleName());
+    }
+
+    private static boolean isPartLikeVarField(Field field) {
+        return isPartVarField(field) || isPartCategoryVarField(field);
+    }
+
+    private static boolean isPartVarField(Field field) {
+        return PartVarImpl.class.isAssignableFrom(field.getType())
+                || PartVar.class.isAssignableFrom(field.getType())
+                || "PartVar".equals(field.getType().getSimpleName());
+    }
+
+    private static boolean isPartCategoryVarField(Field field) {
+        return PartCategoryVarImpl.class.isAssignableFrom(field.getType())
+                || PartCategoryVar.class.isAssignableFrom(field.getType())
+                || "PartCategoryVar".equals(field.getType().getSimpleName());
+    }
+
     private static void processInheritance(Field field, IPart part,
             Map<String, IPart> partMap) {
         Map<String, String> overrideMap = new HashMap<>();
@@ -1008,6 +1031,11 @@ public final class ModuleGenneratorByAnno {
         alg.setModuleCode(module.getCode());
         alg.setFileName(moduleAlgClazz.getName());
         alg.setPackageName(moduleAlgClazz.getPackage().getName());
+        AlgorithmApiVersion apiVersion = moduleAlgClazz.getAnnotation(AlgorithmApiVersion.class);
+        if (apiVersion != null) {
+            alg.setSouthApiVersion(apiVersion.southApiVersion());
+            alg.setAlgorithmVersion(apiVersion.algorithmVersion());
+        }
 
         // 检查是否为内部类，设置parentClassName
         Class<?> enclosingClass = moduleAlgClazz.getEnclosingClass();

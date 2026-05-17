@@ -16,6 +16,7 @@ import com.jmix.executor.cmodel.PartInst;
 import com.jmix.executor.cmodel.SolverResult;
 import com.jmix.executor.impl.ModuleConstraintExecutorImpl;
 import com.jmix.executor.impl.SolutionUtils;
+import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
 import com.jmix.executor.impl.util.CommHelper;
 import com.jmix.executor.impl.util.ParaTypeHandler;
 import com.jmix.executor.model.AlgLoaderException;
@@ -55,7 +56,7 @@ public abstract class ModuleScenarioTestBase {
     /**
      * 约束算法类
      */
-    private Class<? extends ConstraintAlgImplTestBase> constraintAlgClazz;
+    private Class<? extends ModuleAlgImpl> constraintAlgClazz;
 
     /**
      * 临时资源路径
@@ -92,7 +93,7 @@ public abstract class ModuleScenarioTestBase {
      * 
      * @param constraintAlgClazz 约束算法类
      */
-    public ModuleScenarioTestBase(Class<? extends ConstraintAlgImplTestBase> constraintAlgClazz) {
+    public ModuleScenarioTestBase(Class<? extends ModuleAlgImpl> constraintAlgClazz) {
         this.constraintAlgClazz = constraintAlgClazz;
     }
 
@@ -118,7 +119,7 @@ public abstract class ModuleScenarioTestBase {
      * @param moduleAlgClazz 模块算法类
      * @return 构建的模块
      */
-    protected Module buildModule(Class<? extends ConstraintAlgImplTestBase> moduleAlgClazz) {
+    protected Module buildModule(Class<? extends ModuleAlgImpl> moduleAlgClazz) {
         // 通过注解生成Module
         module = ModuleGenneratorByAnno.build(moduleAlgClazz, tempResourcePath);
         return module;
@@ -147,7 +148,9 @@ public abstract class ModuleScenarioTestBase {
         if (getCfg().isAttachedDebug()) {
             // 调试模式：直接加载class，和现有流程一样
             Module tempModule = buildModule(getConstraintAlgClazz());
-            ModuleConstraintExecutor.INST.addModule(tempModule.getId(), tempModule);
+            Result<Void> addModuleResult = ModuleConstraintExecutor.INST.addModule(tempModule.getId(), tempModule);
+            assertEquals(Result.SUCCESS, addModuleResult.getCode(),
+                    "Add module failed: " + addModuleResult.getMessage());
             setModule(tempModule);
         } else {
             // 打包模式
@@ -158,7 +161,9 @@ public abstract class ModuleScenarioTestBase {
             String packOutputDir = packer.pack(tempModule, getConstraintAlgClazz(), rootFilePath);
             log.info("Module packed to: {}", packOutputDir);
 
-            ModuleConstraintExecutor.INST.addModule(tempModule.getId(), tempModule);
+            Result<Void> addModuleResult = ModuleConstraintExecutor.INST.addModule(tempModule.getId(), tempModule);
+            assertEquals(Result.SUCCESS, addModuleResult.getCode(),
+                    "Add module failed: " + addModuleResult.getMessage());
             setModule(tempModule);
         }
     }

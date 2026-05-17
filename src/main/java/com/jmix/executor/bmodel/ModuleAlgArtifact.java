@@ -21,26 +21,6 @@ import java.io.File;
 })
 public class ModuleAlgArtifact {
     /**
-     * 测试用算法包前缀
-     */
-    public static final String ALG_PACKAGE = "com.jmix.coretest.";
-
-    /**
-     * 测试用基础算法类名
-     */
-    public static final String ALG_BASE_CLASS = "ConstraintAlgImplTestBase";
-
-    /**
-     * 测试用部件变量内部类名
-     */
-    public static final String ALG_PART_CLASS = "ConstraintAlgImplTestBase$PartVar";
-
-    /**
-     * 测试用参数变量内部类名
-     */
-    public static final String ALG_PARA_CLASS = "ConstraintAlgImplTestBase$ParaVar";
-
-    /**
      * 模块目录命名模式：cp-{moduleCode}-{moduleId}
      */
     public static final String MODULE_DIR_PATTERN = "cp-%s-%s";
@@ -85,6 +65,16 @@ public class ModuleAlgArtifact {
      * 如果有父类，加载时需要拼接父类名称
      */
     private String parentClassName = "";
+
+    /**
+     * Algorithm business version.
+     */
+    private String algorithmVersion;
+
+    /**
+     * Southbound API version required by the algorithm artifact.
+     */
+    private String southApiVersion;
 
     /**
      * 获取模块目录名称

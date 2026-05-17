@@ -72,12 +72,12 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
     /**
      * 部件变量映射表，存储code到PartVar的映射
      */
-    protected Map<String, PartVar> partMap = new LinkedHashMap<>();
+    protected Map<String, PartVarImpl> partMap = new LinkedHashMap<>();
 
     /**
      * 参数变量映射表，存储code到ParaVar的映射
      */
-    protected Map<String, ParaVar> paraMap = new LinkedHashMap<>();
+    protected Map<String, ParaVarImpl> paraMap = new LinkedHashMap<>();
 
     /**
      * 受显式约束控制可见性的编码集合，跳过默认绑定
@@ -135,8 +135,8 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * 
      * @param hiddenVars 需要添加隐藏约束的变量数组
      */
-    protected void addVarAboutHiddenConstraints(Var<?>... hiddenVars) {
-        for (Var<?> v : hiddenVars) {
+    protected void addVarAboutHiddenConstraints(VarImpl<?>... hiddenVars) {
+        for (VarImpl<?> v : hiddenVars) {
             codesOfHiddenConstraint.add(v.getCode());
         }
     }
@@ -165,7 +165,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         // ontoCode + "Sum" + pt.getSumAttrCode();
         String paraCode = ipt.getAttrType().name() + AttrPara.CODE_SEPARATOR + ipt.getSumAttrCode();
 
-        ParaVar pVar = this.getParaVar(paraCode);
+        ParaVarImpl pVar = this.getParaVar(paraCode);
         if (pVar == null) {
             pVar = newAttrParaVar(paraCode);
             log.info("Dynamic created para: {}", paraCode);
@@ -188,7 +188,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      */
     protected void setDefaultVisibilityConstraints() {
         boolean isFirst = true;
-        for (ParaVar paraVar : this.getParaVars()) {
+        for (ParaVarImpl paraVar : this.getParaVars()) {
             if (codesOfHiddenConstraint.contains(paraVar.getCode())) {
                 continue;
             }
@@ -201,7 +201,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
                 model.addEquality(paraVar.getIsHidden(), 0);
             }
         }
-        for (PartVar partVar : this.getPartVars()) {
+        for (PartVarImpl partVar : this.getPartVars()) {
             if (codesOfHiddenConstraint.contains(partVar.getCode())) {
                 continue;
             }
@@ -215,10 +215,10 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
 
     protected PartAlgCPLinearExpr buildSumExprInternal(PartAlgCPLinearExpr algExpr,
             PartCategoryAlgImpl partCategoryAlgImpl, String attrCode,
-            String varName, Function<PartVar, LinearArgument> varGetter, String filtedConditionStr) {
+            String varName, Function<PartVarImpl, LinearArgument> varGetter, String filtedConditionStr) {
         boolean isWithoutAttr = attrCode == null || attrCode.isEmpty();
-        List<PartVar> partVars = partCategoryAlgImpl.getAllPartVars(filtedConditionStr);
-        for (PartVar partVar : partVars) {
+        List<PartVarImpl> partVars = partCategoryAlgImpl.getAllPartVars(filtedConditionStr);
+        for (PartVarImpl partVar : partVars) {
             int attrValue;
             if (isWithoutAttr) {
                 attrValue = 1;
@@ -235,7 +235,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
     }
 
     protected PartAlgCPLinearExpr buildSumExpr(List<PartCategoryAlgImpl> partCategoryAlgImpls, String attrCode,
-            String varName, Function<PartVar, LinearArgument> varGetter, String filtedConditionStr) {
+            String varName, Function<PartVarImpl, LinearArgument> varGetter, String filtedConditionStr) {
         PartAlgCPLinearExpr algExpr = new PartAlgCPLinearExpr(
                 partCategoryAlgImpls.get(0).getCategoryCode() + "_" + partCategoryAlgImpls.get(0).getInstId()
                         + "_sumPars_"
@@ -247,7 +247,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
     }
 
     protected PartAlgCPLinearExpr buildSumExpr(PartCategoryAlgImpl partCategoryAlgImpl, String attrCode,
-            String varName, Function<PartVar, LinearArgument> varGetter, String filtedConditionStr) {
+            String varName, Function<PartVarImpl, LinearArgument> varGetter, String filtedConditionStr) {
         PartAlgCPLinearExpr algExpr = new PartAlgCPLinearExpr(
                 partCategoryAlgImpl.getCategoryCode() + "_" + partCategoryAlgImpl.getInstId() + "_sumPars_"
                         + (attrCode == null ? "" : attrCode) + "_" + varName);
@@ -339,14 +339,14 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
 
         // 初始化所有paras
         for (Para para : module.getParas()) {
-            ParaVar paraVar = initParaVar(para);
+            ParaVarImpl paraVar = initParaVar(para);
             paraMap.put(para.getCode(), paraVar);
         }
         log.info("Initialized {} para variables", paraMap.size());
 
         // 初始化所有parts（原子部件）
         for (Part part : module.getAtomicParts()) {
-            PartVar partVar = initPartVar(part);
+            PartVarImpl partVar = initPartVar(part);
             partMap.put(part.getCode(), partVar);
         }
         log.info("Initialized {} part variables", partMap.size());
@@ -379,7 +379,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         newAttrParaVar(paraCode);
     }
 
-    protected ParaVar newAttrParaVar(String paraCode) {
+    protected ParaVarImpl newAttrParaVar(String paraCode) {
         if (paraMap.containsKey(paraCode)) {
             log.error("Para already exists for attrCode: {}, skipping", paraCode);
             throw new AlgLoaderException("Para already exists for attrCode: " + paraCode);
@@ -391,7 +391,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         para.setParaType(ParaType.INTEGER);
         // ModuleBase tempModule = (ModuleBase) module;
         // tempModule.addPara(para);
-        ParaVar pVar = initParaVar(para);
+        ParaVarImpl pVar = initParaVar(para);
         paraMap.put(paraCode, pVar);
         return pVar;
     }
@@ -403,9 +403,9 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * @param para 参数对象
      * @return 创建的参数变量
      */
-    protected ParaVar initParaVar(Para para) {
+    protected ParaVarImpl initParaVar(Para para) {
         String code = para.getCode();
-        ParaVar paraVar = new ParaVar();
+        ParaVarImpl paraVar = new ParaVarImpl();
         paraVar.setBase(para);
 
         if (para.getAssignType() == AssignType.INPUT) {
@@ -415,7 +415,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         switch (para.getParaType()) {
             case INTEGER:
                 paraVar.setValue(newIntVar(Integer.parseInt(para.getMinValue()), Integer.parseInt(para.getMaxValue()),
-                        f(ParaVar.VALUE_PATTERN, ipf, code)));
+                        f(ParaVarImpl.VALUE_PATTERN, ipf, code)));
                 break;
             case ENUM:
                 List<DynamicAttributerOption> options = para.getOptions();
@@ -423,10 +423,10 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
                     log.error("Para options not found for code: {}", code);
                     throw new AlgLoaderException("Para options not found for code: " + code);
                 }
-                paraVar.setValue(newIntVarFromDomain(para.getOptionIds(), f(ParaVar.VALUE_PATTERN, ipf, code)));
+                paraVar.setValue(newIntVarFromDomain(para.getOptionIds(), f(ParaVarImpl.VALUE_PATTERN, ipf, code)));
 
                 for (DynamicAttributerOption option : options) {
-                    ParaOptionVar optionVar = createParaOptionVar(para.getCode(), option.getCode());
+                    ParaOptionVarImpl optionVar = createParaOptionVar(para.getCode(), option.getCode());
                     paraVar.getOptionSelectVars().put(option.getCodeId(), optionVar);
                 }
                 paraVar.getOptionSelectVars().forEach((optionId, optionVar) -> {
@@ -439,7 +439,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
                 log.error("Para type not supported: {}", para.getParaType());
                 throw new AlgLoaderException("Para type not supported: " + para.getParaType());
         }
-        paraVar.setIsHidden(newBoolVar(f(ParaVar.HIDDEN_PATTERN, ipf, code)));
+        paraVar.setIsHidden(newBoolVar(f(ParaVarImpl.HIDDEN_PATTERN, ipf, code)));
         paraVar.setInstId(getInstId());
         return paraVar;
     }
@@ -456,13 +456,13 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * @param part 部件对象
      * @return 创建的部件变量
      */
-    protected PartVar initPartVar(Part part) {
+    protected PartVarImpl initPartVar(Part part) {
         String ipf = toInstPrefix();
-        PartVar partVar = new PartVar();
+        PartVarImpl partVar = new PartVarImpl();
         partVar.setBase(part);
-        partVar.setQty(newIntVar(0, part.getMaxQuantity(), f(PartVar.QTY_PATTERN, ipf, part.getCode())));
-        partVar.setIsHidden(newBoolVar(f(PartVar.HIDDEN_PATTERN, ipf, part.getCode())));
-        partVar.setIsSelected(newBoolVar(f(PartVar.ISSELECTED_PATTERN, ipf, part.getCode())));
+        partVar.setQty(newIntVar(0, part.getMaxQuantity(), f(PartVarImpl.QTY_PATTERN, ipf, part.getCode())));
+        partVar.setIsHidden(newBoolVar(f(PartVarImpl.HIDDEN_PATTERN, ipf, part.getCode())));
+        partVar.setIsSelected(newBoolVar(f(PartVarImpl.ISSELECTED_PATTERN, ipf, part.getCode())));
         partVar.setInstId(getInstId());
         // 添加Qty和IsSelected的关系
         model.addGreaterOrEqual(partVar.getQty(), 1).onlyEnforceIf(partVar.getIsSelected());
@@ -476,7 +476,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * 
      * @return PartVar列表
      */
-    public List<PartVar> getPartVars() {
+    public List<PartVarImpl> getPartVars() {
         return new ArrayList<>(partMap.values());
     }
 
@@ -485,7 +485,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * 
      * @return ParaVar列表
      */
-    public List<ParaVar> getParaVars() {
+    public List<ParaVarImpl> getParaVars() {
         return new ArrayList<>(paraMap.values());
     }
 
@@ -591,23 +591,23 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         Map<String, Field> fieldMap = getAllFieldVariables(moduleAlgFile);
         ModuleBaseAlgImpl algFileImpl = (ModuleBaseAlgImpl) moduleAlgFile;
         // 处理PartVar
-        for (Map.Entry<String, PartVar> entry : partMap.entrySet()) {
+        for (Map.Entry<String, PartVarImpl> entry : partMap.entrySet()) {
             String code = entry.getKey();
-            PartVar partVar = entry.getValue();
+            PartVarImpl partVar = entry.getValue();
             Field field = fieldMap.get(code);
             if (field != null) {
-                Var<?> tVar = algFileImpl.newPartVar(partVar);
+                VarImpl<?> tVar = algFileImpl.newPartVarForField(partVar, field);
                 setVariableField(moduleAlgFile, tVar, field);
             }
         }
 
         // 处理ParaVar
-        for (Map.Entry<String, ParaVar> entry : paraMap.entrySet()) {
+        for (Map.Entry<String, ParaVarImpl> entry : paraMap.entrySet()) {
             String code = entry.getKey();
-            ParaVar paraVar = entry.getValue();
+            ParaVarImpl paraVar = entry.getValue();
             Field field = fieldMap.get(code);
             if (field != null) {
-                Var<?> tVar = algFileImpl.newParaVar(paraVar);
+                VarImpl<?> tVar = algFileImpl.newParaVarForField(paraVar, field);
                 setVariableField(moduleAlgFile, tVar, field);
             }
         }
@@ -699,7 +699,11 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * @param internalPartVar 内部部件变量
      * @return 创建的部件变量
      */
-    protected abstract Var<?> newPartVar(PartVar internalPartVar);
+    protected abstract VarImpl<?> newPartVar(PartVarImpl internalPartVar);
+
+    protected VarImpl<?> newPartVarForField(PartVarImpl internalPartVar, Field field) {
+        return newPartVar(internalPartVar);
+    }
 
     /**
      * 创建参数变量, 继承类可以重载
@@ -707,7 +711,11 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * @param internalParaVar 内部参数变量
      * @return 创建的参数变量
      */
-    protected abstract Var<?> newParaVar(ParaVar internalParaVar);
+    protected abstract VarImpl<?> newParaVar(ParaVarImpl internalParaVar);
+
+    protected VarImpl<?> newParaVarForField(ParaVarImpl internalParaVar, Field field) {
+        return newParaVar(internalParaVar);
+    }
 
     /**
      * 设置单个变量字段
@@ -716,11 +724,11 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * @param field 字段对象
      * @throws AlgLoaderException 异常
      */
-    protected void setVariableField(Var<?> v, Field field) throws AlgLoaderException {
+    protected void setVariableField(VarImpl<?> v, Field field) throws AlgLoaderException {
         setVariableField(this, v, field);
     }
 
-    protected void setVariableField(IModuleAlg moduleAlgFile, Var<?> v, Field field) throws AlgLoaderException {
+    protected void setVariableField(IModuleAlg moduleAlgFile, VarImpl<?> v, Field field) throws AlgLoaderException {
         if (field == null) {
             log.error("Field not found for code: null {}", v.getCode());
             throw new AlgLoaderException("Field not found for code: null " + v.getCode());
@@ -769,12 +777,15 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * 例如: colorVar -> Color, tShirt11Var -> TShirt11
      * 
      * @param fieldName 字段名
-     * @return 提取的代码，如果字段名不以"Var"结尾则返回原字段名
+     * @return 提取的代码，如果字段名不以"VarImpl"结尾则返回原字段名
      */
     private String extractCodeFromFieldName(String fieldName) {
-        // 移除末尾的"Var"
+        // 移除末尾的"VarImpl"
+        if (fieldName.endsWith("VarImpl")) {
+            return fieldName.substring(0, fieldName.length() - "VarImpl".length());
+        }
         if (fieldName.endsWith("Var")) {
-            return fieldName.substring(0, fieldName.length() - 3);
+            return fieldName.substring(0, fieldName.length() - "Var".length());
         }
         return fieldName;
     }
@@ -874,15 +885,15 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         return module;
     }
 
-    public ParaVar getParaVar(String code) {
+    public ParaVarImpl getParaVar(String code) {
         return paraMap.get(code);
     }
 
-    public ParaVar getSumSumParaByAttr(String attrCode) {
+    public ParaVarImpl getSumSumParaByAttr(String attrCode) {
         throw new UnsupportedOperationException("Unimplemented method 'getSumSumParaByAttr'");
     }
 
-    public ParaVar getSumParaByAttr(String attrCode) {
+    public ParaVarImpl getSumParaByAttr(String attrCode) {
         throw new UnsupportedOperationException("Unimplemented method 'getSumParaByAttr'");
     }
 
@@ -893,7 +904,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * @return 部件变量实例
      * @throws AlgLoaderException 异常
      */
-    public PartVar getPartVar(String code) {
+    public PartVarImpl getPartVar(String code) {
         return partMap.get(code);
     }
 
@@ -904,13 +915,13 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * @param filtedConditionStr filter expression, may be null
      * @return filtered list of atomic parts
      */
-    public List<PartVar> getInternalPartVars(String filtedConditionStr) {
+    public List<PartVarImpl> getInternalPartVars(String filtedConditionStr) {
         List<Part> atomicParts = currentModule.getAtomicParts();
         if (filtedConditionStr != null && !filtedConditionStr.trim().isEmpty()) {
             atomicParts = FilterExpressionExecutor.doSelect(atomicParts, filtedConditionStr);
             log.info("Priority-Filtered parts: {} in getPartVars", PartUtils.toShortString(atomicParts));
         }
-        List<PartVar> partVars = new ArrayList<>();
+        List<PartVarImpl> partVars = new ArrayList<>();
         for (Part part : atomicParts) {
             partVars.add(currentModuleAlg.getPartVar(part.getCode()));
         }
@@ -924,7 +935,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * @param optionCode 选项代码
      * @return 创建的参数选项变量
      */
-    protected ParaOptionVar createParaOptionVar(String paraCode, String optionCode) {
+    protected ParaOptionVarImpl createParaOptionVar(String paraCode, String optionCode) {
         String ipf = toInstPrefix();
         Optional<Para> paraOpt = module != null ? module.getPara(paraCode) : Optional.empty();
         if (!paraOpt.isPresent()) {
@@ -938,8 +949,8 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
             throw new AlgLoaderException("ParaOption not found for code: " + optionCode);
         }
         DynamicAttributerOption option = optionOpt.get();
-        ParaOptionVar optionVar = new ParaOptionVar(option);
-        optionVar.setIsSelectedVar(newBoolVar(f(ParaVar.OPTIONS_PATTERN, ipf, paraCode, option.getCode())));
+        ParaOptionVarImpl optionVar = new ParaOptionVarImpl(option);
+        optionVar.setIsSelectedVar(newBoolVar(f(ParaVarImpl.OPTIONS_PATTERN, ipf, paraCode, option.getCode())));
         return optionVar;
     }
 
@@ -954,9 +965,9 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * @param rightParaVar               右侧参数变量
      * @param rightParaFilterOptionCodes 右侧参数过滤选项代码列表
      */
-    public void addCompatibleConstraintRequires(String ruleCode, ParaVar leftParaVar,
+    public void addCompatibleConstraintRequires(String ruleCode, ParaVarImpl leftParaVar,
             List<String> leftParaFilterOptionCodes,
-            ParaVar rightParaVar, List<String> rightParaFilterOptionCodes) {
+            ParaVarImpl rightParaVar, List<String> rightParaFilterOptionCodes) {
         // left:确保只有一个参数选项被选中
         addExactlyOneConstraint(leftParaVar);
         // right:确保只有一个参数选项被选中
@@ -984,10 +995,10 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         // 设置当前松弛变量名称
         this.model.setRelax4SysRule("addPartEquality_" + partCode + "_" + partQuantity);
         // 1. 根据partCode找到对应的partVar
-        PartVar partVar = partMap.get(partCode);
+        PartVarImpl partVar = partMap.get(partCode);
         if (partVar == null) {
-            log.error("PartVar not found for code: {}", partCode);
-            throw new AlgLoaderException("PartVar not found for code: " + partCode);
+            log.error("PartVarImpl not found for code: {}", partCode);
+            throw new AlgLoaderException("PartVarImpl not found for code: " + partCode);
         }
         // 2. 使用model.addEquality添加数量约束
         model.addEquality(partVar.getQty(), partQuantity);
@@ -1003,10 +1014,10 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
     public void addParaEquality(String paraCode, String paraValue) {
         // 设置当前松弛变量名称
         this.model.setRelax4SysRule("addParaEquality_" + paraCode + "_" + paraValue);
-        ParaVar paraVar = paraMap.get(paraCode);
+        ParaVarImpl paraVar = paraMap.get(paraCode);
         if (paraVar == null) {
-            log.error("ParaVar not found for code: {}", paraCode);
-            throw new AlgLoaderException("ParaVar not found for code: " + paraCode);
+            log.error("ParaVarImpl not found for code: {}", paraCode);
+            throw new AlgLoaderException("ParaVarImpl not found for code: " + paraCode);
         }
         model.addEquality(paraVar.getValue(), Integer.parseInt(paraValue));
     }
@@ -1026,9 +1037,9 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * @param rightParaVar               右侧参数变量
      * @param rightParaFilterOptionCodes 右侧参数过滤选项代码列表
      */
-    public void addCompatibleConstraintCoDependent(String ruleCode, ParaVar leftParaVar,
+    public void addCompatibleConstraintCoDependent(String ruleCode, ParaVarImpl leftParaVar,
             List<String> leftParaFilterOptionCodes,
-            ParaVar rightParaVar, List<String> rightParaFilterOptionCodes) {
+            ParaVarImpl rightParaVar, List<String> rightParaFilterOptionCodes) {
         // left:确保只有一个参数选项被选中
         addExactlyOneConstraint(leftParaVar);
         // right:确保只有一个参数选项被选中
@@ -1077,9 +1088,9 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * @param rightParaVar               右侧参数变量
      * @param rightParaFilterOptionCodes 右侧参数过滤选项代码列表
      */
-    public void addCompatibleConstraintInCompatible(String ruleCode, ParaVar leftParaVar,
+    public void addCompatibleConstraintInCompatible(String ruleCode, ParaVarImpl leftParaVar,
             List<String> leftParaFilterOptionCodes,
-            ParaVar rightParaVar, List<String> rightParaFilterOptionCodes) {
+            ParaVarImpl rightParaVar, List<String> rightParaFilterOptionCodes) {
         // left:确保只有一个参数选项被选中
         addExactlyOneConstraint(leftParaVar);
         // right:确保只有一个参数选项被选中
@@ -1140,7 +1151,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * 
      * @param paraVar 参数变量
      */
-    private void addExactlyOneConstraint(ParaVar paraVar) {
+    private void addExactlyOneConstraint(ParaVarImpl paraVar) {
         model.addExactlyOne(paraVar.getOptionSelectVars().values().stream()
                 .map(option -> option.getIsSelectedVar())
                 .toArray(BoolVar[]::new));
@@ -1155,7 +1166,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * @param conditionSuffix   条件后缀（如"leftCond"、"rightCond"）
      * @return 条件变量
      */
-    private BoolVar createSelectedCondition(String ruleCode, ParaVar paraVar,
+    private BoolVar createSelectedCondition(String ruleCode, ParaVarImpl paraVar,
             List<String> filterOptionCodes, String conditionSuffix) {
         // 定义条件变量
         BoolVar condition = newBoolVar(f("%s_%s", ruleCode, conditionSuffix));
@@ -1183,7 +1194,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * @param conditionSuffix   条件后缀（如"leftNotCond"、"rightNotCond"）
      * @return 条件变量
      */
-    private BoolVar createNotSelectedCondition(String ruleCode, ParaVar paraVar,
+    private BoolVar createNotSelectedCondition(String ruleCode, ParaVarImpl paraVar,
             List<String> filterOptionCodes, String conditionSuffix) {
         // 定义条件变量
         BoolVar condition = newBoolVar(f("%s_%s", ruleCode, conditionSuffix));
@@ -1232,7 +1243,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         }
 
         // 根据 part.code 找到对应 partVar
-        PartVar partVar = getPartVar(part.getCode());
+        PartVarImpl partVar = getPartVar(part.getCode());
 
         // 使用 ortools 设置约束
         // partVar.isSelected == 0
@@ -1244,7 +1255,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         log.info("Set part unselected: code={}, isSelected=0, qty=0", part.getCode());
     }
 
-    public List<PartVar> getAllPartVars(String filterConditionStr) {
+    public List<PartVarImpl> getAllPartVars(String filterConditionStr) {
         if (filterConditionStr == null || filterConditionStr.isEmpty()) {
             return new ArrayList<>(partMap.values());
         } else {
@@ -1258,11 +1269,11 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * @param filterConditionStr
      * @return 第一个是过滤后，第一个没有过滤的
      */
-    public Pair<List<PartVar>, List<PartVar>> filterAllPartVars(String filterConditionStr) {
-        List<PartVar> filterPartVars = getAllPartVars(filterConditionStr);
-        Set<String> filterPartVarCodes = filterPartVars.stream().map(PartVar::getCode).collect(Collectors.toSet());
-        List<PartVar> noFilterPartVars = new ArrayList<>();
-        for (PartVar partVar : partMap.values()) {
+    public Pair<List<PartVarImpl>, List<PartVarImpl>> filterAllPartVars(String filterConditionStr) {
+        List<PartVarImpl> filterPartVars = getAllPartVars(filterConditionStr);
+        Set<String> filterPartVarCodes = filterPartVars.stream().map(PartVarImpl::getCode).collect(Collectors.toSet());
+        List<PartVarImpl> noFilterPartVars = new ArrayList<>();
+        for (PartVarImpl partVar : partMap.values()) {
             if (!filterPartVarCodes.contains(partVar.getCode())) {
                 noFilterPartVars.add(partVar);
             }

@@ -29,7 +29,7 @@ import java.util.Map;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Slf4j
-public class PartVar extends Var<IPart> implements IExtensible, IDynamicAttributable {
+public class PartVarImpl extends VarImpl<IPart> implements IExtensible, IDynamicAttributable {
 
     /**
      * 部件数量Var的短名称
@@ -83,12 +83,12 @@ public class PartVar extends Var<IPart> implements IExtensible, IDynamicAttribut
     /**
      * 子部件列表
      */
-    private List<PartVar> subParts = new ArrayList<>();
+    private List<PartVarImpl> subParts = new ArrayList<>();
 
     /**
-     * 子部件映射表(Part.code -> PartVar)
+     * 子部件映射表(Part.code -> PartVarImpl)
      */
-    private Map<String, PartVar> subPartMap = new HashMap<>();
+    private Map<String, PartVarImpl> subPartMap = new HashMap<>();
 
     /**
      * 是否选中
@@ -104,7 +104,7 @@ public class PartVar extends Var<IPart> implements IExtensible, IDynamicAttribut
     @Override
     public String getVarString(CpSolverSolutionCallback solutionCallback) {
         StringBuilder sb = new StringBuilder();
-        sb.append("PartVar{code=").append(getCode());
+        sb.append("PartVarImpl{code=").append(getCode());
         sb.append(", qty=").append(this.qty == null ? "null" : solutionCallback.value(this.getQty()));
         sb.append(", hidden=").append(this.isHidden == null ? "null" : solutionCallback.value(this.getIsHidden()));
         sb.append(", selected=")
@@ -206,6 +206,17 @@ public class PartVar extends Var<IPart> implements IExtensible, IDynamicAttribut
             return Integer.parseInt(attrValue);
         }
         return defaultValue;
+    }
+
+    /**
+     * Legacy accessor kept for older packaged algorithms.
+     */
+    public Map<String, BoolVar> getSubPartSelectedVars() {
+        Map<String, BoolVar> selectedVars = new HashMap<>();
+        for (Map.Entry<String, PartVarImpl> entry : subPartMap.entrySet()) {
+            selectedVars.put(entry.getKey(), entry.getValue().getIsSelected());
+        }
+        return selectedVars;
     }
 
     @Override

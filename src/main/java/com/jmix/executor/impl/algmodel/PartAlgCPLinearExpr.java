@@ -123,7 +123,7 @@ public class PartAlgCPLinearExpr extends AlgCPLinearExpr {
     /**
      * Add a part term with explicit varName (e.g. "S" or "Q").
      */
-    public void addTerm(String partCategoryCode, PartVar partVar, IntVar var, long coefficient, String varName) {
+    public void addTerm(String partCategoryCode, PartVarImpl partVar, IntVar var, long coefficient, String varName) {
         int attrValue = (int) coefficient;
 
         // build expression string parts
@@ -175,15 +175,15 @@ public class PartAlgCPLinearExpr extends AlgCPLinearExpr {
     /**
      * Convenience overload that uses default varName "Q".
      */
-    public void addTerm(String partCategoryCode, PartVar partVar, IntVar var, long coefficient) {
-        addTerm(partCategoryCode, partVar, var, coefficient, PartVar.QTY_SHORT_NAME);
+    public void addTerm(String partCategoryCode, PartVarImpl partVar, IntVar var, long coefficient) {
+        addTerm(partCategoryCode, partVar, var, coefficient, PartVarImpl.QTY_SHORT_NAME);
     }
 
     /**
      * Convenience overload that uses default varName "Q".
      */
-    public void addTerm(String partCategoryCode, PartVar partVar, BoolVar var, long coefficient) {
-        addTerm(partCategoryCode, partVar, var, coefficient, PartVar.ISSELECTED_SHORT_NAME);
+    public void addTerm(String partCategoryCode, PartVarImpl partVar, BoolVar var, long coefficient) {
+        addTerm(partCategoryCode, partVar, var, coefficient, PartVarImpl.ISSELECTED_SHORT_NAME);
     }
 
     /**

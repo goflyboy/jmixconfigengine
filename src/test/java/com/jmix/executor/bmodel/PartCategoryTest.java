@@ -1,4 +1,4 @@
-package com.jmix.executor.imodel;
+package com.jmix.executor.bmodel;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

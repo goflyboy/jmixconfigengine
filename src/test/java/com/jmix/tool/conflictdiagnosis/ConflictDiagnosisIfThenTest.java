@@ -1,6 +1,9 @@
 package com.jmix.tool.conflictdiagnosis;
 
-import com.jmix.coretest.ConstraintAlgImplTestBase;
+import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.var.ParaVar;
+import com.jmix.executor.southinf.var.PartCategoryVar;
+import com.jmix.executor.southinf.var.PartVar;
 import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
 import com.jmix.tool.bbuilder.anno.ModuleAnno;
@@ -20,32 +23,32 @@ import org.junit.jupiter.api.Test;
 public class ConflictDiagnosisIfThenTest extends ModuleScenarioTestBase {
 
     @ModuleAnno(id = 1003L)
-    static public class Conflict003Constraint extends ConstraintAlgImplTestBase {
+    static public class Conflict003Constraint extends ConstraintAlgBase {
         @PartAnno(maxQuantity = 50)
         private PartVar x;
 
         @PartAnno(maxQuantity = 50)
         private PartVar y;
 
-        // rule1: if x.qty > 10 then y.qty > 7
-        @CodeRuleAnno(normalNaturalCode = "if x.qty > 10 then y.qty > 7")
+        // rule1: if x.quantityVar() > 10 then y.quantityVar() > 7
+        @CodeRuleAnno(normalNaturalCode = "if x.quantityVar() > 10 then y.quantityVar() > 7")
         private void rule1() {
             BoolVar xGt10 = model.newBoolVar("x_gt_10");
-            model.addGreaterThan(x.qty, 10).onlyEnforceIf(xGt10);
-            model.addLessOrEqual(x.qty, 10).onlyEnforceIf(xGt10.not());
-            model.addGreaterThan(y.qty, 7).onlyEnforceIf(xGt10);
+            model.addGreaterThan(x.quantityVar(), 10).onlyEnforceIf(xGt10);
+            model.addLessOrEqual(x.quantityVar(), 10).onlyEnforceIf(xGt10.not());
+            model.addGreaterThan(y.quantityVar(), 7).onlyEnforceIf(xGt10);
         }
 
-        // rule2: x.qty > 20 -> triggers rule1, so y > 7
-        @CodeRuleAnno(normalNaturalCode = "x.qty > 20")
+        // rule2: x.quantityVar() > 20 -> triggers rule1, so y > 7
+        @CodeRuleAnno(normalNaturalCode = "x.quantityVar() > 20")
         private void rule2() {
-            model.addGreaterThan(x.qty, 20);
+            model.addGreaterThan(x.quantityVar(), 20);
         }
 
-        // rule3: y.qty < 5 -> conflicts with rule1's consequence
-        @CodeRuleAnno(normalNaturalCode = "y.qty < 5")
+        // rule3: y.quantityVar() < 5 -> conflicts with rule1's consequence
+        @CodeRuleAnno(normalNaturalCode = "y.quantityVar() < 5")
         private void rule3() {
-            model.addLessThan(y.qty, 5);
+            model.addLessThan(y.quantityVar(), 5);
         }
     }
 
