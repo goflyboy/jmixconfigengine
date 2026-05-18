@@ -5,7 +5,7 @@ import com.jmix.executor.southinf.var.ParaVar;
 import com.jmix.executor.southinf.var.PartCategoryVar;
 import com.jmix.executor.southinf.var.PartVar;
 import com.jmix.coretest.ModuleScenarioTestBase;
-import com.jmix.executor.impl.algmodel.AlgCPLinearExpr;
+import com.jmix.executor.impl.algmodel.AlgCPLinearExprImpl;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
 import com.jmix.tool.bbuilder.anno.ModuleAnno;
 import com.jmix.tool.bbuilder.anno.PartAnno;
@@ -51,7 +51,7 @@ public class ConfictDebugIfThenTest extends ModuleScenarioTestBase {
         @CodeRuleAnno(normalNaturalCode = "x.quantityVar() + y.quantityVar() > 10")
         private void rule2() {
             // Create linear expression for sum of x and y quantities
-            AlgCPLinearExpr sumXY = model.newLinearExpr("sum_x_y");
+            AlgCPLinearExprImpl sumXY = model.newLinearExpr("sum_x_y");
             sumXY.addTerm((IntVar) x.quantityVar(), 1);
             sumXY.addTerm((IntVar) y.quantityVar(), 1);
 

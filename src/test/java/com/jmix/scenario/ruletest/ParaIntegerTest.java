@@ -6,7 +6,7 @@ import com.jmix.executor.southinf.var.PartCategoryVar;
 import com.jmix.executor.southinf.var.PartVar;
 import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.executor.bmodel.para.ParaType;
-import com.jmix.executor.impl.algmodel.AlgCPLinearExpr;
+import com.jmix.executor.impl.algmodel.AlgCPLinearExprImpl;
 import com.jmix.executor.model.ConstraintConfig;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
 import com.jmix.tool.bbuilder.anno.ModuleAnno;
@@ -53,7 +53,7 @@ public class ParaIntegerTest extends ModuleScenarioTestBase {
         @CodeRuleAnno
         private void initConstraint() {
             // part1.quantity = p1.valueVar() + p2.valueVar()
-            AlgCPLinearExpr sumExpr = model.newLinearExpr("sum_p1_p2");
+            AlgCPLinearExprImpl sumExpr = model.newLinearExpr("sum_p1_p2");
             sumExpr.addTerm(p1.valueVar(), 1);
             sumExpr.addTerm(p2.valueVar(), 1);
             model.addEquality(part1.quantityVar(), sumExpr);

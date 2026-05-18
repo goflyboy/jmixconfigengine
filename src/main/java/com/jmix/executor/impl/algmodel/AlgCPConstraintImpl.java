@@ -4,6 +4,10 @@ import com.google.ortools.sat.Constraint;
 import com.google.ortools.sat.ConstraintProto;
 import com.google.ortools.sat.Literal;
 
+import com.jmix.executor.southinf.cp.AlgCPBoolVar;
+import com.jmix.executor.southinf.cp.AlgCPConstraint;
+import com.jmix.executor.southinf.cp.AlgCPLiteral;
+
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -15,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Data
-public class AlgCPConstraint {
+public class AlgCPConstraintImpl implements AlgCPConstraint {
     /**
      * 原始CP-SAT约束对象
      */
@@ -29,7 +33,7 @@ public class AlgCPConstraint {
      * 从而帮助识别导致无解的约束组合。这是约束冲突调试的核心机制。
      * </p>
      */
-    private Literal relaxationVar;
+    private AlgCPBoolVar relaxationVar;
 
     /**
      * 松弛变量名称，用于调试和日志记录
@@ -76,13 +80,13 @@ public class AlgCPConstraint {
      */
     private String rightName = "";
 
-    public AlgCPConstraint(Constraint cpConstraint, Literal relaxationVar, String relaxationVarName) {
+    public AlgCPConstraintImpl(Constraint cpConstraint, AlgCPBoolVar relaxationVar, String relaxationVarName) {
         this.cpConstraint = cpConstraint;
         this.relaxationVar = relaxationVar;
         this.relaxationVarName = relaxationVarName;
 
         if (relaxationVar != null && cpConstraint != null) {
-            cpConstraint.onlyEnforceIf(relaxationVar.not());
+            cpConstraint.onlyEnforceIf(relaxationVar.internal());
         }
         log.info("Constraint created: {} with relaxation: {}", name, relaxationVarName);
     }
@@ -92,36 +96,57 @@ public class AlgCPConstraint {
      *
      * @param condition 执行条件
      */
-    public void onlyEnforceIf(Literal condition) {
+    @Override
+    public AlgCPConstraint onlyEnforceIf(AlgCPLiteral condition) {
+        cpConstraint.onlyEnforceIf(condition.internal());
+        ifMemo += " if " + toNameString(condition.internal());
+        log.info("relax:{} -----AlgCPConstraintImpl:onlyEnforceIf", relaxationVarName);
+        return this;
+    }
+
+    /**
+     * 设置约束执行条件（内部使用，支持Literal类型）
+     *
+     * @param condition 执行条件
+     */
+    public AlgCPConstraint onlyEnforceIf(Literal condition) {
         cpConstraint.onlyEnforceIf(condition);
         ifMemo += " if " + toNameString(condition);
-        log.info("relax:{} -----AlgCPConstraint:onlyEnforceIf", relaxationVarName);
+        log.info("relax:{} -----AlgCPConstraintImpl:onlyEnforceIf(Literal)", relaxationVarName);
+        return this;
     }
 
     /**
      * 不支持的方法 - 抛出异常
-     * 
+     *
      * @param builder 构建器
      */
-    public AlgCPConstraint(ConstraintProto.Builder builder) {
-        throw new UnsupportedOperationException("AlgCPConstraint does not support ConstraintProto.Builder constructor");
+    public AlgCPConstraintImpl(ConstraintProto.Builder builder) {
+        throw new UnsupportedOperationException("AlgCPConstraintImpl does not support ConstraintProto.Builder constructor");
     }
 
     /**
      * 不支持的方法 - 抛出异常
-     * 
-     * @param lits 字面量数组
+     *
+     * @param conditions 条件数组
      */
-    public void onlyEnforceIf(Literal[] lits) {
-        throw new UnsupportedOperationException("AlgCPConstraint does not support onlyEnforceIf with Literal array");
+    public AlgCPConstraint onlyEnforceIf(AlgCPLiteral... conditions) {
+        Literal[] literals = new Literal[conditions.length];
+        for (int i = 0; i < conditions.length; i++) {
+            literals[i] = conditions[i].internal();
+        }
+        cpConstraint.onlyEnforceIf(literals);
+        log.info("relax:{} -----AlgCPConstraintImpl:onlyEnforceIf(AlgCPLiteral[])", relaxationVarName);
+        return this;
     }
 
     /**
      * 获取约束索引
-     * 
+     *
      * @return 约束索引
      */
-    public int getIndex() {
+    @Override
+    public int index() {
         return cpConstraint.getIndex();
     }
 
@@ -131,7 +156,7 @@ public class AlgCPConstraint {
      * @return 构建器
      */
     public ConstraintProto.Builder getBuilder() {
-        throw new UnsupportedOperationException("AlgCPConstraint does not support getBuilder method");
+        throw new UnsupportedOperationException("AlgCPConstraintImpl does not support getBuilder method");
     }
 
     /**

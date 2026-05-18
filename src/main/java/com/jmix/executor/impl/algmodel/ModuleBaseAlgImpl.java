@@ -18,6 +18,7 @@ import com.jmix.executor.impl.ModuleInstAccessor;
 import com.jmix.executor.impl.PartCategoryInputBase;
 import com.jmix.executor.impl.PriorityConstraint;
 import com.jmix.executor.impl.util.FilterExpressionExecutor;
+import com.jmix.executor.southinf.cp.AlgCPLinearArgument;
 import com.jmix.executor.model.AlgLoaderException;
 import com.jmix.executor.model.PartConstantAttr;
 import com.jmix.executor.bmodel.IModule;
@@ -27,6 +28,10 @@ import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.LinearArgument;
 import com.google.ortools.sat.Literal;
 import com.google.ortools.util.Domain;
+
+import com.jmix.executor.southinf.cp.AlgCPBoolVar;
+import com.jmix.executor.southinf.cp.AlgCPIntVar;
+import com.jmix.executor.southinf.cp.AlgCPLinearExpr;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -62,7 +67,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
     /**
      * CP约束求解模型实例
      */
-    protected AlgCPModel model;
+    protected AlgCPModelImpl model;
 
     /**
      * module的基础信息
@@ -213,9 +218,9 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         }
     }
 
-    protected PartAlgCPLinearExpr buildSumExprInternal(PartAlgCPLinearExpr algExpr,
+    protected PartAlgCPLinearExprImpl buildSumExprInternal(PartAlgCPLinearExprImpl algExpr,
             PartCategoryAlgImpl partCategoryAlgImpl, String attrCode,
-            String varName, Function<PartVarImpl, LinearArgument> varGetter, String filtedConditionStr) {
+            String varName, Function<PartVarImpl, ? extends LinearArgument> varGetter, String filtedConditionStr) {
         boolean isWithoutAttr = attrCode == null || attrCode.isEmpty();
         List<PartVarImpl> partVars = partCategoryAlgImpl.getAllPartVars(filtedConditionStr);
         for (PartVarImpl partVar : partVars) {
@@ -227,16 +232,25 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
             } else {
                 attrValue = partVar.getAttr4Int(attrCode);
             }
-            algExpr.addTerm(partCategoryAlgImpl.getCategoryCode(), partVar, (IntVar) varGetter.apply(partVar),
+            LinearArgument arg = varGetter.apply(partVar);
+            algExpr.addTerm(partCategoryAlgImpl.getCategoryCode(), partVar, arg,
                     attrValue, varName);
         }
 
         return algExpr;
     }
 
-    protected PartAlgCPLinearExpr buildSumExpr(List<PartCategoryAlgImpl> partCategoryAlgImpls, String attrCode,
-            String varName, Function<PartVarImpl, LinearArgument> varGetter, String filtedConditionStr) {
-        PartAlgCPLinearExpr algExpr = new PartAlgCPLinearExpr(
+    protected PartAlgCPLinearExprImpl buildSumExpr(PartCategoryAlgImpl partCategoryAlgImpl, String attrCode,
+            String varName, Function<PartVarImpl, ? extends LinearArgument> varGetter, String filtedConditionStr) {
+        PartAlgCPLinearExprImpl algExpr = new PartAlgCPLinearExprImpl(
+                partCategoryAlgImpl.getCategoryCode() + "_" + partCategoryAlgImpl.getInstId() + "_sumPars_"
+                        + (attrCode == null ? "" : attrCode) + "_" + varName);
+        return buildSumExprInternal(algExpr, partCategoryAlgImpl, attrCode, varName, varGetter, filtedConditionStr);
+    }
+
+    protected PartAlgCPLinearExprImpl buildSumExpr(List<PartCategoryAlgImpl> partCategoryAlgImpls, String attrCode,
+            String varName, Function<PartVarImpl, ? extends LinearArgument> varGetter, String filtedConditionStr) {
+        PartAlgCPLinearExprImpl algExpr = new PartAlgCPLinearExprImpl(
                 partCategoryAlgImpls.get(0).getCategoryCode() + "_" + partCategoryAlgImpls.get(0).getInstId()
                         + "_sumPars_"
                         + (attrCode == null ? "" : attrCode) + "_" + varName);
@@ -244,14 +258,6 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
             buildSumExprInternal(algExpr, partCategoryAlgImpl, attrCode, varName, varGetter, filtedConditionStr);
         }
         return algExpr;
-    }
-
-    protected PartAlgCPLinearExpr buildSumExpr(PartCategoryAlgImpl partCategoryAlgImpl, String attrCode,
-            String varName, Function<PartVarImpl, LinearArgument> varGetter, String filtedConditionStr) {
-        PartAlgCPLinearExpr algExpr = new PartAlgCPLinearExpr(
-                partCategoryAlgImpl.getCategoryCode() + "_" + partCategoryAlgImpl.getInstId() + "_sumPars_"
-                        + (attrCode == null ? "" : attrCode) + "_" + varName);
-        return buildSumExprInternal(algExpr, partCategoryAlgImpl, attrCode, varName, varGetter, filtedConditionStr);
     }
 
     protected void sumFunConstraint(ModuleBaseAlgImpl moduleBaseAlgImpl,
@@ -276,9 +282,9 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
             AlgCPLinearExpr[] weightedTerms = new AlgCPLinearExpr[relaxVars.size()];
             for (int i = 0; i < relaxVars.size(); i++) {
                 RelaxVar relaxVar = relaxVars.get(i);
-                weightedTerms[i] = AlgCPLinearExpr.term(relaxVar.getValue(), relaxVar.getWeight());
+                weightedTerms[i] = AlgCPLinearExprImpl.term(relaxVar.getValue(), relaxVar.getWeight());
             }
-            AlgCPLinearExpr objectiveExpr = AlgCPLinearExpr.sum(weightedTerms);
+            AlgCPLinearExpr objectiveExpr = AlgCPLinearExprImpl.sum(weightedTerms);
             model.minimize(objectiveExpr);
             log.info("relax: -----relaxation objective function with {} relaxation variables", relaxVars.size());
         }
@@ -322,7 +328,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * 
      * @param model CP模型实例
      */
-    protected void initModelAfter(AlgCPModel model) {
+    protected void initModelAfter(AlgCPModelImpl model) {
 
     }
 
@@ -439,7 +445,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
                 log.error("Para type not supported: {}", para.getParaType());
                 throw new AlgLoaderException("Para type not supported: " + para.getParaType());
         }
-        paraVar.setIsHidden(newBoolVar(f(ParaVarImpl.HIDDEN_PATTERN, ipf, code)));
+        paraVar.setIsHidden(newBoolVarRaw(f(ParaVarImpl.HIDDEN_PATTERN, ipf, code)));
         paraVar.setInstId(getInstId());
         return paraVar;
     }
@@ -461,7 +467,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         PartVarImpl partVar = new PartVarImpl();
         partVar.setBase(part);
         partVar.setQty(newIntVar(0, part.getMaxQuantity(), f(PartVarImpl.QTY_PATTERN, ipf, part.getCode())));
-        partVar.setIsHidden(newBoolVar(f(PartVarImpl.HIDDEN_PATTERN, ipf, part.getCode())));
+        partVar.setIsHidden(newBoolVarRaw(f(PartVarImpl.HIDDEN_PATTERN, ipf, part.getCode())));
         partVar.setIsSelected(newBoolVar(f(PartVarImpl.ISSELECTED_PATTERN, ipf, part.getCode())));
         partVar.setInstId(getInstId());
         // 添加Qty和IsSelected的关系
@@ -660,7 +666,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
 
     }
 
-    protected void initData(AlgCPModel model, IModule module, IModuleInput moduleInput,
+    protected void initData(AlgCPModelImpl model, IModule module, IModuleInput moduleInput,
             IModuleAlg moduleAlgFile) {
         // Module级别
         this.model = model;
@@ -798,25 +804,25 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * @param name   变量名称
      * @return 创建的整数变量
      */
-    public static IntVar newIntVarFromDomain(AlgCPModel model, long[] values, String name) {
+    public static IntVar newIntVarFromDomain(AlgCPModelImpl model, long[] values, String name) {
         return model.newIntVarFromDomain(Domain.fromValues(values), name);
     }
 
     /**
      * 封装CpModel的newIntVar方法
-     * 
+     *
      * @param left  最小值
      * @param right 最大值
      * @param name  变量名称
      * @return 创建的整数变量
      */
     protected IntVar newIntVar(long left, long right, String name) {
-        return this.model.newIntVar(left, right, name);
+        return this.model.newIntVar(left, right, name).getIntVar();
     }
 
     /**
      * 封装CpModel的newIntVarFromDomain方法 - 单个值
-     * 
+     *
      * @param value 单个值
      * @param name  变量名称
      * @return 创建的整数变量
@@ -827,18 +833,18 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
 
     /**
      * 封装CpModel的newIntVarFromDomain方法 - 多个值
-     * 
+     *
      * @param values 允许的值数组
      * @param name   变量名称
      * @return 创建的整数变量
      */
     protected IntVar newIntVarFromDomain(long[] values, String name) {
-        return this.model.newIntVarFromDomain(values, name);
+        return this.model.newIntVarFromDomain(values, name).getIntVar();
     }
 
     /**
      * 封装CpModel的newIntVarFromDomain方法 - 区间
-     * 
+     *
      * @param intervals 区间数组
      * @param name      变量名称
      * @return 创建的整数变量
@@ -849,7 +855,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
 
     /**
      * 封装CpModel的newIntVarFromDomain方法 - 完整域
-     * 
+     *
      * @param name 变量名称
      * @return 创建的整数变量
      */
@@ -859,12 +865,22 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
 
     /**
      * 封装CpModel的newBoolVar方法
-     * 
+     *
      * @param name 变量名称
      * @return 创建的布尔变量
      */
-    protected BoolVar newBoolVar(String name) {
+    protected AlgCPBoolVar newBoolVar(String name) {
         return this.model.newBoolVar(name);
+    }
+
+    /**
+     * 封装CpModel的newBoolVar方法，返回原生BoolVar
+     *
+     * @param name 变量名称
+     * @return 创建的布尔变量
+     */
+    protected BoolVar newBoolVarRaw(String name) {
+        return this.model.newBoolVar(name).getBoolVar();
     }
 
     /**
@@ -872,7 +888,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * 
      * @return CP约束求解模型实例
      */
-    public AlgCPModel getModel() {
+    public AlgCPModelImpl getModel() {
         return model;
     }
 
@@ -950,7 +966,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         }
         DynamicAttributerOption option = optionOpt.get();
         ParaOptionVarImpl optionVar = new ParaOptionVarImpl(option);
-        optionVar.setIsSelectedVar(newBoolVar(f(ParaVarImpl.OPTIONS_PATTERN, ipf, paraCode, option.getCode())));
+        optionVar.setIsSelectedVar(newBoolVar(f(ParaVarImpl.OPTIONS_PATTERN, ipf, paraCode, option.getCode())).getBoolVar());
         return optionVar;
     }
 
@@ -974,10 +990,10 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         addExactlyOneConstraint(rightParaVar);
 
         // 定义左侧条件：左侧集合中至少一个被选中
-        BoolVar leftCond = createSelectedCondition(ruleCode, leftParaVar, leftParaFilterOptionCodes, "leftCond");
+        AlgCPBoolVar leftCond = createSelectedCondition(ruleCode, leftParaVar, leftParaFilterOptionCodes, "leftCond");
 
         // 定义右侧条件：右侧集合中至少一个被选中
-        BoolVar rightCond = createSelectedCondition(ruleCode, rightParaVar, rightParaFilterOptionCodes, "rightCond");
+        AlgCPBoolVar rightCond = createSelectedCondition(ruleCode, rightParaVar, rightParaFilterOptionCodes, "rightCond");
 
         // 实现Requires关系：如果左侧条件为true，则右侧条件必须为true
         model.addImplication(leftCond, rightCond);
@@ -1046,17 +1062,17 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         addExactlyOneConstraint(rightParaVar);
 
         // 定义左侧条件：左侧集合中至少一个被选中
-        BoolVar leftCond = createSelectedCondition(ruleCode, leftParaVar, leftParaFilterOptionCodes, "leftCond");
+        AlgCPBoolVar leftCond = createSelectedCondition(ruleCode, leftParaVar, leftParaFilterOptionCodes, "leftCond");
 
         // 定义右侧条件：右侧集合中至少一个被选中
-        BoolVar rightCond = createSelectedCondition(ruleCode, rightParaVar, rightParaFilterOptionCodes, "rightCond");
+        AlgCPBoolVar rightCond = createSelectedCondition(ruleCode, rightParaVar, rightParaFilterOptionCodes, "rightCond");
 
         // 定义左侧非条件：左侧集合外至少一个被选中
-        BoolVar leftNotCond = createNotSelectedCondition(ruleCode, leftParaVar, leftParaFilterOptionCodes,
+        AlgCPBoolVar leftNotCond = createNotSelectedCondition(ruleCode, leftParaVar, leftParaFilterOptionCodes,
                 "leftNotCond");
 
         // 定义右侧非条件：右侧集合外至少一个被选中
-        BoolVar rightNotCond = createNotSelectedCondition(ruleCode, rightParaVar, rightParaFilterOptionCodes,
+        AlgCPBoolVar rightNotCond = createNotSelectedCondition(ruleCode, rightParaVar, rightParaFilterOptionCodes,
                 "rightNotCond");
 
         // 实现CoDependent双向关系：
@@ -1097,17 +1113,17 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         addExactlyOneConstraint(rightParaVar);
 
         // 定义左侧条件：左侧集合中至少一个被选中
-        BoolVar leftCond = createSelectedCondition(ruleCode, leftParaVar, leftParaFilterOptionCodes, "leftCond");
+        AlgCPBoolVar leftCond = createSelectedCondition(ruleCode, leftParaVar, leftParaFilterOptionCodes, "leftCond");
 
         // 定义右侧条件：右侧集合中至少一个被选中
-        BoolVar rightCond = createSelectedCondition(ruleCode, rightParaVar, rightParaFilterOptionCodes, "rightCond");
+        AlgCPBoolVar rightCond = createSelectedCondition(ruleCode, rightParaVar, rightParaFilterOptionCodes, "rightCond");
 
         // 定义左侧非条件：左侧集合外至少一个被选中
-        BoolVar leftNotCond = createNotSelectedCondition(ruleCode, leftParaVar, leftParaFilterOptionCodes,
+        AlgCPBoolVar leftNotCond = createNotSelectedCondition(ruleCode, leftParaVar, leftParaFilterOptionCodes,
                 "leftNotCond");
 
         // 定义右侧非条件：右侧集合外至少一个被选中
-        BoolVar rightNotCond = createNotSelectedCondition(ruleCode, rightParaVar, rightParaFilterOptionCodes,
+        AlgCPBoolVar rightNotCond = createNotSelectedCondition(ruleCode, rightParaVar, rightParaFilterOptionCodes,
                 "rightNotCond");
 
         // 实现Incompatible双向关系：
@@ -1166,10 +1182,10 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * @param conditionSuffix   条件后缀（如"leftCond"、"rightCond"）
      * @return 条件变量
      */
-    private BoolVar createSelectedCondition(String ruleCode, ParaVarImpl paraVar,
+    private AlgCPBoolVar createSelectedCondition(String ruleCode, ParaVarImpl paraVar,
             List<String> filterOptionCodes, String conditionSuffix) {
         // 定义条件变量
-        BoolVar condition = newBoolVar(f("%s_%s", ruleCode, conditionSuffix));
+        AlgCPBoolVar condition = newBoolVar(f("%s_%s", ruleCode, conditionSuffix));
 
         // 获取选中的选项
         Literal[] selected = paraVar.getOptionSelectVars().values().stream()
@@ -1194,10 +1210,10 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * @param conditionSuffix   条件后缀（如"leftNotCond"、"rightNotCond"）
      * @return 条件变量
      */
-    private BoolVar createNotSelectedCondition(String ruleCode, ParaVarImpl paraVar,
+    private AlgCPBoolVar createNotSelectedCondition(String ruleCode, ParaVarImpl paraVar,
             List<String> filterOptionCodes, String conditionSuffix) {
         // 定义条件变量
-        BoolVar condition = newBoolVar(f("%s_%s", ruleCode, conditionSuffix));
+        AlgCPBoolVar condition = newBoolVar(f("%s_%s", ruleCode, conditionSuffix));
 
         // 获取集合外选中的选项
         Literal[] notSelected = paraVar.getOptionSelectVars().values().stream()

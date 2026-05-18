@@ -23,6 +23,7 @@ import com.jmix.executor.model.AlgLoaderException;
 import com.jmix.executor.model.PartConstraintReq;
 import com.jmix.executor.model.StrategyConfig;
 import com.jmix.executor.model.StrategyType;
+import com.jmix.executor.southinf.cp.AlgCPLinearArgument;
 import com.jmix.executor.bmodel.IModule;
 import com.jmix.tool.bbuilder.MultiInstCategoryUtils;
 
@@ -75,7 +76,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
      * @param module             模块对象
      * @param partCategoryInputs 来自请求的部件约束列表
      */
-    public void init(AlgCPModel model, IModule module,
+    public void init(AlgCPModelImpl model, IModule module,
             ModuleInput moduleInput) {
         initData(model, module, moduleInput, this);
 
@@ -202,7 +203,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
         initRules(this, CalcStage.PRE);
     }
 
-    protected void initData(AlgCPModel model, IModule module,
+    protected void initData(AlgCPModelImpl model, IModule module,
             ModuleInput moduleInput,
             IModuleAlg moduleAlgFile) {
         // 调用基类初始化
@@ -288,8 +289,8 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
      *
      * @return exr
      */
-    public PartAlgCPLinearExpr queryMergerPriorityConstraintExpr() {
-        PartAlgCPLinearExpr mergedExpr = model.newPartLinearExpr("merged_priority_expr");
+    public PartAlgCPLinearExprImpl queryMergerPriorityConstraintExpr() {
+        PartAlgCPLinearExprImpl mergedExpr = model.newPartLinearExpr("merged_priority_expr");
         for (PriorityConstraint pc : getAllPriorityConstraintMap().values()) {
             Rule rule = pc.getRule();
             PriorityRuleSchema schema = (PriorityRuleSchema) rule.getRawCode();
@@ -307,7 +308,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
      * @param attrCode attribute code
      * @param expr     expression containing part-term metadata and numeric terms
      */
-    public void updatePriorityObjectFuntion(String ruleCode, PartAlgCPLinearExpr expr) {
+    public void updatePriorityObjectFuntion(String ruleCode, PartAlgCPLinearExprImpl expr) {
         if (ruleCode == null || ruleCode.isEmpty()) {
             log.warn("ruleCode is null or empty, skip updating priority objective");
             return;
@@ -580,9 +581,9 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
      * @return 求和后的AlgCPLinearExpr表达式
      */
     // @Override
-    protected PartAlgCPLinearExpr sum4Parts(PartCategoryAlgImpl partCategoryAlgImpl, String cofAttrCode,
-            Function<PartVarImpl, LinearArgument> varGetter, String varName, String filtedConditionStr) {
-        PartAlgCPLinearExpr expr = buildSumExpr(
+    protected PartAlgCPLinearExprImpl sum4Parts(PartCategoryAlgImpl partCategoryAlgImpl, String cofAttrCode,
+            Function<PartVarImpl, ? extends LinearArgument> varGetter, String varName, String filtedConditionStr) {
+        PartAlgCPLinearExprImpl expr = buildSumExpr(
                 partCategoryAlgImpl,
                 cofAttrCode, varName, varGetter,
                 filtedConditionStr);
@@ -597,7 +598,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
      * @param filtedConditionStr   过滤条件字符串
      * @return 求和后的AlgCPLinearExpr表达式
      */
-    public PartAlgCPLinearExpr sum4Selected(String partCategoryCodesStr, String cofAttrCode,
+    public PartAlgCPLinearExprImpl sum4Selected(String partCategoryCodesStr, String cofAttrCode,
             String filtedConditionStr) {
         if (partCategoryCodesStr == null || partCategoryCodesStr.trim().isEmpty()) {
             return sum4Selected(cofAttrCode, filtedConditionStr);
@@ -605,7 +606,8 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
         List<PartCategoryAlgImpl> partCategoryAlgImpls = toPartCategoryAlgImpls(partCategoryCodesStr);
 
         return buildSumExpr(
-                partCategoryAlgImpls, cofAttrCode, PartVarImpl.ISSELECTED_SHORT_NAME, PartVarImpl::getIsSelected,
+                partCategoryAlgImpls, cofAttrCode, PartVarImpl.ISSELECTED_SHORT_NAME,
+                (java.util.function.Function<PartVarImpl, ? extends LinearArgument>) p -> (LinearArgument) p.getIsSelected().build(),
                 filtedConditionStr);
     }
 
@@ -617,7 +619,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
      * @param filtedConditionStr   过滤条件字符串
      * @return 求和后的AlgCPLinearExpr表达式
      */
-    public PartAlgCPLinearExpr sum4Quantity(String partCategoryCodesStr, String cofAttrCode,
+    public PartAlgCPLinearExprImpl sum4Quantity(String partCategoryCodesStr, String cofAttrCode,
             String filtedConditionStr) {
         if (Strings.isEmpty(partCategoryCodesStr)) {
             return sum4Quantity(cofAttrCode, filtedConditionStr);
@@ -652,9 +654,10 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
      * @return 求和后的AlgCPLinearExpr表达式
      */
 
-    public PartAlgCPLinearExpr sum4Selected(String cofAttrCode,
+    public PartAlgCPLinearExprImpl sum4Selected(String cofAttrCode,
             String filtedConditionStr) {
-        return sum4Parts((PartCategoryAlgImpl) currentModuleAlg, cofAttrCode, PartVarImpl::getIsSelected,
+        return sum4Parts((PartCategoryAlgImpl) currentModuleAlg, cofAttrCode,
+                p -> (LinearArgument) p.getIsSelected().build(),
                 PartVarImpl.ISSELECTED_SHORT_NAME, filtedConditionStr);
     }
 
@@ -664,7 +667,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
      * @param filtedConditionStr 过滤条件字符串
      * @return 求和后的AlgCPLinearExpr表达式
      */
-    public PartAlgCPLinearExpr sum4Selected(String filtedConditionStr) {
+    public PartAlgCPLinearExprImpl sum4Selected(String filtedConditionStr) {
         return sum4Selected(null, filtedConditionStr);
     }
 
@@ -675,7 +678,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
      * @param filtedConditionStr 过滤条件字符串
      * @return 求和后的AlgCPLinearExpr表达式
      */
-    public PartAlgCPLinearExpr sum4Quantity(String cofAttrCode, String filtedConditionStr) {
+    public PartAlgCPLinearExprImpl sum4Quantity(String cofAttrCode, String filtedConditionStr) {
         return sum4Parts((PartCategoryAlgImpl) currentModuleAlg,
                 cofAttrCode, PartVarImpl::getQty, PartVarImpl.QTY_SHORT_NAME, filtedConditionStr);
     }
@@ -686,7 +689,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
      * @param filtedConditionStr 过滤条件字符串
      * @return 求和后的AlgCPLinearExpr表达式
      */
-    public PartAlgCPLinearExpr sum4Quantity(String filtedConditionStr) {
+    public PartAlgCPLinearExprImpl sum4Quantity(String filtedConditionStr) {
         return sum4Quantity(null, filtedConditionStr);
     }
 
@@ -815,7 +818,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
 
         // Get isSelected BoolVars (which are IntVars) in sorted order
         IntVar[] vars = partVars.stream()
-                .map(PartVarImpl::getIsSelected)
+                .map(p -> p.getIsSelected().getIntVar())
                 .toArray(IntVar[]::new);
 
         // SELECT_MAX_VALUE: try selecting parts first, which means preferred parts

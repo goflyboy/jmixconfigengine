@@ -1,5 +1,7 @@
 package com.jmix.executor.southinf;
 
+import com.google.ortools.sat.BoolVar;
+import com.google.ortools.sat.Literal;
 import java.util.Collection;
 
 /**
@@ -8,8 +10,6 @@ import java.util.Collection;
  * New code should use {@link ModuleCPModel} directly.
  */
 public interface ConstraintModel {
-
-    // Legacy expression-based methods
 
     com.jmix.executor.southinf.var.ConstraintRef equal(
             com.jmix.executor.southinf.var.IntExpr left, long right);
@@ -52,15 +52,20 @@ public interface ConstraintModel {
 
     com.jmix.executor.southinf.var.LinearExpr linearExpr(String name);
 
-    /**
-     * Create a new linear expression.
-     * 
-     * @param name expression name
-     * @return new AlgCPLinearExpr
-     */
-    com.jmix.executor.impl.algmodel.AlgCPLinearExpr newLinearExpr(String name);
+    com.jmix.executor.impl.algmodel.AlgCPLinearExprImpl newLinearExpr(String name);
 
     void minimize(com.jmix.executor.southinf.var.LinearExpr expr);
 
     void maximize(com.jmix.executor.southinf.var.LinearExpr expr);
+
+    // Test-compatibility methods
+    BoolVar newBoolVar(String name);
+
+    com.jmix.executor.impl.algmodel.AlgCPConstraintImpl addBoolAnd(Literal[] literals);
+
+    com.jmix.executor.southinf.var.ConstraintRef addEquality(BoolVar left, long right);
+
+    com.jmix.executor.southinf.var.ConstraintRef addImplication(Literal left, Literal right);
+
+    void minimize(com.jmix.executor.impl.algmodel.AlgCPLinearExprImpl expr);
 }

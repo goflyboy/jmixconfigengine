@@ -20,9 +20,9 @@ public class CompatibleConstraintAlg {
     /**
      * CP约束求解模型实例
      */
-    private AlgCPModel model;
+    private AlgCPModelImpl model;
 
-    public CompatibleConstraintAlg(AlgCPModel model) {
+    public CompatibleConstraintAlg(AlgCPModelImpl model) {
         this.model = model;
     }
 
@@ -59,19 +59,20 @@ public class CompatibleConstraintAlg {
 
         // 实现Incompatible双向关系：
         // 正向1.1：如果左侧条件为true，则右侧条件必须为false（右侧非条件必须为true）
-        model.addImplication(leftCond, rightNotCond);
+        model.addImplication((Literal) leftCond, (Literal) rightNotCond);
 
         // 反向2.1：如果右侧条件为true，则左侧条件必须为false（左侧非条件必须为true）
-        model.addImplication(rightCond, leftNotCond);
+        model.addImplication((Literal) rightCond, (Literal) leftNotCond);
 
         log.info("Added inCompatible constraint: {} - left filter: {}, right filter: {}",
                 ruleCode, leftFilterParts.size(), rightFilterParts.size());
     }
 
     private void addExactlyOneConstraint(List<PartVarImpl> partVars) {
-        model.addExactlyOne(partVars.stream()
-                .map(partVar -> partVar.getIsSelected())
-                .toArray(Literal[]::new));
+        Literal[] selected = partVars.stream()
+                .map(partVar -> partVar.getIsSelected().internal())
+                .toArray(Literal[]::new);
+        model.addExactlyOne(selected);
     }
 
     /**
@@ -85,11 +86,11 @@ public class CompatibleConstraintAlg {
     private BoolVar createSelectedCondition(String ruleCode, List<PartVarImpl> partVars, String conditionSuffix) {
 
         // 定义条件变量
-        BoolVar condition = model.newBoolVar(ruleCode + "_" + conditionSuffix);
+        BoolVar condition = model.newBoolVar(ruleCode + "_" + conditionSuffix).getBoolVar();
 
         // 获取选中变量数组
         Literal[] selected = partVars.stream()
-                .map(partVar -> partVar.getIsSelected())
+                .map(partVar -> partVar.getIsSelected().internal())
                 .toArray(Literal[]::new);
 
         // 当条件为true时，集合中至少一个被选中；当为false时，集合全部不被选中

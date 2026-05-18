@@ -6,6 +6,7 @@ import com.jmix.executor.bmodel.attr.DynamicAttribute;
 import com.jmix.executor.bmodel.attr.IDynamicAttributable;
 import com.jmix.executor.bmodel.base.IExtensible;
 import com.jmix.executor.cmodel.ModuleInst;
+import com.jmix.executor.southinf.cp.AlgCPBoolVar;
 
 import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.CpSolverSolutionCallback;
@@ -93,7 +94,7 @@ public class PartVarImpl extends VarImpl<IPart> implements IExtensible, IDynamic
     /**
      * 是否选中
      */
-    private BoolVar isSelected;
+    private AlgCPBoolVar isSelected;
 
     /**
      * 获取变量字符串表示
@@ -108,7 +109,7 @@ public class PartVarImpl extends VarImpl<IPart> implements IExtensible, IDynamic
         sb.append(", qty=").append(this.qty == null ? "null" : solutionCallback.value(this.getQty()));
         sb.append(", hidden=").append(this.isHidden == null ? "null" : solutionCallback.value(this.getIsHidden()));
         sb.append(", selected=")
-                .append(this.isSelected == null ? "null" : solutionCallback.value(this.getIsSelected()));
+                .append(this.isSelected == null ? "null" : solutionCallback.value(this.isSelected.getIntVar()));
         sb.append(", subParts=").append(getSubParts().size());
         sb.append("}");
         return sb.toString();
@@ -128,7 +129,7 @@ public class PartVarImpl extends VarImpl<IPart> implements IExtensible, IDynamic
                 HIDDEN_SHORT_NAME,
                 this.isHidden == null ? "null" : solutionCallback.value(this.isHidden),
                 ISSELECTED_SHORT_NAME,
-                this.isSelected == null ? "null" : solutionCallback.value(this.isSelected));
+                this.isSelected == null ? "null" : solutionCallback.value(this.isSelected.getIntVar()));
     }
 
     @Override
@@ -214,7 +215,7 @@ public class PartVarImpl extends VarImpl<IPart> implements IExtensible, IDynamic
     public Map<String, BoolVar> getSubPartSelectedVars() {
         Map<String, BoolVar> selectedVars = new HashMap<>();
         for (Map.Entry<String, PartVarImpl> entry : subPartMap.entrySet()) {
-            selectedVars.put(entry.getKey(), entry.getValue().getIsSelected());
+            selectedVars.put(entry.getKey(), entry.getValue().getIsSelected().getBoolVar());
         }
         return selectedVars;
     }

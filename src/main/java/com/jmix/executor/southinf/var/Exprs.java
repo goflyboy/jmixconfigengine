@@ -1,7 +1,7 @@
 package com.jmix.executor.southinf.var;
 
-import com.jmix.executor.impl.algmodel.AlgCPConstraint;
-import com.jmix.executor.impl.algmodel.AlgCPLinearExpr;
+import com.jmix.executor.impl.algmodel.AlgCPConstraintImpl;
+import com.jmix.executor.impl.algmodel.AlgCPLinearExprImpl;
 
 import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.IntVar;
@@ -24,11 +24,15 @@ public final class Exprs {
         return new BoolExprImpl(expr);
     }
 
-    public static LinearExpr linearExpr(AlgCPLinearExpr expr) {
+    public static BoolExpr boolExpr(Literal literal) {
+        return new BoolExprImpl((BoolVar) literal);
+    }
+
+    public static LinearExpr linearExpr(AlgCPLinearExprImpl expr) {
         return new LinearExprImpl(expr);
     }
 
-    public static ConstraintRef constraintRef(AlgCPConstraint constraint) {
+    public static ConstraintRef constraintRef(AlgCPConstraintImpl constraint) {
         return new ConstraintRefImpl(constraint);
     }
 
@@ -63,29 +67,35 @@ public final class Exprs {
 
     static final class LinearExprImpl implements LinearExpr {
 
-        private final AlgCPLinearExpr expr;
+        private final AlgCPLinearExprImpl expr;
 
-        LinearExprImpl(AlgCPLinearExpr expr) {
+        LinearExprImpl(AlgCPLinearExprImpl expr) {
             this.expr = expr;
         }
 
         @Override
-        public AlgCPLinearExpr unwrap() {
+        public AlgCPLinearExprImpl unwrap() {
             return expr;
         }
     }
 
     static final class ConstraintRefImpl implements ConstraintRef {
 
-        private final AlgCPConstraint constraint;
+        private final AlgCPConstraintImpl constraint;
 
-        ConstraintRefImpl(AlgCPConstraint constraint) {
+        ConstraintRefImpl(AlgCPConstraintImpl constraint) {
             this.constraint = constraint;
         }
 
         @Override
         public ConstraintRef onlyIf(BoolExpr condition) {
             constraint.onlyEnforceIf(condition.literal());
+            return this;
+        }
+
+        @Override
+        public ConstraintRef onlyEnforceIf(Literal condition) {
+            constraint.onlyEnforceIf(condition);
             return this;
         }
 

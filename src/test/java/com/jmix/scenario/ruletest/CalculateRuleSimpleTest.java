@@ -64,7 +64,7 @@ public class CalculateRuleSimpleTest extends ModuleScenarioTestBase {
             // }
 
             // 创建条件变量：p1是op11
-            BoolVar op11 = model.newBoolVar("rule1_op11");
+            var op11 = model.newBoolVar("rule1_op11");
 
             // 实现条件逻辑：rule1_op11 = (p1 == op11)
             model.addBoolAnd(new Literal[] {

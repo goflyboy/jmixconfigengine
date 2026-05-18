@@ -5,7 +5,7 @@ import com.jmix.executor.southinf.var.ParaVar;
 import com.jmix.executor.southinf.var.PartCategoryVar;
 import com.jmix.executor.southinf.var.PartVar;
 import com.jmix.coretest.ModuleScenarioTestBase;
-import com.jmix.executor.impl.algmodel.AlgCPLinearExpr;
+import com.jmix.executor.impl.algmodel.AlgCPLinearExprImpl;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
 import com.jmix.tool.bbuilder.anno.ModuleAnno;
 import com.jmix.tool.bbuilder.anno.PartAnno;
@@ -35,7 +35,7 @@ public class ConflictDiagnosisTest extends ModuleScenarioTestBase {
         // rule1: x.quantityVar() + y.quantityVar() < 20
         @CodeRuleAnno(normalNaturalCode = "x.quantityVar() + y.quantityVar() < 20")
         private void rule1() {
-            AlgCPLinearExpr sumXY = new AlgCPLinearExpr("sum_x_y");
+            AlgCPLinearExprImpl sumXY = new AlgCPLinearExprImpl("sum_x_y");
             sumXY.addTerm(x.quantityVar(), 1);
             sumXY.addTerm(y.quantityVar(), 1);
             model.addLessThan(sumXY, 20);
@@ -44,7 +44,7 @@ public class ConflictDiagnosisTest extends ModuleScenarioTestBase {
         // rule2: x.quantityVar() - y.quantityVar() > 10
         @CodeRuleAnno(normalNaturalCode = "x.quantityVar() - y.quantityVar() > 10")
         private void rule2() {
-            AlgCPLinearExpr diffXY = AlgCPLinearExpr.weightedSum(
+            AlgCPLinearExprImpl diffXY = AlgCPLinearExprImpl.weightedSum(
                     new IntVar[]{x.quantityVar(), y.quantityVar()}, new long[]{1, -1});
             model.addGreaterThan(diffXY, 10);
         }
@@ -58,7 +58,7 @@ public class ConflictDiagnosisTest extends ModuleScenarioTestBase {
         // rule4: x.quantityVar() + 2 * y.quantityVar() > 10
         @CodeRuleAnno(normalNaturalCode = "x.quantityVar() + 2 * y.quantityVar() > 10")
         private void rule4() {
-            AlgCPLinearExpr sumX2Y = AlgCPLinearExpr.weightedSum(
+            AlgCPLinearExprImpl sumX2Y = AlgCPLinearExprImpl.weightedSum(
                     new IntVar[]{x.quantityVar(), y.quantityVar()}, new long[]{1, 2});
             model.addGreaterThan(sumX2Y, 10);
         }

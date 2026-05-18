@@ -26,7 +26,7 @@ public class PartAlgCPLinearExprSysTest {
         Loader.loadNativeLibraries();
     }
 
-    private PartVarImpl ofPart(AlgCPModel model, String partCode) {
+    private PartVarImpl ofPart(AlgCPModelImpl model, String partCode) {
         Part part = new Part();
         part.setCode(partCode);
         part.setShortCode(partCode);
@@ -41,18 +41,18 @@ public class PartAlgCPLinearExprSysTest {
     @Test
     public void testAbsExprSpecificCase() {
         // 测试具体场景: P1.Q - P2.Q = 5 时，|P1.Q - P2.Q| = 5
-        AlgCPModel model = new AlgCPModel();
+        AlgCPModelImpl model = new AlgCPModelImpl();
 
         PartVarImpl pv1 = ofPart(model, "P1");
         PartVarImpl pv2 = ofPart(model, "P2");
 
         // 创建表达式: diff = P1.Q - P2.Q
-        PartAlgCPLinearExpr diffExpr = new PartAlgCPLinearExpr("diff");
+        PartAlgCPLinearExprImpl diffExpr = new PartAlgCPLinearExprImpl("diff");
         diffExpr.addTerm("", pv1, pv1.getQty(), 1);
         diffExpr.addTerm("", pv2, pv2.getQty(), -1);
 
         // 添加绝对值约束
-        PartAlgCPLinearExpr absExpr = new PartAlgCPLinearExpr("abs");
+        PartAlgCPLinearExprImpl absExpr = new PartAlgCPLinearExprImpl("abs");
         absExpr.addAbsExpr(diffExpr, model);
 
         // // 设置具体值: P1.Q >= 8, P2.Q >= 3

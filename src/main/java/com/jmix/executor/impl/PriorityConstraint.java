@@ -3,7 +3,7 @@ package com.jmix.executor.impl;
 import com.jmix.executor.bmodel.logic.PriorityRuleSchema;
 import com.jmix.executor.bmodel.logic.PriorityStrategy;
 import com.jmix.executor.bmodel.logic.Rule;
-import com.jmix.executor.impl.algmodel.PartAlgCPLinearExpr;
+import com.jmix.executor.impl.algmodel.PartAlgCPLinearExprImpl;
 import com.jmix.executor.impl.util.ExpressionCalculator;
 
 import lombok.Data;
@@ -29,7 +29,7 @@ public class PriorityConstraint {
     /**
      * 线性表达式
      */
-    private PartAlgCPLinearExpr expr;
+    private PartAlgCPLinearExprImpl expr;
 
     // 以下字段保留为注释，仅通过 getter 暴露（数据由 expr 提供）
     /*
@@ -90,7 +90,7 @@ public class PriorityConstraint {
      * @param exprVariables 表达式变量值列表
      * @return 计算结果
      */
-    public static double calcToString(PartAlgCPLinearExpr pc, List<Integer> exprVariables) {
+    public static double calcToString(PartAlgCPLinearExprImpl pc, List<Integer> exprVariables) {
 
         // 调用公式计算机器计算 calcStr 的值 calcResult，基于 Apache Commons JEXL 3.4.0 实现
         String calcExprStr = instanceExprTemplate(pc.getExprTemplate(), exprVariables);

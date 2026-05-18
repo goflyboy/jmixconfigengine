@@ -12,6 +12,8 @@ import com.jmix.executor.impl.PartCategoryInput;
 import com.jmix.executor.impl.PartCategoryInputBase;
 import com.jmix.executor.model.AlgLoaderException;
 import com.jmix.executor.bmodel.IModule;
+import com.jmix.executor.southinf.cp.AlgCPLinearArgument;
+import com.jmix.executor.southinf.cp.AlgCPBoolVar;
 
 import com.google.ortools.sat.LinearArgument;
 
@@ -43,7 +45,7 @@ public class SingleInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements 
     }
 
     @Override
-    protected void initData(AlgCPModel model, IModule module, IModuleInput moduleInput,
+    protected void initData(AlgCPModelImpl model, IModule module, IModuleInput moduleInput,
             IModuleAlg moduleAlgFile) {
         PartCategoryInput input = (PartCategoryInput) moduleInput;
         this.instId = input.getInstId();
@@ -128,7 +130,7 @@ public class SingleInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements 
             PartCategoryInputBase partConstraintTmp) {
         SingleInstPartCategoryAlgImpl singleInstPartCategoryAlgImpl = (SingleInstPartCategoryAlgImpl) moduleBaseAlgImplTmp;
         PartCategoryInput partConstraint = (PartCategoryInput) partConstraintTmp;
-        PartAlgCPLinearExpr sumFunExpr = buildSumExpr(
+        PartAlgCPLinearExprImpl sumFunExpr = buildSumExpr(
                 singleInstPartCategoryAlgImpl,
                 partConstraint.getSumAttrCode(), "Q",
                 PartVarImpl::getQty, "");
@@ -146,8 +148,9 @@ public class SingleInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements 
      * @param filtedConditionStr 过滤条件字符串
      * @return 求和后的AlgCPLinearExpr表达式
      */
-    public PartAlgCPLinearExpr sum4Selected(String filtedConditionStr) {
-        return sum4Parts(this, null, PartVarImpl::getIsSelected,
+    public PartAlgCPLinearExprImpl sum4Selected(String filtedConditionStr) {
+        return sum4Parts(this, null,
+                p -> (LinearArgument) p.getIsSelected().build(),
                 PartVarImpl.ISSELECTED_SHORT_NAME, filtedConditionStr);
     }
 
@@ -158,8 +161,9 @@ public class SingleInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements 
      * @param filtedConditionStr 过滤条件字符串
      * @return 求和后的AlgCPLinearExpr表达式
      */
-    public PartAlgCPLinearExpr sum4Selected(String cofAttrCode, String filtedConditionStr) {
-        return sum4Parts(this, cofAttrCode, PartVarImpl::getIsSelected,
+    public PartAlgCPLinearExprImpl sum4Selected(String cofAttrCode, String filtedConditionStr) {
+        return sum4Parts(this, cofAttrCode,
+                p -> (LinearArgument) p.getIsSelected().build(),
                 PartVarImpl.ISSELECTED_SHORT_NAME, filtedConditionStr);
     }
 
@@ -173,9 +177,9 @@ public class SingleInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements 
      * @param filtedConditionStr  过滤条件字符串
      * @return 求和后的AlgCPLinearExpr表达式
      */
-    protected PartAlgCPLinearExpr sum4Parts(PartCategoryAlgImpl partCategoryAlgImpl, String cofAttrCode,
-            Function<PartVarImpl, LinearArgument> varGetter, String varName, String filtedConditionStr) {
-        PartAlgCPLinearExpr expr = buildSumExpr(
+    protected PartAlgCPLinearExprImpl sum4Parts(PartCategoryAlgImpl partCategoryAlgImpl, String cofAttrCode,
+            Function<PartVarImpl, ? extends LinearArgument> varGetter, String varName, String filtedConditionStr) {
+        PartAlgCPLinearExprImpl expr = buildSumExpr(
                 partCategoryAlgImpl,
                 cofAttrCode, varName, varGetter,
                 filtedConditionStr);
@@ -188,7 +192,7 @@ public class SingleInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements 
      * @param filtedConditionStr 过滤条件字符串
      * @return 求和后的AlgCPLinearExpr表达式
      */
-    public PartAlgCPLinearExpr sum4Quantity(String filtedConditionStr) {
+    public PartAlgCPLinearExprImpl sum4Quantity(String filtedConditionStr) {
         return sum4Quantity(null, filtedConditionStr);
     }
 
@@ -199,7 +203,7 @@ public class SingleInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements 
      * @param filtedConditionStr 过滤条件字符串
      * @return 求和后的AlgCPLinearExpr表达式
      */
-    public PartAlgCPLinearExpr sum4Quantity(String cofAttrCode, String filtedConditionStr) {
+    public PartAlgCPLinearExprImpl sum4Quantity(String cofAttrCode, String filtedConditionStr) {
         return sum4Parts(this, cofAttrCode, PartVarImpl::getQty,
                 PartVarImpl.QTY_SHORT_NAME, filtedConditionStr);
     }
@@ -208,23 +212,23 @@ public class SingleInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements 
      * 创建部件线性表达式
      *
      * @param name 表达式名称
-     * @return 新的PartAlgCPLinearExpr
+     * @return 新的PartAlgCPLinearExprImpl
      */
-    public PartAlgCPLinearExpr newPartLinearExpr(String name) {
-        return new PartAlgCPLinearExpr(name);
+    public PartAlgCPLinearExprImpl newPartLinearExpr(String name) {
+        return new PartAlgCPLinearExprImpl(name);
     }
 
     /**
      * 添加小于等于约束
      */
-    public void addLessOrEqual(AlgCPLinearExpr expr, int value) {
+    public void addLessOrEqual(AlgCPLinearExprImpl expr, int value) {
         model.addLessOrEqual(expr, value);
     }
 
     /**
      * 添加大于等于约束
      */
-    public void addGreaterOrEqual(AlgCPLinearExpr expr, int value) {
+    public void addGreaterOrEqual(AlgCPLinearExprImpl expr, int value) {
         model.addGreaterOrEqual(expr, value);
     }
 }

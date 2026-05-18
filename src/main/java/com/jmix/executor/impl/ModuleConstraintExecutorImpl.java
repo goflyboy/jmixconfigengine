@@ -16,7 +16,7 @@ import com.jmix.executor.cmodel.InstErrorCode;
 import com.jmix.executor.cmodel.ModuleInst;
 import com.jmix.executor.cmodel.PartCategoryInst;
 import com.jmix.executor.cmodel.SolverResult;
-import com.jmix.executor.impl.algmodel.AlgCPModel;
+import com.jmix.executor.impl.algmodel.AlgCPModelImpl;
 import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
 import com.jmix.executor.impl.algmodel.RelaxVar;
 import com.jmix.executor.impl.util.ModuleUtils;
@@ -364,7 +364,7 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
             if (status == CpSolverStatus.MODEL_INVALID) {
                 // 重新获取模型进行验证
                 ModuleAlgImpl alg = initConstraintModel(module, req, false, new ArrayList<>());
-                AlgCPModel model = alg.getModel();
+                AlgCPModelImpl model = alg.getModel();
                 String validationError = model.getCpModel().validate();
                 log.error("Model validation failed: {}", validationError);
                 return Result.failed("Model validation failed: " + validationError);
@@ -470,13 +470,13 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
      * @return 冲突松弛变量列表
      */
     private List<RelaxVar> calcConfictRules(RunInferParasRsp result) {
-        AlgCPModel relaxModel = result.getAlgCPModel();
+        AlgCPModelImpl relaxModel = result.getAlgCPModel();
         // 获取冲突规则信息
         List<RelaxVar> confictedRelaxs = new ArrayList<>();
         Map<String, RelaxVar> relaxVarMap = relaxModel.getRelaxVarMap();
         for (Map.Entry<String, RelaxVar> entry : relaxVarMap.entrySet()) {
             RelaxVar relaxVar = entry.getValue();
-            if (result.getSolver().booleanValue(relaxVar.getValue())) {
+            if (result.getSolver().booleanValue(relaxVar.getValue().getBoolVar())) {
                 confictedRelaxs.add(relaxVar);
             }
         }
@@ -618,7 +618,7 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
             throws AlgLoaderException, AlgExecutorException {
         // 初始化约束模型
         ModuleAlgImpl alg = initConstraintModel(module, req, isAttachRelax, confictedRelaxs);
-        AlgCPModel model = alg.getModel();
+                AlgCPModelImpl model = alg.getModel();
 
         if (config.isLogModelProto()) {
             // 将module的CpModelProto信息输出到文件config.logFilePath/module.proto.txt
@@ -645,7 +645,7 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
             throws AlgLoaderException, AlgExecutorException {
         // 创建约束算法实例
         ModuleAlgImpl alg = createConstraintAlg(module.getId(), module.getCode());
-        AlgCPModel model = new AlgCPModel();
+        AlgCPModelImpl model = new AlgCPModelImpl();
         model.setIsAttachRelax(isAttachRelax);
         model.setConfictedRelaxVars(confictedRelaxs);
         // 根据loadType决定是否使用差量加载模型

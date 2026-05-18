@@ -6,9 +6,9 @@ import com.jmix.executor.bmodel.PartCategory;
 import com.jmix.executor.bmodel.base.Pair;
 import com.jmix.executor.cmodel.ModuleInst;
 import com.jmix.executor.cmodel.SolverResult;
-import com.jmix.executor.impl.algmodel.AlgCPModel;
+import com.jmix.executor.impl.algmodel.AlgCPModelImpl;
 import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
-import com.jmix.executor.impl.algmodel.PartAlgCPLinearExpr;
+import com.jmix.executor.impl.algmodel.PartAlgCPLinearExprImpl;
 import com.jmix.executor.model.ConstraintConfig;
 import com.jmix.executor.model.InferPartCategoryReq;
 import com.jmix.executor.model.PartConstraintReq;
@@ -188,7 +188,7 @@ public abstract class ModuleBaseConstraintExecutorImpl {
 
         // 步骤1：对每个优先级规则优化求解最优解
         ModuleAlgImpl optAlg = createConstraintAlg(module.getId(), module.getCode());
-        AlgCPModel optModel = new AlgCPModel();
+        AlgCPModelImpl optModel = new AlgCPModelImpl();
         optModel.setIsAttachRelax(false);
         optModel.setConfictedRelaxVars(new ArrayList<>());
         optAlg.init(optModel, filteredModuleBase, moduleInput);
@@ -196,7 +196,7 @@ public abstract class ModuleBaseConstraintExecutorImpl {
         optAlg.addRelaxObjectFunction();
         boolean hasPriorityRule = optAlg.hasPriorityRule();
         if (hasPriorityRule) {
-            PartAlgCPLinearExpr priorityMergedExpr = optAlg.queryMergerPriorityConstraintExpr();
+            PartAlgCPLinearExprImpl priorityMergedExpr = optAlg.queryMergerPriorityConstraintExpr();
             if (adjustOptimalValue == null) {
                 optModel.minimize(priorityMergedExpr);
             } else {

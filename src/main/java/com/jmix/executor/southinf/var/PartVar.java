@@ -27,7 +27,7 @@ public class PartVar extends SouthboundVarAdapter<IPart> implements Var {
     }
 
     public BoolExpr selected() {
-        return Exprs.boolExpr(internal.getIsSelected());
+        return Exprs.boolExpr(internal.getIsSelected().internal());
     }
 
     public BoolExpr hidden() {
@@ -39,7 +39,7 @@ public class PartVar extends SouthboundVarAdapter<IPart> implements Var {
     }
 
     public BoolVar selectedVar() {
-        return internal.getIsSelected();
+        return internal.getIsSelected().getBoolVar();
     }
 
     public BoolVar hiddenVar() {

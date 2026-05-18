@@ -5,9 +5,9 @@ import com.jmix.executor.bmodel.attr.DynamicAttributeType;
 import com.jmix.executor.bmodel.base.AssignType;
 import com.jmix.executor.bmodel.logic.PriorityStrategy;
 import com.jmix.executor.bmodel.para.ParaType;
-import com.jmix.executor.impl.algmodel.AlgCPLinearExpr;
+import com.jmix.executor.impl.algmodel.AlgCPLinearExprImpl;
 import com.jmix.executor.impl.algmodel.ParaVarImpl;
-import com.jmix.executor.impl.algmodel.PartAlgCPLinearExpr;
+import com.jmix.executor.impl.algmodel.PartAlgCPLinearExprImpl;
 import com.jmix.executor.impl.algmodel.PartVarImpl;
 import com.jmix.executor.southinf.ModuleAlg;
 import com.jmix.executor.southinf.PartCategoryAlg;
@@ -85,18 +85,18 @@ public class Onto4MultiPCTest extends ModuleScenarioTestBase {
                 // proRule1-natuarl: 固态硬盘必须配置同一种，并且最多配置2块
                 // proRule1-dsl: 拆分为proRule11和proRule11两条约束（和isSelected(S)、qty(Q)相关）
                 // proRule11-cRule: sd1.S + sd2.S <=1
-                AlgCPLinearExpr sdTypeSumNum = sum4Selected("Type=sd").name("sdTypeSumNum");
+                AlgCPLinearExprImpl sdTypeSumNum = sum4Selected("Type=sd").name("sdTypeSumNum");
                 addLessOrEqual(sdTypeSumNum, 1);
 
                 // proRule12-cRule: sd1.Q + sd2.Q <= 2
-                AlgCPLinearExpr sdTypeSumQty = sum4Quantity("Type=sd").name("sdTypeSumQty");
+                AlgCPLinearExprImpl sdTypeSumQty = sum4Quantity("Type=sd").name("sdTypeSumQty");
                 addLessOrEqual(sdTypeSumQty, 2);
             }
 
             @PriorityRuleAnno(normalNaturalCode = " 优先使用高容量硬盘", strategy = PriorityStrategy.MIN)
             private void logicB2() {
 
-                PartAlgCPLinearExpr totalCapacity = sum4Quantity("Capacity", "").name("totalCapacity");
+                PartAlgCPLinearExprImpl totalCapacity = sum4Quantity("Capacity", "").name("totalCapacity");
                 // 如果是容量需求
                 if (driveSumCapacity.getHasInputed()) {
                     int requiredCapacity = driveSumCapacity.getInputValue();
@@ -105,20 +105,20 @@ public class Onto4MultiPCTest extends ModuleScenarioTestBase {
                     addGreaterOrEqual(totalCapacity, requiredCapacity);
 
                     // 创建目标函数
-                    PartAlgCPLinearExpr objectiveExpr = newPartLinearExpr("ObjectiveFun");
+                    PartAlgCPLinearExprImpl objectiveExpr = newPartLinearExpr("ObjectiveFun");
 
                     // a2.使用高容量硬盘 -> "被选择部件单容量总和越大越好"
-                    PartAlgCPLinearExpr highCapacityExpr = sum4Selected("Capacity", "").name("highCapacityExpr");
+                    PartAlgCPLinearExprImpl highCapacityExpr = sum4Selected("Capacity", "").name("highCapacityExpr");
                     objectiveExpr.addExpr(highCapacityExpr, -100);
 
                     // a3.在满足容量需求的前提下，容量越接近需求容量越好
-                    PartAlgCPLinearExpr excessCapacityExpr = newPartLinearExpr("excessCapacityExpr");
+                    PartAlgCPLinearExprImpl excessCapacityExpr = newPartLinearExpr("excessCapacityExpr");
                     excessCapacityExpr.addExpr(totalCapacity, 1);
                     excessCapacityExpr.addConstant(-requiredCapacity);
                     objectiveExpr.addExpr(excessCapacityExpr, 1);
 
                     // a4.在满足容量需求的前提下， 配置的部件数量越少越好
-                    PartAlgCPLinearExpr excessQuantityExpr = sum4Quantity("", "").name("excessQuantityExpr");
+                    PartAlgCPLinearExprImpl excessQuantityExpr = sum4Quantity("", "").name("excessQuantityExpr");
                     objectiveExpr.addExpr(excessQuantityExpr, 800);
                     // model.setObjectExpr(objectiveExpr);
                     // updatePriorityObjectFuntion("logicB2", objectiveExpr);
@@ -129,18 +129,18 @@ public class Onto4MultiPCTest extends ModuleScenarioTestBase {
                     // int requiredQty = Integer.parseInt(req.getAttrValue());
                     int requiredQuantity = driveSumQuantity.getInputValue();
                     // a1.满足输入总数量需求 totalQuantity >= requiredQuantity
-                    PartAlgCPLinearExpr totalQuantity = sum4Quantity("", "").name("totalQuantity");
+                    PartAlgCPLinearExprImpl totalQuantity = sum4Quantity("", "").name("totalQuantity");
                     addGreaterOrEqual(totalQuantity, requiredQuantity);
 
                     // 创建目标函数
-                    PartAlgCPLinearExpr objectiveExpr = newPartLinearExpr("ObjectiveFunQty");
+                    PartAlgCPLinearExprImpl objectiveExpr = newPartLinearExpr("ObjectiveFunQty");
 
                     // a2.使用高容量硬盘 -> "被选择部件单容量总和越大越好"
-                    PartAlgCPLinearExpr highCapacityExpr = sum4Selected("Capacity", "").name("highCapacityExpr");
+                    PartAlgCPLinearExprImpl highCapacityExpr = sum4Selected("Capacity", "").name("highCapacityExpr");
                     objectiveExpr.addExpr(highCapacityExpr, -1);
 
                     // a3.在满足数量需求的前提下，数量越接近需求数量越好
-                    PartAlgCPLinearExpr excessQuantityExpr = sum4Quantity("", "").name("excessQuantityExpr");
+                    PartAlgCPLinearExprImpl excessQuantityExpr = sum4Quantity("", "").name("excessQuantityExpr");
                     excessQuantityExpr.addConstant(-requiredQuantity);
                     // model.setObjectExpr(objectiveExpr);
                     // updatePriorityObjectFuntion("logicB2", objectiveExpr);
@@ -193,7 +193,7 @@ public class Onto4MultiPCTest extends ModuleScenarioTestBase {
 
             @CodeRuleAnno(fatherCode = "cpu", normalNaturalCode = "仅能使用一种CPU")
             private void logicA1() {
-                AlgCPLinearExpr cpuSelected = sum4Selected("").name("cpuSelected");
+                AlgCPLinearExprImpl cpuSelected = sum4Selected("").name("cpuSelected");
                 addLessOrEqual(cpuSelected, 1);
             }
 

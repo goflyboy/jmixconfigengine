@@ -14,7 +14,7 @@ import com.jmix.executor.impl.algmodel.ModuleBaseAlgImpl;
 import com.jmix.executor.impl.algmodel.MultiInstPartCategoryAlgImpl;
 import com.jmix.executor.impl.algmodel.OtherVar;
 import com.jmix.executor.impl.algmodel.ParaVarImpl;
-import com.jmix.executor.impl.algmodel.PartAlgCPLinearExpr;
+import com.jmix.executor.impl.algmodel.PartAlgCPLinearExprImpl;
 import com.jmix.executor.impl.algmodel.PartCategoryAlgImpl;
 import com.jmix.executor.impl.algmodel.PartVarImpl;
 import com.jmix.executor.impl.algmodel.SingleInstPartCategoryAlgImpl;
@@ -55,7 +55,7 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
     // 最大解数量限制，0表示无限制
     private int maxSolutionNum = 0;
 
-    private PartAlgCPLinearExpr priorityExpr = null;
+    private PartAlgCPLinearExprImpl priorityExpr = null;
 
     private SolverResult solverResult = new SolverResult();
 
@@ -189,7 +189,7 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
         // 从模块中获取对应的Part模型，设置shortCode
         inst.setShortCode(partVar.getBase().getShortCode());
         inst.setQuantity((int) value(partVar.getQty()));
-        inst.setSelected(partVar.getIsSelected() != null && value(partVar.getIsSelected()) == 1);
+        inst.setSelected(partVar.getIsSelected() != null && value(partVar.getIsSelected().getBoolVar()) == 1);
         return inst;
     }
 

@@ -58,7 +58,7 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
         return getMultiInstPartCategoryInput().getPartCategoryInputs();
     }
 
-    protected void initData(AlgCPModel model, IModule module,
+    protected void initData(AlgCPModelImpl model, IModule module,
             IModuleInput partCategoryInput,
             IModuleAlg moduleAlgFile) {
         super.initData(model, module, partCategoryInput, moduleAlgFile);
@@ -156,7 +156,7 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
             PartCategoryInputBase partConstraintTmp) {
         MultiInstPartCategoryAlgImpl multiInstPartCategoryAlgImpl = (MultiInstPartCategoryAlgImpl) moduleBaseAlgImplTmp;
         MultiInstPartCategoryInput partConstraint = (MultiInstPartCategoryInput) partConstraintTmp;
-        PartAlgCPLinearExpr sumFunExpr = new PartAlgCPLinearExpr(
+        PartAlgCPLinearExprImpl sumFunExpr = new PartAlgCPLinearExprImpl(
                 multiInstPartCategoryAlgImpl.getCategoryCode() + "_" + multiInstPartCategoryAlgImpl.getInstId()
                         + "_sumFunConstraint");
         List<SingleInstPartCategoryAlgImpl> partCategoryAlgImpls = multiInstPartCategoryAlgImpl.getPartCategoryInsts();

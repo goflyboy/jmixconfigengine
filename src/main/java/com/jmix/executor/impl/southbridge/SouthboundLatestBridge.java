@@ -1,7 +1,8 @@
 package com.jmix.executor.impl.southbridge;
 
-import com.jmix.executor.impl.algmodel.AlgCPModel;
-import com.jmix.executor.impl.algmodel.AlgCPLinearExpr;
+import com.jmix.executor.impl.algmodel.AlgCPConstraintImpl;
+import com.jmix.executor.impl.algmodel.AlgCPModelImpl;
+import com.jmix.executor.impl.algmodel.AlgCPLinearExprImpl;
 import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
 import com.jmix.executor.southinf.AlgorithmDescriptor;
 import com.jmix.executor.southinf.ConstraintContext;
@@ -17,6 +18,7 @@ import com.jmix.executor.southinf.var.PartCategoryVar;
 import com.jmix.executor.southinf.var.PartVar;
 import com.jmix.executor.southinf.view.ModuleInstView;
 
+import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.Literal;
 
 import java.util.Collection;
@@ -86,10 +88,10 @@ public class SouthboundLatestBridge implements ConstraintContext {
     }
 
     private static class ModelBridge implements ConstraintModel {
-        private final AlgCPModel algModel;
+        private final AlgCPModelImpl algModel;
         private final ModuleAlgImpl algorithm;
 
-        ModelBridge(AlgCPModel algModel, ModuleAlgImpl algorithm) {
+        ModelBridge(AlgCPModelImpl algModel, ModuleAlgImpl algorithm) {
             this.algModel = algModel;
             this.algorithm = algorithm;
         }
@@ -158,7 +160,7 @@ public class SouthboundLatestBridge implements ConstraintContext {
         }
 
         @Override
-        public AlgCPLinearExpr newLinearExpr(String name) {
+        public AlgCPLinearExprImpl newLinearExpr(String name) {
             return algModel.newLinearExpr(name);
         }
 
@@ -170,6 +172,31 @@ public class SouthboundLatestBridge implements ConstraintContext {
         @Override
         public void maximize(LinearExpr expr) {
             algModel.maximize(expr.unwrap());
+        }
+
+        @Override
+        public BoolVar newBoolVar(String name) {
+            return algModel.newBoolVarRaw(name);
+        }
+
+        @Override
+        public AlgCPConstraintImpl addBoolAnd(Literal[] literals) {
+            return algModel.addBoolAnd(literals);
+        }
+
+        @Override
+        public ConstraintRef addEquality(BoolVar left, long right) {
+            return Exprs.constraintRef(algModel.addEquality(left, right));
+        }
+
+        @Override
+        public ConstraintRef addImplication(Literal left, Literal right) {
+            return Exprs.constraintRef(algModel.addImplication(left, right));
+        }
+
+        @Override
+        public void minimize(AlgCPLinearExprImpl expr) {
+            algModel.minimize(expr);
         }
     }
 }

@@ -5,7 +5,7 @@ import com.jmix.executor.southinf.var.ParaVar;
 import com.jmix.executor.southinf.var.PartCategoryVar;
 import com.jmix.executor.southinf.var.PartVar;
 import com.jmix.coretest.ModuleScenarioTestBase;
-import com.jmix.executor.impl.algmodel.AlgCPLinearExpr;
+import com.jmix.executor.impl.algmodel.AlgCPLinearExprImpl;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
 import com.jmix.tool.bbuilder.anno.ModuleAnno;
 import com.jmix.tool.bbuilder.anno.PartAnno;
@@ -32,7 +32,7 @@ public class ConfictDebugTest extends ModuleScenarioTestBase {
         @CodeRuleAnno(normalNaturalCode = "x.quantityVar() + y.quantityVar() < 20")
         private void rule1() {
             // Create linear expression for x.quantityVar() + y.quantityVar()
-            AlgCPLinearExpr sumXY = new AlgCPLinearExpr("sum_x_y");
+            AlgCPLinearExprImpl sumXY = new AlgCPLinearExprImpl("sum_x_y");
             sumXY.addTerm(x.quantityVar(), 1);
             sumXY.addTerm(y.quantityVar(), 1);
             // Add constraint: x.quantityVar() + y.quantityVar() < 20
@@ -43,7 +43,7 @@ public class ConfictDebugTest extends ModuleScenarioTestBase {
         @CodeRuleAnno(normalNaturalCode = "x.quantityVar() - y.quantityVar() > 10")
         private void rule2() {
             // Create linear expression for x.quantityVar() - y.quantityVar()
-            AlgCPLinearExpr diffXY = AlgCPLinearExpr.weightedSum(new IntVar[] { x.quantityVar(), y.quantityVar() },
+            AlgCPLinearExprImpl diffXY = AlgCPLinearExprImpl.weightedSum(new IntVar[] { x.quantityVar(), y.quantityVar() },
                     new long[] { 1, -1 });
             // Add constraint: x.quantityVar() - y.quantityVar() > 10
             model.addGreaterThan(diffXY, 10);
@@ -60,7 +60,7 @@ public class ConfictDebugTest extends ModuleScenarioTestBase {
         @CodeRuleAnno(normalNaturalCode = "x.quantityVar() + 2 * y.quantityVar() > 10")
         private void rule4() {
             // Create linear expression for x.quantityVar() + 2 * y.quantityVar()
-            AlgCPLinearExpr sumX2Y = AlgCPLinearExpr.weightedSum(new com.google.ortools.sat.IntVar[] { x.quantityVar(), y.quantityVar() },
+            AlgCPLinearExprImpl sumX2Y = AlgCPLinearExprImpl.weightedSum(new com.google.ortools.sat.IntVar[] { x.quantityVar(), y.quantityVar() },
                     new long[] { 1, 2 });
             // Add constraint: x.quantityVar() + 2 * y.quantityVar() > 10
             model.addGreaterThan(sumX2Y, 10);

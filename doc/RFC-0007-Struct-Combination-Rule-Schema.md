@@ -15,17 +15,19 @@
 | 维护态表达 | 新增 `PairStructRuleSchema`、`TripleStructRuleSchema` 和 `CombinationStructRuleSchema` |
 | 表达式粒度 | 使用 `StructExprSchema` 表示“对象 + 属性 + 比较符 + 值” |
 | 父子规则关系 | 建议新增 `Rule.parentRuleCode`；不复用现有 `Rule.fatherCode`，因为 `fatherCode` 已表示规则挂载的 PartCategory |
-| 运行态表达 | 新增运行态 `Rule.exeSchema`，将结构化子规则展开为 `PartCombinationRuleSchema` |
+| 关系类型 | 仅保留 `INCOMPATIBLE`、`REQUIRES`、`CO_DEPENDENT`；`CO_DEPENDENT` 同时表示兼容/配套关系 |
+| 运行态表达 | 在 `ModuleGenneratorByAnno` 构建数据时生成 `Rule.exeSchema = CodependantRuleSchema` |
 | 白名单组合规则 | 选中的部件组合必须命中至少一条允许组合 |
 | 黑名单组合规则 | 每条禁止组合生成“不能同时选中”的约束 |
-| 逻辑完备性 | 计算引擎只执行确定语义；唯一性和完备性检查放在维护态 |
+| 逻辑完备性 | 计算引擎只执行确定语义；维护态完备性策略不在本 RFC 建模 |
+| 校验接口 | `ModuleConstraintExecutor` 新增 `validate(ModuleValidateReq)`，用于校验给定 `ModuleInst` 组合是否满足规则 |
 | 二元/三元支持 | 首期支持二元和三元；更高元可由后续通用 `NaryStructRuleSchema` 扩展 |
 
 ---
 
 ## 1. 摘要
 
-当前规则更偏向代码式或已有兼容规则 Schema，难以支撑客户通过表格化界面维护“CPU 核数 = 4 不兼容硬盘速率 = 5400”这类结构化规则。本 RFC 提议在 `Rule.rawCode` 中新增二元、三元结构化规则 Schema，并为组合规则增加父子关系和运行态组合展开能力，使维护态可读、运行态可执行。
+当前规则更偏向代码式或已有兼容规则 Schema，难以支撑客户通过表格化界面维护“CPU 核数 = 4 不兼容硬盘速率 = 5400”这类结构化规则。本 RFC 提议在 `Rule.rawCode` 中新增二元、三元结构化规则 Schema，并在 `ModuleGenneratorByAnno` 构建数据时展开为 `CodependantRuleSchema`，使维护态可读、运行态可执行。
 
 ---
 
@@ -113,7 +115,7 @@ CPU、硬盘、显示器三者之间的配套关系
 维护态需要支持类似：
 
 ```text
-cpu.CoreNum = 8  COMPATIBLE  drive.Speed = 7200  COMPATIBLE  monitor.Resolution = 4K
+cpu.CoreNum = 8  CO_DEPENDENT  drive.Speed = 7200  CO_DEPENDENT  monitor.Resolution = 4K
 ```
 
 组合规则中的每条子规则可以是二元，也可以是三元。二元组合生成二元 `PartCombination`；三元组合生成三元 `PartCombination`。
@@ -147,17 +149,16 @@ Rule.rawCode
   |-- CombinationStructRuleSchema + child rules
   |
   v
-StructRuleCompiler
+ModuleGenneratorByAnno / StructRuleBuildExpander
   |
-  |-- resolve StructExprSchema to Part set
-  |-- intersect with request-time filtered PartCategory vars
+  |-- resolve StructExprSchema to Part code set
   |-- expand Cartesian products
   |
   v
-Rule.exeSchema = PartCombinationRuleSchema
+Rule.exeSchema = CodependantRuleSchema
   |
   v
-PartCombinationConstraintExecutor
+CodependantConstraintExecutor
   |
   |-- WHITE: selected tuple must match at least one allowed combination
   |-- BLACK: forbidden tuple cannot be selected together
@@ -171,7 +172,7 @@ PartCombinationConstraintExecutor
 | 结构化规则 | 二元或三元表达式加业务关系 |
 | 组合规则 | 一个父规则下包含多条结构化子规则，并按白名单或黑名单执行 |
 | 维护态 Schema | 存在于 `Rule.rawCode` 中，面向 UI 编辑 |
-| 运行态 Schema | 存在于 `Rule.exeSchema` 中，面向约束生成 |
+| 运行态 Schema | 存在于 `Rule.exeSchema` 中，由 `ModuleGenneratorByAnno` 构建 Module 时生成，面向约束生成 |
 | PartCombination | 结构化规则展开后的部件编码元组 |
 
 ### 3.3 Rule 模型扩展
@@ -199,9 +200,8 @@ public class Rule extends Extensible {
 
     /**
      * 新增字段：运行态编译后的 Schema。
-     * 不建议持久化，由 Module 初始化或规则编译阶段生成。
+     * 由 ModuleGenneratorByAnno 在构建 Module 数据时生成。
      */
-    @JsonIgnore
     private RuleSchema exeSchema;
 }
 ```
@@ -232,7 +232,7 @@ public abstract class RuleSchema {
 }
 ```
 
-`PartCombinationRuleSchema` 是运行态 Schema，原则上不需要进入持久化 JSON 子类型；如果调试需要序列化，可单独加 subtype。
+`CodependantRuleSchema` 是由构建器生成的执行 Schema。它可以作为 `Rule.exeSchema` 随 Module 构建产物保存，也可以在 Module 构建后只保留在内存中；但计算引擎不得在求解时重新解析 `PairStructRuleSchema` / `TripleStructRuleSchema`。
 
 ### 3.5 结构化表达式 Schema
 
@@ -307,12 +307,6 @@ public class PairStructRuleSchema extends RuleSchema {
 ```java
 public enum BusinessRelationType {
     /**
-     * 语义为“允许配套”。
-     * 在组合白名单中表示生成 allowed tuple。
-     */
-    COMPATIBLE,
-
-    /**
      * 语义为“不能同时选择”。
      */
     INCOMPATIBLE,
@@ -323,7 +317,7 @@ public enum BusinessRelationType {
     REQUIRES,
 
     /**
-     * 语义为“左右必须同选或同不选”。
+     * 语义为“左右必须同选或同不选”，也是业务口径中的“兼容/配套”关系。
      * 对应现有 CompatiableRuleSchema.Operator.CO_REFENT。
      */
     CO_DEPENDENT
@@ -333,7 +327,7 @@ public enum BusinessRelationType {
 说明：
 
 - `INCOMPATIBLE`、`REQUIRES`、`CO_DEPENDENT` 可以作为独立硬约束执行。
-- `COMPATIBLE` 单独作为硬约束语义不明确，首期建议只在组合白名单中使用。独立 `COMPATIBLE` 是否要映射为 `CO_DEPENDENT` 需要确认。
+- 业务表述中的“兼容”“配套”统一映射为 `CO_DEPENDENT`，不再单独定义 `COMPATIBLE`。
 
 ### 3.7 三元结构化规则 Schema
 
@@ -394,11 +388,6 @@ public class CombinationStructRuleSchema extends RuleSchema {
      */
     private List<String> subRuleCodes = new ArrayList<>();
 
-    /**
-     * 维护态完备性检查策略。
-     * 计算引擎不依赖该字段。
-     */
-    private CompletenessPolicy completenessPolicy = CompletenessPolicy.WARN;
 }
 ```
 
@@ -410,19 +399,15 @@ public enum PartCombinationType {
     BLACK
 }
 
-public enum CompletenessPolicy {
-    NOT_CHECKED,
-    WARN,
-    ERROR
-}
 ```
 
 ### 3.9 运行态组合 Schema
 
-维护态 Schema 不能直接执行，因为它描述的是属性条件；运行态需要具体部件编码组合。
+维护态 Schema 不能直接执行，因为它描述的是属性条件；执行 Schema 需要具体部件编码组合。本 RFC 采用 `CodependantRuleSchema` 作为组合规则执行态模型。
 
 ```java
-public class PartCombinationRuleSchema extends RuleSchema {
+public class CodependantRuleSchema extends RuleSchema {
+    private int arity;
     private List<String> dimensionCategoryCodes = new ArrayList<>();
     private List<PartCombination> combinations = new ArrayList<>();
     private PartCombinationType type;
@@ -430,30 +415,30 @@ public class PartCombinationRuleSchema extends RuleSchema {
 
 public class PartCombination {
     /**
-     * 二元时长度为 2，三元时长度为 3。
+     * 二元时使用 code1/code2，三元时使用 code1/code2/code3。
      */
-    private List<String> partCodes = new ArrayList<>();
+    private String code1;
+    private String code2;
+    private String code3;
 
     /**
      * 可选：便于调试和追溯是哪条子规则展开出来的。
      */
     private String sourceSubRuleCode;
 
-    public String getCode1() {
-        return partCodes.size() > 0 ? partCodes.get(0) : null;
-    }
-
-    public String getCode2() {
-        return partCodes.size() > 1 ? partCodes.get(1) : null;
-    }
-
-    public String getCode3() {
-        return partCodes.size() > 2 ? partCodes.get(2) : null;
+    public List<String> getCodes(int arity) {
+        if (arity == 2) {
+            return List.of(code1, code2);
+        }
+        if (arity == 3) {
+            return List.of(code1, code2, code3);
+        }
+        throw new IllegalArgumentException("Unsupported arity: " + arity);
     }
 }
 ```
 
-命名说明：用户初稿中提到 `CodependantRuleSchema`。本 RFC 建议使用 `PartCombinationRuleSchema` 或 `CombinationExecRuleSchema`，避免与现有 `CoDependent` 兼容关系混淆。
+命名说明：本 RFC 采用需求中提出的 `CodependantRuleSchema`。它表示“配套组合规则的执行态组合集合”，不要和 `BusinessRelationType.CO_DEPENDENT` 的单条关系枚举混淆。
 
 ### 3.10 组合规则数据示例
 
@@ -472,8 +457,7 @@ public class PartCombination {
       "cpu_drive_combo_001",
       "cpu_drive_combo_002",
       "cpu_drive_combo_003"
-    ],
-    "completenessPolicy": "WARN"
+    ]
   }
 }
 ```
@@ -492,7 +476,7 @@ public class PartCombination {
       "operator": "EQ",
       "values": ["4"]
     },
-    "relationType": "COMPATIBLE",
+    "relationType": "CO_DEPENDENT",
     "expr2": {
       "objectCode": "drive",
       "attrCode": "Speed",
@@ -517,7 +501,7 @@ public class PartCombination {
       "operator": "EQ",
       "values": ["8"]
     },
-    "relationType": "COMPATIBLE",
+    "relationType": "CO_DEPENDENT",
     "expr2": {
       "objectCode": "drive",
       "attrCode": "Speed",
@@ -542,7 +526,7 @@ public class PartCombination {
       "operator": "GT",
       "values": ["8"]
     },
-    "relationType": "COMPATIBLE",
+    "relationType": "CO_DEPENDENT",
     "expr2": {
       "objectCode": "drive",
       "attrCode": "Speed",
@@ -553,69 +537,77 @@ public class PartCombination {
 }
 ```
 
-### 3.11 编译流程
+### 3.11 构建期展开流程
 
-新增 `StructRuleCompiler`：
+结构化表达式的解析位置在 `ModuleGenneratorByAnno`，不是在计算引擎求解时。构建 Module 数据时，生成器读取 `Rule.rawCode` 中的 `PairStructRuleSchema`、`TripleStructRuleSchema`、`CombinationStructRuleSchema`，并直接生成父规则的 `Rule.exeSchema = CodependantRuleSchema`。
+
+建议在 `ModuleGenneratorByAnno` 内部增加一个小的展开组件，例如：
 
 ```java
-public class StructRuleCompiler {
-    public RuleSchema compile(Rule rule, IModule module, ModuleAlgImpl moduleAlg) {
-        if (rule.getRawCode() instanceof PairStructRuleSchema) {
-            return compilePair(rule, module, moduleAlg);
+final class StructRuleBuildExpander {
+    CodependantRuleSchema expandCombination(Rule parentRule, Module module, List<Rule> allRules) {
+        CombinationStructRuleSchema schema =
+                (CombinationStructRuleSchema) parentRule.getRawCode();
+
+        List<Rule> subRules = findSubRules(parentRule, schema, allRules);
+        validateArityAndDimensions(schema, subRules);
+
+        List<PartCombination> combinations = new ArrayList<>();
+        for (Rule subRule : subRules) {
+            List<List<String>> partCodeSets = resolveExprsToPartCodes(subRule, module);
+            combinations.addAll(cartesianProduct(partCodeSets, subRule.getCode()));
         }
-        if (rule.getRawCode() instanceof TripleStructRuleSchema) {
-            return compileTriple(rule, module, moduleAlg);
-        }
-        if (rule.getRawCode() instanceof CombinationStructRuleSchema) {
-            return compileCombination(rule, module, moduleAlg);
-        }
-        return rule.getRawCode();
+
+        CodependantRuleSchema exe = new CodependantRuleSchema();
+        exe.setArity(schema.getArity());
+        exe.setDimensionCategoryCodes(schema.getDimensionCategoryCodes());
+        exe.setType(schema.getType());
+        exe.setCombinations(distinct(combinations));
+        return exe;
     }
 }
 ```
 
-组合父规则编译步骤：
-
-1. 根据 `CombinationStructRuleSchema.subRuleCodes` 或 `parentRuleCode` 查询子规则。
-2. 校验所有子规则的元数和 `dimensionCategoryCodes` 一致。
-3. 对每条子规则的每个 `StructExprSchema` 执行对象解析和属性过滤。
-4. 将每个表达式解析得到的部件集合，与本次请求已经过滤出的 `PartCategoryAlgImpl` 部件变量取交集。
-5. 对每条子规则做笛卡尔积，得到 `PartCombination`。
-6. 对所有组合去重。
-7. 写入父规则的 `exeSchema`。
-
-表达式解析伪代码：
+表达式解析只依赖 `Module` 静态数据：
 
 ```java
-List<PartVarImpl> resolve(StructExprSchema expr, Module module, ModuleAlgImpl moduleAlg) {
+List<String> resolveToPartCodes(StructExprSchema expr, Module module) {
     PartCategory category = module.getPartCategory(expr.getObjectCode());
     List<Part> rawParts = category.getAllAtomicParts();
 
-    List<Part> ruleMatchedParts = structExprResolver.doSelect(rawParts, expr);
-    Set<String> ruleMatchedCodes = ruleMatchedParts.stream()
+    List<Part> matchedParts = structExprResolver.doSelect(rawParts, expr);
+    return matchedParts.stream()
             .map(Part::getCode)
-            .collect(Collectors.toSet());
-
-    PartCategoryAlgImpl categoryAlg = moduleAlg.getPartCategoryAlg(expr.getObjectCode());
-    List<PartVarImpl> runtimeParts = categoryAlg.getAllPartVars("");
-
-    return runtimeParts.stream()
-            .filter(partVar -> ruleMatchedCodes.contains(partVar.getCode()))
+            .distinct()
             .collect(Collectors.toList());
 }
 ```
 
-交集规则非常关键：如果原始规则筛选出 3 个 CPU，但当前请求的 PartCategory Filter 只剩 1 个 CPU，则运行态组合只能使用这 1 个 CPU。
+构建期展开步骤：
+
+1. `ModuleGenneratorByAnno.createRulesFromMethods(...)` 或其后置阶段收集全部规则。
+2. 根据 `CombinationStructRuleSchema.subRuleCodes` 或 `Rule.parentRuleCode` 找到子规则。
+3. 校验父规则 `arity`、`dimensionCategoryCodes` 与子规则表达式一致。
+4. 使用 `FilterExpressionExecutor` 基于 Module 静态 `Part` 数据解析每个 `StructExprSchema`。
+5. 对每条子规则解析出的部件 code 集合做笛卡尔积，生成 `PartCombination`。
+6. 去重后写入父规则 `exeSchema`。
+7. `parentRuleCode` 非空的子规则只用于父规则展开，不进入独立执行链路。
+
+运行时不再解析 `StructExprSchema`。如果请求态 PartCategory Filter 导致某些 part code 不存在于当前 `PartCategoryAlgImpl` 的 `partMap` 中，执行器按当前模型映射结果处理：
+
+- BLACK：某个 tuple 中任一 code 不存在，则该禁止 tuple 当前不可能同时选中，可以跳过。
+- WHITE：某个 tuple 中任一 code 不存在，则该允许 tuple 当前不可命中，不加入候选 match。
+- WHITE：所有允许 tuple 都不可命中时，在相关维度被要求选择的情况下应无解。
 
 ### 3.12 CP 约束生成
 
-新增 `PartCombinationConstraintExecutor`：
+新增 `CodependantConstraintExecutor`。它只消费 `CodependantRuleSchema`，并在计算引擎内根据 part code 查找当前模型里的 `PartVarImpl`：
 
 ```java
-public class PartCombinationConstraintExecutor {
+public class CodependantConstraintExecutor {
     private final AlgCPModel model;
 
-    public void execute(String ruleCode, PartCombinationRuleSchema schema,
+    public void execute(String ruleCode, CodependantRuleSchema schema,
             Function<String, PartVarImpl> partVarGetter) {
         if (schema.getType() == PartCombinationType.BLACK) {
             addBlacklist(ruleCode, schema, partVarGetter);
@@ -633,13 +625,18 @@ public class PartCombinationConstraintExecutor {
 黑名单约束：
 
 ```java
-private void addBlacklist(String ruleCode, PartCombinationRuleSchema schema,
+private void addBlacklist(String ruleCode, CodependantRuleSchema schema,
         Function<String, PartVarImpl> partVarGetter) {
     for (PartCombination combination : schema.getCombinations()) {
-        List<BoolVar> selectedVars = combination.getPartCodes().stream()
+        List<BoolVar> selectedVars = combination.getCodes(schema.getArity()).stream()
                 .map(partVarGetter)
+                .filter(Objects::nonNull)
                 .map(PartVarImpl::getIsSelected)
                 .collect(Collectors.toList());
+
+        if (selectedVars.size() != schema.getArity()) {
+            continue;
+        }
 
         model.addLessOrEqual(
                 LinearExpr.sum(selectedVars.toArray(new BoolVar[0])),
@@ -654,19 +651,25 @@ private void addBlacklist(String ruleCode, PartCombinationRuleSchema schema,
 cpu1.S + drive2.S <= 1
 ```
 
-也就是不允许两者同时为 1。若写作 `< 1`，则会要求两者都不能被选中，语义过强，需要作为待确认点。
+也就是不允许两者同时为 1。这里确认使用 `<= 1`，不使用 `< 1`。
 
 白名单约束：
 
 ```java
-private void addWhitelist(String ruleCode, PartCombinationRuleSchema schema,
+private void addWhitelist(String ruleCode, CodependantRuleSchema schema,
         Function<String, PartVarImpl> partVarGetter) {
     List<BoolVar> tupleMatches = new ArrayList<>();
 
     for (PartCombination combination : schema.getCombinations()) {
-        BoolVar match = model.newBoolVar(ruleCode + "_match_" + tupleMatches.size());
-        Literal[] selected = combination.getPartCodes().stream()
+        List<PartVarImpl> partVars = combination.getCodes(schema.getArity()).stream()
                 .map(partVarGetter)
+                .collect(Collectors.toList());
+        if (partVars.stream().anyMatch(Objects::isNull)) {
+            continue;
+        }
+
+        BoolVar match = model.newBoolVar(ruleCode + "_match_" + tupleMatches.size());
+        Literal[] selected = partVars.stream()
                 .map(PartVarImpl::getIsSelected)
                 .toArray(Literal[]::new);
 
@@ -682,18 +685,59 @@ private void addWhitelist(String ruleCode, PartCombinationRuleSchema schema,
 }
 ```
 
-如果参与组合的 PartCategory 是可选分类，白名单约束应增加 guard：
+可选 PartCategory 的 guard 语义本 RFC 暂不实现，后续单独 RFC 处理。
 
-```text
-if all involved dimensions are active:
-    at least one allowed tuple must match
-else:
-    no whitelist check
+### 3.13 北向 validate 校验接口
+
+`ModuleConstraintExecutor` 新增 `validate(ModuleValidateReq)`，用于校验一个已给定的配置组合是否满足当前 Module 规则。它面向“校验现有配置是否 OK”，不是为了枚举或推荐新解。
+
+```java
+public interface ModuleConstraintExecutor {
+    Result<ModuleValidateResp> validate(ModuleValidateReq req);
+}
+
+public class ModuleValidateReq {
+    private Long moduleId;
+    private String moduleCode;
+
+    /**
+     * 待校验的配置实例。
+     * 其中 PartInst.quantity / selected、ParaInst.value 等字段表示调用方给定的组合。
+     */
+    private ModuleInst moduleInst;
+}
+
+public class ModuleValidateResp {
+    private boolean valid;
+    private List<String> violatedRuleCodes = new ArrayList<>();
+    private List<String> messages = new ArrayList<>();
+}
 ```
 
-首期如果现有模型中这些分类都是必选且已有 exactly-one 语义，可以先不引入 guard；但该行为需要在实现前确认。
+示例输入：
 
-### 3.13 独立二元/三元规则执行
+```java
+ModuleInst inst = new ModuleInst();
+inst.addPartInst(partInst("cpu4", 1));
+inst.addPartInst(partInst("drive5400", 1));
+
+ModuleValidateReq req = new ModuleValidateReq();
+req.setModuleCode("Server");
+req.setModuleInst(inst);
+
+Result<ModuleValidateResp> result = ModuleConstraintExecutor.INST.validate(req);
+```
+
+校验语义：
+
+- `validate` 使用给定 `ModuleInst` 作为固定输入，将其中的部件数量、选中状态、参数值转成输入约束。
+- 如果 CP-SAT 在这些固定输入下仍有可行解，则 `valid=true`。
+- 如果无可行解，则 `valid=false`，返回违反的规则 code；若开启松弛诊断，可复用现有松弛变量定位冲突规则。
+- 对组合规则而言，白名单命中则通过，未命中则失败；黑名单命中则失败，未命中则通过。
+
+需要注意：校验输入可能不仅是 selected 状态，也可能包含数量，例如 `cpu1.quantity=1`、`drive2.quantity=2`。因此请求体选择复用 `ModuleInst`，而不是只传 part code 列表。
+
+### 3.14 独立二元/三元规则执行
 
 非组合父规则的 `PairStructRuleSchema` / `TripleStructRuleSchema` 可以直接执行：
 
@@ -702,7 +746,6 @@ else:
 | `INCOMPATIBLE` | 对展开后的每个二元组合生成 `a.S + b.S <= 1` |
 | `REQUIRES` | 对展开后的集合生成 `leftCond -> rightCond`，复用现有兼容规则思想 |
 | `CO_DEPENDENT` | 对展开后的集合生成双向同选关系 |
-| `COMPATIBLE` | 首期不建议作为独立硬约束执行，优先作为组合白名单子规则 |
 
 三元独立规则首期建议只支持 `INCOMPATIBLE`：
 
@@ -712,7 +755,7 @@ a.S + b.S + c.S <= 2
 
 三元 `REQUIRES` 和 `CO_DEPENDENT` 的业务语义容易歧义，应在维护态或后续 RFC 中明确。
 
-### 3.14 维护态唯一性约束
+### 3.15 维护态唯一性约束
 
 计算引擎层面不限制同一维度组合规则数量；维护态需要约束。
 
@@ -735,19 +778,19 @@ ownerCode + arity + dimensionCategoryCodes[0] + dimensionCategoryCodes[1] + dime
 
 维护态默认不允许同一唯一键下存在多个组合父规则。原因是同一组分类的白名单/黑名单应该作为一个整体维护，否则逻辑完备性难以检查。
 
-### 3.15 维护态逻辑完备性检查
+### 3.16 维护态逻辑完备性说明
 
 计算引擎不强制完备性，只执行白名单或黑名单语义：
 
 - WHITE：命中允许组合才通过，未命中默认拒绝。
 - BLACK：命中禁止组合则拒绝，未命中默认通过。
 
-维护态可以提供完备性检查：
+维护态可以提供完备性检查，但本 RFC 不在规则 Schema 中定义完备性策略字段，也不规定保存时必须警告还是阻断。后续维护系统可以独立实现覆盖报告：
 
 1. 根据 `dimensionCategoryCodes` 计算参与维度的原始全集。
 2. 根据所有子规则展开已覆盖的 `PartCombination` 集合。
 3. 检查是否存在未覆盖的属性区间或部件组合。
-4. 根据 `CompletenessPolicy` 给出不检查、警告或阻断保存。
+4. 由维护态产品策略决定提示、警告或阻断保存。
 
 示例：
 
@@ -771,9 +814,9 @@ drive.Speed 可取 5400, 7200
   (12, 5400)
 ```
 
-对白名单而言，未覆盖项会被运行态默认拒绝；维护态是否视为“设计缺陷”取决于 `CompletenessPolicy`。如果业务要求每个组合都必须显式说明原因，则设置 `ERROR`。
+对白名单而言，未覆盖项会被运行态默认拒绝；维护态是否视为“设计缺陷”不进入计算引擎模型。
 
-### 3.16 与依赖关系图的关系
+### 3.17 与依赖关系图的关系
 
 现有 `Rule.getFromLeftProgObjs()` 和 `Rule.getToRightProgObjs()` 用于规则依赖图。新增 Schema 应保持兼容：
 
@@ -785,12 +828,16 @@ drive.Speed 可取 5400, 7200
 
 这能保证差量加载仍能识别结构化规则依赖的 PartCategory。
 
-### 3.17 与现有代码生成链路的关系
+### 3.18 与现有代码生成链路的关系
 
-现有 `ModuleAlgArtifactGenerator` 已能把部分 `CompatiableRuleSchema` 转换为生成式 Java 规则。本 RFC 建议新增一条直接执行结构化 Schema 的路径：
+现有 `ModuleAlgArtifactGenerator` 已能把部分 `CompatiableRuleSchema` 转换为生成式 Java 规则。本 RFC 新增的是“构建期展开、运行期执行”的路径：
 
 ```text
-Rule.rawCode -> StructRuleCompiler -> Rule.exeSchema -> CP constraint
+Rule.rawCode
+  -> ModuleGenneratorByAnno / StructRuleBuildExpander
+  -> Rule.exeSchema = CodependantRuleSchema
+  -> CodependantConstraintExecutor
+  -> CP constraint
 ```
 
 这样 UI 不需要生成 Java 代码。若后续仍需要生成 Java，可由 `StructCodeInjector` 或 `ModuleAlgArtifactGenerator` 生成等价调用，例如：
@@ -799,7 +846,7 @@ Rule.rawCode -> StructRuleCompiler -> Rule.exeSchema -> CP constraint
 inCompatible("rule_cpu_drive_4_5400", "cpu:CoreNum=4", "drive:Speed=5400");
 ```
 
-但组合规则的白名单更适合由 `PartCombinationRuleSchema` 直接执行，避免生成大量重复 Java 方法。
+但组合规则的白名单更适合由 `CodependantRuleSchema` 直接执行，避免生成大量重复 Java 方法。
 
 ---
 
@@ -931,7 +978,7 @@ public void testCombinationBlackList_Pair() {
 public void testCombinationWhiteList_Triple() {
     installRule(cpuDriveMonitorWhiteListRule(
             triple(expr("cpu", "CoreNum", EQ, "8"),
-                    COMPATIBLE,
+                    CO_DEPENDENT,
                     expr("drive", "Speed", EQ, "7200"),
                     expr("monitor", "Resolution", EQ, "4K"))));
 
@@ -940,9 +987,55 @@ public void testCombinationWhiteList_Triple() {
 }
 ```
 
-#### AC-005: 与请求态 PartCategory Filter 取交集
+#### AC-005: validate 校验二元白名单
 
-目的：验证组合规则展开时会与当前请求过滤后的候选部件取交集。
+目的：验证 `ModuleConstraintExecutor.validate(ModuleValidateReq)` 可以校验给定 `ModuleInst` 组合是否满足白名单组合规则。
+
+```java
+@Test
+public void testValidateCombinationWhiteList_Pair() {
+    installRule(cpuDriveWhiteListRule());
+
+    ModuleInst validInst = moduleInst(
+            partInst("cpu4", 1),
+            partInst("drive5400", 1));
+    Result<ModuleValidateResp> valid =
+            ModuleConstraintExecutor.INST.validate(validateReq(validInst));
+    assertTrue(valid.getData().isValid());
+
+    ModuleInst invalidInst = moduleInst(
+            partInst("cpu4", 1),
+            partInst("drive7200", 1));
+    Result<ModuleValidateResp> invalid =
+            ModuleConstraintExecutor.INST.validate(validateReq(invalidInst));
+    assertFalse(invalid.getData().isValid());
+    assertTrue(invalid.getData().getViolatedRuleCodes().contains("cpu_drive_combo"));
+}
+```
+
+#### AC-006: validate 支持数量输入
+
+目的：验证校验接口复用 `ModuleInst`，不仅能校验 selected 组合，也能校验数量输入。
+
+```java
+@Test
+public void testValidateCombination_WithQuantityInput() {
+    installRule(cpuDriveWhiteListRule());
+
+    ModuleInst inst = moduleInst(
+            partInst("cpu4", 1),
+            partInst("drive5400", 2));
+
+    Result<ModuleValidateResp> result =
+            ModuleConstraintExecutor.INST.validate(validateReq(inst));
+
+    assertEquals(Result.SUCCESS, result.getCode());
+}
+```
+
+#### AC-007: 与请求态 PartCategory Filter 取交集
+
+目的：验证运行态执行 `CodependantRuleSchema` 时会按当前 `PartCategoryAlgImpl` 中可见的 `PartVarImpl` 解析 part code。如果请求态过滤让某个 code 不存在，则对应 tuple 不可命中。
 
 ```java
 @Test
@@ -957,7 +1050,7 @@ public void testCombinationRule_IntersectWithRuntimeFilter() {
 }
 ```
 
-#### AC-006: 子规则不独立执行
+#### AC-008: 子规则不独立执行
 
 目的：验证 `parentRuleCode` 非空的子规则不会被普通规则执行链路重复执行。
 
@@ -975,7 +1068,7 @@ public void testChildRule_NotExecutedIndependently() {
 }
 ```
 
-#### AC-007: 维护态唯一性检查
+#### AC-009: 维护态唯一性检查
 
 目的：验证相同 owner 和相同维度的组合规则不能重复维护。
 
@@ -1004,8 +1097,8 @@ public void testMaintenanceUniqueKey_DuplicatePairCombinationRule() {
 | 子规则元数不一致 | 父规则 `arity=2`，子规则为三元 | 维护态校验失败；运行态抛清晰异常 |
 | 重复 PartCombination | 多条子规则展开出同一组合 | 去重后只生成一份约束 |
 | 三元黑名单 | `cpu4 + drive5400 + monitor4k` | 生成 `cpu4.S + drive5400.S + monitor4k.S <= 2` |
-| 可选分类白名单 | 部分维度未选择 | 默认不触发白名单检查；具体 guard 策略待确认 |
-| 多实例分类 | `drive` 支持多实例 | 对每个实例的候选 `PartVar` 分别展开；首期可限制为单实例并明确报错 |
+| 可选分类白名单 | 部分维度未选择 | 首期不实现 guard 语义；后续单独 RFC 处理 |
+| 多实例分类 | `drive` 支持多实例 | 首期不作为 P0；作为 TODO，由后续单独 RFC 跟踪 |
 
 ### 4.3 回归测试
 
@@ -1025,15 +1118,17 @@ public void testMaintenanceUniqueKey_DuplicatePairCombinationRule() {
 | --- | --- | --- | --- |
 | 1 | 新增 `StructExprSchema`、`PairStructRuleSchema`、`TripleStructRuleSchema`、`CombinationStructRuleSchema` | P0 | 待开始 |
 | 2 | 新增 `Rule.parentRuleCode` 和运行态 `Rule.exeSchema` | P0 | 待开始 |
-| 3 | 新增 `StructExprResolver`，支持 EQ/NE/GT/GE/LT/LE/LIKE/IN 等表达式解析 | P0 | 待开始 |
-| 4 | 新增 `StructRuleCompiler`，支持结构化表达展开为 `PartCombinationRuleSchema` | P0 | 待开始 |
-| 5 | 新增 `PartCombinationConstraintExecutor`，支持 WHITE/BLACK 二元组合约束 | P0 | 待开始 |
+| 3 | 在 `ModuleGenneratorByAnno` 中新增 `StructRuleBuildExpander`，构建期展开结构化表达为 `CodependantRuleSchema` | P0 | 待开始 |
+| 4 | 新增 `StructExprResolver`，支持 EQ/NE/GT/GE/LT/LE/LIKE/IN 等表达式解析为 Part code 集合 | P0 | 待开始 |
+| 5 | 新增 `CodependantConstraintExecutor`，基于 `CodependantRuleSchema` 生成 WHITE/BLACK 二元组合约束 | P0 | 待开始 |
 | 6 | 补齐三元 BLACK 和三元 WHITE 组合约束 | P0 | 待开始 |
-| 7 | 集成到 Module 规则初始化链路，跳过 `parentRuleCode` 非空的子规则独立执行 | P0 | 待开始 |
-| 8 | 新增维护态校验器：唯一性、元数一致、维度一致、表达式有效性、重复组合 | P1 | 待开始 |
-| 9 | 新增完备性检查和覆盖报告 | P1 | 待开始 |
+| 7 | 集成规则执行链路，跳过 `parentRuleCode` 非空的子规则独立执行 | P0 | 待开始 |
+| 8 | `ModuleConstraintExecutor` 新增 `validate(ModuleValidateReq)`，校验给定 `ModuleInst` 是否满足规则 | P0 | 待开始 |
+| 9 | 新增维护态校验器：唯一性、元数一致、维度一致、表达式有效性、重复组合 | P1 | 待开始 |
 | 10 | 兼容 `ModuleAlgArtifactGenerator` 或 `StructCodeInjector` 的生成式路径 | P2 | 待开始 |
 | 11 | 补充 RFC 中列出的自动化测试 | P0 | 待开始 |
+| 12 | TODO：可选 PartCategory 白名单 guard 语义单独 RFC 设计 | P2 | 待开始 |
+| 13 | TODO：多实例分类组合规则单独 RFC 设计 | P2 | 待开始 |
 
 ---
 
@@ -1045,17 +1140,17 @@ public void testMaintenanceUniqueKey_DuplicatePairCombinationRule() {
 
 策略：新增 `parentRuleCode` 表示规则父子关系，保留 `fatherCode` 原语义。
 
-### 6.2 `COMPATIBLE` 独立规则语义不清
+### 6.2 关系类型命名兼容风险
 
-风险：`A compatible B` 可以理解为“允许配套”，但这不是一个硬约束；只有在白名单中才有明确语义。
+风险：业务人员可能仍使用“兼容”“配套”表达关系，但模型中不再保留 `COMPATIBLE` 枚举。
 
-策略：首期 `COMPATIBLE` 只作为组合白名单的子规则关系。独立硬约束继续使用 `INCOMPATIBLE`、`REQUIRES`、`CO_DEPENDENT`。
+策略：维护态展示文案可以继续叫“兼容/配套”，但持久化和执行模型统一写入 `CO_DEPENDENT`。
 
 ### 6.3 白名单可能过度约束可选分类
 
 风险：如果参与组合的分类不是必选，直接要求命中白名单会让“未选择该分类”的配置无解。
 
-策略：引入 guard 语义。只有所有参与维度都处于 active/selected 状态时，才要求命中白名单。
+策略：本 RFC 暂不实现可选分类 guard 语义，作为后续独立 RFC 跟踪。
 
 ### 6.4 组合数量膨胀
 
@@ -1063,7 +1158,8 @@ public void testMaintenanceUniqueKey_DuplicatePairCombinationRule() {
 
 策略：
 
-- 编译时先与运行态过滤候选集取交集。
+- 构建期基于 Module 静态数据展开并去重。
+- 运行期如果请求态过滤导致 tuple 中某个 part code 不存在于当前 `PartCategoryAlgImpl`，该 tuple 不参与 match。
 - 对组合去重。
 - 对黑名单按 tuple 生成线性约束。
 - 对白名单优先使用 tuple match OR，而不是生成全集补集黑名单。
@@ -1073,43 +1169,28 @@ public void testMaintenanceUniqueKey_DuplicatePairCombinationRule() {
 
 风险：`drive` 支持多实例时，同一规则需要作用于每个实例，还是跨实例整体作用，需要业务确认。
 
-策略：首期可按现有 `ModuleAlgImpl` 处理 one-many 规则的思路，对每个 `SingleInstPartCategoryAlgImpl` 实例分别展开；如果无法确定实例范围，则维护态禁止该组合规则用于多实例分类。
+策略：首期不作为 P0 范围，作为 TODO 由后续单独 RFC 设计和跟踪。
 
 ---
 
-## 7. 待确认问题
+## 7. 已确认决策与 TODO
 
-Q1. 父子规则关系是否接受新增 `parentRuleCode`？还是必须复用/改造现有 `fatherCode`？
+| 问题 | 结论 |
+| --- | --- |
+| 父子规则关系 | 新增 `Rule.parentRuleCode`，不复用 `fatherCode` |
+| `COMPATIBLE` 与 `CO_DEPENDENT` | 只保留 `CO_DEPENDENT`，业务上的“兼容/配套”统一映射到 `CO_DEPENDENT` |
+| 三元规则关系符 | 首期三元使用一个整体 `relationType`，不增加两个不同关系符 |
+| 可选 PartCategory 白名单 guard | 本 RFC 暂不实现，后续单独 RFC 处理 |
+| 黑名单二元公式 | 确认使用 `a.S + b.S <= 1` |
+| 完备性策略字段 | 不在本 RFC 中定义，删除完备性策略字段 |
+| 组合规则唯一键顺序 | 对 `REQUIRES` 等方向性关系保留顺序；白名单/黑名单是否归一化由维护态产品决策 |
+| 多实例分类 | 不作为首期 P0，放入 TODO，后续单独 RFC 跟踪 |
 
-建议：新增 `parentRuleCode`，避免破坏 `fatherCode` 当前表示 PartCategory 挂载点的语义。
+后续 TODO：
 
-Q2. 独立 `COMPATIBLE` 规则是否需要执行语义？
-
-建议：首期 `COMPATIBLE` 只在组合白名单中表示 allowed tuple；独立硬约束使用 `REQUIRES` 或 `CO_DEPENDENT`。
-
-Q3. 三元规则是否需要两个不同关系符？
-
-建议：首期三元使用一个整体 `relationType`。如果业务必须表达 `A relation12 B relation23 C`，再增加 `relation12` 和 `relation23`。
-
-Q4. 白名单遇到可选 PartCategory 时，是否应当只在所有维度被选择时生效？
-
-建议：是。否则白名单会把未选择任何组合的情况也判为失败。
-
-Q5. 黑名单二元约束公式是否确认使用 `a.S + b.S <= 1`？
-
-建议：使用 `<= 1`。如果写成 `< 1`，则会禁止任意一方被选中，语义过强。
-
-Q6. 维护态完备性检查是警告还是阻断保存？
-
-建议：通过 `CompletenessPolicy` 配置，默认 `WARN`。
-
-Q7. 组合规则唯一键中，二元分类顺序是否需要归一化？
-
-建议：对 `REQUIRES` 等方向性关系保留顺序；对白名单/黑名单的配套关系是否归一化，需要维护态产品决策。
-
-Q8. 多实例分类是否作为首期 P0 范围？
-
-建议：如果当前客户场景主要是单实例配套关系，首期先支持单实例；多实例作为 P1，避免规则语义过早复杂化。
+- 可选 PartCategory 下白名单何时生效的 guard 语义。
+- 多实例 PartCategory 的组合规则展开和校验语义。
+- 维护态完备性覆盖报告如何展示、是否阻断保存。
 
 ---
 

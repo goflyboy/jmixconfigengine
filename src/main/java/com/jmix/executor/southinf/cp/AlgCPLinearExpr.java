@@ -1,5 +1,6 @@
 package com.jmix.executor.southinf.cp;
 
+import com.google.ortools.sat.LinearArgument;
 import com.jmix.executor.southinf.version.SouthApiSince;
 import com.jmix.executor.southinf.version.SouthApiVersion;
 
@@ -22,7 +23,4 @@ public interface AlgCPLinearExpr extends AlgCPLinearArgument {
 
     @SouthApiSince(SouthApiVersion.V1_0)
     boolean isEmpty();
-
-    @SouthApiSince(SouthApiVersion.V1_0)
-    Object build();
 }

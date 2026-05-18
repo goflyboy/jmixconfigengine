@@ -10,8 +10,8 @@ import com.jmix.executor.bmodel.base.AssignType;
 import com.jmix.executor.bmodel.logic.CalcStage;
 import com.jmix.executor.bmodel.logic.PriorityStrategy;
 import com.jmix.executor.bmodel.para.ParaType;
-import com.jmix.executor.impl.algmodel.AlgCPLinearExpr;
-import com.jmix.executor.impl.algmodel.PartAlgCPLinearExpr;
+import com.jmix.executor.impl.algmodel.AlgCPLinearExprImpl;
+import com.jmix.executor.impl.algmodel.PartAlgCPLinearExprImpl;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
 import com.jmix.tool.bbuilder.anno.DAttrAnno1;
 import com.jmix.tool.bbuilder.anno.DAttrAnno2;
@@ -180,7 +180,7 @@ public class EnumMultReq4MultiReqTest extends ModuleScenarioTestBase {
 
         @CodeRuleAnno(fatherCode = "cpu", normalNaturalCode = "仅能使用一种CPU")
         private void logicA1() {
-            AlgCPLinearExpr cpuSelected = sum4Selected("").name("cpuSelected");
+            AlgCPLinearExprImpl cpuSelected = sum4Selected("").name("cpuSelected");
             model.addLessOrEqual(cpuSelected, 1);
         }
 
@@ -190,11 +190,11 @@ public class EnumMultReq4MultiReqTest extends ModuleScenarioTestBase {
             // proRule1-natuarl: 固态硬盘必须配置同一种，并且最多配置2块
             // proRule1-dsl: 拆分为proRule11和proRule11两条约束（和isSelected(S)、qty(Q)相关）
             // proRule11-cRule: sd1.S + sd2.S <=1
-            AlgCPLinearExpr sdTypeSumNum = sum4Selected("Type=sd").name("sdTypeSumNum");
+            AlgCPLinearExprImpl sdTypeSumNum = sum4Selected("Type=sd").name("sdTypeSumNum");
             model.addLessOrEqual(sdTypeSumNum, 1);
 
             // proRule12-cRule: sd1.Q + sd2.Q <= 2
-            AlgCPLinearExpr sdTypeSumQty = sum4Quantity("Type=sd").name("sdTypeSumQty");
+            AlgCPLinearExprImpl sdTypeSumQty = sum4Quantity("Type=sd").name("sdTypeSumQty");
             model.addLessOrEqual(sdTypeSumQty, 2);
         }
 
@@ -203,11 +203,11 @@ public class EnumMultReq4MultiReqTest extends ModuleScenarioTestBase {
             // proRule1-natuarl: 固态硬盘必须配置同一种，并且最多配置2块
             // proRule1-dsl: 拆分为proRule11和proRule11两条约束（和isSelected(S)、qty(Q)相关）
             // proRule11-cRule: sd1.S + sd2.S <=1
-            AlgCPLinearExpr sdTypeSumNum = sum4Selected("Type=sd").name("sdTypeSumNum");
+            AlgCPLinearExprImpl sdTypeSumNum = sum4Selected("Type=sd").name("sdTypeSumNum");
             model.addLessOrEqual(sdTypeSumNum, 1);
 
             // proRule12-cRule: sd1.Q + sd2.Q <= 2
-            AlgCPLinearExpr sdTypeSumQty = sum4Quantity("Type=sd").name("sdTypeSumQty");
+            AlgCPLinearExprImpl sdTypeSumQty = sum4Quantity("Type=sd").name("sdTypeSumQty");
             model.addLessOrEqual(sdTypeSumQty, 2);
         }
 
@@ -215,7 +215,7 @@ public class EnumMultReq4MultiReqTest extends ModuleScenarioTestBase {
         @PriorityRuleAnno(fatherCode = "", normalNaturalCode = " 优先使用高容量硬盘", strategy = PriorityStrategy.MIN)
         private void logicB2() {
             // 改动点3-1：增加sum4Quantity的partCatagoryCodesStr参数，支持多实例的情况
-            PartAlgCPLinearExpr totalCapacity = sum4Quantity("drive*", "Capacity", "").name("totalCapacity");
+            PartAlgCPLinearExprImpl totalCapacity = sum4Quantity("drive*", "Capacity", "").name("totalCapacity");
             // 如果是容量需求
             // 改动点5：怎么判断 driveSumCapacity是否有输入？前置计算+ 输入条件判断？ --
             if (driveSumCapacity.hasInput()) {
@@ -225,21 +225,21 @@ public class EnumMultReq4MultiReqTest extends ModuleScenarioTestBase {
                 model.addGreaterOrEqual(totalCapacity, requiredCapacity);
 
                 // 创建目标函数
-                PartAlgCPLinearExpr objectiveExpr = model.newPartLinearExpr("ObjectiveFun");
+                PartAlgCPLinearExprImpl objectiveExpr = model.newPartLinearExpr("ObjectiveFun");
 
                 // a2.使用高容量硬盘 -> "被选择部件单容量总和越大越好"
-                PartAlgCPLinearExpr highCapacityExpr = sum4Selected("drive*", "Capacity", "")
+                PartAlgCPLinearExprImpl highCapacityExpr = sum4Selected("drive*", "Capacity", "")
                         .name("highCapacityExpr");
                 objectiveExpr.addExpr(highCapacityExpr, -100);
 
                 // a3.在满足容量需求的前提下，容量越接近需求容量越好
-                PartAlgCPLinearExpr excessCapacityExpr = model.newPartLinearExpr("excessCapacityExpr");
+                PartAlgCPLinearExprImpl excessCapacityExpr = model.newPartLinearExpr("excessCapacityExpr");
                 excessCapacityExpr.addExpr(totalCapacity, 1);
                 excessCapacityExpr.addConstant(-requiredCapacity);
                 objectiveExpr.addExpr(excessCapacityExpr, 1);
 
                 // a4.在满足容量需求的前提下， 配置的部件数量越少越好
-                PartAlgCPLinearExpr excessQuantityExpr = sum4Quantity("drive*", "", "")
+                PartAlgCPLinearExprImpl excessQuantityExpr = sum4Quantity("drive*", "", "")
                         .name("excessQuantityExpr");
                 objectiveExpr.addExpr(excessQuantityExpr, 800);
                 model.setObjectExpr(objectiveExpr);
@@ -250,19 +250,19 @@ public class EnumMultReq4MultiReqTest extends ModuleScenarioTestBase {
                 // int requiredQty = Integer.parseInt(req.getAttrValue());
                 int requiredQuantity = driveSumQuantity.inputValue();
                 // a1.满足输入总数量需求 totalQuantity >= requiredQuantity
-                PartAlgCPLinearExpr totalQuantity = sum4Quantity("drive*", "", "").name("totalQuantity");
+                PartAlgCPLinearExprImpl totalQuantity = sum4Quantity("drive*", "", "").name("totalQuantity");
                 model.addGreaterOrEqual(totalQuantity, requiredQuantity);
 
                 // 创建目标函数
-                PartAlgCPLinearExpr objectiveExpr = model.newPartLinearExpr("ObjectiveFunQty");
+                PartAlgCPLinearExprImpl objectiveExpr = model.newPartLinearExpr("ObjectiveFunQty");
 
                 // a2.使用高容量硬盘 -> "被选择部件单容量总和越大越好"
-                PartAlgCPLinearExpr highCapacityExpr = sum4Selected("drive*", "Capacity", "")
+                PartAlgCPLinearExprImpl highCapacityExpr = sum4Selected("drive*", "Capacity", "")
                         .name("highCapacityExpr");
                 objectiveExpr.addExpr(highCapacityExpr, -1);
 
                 // a3.在满足数量需求的前提下，数量越接近需求数量越好
-                PartAlgCPLinearExpr excessQuantityExpr = sum4Quantity("drive*", "", "")
+                PartAlgCPLinearExprImpl excessQuantityExpr = sum4Quantity("drive*", "", "")
                         .name("excessQuantityExpr");
                 excessQuantityExpr.addConstant(-requiredQuantity);
                 model.setObjectExpr(objectiveExpr);

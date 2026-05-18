@@ -1,6 +1,7 @@
 package com.jmix.executor.impl.algmodel;
 
 import com.google.ortools.sat.BoolVar;
+import com.jmix.executor.southinf.cp.AlgCPBoolVar;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -35,7 +36,7 @@ public class RelaxVar {
     /**
      * 布尔变量值
      */
-    private BoolVar value;
+    private AlgCPBoolVar value;
 
     /**
      * 权重

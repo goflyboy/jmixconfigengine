@@ -1,6 +1,6 @@
 package com.jmix.executor.southinf;
 
-import com.jmix.executor.impl.algmodel.PartAlgCPLinearExpr;
+import com.jmix.executor.impl.algmodel.PartAlgCPLinearExprImpl;
 
 /**
  * PartCategory function interface.
@@ -9,6 +9,6 @@ import com.jmix.executor.impl.algmodel.PartAlgCPLinearExpr;
  */
 @Deprecated
 public interface IPartCategoryFunction {
-    PartAlgCPLinearExpr sum4Selected(String filtedConditionStr);
-    PartAlgCPLinearExpr sum4Quantity(String filtedConditionStr);
+    PartAlgCPLinearExprImpl sum4Selected(String filtedConditionStr);
+    PartAlgCPLinearExprImpl sum4Quantity(String filtedConditionStr);
 }

@@ -2,9 +2,15 @@ package com.jmix.executor.impl.algmodel;
 
 import com.jmix.executor.cmodel.ModuleInst;
 import com.jmix.executor.impl.PriorityConstraint;
+import com.jmix.executor.southinf.cp.AlgCPBoolVar;
+import com.jmix.executor.southinf.cp.AlgCPIntVar;
+import com.jmix.executor.southinf.cp.AlgCPLinearArgument;
+import com.jmix.executor.southinf.cp.PartAlgCPLinearExpr;
 
 import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.IntVar;
+import com.google.ortools.sat.LinearArgument;
+import com.google.ortools.sat.LinearExpr;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +25,7 @@ import java.util.List;
  */
 @Slf4j
 @Data
-public class PartAlgCPLinearExpr extends AlgCPLinearExpr {
+public class PartAlgCPLinearExprImpl extends AlgCPLinearExprImpl implements PartAlgCPLinearExpr {
 
     private final List<String> termStrs = new ArrayList<>();
 
@@ -31,7 +37,7 @@ public class PartAlgCPLinearExpr extends AlgCPLinearExpr {
 
     private int termIndex = 0;
 
-    public PartAlgCPLinearExpr(String name) {
+    public PartAlgCPLinearExprImpl(String name) {
         super(name);
     }
 
@@ -107,12 +113,25 @@ public class PartAlgCPLinearExpr extends AlgCPLinearExpr {
 
     /**
      * 设置名称
-     * 
+     *
      * @param name
      * @return
      */
-    public PartAlgCPLinearExpr name(String name) {
+    @Override
+    public PartAlgCPLinearExprImpl name(String name) {
         this.setName(name);
+        return this;
+    }
+
+    @Override
+    public PartAlgCPLinearExprImpl addTerm(AlgCPBoolVar var, long coefficient) {
+        super.addTerm(var, coefficient);
+        return this;
+    }
+
+    @Override
+    public PartAlgCPLinearExprImpl addTerm(AlgCPIntVar var, long coefficient) {
+        super.addTerm(var, coefficient);
         return this;
     }
 
@@ -145,6 +164,60 @@ public class PartAlgCPLinearExpr extends AlgCPLinearExpr {
 
         // delegate to parent to build numeric expression
         super.addTerm(var, coefficient);
+    }
+
+    /**
+     * Add a part term using AlgCPLinearArgument (e.g. from getIsSelected).
+     */
+    public void addTerm(String partCategoryCode, PartVarImpl partVar, AlgCPLinearArgument arg, long coefficient, String varName) {
+        int attrValue = (int) coefficient;
+
+        // build expression string parts
+        String prefix = getPrefix(partVar.getInstId());
+        String shortCode = prefix + partVar.getBase().getShortCode();
+        termStrs.add(attrValue + "*" + shortCode + "." + varName);
+        termTemplates.add(attrValue + "*" + "%d");
+        termTemplateStrs.add(attrValue + "*" + shortCode + "." + varName + "_%d");
+
+        // create PartTerm
+        PriorityConstraint.PartTerm term = new PriorityConstraint.PartTerm();
+        term.setIndex(termIndex);
+        term.setPartCategoryCode(partCategoryCode);
+        term.setInstId(partVar.getInstId());
+        term.setPartCode(partVar.getCode());
+        term.setTermValue(varName);
+        partTerms.add(term);
+        termIndex++;
+
+        // delegate to parent using the built LinearArgument
+        super.addTerm(arg, coefficient);
+    }
+
+    /**
+     * Add a part term using a raw OR-Tools LinearArgument (e.g. from lambda p -> (LinearArgument) p.getIsSelected().build()).
+     */
+    public void addTerm(String partCategoryCode, PartVarImpl partVar, LinearArgument arg, long coefficient, String varName) {
+        int attrValue = (int) coefficient;
+
+        // build expression string parts
+        String prefix = getPrefix(partVar.getInstId());
+        String shortCode = prefix + partVar.getBase().getShortCode();
+        termStrs.add(attrValue + "*" + shortCode + "." + varName);
+        termTemplates.add(attrValue + "*" + "%d");
+        termTemplateStrs.add(attrValue + "*" + shortCode + "." + varName + "_%d");
+
+        // create PartTerm
+        PriorityConstraint.PartTerm term = new PriorityConstraint.PartTerm();
+        term.setIndex(termIndex);
+        term.setPartCategoryCode(partCategoryCode);
+        term.setInstId(partVar.getInstId());
+        term.setPartCode(partVar.getCode());
+        term.setTermValue(varName);
+        partTerms.add(term);
+        termIndex++;
+
+        // delegate to parent using raw LinearArgument
+        super.addTerm(arg, coefficient);
     }
 
     private boolean isSinglePositiveExpr(String expr) {
@@ -190,22 +263,23 @@ public class PartAlgCPLinearExpr extends AlgCPLinearExpr {
      * Add constant and keep template parts in sync.
      */
     @Override
-    public void addConstant(long value) {
+    public PartAlgCPLinearExprImpl addConstant(long value) {
         super.addConstant(value);
         termStrs.add(String.valueOf(value));
         termTemplates.add(String.valueOf(value));
         termTemplateStrs.add(String.valueOf(value));
+        return this;
     }
 
     /**
-     * Add another PartAlgCPLinearExpr into this one with a coefficient.
+     * Add another PartAlgCPLinearExprImpl into this one with a coefficient.
      * This will merge numeric terms (via super.addExpr) and also merge
      * the part-related metadata (string parts, templates and PartTerms).
      *
-     * @param expr        the other PartAlgCPLinearExpr
+     * @param expr        the other PartAlgCPLinearExprImpl
      * @param coefficient coefficient to apply to the other expression
      */
-    public void addExpr(PartAlgCPLinearExpr expr, long coefficient) {
+    public void addExpr(PartAlgCPLinearExprImpl expr, long coefficient) {
         // numeric combination
         super.addExpr(expr, coefficient);
         // compose grouped string/template parts
@@ -238,7 +312,7 @@ public class PartAlgCPLinearExpr extends AlgCPLinearExpr {
         }
     }
 
-    private void addAbsExpr(PartAlgCPLinearExpr expr) {
+    private void addAbsExpr(PartAlgCPLinearExprImpl expr) {
         // 合并所有 termStrs 为一个整体，然后添加绝对值符号
         String combinedStr = joinWithSigns(expr.getTermStrs());
         String combinedTemplate = joinWithSigns(expr.getTermTemplates());
@@ -263,13 +337,13 @@ public class PartAlgCPLinearExpr extends AlgCPLinearExpr {
      * @param model 约束模型
      * @return 表示绝对值结果的 IntVar 变量
      */
-    public void addAbsExpr(PartAlgCPLinearExpr expr, AlgCPModel model) {
+    public void addAbsExpr(PartAlgCPLinearExprImpl expr, AlgCPModelImpl model) {
         // 首先修改字符串表示为绝对值形式
         addAbsExpr(expr);
 
         // 创建变量表示 |expr|
         // 假设表达式值范围在 [-100, 100]，所以绝对值范围是 [0, 100]
-        IntVar absVar = model.newIntVar(0, 100000, "abs_" + expr.getName());
+        IntVar absVar = model.newIntVar(0, 100000, "abs_" + expr.getName()).getIntVar();
 
         // 获取表达式的 LinearExpr
         // LinearExpr exprLinear = expr.build();
@@ -277,7 +351,7 @@ public class PartAlgCPLinearExpr extends AlgCPLinearExpr {
         // 添加绝对值约束: absVar >= expr 且 absVar >= -expr
         // 这确保 absVar = |expr|
         model.addGreaterOrEqual(absVar, expr);
-        model.addGreaterOrEqual(absVar, AlgCPLinearExpr.term(expr, -1));
+        model.addGreaterOrEqual(absVar, AlgCPLinearExprImpl.term(expr, -1));
         super.add(absVar);
     }
 

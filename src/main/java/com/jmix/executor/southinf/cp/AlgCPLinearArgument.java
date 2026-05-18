@@ -10,4 +10,7 @@ public interface AlgCPLinearArgument {
 
     @SouthApiSince(SouthApiVersion.V1_0)
     String name();
+
+    @SouthApiSince(SouthApiVersion.V1_0)
+    Object build();
 }

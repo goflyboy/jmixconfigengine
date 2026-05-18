@@ -2,8 +2,11 @@ package com.jmix.executor.impl.algmodel;
 
 import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.IntVar;
+import com.google.ortools.sat.LinearArgument;
 import com.google.ortools.sat.LinearExpr;
 import com.google.ortools.sat.LinearExprBuilder;
+import com.jmix.executor.southinf.cp.AlgCPLinearArgument;
+import com.jmix.executor.southinf.cp.AlgCPLinearExpr;
 import com.jmix.executor.southinf.cp.AlgCPBoolVar;
 import com.jmix.executor.southinf.cp.AlgCPIntVar;
 
@@ -22,19 +25,50 @@ import java.util.Map;
  */
 @Slf4j
 @Data
-public class AlgCPLinearExpr {
+public class AlgCPLinearExprImpl implements AlgCPLinearExpr {
 
     private LinearExprBuilder builder;
 
     private List<Map.Entry<String, String>> terms;
 
-    private String name;
+    private String exprName;
+
+    /**
+     * 实现 AlgCPLinearArgument.name()
+     */
+    @Override
+    public String name() {
+        return exprName;
+    }
+
+    /**
+     * Lombok @Data generates getExprName(), but callers expect getName().
+     * Provide getName() as an alias for compatibility.
+     */
+    public String getName() {
+        return exprName;
+    }
+
+    /**
+     * Lombok setter for exprName.
+     */
+    public void setExprName(String exprName) {
+        this.exprName = exprName;
+    }
+
+    /**
+     * Compatibility alias for setExprName, used by PartAlgCPLinearExprImpl.
+     */
+    public void setName(String exprName) {
+        this.exprName = exprName;
+    }
 
     /**
      * 是否空
      *
      * @return
      */
+    @Override
     public boolean isEmpty() {
         return terms.isEmpty();
     }
@@ -47,7 +81,7 @@ public class AlgCPLinearExpr {
      * @return 创建的AlgCPLinearExpr
      */
     public static AlgCPLinearExpr term(AlgCPLinearExpr var, long coefficient) {
-        AlgCPLinearExpr expr = new AlgCPLinearExpr("term_" + var.getName() + "_" + coefficient);
+        AlgCPLinearExprImpl expr = new AlgCPLinearExprImpl("term_" + var.name() + "_" + coefficient);
         expr.addExpr(var, coefficient);
         return expr;
     }
@@ -60,7 +94,7 @@ public class AlgCPLinearExpr {
      * @return 创建的AlgCPLinearExpr
      */
     public static AlgCPLinearExpr term(IntVar var, long coefficient) {
-        AlgCPLinearExpr expr = new AlgCPLinearExpr("term_" + var.getName() + "_" + coefficient);
+        AlgCPLinearExprImpl expr = new AlgCPLinearExprImpl("term_" + var.getName() + "_" + coefficient);
         expr.addTerm(var, coefficient);
         return expr;
     }
@@ -73,7 +107,33 @@ public class AlgCPLinearExpr {
      * @return 创建的AlgCPLinearExpr
      */
     public static AlgCPLinearExpr term(BoolVar var, long coefficient) {
-        AlgCPLinearExpr expr = new AlgCPLinearExpr("term_" + var.getName() + "_" + coefficient);
+        AlgCPLinearExprImpl expr = new AlgCPLinearExprImpl("term_" + var.getName() + "_" + coefficient);
+        expr.addTerm(var, coefficient);
+        return expr;
+    }
+
+    /**
+     * 创建一个包含单个项的线性表达式（AlgCPIntVar版本）
+     *
+     * @param var         变量
+     * @param coefficient 系数
+     * @return 创建的AlgCPLinearExpr
+     */
+    public static AlgCPLinearExpr term(AlgCPIntVar var, long coefficient) {
+        AlgCPLinearExprImpl expr = new AlgCPLinearExprImpl("term_" + var.name() + "_" + coefficient);
+        expr.addTerm(var, coefficient);
+        return expr;
+    }
+
+    /**
+     * 创建一个包含单个项的线性表达式（AlgCPBoolVar版本）
+     *
+     * @param var         变量
+     * @param coefficient 系数
+     * @return 创建的AlgCPLinearExpr
+     */
+    public static AlgCPLinearExpr term(AlgCPBoolVar var, long coefficient) {
+        AlgCPLinearExprImpl expr = new AlgCPLinearExprImpl("term_" + var.name() + "_" + coefficient);
         expr.addTerm(var, coefficient);
         return expr;
     }
@@ -85,10 +145,10 @@ public class AlgCPLinearExpr {
      * @return 求和后的AlgCPLinearExpr
      */
     public static AlgCPLinearExpr sum(AlgCPLinearExpr... expressions) {
-        AlgCPLinearExpr result = new AlgCPLinearExpr("sum_" + expressions.length + "_alg_exprs");
+        AlgCPLinearExprImpl result = new AlgCPLinearExprImpl("sum_" + expressions.length + "_alg_exprs");
         for (AlgCPLinearExpr expr : expressions) {
-            result.builder.add(expr.build());
-            result.terms.add(new AbstractMap.SimpleEntry<>("+ (" + expr.toString() + ")", expr.getName()));
+            result.builder.add((com.google.ortools.sat.LinearExpr) expr.build());
+            result.terms.add(new AbstractMap.SimpleEntry<>("+ (" + expr.toString() + ")", expr.name()));
         }
         log.debug("Created sum expression with {} AlgCPLinearExpr terms", expressions.length);
         return result;
@@ -101,11 +161,11 @@ public class AlgCPLinearExpr {
      * @return 求和后的AlgCPLinearExpr
      */
     public static AlgCPLinearExpr sumAlgCP(Iterable<AlgCPLinearExpr> expressions) {
-        AlgCPLinearExpr result = new AlgCPLinearExpr("sum_algcp_iterable_exprs");
+        AlgCPLinearExprImpl result = new AlgCPLinearExprImpl("sum_algcp_iterable_exprs");
         int count = 0;
         for (AlgCPLinearExpr expr : expressions) {
-            result.builder.add(expr.build());
-            result.terms.add(new AbstractMap.SimpleEntry<>("+ (" + expr.toString() + ")", expr.getName()));
+            result.builder.add((com.google.ortools.sat.LinearExpr) expr.build());
+            result.terms.add(new AbstractMap.SimpleEntry<>("+ (" + expr.toString() + ")", expr.name()));
             count++;
         }
         log.debug("Created sum expression with {} AlgCPLinearExpr terms from iterable", count);
@@ -119,7 +179,7 @@ public class AlgCPLinearExpr {
      * @return 常量AlgCPLinearExpr
      */
     public static AlgCPLinearExpr constant(long value) {
-        AlgCPLinearExpr expr = new AlgCPLinearExpr("constant_" + value);
+        AlgCPLinearExprImpl expr = new AlgCPLinearExprImpl("constant_" + value);
         expr.addConstant(value);
         return expr;
     }
@@ -157,7 +217,7 @@ public class AlgCPLinearExpr {
         if (vars.length != weights.length) {
             throw new IllegalArgumentException("Variables and weights arrays must have the same length");
         }
-        AlgCPLinearExpr result = new AlgCPLinearExpr("weighted_sum");
+        AlgCPLinearExprImpl result = new AlgCPLinearExprImpl("weighted_sum");
         for (int i = 0; i < vars.length; i++) {
             result.addTerm(vars[i], weights[i]);
         }
@@ -175,24 +235,24 @@ public class AlgCPLinearExpr {
         if (vars.length != weights.length) {
             throw new IllegalArgumentException("Variables and weights arrays must have the same length");
         }
-        AlgCPLinearExpr result = new AlgCPLinearExpr("weighted_sum");
+        AlgCPLinearExprImpl result = new AlgCPLinearExprImpl("weighted_sum");
         for (int i = 0; i < vars.length; i++) {
             result.addTerm(vars[i], weights[i]);
         }
         return result;
     }
 
-    public AlgCPLinearExpr(String name) {
+    public AlgCPLinearExprImpl(String name) {
         this.builder = LinearExpr.newBuilder();
         this.terms = new ArrayList<>();
-        this.name = name;
+        this.exprName = name;
         log.info("Linear expression created: {}", name);
     }
 
     /**
      * 无参构造函数，使用默认名称
      */
-    public AlgCPLinearExpr() {
+    public AlgCPLinearExprImpl() {
         this("unnamed_expr");
     }
 
@@ -207,7 +267,7 @@ public class AlgCPLinearExpr {
         String sign = coefficient >= 0 ? "+" : "-";
         String termStr = String.format("%s %d * %s", sign, Math.abs(coefficient), var.getName());
         terms.add(new AbstractMap.SimpleEntry<>(termStr, ""));
-        log.debug("Added term to expression {}: {}", name, termStr);
+        log.debug("Added term to expression {}: {}", exprName, termStr);
     }
 
     /**
@@ -215,12 +275,13 @@ public class AlgCPLinearExpr {
      *
      * @param value 常数值
      */
-    public void addConstant(long value) {
+    public AlgCPLinearExprImpl addConstant(long value) {
         builder.add(value);
         String sign = value >= 0 ? "+" : "-";
         String termStr = String.format("%s %d", sign, Math.abs(value));
         terms.add(new AbstractMap.SimpleEntry<>(termStr, ""));
-        log.debug("Added constant to expression {}: {}", name, termStr);
+        log.debug("Added constant to expression {}: {}", exprName, termStr);
+        return this;
     }
 
     /**
@@ -230,11 +291,11 @@ public class AlgCPLinearExpr {
      * @param coefficient 系数
      */
     public void addExpr(AlgCPLinearExpr expr, long coefficient) {
-        builder.addTerm(expr.build(), coefficient);
+        builder.addTerm((LinearExpr) expr.build(), coefficient);
         String sign = coefficient >= 0 ? "+" : "-";
         String termStr = String.format("%s %d * (%s)", sign, Math.abs(coefficient), expr.toString());
-        terms.add(new AbstractMap.SimpleEntry<>(termStr, expr.getName()));
-        log.debug("Added expression to {}: {}", name, termStr);
+        terms.add(new AbstractMap.SimpleEntry<>(termStr, expr.name()));
+        log.debug("Added expression to {}: {}", exprName, termStr);
     }
 
     /**
@@ -252,8 +313,14 @@ public class AlgCPLinearExpr {
      * @param var         变量
      * @param coefficient 系数
      */
-    public void addTerm(AlgCPIntVar var, long coefficient) {
-        addTerm(var.getIntVar(), coefficient);
+    @Override
+    public AlgCPLinearExpr addTerm(AlgCPIntVar var, long coefficient) {
+        builder.addTerm((com.google.ortools.sat.LinearExpr) var, coefficient);
+        String sign = coefficient >= 0 ? "+" : "-";
+        String termStr = String.format("%s %d * %s", sign, Math.abs(coefficient), var.name());
+        terms.add(new AbstractMap.SimpleEntry<>(termStr, ""));
+        log.debug("Added term to expression {}: {}", exprName, termStr);
+        return this;
     }
 
     /**
@@ -262,8 +329,36 @@ public class AlgCPLinearExpr {
      * @param var         变量
      * @param coefficient 系数
      */
-    public void addTerm(AlgCPBoolVar var, long coefficient) {
-        addTerm(var.getBoolVar(), coefficient);
+    @Override
+    public AlgCPLinearExpr addTerm(AlgCPBoolVar var, long coefficient) {
+        builder.addTerm((com.google.ortools.sat.LinearExpr) var, coefficient);
+        String sign = coefficient >= 0 ? "+" : "-";
+        String termStr = String.format("%s %d * %s", sign, Math.abs(coefficient), var.name());
+        terms.add(new AbstractMap.SimpleEntry<>(termStr, ""));
+        log.debug("Added term to expression {}: {}", exprName, termStr);
+        return this;
+    }
+
+    /**
+     * 添加AlgCPLinearArgument项到表达式（带系数）
+     */
+    public AlgCPLinearExpr addTerm(AlgCPLinearArgument arg, long coefficient) {
+        builder.addTerm((LinearExpr) arg.build(), coefficient);
+        String sign = coefficient >= 0 ? "+" : "-";
+        String termStr = String.format("%s %d * %s", sign, Math.abs(coefficient), arg.name());
+        terms.add(new AbstractMap.SimpleEntry<>(termStr, ""));
+        log.debug("Added term to expression {}: {}", exprName, termStr);
+        return this;
+    }
+
+    /**
+     * Add a raw OR-Tools LinearArgument (e.g. from getQty returning IntVar).
+     */
+    public AlgCPLinearExpr addTerm(LinearArgument arg, long coefficient) {
+        builder.addTerm((LinearExpr) arg, coefficient);
+        terms.add(new AbstractMap.SimpleEntry<>(String.valueOf(arg), ""));
+        log.debug("Added raw term to expression {}: {}", exprName, arg);
+        return this;
     }
 
     /**
@@ -301,18 +396,10 @@ public class AlgCPLinearExpr {
      *
      * @return 构建的线性表达式
      */
-    public LinearExpr build() {
-        log.info("Building linear expression: {}", name);
+    @Override
+    public Object build() {
+        log.info("Building linear expression: {}", exprName);
         return builder.build();
-    }
-
-    /**
-     * 获取表达式名称
-     *
-     * @return 表达式名称
-     */
-    public String getName() {
-        return name;
     }
 
     /**
@@ -321,8 +408,9 @@ public class AlgCPLinearExpr {
      * @param name 表达式名称
      * @return this
      */
+    @Override
     public AlgCPLinearExpr name(String name) {
-        this.name = name;
+        this.exprName = name;
         return this;
     }
 
