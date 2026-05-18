@@ -2,9 +2,11 @@ package com.jmix.executor.impl;
 
 import com.jmix.executor.bmodel.ModuleAlgArtifact;
 import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
+import com.jmix.executor.impl.southbridge.SouthboundModuleAlgAdapter;
 import com.jmix.executor.model.AlgLoaderException;
 import com.jmix.executor.model.ConstraintConfig;
-import com.jmix.executor.southinf.AlgorithmApiVersion;
+import com.jmix.executor.southinf.ModuleAlgBase;
+import com.jmix.tool.bbuilder.anno.AlgorithmApiVersion;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,8 +28,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 /**
- * 模块算法类加载器
- * 负责动态加载和实例化约束算法类
+ * 妯″潡绠楁硶绫诲姞杞藉櫒
+ * 璐熻矗鍔ㄦ€佸姞杞藉拰瀹炰緥鍖栫害鏉熺畻娉曠被
  * 
  * @since 2025-09-22
  */
@@ -36,27 +38,27 @@ public class ModuleAlgClassLoader extends ClassLoader {
     public static final String LATEST_SOUTH_API_VERSION = "1.0";
 
     /**
-     * 约束执行配置，决定调试模式与根目录等加载行为
+     * 绾︽潫鎵ц閰嶇疆锛屽喅瀹氳皟璇曟ā寮忎笌鏍圭洰褰曠瓑鍔犺浇琛屼负
      */
     private ConstraintConfig config;
 
     /**
-     * 约束规则类的完整限定名（可能包含内部类分隔符 $）
+     * 绾︽潫瑙勫垯绫荤殑瀹屾暣闄愬畾鍚嶏紙鍙兘鍖呭惈鍐呴儴绫诲垎闅旂 $锛?
      */
     private String constraintRuleClassName;
 
     /**
-     * 已加载的类缓存映射（类名 -> Class 对象）
+     * 宸插姞杞界殑绫荤紦瀛樻槧灏勶紙绫诲悕 -> Class 瀵硅薄锛?
      */
     private final Map<String, Class<?>> classMap = new HashMap<>();
 
     /**
-     * 模块算法制品描述（包含包名、模块码、父类名等）
+     * 妯″潡绠楁硶鍒跺搧鎻忚堪锛堝寘鍚寘鍚嶃€佹ā鍧楃爜銆佺埗绫诲悕绛夛級
      */
     private ModuleAlgArtifact algArtifact;
 
     /**
-     * 用于加载 jar 中类的 URLClassLoader 实例
+     * 鐢ㄤ簬鍔犺浇 jar 涓被鐨?URLClassLoader 瀹炰緥
      */
     private URLClassLoader jarClassLoader;
 
@@ -66,14 +68,14 @@ public class ModuleAlgClassLoader extends ClassLoader {
     }
 
     /**
-     * 初始化模块算法类加载器
+     * 鍒濆鍖栨ā鍧楃畻娉曠被鍔犺浇鍣?
      */
     public void init() {
         validateArtifactApiVersion();
-        // 构建完整的类名，支持内部类场景
+        // 鏋勫缓瀹屾暣鐨勭被鍚嶏紝鏀寔鍐呴儴绫诲満鏅?
         this.constraintRuleClassName = toFullConstraintClassName(algArtifact);
 
-        // 如果isAttachedDebug=false，从rootFilePath读取class信息
+        // 濡傛灉isAttachedDebug=false锛屼粠rootFilePath璇诲彇class淇℃伅
         if (!config.isAttachedDebug()) {
             loadClassFromJar();
         } else {
@@ -82,7 +84,7 @@ public class ModuleAlgClassLoader extends ClassLoader {
     }
 
     /**
-     * 从本地调试项目中加载class信息
+     * 浠庢湰鍦拌皟璇曢」鐩腑鍔犺浇class淇℃伅
      */
     private void loadClassFromLocalProject() {
         Class<?> clazz = null;
@@ -104,23 +106,23 @@ public class ModuleAlgClassLoader extends ClassLoader {
     }
 
     /**
-     * 从jar包中加载class信息
+     * 浠巎ar鍖呬腑鍔犺浇class淇℃伅
      */
     private void loadClassFromJar() throws AlgLoaderException {
 
-        // 构建模块文件目录路径和jar文件路径
+        // 鏋勫缓妯″潡鏂囦欢鐩綍璺緞鍜宩ar鏂囦欢璺緞
         String classJarFile = algArtifact.getRuntimeJarPath(config.getRootFilePath());
 
         log.info("Loading classes from jar: {}", classJarFile);
 
-        // 检查jar文件是否存在
+        // 妫€鏌ar鏂囦欢鏄惁瀛樺湪
         Path jarPath = Paths.get(classJarFile);
         if (!Files.exists(jarPath)) {
             log.error("Jar file not found: {}", classJarFile);
             throw new AlgLoaderException("Jar file not found: " + classJarFile);
         }
 
-        // 创建URLClassLoader加载jar包
+        // 鍒涘缓URLClassLoader鍔犺浇jar鍖?
         URL jarUrl = null;
         try {
             jarUrl = jarPath.toUri().toURL();
@@ -130,7 +132,7 @@ public class ModuleAlgClassLoader extends ClassLoader {
         }
         jarClassLoader = new URLClassLoader(new URL[] { jarUrl }, this.getClass().getClassLoader());
 
-        // 预加载所有class文件
+        // 棰勫姞杞芥墍鏈塩lass鏂囦欢
         preloadClassesFromJar(classJarFile);
         log.info("Jar class loader initialized successfully");
 
@@ -214,9 +216,9 @@ public class ModuleAlgClassLoader extends ClassLoader {
     }
 
     /**
-     * 从jar包预加载所有class文件
+     * 浠巎ar鍖呴鍔犺浇鎵€鏈塩lass鏂囦欢
      * 
-     * @param jarFilePath jar文件路径
+     * @param jarFilePath jar鏂囦欢璺緞
      */
     private void preloadClassesFromJar(String jarFilePath) {
         String simpleConstraintRuleClassName = toSimpleConstraintClassName(algArtifact);
@@ -262,11 +264,11 @@ public class ModuleAlgClassLoader extends ClassLoader {
     }
 
     /**
-     * 读取InputStream的所有字节
+     * 璇诲彇InputStream鐨勬墍鏈夊瓧鑺?
      * 
-     * @param inputStream 输入流
-     * @return 字节数组
-     * @throws IOException IO异常
+     * @param inputStream 杈撳叆娴?
+     * @return 瀛楄妭鏁扮粍
+     * @throws IOException IO寮傚父
      */
     private byte[] readAllBytes(InputStream inputStream) throws IOException {
         java.io.ByteArrayOutputStream buffer = new java.io.ByteArrayOutputStream();
@@ -281,11 +283,11 @@ public class ModuleAlgClassLoader extends ClassLoader {
     }
 
     /**
-     * 创建模块算法类实例
+     * 鍒涘缓妯″潡绠楁硶绫诲疄渚?
      * 
-     * @param moduleCode 模块代码
-     * @return 约束算法实现实例
-     * @throws AlgLoaderException 创建过程中的异常
+     * @param moduleCode 妯″潡浠ｇ爜
+     * @return 绾︽潫绠楁硶瀹炵幇瀹炰緥
+     * @throws AlgLoaderException 鍒涘缓杩囩▼涓殑寮傚父
      */
     public ModuleAlgImpl newConstraintAlg(String moduleCode) {
         String className = this.constraintRuleClassName;
@@ -302,6 +304,9 @@ public class ModuleAlgClassLoader extends ClassLoader {
             log.error("Failed to create instance of ModuleAlgImpl: {}", className, e);
             throw new AlgLoaderException("Failed to create instance of ModuleAlgImpl: " + className, e);
         }
+        if (instance instanceof ModuleAlgBase southboundAlgorithm) {
+            return new SouthboundModuleAlgAdapter(southboundAlgorithm);
+        }
         if (!(instance instanceof ModuleAlgImpl)) {
             log.error("Loaded class is not an instance of ModuleAlgImpl: {}", className);
             throw new AlgLoaderException("Loaded class is not an instance of ModuleAlgImpl: " + className);
@@ -310,7 +315,7 @@ public class ModuleAlgClassLoader extends ClassLoader {
     }
 
     /**
-     * 清理资源
+     * 娓呯悊璧勬簮
      */
     public void cleanup() {
         if (jarClassLoader != null) {
@@ -342,11 +347,11 @@ public class ModuleAlgClassLoader extends ClassLoader {
     }
 
     /**
-     * 创建模块算法类加载器实例, 安全访问
+     * 鍒涘缓妯″潡绠楁硶绫诲姞杞藉櫒瀹炰緥, 瀹夊叏璁块棶
      * 
-     * @param config      配置
-     * @param algArtifact 算法制品
-     * @return 模块算法类加载器实例
+     * @param config      閰嶇疆
+     * @param algArtifact 绠楁硶鍒跺搧
+     * @return 妯″潡绠楁硶绫诲姞杞藉櫒瀹炰緥
      */
     public static ModuleAlgClassLoader newInstance(ConstraintConfig config, ModuleAlgArtifact algArtifact) {
         return AccessController.doPrivileged(

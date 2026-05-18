@@ -363,7 +363,7 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
             // 如果模型无效，调用ValidateCpModel获取详细错误信息
             if (status == CpSolverStatus.MODEL_INVALID) {
                 // 重新获取模型进行验证
-                ModuleAlgImpl alg = initConstraintModel(module, req, false, new ArrayList<>());
+                ModuleAlgImpl alg = initModuleCpModel(module, req, false, new ArrayList<>());
                 AlgCPModel model = alg.getModel();
                 String validationError = model.getCpModel().validate();
                 log.error("Model validation failed: {}", validationError);
@@ -617,7 +617,7 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
             List<RelaxVar> confictedRelaxs)
             throws AlgLoaderException, AlgExecutorException {
         // 初始化约束模型
-        ModuleAlgImpl alg = initConstraintModel(module, req, isAttachRelax, confictedRelaxs);
+        ModuleAlgImpl alg = initModuleCpModel(module, req, isAttachRelax, confictedRelaxs);
         AlgCPModel model = alg.getModel();
 
         if (config.isLogModelProto()) {
@@ -640,7 +640,7 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
         return new RunInferParasRsp(status, cb, alg.getModel(), solver);
     }
 
-    private ModuleAlgImpl initConstraintModel(Module module, InferParasReq req,
+    private ModuleAlgImpl initModuleCpModel(Module module, InferParasReq req,
             boolean isAttachRelax, List<RelaxVar> confictedRelaxs)
             throws AlgLoaderException, AlgExecutorException {
         // 创建约束算法实例

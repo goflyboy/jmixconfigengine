@@ -1,7 +1,7 @@
 package ${module.packageName};
 
-import com.jmix.executor.southinf.AlgorithmApiVersion;
-import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.tool.bbuilder.anno.AlgorithmApiVersion;
+import com.jmix.executor.southinf.ModuleAlgBase;
 import com.jmix.executor.southinf.var.ParaVar;
 import com.jmix.executor.southinf.var.PartVar;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
@@ -16,7 +16,7 @@ import java.util.List;
  */
 @ModuleAnno(id = ${module.base.id?c})
 @AlgorithmApiVersion(southApiVersion = "1.0", algorithmVersion = "generated")
-public class ${module.code}Constraint extends ConstraintAlgBase {
+public class ${module.code}Constraint extends ModuleAlgBase {
 
 <#list module.paras as para>
     @ParaAnno

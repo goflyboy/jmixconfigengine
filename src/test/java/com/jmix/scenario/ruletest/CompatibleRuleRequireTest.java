@@ -1,6 +1,6 @@
 package com.jmix.scenario.ruletest;
 
-import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.ModuleAlgBase;
 import com.jmix.executor.southinf.var.ParaVar;
 import com.jmix.executor.southinf.var.PartCategoryVar;
 import com.jmix.executor.southinf.var.PartVar;
@@ -10,8 +10,8 @@ import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
 import com.jmix.tool.bbuilder.anno.ModuleAnno;
 import com.jmix.tool.bbuilder.anno.ParaAnno;
 
-import com.google.ortools.sat.BoolVar;
-import com.google.ortools.sat.Literal;
+import com.jmix.executor.southinf.cp.AlgCPBoolVar;
+import com.jmix.executor.southinf.cp.AlgCPLiteral;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 
 /**
- * 兼容性规则测试类
+ * 鍏煎鎬ц鍒欐祴璇曠被
  * 
  * @since 2025-09-23
  */
@@ -28,20 +28,20 @@ import java.util.Arrays;
 public class CompatibleRuleRequireTest extends ModuleScenarioTestBase {
 
     /**
-     * 构造CompatibleRuleRequireTest测试类
+     * 鏋勯€燙ompatibleRuleRequireTest娴嬭瘯绫?
      */
     public CompatibleRuleRequireTest() {
         super(CompatibleRuleRequireConstraint.class);
     }
 
-    // ---------------规则定义start----------------------------------------
+    // ---------------瑙勫垯瀹氫箟start----------------------------------------
     /**
-     * 兼容性规则要求约束模型类
+     * 鍏煎鎬ц鍒欒姹傜害鏉熸ā鍨嬬被
      * 
      * @since 2025-09-23
      */
     @ModuleAnno(id = 123L)
-    public static class CompatibleRuleRequireConstraint extends ConstraintAlgBase {
+    public static class CompatibleRuleRequireConstraint extends ModuleAlgBase {
         @ParaAnno(options = { "a1", "a2", "a3", "a4" })
         private ParaVar aVar;
 
@@ -53,129 +53,129 @@ public class CompatibleRuleRequireTest extends ModuleScenarioTestBase {
             // natural code: aVar.valueVar() in (a1,a3) Requires bVar.valueVar() in (b1,b2,b3)
             // A=(a1,a2,a3,a4)
             // B=(b1,b2,b3,b4)
-            // 规则内容：(a1,a3) Requires (b1,b2,b3)，则CA=(a1,a3),CB=(b1,b2,b3)
-            // 解读：
-            // 1、正向
-            // 1.1 在CA中，如果aVar.var=a1,则bVar.var=b1 或 b2 或 b3
-            // 1.2 不在CA中，如果aVar.var=a1,则bVar.var=b4，是不合法的
-            // 2.反向
-            // 2.1 在CB中，如果bVar.var=b1,则aVar.var=a1 或 a2 或 a3 或 a4
-            // 2.2 不在CB中，如果bVar.var=b4,则aVar.var=a2 或 a4
+            // 瑙勫垯鍐呭锛?a1,a3) Requires (b1,b2,b3)锛屽垯CA=(a1,a3),CB=(b1,b2,b3)
+            // 瑙ｈ锛?
+            // 1銆佹鍚?
+            // 1.1 鍦–A涓紝濡傛灉aVar.var=a1,鍒檅Var.var=b1 鎴?b2 鎴?b3
+            // 1.2 涓嶅湪CA涓紝濡傛灉aVar.var=a1,鍒檅Var.var=b4锛屾槸涓嶅悎娉曠殑
+            // 2.鍙嶅悜
+            // 2.1 鍦–B涓紝濡傛灉bVar.var=b1,鍒檃Var.var=a1 鎴?a2 鎴?a3 鎴?a4
+            // 2.2 涓嶅湪CB涓紝濡傛灉bVar.var=b4,鍒檃Var.var=a2 鎴?a4
             addCompatibleConstraintRequires("rule1", aVar, Arrays.asList("a1", "a3"), bVar,
                     Arrays.asList("b1", "b2", "b3"));
         }
 
         /**
-         * 初始化约束2,参考
+         * 鍒濆鍖栫害鏉?,鍙傝€?
          */
         protected void initConstraintNote() {
-            // 创建条件变量：A是a1或a3
-            BoolVar a1OrA3 = model.newBoolVar("a1OrA3");
-            model.addBoolOr(new Literal[] {
+            // 鍒涘缓鏉′欢鍙橀噺锛欰鏄痑1鎴朼3
+            AlgCPBoolVar a1OrA3 = model().newBoolVar("a1OrA3");
+            model().addBoolOr(new AlgCPLiteral[] {
                     aVar.option("a1").selectedVar(),
                     aVar.option("a3").selectedVar()
             }).onlyEnforceIf(a1OrA3);
-            model.addBoolAnd(new Literal[] {
+            model().addBoolAnd(new AlgCPLiteral[] {
                     aVar.option("a1").selectedVar().not(),
                     aVar.option("a3").selectedVar().not()
             }).onlyEnforceIf(a1OrA3.not());
 
-            // 创建条件变量：B是b1、b2或b3
-            BoolVar b1OrB2OrB3 = model.newBoolVar("b1OrB2OrB3");
-            model.addBoolOr(new Literal[] {
+            // 鍒涘缓鏉′欢鍙橀噺锛欱鏄痓1銆乥2鎴朾3
+            AlgCPBoolVar b1OrB2OrB3 = model().newBoolVar("b1OrB2OrB3");
+            model().addBoolOr(new AlgCPLiteral[] {
                     bVar.option("b1").selectedVar(),
                     bVar.option("b2").selectedVar(),
                     bVar.option("b3").selectedVar()
             }).onlyEnforceIf(b1OrB2OrB3);
-            model.addBoolAnd(new Literal[] {
+            model().addBoolAnd(new AlgCPLiteral[] {
                     bVar.option("b1").selectedVar().not(),
                     bVar.option("b2").selectedVar().not(),
                     bVar.option("b3").selectedVar().not()
             }).onlyEnforceIf(b1OrB2OrB3.not());
 
-            // 添加约束：如果A是a1或a3，则B必须是b1、b2或b3
-            model.addImplication(a1OrA3, b1OrB2OrB3);
+            // 娣诲姞绾︽潫锛氬鏋淎鏄痑1鎴朼3锛屽垯B蹇呴』鏄痓1銆乥2鎴朾3
+            model().addImplication(a1OrA3, b1OrB2OrB3);
 
-            // 注意：反向约束不需要显式添加，因为这是"Requires"关系的单向约束
-            // 反向推理的结果是正向约束的自然结果
+            // 娉ㄦ剰锛氬弽鍚戠害鏉熶笉闇€瑕佹樉寮忔坊鍔狅紝鍥犱负杩欐槸"Requires"鍏崇郴鐨勫崟鍚戠害鏉?
+            // 鍙嶅悜鎺ㄧ悊鐨勭粨鏋滄槸姝ｅ悜绾︽潫鐨勮嚜鐒剁粨鏋?
         }
     }
 
-    // ---------------规则定义end----------------------------------------
+    // ---------------瑙勫垯瀹氫箟end----------------------------------------
     @Override
     protected void beforeInitConfig(ConstraintConfig cfg) {
         cfg.setLoadType(ConstraintConfig.LOAD_TYPE_FULL);
     }
 
     /**
-     * 测试A1要求B1、B2、B3
+     * 娴嬭瘯A1瑕佹眰B1銆丅2銆丅3
      */
     @Test
     public void testA1RequiresB1B2B3() {
-        // 测试正向规则1.1: 如果A选择a1，则B必须是b1、b2或b3
+        // 娴嬭瘯姝ｅ悜瑙勫垯1.1: 濡傛灉A閫夋嫨a1锛屽垯B蹇呴』鏄痓1銆乥2鎴朾3
         inferParasByPara("a", "a1");
 
-        // B有3种选择
+        // B鏈?绉嶉€夋嫨
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(3);
 
-        // 验证所有解中B都是b1、b2或b3
+        // 楠岃瘉鎵€鏈夎В涓瑽閮芥槸b1銆乥2鎴朾3
         for (int i = 0; i < 3; i++) {
             solutions(i).assertPara("b").valueIn("b1", "b2", "b3");
         }
 
-        // 验证B=b4的解不存在
+        // 楠岃瘉B=b4鐨勮В涓嶅瓨鍦?
         assertSolutionNum("b:b4", 0);
     }
 
     /**
-     * 测试A3要求B1、B2、B3
+     * 娴嬭瘯A3瑕佹眰B1銆丅2銆丅3
      */
     @Test
     public void testA3RequiresB1B2B3() {
-        // 测试正向规则1.1: 如果A选择a3，则B必须是b1、b2或b3
+        // 娴嬭瘯姝ｅ悜瑙勫垯1.1: 濡傛灉A閫夋嫨a3锛屽垯B蹇呴』鏄痓1銆乥2鎴朾3
         inferParasByPara("a", "a3");
 
-        // B有3种选择
+        // B鏈?绉嶉€夋嫨
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(3);
 
-        // 验证所有解中B都是b1、b2或b3
+        // 楠岃瘉鎵€鏈夎В涓瑽閮芥槸b1銆乥2鎴朾3
         for (int i = 0; i < 3; i++) {
             solutions(i).assertPara("b").valueIn("b1", "b2", "b3");
         }
 
-        // 验证B=b4的解不存在
+        // 楠岃瘉B=b4鐨勮В涓嶅瓨鍦?
         assertSolutionNum("b:b4", 0);
     }
 
     /**
-     * 测试A1与B4组合无效
+     * 娴嬭瘯A1涓嶣4缁勫悎鏃犳晥
      */
     @Test
     public void testA1WithB4IsInvalid() {
-        // 测试正向规则1.2: 如果A选择a1，则B选择b4是不合法的
-        // 设置A=a1且B=b4，应该无解
+        // 娴嬭瘯姝ｅ悜瑙勫垯1.2: 濡傛灉A閫夋嫨a1锛屽垯B閫夋嫨b4鏄笉鍚堟硶鐨?
+        // 璁剧疆A=a1涓擝=b4锛屽簲璇ユ棤瑙?
         inferParasByPara("a", "a1");
         assertSolutionNum("b:b4", 0);
     }
 
     /**
-     * 测试B1允许任意A
+     * 娴嬭瘯B1鍏佽浠绘剰A
      */
     @Test
     public void testB1AllowsAnyA() {
-        // 测试反向规则2.1: 如果B选择b1，则A可以是a1、a2、a3或a4
+        // 娴嬭瘯鍙嶅悜瑙勫垯2.1: 濡傛灉B閫夋嫨b1锛屽垯A鍙互鏄痑1銆乤2銆乤3鎴朼4
         inferParasByPara("b", "b1");
 
-        // A有4种选择
+        // A鏈?绉嶉€夋嫨
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(4);
 
-        // 验证所有解中A可以是任意值
+        // 楠岃瘉鎵€鏈夎В涓瑼鍙互鏄换鎰忓€?
         assertSolutionNum("a:a1", 1);
         assertSolutionNum("a:a2", 1);
         assertSolutionNum("a:a3", 1);
@@ -183,50 +183,50 @@ public class CompatibleRuleRequireTest extends ModuleScenarioTestBase {
     }
 
     /**
-     * 测试B4只允许A2、A4
+     * 娴嬭瘯B4鍙厑璁窤2銆丄4
      */
     @Test
     public void testB4AllowsA2A4Only() {
-        // 测试反向规则2.2: 如果B选择b4，则A只能是a2或a4
+        // 娴嬭瘯鍙嶅悜瑙勫垯2.2: 濡傛灉B閫夋嫨b4锛屽垯A鍙兘鏄痑2鎴朼4
         inferParasByPara("b", "b4");
 
-        // A有2种选择
+        // A鏈?绉嶉€夋嫨
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(2);
 
-        // 验证A只能是a2或a4
+        // 楠岃瘉A鍙兘鏄痑2鎴朼4
         assertSolutionNum("a:a2", 1);
         assertSolutionNum("a:a4", 1);
 
-        // 验证A不能是a1或a3
+        // 楠岃瘉A涓嶈兘鏄痑1鎴朼3
         assertSolutionNum("a:a1", 0);
         assertSolutionNum("a:a3", 0);
     }
 
     /**
-     * 测试A2、A4允许任意B
+     * 娴嬭瘯A2銆丄4鍏佽浠绘剰B
      */
     @Test
     public void testA2A4AllowAnyB() {
-        // 测试额外情况: A选择a2或a4时，B可以是任意值
+        // 娴嬭瘯棰濆鎯呭喌: A閫夋嫨a2鎴朼4鏃讹紝B鍙互鏄换鎰忓€?
         inferParasByPara("a", "a2");
 
-        // B有4种选择
+        // B鏈?绉嶉€夋嫨
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(4);
 
-        // 验证所有解中B可以是任意值
+        // 楠岃瘉鎵€鏈夎В涓瑽鍙互鏄换鎰忓€?
         assertSolutionNum("b:b1", 1);
         assertSolutionNum("b:b2", 1);
         assertSolutionNum("b:b3", 1);
         assertSolutionNum("b:b4", 1);
 
-        // 同样测试a4
+        // 鍚屾牱娴嬭瘯a4
         inferParasByPara("a", "a4");
 
-        // B有4种选择
+        // B鏈?绉嶉€夋嫨
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(4);

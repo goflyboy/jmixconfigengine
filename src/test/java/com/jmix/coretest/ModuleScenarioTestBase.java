@@ -16,7 +16,6 @@ import com.jmix.executor.cmodel.PartInst;
 import com.jmix.executor.cmodel.SolverResult;
 import com.jmix.executor.impl.ModuleConstraintExecutorImpl;
 import com.jmix.executor.impl.SolutionUtils;
-import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
 import com.jmix.executor.impl.util.CommHelper;
 import com.jmix.executor.impl.util.ParaTypeHandler;
 import com.jmix.executor.model.AlgLoaderException;
@@ -45,7 +44,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 模块场景测试基类
+ * 妯″潡鍦烘櫙娴嬭瘯鍩虹被
  * 
  * @since 2025-09-22
  */
@@ -54,51 +53,51 @@ import java.util.regex.Pattern;
 public abstract class ModuleScenarioTestBase {
 
     /**
-     * 约束算法类
+     * 绾︽潫绠楁硶绫?
      */
-    private Class<? extends ModuleAlgImpl> constraintAlgClazz;
+    private Class<?> constraintAlgClazz;
 
     /**
-     * 临时资源路径
+     * 涓存椂璧勬簮璺緞
      */
     private String tempResourcePath = "";
 
     /**
-     * 模块
+     * 妯″潡
      */
     private Module module;
 
     /**
-     * 配置
+     * 閰嶇疆
      */
     protected ConstraintConfig cfg;
 
     /**
-     * 解决方案列表
+     * 瑙ｅ喅鏂规鍒楄〃
      */
     private List<ModuleInst> solutions = new ArrayList<>();
 
     /**
-     * 推理结果
+     * 鎺ㄧ悊缁撴灉
      */
     private Result<List<ModuleInst>> result;
 
     /**
-     * 是否枚举所有解决方案
+     * 鏄惁鏋氫妇鎵€鏈夎В鍐虫柟妗?
      */
     private boolean enumerateAllSolution = true;
 
     /**
-     * 构造函数
+     * 鏋勯€犲嚱鏁?
      * 
-     * @param constraintAlgClazz 约束算法类
+     * @param constraintAlgClazz 绾︽潫绠楁硶绫?
      */
-    public ModuleScenarioTestBase(Class<? extends ModuleAlgImpl> constraintAlgClazz) {
+    public ModuleScenarioTestBase(Class<?> constraintAlgClazz) {
         this.constraintAlgClazz = constraintAlgClazz;
     }
 
     /**
-     * 每个用例执行前调用
+     * 姣忎釜鐢ㄤ緥鎵ц鍓嶈皟鐢?
      */
     @BeforeEach
     public void setUp() {
@@ -106,7 +105,7 @@ public abstract class ModuleScenarioTestBase {
     }
 
     /**
-     * 每个用例执行后调用
+     * 姣忎釜鐢ㄤ緥鎵ц鍚庤皟鐢?
      */
     @AfterEach
     public void tearDown() {
@@ -114,28 +113,28 @@ public abstract class ModuleScenarioTestBase {
     }
 
     /**
-     * 构建Module数据
+     * 鏋勫缓Module鏁版嵁
      * 
-     * @param moduleAlgClazz 模块算法类
-     * @return 构建的模块
+     * @param moduleAlgClazz 妯″潡绠楁硶绫?
+     * @return 鏋勫缓鐨勬ā鍧?
      */
-    protected Module buildModule(Class<? extends ModuleAlgImpl> moduleAlgClazz) {
-        // 通过注解生成Module
+    protected Module buildModule(Class<?> moduleAlgClazz) {
+        // 閫氳繃娉ㄨВ鐢熸垚Module
         module = ModuleGenneratorByAnno.build(moduleAlgClazz, tempResourcePath);
         return module;
     }
 
     /**
-     * 初始化测试环境（打包模式）
+     * 鍒濆鍖栨祴璇曠幆澧冿紙鎵撳寘妯″紡锛?
      * 
      */
     protected void init() {
-        // 生成临时资源路径
+        // 鐢熸垚涓存椂璧勬簮璺緞
         setTempResourcePath(CommHelper.createTempPath(getConstraintAlgClazz()));
 
-        // 使用单例访问
+        // 浣跨敤鍗曚緥璁块棶
         ConstraintConfig config = new ConstraintConfig();
-        config.setAttachedDebug(true); // 测试环境直接使用当前classpath加载
+        config.setAttachedDebug(true); // 娴嬭瘯鐜鐩存帴浣跨敤褰撳墠classpath鍔犺浇
         // config.setRootFilePath(getTempResourcePath());
         config.setLogFilePath(getTempResourcePath());
         config.setLogModelProto(true);
@@ -146,17 +145,17 @@ public abstract class ModuleScenarioTestBase {
         setCfg(config);
 
         if (getCfg().isAttachedDebug()) {
-            // 调试模式：直接加载class，和现有流程一样
+            // 璋冭瘯妯″紡锛氱洿鎺ュ姞杞絚lass锛屽拰鐜版湁娴佺▼涓€鏍?
             Module tempModule = buildModule(getConstraintAlgClazz());
             Result<Void> addModuleResult = ModuleConstraintExecutor.INST.addModule(tempModule.getId(), tempModule);
             assertEquals(Result.SUCCESS, addModuleResult.getCode(),
                     "Add module failed: " + addModuleResult.getMessage());
             setModule(tempModule);
         } else {
-            // 打包模式
+            // 鎵撳寘妯″紡
             Module tempModule = ModuleGenneratorByAnno.buildModule(getConstraintAlgClazz());
 
-            // 调用ModulePacker.pack进行打包
+            // 璋冪敤ModulePacker.pack杩涜鎵撳寘
             ModulePacker packer = new ModulePacker();
             String packOutputDir = packer.pack(tempModule, getConstraintAlgClazz(), rootFilePath);
             log.info("Module packed to: {}", packOutputDir);
@@ -169,36 +168,36 @@ public abstract class ModuleScenarioTestBase {
     }
 
     /**
-     * 初始化配置
+     * 鍒濆鍖栭厤缃?
      * 
-     * @param cfg 配置
+     * @param cfg 閰嶇疆
      */
     protected void beforeInitConfig(ConstraintConfig cfg) {
 
     }
 
     /**
-     * 执行参数推理
+     * 鎵ц鍙傛暟鎺ㄧ悊
      * 
-     * @param partCode           部件代码
-     * @param qty                数量
-     * @param paraCodeValuePairs 参数代码和值的交替数组，格式：paraCode1, value1, paraCode2,
+     * @param partCode           閮ㄤ欢浠ｇ爜
+     * @param qty                鏁伴噺
+     * @param paraCodeValuePairs 鍙傛暟浠ｇ爜鍜屽€肩殑浜ゆ浛鏁扮粍锛屾牸寮忥細paraCode1, value1, paraCode2,
      *                           value2, ...
-     * @return 推理结果
+     * @return 鎺ㄧ悊缁撴灉
      */
     protected List<ModuleInst> inferParas(String partCode, Integer qty, String... paraCodeValuePairs) {
         return inferParas(partCode, qty, toPreParas(paraCodeValuePairs), new ArrayList<>());
     }
 
     /**
-     * 执行参数推理
+     * 鎵ц鍙傛暟鎺ㄧ悊
      * s
      * 
-     * @param partCode 部件代码
-     * @param qty      数量
-     * @param preParas 前置参数列表
-     * @param preParts 前置部件列表
-     * @return 推理结果
+     * @param partCode 閮ㄤ欢浠ｇ爜
+     * @param qty      鏁伴噺
+     * @param preParas 鍓嶇疆鍙傛暟鍒楄〃
+     * @param preParts 鍓嶇疆閮ㄤ欢鍒楄〃
+     * @return 鎺ㄧ悊缁撴灉
      */
     protected List<ModuleInst> inferParas(String partCode, Integer qty, List<ParaInst> preParas,
             List<PartInst> preParts) {
@@ -206,13 +205,13 @@ public abstract class ModuleScenarioTestBase {
         req.setModuleId(getModule().getId());
         req.setEnumerateAllSolution(isEnumerateAllSolution());
 
-        // 设置主部件实例
+        // 璁剧疆涓婚儴浠跺疄渚?
         PartInst mainPartInst = new PartInst();
         mainPartInst.setCode(partCode);
         mainPartInst.setQuantity(qty);
         req.setMainPartInst(mainPartInst);
 
-        // 处理预定义参数（复用公共方法）
+        // 澶勭悊棰勫畾涔夊弬鏁帮紙澶嶇敤鍏叡鏂规硶锛?
         req.setPreParaInsts(preParas);
         req.setPrePartInsts(preParts);
 
@@ -224,18 +223,18 @@ public abstract class ModuleScenarioTestBase {
     }
 
     /**
-     * 根据多个参数值进行推理（可变参数版本）
+     * 鏍规嵁澶氫釜鍙傛暟鍊艰繘琛屾帹鐞嗭紙鍙彉鍙傛暟鐗堟湰锛?
      *
-     * @param paraCodeValuePairs 参数代码和值的交替数组，格式：paraCode1, value1, paraCode2,
+     * @param paraCodeValuePairs 鍙傛暟浠ｇ爜鍜屽€肩殑浜ゆ浛鏁扮粍锛屾牸寮忥細paraCode1, value1, paraCode2,
      *                           value2, ...
-     * @return 推理结果
+     * @return 鎺ㄧ悊缁撴灉
      */
     protected List<ModuleInst> inferParasByPara(String... paraCodeValuePairs) {
         InferParasReq req = new InferParasReq();
         req.setModuleId(getModule().getId());
         req.setEnumerateAllSolution(isEnumerateAllSolution());
 
-        // 复用公共方法处理参数
+        // 澶嶇敤鍏叡鏂规硶澶勭悊鍙傛暟
         req.setPreParaInsts(toPreParas(paraCodeValuePairs));
 
         Result<List<ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(req);
@@ -245,10 +244,10 @@ public abstract class ModuleScenarioTestBase {
     }
 
     /**
-     * 使用 relaxSolve=true 进行参数推理（冲突诊断模式）。
+     * 浣跨敤 relaxSolve=true 杩涜鍙傛暟鎺ㄧ悊锛堝啿绐佽瘖鏂ā寮忥級銆?
      *
-     * @param paraCodeValuePairs 参数代码和值的交替数组
-     * @return 推理结果（部分解）
+     * @param paraCodeValuePairs 鍙傛暟浠ｇ爜鍜屽€肩殑浜ゆ浛鏁扮粍
+     * @return 鎺ㄧ悊缁撴灉锛堥儴鍒嗚В锛?
      */
     protected List<ModuleInst> inferParasByParaRelax(String... paraCodeValuePairs) {
         InferParasReq req = new InferParasReq();
@@ -265,7 +264,7 @@ public abstract class ModuleScenarioTestBase {
     }
 
     /**
-     * 校验部分解中包含期望的字符串（从 SolverResult.solutions 中查找）。
+     * 鏍￠獙閮ㄥ垎瑙ｄ腑鍖呭惈鏈熸湜鐨勫瓧绗︿覆锛堜粠 SolverResult.solutions 涓煡鎵撅級銆?
      */
     protected void assertPartialSoluContain(String... expectedSubstrings) {
         SolverResult sr = getResult().getSolverResult();
@@ -295,7 +294,7 @@ public abstract class ModuleScenarioTestBase {
     }
 
     /**
-     * 获取指定索引的解决方案
+     * 鑾峰彇鎸囧畾绱㈠紩鐨勮В鍐虫柟妗?
      */
     protected ProgammableInstAssert solutions(int index) {
         if (getSolutions() == null || index >= getSolutions().size()) {
@@ -306,7 +305,7 @@ public abstract class ModuleScenarioTestBase {
     }
 
     /**
-     * 打印所有解决方案
+     * 鎵撳嵃鎵€鏈夎В鍐虫柟妗?
      */
     protected void printSolutionsDetail() {
         if (getSolutions() == null || getSolutions().isEmpty()) {
@@ -324,7 +323,7 @@ public abstract class ModuleScenarioTestBase {
     }
 
     /**
-     * 获取结果断言对象，用于验证执行结果
+     * 鑾峰彇缁撴灉鏂█瀵硅薄锛岀敤浜庨獙璇佹墽琛岀粨鏋?
      */
     protected ResultAssert resultAssert() {
         if (getResult() == null) {
@@ -334,12 +333,12 @@ public abstract class ModuleScenarioTestBase {
     }
 
     /**
-     * 检查解决方案列表中是否包含指定的字符串
-     * 遍历所有解决方案的 toShortString 输出，检查是否包含指定的子字符串
-     * 如果找不到匹配的解决方案，则抛出 AssertionError
+     * 妫€鏌ヨВ鍐虫柟妗堝垪琛ㄤ腑鏄惁鍖呭惈鎸囧畾鐨勫瓧绗︿覆
+     * 閬嶅巻鎵€鏈夎В鍐虫柟妗堢殑 toShortString 杈撳嚭锛屾鏌ユ槸鍚﹀寘鍚寚瀹氱殑瀛愬瓧绗︿覆
+     * 濡傛灉鎵句笉鍒板尮閰嶇殑瑙ｅ喅鏂规锛屽垯鎶涘嚭 AssertionError
      * 
-     * @param expectedStr 期望包含的字符串
-     * @throws AssertionError 如果找不到包含指定字符串的解决方案
+     * @param expectedStr 鏈熸湜鍖呭惈鐨勫瓧绗︿覆
+     * @throws AssertionError 濡傛灉鎵句笉鍒板寘鍚寚瀹氬瓧绗︿覆鐨勮В鍐虫柟妗?
      */
     protected void soluContain(String expectedStr) {
         if (getSolutions() == null || getSolutions().isEmpty()) {
@@ -355,7 +354,7 @@ public abstract class ModuleScenarioTestBase {
                 return;
             }
         }
-        // 构建错误消息，包含所有解决方案的字符串表示
+        // 鏋勫缓閿欒娑堟伅锛屽寘鍚墍鏈夎В鍐虫柟妗堢殑瀛楃涓茶〃绀?
         StringBuilder errorMsg = new StringBuilder();
         errorMsg.append("No solution found containing: ").append(expectedStr);
         errorMsg.append("\nAvailable solutions:");
@@ -367,32 +366,32 @@ public abstract class ModuleScenarioTestBase {
     }
 
     /**
-     * 校验满足条件conditionExpr解的个数是否等于expectSolutionNum
+     * 鏍￠獙婊¤冻鏉′欢conditionExpr瑙ｇ殑涓暟鏄惁绛変簬expectSolutionNum
      * 
-     * @param conditionExpr     条件表达式，格式如："Color:Red,TShirt1:2"
-     * @param expectSolutionNum 期望的解决方案数量
+     * @param conditionExpr     鏉′欢琛ㄨ揪寮忥紝鏍煎紡濡傦細"Color:Red,TShirt1:2"
+     * @param expectSolutionNum 鏈熸湜鐨勮В鍐虫柟妗堟暟閲?
      */
     protected void assertSolutionNum(String conditionExpr, int expectSolutionNum) {
-        // 如果expectSolutionNum为0，则不进行验证
+        // 濡傛灉expectSolutionNum涓?锛屽垯涓嶈繘琛岄獙璇?
         if (expectSolutionNum == 0 && (getSolutions() == null || getSolutions().isEmpty())) {
             return;
         }
         if (getSolutions() == null || getSolutions().isEmpty()) {
             throw new AssertionError("No solutions available for verification");
         }
-        // 解析条件表达式
+        // 瑙ｆ瀽鏉′欢琛ㄨ揪寮?
         Map<String, String> kvMap = parseConditionExpr(conditionExpr);
 
-        // 构建条件对象列表
+        // 鏋勫缓鏉′欢瀵硅薄鍒楄〃
         List<ConditionElement> conditionElements = buildConditionElements(kvMap);
 
-        // 计算实际匹配的解决方案数量
+        // 璁＄畻瀹為檯鍖归厤鐨勮В鍐虫柟妗堟暟閲?
         int actualMatchSolutionNum = countMatchingSolutions(conditionElements);
 
-        // 比较实际数量和期望数量
+        // 姣旇緝瀹為檯鏁伴噺鍜屾湡鏈涙暟閲?
         if (actualMatchSolutionNum != expectSolutionNum) {
             throw new AssertionError(String.format(
-                    "解决方案数量不匹配，期望: %d，实际: %d，条件: %s",
+                    "瑙ｅ喅鏂规鏁伴噺涓嶅尮閰嶏紝鏈熸湜: %d锛屽疄闄? %d锛屾潯浠? %s",
                     expectSolutionNum, actualMatchSolutionNum, conditionExpr));
         }
 
@@ -400,11 +399,11 @@ public abstract class ModuleScenarioTestBase {
     }
 
     /**
-     * 解析条件表达式
-     * 格式："Color:Red,TShirt1:2" -> {"Color":"Red", "TShirt1":"2"}
+     * 瑙ｆ瀽鏉′欢琛ㄨ揪寮?
+     * 鏍煎紡锛?Color:Red,TShirt1:2" -> {"Color":"Red", "TShirt1":"2"}
      * 
-     * @param conditionExpr 条件表达式字符串
-     * @return 解析后的键值对映射
+     * @param conditionExpr 鏉′欢琛ㄨ揪寮忓瓧绗︿覆
+     * @return 瑙ｆ瀽鍚庣殑閿€煎鏄犲皠
      */
     private Map<String, String> parseConditionExpr(String conditionExpr) {
         Map<String, String> kvMap = new HashMap<>();
@@ -423,10 +422,10 @@ public abstract class ModuleScenarioTestBase {
     }
 
     /**
-     * 构建条件元素列表
+     * 鏋勫缓鏉′欢鍏冪礌鍒楄〃
      * 
-     * @param kvMap 键值对映射
-     * @return 条件元素列表
+     * @param kvMap 閿€煎鏄犲皠
+     * @return 鏉′欢鍏冪礌鍒楄〃
      */
     private List<ConditionElement> buildConditionElements(Map<String, String> kvMap) {
         List<ConditionElement> elements = new ArrayList<>();
@@ -443,38 +442,38 @@ public abstract class ModuleScenarioTestBase {
     }
 
     /**
-     * 创建条件元素
+     * 鍒涘缓鏉′欢鍏冪礌
      * 
-     * @param key   键
-     * @param value 值
-     * @return 条件元素
-     * @throws AlgLoaderException 当找不到参数或部件时
+     * @param key   閿?
+     * @param value 鍊?
+     * @return 鏉′欢鍏冪礌
+     * @throws AlgLoaderException 褰撴壘涓嶅埌鍙傛暟鎴栭儴浠舵椂
      */
     private ConditionElement createConditionElement(String key, String value) {
-        // 在module.paras中查找
+        // 鍦╩odule.paras涓煡鎵?
         java.util.Optional<Para> paraOpt = getModule().getPara(key);
         if (paraOpt.isPresent()) {
             return createParaConditionElement(key, value, paraOpt.get());
         }
 
-        // 在module.parts中查找
+        // 鍦╩odule.parts涓煡鎵?
         IPart partOpt = getModule().getPart(key);
         if (partOpt != null) {
             return createPartConditionElement(key, value);
         }
 
-        // 都找不到，报错
+        // 閮芥壘涓嶅埌锛屾姤閿?
         throw new AlgLoaderException(String.format(
                 "Parameter or part not found in Module: %s", key));
     }
 
     /**
-     * 创建参数条件元素
+     * 鍒涘缓鍙傛暟鏉′欢鍏冪礌
      * 
-     * @param key   键
-     * @param value 值
-     * @param para  参数对象
-     * @return 条件元素
+     * @param key   閿?
+     * @param value 鍊?
+     * @param para  鍙傛暟瀵硅薄
+     * @return 鏉′欢鍏冪礌
      */
     private ConditionElement createParaConditionElement(String key, String value, Para para) {
         String codeIdValue = ParaTypeHandler.getCodeIdValue(para, value);
@@ -482,21 +481,21 @@ public abstract class ModuleScenarioTestBase {
     }
 
     /**
-     * 创建部件条件元素
+     * 鍒涘缓閮ㄤ欢鏉′欢鍏冪礌
      * 
-     * @param key   键
-     * @param value 值
-     * @return 条件元素
+     * @param key   閿?
+     * @param value 鍊?
+     * @return 鏉′欢鍏冪礌
      */
     private ConditionElement createPartConditionElement(String key, String value) {
         return new ConditionElement("part", key, value);
     }
 
     /**
-     * 计算匹配条件的解决方案数量
+     * 璁＄畻鍖归厤鏉′欢鐨勮В鍐虫柟妗堟暟閲?
      * 
-     * @param conditionElements 条件元素列表
-     * @return 匹配的解决方案数量
+     * @param conditionElements 鏉′欢鍏冪礌鍒楄〃
+     * @return 鍖归厤鐨勮В鍐虫柟妗堟暟閲?
      */
     private int countMatchingSolutions(List<ConditionElement> conditionElements) {
         int matchCount = 0;
@@ -506,14 +505,14 @@ public abstract class ModuleScenarioTestBase {
 
             for (ConditionElement element : conditionElements) {
                 if ("para".equals(element.type)) {
-                    // 对paraInst，比较value和paraInst.value
+                    // 瀵筽araInst锛屾瘮杈僾alue鍜宲araInst.value
                     ParaInst paraInst = findParaInstByCode(solution, element.code);
                     if (paraInst == null || !element.value.equals(paraInst.getValue())) {
                         isMatch = false;
                         break;
                     }
                 } else if ("part".equals(element.type)) {
-                    // 对partInst，比较value和partInst.quantity
+                    // 瀵筽artInst锛屾瘮杈僾alue鍜宲artInst.quantity
                     PartInst partInst = findPartInstByCode(solution, element.code);
                     if (partInst == null || !element.value.equals(String.valueOf(partInst.getQuantity()))) {
                         isMatch = false;
@@ -533,11 +532,11 @@ public abstract class ModuleScenarioTestBase {
     }
 
     /**
-     * 根据代码查找ParaInst
+     * 鏍规嵁浠ｇ爜鏌ユ壘ParaInst
      * 
-     * @param solution 模块实例
-     * @param code     参数代码
-     * @return 匹配的ParaInst，如果未找到则返回null
+     * @param solution 妯″潡瀹炰緥
+     * @param code     鍙傛暟浠ｇ爜
+     * @return 鍖归厤鐨凱araInst锛屽鏋滄湭鎵惧埌鍒欒繑鍥瀗ull
      */
     private ParaInst findParaInstByCode(ModuleInst solution, String code) {
         if (solution.getParas() == null) {
@@ -550,11 +549,11 @@ public abstract class ModuleScenarioTestBase {
     }
 
     /**
-     * 根据代码查找PartInst
+     * 鏍规嵁浠ｇ爜鏌ユ壘PartInst
      * 
-     * @param solution 模块实例
-     * @param code     部件代码
-     * @return 匹配的PartInst，如果未找到则返回null
+     * @param solution 妯″潡瀹炰緥
+     * @param code     閮ㄤ欢浠ｇ爜
+     * @return 鍖归厤鐨凱artInst锛屽鏋滄湭鎵惧埌鍒欒繑鍥瀗ull
      */
     private PartInst findPartInstByCode(ModuleInst solution, String code) {
         if (solution.getParts() == null) {
@@ -567,10 +566,10 @@ public abstract class ModuleScenarioTestBase {
     }
 
     /**
-     * 根据参数代码值对构建ParaInst列表（公共方法）
+     * 鏍规嵁鍙傛暟浠ｇ爜鍊煎鏋勫缓ParaInst鍒楄〃锛堝叕鍏辨柟娉曪級
      * 
-     * @param paraCodeValuePairs 参数代码和值的交替数组
-     * @return ParaInst列表
+     * @param paraCodeValuePairs 鍙傛暟浠ｇ爜鍜屽€肩殑浜ゆ浛鏁扮粍
+     * @return ParaInst鍒楄〃
      */
     protected List<ParaInst> toPreParas(String... paraCodeValuePairs) {
         if (paraCodeValuePairs.length % 2 != 0) {
@@ -587,7 +586,7 @@ public abstract class ModuleScenarioTestBase {
             ParaInst paraInst = new ParaInst();
             paraInst.setCode(paraCode);
 
-            // 根据module.paras中的para.options，找到value对应的option
+            // 鏍规嵁module.paras涓殑para.options锛屾壘鍒皏alue瀵瑰簲鐨刼ption
             Optional<Para> paraOpt = getModule().getPara(paraCode);
             if (!paraOpt.isPresent()) {
                 throw new AlgLoaderException(String.format("Parameter %s does not exist", paraCode));
@@ -601,10 +600,10 @@ public abstract class ModuleScenarioTestBase {
     }
 
     /**
-     * 根据Part代码值对构建PartInst列表（公共方法）
+     * 鏍规嵁Part浠ｇ爜鍊煎鏋勫缓PartInst鍒楄〃锛堝叕鍏辨柟娉曪級
      * 
-     * @param partCodeValuePairs Part代码和值的交替数组
-     * @return ParaInst列表
+     * @param partCodeValuePairs Part浠ｇ爜鍜屽€肩殑浜ゆ浛鏁扮粍
+     * @return ParaInst鍒楄〃
      */
     protected List<PartInst> toPreParts(String... partCodeValuePairs) {
         if (partCodeValuePairs.length % 2 != 0) {
@@ -621,7 +620,7 @@ public abstract class ModuleScenarioTestBase {
             PartInst partInst = new PartInst();
             partInst.setCode(partCode);
 
-            // 根据module.parts中
+            // 鏍规嵁module.parts涓?
             IPart partOpt = getModule().getPart(partCode);
             if (partOpt == null) {
                 throw new AlgLoaderException(String.format("Part %s does not exist", partCode));
@@ -634,15 +633,15 @@ public abstract class ModuleScenarioTestBase {
     }
 
     /**
-     * 条件元素内部类
+     * 鏉′欢鍏冪礌鍐呴儴绫?
      */
     private static class ConditionElement {
 
-        private final String type; // "para" 或 "part"
+        private final String type; // "para" 鎴?"part"
 
-        private final String code; // 代码
+        private final String code; // 浠ｇ爜
 
-        private final String value; // 值
+        private final String value; // 鍊?
 
         ConditionElement(String type, String code, String value) {
             this.type = type;
@@ -652,7 +651,7 @@ public abstract class ModuleScenarioTestBase {
     }
 
     /**
-     * 打印短格式解信息
+     * 鎵撳嵃鐭牸寮忚В淇℃伅
      * 
      */
     protected void printSolutions() {
@@ -664,21 +663,21 @@ public abstract class ModuleScenarioTestBase {
     }
 
     /**
-     * 打印短格式解信息
+     * 鎵撳嵃鐭牸寮忚В淇℃伅
      * 
-     * @param module    模块
-     * @param solutions 解列表
+     * @param module    妯″潡
+     * @param solutions 瑙ｅ垪琛?
      */
     protected void printSolutions(Module module, List<ModuleInst> solutions, boolean isSimple) {
         SolutionUtils.printSolutions(module, solutions, isSimple, result);
     }
 
     /**
-     * 将字符串约束请求转换为PartConstraintReq列表
+     * 灏嗗瓧绗︿覆绾︽潫璇锋眰杞崲涓篜artConstraintReq鍒楄〃
      *
-     * @param partCategory 部件类别
-     * @param strReqs      字符串约束请求数组，格式如："sd:Sum_Quantity ==2 where Speed=5400"
-     * @return PartConstraintReq列表
+     * @param partCategory 閮ㄤ欢绫诲埆
+     * @param strReqs      瀛楃涓茬害鏉熻姹傛暟缁勶紝鏍煎紡濡傦細"sd:Sum_Quantity ==2 where Speed=5400"
+     * @return PartConstraintReq鍒楄〃
      */
     protected List<PartConstraintReq> toPartConstraintReqs(String partCategory, String... strReqs) {
         List<PartConstraintReq> reqs = new ArrayList<>();
@@ -689,8 +688,8 @@ public abstract class ModuleScenarioTestBase {
             // Parse strategy syntax: [strategy=ASCENDING:price]
             String remainingStr = parseStrategyConfig(strReq, req);
 
-            // 解析格式：reqPartCategory:attrCode comparator value where condition
-            // 示例："sd:Sum_Quantity ==2 where Speed=5400"
+            // 瑙ｆ瀽鏍煎紡锛歳eqPartCategory:attrCode comparator value where condition
+            // 绀轰緥锛?sd:Sum_Quantity ==2 where Speed=5400"
             String[] categoryParts = remainingStr.split(":", 2);
             String reqPartCategory;
             String attrExprStr;
@@ -698,16 +697,16 @@ public abstract class ModuleScenarioTestBase {
                 reqPartCategory = categoryParts[0].trim();
                 attrExprStr = categoryParts[1].trim();
             } else {
-                // 如果没有:，则使用默认的partCategory
+                // 濡傛灉娌℃湁:锛屽垯浣跨敤榛樿鐨刾artCategory
                 reqPartCategory = partCategory;
                 attrExprStr = remainingStr;
             }
             req.setPartCategoryCode(reqPartCategory);
 
-            // 解析属性表达式：支持三种场景
-            // 场景1：仅有过滤条件，如 "where Speed=5400"
-            // 场景2：仅有汇总条件，如 "Sum_Capacity >=5"
-            // 场景3：同时有汇总条件和过滤条件，如 "Sum_Capacity >=5 where Speed=5400"
+            // 瑙ｆ瀽灞炴€ц〃杈惧紡锛氭敮鎸佷笁绉嶅満鏅?
+            // 鍦烘櫙1锛氫粎鏈夎繃婊ゆ潯浠讹紝濡?"where Speed=5400"
+            // 鍦烘櫙2锛氫粎鏈夋眹鎬绘潯浠讹紝濡?"Sum_Capacity >=5"
+            // 鍦烘櫙3锛氬悓鏃舵湁姹囨€绘潯浠跺拰杩囨护鏉′欢锛屽 "Sum_Capacity >=5 where Speed=5400"
             parseAttrExpr(attrExprStr, req);
 
             reqs.add(req);
@@ -741,30 +740,30 @@ public abstract class ModuleScenarioTestBase {
     }
 
     /**
-     * 解析属性表达式为PartConstraintReq
-     * 支持三种场景：
-     * 场景1：仅有过滤条件，如 "where Speed=5400" -> attrWhereCondition="Speed=5400", attrComparator=null
-     * 场景2：仅有汇总条件，如 "Sum_Capacity >=5" -> attrWhereCondition=null, attrType=Sum, attrCode=Capacity, attrComparator=">=", attrValue="5"
-     * 场景3：同时有汇总条件和过滤条件，如 "Sum_Capacity >=5 where Speed=5400" -> 同时设置两个条件
+     * 瑙ｆ瀽灞炴€ц〃杈惧紡涓篜artConstraintReq
+     * 鏀寔涓夌鍦烘櫙锛?
+     * 鍦烘櫙1锛氫粎鏈夎繃婊ゆ潯浠讹紝濡?"where Speed=5400" -> attrWhereCondition="Speed=5400", attrComparator=null
+     * 鍦烘櫙2锛氫粎鏈夋眹鎬绘潯浠讹紝濡?"Sum_Capacity >=5" -> attrWhereCondition=null, attrType=Sum, attrCode=Capacity, attrComparator=">=", attrValue="5"
+     * 鍦烘櫙3锛氬悓鏃舵湁姹囨€绘潯浠跺拰杩囨护鏉′欢锛屽 "Sum_Capacity >=5 where Speed=5400" -> 鍚屾椂璁剧疆涓や釜鏉′欢
      *
-     * @param attrExpr 属性表达式（可能包含 where 子句）
-     * @param req 部件约束请求对象，用于设置解析结果
+     * @param attrExpr 灞炴€ц〃杈惧紡锛堝彲鑳藉寘鍚?where 瀛愬彞锛?
+     * @param req 閮ㄤ欢绾︽潫璇锋眰瀵硅薄锛岀敤浜庤缃В鏋愮粨鏋?
      */
     protected void parseAttrExpr(String attrExpr, PartConstraintReq req) {
         String trimmedExpr = attrExpr.trim();
 
-        // 处理 where 子句（过滤条件）
-        // 支持多种格式：",where XXX", "where XXX", ", where XXX"
+        // 澶勭悊 where 瀛愬彞锛堣繃婊ゆ潯浠讹級
+        // 鏀寔澶氱鏍煎紡锛?,where XXX", "where XXX", ", where XXX"
         int whereIndex = -1;
         String whereCondition = null;
 
-        // 先尝试 " where " (前后都有空格)
+        // 鍏堝皾璇?" where " (鍓嶅悗閮芥湁绌烘牸)
         whereIndex = trimmedExpr.indexOf(" where ");
         if (whereIndex >= 0) {
             whereCondition = trimmedExpr.substring(whereIndex + 7).trim();
             trimmedExpr = trimmedExpr.substring(0, whereIndex).trim();
         } else {
-            // 再尝试 "where " (前面没有空格)
+            // 鍐嶅皾璇?"where " (鍓嶉潰娌℃湁绌烘牸)
             whereIndex = trimmedExpr.indexOf("where ");
             if (whereIndex >= 0) {
                 whereCondition = trimmedExpr.substring(whereIndex + 6).trim();
@@ -776,13 +775,13 @@ public abstract class ModuleScenarioTestBase {
             req.setAttrWhereCondition(whereCondition);
         }
 
-        // 解析汇总条件部分
+        // 瑙ｆ瀽姹囨€绘潯浠堕儴鍒?
         if (trimmedExpr.isEmpty()) {
-            // 场景1：仅有过滤条件，没有汇总条件
+            // 鍦烘櫙1锛氫粎鏈夎繃婊ゆ潯浠讹紝娌℃湁姹囨€绘潯浠?
             return;
         }
 
-        // 使用正则表达式解析：attrCode comparator value
+        // 浣跨敤姝ｅ垯琛ㄨ揪寮忚В鏋愶細attrCode comparator value
         Pattern pattern = Pattern.compile("([A-Za-z_][A-Za-z0-9_]*)\\s*(==|!=|<=|>=|<|>)\\s*(\\d+)");
         Matcher matcher = pattern.matcher(trimmedExpr);
 
@@ -803,21 +802,21 @@ public abstract class ModuleScenarioTestBase {
     }
 
     /**
-     * 基于部件约束进行推理推荐
+     * 鍩轰簬閮ㄤ欢绾︽潫杩涜鎺ㄧ悊鎺ㄨ崘
      * 
-     * @param constraintReqs 约束请求字符串数组
-     * @return 推荐的模块实例列表
+     * @param constraintReqs 绾︽潫璇锋眰瀛楃涓叉暟缁?
+     * @return 鎺ㄨ崘鐨勬ā鍧楀疄渚嬪垪琛?
      */
     protected List<ModuleInst> inferRecommendModule(String... constraintReqs) {
         return inferRecommend("", constraintReqs);
     }
 
     /**
-     * 基于部件约束进行推理推荐
+     * 鍩轰簬閮ㄤ欢绾︽潫杩涜鎺ㄧ悊鎺ㄨ崘
      * 
-     * @param partCategoryCode 部件类别
-     * @param constraintReqs   约束请求字符串数组
-     * @return 推荐的模块实例列表
+     * @param partCategoryCode 閮ㄤ欢绫诲埆
+     * @param constraintReqs   绾︽潫璇锋眰瀛楃涓叉暟缁?
+     * @return 鎺ㄨ崘鐨勬ā鍧楀疄渚嬪垪琛?
      */
     protected List<ModuleInst> inferRecommend(String partCategoryCode, String... constraintReqs) {
         List<PartConstraintReq> partConstraintReqs = toPartConstraintReqs(partCategoryCode, constraintReqs);
@@ -843,7 +842,7 @@ public abstract class ModuleScenarioTestBase {
     }
 
     /**
-     * 比较Solution的值
+     * 姣旇緝Solution鐨勫€?
      *
      * @param index
      * @param expect
@@ -896,8 +895,8 @@ public abstract class ModuleScenarioTestBase {
 
     private List<String> parseExpect(String expectStr) {
         // expectStr = "cpu2(Q:20,H:0,S:1),md1(Q:5,H:0,S:1),sd1(0*)"
-        // 预期结果：["cpu2(Q:20,H:0,S:1)","md1(Q:5,H:0,S:1)","sd1(0*)"
-        // 处理逻辑： 根据“),”来拆分
+        // 棰勬湡缁撴灉锛歔"cpu2(Q:20,H:0,S:1)","md1(Q:5,H:0,S:1)","sd1(0*)"
+        // 澶勭悊閫昏緫锛?鏍规嵁鈥?,鈥濇潵鎷嗗垎
         List<String> result = new ArrayList<>();
         String[] items = expectStr.split("\\),");
         for (String item : items) {

@@ -5,6 +5,7 @@ import com.jmix.executor.bmodel.logic.CalcStage;
 import com.jmix.executor.bmodel.logic.Rule;
 import com.jmix.executor.cmodel.ModuleInst;
 import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
+import com.jmix.executor.impl.southbridge.SouthboundInstViews;
 import com.jmix.executor.model.AlgLoaderException;
 import com.jmix.executor.model.Result;
 
@@ -53,8 +54,7 @@ public class ModulePostCalculator {
 
         for (int i = 0; i < solutions.size(); i++) {
             ModuleInst solution = solutions.get(i);
-            ModuleInstAccessor accessor = new ModuleInstAccessorImpl(module, solution);
-            moduleAlg.bindModuleInstAccessor(accessor);
+            moduleAlg.bindModuleInstView(new SouthboundInstViews.ModuleInstViewImpl(module, solution));
             try {
                 for (PostRuleMethod prm : postRuleMethods) {
                     invokePostRule(prm, i + 1);
@@ -63,7 +63,7 @@ public class ModulePostCalculator {
                 return Result.failed("POST rule failed, solutionIndex=" + (i + 1)
                         + ", message=" + ex.getMessage());
             } finally {
-                moduleAlg.clearModuleInstAccessor();
+                moduleAlg.clearModuleInstView();
             }
         }
         return Result.success(solutions);
@@ -72,7 +72,7 @@ public class ModulePostCalculator {
     private void invokePostRule(PostRuleMethod prm, int solutionIndex) {
         try {
             prm.method.setAccessible(true);
-            prm.method.invoke(moduleAlg);
+            prm.method.invoke(moduleAlg.ruleMethodOwner());
             log.info("Executed POST rule: {} for solution {}", prm.rule.getCode(), solutionIndex);
         } catch (IllegalAccessException e) {
             throw new AlgLoaderException(
@@ -104,7 +104,7 @@ public class ModulePostCalculator {
             if (method == null) {
                 throw new AlgLoaderException(
                         "POST rule method not found for rule code: " + rule.getCode()
-                                + " in class " + moduleAlg.getClass().getName());
+                                + " in class " + moduleAlg.ruleMethodOwner().getClass().getName());
             }
             result.add(new PostRuleMethod(rule, method));
             log.info("Scanned POST rule: {} -> {}", rule.getCode(), method.getName());
@@ -115,7 +115,8 @@ public class ModulePostCalculator {
     }
 
     private Map<String, Method> buildAllRuleMethods() {
-        Method[] methods = moduleAlg.getClass().getDeclaredMethods();
+        Object ruleOwner = moduleAlg.ruleMethodOwner();
+        Method[] methods = ruleOwner.getClass().getDeclaredMethods();
         Map<String, Method> allMethods = new HashMap<>();
         for (Method method : methods) {
             allMethods.put(method.getName(), method);

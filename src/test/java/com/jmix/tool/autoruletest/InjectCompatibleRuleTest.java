@@ -1,6 +1,6 @@
 package com.jmix.tool.autoruletest;
 
-import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.ModuleAlgBase;
 import com.jmix.executor.southinf.var.ParaVar;
 import com.jmix.executor.southinf.var.PartCategoryVar;
 import com.jmix.executor.southinf.var.PartVar;
@@ -17,27 +17,27 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
- * 注入兼容性规则测试类
- * 测试通过注解注入兼容性规则的功能
+ * 娉ㄥ叆鍏煎鎬ц鍒欐祴璇曠被
+ * 娴嬭瘯閫氳繃娉ㄨВ娉ㄥ叆鍏煎鎬ц鍒欑殑鍔熻兘
  *
  * @since 2025-09-22
  */
 @Slf4j
 public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
     /**
-     * 构造InjectCompatibleRuleTest测试类
+     * 鏋勯€營njectCompatibleRuleTest娴嬭瘯绫?
      */
     public InjectCompatibleRuleTest() {
         super(InjectCompatibleRuleConstraint.class);
     }
 
     /**
-     * 注入兼容性规则约束模型类
+     * 娉ㄥ叆鍏煎鎬ц鍒欑害鏉熸ā鍨嬬被
      * 
      * @since 2025-09-23
      */
     @ModuleAnno(id = 123L)
-    public static class InjectCompatibleRuleConstraint extends ConstraintAlgBase {
+    public static class InjectCompatibleRuleConstraint extends ModuleAlgBase {
         @ParaAnno(options = { "Red", "Black", "White" })
         private ParaVar colorVar;
 
@@ -52,27 +52,27 @@ public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
         @CompatiableRuleAnno(leftExprCode = "colorVar.valueVar() == Red", operator = "Requires", rightExprCode = "sizeVar.valueVar() == Small")
         private void rule2() {
 
-            // 自动生成，请勿编辑--start
+            // 鑷姩鐢熸垚锛岃鍕跨紪杈?-start
             addCompatibleConstraintRequires("rule2", this.colorVar, listOf("Red"), this.sizeVar, listOf("Small"));
-            // 自动生成，请勿编辑--end
+            // 鑷姩鐢熸垚锛岃鍕跨紪杈?-end
 
         }
 
         @CompatiableRuleAnno(leftExprCode = "colorVar.valueVar() == Black", operator = "CoDependent", rightExprCode = "sizeVar.valueVar() == Medium")
         private void rule3() {
 
-            // 自动生成，请勿编辑--start
+            // 鑷姩鐢熸垚锛岃鍕跨紪杈?-start
             addCompatibleConstraintCoDependent("rule3", this.colorVar, listOf("Black"), this.sizeVar, listOf("Medium"));
-            // 自动生成，请勿编辑--end
+            // 鑷姩鐢熸垚锛岃鍕跨紪杈?-end
 
         }
 
         @CompatiableRuleAnno(leftExprCode = "colorVar.valueVar() == White", operator = "InCompatible", rightExprCode = "sizeVar.valueVar() == Big")
         private void rule4() {
 
-            // 自动生成，请勿编辑--start
+            // 鑷姩鐢熸垚锛岃鍕跨紪杈?-start
             addCompatibleConstraintInCompatible("rule4", this.colorVar, listOf("White"), this.sizeVar, listOf("Big"));
-            // 自动生成，请勿编辑--end
+            // 鑷姩鐢熸垚锛岃鍕跨紪杈?-end
 
         }
     }
@@ -83,7 +83,7 @@ public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
     }
 
     /**
-     * 测试规则2的Requires约束
+     * 娴嬭瘯瑙勫垯2鐨凴equires绾︽潫
      */
     @Test
     @Disabled
@@ -98,7 +98,7 @@ public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
     }
 
     /**
-     * 测试规则2的CoDependent约束
+     * 娴嬭瘯瑙勫垯2鐨凜oDependent绾︽潫
      */
     @Test
     @Disabled
@@ -113,7 +113,7 @@ public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
     }
 
     /**
-     * 测试规则2的InCompatible约束
+     * 娴嬭瘯瑙勫垯2鐨処nCompatible绾︽潫
      */
     @Test
     @Disabled

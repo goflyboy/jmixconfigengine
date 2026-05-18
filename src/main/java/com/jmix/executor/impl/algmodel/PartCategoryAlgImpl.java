@@ -3,15 +3,14 @@ package com.jmix.executor.impl.algmodel;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.base.Pair;
 import com.jmix.executor.bmodel.logic.CalcStage;
-import com.jmix.executor.southinf.IModuleAlg;
 
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
 /**
- * 部件分类级算法实现
- * 专注于单个部件分类的约束处理
+ * 閮ㄤ欢鍒嗙被绾х畻娉曞疄鐜?
+ * 涓撴敞浜庡崟涓儴浠跺垎绫荤殑绾︽潫澶勭悊
  * 
  * @since 2025-12-27
  */
@@ -34,22 +33,22 @@ public interface PartCategoryAlgImpl {
     PartVarImpl getPartVar(String code);
 
     /**
-     * 根据属性代码获取汇总参数（SumSum类型）
+     * 鏍规嵁灞炴€т唬鐮佽幏鍙栨眹鎬诲弬鏁帮紙SumSum绫诲瀷锛?
      * 
-     * @param attrCode 属性代码
-     * @return 对应的参数变量
+     * @param attrCode 灞炴€т唬鐮?
+     * @return 瀵瑰簲鐨勫弬鏁板彉閲?
      */
     ParaVarImpl getSumSumParaByAttr(String attrCode);
 
     /**
-     * 根据属性代码获取汇总参数（Sum类型）
+     * 鏍规嵁灞炴€т唬鐮佽幏鍙栨眹鎬诲弬鏁帮紙Sum绫诲瀷锛?
      * 
-     * @param attrCode 属性代码
-     * @return 对应的参数变量
+     * @param attrCode 灞炴€т唬鐮?
+     * @return 瀵瑰簲鐨勫弬鏁板彉閲?
      */
     ParaVarImpl getSumParaByAttr(String attrCode);
 
-    void initRules(Map<String, Method> allRuleMethods, IModuleAlg moduleAlgFile, CalcStage calcStage);
+    void initRules(Map<String, Method> allRuleMethods, Object moduleAlgFile, CalcStage calcStage);
 
-    void initInput(IModuleAlg moduleAlgFile);
+    void initInput(Object moduleAlgFile);
 }

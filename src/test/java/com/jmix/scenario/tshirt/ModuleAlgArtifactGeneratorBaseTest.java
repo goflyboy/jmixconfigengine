@@ -22,12 +22,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * ModuleAlgArtifactGenerator.buildConstraintRule 方法测试类
+ * ModuleAlgArtifactGenerator.buildConstraintRule 鏂规硶娴嬭瘯绫?
  * 
- * 测试目标：
- * 1. 根据T恤衫模块样例数据生成Module数据
- * 2. 调用ModuleAlgArtifactGenerator.buildConstraintRule生成约束规则代码
- * 3. 验证生成的代码文件是否正确
+ * 娴嬭瘯鐩爣锛?
+ * 1. 鏍规嵁T鎭よ～妯″潡鏍蜂緥鏁版嵁鐢熸垚Module鏁版嵁
+ * 2. 璋冪敤ModuleAlgArtifactGenerator.buildConstraintRule鐢熸垚绾︽潫瑙勫垯浠ｇ爜
+ * 3. 楠岃瘉鐢熸垚鐨勪唬鐮佹枃浠舵槸鍚︽纭?
  * 
  * @since 2025-09-23
  */
@@ -40,36 +40,36 @@ public class ModuleAlgArtifactGeneratorBaseTest {
 
     private String outputPath;
 
-    // 是否删除生成的文件
+    // 鏄惁鍒犻櫎鐢熸垚鐨勬枃浠?
     private boolean deleteGeneratedFile = true;
 
     /**
-     * 测试设置方法
+     * 娴嬭瘯璁剧疆鏂规硶
      * 
-     * @throws Exception 异常
+     * @throws Exception 寮傚父
      */
     @BeforeEach
     public void setUp() throws Exception {
-        // 初始化生成器
+        // 鍒濆鍖栫敓鎴愬櫒
         generator = new ModuleAlgArtifactGenerator();
 
-        // 设置输出路径为当前包所在目录
+        // 璁剧疆杈撳嚭璺緞涓哄綋鍓嶅寘鎵€鍦ㄧ洰褰?
         outputPath = getCurrentPackagePath() + "/TShirtConstraint.java";
 
-        // 创建T恤衫模块数据（简化版本，避免JSON反序列化问题）
+        // 鍒涘缓T鎭よ～妯″潡鏁版嵁锛堢畝鍖栫増鏈紝閬垮厤JSON鍙嶅簭鍒楀寲闂锛?
         // tshirtModule = createSimpleTShirtModule();
         String jsonFilePath = "src/test/java/com/jmix/configengine/scenario/tshirt/tshirtdata.json";
-        // 使用ModuleUtils.fromJsonFile方法读取JSON文件
+        // 浣跨敤ModuleUtils.fromJsonFile鏂规硶璇诲彇JSON鏂囦欢
         tshirtModule = ModuleUtils.fromJsonFile(jsonFilePath);
 
-        // 初始化模块
+        // 鍒濆鍖栨ā鍧?
         tshirtModule.init();
     }
 
     /**
-     * 测试buildConstraintRule方法
+     * 娴嬭瘯buildConstraintRule鏂规硶
      * 
-     * @throws Exception 异常
+     * @throws Exception 寮傚父
      */
     @Test
     @Disabled
@@ -78,76 +78,76 @@ public class ModuleAlgArtifactGeneratorBaseTest {
         log.info("=== Starting test for buildConstraintRule method ===");
         log.info("Output path: {}", outputPath);
 
-        // 验证模块数据是否正确创建
-        assertNotNull(tshirtModule, "T恤衫模块应该创建成功");
-        assertEquals("模块代码应该是TShirt", "TShirt", tshirtModule.getCode());
-        assertNotNull(tshirtModule.getParas(), "参数列表不应该为空");
-        assertNotNull(tshirtModule.getAllParts(), "部件列表不应该为空");
-        assertNotNull(tshirtModule.getRules(), "规则列表不应该为空");
+        // 楠岃瘉妯″潡鏁版嵁鏄惁姝ｇ‘鍒涘缓
+        assertNotNull(tshirtModule, "T鎭よ～妯″潡搴旇鍒涘缓鎴愬姛");
+        assertEquals("妯″潡浠ｇ爜搴旇鏄疶Shirt", "TShirt", tshirtModule.getCode());
+        assertNotNull(tshirtModule.getParas(), "paras should not be null");
+        assertNotNull(tshirtModule.getAllParts(), "parts should not be null");
+        assertNotNull(tshirtModule.getRules(), "rules should not be null");
 
-        log.info("✓ Module data validation passed");
+        log.info("鉁?Module data validation passed");
         log.info("  Parameter count: {}", tshirtModule.getParas().size());
         log.info("  Part count: {}", tshirtModule.getAllParts().size());
         log.info("  Rule count: {}", tshirtModule.getRules().size());
 
-        // 调用buildConstraintRule方法
+        // 璋冪敤buildConstraintRule鏂规硶
         log.info("\n=== Calling buildConstraintRule method ===");
 
-        // 由于模板需要rule.left和rule.right属性，我们需要先手动构建这些信息
-        // 或者修改模板来处理这种情况
+        // 鐢变簬妯℃澘闇€瑕乺ule.left鍜宺ule.right灞炴€э紝鎴戜滑闇€瑕佸厛鎵嬪姩鏋勫缓杩欎簺淇℃伅
+        // 鎴栬€呬慨鏀规ā鏉挎潵澶勭悊杩欑鎯呭喌
         try {
             generator.buildConstraintRule(tshirtModule, outputPath);
         } catch (Exception e) {
             log.error("buildConstraintRule call failed, error message: {}", e.getMessage());
-            // 这是一个已知问题，模板需要rule.left和rule.right属性
-            // 但当前的实现没有正确设置这些属性
+            // 杩欐槸涓€涓凡鐭ラ棶棰橈紝妯℃澘闇€瑕乺ule.left鍜宺ule.right灞炴€?
+            // 浣嗗綋鍓嶇殑瀹炵幇娌℃湁姝ｇ‘璁剧疆杩欎簺灞炴€?
             throw new AlgLoaderException("buildConstraintRule call failed, error message: " + e.getMessage());
         }
 
-        // 验证生成的代码文件是否存在
+        // 楠岃瘉鐢熸垚鐨勪唬鐮佹枃浠舵槸鍚﹀瓨鍦?
         File generatedFile = new File(outputPath);
-        assertTrue(generatedFile.exists(), "生成的约束代码文件应该存在");
-        assertTrue(generatedFile.canRead(), "生成的约束代码文件应该可读");
+        assertTrue(generatedFile.exists(), "generated file should exist");
+        assertTrue(generatedFile.canRead(), "generated file should be readable");
 
-        log.info("✓ Constraint code file generated successfully");
+        log.info("鉁?Constraint code file generated successfully");
         log.info("  File path: {}", generatedFile.getAbsolutePath());
         log.info("  File size: {} bytes", generatedFile.length());
 
-        // 验证生成的代码内容
+        // 楠岃瘉鐢熸垚鐨勪唬鐮佸唴瀹?
         validateGeneratedCode();
 
         log.info("\n=== Test completed ===");
     }
 
     /**
-     * 验证生成的代码内容
+     * 楠岃瘉鐢熸垚鐨勪唬鐮佸唴瀹?
      */
     private void validateGeneratedCode() throws Exception {
         Path path = Paths.get(outputPath);
         String content = new String(Files.readAllBytes(path));
 
-        // 验证基本结构
-        assertTrue(content.contains("public class TShirtConstraint"), "生成的代码应该包含类定义");
-        assertTrue(content.contains("extends ConstraintAlgBase"), "Generated code should extend ConstraintAlgBase");
+        // 楠岃瘉鍩烘湰缁撴瀯
+        assertTrue(content.contains("public class TShirtConstraint"), "鐢熸垚鐨勪唬鐮佸簲璇ュ寘鍚被瀹氫箟");
+        assertTrue(content.contains("extends ModuleAlgBase"), "Generated code should extend ModuleAlgBase");
 
-        // 验证参数变量
-        assertTrue(content.contains("private ParaVar colorVar"), "应该包含Color参数变量");
-        assertTrue(content.contains("private ParaVar sizeVar"), "应该包含Size参数变量");
+        // 楠岃瘉鍙傛暟鍙橀噺
+        assertTrue(content.contains("private ParaVar colorVar"), "搴旇鍖呭惈Color鍙傛暟鍙橀噺");
+        assertTrue(content.contains("private ParaVar sizeVar"), "搴旇鍖呭惈Size鍙傛暟鍙橀噺");
 
-        // 验证部件变量
-        assertTrue(content.contains("private PartVar tShirt11Var"), "应该包含TShirt11部件变量");
-        assertTrue(content.contains("private PartVar tShirt12Var"), "应该包含TShirt12部件变量");
+        // 楠岃瘉閮ㄤ欢鍙橀噺
+        assertTrue(content.contains("private PartVar tShirt11Var"), "搴旇鍖呭惈TShirt11閮ㄤ欢鍙橀噺");
+        assertTrue(content.contains("private PartVar tShirt12Var"), "搴旇鍖呭惈TShirt12閮ㄤ欢鍙橀噺");
 
-        // 验证方法
-        assertTrue(content.contains("import com.jmix.executor.southinf.ConstraintAlgBase"),
+        // 楠岃瘉鏂规硶
+        assertTrue(content.contains("import com.jmix.executor.southinf.ModuleAlgBase"),
                 "Should import southbound base class");
 
-        // 验证约束规则方法
-        assertTrue(content.contains("addConstraint_rule1"), "应该包含规则1的约束方法");
-        assertTrue(content.contains("addConstraint_rule2"), "应该包含规则2的约束方法");
-        assertTrue(content.contains("addConstraint_rule3"), "应该包含规则3的约束方法");
+        // 楠岃瘉绾︽潫瑙勫垯鏂规硶
+        assertTrue(content.contains("addConstraint_rule1"), "should contain rule1 constraint method");
+        assertTrue(content.contains("addConstraint_rule2"), "should contain rule2 constraint method");
+        assertTrue(content.contains("addConstraint_rule3"), "should contain rule3 constraint method");
 
-        log.info("✓ Generated code content validation passed");
+        log.info("鉁?Generated code content validation passed");
         log.info("  Contains correct class definition");
         log.info("  Contains all parameter variables");
         log.info("  Contains all part variables");
@@ -155,14 +155,14 @@ public class ModuleAlgArtifactGeneratorBaseTest {
     }
 
     private String getCurrentPackagePath() {
-        // 获取当前类的包路径
+        // 鑾峰彇褰撳墠绫荤殑鍖呰矾寰?
         String packagePath = this.getClass().getPackage().getName().replace('.', File.separatorChar);
 
-        // 构建完整的目录路径
+        // 鏋勫缓瀹屾暣鐨勭洰褰曡矾寰?
         String baseDir = "src/test/java";
         String fullPath = baseDir + File.separator + packagePath;
 
-        // 确保目录存在
+        // 纭繚鐩綍瀛樺湪
         File dir = new File(fullPath);
         if (!dir.exists()) {
             dir.mkdirs();
@@ -172,11 +172,11 @@ public class ModuleAlgArtifactGeneratorBaseTest {
     }
 
     /**
-     * 测试清理方法
+     * 娴嬭瘯娓呯悊鏂规硶
      */
     @AfterEach
     public void tearDown() {
-        // 清理生成的测试文件
+        // 娓呯悊鐢熸垚鐨勬祴璇曟枃浠?
         if (!deleteGeneratedFile) {
             return;
         }

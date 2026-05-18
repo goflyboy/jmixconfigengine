@@ -1,6 +1,6 @@
 package com.jmix.scenario.ruletest;
 
-import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.ModuleAlgBase;
 import com.jmix.executor.southinf.var.ParaVar;
 import com.jmix.executor.southinf.var.PartCategoryVar;
 import com.jmix.executor.southinf.var.PartVar;
@@ -11,35 +11,35 @@ import com.jmix.tool.bbuilder.anno.ModuleAnno;
 import com.jmix.tool.bbuilder.anno.ParaAnno;
 import com.jmix.tool.bbuilder.anno.PartAnno;
 
-import com.google.ortools.sat.BoolVar;
-import com.google.ortools.sat.Literal;
+import com.jmix.executor.southinf.cp.AlgCPBoolVar;
+import com.jmix.executor.southinf.cp.AlgCPLiteral;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.junit.jupiter.api.Test;
 
 /**
- * Hello约束算法测试类
+ * Hello绾︽潫绠楁硶娴嬭瘯绫?
  * 
  * @since 2025-09-23
  */
 @Slf4j
 public class CalculateRuleIfThenTest extends ModuleScenarioTestBase {
     /**
-     * 构造CalculateRuleIfThenTest测试类
+     * 鏋勯€燙alculateRuleIfThenTest娴嬭瘯绫?
      */
     public CalculateRuleIfThenTest() {
         super(CalculateRuleConstraint.class);
     }
 
-    // ---------------规则定义start----------------------------------------
+    // ---------------瑙勫垯瀹氫箟start----------------------------------------
     /**
-     * 计算规则约束模型类
+     * 璁＄畻瑙勫垯绾︽潫妯″瀷绫?
      * 
      * @since 2025-09-23
      */
     @ModuleAnno(id = 123L)
-    public static class CalculateRuleConstraint extends ConstraintAlgBase {
+    public static class CalculateRuleConstraint extends ModuleAlgBase {
 
         @ParaAnno(defaultValue = "op11", options = { "op11", "op12", "op13" })
         private ParaVar p1Var;
@@ -56,7 +56,7 @@ public class CalculateRuleIfThenTest extends ModuleScenarioTestBase {
         }
 
         /**
-         * 添加约束规则2
+         * 娣诲姞绾︽潫瑙勫垯2
          */
         public void addConstraintRule2() {
 
@@ -67,82 +67,82 @@ public class CalculateRuleIfThenTest extends ModuleScenarioTestBase {
             // pt1Var.quantityVar() = 3
             // }
 
-            // 创建条件变量：颜色是红色且尺寸是小号
-            BoolVar op11Andop21 = model.newBoolVar("rule2_op11Andop21");
+            // 鍒涘缓鏉′欢鍙橀噺锛氶鑹叉槸绾㈣壊涓斿昂瀵告槸灏忓彿
+            AlgCPBoolVar op11Andop21 = model().newBoolVar("rule2_op11Andop21");
 
-            // 实现条件逻辑：redAndSmall = (p1== op11) AND (p2 == op21)
-            model.addBoolAnd(new Literal[] {
+            // 瀹炵幇鏉′欢閫昏緫锛歳edAndSmall = (p1== op11) AND (p2 == op21)
+            model().addBoolAnd(new AlgCPLiteral[] {
                     this.p1Var.option("op11").selectedVar(),
                     this.p2Var.option("op21").selectedVar()
             }).onlyEnforceIf(op11Andop21);
 
-            // 如果不是红色且小号的组合，则op11Andop2为false
-            model.addBoolOr(new Literal[] {
+            // 濡傛灉涓嶆槸绾㈣壊涓斿皬鍙风殑缁勫悎锛屽垯op11Andop2涓篺alse
+            model().addBoolOr(new AlgCPLiteral[] {
                     this.p1Var.option("op11").selectedVar().not(),
                     this.p2Var.option("op21").selectedVar().not()
             }).onlyEnforceIf(op11Andop21.not());
 
-            // 根据条件设置pt1Var的数量
-            // 如果op11Andop2为true，则pt1Var数量为1
-            model.addEquality(pt1Var.quantityVar(), 1).onlyEnforceIf(op11Andop21);
+            // 鏍规嵁鏉′欢璁剧疆pt1Var鐨勬暟閲?
+            // 濡傛灉op11Andop2涓簍rue锛屽垯pt1Var鏁伴噺涓?
+            model().addEquality(pt1Var.quantityVar(), 1).onlyEnforceIf(op11Andop21);
 
-            // 如果op11Andop2为false，则pt1Var数量为3
-            model.addEquality(pt1Var.quantityVar(), 3).onlyEnforceIf(op11Andop21.not());
+            // 濡傛灉op11Andop2涓篺alse锛屽垯pt1Var鏁伴噺涓?
+            model().addEquality(pt1Var.quantityVar(), 3).onlyEnforceIf(op11Andop21.not());
         }
     }
 
-    // ---------------规则定义end----------------------------------------
+    // ---------------瑙勫垯瀹氫箟end----------------------------------------
     @Override
     protected void beforeInitConfig(ConstraintConfig cfg) {
         cfg.setLoadType(ConstraintConfig.LOAD_TYPE_FULL);
     }
 
     /**
-     * 测试规则2的if条件（op11和op21）
+     * 娴嬭瘯瑙勫垯2鐨刬f鏉′欢锛坥p11鍜宱p21锛?
      */
     @Test
     public void testRule2IfOp11Op21() {
-        // 测试颜色参数推理
+        // 娴嬭瘯棰滆壊鍙傛暟鎺ㄧ悊
         inferParas("pt1", 1);
 
-        // 验证第一个解
+        // 楠岃瘉绗竴涓В
         solutions(0).assertPara("p1").valueEqual("op11")
                 .assertPara("p2").valueEqual("op21");
         printSolutions();
     }
 
     /**
-     * 测试规则2的else条件（op11和op21）
+     * 娴嬭瘯瑙勫垯2鐨別lse鏉′欢锛坥p11鍜宱p21锛?
      */
     @Test
     public void testRule2ElseOp11Op21() {
         inferParas("pt1", 3);
         printSolutions();
-        // 反推有8个接口 8=3*3 - 1
+        // 鍙嶆帹鏈?涓帴鍙?8=3*3 - 1
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(8);
-        // if的解肯定不在其中
+        // if鐨勮В鑲畾涓嶅湪鍏朵腑
         assertSolutionNum("p1:op11,p2:op21", 0);
-        // else的解可能解如下：
+        // else鐨勮В鍙兘瑙ｅ涓嬶細
         assertSolutionNum("p1:op12,p2:op22", 1);
         printSolutions();
     }
 
     /**
-     * 测试规则2的无if-else情况
+     * 娴嬭瘯瑙勫垯2鐨勬棤if-else鎯呭喌
      */
     @Test
     public void testRule2NoIfElse() {
         inferParas("pt1", 4);
         printSolutions();
-        // 反推有8个接口 8=3*3 - 1
+        // 鍙嶆帹鏈?涓帴鍙?8=3*3 - 1
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(0);
-        // if的解肯定不在其中
+        // if鐨勮В鑲畾涓嶅湪鍏朵腑
         assertSolutionNum("p1:op11,p2:op21", 0);
-        // else的解也不在其中
+        // else鐨勮В涔熶笉鍦ㄥ叾涓?
         assertSolutionNum("p1:op12,p2:op22", 0);
         printSolutions();
     }

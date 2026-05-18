@@ -30,8 +30,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 模块实例解决方案回调类
- * 继承CpSolverSolutionCallback，用于处理约束求解过程中的解决方案回调
+ * 妯″潡瀹炰緥瑙ｅ喅鏂规鍥炶皟绫?
+ * 缁ф壙CpSolverSolutionCallback锛岀敤浜庡鐞嗙害鏉熸眰瑙ｈ繃绋嬩腑鐨勮В鍐虫柟妗堝洖璋?
  * 
  * @since 2025-09-22
  */
@@ -43,16 +43,16 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
 
     // private final List<ModuleInst> allSolutions = new ArrayList<>();
 
-    // 第几个解
+    // 绗嚑涓В
     private int solutionIndex = 0;
 
-    // 其他变量映射
+    // 鍏朵粬鍙橀噺鏄犲皠
     private Map<String, OtherVar> otherVarMap;
 
-    // 约束算法实现，用于查询优先级约束
+    // 绾︽潫绠楁硶瀹炵幇锛岀敤浜庢煡璇紭鍏堢骇绾︽潫
     private ModuleAlgImpl moduleAlg;
 
-    // 最大解数量限制，0表示无限制
+    // 鏈€澶цВ鏁伴噺闄愬埗锛?琛ㄧず鏃犻檺鍒?
     private int maxSolutionNum = 0;
 
     private PartAlgCPLinearExpr priorityExpr = null;
@@ -60,12 +60,12 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
     private SolverResult solverResult = new SolverResult();
 
     /**
-     * 构造函数
+     * 鏋勯€犲嚱鏁?
      * 
-     * @param module      模块对象
-     * @param vars        变量列表
-     * @param otherVarMap 其他变量映射
-     * @param alg         约束算法实现
+     * @param module      妯″潡瀵硅薄
+     * @param vars        鍙橀噺鍒楄〃
+     * @param otherVarMap 鍏朵粬鍙橀噺鏄犲皠
+     * @param alg         绾︽潫绠楁硶瀹炵幇
      */
     public ModuleInstSolutionCallBack(Module module,
             ModuleAlgImpl moduleAlg) {
@@ -122,21 +122,21 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
 
     @Override
     public void onSolutionCallback() {
-        // 后续考虑多线程，需要解决对相同解重复遍历（如：通过校验), this.stopSearch()
+        // 鍚庣画鑰冭檻澶氱嚎绋嬶紝闇€瑕佽В鍐冲鐩稿悓瑙ｉ噸澶嶉亶鍘嗭紙濡傦細閫氳繃鏍￠獙), this.stopSearch()
         solutionIndex++;
         log.info("-------------varInfos-solutionIndex:{}----------- \n {}", solutionIndex);
-        // 创建ModuleInst实例，instanceId从0开始
+        // 鍒涘缓ModuleInst瀹炰緥锛宨nstanceId浠?寮€濮?
         ModuleInst moduleInst = buildModuleInst(moduleAlg, solutionIndex);
 
-        // 处理其他变量
+        // 澶勭悊鍏朵粬鍙橀噺
         processOtherVariables(moduleInst);
 
-        // 处理优先级值
+        // 澶勭悊浼樺厛绾у€?
         processPriorityValues(moduleInst);
 
         solverResult.addSolution(moduleInst);
 
-        // 如果达到最大解数量限制，停止搜索
+        // 濡傛灉杈惧埌鏈€澶цВ鏁伴噺闄愬埗锛屽仠姝㈡悳绱?
         if (maxSolutionNum > 0 && solverResult.getSolutions().size() >= maxSolutionNum) {
             log.info("Reached maximum solution limit: {}, stopping search", maxSolutionNum);
             solverResult.setHasSearchMax(true);
@@ -146,15 +146,15 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
     }
 
     /**
-     * 将ParaVar转换为ParaInst
+     * 灏哖araVar杞崲涓篜araInst
      * 
-     * @param pv ParaVar对象
-     * @return ParaInst实例
+     * @param pv ParaVar瀵硅薄
+     * @return ParaInst瀹炰緥
      */
     private ParaInst toParaInst(ParaVarImpl pv) {
         ParaInst pi = new ParaInst();
         pi.setCode(pv.getCode());
-        // 从模块中获取对应的Para模型，设置shortCode
+        // 浠庢ā鍧椾腑鑾峰彇瀵瑰簲鐨凱ara妯″瀷锛岃缃畇hortCode
         pi.setShortCode(pv.getBase().getShortCode());
 
         if (pv.getBase().getAssignType() == AssignType.CALC) {
@@ -178,15 +178,15 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
     }
 
     /**
-     * 将PartVar转换为PartInst
+     * 灏哖artVar杞崲涓篜artInst
      * 
-     * @param partVar PartVar对象
-     * @return PartInst实例
+     * @param partVar PartVar瀵硅薄
+     * @return PartInst瀹炰緥
      */
     private PartInst toPartInst(PartVarImpl partVar) {
         PartInst inst = new PartInst();
         inst.setCode(partVar.getCode());
-        // 从模块中获取对应的Part模型，设置shortCode
+        // 浠庢ā鍧椾腑鑾峰彇瀵瑰簲鐨凱art妯″瀷锛岃缃畇hortCode
         inst.setShortCode(partVar.getBase().getShortCode());
         inst.setQuantity((int) value(partVar.getQty()));
         inst.setSelected(partVar.getIsSelected() != null && value(partVar.getIsSelected()) == 1);
@@ -194,12 +194,12 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
     }
 
     /**
-     * 处理其他变量，将otherVarMap中的变量值添加到ModuleInst的扩展属性中
+     * 澶勭悊鍏朵粬鍙橀噺锛屽皢otherVarMap涓殑鍙橀噺鍊兼坊鍔犲埌ModuleInst鐨勬墿灞曞睘鎬т腑
      * 
-     * @param moduleInst 模块实例对象
+     * @param moduleInst 妯″潡瀹炰緥瀵硅薄
      */
     private void processOtherVariables(ModuleInst moduleInst) {
-        // 如果isLogVariables为true，则增加根据otherVarMap值的获取,组织otherVarKeyMap
+        // 濡傛灉isLogVariables涓簍rue锛屽垯澧炲姞鏍规嵁otherVarMap鍊肩殑鑾峰彇,缁勭粐otherVarKeyMap
         if (otherVarMap != null && !otherVarMap.isEmpty()) {
             Map<String, Long> otherVarKeyMap = new HashMap<>();
             for (Map.Entry<String, OtherVar> entry : otherVarMap.entrySet()) {
@@ -213,17 +213,17 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
     }
 
     /**
-     * 处理优先级值
-     * 根据 ModuleInst 中的部件实例计算每个优先级约束的值
+     * 澶勭悊浼樺厛绾у€?
+     * 鏍规嵁 ModuleInst 涓殑閮ㄤ欢瀹炰緥璁＄畻姣忎釜浼樺厛绾х害鏉熺殑鍊?
      * 
-     * @param moduleInst 模块实例
+     * @param moduleInst 妯″潡瀹炰緥
      */
     private void processPriorityValues(ModuleInst moduleInst) {
         if (priorityExpr == null) {
             return;
         }
         List<Integer> exprVariablesValues = new ArrayList<>();
-        // 遍历表达式变量
+        // 閬嶅巻琛ㄨ揪寮忓彉閲?
         for (PriorityConstraint.PartTerm exprVariable : priorityExpr.getPartTerms()) {
             PartInst pInst = moduleInst.queryPart(exprVariable.getPartCategoryCode(), exprVariable.getInstId(),
                     exprVariable.getPartCode());
@@ -240,7 +240,7 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
                 }
             }
         }
-        // 计算最优值
+        // 璁＄畻鏈€浼樺€?
         double calculatedValue = PriorityConstraint.calcToString(priorityExpr, exprVariablesValues);
         moduleInst.setPriorityOverallValue(calculatedValue);
     }

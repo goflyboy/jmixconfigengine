@@ -1,37 +1,35 @@
 package com.jmix.executor.southinf.var;
 
-import com.jmix.executor.bmodel.attr.DynamicAttributerOption;
-import com.jmix.executor.impl.algmodel.ParaOptionVarImpl;
-
-import com.google.ortools.sat.BoolVar;
+import com.jmix.executor.southinf.cp.AlgCPBoolVar;
 
 /**
  * Stable parameter option variable facade.
  */
-public class ParaOptionVar extends SouthboundVarAdapter<DynamicAttributerOption> implements Var {
+public class ParaOptionVar implements Var {
 
-    private final ParaOptionVarImpl internal;
+    private final Delegate delegate;
 
-    public ParaOptionVar(ParaOptionVarImpl internal) {
-        this.internal = internal;
-        setBase(internal.getBase());
+    public ParaOptionVar(Delegate delegate) {
+        this.delegate = delegate;
     }
 
-    public ParaOptionVarImpl internal() {
-        return internal;
+    public interface Delegate {
+        String code();
+
+        AlgCPBoolVar selectedVar();
     }
 
-    public BoolExpr selected() {
-        return Exprs.boolExpr(internal.getIsSelectedVar());
+    public AlgCPBoolVar selected() {
+        return selectedVar();
     }
 
-    public BoolVar selectedVar() {
-        return internal.getIsSelectedVar();
+    public AlgCPBoolVar selectedVar() {
+        return delegate.selectedVar();
     }
 
     @Override
     public String code() {
-        return internal.getCode();
+        return delegate.code();
     }
 
     @Override

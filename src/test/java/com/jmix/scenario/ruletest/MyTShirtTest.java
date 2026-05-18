@@ -1,6 +1,6 @@
 package com.jmix.scenario.ruletest;
 
-import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.ModuleAlgBase;
 import com.jmix.executor.southinf.var.ParaVar;
 import com.jmix.executor.southinf.var.PartCategoryVar;
 import com.jmix.executor.southinf.var.PartVar;
@@ -11,23 +11,23 @@ import com.jmix.tool.bbuilder.anno.ModuleAnno;
 import com.jmix.tool.bbuilder.anno.ParaAnno;
 import com.jmix.tool.bbuilder.anno.PartAnno;
 
-import com.google.ortools.sat.BoolVar;
-import com.google.ortools.sat.Literal;
+import com.jmix.executor.southinf.cp.AlgCPBoolVar;
+import com.jmix.executor.southinf.cp.AlgCPLiteral;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.junit.jupiter.api.Test;
 
 /**
- * 我的T恤衫测试类
- * 测试T恤衫模块的约束规则和参数推理功能
+ * 鎴戠殑T鎭よ～娴嬭瘯绫?
+ * 娴嬭瘯T鎭よ～妯″潡鐨勭害鏉熻鍒欏拰鍙傛暟鎺ㄧ悊鍔熻兘
  * 
  * @since 2025-09-22
  */
 @Slf4j
 public class MyTShirtTest extends ModuleScenarioTestBase {
     /**
-     * 构造MyTShirtTest测试类
+     * 鏋勯€燤yTShirtTest娴嬭瘯绫?
      */
     public MyTShirtTest() {
         super(MyTShirtConstraint.class);
@@ -35,12 +35,12 @@ public class MyTShirtTest extends ModuleScenarioTestBase {
 
     // ---------------start----------------------------------------
     /**
-     * 我的T恤衫约束模型类
+     * 鎴戠殑T鎭よ～绾︽潫妯″瀷绫?
      * 
      * @since 2025-09-23
      */
     @ModuleAnno(id = 123L)
-    public static class MyTShirtConstraint extends ConstraintAlgBase {
+    public static class MyTShirtConstraint extends ModuleAlgBase {
         @ParaAnno(options = { "op11", "op12", "op13" })
         private ParaVar p1Var;
 
@@ -60,19 +60,19 @@ public class MyTShirtTest extends ModuleScenarioTestBase {
             // pt1Var.quantityVar() = 3;
             // }
 
-            BoolVar condition = model.newBoolVar("condition");
-            model.addBoolAnd(new Literal[] {
+            AlgCPBoolVar condition = model().newBoolVar("condition");
+            model().addBoolAnd(new AlgCPLiteral[] {
                     p1Var.option("op11").selectedVar(),
                     p2Var.option("op21").selectedVar()
             }).onlyEnforceIf(condition);
 
-            model.addBoolOr(new Literal[] {
+            model().addBoolOr(new AlgCPLiteral[] {
                     p1Var.option("op11").selectedVar().not(),
                     p2Var.option("op21").selectedVar().not()
             }).onlyEnforceIf(condition.not());
 
-            model.addEquality(pt1Var.quantityVar(), 1).onlyEnforceIf(condition);
-            model.addEquality(pt1Var.quantityVar(), 3).onlyEnforceIf(condition.not());
+            model().addEquality(pt1Var.quantityVar(), 1).onlyEnforceIf(condition);
+            model().addEquality(pt1Var.quantityVar(), 3).onlyEnforceIf(condition.not());
         }
     }
     // ---------------end----------------------------------------
@@ -83,7 +83,7 @@ public class MyTShirtTest extends ModuleScenarioTestBase {
     }
 
     /**
-     * 测试if条件分支
+     * 娴嬭瘯if鏉′欢鍒嗘敮
      */
     @Test
     public void testIfCondition() {
@@ -98,7 +98,7 @@ public class MyTShirtTest extends ModuleScenarioTestBase {
     }
 
     /**
-     * 测试else条件分支
+     * 娴嬭瘯else鏉′欢鍒嗘敮
      */
     @Test
     public void testElseCondition() {
@@ -111,7 +111,7 @@ public class MyTShirtTest extends ModuleScenarioTestBase {
     }
 
     /**
-     * 测试多参数推理
+     * 娴嬭瘯澶氬弬鏁版帹鐞?
      */
     @Test
     public void testMultipleParaInference() {
@@ -124,7 +124,7 @@ public class MyTShirtTest extends ModuleScenarioTestBase {
     }
 
     /**
-     * 测试无解情况
+     * 娴嬭瘯鏃犺В鎯呭喌
      */
     @Test
     public void testNoSolution() {

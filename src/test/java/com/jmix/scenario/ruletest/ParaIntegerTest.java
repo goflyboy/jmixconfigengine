@@ -1,12 +1,12 @@
 package com.jmix.scenario.ruletest;
 
-import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.ModuleAlgBase;
 import com.jmix.executor.southinf.var.ParaVar;
 import com.jmix.executor.southinf.var.PartCategoryVar;
 import com.jmix.executor.southinf.var.PartVar;
 import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.executor.bmodel.para.ParaType;
-import com.jmix.executor.impl.algmodel.AlgCPLinearExpr;
+import com.jmix.executor.southinf.cp.AlgCPLinearExpr;
 import com.jmix.executor.model.ConstraintConfig;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
 import com.jmix.tool.bbuilder.anno.ModuleAnno;
@@ -18,8 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 /**
- * 整数参数测试类
- * 测试整数类型参数的各种约束和计算功能
+ * 鏁存暟鍙傛暟娴嬭瘯绫?
+ * 娴嬭瘯鏁存暟绫诲瀷鍙傛暟鐨勫悇绉嶇害鏉熷拰璁＄畻鍔熻兘
  * 
  * @since 2025-09-22
  */
@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 public class ParaIntegerTest extends ModuleScenarioTestBase {
 
     /**
-     * 构造ParaIntegerTest测试类
+     * 鏋勯€燩araIntegerTest娴嬭瘯绫?
      */
     public ParaIntegerTest() {
         super(ParaIntegerConstraint.class);
@@ -35,12 +35,12 @@ public class ParaIntegerTest extends ModuleScenarioTestBase {
 
     // --------------start----------------------------------------
     /**
-     * 整数参数约束模型类
+     * 鏁存暟鍙傛暟绾︽潫妯″瀷绫?
      * 
      * @since 2025-09-23
      */
     @ModuleAnno(id = 123L)
-    public static class ParaIntegerConstraint extends ConstraintAlgBase {
+    public static class ParaIntegerConstraint extends ModuleAlgBase {
         @ParaAnno(type = ParaType.INTEGER, defaultValue = "0", minValue = "0", maxValue = "50")
         private ParaVar p1;
 
@@ -53,10 +53,10 @@ public class ParaIntegerTest extends ModuleScenarioTestBase {
         @CodeRuleAnno
         private void initConstraint() {
             // part1.quantity = p1.valueVar() + p2.valueVar()
-            AlgCPLinearExpr sumExpr = model.newLinearExpr("sum_p1_p2");
+            AlgCPLinearExpr sumExpr = model().newLinearExpr("sum_p1_p2");
             sumExpr.addTerm(p1.valueVar(), 1);
             sumExpr.addTerm(p2.valueVar(), 1);
-            model.addEquality(part1.quantityVar(), sumExpr);
+            model().addEquality(part1.quantityVar(), sumExpr);
         }
     }
 
@@ -67,7 +67,7 @@ public class ParaIntegerTest extends ModuleScenarioTestBase {
     }
 
     /**
-     * 测试多解情况
+     * 娴嬭瘯澶氳В鎯呭喌
      */
     @Test
     public void testMultipleSolutions() {
@@ -82,7 +82,7 @@ public class ParaIntegerTest extends ModuleScenarioTestBase {
     }
 
     /**
-     * 测试无解情况
+     * 娴嬭瘯鏃犺В鎯呭喌
      */
     @Test
     public void testNoSolution() {
@@ -92,7 +92,7 @@ public class ParaIntegerTest extends ModuleScenarioTestBase {
     }
 
     /**
-     * 测试参数驱动推理
+     * 娴嬭瘯鍙傛暟椹卞姩鎺ㄧ悊
      */
     @Test
     public void testParaDrivenInference() {
@@ -105,7 +105,7 @@ public class ParaIntegerTest extends ModuleScenarioTestBase {
     }
 
     /**
-     * 测试零数量情况
+     * 娴嬭瘯闆舵暟閲忔儏鍐?
      */
     @Test
     public void testZeroQuantity() {
@@ -119,11 +119,11 @@ public class ParaIntegerTest extends ModuleScenarioTestBase {
     }
 
     /**
-     * 测试多参数推理
+     * 娴嬭瘯澶氬弬鏁版帹鐞?
      */
     @Test
     public void testMultipleParaInference() {
-        // 使用可变参数版本：inferParasByPara(String paraCode1, String value1, String paraCode2,
+        // 浣跨敤鍙彉鍙傛暟鐗堟湰锛歩nferParasByPara(String paraCode1, String value1, String paraCode2,
         // String value2, ...)
         inferParasByPara("p1", "2", "p2", "1");
         resultAssert()

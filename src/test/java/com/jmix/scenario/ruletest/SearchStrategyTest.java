@@ -1,6 +1,6 @@
 package com.jmix.scenario.ruletest;
 
-import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.ModuleAlgBase;
 import com.jmix.executor.southinf.var.ParaVar;
 import com.jmix.executor.southinf.var.PartCategoryVar;
 import com.jmix.executor.southinf.var.PartVar;
@@ -10,7 +10,7 @@ import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
 import com.jmix.tool.bbuilder.anno.ModuleAnno;
 import com.jmix.tool.bbuilder.anno.PartAnno;
 
-import com.google.ortools.sat.Literal;
+import com.jmix.executor.southinf.cp.AlgCPLiteral;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,7 +35,7 @@ public class SearchStrategyTest extends ModuleScenarioTestBase {
      * Constraint: at most one part selected per category.
      */
     @ModuleAnno(id = 123L)
-    public static class SearchConstraint extends ConstraintAlgBase {
+    public static class SearchConstraint extends ModuleAlgBase {
 
         @PartAnno(code = "cpu")
         private PartCategoryVar cpu;
@@ -60,8 +60,8 @@ public class SearchStrategyTest extends ModuleScenarioTestBase {
 
         @CodeRuleAnno()
         private void rule1() {
-            model.addExactlyOne(new Literal[] { cpu1Var.selectedVar(), cpu2Var.selectedVar(), cpu3Var.selectedVar() });
-            model.addExactlyOne(new Literal[] { disk1Var.selectedVar(), disk2Var.selectedVar() });
+            model().addExactlyOne(new AlgCPLiteral[] { cpu1Var.selectedVar(), cpu2Var.selectedVar(), cpu3Var.selectedVar() });
+            model().addExactlyOne(new AlgCPLiteral[] { disk1Var.selectedVar(), disk2Var.selectedVar() });
         }
     }
 

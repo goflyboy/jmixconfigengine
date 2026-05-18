@@ -1,6 +1,6 @@
 package com.jmix.scenario.ruletest;
 
-import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.ModuleAlgBase;
 import com.jmix.executor.southinf.var.ParaVar;
 import com.jmix.executor.southinf.var.PartCategoryVar;
 import com.jmix.executor.southinf.var.PartVar;
@@ -10,8 +10,8 @@ import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
 import com.jmix.tool.bbuilder.anno.ModuleAnno;
 import com.jmix.tool.bbuilder.anno.ParaAnno;
 
-import com.google.ortools.sat.BoolVar;
-import com.google.ortools.sat.Literal;
+import com.jmix.executor.southinf.cp.AlgCPBoolVar;
+import com.jmix.executor.southinf.cp.AlgCPLiteral;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,20 +20,20 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 
 /**
- * 兼容性规则测试类
+ * 鍏煎鎬ц鍒欐祴璇曠被
  * 
  * @since 2025-09-23
  */
 @Slf4j
 public class CompatibleRuleCodependentTest extends ModuleScenarioTestBase {
-    // ---------------规则定义start----------------------------------------
+    // ---------------瑙勫垯瀹氫箟start----------------------------------------
     /**
-     * 兼容性规则约束模型类
+     * 鍏煎鎬ц鍒欑害鏉熸ā鍨嬬被
      * 
      * @since 2025-09-23
      */
     @ModuleAnno(id = 123L)
-    public static class CompatibleRuleCodependentConstraint extends ConstraintAlgBase {
+    public static class CompatibleRuleCodependentConstraint extends ModuleAlgBase {
         @ParaAnno(options = { "a1", "a2", "a3", "a4", "a5" })
         private ParaVar aVar;
 
@@ -42,99 +42,99 @@ public class CompatibleRuleCodependentTest extends ModuleScenarioTestBase {
 
         @CodeRuleAnno
         private void initConstraint() {
-            // A=(a1,a2,a3,a4,a5),aVar.value的值域
-            // B=(b1,b2,b3,b4,b5),bVar.value的值域
-            // 规则内容：(a1,a3) CoDependent
-            // (b1,b2,b3)，则CA=(a1,a3),CB=(b1,b2,b3),NCA=(a2,a4,a5),NCB=(b4,b5)
-            // 解读：
-            // 1、正向
+            // A=(a1,a2,a3,a4,a5),aVar.value鐨勫€煎煙
+            // B=(b1,b2,b3,b4,b5),bVar.value鐨勫€煎煙
+            // 瑙勫垯鍐呭锛?a1,a3) CoDependent
+            // (b1,b2,b3)锛屽垯CA=(a1,a3),CB=(b1,b2,b3),NCA=(a2,a4,a5),NCB=(b4,b5)
+            // 瑙ｈ锛?
+            // 1銆佹鍚?
             // 1.1
-            // 如果aVar.value取CA的一个值(在CA中)，则bVar.value一定取在CB的一个值(在CB中)，取NCB内的值是非法的，如:如果aVar.var=a1,则bVar.var=b1
-            // 或 b2 或 b3,不可以是b4或b5
+            // 濡傛灉aVar.value鍙朇A鐨勪竴涓€?鍦–A涓?锛屽垯bVar.value涓€瀹氬彇鍦–B鐨勪竴涓€?鍦–B涓?锛屽彇NCB鍐呯殑鍊兼槸闈炴硶鐨勶紝濡?濡傛灉aVar.var=a1,鍒檅Var.var=b1
+            // 鎴?b2 鎴?b3,涓嶅彲浠ユ槸b4鎴朾5
             // 1.2
-            // 如果aVar.value取NCA一个值(不在CA中)，则bVar.value一定取NCB的一个值(不在CB中)，取CB内的值是非法的，如：如果aVar.var=a2,则bVar.var=b4或b5，不可以是b1或b2或b3
-            // 2.反向
+            // 濡傛灉aVar.value鍙朜CA涓€涓€?涓嶅湪CA涓?锛屽垯bVar.value涓€瀹氬彇NCB鐨勪竴涓€?涓嶅湪CB涓?锛屽彇CB鍐呯殑鍊兼槸闈炴硶鐨勶紝濡傦細濡傛灉aVar.var=a2,鍒檅Var.var=b4鎴朾5锛屼笉鍙互鏄痓1鎴朾2鎴朾3
+            // 2.鍙嶅悜
             // 2.1
-            // 如果bVar.value取CB的一个值(在CB中)，则aVar.value一定取在CA的一个值(在CA中)，取NCA内的值是非法的，如:如果bVar.var=b1,则aVar.var=a1
-            // 或 a3,不可以是a2或a4或a5
+            // 濡傛灉bVar.value鍙朇B鐨勪竴涓€?鍦–B涓?锛屽垯aVar.value涓€瀹氬彇鍦–A鐨勪竴涓€?鍦–A涓?锛屽彇NCA鍐呯殑鍊兼槸闈炴硶鐨勶紝濡?濡傛灉bVar.var=b1,鍒檃Var.var=a1
+            // 鎴?a3,涓嶅彲浠ユ槸a2鎴朼4鎴朼5
             // 2.2
-            // 如果bVar.value取CB外的一个值(不在CB中)，则aVar.value一定取CA外的一个值(不在CA中)，取CA内的值是非法的，如：如果bVar.var=b4,则aVar.var=a2
-            // 或 a4或a5
+            // 濡傛灉bVar.value鍙朇B澶栫殑涓€涓€?涓嶅湪CB涓?锛屽垯aVar.value涓€瀹氬彇CA澶栫殑涓€涓€?涓嶅湪CA涓?锛屽彇CA鍐呯殑鍊兼槸闈炴硶鐨勶紝濡傦細濡傛灉bVar.var=b4,鍒檃Var.var=a2
+            // 鎴?a4鎴朼5
             addCompatibleConstraintCoDependent("rule1", aVar, Arrays.asList("a1", "a3"), bVar,
                     Arrays.asList("b1", "b2", "b3"));
 
         }
 
         /**
-         * 添加兼容性规则：CoDependent关系约束
+         * 娣诲姞鍏煎鎬ц鍒欙細CoDependent鍏崇郴绾︽潫
          */
         public void addCompatibleConstraintCoDependentNote() {
-            // 创建条件变量：A在CA中
-            BoolVar inCA = model.newBoolVar("inCA");
-            model.addBoolOr(new Literal[] {
+            // 鍒涘缓鏉′欢鍙橀噺锛欰鍦–A涓?
+            AlgCPBoolVar inCA = model().newBoolVar("inCA");
+            model().addBoolOr(new AlgCPLiteral[] {
                     aVar.option("a1").selectedVar(),
                     aVar.option("a3").selectedVar()
             }).onlyEnforceIf(inCA);
-            model.addBoolAnd(new Literal[] {
+            model().addBoolAnd(new AlgCPLiteral[] {
                     aVar.option("a1").selectedVar().not(),
                     aVar.option("a3").selectedVar().not()
             }).onlyEnforceIf(inCA.not());
 
-            // 创建条件变量：B在CB中
-            BoolVar inCB = model.newBoolVar("inCB");
-            model.addBoolOr(new Literal[] {
+            // 鍒涘缓鏉′欢鍙橀噺锛欱鍦–B涓?
+            AlgCPBoolVar inCB = model().newBoolVar("inCB");
+            model().addBoolOr(new AlgCPLiteral[] {
                     bVar.option("b1").selectedVar(),
                     bVar.option("b2").selectedVar(),
                     bVar.option("b3").selectedVar()
             }).onlyEnforceIf(inCB);
-            model.addBoolAnd(new Literal[] {
+            model().addBoolAnd(new AlgCPLiteral[] {
                     bVar.option("b1").selectedVar().not(),
                     bVar.option("b2").selectedVar().not(),
                     bVar.option("b3").selectedVar().not()
             }).onlyEnforceIf(inCB.not());
 
-            // 创建条件变量：A不在CA中
-            BoolVar notInCA = model.newBoolVar("notInCA");
-            model.addBoolOr(new Literal[] {
+            // 鍒涘缓鏉′欢鍙橀噺锛欰涓嶅湪CA涓?
+            AlgCPBoolVar notInCA = model().newBoolVar("notInCA");
+            model().addBoolOr(new AlgCPLiteral[] {
                     aVar.option("a2").selectedVar(),
                     aVar.option("a4").selectedVar(),
                     aVar.option("a5").selectedVar()
             }).onlyEnforceIf(notInCA);
-            model.addBoolAnd(new Literal[] {
+            model().addBoolAnd(new AlgCPLiteral[] {
                     aVar.option("a2").selectedVar().not(),
                     aVar.option("a4").selectedVar().not(),
                     aVar.option("a5").selectedVar().not()
             }).onlyEnforceIf(notInCA.not());
 
-            // 创建条件变量：B不在CB中
-            BoolVar notInCB = model.newBoolVar("notInCB");
-            model.addBoolOr(new Literal[] {
+            // 鍒涘缓鏉′欢鍙橀噺锛欱涓嶅湪CB涓?
+            AlgCPBoolVar notInCB = model().newBoolVar("notInCB");
+            model().addBoolOr(new AlgCPLiteral[] {
                     bVar.option("b4").selectedVar(),
                     bVar.option("b5").selectedVar()
             }).onlyEnforceIf(notInCB);
-            model.addBoolAnd(new Literal[] {
+            model().addBoolAnd(new AlgCPLiteral[] {
                     bVar.option("b4").selectedVar().not(),
                     bVar.option("b5").selectedVar().not()
             }).onlyEnforceIf(notInCB.not());
 
-            // Codependent 双向约束：
-            // 正向1.1：如果A在CA中，则B必须在CB中
-            model.addImplication(inCA, inCB);
+            // Codependent 鍙屽悜绾︽潫锛?
+            // 姝ｅ悜1.1锛氬鏋淎鍦–A涓紝鍒橞蹇呴』鍦–B涓?
+            model().addImplication(inCA, inCB);
 
-            // 正向1.2：如果A不在CA中，则B必须不在CB中
-            model.addImplication(notInCA, notInCB);
+            // 姝ｅ悜1.2锛氬鏋淎涓嶅湪CA涓紝鍒橞蹇呴』涓嶅湪CB涓?
+            model().addImplication(notInCA, notInCB);
 
-            // 反向2.1：如果B在CB中，则A必须在CA中
-            model.addImplication(inCB, inCA);
+            // 鍙嶅悜2.1锛氬鏋淏鍦–B涓紝鍒橝蹇呴』鍦–A涓?
+            model().addImplication(inCB, inCA);
 
-            // 反向2.2：如果B不在CB中，则A必须不在CA中
-            model.addImplication(notInCB, notInCA);
+            // 鍙嶅悜2.2锛氬鏋淏涓嶅湪CB涓紝鍒橝蹇呴』涓嶅湪CA涓?
+            model().addImplication(notInCB, notInCA);
         }
     }
-    // ---------------规则定义end----------------------------------------
+    // ---------------瑙勫垯瀹氫箟end----------------------------------------
 
     /**
-     * 构造CompatibleRuleCodependentTest测试类
+     * 鏋勯€燙ompatibleRuleCodependentTest娴嬭瘯绫?
      */
     public CompatibleRuleCodependentTest() {
         super(CompatibleRuleCodependentConstraint.class);
@@ -146,233 +146,233 @@ public class CompatibleRuleCodependentTest extends ModuleScenarioTestBase {
     }
 
     /**
-     * 测试在CA中要求在CB中
+     * 娴嬭瘯鍦–A涓姹傚湪CB涓?
      */
     @Test
     public void testInCARequiresInCB() {
-        // 测试正向规则1.1: 如果A在CA中(a1)，则B必须在CB中(b1、b2或b3)
+        // 娴嬭瘯姝ｅ悜瑙勫垯1.1: 濡傛灉A鍦–A涓?a1)锛屽垯B蹇呴』鍦–B涓?b1銆乥2鎴朾3)
         inferParasByPara("a", "a1");
 
-        // B有3种选择
+        // B鏈?绉嶉€夋嫨
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(3);
 
-        // 验证所有解中B都在CB中
+        // 楠岃瘉鎵€鏈夎В涓瑽閮藉湪CB涓?
         for (int i = 0; i < 3; i++) {
             solutions(i).assertPara("b").valueIn("b1", "b2", "b3");
         }
 
-        // 验证B不在CB中的解不存在
+        // 楠岃瘉B涓嶅湪CB涓殑瑙ｄ笉瀛樺湪
         assertSolutionNum("b:b4", 0);
         assertSolutionNum("b:b5", 0);
         printSolutions();
     }
 
     /**
-     * 测试在CA中要求在CB中（a3情况）
+     * 娴嬭瘯鍦–A涓姹傚湪CB涓紙a3鎯呭喌锛?
      */
     @Test
     public void testInCARequiresInCBA3() {
-        // 测试正向规则1.1: 如果A在CA中(a3)，则B必须在CB中(b1、b2或b3)
+        // 娴嬭瘯姝ｅ悜瑙勫垯1.1: 濡傛灉A鍦–A涓?a3)锛屽垯B蹇呴』鍦–B涓?b1銆乥2鎴朾3)
         inferParasByPara("a", "a3");
 
-        // B有3种选择
+        // B鏈?绉嶉€夋嫨
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(3);
 
-        // 验证所有解中B都在CB中
+        // 楠岃瘉鎵€鏈夎В涓瑽閮藉湪CB涓?
         for (int i = 0; i < 3; i++) {
             solutions(i).assertPara("b").valueIn("b1", "b2", "b3");
         }
 
-        // 验证B不在CB中的解不存在
+        // 楠岃瘉B涓嶅湪CB涓殑瑙ｄ笉瀛樺湪
         assertSolutionNum("b:b4", 0);
         assertSolutionNum("b:b5", 0);
     }
 
     /**
-     * 测试在CA中但不在CB中是无效的
+     * 娴嬭瘯鍦–A涓絾涓嶅湪CB涓槸鏃犳晥鐨?
      */
     @Test
     public void testInCAWithNotInCBIsInvalid() {
-        // 测试正向规则1.1: 如果A在CA中(a1)，则B不在CB中(b4或b5)是不合法的
+        // 娴嬭瘯姝ｅ悜瑙勫垯1.1: 濡傛灉A鍦–A涓?a1)锛屽垯B涓嶅湪CB涓?b4鎴朾5)鏄笉鍚堟硶鐨?
         inferParasByPara("a", "a1");
         assertSolutionNum("b:b4", 0);
         assertSolutionNum("b:b5", 0);
     }
 
     /**
-     * 测试不在CA中要求不在CB中
+     * 娴嬭瘯涓嶅湪CA涓姹備笉鍦–B涓?
      */
     @Test
     public void testNotInCARequiresNotInCB() {
-        // 测试正向规则1.2: 如果A不在CA中(a2)，则B必须不在CB中(b4或b5)
+        // 娴嬭瘯姝ｅ悜瑙勫垯1.2: 濡傛灉A涓嶅湪CA涓?a2)锛屽垯B蹇呴』涓嶅湪CB涓?b4鎴朾5)
         inferParasByPara("a", "a2");
 
-        // B有2种选择
+        // B鏈?绉嶉€夋嫨
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(2);
 
-        // 验证B不在CB中
+        // 楠岃瘉B涓嶅湪CB涓?
         assertSolutionNum("b:b4", 1);
         assertSolutionNum("b:b5", 1);
 
-        // 验证B在CB中的解不存在
+        // 楠岃瘉B鍦–B涓殑瑙ｄ笉瀛樺湪
         assertSolutionNum("b:b1", 0);
         assertSolutionNum("b:b2", 0);
         assertSolutionNum("b:b3", 0);
     }
 
     /**
-     * 测试不在CA中要求不在CB中（a4情况）
+     * 娴嬭瘯涓嶅湪CA涓姹備笉鍦–B涓紙a4鎯呭喌锛?
      */
     @Test
     public void testNotInCARequiresNotInCBA4() {
-        // 测试正向规则1.2: 如果A不在CA中(a4)，则B必须不在CB中(b4或b5)
+        // 娴嬭瘯姝ｅ悜瑙勫垯1.2: 濡傛灉A涓嶅湪CA涓?a4)锛屽垯B蹇呴』涓嶅湪CB涓?b4鎴朾5)
         inferParasByPara("a", "a4");
 
-        // B有2种选择
+        // B鏈?绉嶉€夋嫨
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(2);
 
-        // 验证B不在CB中
+        // 楠岃瘉B涓嶅湪CB涓?
         assertSolutionNum("b:b4", 1);
         assertSolutionNum("b:b5", 1);
 
-        // 验证B在CB中的解不存在
+        // 楠岃瘉B鍦–B涓殑瑙ｄ笉瀛樺湪
         assertSolutionNum("b:b1", 0);
         assertSolutionNum("b:b2", 0);
         assertSolutionNum("b:b3", 0);
     }
 
     /**
-     * 测试不在CA中要求不在CB中（a5情况）
+     * 娴嬭瘯涓嶅湪CA涓姹備笉鍦–B涓紙a5鎯呭喌锛?
      */
     @Test
     public void testNotInCARequiresNotInCBA5() {
-        // 测试正向规则1.2: 如果A不在CA中(a5)，则B必须不在CB中(b4或b5)
+        // 娴嬭瘯姝ｅ悜瑙勫垯1.2: 濡傛灉A涓嶅湪CA涓?a5)锛屽垯B蹇呴』涓嶅湪CB涓?b4鎴朾5)
         inferParasByPara("a", "a5");
 
-        // B有2种选择
+        // B鏈?绉嶉€夋嫨
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(2);
 
-        // 验证B不在CB中
+        // 楠岃瘉B涓嶅湪CB涓?
         assertSolutionNum("b:b4", 1);
         assertSolutionNum("b:b5", 1);
 
-        // 验证B在CB中的解不存在
+        // 楠岃瘉B鍦–B涓殑瑙ｄ笉瀛樺湪
         assertSolutionNum("b:b1", 0);
         assertSolutionNum("b:b2", 0);
         assertSolutionNum("b:b3", 0);
     }
 
     /**
-     * 测试在CB中要求在CA中
+     * 娴嬭瘯鍦–B涓姹傚湪CA涓?
      */
     @Test
     public void testInCBRequiresInCA() {
-        // 测试反向规则2.1: 如果B在CB中(b1)，则A必须在CA中(a1或a3)
+        // 娴嬭瘯鍙嶅悜瑙勫垯2.1: 濡傛灉B鍦–B涓?b1)锛屽垯A蹇呴』鍦–A涓?a1鎴朼3)
         inferParasByPara("b", "b1");
 
-        // A有2种选择
+        // A鏈?绉嶉€夋嫨
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(2);
 
-        // 验证A在CA中
+        // 楠岃瘉A鍦–A涓?
         assertSolutionNum("a:a1", 1);
         assertSolutionNum("a:a3", 1);
 
-        // 验证A不在CA中的解不存在
+        // 楠岃瘉A涓嶅湪CA涓殑瑙ｄ笉瀛樺湪
         assertSolutionNum("a:a2", 0);
         assertSolutionNum("a:a4", 0);
         assertSolutionNum("a:a5", 0);
     }
 
     /**
-     * 测试在CB中要求在CA中（b2、b3情况）
+     * 娴嬭瘯鍦–B涓姹傚湪CA涓紙b2銆乥3鎯呭喌锛?
      */
     @Test
     public void testInCBRequiresInCAB2B3() {
-        // 测试反向规则2.1: 如果B在CB中(b2或b3)，则A必须在CA中(a1或a3)
+        // 娴嬭瘯鍙嶅悜瑙勫垯2.1: 濡傛灉B鍦–B涓?b2鎴朾3)锛屽垯A蹇呴』鍦–A涓?a1鎴朼3)
         inferParasByPara("b", "b2");
 
-        // A有2种选择
+        // A鏈?绉嶉€夋嫨
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(2);
 
-        // 验证A在CA中
+        // 楠岃瘉A鍦–A涓?
         assertSolutionNum("a:a1", 1);
         assertSolutionNum("a:a3", 1);
 
-        // 验证A不在CA中的解不存在
+        // 楠岃瘉A涓嶅湪CA涓殑瑙ｄ笉瀛樺湪
         assertSolutionNum("a:a2", 0);
         assertSolutionNum("a:a4", 0);
         assertSolutionNum("a:a5", 0);
     }
 
     /**
-     * 测试不在CB中要求不在CA中
+     * 娴嬭瘯涓嶅湪CB涓姹備笉鍦–A涓?
      */
     @Test
     public void testNotInCBRequiresNotInCA() {
-        // 测试反向规则2.2: 如果B不在CB中(b4)，则A必须不在CA中(a2、a4或a5)
+        // 娴嬭瘯鍙嶅悜瑙勫垯2.2: 濡傛灉B涓嶅湪CB涓?b4)锛屽垯A蹇呴』涓嶅湪CA涓?a2銆乤4鎴朼5)
         inferParasByPara("b", "b4");
 
-        // A有3种选择
+        // A鏈?绉嶉€夋嫨
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(3);
 
-        // 验证A不在CA中
+        // 楠岃瘉A涓嶅湪CA涓?
         assertSolutionNum("a:a2", 1);
         assertSolutionNum("a:a4", 1);
         assertSolutionNum("a:a5", 1);
 
-        // 验证A在CA中的解不存在
+        // 楠岃瘉A鍦–A涓殑瑙ｄ笉瀛樺湪
         assertSolutionNum("a:a1", 0);
         assertSolutionNum("a:a3", 0);
     }
 
     /**
-     * 测试不在CB中要求不在CA中（b5情况）
+     * 娴嬭瘯涓嶅湪CB涓姹備笉鍦–A涓紙b5鎯呭喌锛?
      */
     @Test
     public void testNotInCBRequiresNotInCAB5() {
-        // 测试反向规则2.2: 如果B不在CB中(b5)，则A必须不在CA中(a2、a4或a5)
+        // 娴嬭瘯鍙嶅悜瑙勫垯2.2: 濡傛灉B涓嶅湪CB涓?b5)锛屽垯A蹇呴』涓嶅湪CA涓?a2銆乤4鎴朼5)
         inferParasByPara("b", "b5");
 
-        // A有3种选择
+        // A鏈?绉嶉€夋嫨
         resultAssert()
                 .assertSuccess()
                 .assertSolutionSizeEqual(3);
 
-        // 验证A不在CA中
+        // 楠岃瘉A涓嶅湪CA涓?
         assertSolutionNum("a:a2", 1);
         assertSolutionNum("a:a4", 1);
         assertSolutionNum("a:a5", 1);
 
-        // 验证A在CA中的解不存在
+        // 楠岃瘉A鍦–A涓殑瑙ｄ笉瀛樺湪
         assertSolutionNum("a:a1", 0);
         assertSolutionNum("a:a3", 0);
     }
 
     /**
-     * 测试Codependent双向约束
+     * 娴嬭瘯Codependent鍙屽悜绾︽潫
      */
     @Test
     public void testCodependentBidirectionalConstraint() {
-        // 测试Codependent双向约束的完整性
-        // 验证CA和CB组之间的双向依赖关系
+        // 娴嬭瘯Codependent鍙屽悜绾︽潫鐨勫畬鏁存€?
+        // 楠岃瘉CA鍜孋B缁勪箣闂寸殑鍙屽悜渚濊禆鍏崇郴
 
-        // 测试1: A在CA中时，B必须在CB中
+        // 娴嬭瘯1: A鍦–A涓椂锛孊蹇呴』鍦–B涓?
         inferParasByPara("a", "a1");
         assertSolutionNum("b:b1", 1);
         assertSolutionNum("b:b2", 1);
@@ -380,7 +380,7 @@ public class CompatibleRuleCodependentTest extends ModuleScenarioTestBase {
         assertSolutionNum("b:b4", 0);
         assertSolutionNum("b:b5", 0);
 
-        // 测试2: A不在CA中时，B必须不在CB中
+        // 娴嬭瘯2: A涓嶅湪CA涓椂锛孊蹇呴』涓嶅湪CB涓?
         inferParasByPara("a", "a2");
         assertSolutionNum("b:b1", 0);
         assertSolutionNum("b:b2", 0);
@@ -388,7 +388,7 @@ public class CompatibleRuleCodependentTest extends ModuleScenarioTestBase {
         assertSolutionNum("b:b4", 1);
         assertSolutionNum("b:b5", 1);
 
-        // 测试3: B在CB中时，A必须在CA中
+        // 娴嬭瘯3: B鍦–B涓椂锛孉蹇呴』鍦–A涓?
         inferParasByPara("b", "b1");
         assertSolutionNum("a:a1", 1);
         assertSolutionNum("a:a3", 1);
@@ -396,7 +396,7 @@ public class CompatibleRuleCodependentTest extends ModuleScenarioTestBase {
         assertSolutionNum("a:a4", 0);
         assertSolutionNum("a:a5", 0);
 
-        // 测试4: B不在CB中时，A必须不在CA中
+        // 娴嬭瘯4: B涓嶅湪CB涓椂锛孉蹇呴』涓嶅湪CA涓?
         inferParasByPara("b", "b4");
         assertSolutionNum("a:a1", 0);
         assertSolutionNum("a:a3", 0);

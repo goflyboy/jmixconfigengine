@@ -1,59 +1,64 @@
 package com.jmix.executor.southinf.var;
 
-import com.jmix.executor.bmodel.para.Para;
-import com.jmix.executor.impl.algmodel.ParaVarImpl;
-
-import com.google.ortools.sat.BoolVar;
-import com.google.ortools.sat.IntVar;
+import com.jmix.executor.southinf.cp.AlgCPBoolVar;
+import com.jmix.executor.southinf.cp.AlgCPIntVar;
 
 /**
  * Stable parameter variable facade.
  */
-public class ParaVar extends SouthboundVarAdapter<Para> implements Var {
+public class ParaVar implements Var {
 
-    private final ParaVarImpl internal;
+    private final Delegate delegate;
 
-    public ParaVar(ParaVarImpl internal) {
-        this.internal = internal;
-        setBase(internal.getBase());
+    public ParaVar(Delegate delegate) {
+        this.delegate = delegate;
     }
 
-    public ParaVarImpl internal() {
-        return internal;
+    public interface Delegate {
+        String code();
+
+        AlgCPIntVar valueVar();
+
+        AlgCPBoolVar hiddenVar();
+
+        ParaOptionVar option(String optionCode);
+
+        Integer inputValue();
+
+        boolean hasInput();
     }
 
-    public IntExpr value() {
-        return Exprs.intExpr(internal.getValue());
+    public AlgCPIntVar value() {
+        return valueVar();
     }
 
-    public BoolExpr hidden() {
-        return Exprs.boolExpr(internal.getIsHidden());
+    public AlgCPBoolVar hidden() {
+        return hiddenVar();
     }
 
-    public IntVar valueVar() {
-        return internal.getValue();
+    public AlgCPIntVar valueVar() {
+        return delegate.valueVar();
     }
 
-    public BoolVar hiddenVar() {
-        return internal.getIsHidden();
+    public AlgCPBoolVar hiddenVar() {
+        return delegate.hiddenVar();
     }
 
     public ParaOptionVar option(String optionCode) {
-        return new ParaOptionVar(internal.getParaOptionByCode(optionCode));
+        return delegate.option(optionCode);
     }
 
     public Integer inputValue() {
-        return internal.getInputValue();
+        return delegate.inputValue();
     }
 
     public boolean hasInput() {
-        Boolean hasInputed = internal.getHasInputed();
-        return Boolean.TRUE.equals(hasInputed);
+        return delegate.hasInput();
     }
 
     @Override
     public String code() {
-        return internal.getCode();
+        return delegate.code();
     }
 
     @Override

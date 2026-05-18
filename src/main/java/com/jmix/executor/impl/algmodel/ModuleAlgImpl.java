@@ -23,7 +23,6 @@ import com.jmix.executor.model.AlgLoaderException;
 import com.jmix.executor.model.PartConstraintReq;
 import com.jmix.executor.model.StrategyConfig;
 import com.jmix.executor.model.StrategyType;
-import com.jmix.executor.southinf.IModuleAlg;
 import com.jmix.tool.bbuilder.MultiInstCategoryUtils;
 
 import com.google.ortools.sat.DecisionStrategyProto;
@@ -45,9 +44,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * 模块算法实现类
- * 实现ConstraintAlg接口，提供约束求解的具体实现
- * 继承自ModuleBaseAlgImpl，支持模块级别和部件分类级别的求和操作
+ * 妯″潡绠楁硶瀹炵幇绫?
+ * 瀹炵幇ConstraintAlg鎺ュ彛锛屾彁渚涚害鏉熸眰瑙ｇ殑鍏蜂綋瀹炵幇
+ * 缁ф壙鑷狹oduleBaseAlgImpl锛屾敮鎸佹ā鍧楃骇鍒拰閮ㄤ欢鍒嗙被绾у埆鐨勬眰鍜屾搷浣?
  *
  * @since 2025-04-05
  */
@@ -55,31 +54,32 @@ import java.util.stream.Collectors;
 public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
 
     /**
-     * 部件分类算法实例映射表
+     * 閮ㄤ欢鍒嗙被绠楁硶瀹炰緥鏄犲皠琛?
      */
     protected Map<String, PartCategoryAlgImpl> partCategoryAlgs = new LinkedHashMap<>();
 
-    // 左表达式部件分类算法实例，仅针对oneMany规则
+    // 宸﹁〃杈惧紡閮ㄤ欢鍒嗙被绠楁硶瀹炰緥锛屼粎閽堝oneMany瑙勫垯
     private SingleInstPartCategoryAlgImpl currentLeftPartCategoryAlgImpl = null;
-    // 右表达式部件分类算法实例，仅针对oneMany规则
+    // 鍙宠〃杈惧紡閮ㄤ欢鍒嗙被绠楁硶瀹炰緥锛屼粎閽堝oneMany瑙勫垯
     private SingleInstPartCategoryAlgImpl currentRightPartCategoryAlgImpl = null;
-    // 当前规则后缀，仅针对oneMany规则
+    // 褰撳墠瑙勫垯鍚庣紑锛屼粎閽堝oneMany瑙勫垯
     private String currrentRulePostName = "";
 
     /**
-     * 初始化模块算法实例
-     * 按partCategoryCode对partCategoryInputs进行分组，然后初始化本层和子层的变量与规则
-     * 重写基类方法，添加PartCategoryAlgImpl的初始化
+     * 鍒濆鍖栨ā鍧楃畻娉曞疄渚?
+     * 鎸塸artCategoryCode瀵筽artCategoryInputs杩涜鍒嗙粍锛岀劧鍚庡垵濮嬪寲鏈眰鍜屽瓙灞傜殑鍙橀噺涓庤鍒?
+     * 閲嶅啓鍩虹被鏂规硶锛屾坊鍔燩artCategoryAlgImpl鐨勫垵濮嬪寲
      *
-     * @param model              CP约束模型
-     * @param module             模块对象
-     * @param partCategoryInputs 来自请求的部件约束列表
+     * @param model              CP绾︽潫妯″瀷
+     * @param module             妯″潡瀵硅薄
+     * @param partCategoryInputs 鏉ヨ嚜璇锋眰鐨勯儴浠剁害鏉熷垪琛?
      */
     public void init(AlgCPModel model, IModule module,
             ModuleInput moduleInput) {
-        initData(model, module, moduleInput, this);
+        Object moduleAlgFile = moduleAlgFile();
+        initData(model, module, moduleInput, moduleAlgFile);
 
-        afterInitData(this.module, this);
+        afterInitData(this.module, moduleAlgFile);
 
         initInput();
 
@@ -90,12 +90,20 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
         applyDecisionStrategies();
 
         // midCalculate
-        initRules(this, CalcStage.MID);
+        initRules(moduleAlgFile, CalcStage.MID);
         // postCalculate
     }
 
-    // 重写父类的方法
-    protected void executeRuleMethod(Rule rule, IModuleAlg moduleAlgFile, Method method) {
+    protected Object moduleAlgFile() {
+        return this;
+    }
+
+    public Object ruleMethodOwner() {
+        return moduleAlgFile();
+    }
+
+    // 閲嶅啓鐖剁被鐨勬柟娉?
+    protected void executeRuleMethod(Rule rule, Object moduleAlgFile, Method method) {
         if (isOneManyRule(rule)) {
             executeRuleMethod4OneManyRule(rule, moduleAlgFile, method);
         } else {
@@ -107,8 +115,8 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
         return rule.getLeftCardinality() == Cardinality.ONE && rule.getRightCardinality() == Cardinality.MANY;
     }
 
-    // 执行类似logicAB1(1-*)的用例
-    private void executeRuleMethod4OneManyRule(Rule rule, IModuleAlg moduleAlgFile, Method method) {
+    // 鎵ц绫讳技logicAB1(1-*)鐨勭敤渚?
+    private void executeRuleMethod4OneManyRule(Rule rule, Object moduleAlgFile, Method method) {
         String leftPartCategoryCode = rule.getLeftCategoryCode();
         String rightPartCategoryCode = rule.getRightCategoryCode();
         if (Strings.isEmpty(leftPartCategoryCode) || Strings.isEmpty(rightPartCategoryCode)) {
@@ -157,9 +165,9 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
     }
 
     protected void initInput() {
-        super.initInput(this);
+        super.initInput(moduleAlgFile());
 
-        // 本模块的初始化
+        // 鏈ā鍧楃殑鍒濆鍖?
         ModuleInput req = getModuleInput();
         if (req.getMainPartInst() != null) {
             this.addPartEquality(req.getMainPartInst().getCode(), req.getMainPartInst().getQuantity());
@@ -175,46 +183,46 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
             }
         }
 
-        // 分类的input初始化
-        // 如果module有PartCategorys，则对每个PartCategory创建并初始化PartCategoryAlgImpl
+        // 鍒嗙被鐨刬nput鍒濆鍖?
+        // 濡傛灉module鏈塒artCategorys锛屽垯瀵规瘡涓狿artCategory鍒涘缓骞跺垵濮嬪寲PartCategoryAlgImpl
         for (PartCategoryAlgImpl partCategoryAlgImpl : this.getPartCategoryAlgs()) {
-            partCategoryAlgImpl.initInput(this);
+            partCategoryAlgImpl.initInput(moduleAlgFile());
         }
 
     }
 
     /**
-     * 初始化Module后
+     * 鍒濆鍖朚odule鍚?
      * 
      * @param module
      * @param moduleAlg
      */
-    protected void afterInitData(IModule module, IModuleAlg moduleAlg) {
+    protected void afterInitData(IModule module, Object moduleAlg) {
 
     }
 
     private void preCalculate() {
         log.info("preCalculate: module={}", getModule().getCode());
-        // 暂时支持模块级前置计算，主要是对控制变量进行初始化
+        // 鏆傛椂鏀寔妯″潡绾у墠缃绠楋紝涓昏鏄鎺у埗鍙橀噺杩涜鍒濆鍖?
         if (!(module instanceof Module)) {
             return;
         }
-        initRules(this, CalcStage.PRE);
+        initRules(moduleAlgFile(), CalcStage.PRE);
     }
 
     protected void initData(AlgCPModel model, IModule module,
             ModuleInput moduleInput,
-            IModuleAlg moduleAlgFile) {
-        // 调用基类初始化
-        super.initData(model, module, moduleInput, this);
+            Object moduleAlgFile) {
+        // 璋冪敤鍩虹被鍒濆鍖?
+        super.initData(model, module, moduleInput, moduleAlgFile);
 
-        // 按partCategoryCode对partCategoryInputs进行分组
+        // 鎸塸artCategoryCode瀵筽artCategoryInputs杩涜鍒嗙粍
         Map<String, PartCategoryInputBase> partConstraintFromReqMap = new LinkedHashMap<>();
         for (PartCategoryInputBase partCategoryInput : moduleInput.getPartCategoryInputs()) {
             partConstraintFromReqMap.put(partCategoryInput.getPartCategoryCode(), partCategoryInput);
         }
 
-        // 如果module有PartCategorys，则对每个PartCategory创建并初始化PartCategoryAlgImpl
+        // 濡傛灉module鏈塒artCategorys锛屽垯瀵规瘡涓狿artCategory鍒涘缓骞跺垵濮嬪寲PartCategoryAlgImpl
         if (module instanceof Module) {
             Module bModule = (Module) module;
             for (PartCategory partCategory : bModule.getPartCategorys()) {
@@ -231,10 +239,10 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
                 if (partCategory.isSupportMultiInst() && pc4partCategoryInput instanceof MultiInstPartCategoryInput) {
                     pcAlg = new MultiInstPartCategoryAlgImpl();
                     MultiInstPartCategoryInput multiInstPartCategoryInput = (MultiInstPartCategoryInput) pc4partCategoryInput;
-                    pcAlg.initData(model, (IModule) multiInstPartCategoryInput, pc4partCategoryInput, this);
+                    pcAlg.initData(model, (IModule) multiInstPartCategoryInput, pc4partCategoryInput, moduleAlgFile);
                 } else {
                     pcAlg = new SingleInstPartCategoryAlgImpl();
-                    pcAlg.initData(model, (IModule) partCategory, pc4partCategoryInput, this);
+                    pcAlg.initData(model, (IModule) partCategory, pc4partCategoryInput, moduleAlgFile);
                 }
                 partCategoryAlgs.put(categoryCode, (PartCategoryAlgImpl) pcAlg);
             }
@@ -242,24 +250,24 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
         log.info("ModuleAlgImpl initialized with {} partCategory algorithms", partCategoryAlgs.size());
     }
 
-    protected void initRules(IModuleAlg moduleAlgFile, CalcStage calcStage) {
-        Map<String, Method> allRuleMethods = buildAllRuleMethods(module, this);
-        // 先本身这个模块的前置算法
+    protected void initRules(Object moduleAlgFile, CalcStage calcStage) {
+        Map<String, Method> allRuleMethods = buildAllRuleMethods(module, moduleAlgFile);
+        // 鍏堟湰韬繖涓ā鍧楃殑鍓嶇疆绠楁硶
 
-        // 先构建本模块的优先类规则
+        // 鍏堟瀯寤烘湰妯″潡鐨勪紭鍏堢被瑙勫垯
         buildPriorityConstraint(module);
 
-        // 如果module有PartCategorys，则对每个PartCategory创建并初始化PartCategoryAlgImpl
+        // 濡傛灉module鏈塒artCategorys锛屽垯瀵规瘡涓狿artCategory鍒涘缓骞跺垵濮嬪寲PartCategoryAlgImpl
         for (PartCategoryAlgImpl partCategoryAlgImpl : this.getPartCategoryAlgs()) {
             partCategoryAlgImpl.initRules(allRuleMethods, moduleAlgFile, calcStage);
         }
 
-        // 执行本身这个模块的后置算法
+        // 鎵ц鏈韩杩欎釜妯″潡鐨勫悗缃畻娉?
         this.initRules(allRuleMethods, moduleAlgFile, calcStage);
     }
 
     /**
-     * 是否有优先类规则
+     * 鏄惁鏈変紭鍏堢被瑙勫垯
      * 
      * @return exr
      */
@@ -284,7 +292,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
     }
 
     /**
-     * 获取所有的Priority合并后的表达式
+     * 鑾峰彇鎵€鏈夌殑Priority鍚堝苟鍚庣殑琛ㄨ揪寮?
      *
      * @return exr
      */
@@ -323,20 +331,20 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
     }
 
     /**
-     * 获取部件分类算法实例
+     * 鑾峰彇閮ㄤ欢鍒嗙被绠楁硶瀹炰緥
      *
-     * @param categoryCode 部件分类代码
-     * @return PartCategoryAlgImpl实例
+     * @param categoryCode 閮ㄤ欢鍒嗙被浠ｇ爜
+     * @return PartCategoryAlgImpl瀹炰緥
      */
     public PartCategoryAlgImpl getPartCategoryAlg(String categoryCode) {
         return (PartCategoryAlgImpl) partCategoryAlgs.get(categoryCode);
     }
 
     /**
-     * 获取部件分类算法实例
+     * 鑾峰彇閮ㄤ欢鍒嗙被绠楁硶瀹炰緥
      *
-     * @param categoryCodeInstPrefix 部件分类代码前缀
-     * @return PartCategoryAlgImpl实例
+     * @param categoryCodeInstPrefix 閮ㄤ欢鍒嗙被浠ｇ爜鍓嶇紑
+     * @return PartCategoryAlgImpl瀹炰緥
      */
     public List<PartCategoryAlgImpl> getPartCategoryAlgByInstPrefix(String categoryCodeInstPrefix) {
         String instPrefix = categoryCodeInstPrefix + String.valueOf(MultiInstCategoryUtils.INST_PREFIX_CHAR);
@@ -350,57 +358,57 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
     }
 
     /**
-     * 获取所有部件分类算法实例列表
+     * 鑾峰彇鎵€鏈夐儴浠跺垎绫荤畻娉曞疄渚嬪垪琛?
      * 
-     * @return 部件分类算法实例列表
+     * @return 閮ㄤ欢鍒嗙被绠楁硶瀹炰緥鍒楄〃
      */
     public List<PartCategoryAlgImpl> getPartCategoryAlgs() {
         return new ArrayList<>(partCategoryAlgs.values());
     }
 
     /**
-     * 获取Module对象
+     * 鑾峰彇Module瀵硅薄
      *
-     * @return Module对象
+     * @return Module瀵硅薄
      */
     public Module getModule() {
         return (Module) super.getModule();
     }
 
     /**
-     * 获取所有部件变量
+     * 鑾峰彇鎵€鏈夐儴浠跺彉閲?
      *
-     * @return 部件变量映射
+     * @return 閮ㄤ欢鍙橀噺鏄犲皠
      */
     public Map<String, PartVarImpl> getPartMap() {
         return partMap;
     }
 
     /**
-     * 获取所有参数变量
+     * 鑾峰彇鎵€鏈夊弬鏁板彉閲?
      *
-     * @return 参数变量映射
+     * @return 鍙傛暟鍙橀噺鏄犲皠
      */
     public Map<String, ParaVarImpl> getParaMap() {
         return paraMap;
     }
 
     @Override
-    protected VarImpl<?> newPartVar(PartVarImpl internalPartVar) {
+    protected Object newPartVar(PartVarImpl internalPartVar) {
         return internalPartVar;
     }
 
     @Override
-    protected VarImpl<?> newParaVar(ParaVarImpl internalParaVar) {
+    protected Object newParaVar(ParaVarImpl internalParaVar) {
         return internalParaVar;
     }
 
     /**
-     * 添加不兼容性约束（部件级别）
+     * 娣诲姞涓嶅吋瀹规€х害鏉燂紙閮ㄤ欢绾у埆锛?
      * 
-     * @param ruleCode          规则代码
-     * @param leftPartsExprStr  左侧部件表达式字符串，格式如 "fatherCode=cpu:CoreNum=4"
-     * @param rightPartsExprStr 右侧部件表达式字符串
+     * @param ruleCode          瑙勫垯浠ｇ爜
+     * @param leftPartsExprStr  宸︿晶閮ㄤ欢琛ㄨ揪寮忓瓧绗︿覆锛屾牸寮忓 "fatherCode=cpu:CoreNum=4"
+     * @param rightPartsExprStr 鍙充晶閮ㄤ欢琛ㄨ揪寮忓瓧绗︿覆
      */
     public void inCompatible(String ruleCode, String leftPartsExprStr, String rightPartsExprStr) {
         PartsExpr left = filterPartExpr(leftPartsExprStr, true);
@@ -416,12 +424,12 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
 
     private PartsExpr filterPartExpr(String partExprStr, boolean isLeft) {
         if (partExprStr == null || partExprStr.isEmpty()) {
-            // 打日志，抛异常
+            // 鎵撴棩蹇楋紝鎶涘紓甯?
             log.error("partExprStr is null or empty, cannot filter part expr");
             throw new AlgLoaderException("partExprStr is null or empty, cannot filter part expr");
         }
         PartsExpr partsExpr = new PartsExpr();
-        // 解析partCategoryCode和filterConditionStr
+        // 瑙ｆ瀽partCategoryCode鍜宖ilterConditionStr
         String partCategoryCode = "";
         String filterConditionStr = "";
 
@@ -430,7 +438,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
             partCategoryCode = partExprStr.substring(0, colonIndex);
             filterConditionStr = partExprStr.substring(colonIndex + 1);
         } else {
-            // 打日志，抛异常
+            // 鎵撴棩蹇楋紝鎶涘紓甯?
             log.error("partExprStr is invalid, cannot filter part expr");
             throw new AlgLoaderException("partExprStr is invalid, cannot filter part expr");
         }
@@ -440,22 +448,22 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
         PartCategoryAlgImpl partCategoryAlgImpl = isLeft ? currentLeftPartCategoryAlgImpl
                 : currentRightPartCategoryAlgImpl;
         if (partCategoryAlgImpl == null) {
-            // 兼容以前的
+            // 鍏煎浠ュ墠鐨?
             partCategoryAlgImpl = this.getPartCategoryAlg(partCategoryCode);
         } else {
             if (!partCategoryAlgImpl.getCategoryCode().equals(partCategoryCode)) {
-                // 打日志，抛异常
+                // 鎵撴棩蹇楋紝鎶涘紓甯?
                 log.warn("partCategoryAlgImpl is invalid, cannot filter part expr");
                 throw new AlgLoaderException("partCategoryAlgImpl is invalid, cannot filter part expr");
             }
         }
 
         if (partCategoryAlgImpl == null) {
-            // 打日志，抛异常
+            // 鎵撴棩蹇楋紝鎶涘紓甯?
             log.warn("partCategoryAlgImpl is invalid, cannot filter part expr");
             return partsExpr;
         }
-        // 转换为PartVar
+        // 杞崲涓篜artVar
         partsExpr.setPartVars(partCategoryAlgImpl.getAllPartVars(""));
         Pair<List<PartVarImpl>, List<PartVarImpl>> partVars = partCategoryAlgImpl.filterAllPartVars(filterConditionStr);
         partsExpr.setFilterPartVars(partVars.getFirst());
@@ -464,21 +472,21 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
     }
 
     // /**
-    // * 解析部件表达式字符串
-    // * 格式：fatherCode=xxx:filterCondition
+    // * 瑙ｆ瀽閮ㄤ欢琛ㄨ揪寮忓瓧绗︿覆
+    // * 鏍煎紡锛歠atherCode=xxx:filterCondition
     // *
-    // * @param partExprStr 部件表达式字符串
+    // * @param partExprStr 閮ㄤ欢琛ㄨ揪寮忓瓧绗︿覆
     // * @return PartsExpr
     // */
     // private PartsExpr filterPartExpr(String partExprStr) {
     // if (partExprStr == null || partExprStr.isEmpty()) {
-    // // 打日志，抛异常
+    // // 鎵撴棩蹇楋紝鎶涘紓甯?
     // log.error("partExprStr is null or empty, cannot filter part expr");
     // throw new AlgLoaderException("partExprStr is null or empty, cannot filter
     // part expr");
     // }
     // PartsExpr partsExpr = new PartsExpr();
-    // // 解析partCategoryCode和filterConditionStr
+    // // 瑙ｆ瀽partCategoryCode鍜宖ilterConditionStr
     // String partCategoryCode = "";
     // String filterConditionStr = "";
 
@@ -487,7 +495,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
     // partCategoryCode = partExprStr.substring(0, colonIndex);
     // filterConditionStr = partExprStr.substring(colonIndex + 1);
     // } else {
-    // // 打日志，抛异常
+    // // 鎵撴棩蹇楋紝鎶涘紓甯?
     // log.error("partExprStr is invalid, cannot filter part expr");
     // throw new AlgLoaderException("partExprStr is invalid, cannot filter part
     // expr");
@@ -498,14 +506,14 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
     // PartCategoryAlgImpl partCategoryAlgImpl =
     // this.getPartCategoryAlg(partCategoryCode);
     // if (partCategoryAlgImpl == null) {
-    // // 打日志，抛异常
+    // // 鎵撴棩蹇楋紝鎶涘紓甯?
     // log.warn("partCategoryAlgImpl is invalid, cannot filter part expr");
     // return partsExpr;
     // }
-    // // 获取该分类下的所有原子部件
+    // // 鑾峰彇璇ュ垎绫讳笅鐨勬墍鏈夊師瀛愰儴浠?
     // List<Part> atomicParts = partCategoryAlgImpl.getAllAtomicParts();
 
-    // // 根据过滤条件筛选部件
+    // // 鏍规嵁杩囨护鏉′欢绛涢€夐儴浠?
     // List<Part> filterParts;
     // List<Part> noFilterParts;
 
@@ -518,7 +526,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
     // noFilterParts = subPart(atomicParts, filterParts);
     // }
 
-    // // 转换为PartVar
+    // // 杞崲涓篜artVar
     // partsExpr.setPartVars(toPartVar(partCategoryAlgImpl, atomicParts));
     // partsExpr.setFilterPartVars(toPartVar(partCategoryAlgImpl, filterParts));
     // partsExpr.setNoFilterPartVars(toPartVar(partCategoryAlgImpl, noFilterParts));
@@ -526,10 +534,10 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
     // }
 
     /**
-     * 将Part列表转换为PartVar列表
+     * 灏哖art鍒楄〃杞崲涓篜artVar鍒楄〃
      * 
-     * @param parts Part列表
-     * @return PartVar列表
+     * @param parts Part鍒楄〃
+     * @return PartVar鍒楄〃
      */
     public List<PartVarImpl> toFilterPartVar(PartCategoryAlgImpl partCategoryAlgImpl, String filtedConditionStr) {
         List<Part> atomicParts = partCategoryAlgImpl.getAtomicParts();
@@ -541,10 +549,10 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
     }
 
     /**
-     * 将Part列表转换为PartVar列表
+     * 灏哖art鍒楄〃杞崲涓篜artVar鍒楄〃
      * 
-     * @param parts Part列表
-     * @return PartVar列表
+     * @param parts Part鍒楄〃
+     * @return PartVar鍒楄〃
      */
     public List<PartVarImpl> toPartVar(PartCategoryAlgImpl partCategoryAlgImpl, List<Part> parts) {
         return parts.stream()
@@ -555,15 +563,15 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
     }
 
     /**
-     * 将Part对象转换为PartVar
+     * 灏哖art瀵硅薄杞崲涓篜artVar
      * 
-     * @param part Part对象
-     * @return PartVarImpl，如果不存在则返回null
+     * @param part Part瀵硅薄
+     * @return PartVarImpl锛屽鏋滀笉瀛樺湪鍒欒繑鍥瀗ull
      */
     public PartVarImpl toPartVar(PartCategoryAlgImpl partCategoryAlgImpl, Part part) {
         PartVarImpl partVar = partCategoryAlgImpl.getPartVar(part.getCode());
         if (partVar == null) {
-            // 打日志，抛异常
+            // 鎵撴棩蹇楋紝鎶涘紓甯?
             log.error("PartVarImpl not found for code: {}", part.getCode());
             throw new AlgLoaderException("PartVarImpl not found for code: " + part.getCode());
         }
@@ -571,13 +579,13 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
     }
 
     /**
-     * 通用的部件求和方法，根据指定的变量获取函数计算总和
+     * 閫氱敤鐨勯儴浠舵眰鍜屾柟娉曪紝鏍规嵁鎸囧畾鐨勫彉閲忚幏鍙栧嚱鏁拌绠楁€诲拰
      * 
-     * @param cofAttrCode        属性代码，如果为null或空则使用默认值1
-     * @param varGetter          从PartVar获取LinearArgument的函数（如getIsSelected或getQty）
-     * @param varName            变量名称（如"isSelected"或"qty"），用于构建字符串表达式
-     * @param filtedConditionStr 过滤条件字符串
-     * @return 求和后的AlgCPLinearExpr表达式
+     * @param cofAttrCode        灞炴€т唬鐮侊紝濡傛灉涓簄ull鎴栫┖鍒欎娇鐢ㄩ粯璁ゅ€?
+     * @param varGetter          浠嶱artVar鑾峰彇LinearArgument鐨勫嚱鏁帮紙濡俫etIsSelected鎴杇etQty锛?
+     * @param varName            鍙橀噺鍚嶇О锛堝"isSelected"鎴?qty"锛夛紝鐢ㄤ簬鏋勫缓瀛楃涓茶〃杈惧紡
+     * @param filtedConditionStr 杩囨护鏉′欢瀛楃涓?
+     * @return 姹傚拰鍚庣殑AlgCPLinearExpr琛ㄨ揪寮?
      */
     // @Override
     protected PartAlgCPLinearExpr sum4Parts(PartCategoryAlgImpl partCategoryAlgImpl, String cofAttrCode,
@@ -590,12 +598,12 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
     }
 
     /**
-     * 对指定部件分类的部件求和（选中状态，支持多分类逗号分隔）
+     * 瀵规寚瀹氶儴浠跺垎绫荤殑閮ㄤ欢姹傚拰锛堥€変腑鐘舵€侊紝鏀寔澶氬垎绫婚€楀彿鍒嗛殧锛?
      * 
-     * @param partCategoryCodesStr 部件分类代码，支持逗号分隔，如 "driveI0,driveI1"
-     * @param cofAttrCode          属性代码
-     * @param filtedConditionStr   过滤条件字符串
-     * @return 求和后的AlgCPLinearExpr表达式
+     * @param partCategoryCodesStr 閮ㄤ欢鍒嗙被浠ｇ爜锛屾敮鎸侀€楀彿鍒嗛殧锛屽 "driveI0,driveI1"
+     * @param cofAttrCode          灞炴€т唬鐮?
+     * @param filtedConditionStr   杩囨护鏉′欢瀛楃涓?
+     * @return 姹傚拰鍚庣殑AlgCPLinearExpr琛ㄨ揪寮?
      */
     public PartAlgCPLinearExpr sum4Selected(String partCategoryCodesStr, String cofAttrCode,
             String filtedConditionStr) {
@@ -610,12 +618,12 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
     }
 
     /**
-     * 对指定部件分类的部件求和（数量，支持多分类逗号分隔）
+     * 瀵规寚瀹氶儴浠跺垎绫荤殑閮ㄤ欢姹傚拰锛堟暟閲忥紝鏀寔澶氬垎绫婚€楀彿鍒嗛殧锛?
      * 
-     * @param partCategoryCodesStr 部件分类代码，支持逗号分隔，如 "driveI0,driveI1"
-     * @param cofAttrCode          属性代码
-     * @param filtedConditionStr   过滤条件字符串
-     * @return 求和后的AlgCPLinearExpr表达式
+     * @param partCategoryCodesStr 閮ㄤ欢鍒嗙被浠ｇ爜锛屾敮鎸侀€楀彿鍒嗛殧锛屽 "driveI0,driveI1"
+     * @param cofAttrCode          灞炴€т唬鐮?
+     * @param filtedConditionStr   杩囨护鏉′欢瀛楃涓?
+     * @return 姹傚拰鍚庣殑AlgCPLinearExpr琛ㄨ揪寮?
      */
     public PartAlgCPLinearExpr sum4Quantity(String partCategoryCodesStr, String cofAttrCode,
             String filtedConditionStr) {
@@ -645,11 +653,11 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
     }
 
     /**
-     * 对选中的部件求和（带属性系数）
+     * 瀵归€変腑鐨勯儴浠舵眰鍜岋紙甯﹀睘鎬х郴鏁帮級
      *
-     * @param cofAttrCode        属性代码，如果为null或空则使用默认值1
-     * @param filtedConditionStr 过滤条件字符串
-     * @return 求和后的AlgCPLinearExpr表达式
+     * @param cofAttrCode        灞炴€т唬鐮侊紝濡傛灉涓簄ull鎴栫┖鍒欎娇鐢ㄩ粯璁ゅ€?
+     * @param filtedConditionStr 杩囨护鏉′欢瀛楃涓?
+     * @return 姹傚拰鍚庣殑AlgCPLinearExpr琛ㄨ揪寮?
      */
 
     public PartAlgCPLinearExpr sum4Selected(String cofAttrCode,
@@ -659,21 +667,21 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
     }
 
     /**
-     * 对选中的部件求和（不带属性系数）
+     * 瀵归€変腑鐨勯儴浠舵眰鍜岋紙涓嶅甫灞炴€х郴鏁帮級
      *
-     * @param filtedConditionStr 过滤条件字符串
-     * @return 求和后的AlgCPLinearExpr表达式
+     * @param filtedConditionStr 杩囨护鏉′欢瀛楃涓?
+     * @return 姹傚拰鍚庣殑AlgCPLinearExpr琛ㄨ揪寮?
      */
     public PartAlgCPLinearExpr sum4Selected(String filtedConditionStr) {
         return sum4Selected(null, filtedConditionStr);
     }
 
     /**
-     * 对数量的部件求和（带属性系数）
+     * 瀵规暟閲忕殑閮ㄤ欢姹傚拰锛堝甫灞炴€х郴鏁帮級
      *
-     * @param cofAttrCode        属性代码，如果为null或空则使用默认值1
-     * @param filtedConditionStr 过滤条件字符串
-     * @return 求和后的AlgCPLinearExpr表达式
+     * @param cofAttrCode        灞炴€т唬鐮侊紝濡傛灉涓簄ull鎴栫┖鍒欎娇鐢ㄩ粯璁ゅ€?
+     * @param filtedConditionStr 杩囨护鏉′欢瀛楃涓?
+     * @return 姹傚拰鍚庣殑AlgCPLinearExpr琛ㄨ揪寮?
      */
     public PartAlgCPLinearExpr sum4Quantity(String cofAttrCode, String filtedConditionStr) {
         return sum4Parts((PartCategoryAlgImpl) currentModuleAlg,
@@ -681,27 +689,27 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
     }
 
     /**
-     * 对数量的部件求和（不带属性系数）
+     * 瀵规暟閲忕殑閮ㄤ欢姹傚拰锛堜笉甯﹀睘鎬х郴鏁帮級
      *
-     * @param filtedConditionStr 过滤条件字符串
-     * @return 求和后的AlgCPLinearExpr表达式
+     * @param filtedConditionStr 杩囨护鏉′欢瀛楃涓?
+     * @return 姹傚拰鍚庣殑AlgCPLinearExpr琛ㄨ揪寮?
      */
     public PartAlgCPLinearExpr sum4Quantity(String filtedConditionStr) {
         return sum4Quantity(null, filtedConditionStr);
     }
 
     public void addControlParaEqual(String sumParaCode, String instSumParaCode) {
-        // 动态表达式 addParaEqual("driveSumQuantity", "drive:SumQuantity");
+        // 鍔ㄦ€佽〃杈惧紡 addParaEqual("driveSumQuantity", "drive:SumQuantity");
         ParaVarImpl sumParaVar = this.getParaVar(sumParaCode);
         if (sumParaVar == null) {
-            // 打日志，抛异常
+            // 鎵撴棩蹇楋紝鎶涘紓甯?
             log.error("ParaVarImpl not found for code: {}", sumParaCode);
             throw new AlgLoaderException("ParaVarImpl not found for code: " + sumParaCode);
         }
-        // instSumParaCode,如："drive:SumQuantity", 解析出drive，SumQuantity
+        // instSumParaCode,濡傦細"drive:SumQuantity", 瑙ｆ瀽鍑篸rive锛孲umQuantity
         String[] parts = instSumParaCode.split(":");
         if (parts.length != 2) {
-            // 打日志，抛异常
+            // 鎵撴棩蹇楋紝鎶涘紓甯?
             log.error("instSumParaCode is invalid: {}", instSumParaCode);
             throw new AlgLoaderException("instSumParaCode is invalid: " + instSumParaCode);
         }
@@ -711,7 +719,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
         // expr=sumParaVar.value + sumParaVar.value + ...
         List<PartCategoryAlgImpl> partCategoryAlgImpls = this.getPartCategoryAlgByInstPrefix(partCategoryCodePrefix);
         if (partCategoryAlgImpls.isEmpty()) {
-            // 打日志，抛异常
+            // 鎵撴棩蹇楋紝鎶涘紓甯?
             log.warn("PartCategoryAlgImpl not found for code: {}", partCategoryCodePrefix);
             sumParaVar.setHasInputed(false);
         } else {
@@ -720,11 +728,11 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
             for (PartCategoryAlgImpl partCategoryAlgImpl : partCategoryAlgImpls) {
                 ParaVarImpl instParaVar = partCategoryAlgImpl.getParaVar(sumQuantityCode);
                 if (instParaVar == null || instParaVar.getInputValue() == null) {
-                    // 打日志，抛异常
+                    // 鎵撴棩蹇楋紝鎶涘紓甯?
                     log.error("ParaVarImpl not found for code: {}", sumQuantityCode);
-                    // 暂时不抛异常 throw new AlgLoaderException("ParaVarImpl not found for code: " +
+                    // 鏆傛椂涓嶆姏寮傚父 throw new AlgLoaderException("ParaVarImpl not found for code: " +
                     // sumQuantityCode);
-                    // issue:是不是总有一个控制参数是有输入的，方便执行（对结果进行校验）
+                    // issue:鏄笉鏄€绘湁涓€涓帶鍒跺弬鏁版槸鏈夎緭鍏ョ殑锛屾柟渚挎墽琛岋紙瀵圭粨鏋滆繘琛屾牎楠岋級
                     continue;
                 }
                 // paraSumExpr.addTerm(instParaVar.getInputValue(), 1);
@@ -732,7 +740,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
                 hasInput = true;
             }
             if (hasInput) {
-                // 构建等式
+                // 鏋勫缓绛夊紡
                 sumParaVar.setHasInputed(true);
                 sumParaVar.setInputValue(sumInputValue);
 

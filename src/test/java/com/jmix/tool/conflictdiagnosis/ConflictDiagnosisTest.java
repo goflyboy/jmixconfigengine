@@ -1,31 +1,31 @@
 package com.jmix.tool.conflictdiagnosis;
 
-import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.ModuleAlgBase;
 import com.jmix.executor.southinf.var.ParaVar;
 import com.jmix.executor.southinf.var.PartCategoryVar;
 import com.jmix.executor.southinf.var.PartVar;
 import com.jmix.coretest.ModuleScenarioTestBase;
-import com.jmix.executor.impl.algmodel.AlgCPLinearExpr;
+import com.jmix.executor.southinf.cp.AlgCPLinearExpr;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
 import com.jmix.tool.bbuilder.anno.ModuleAnno;
 import com.jmix.tool.bbuilder.anno.PartAnno;
 
-import com.google.ortools.sat.IntVar;
+import com.jmix.executor.southinf.cp.AlgCPIntVar;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.junit.jupiter.api.Test;
 
 /**
- * RFC-0003 CONFLICT-001: 基础线性规则冲突。
- * CONFLICT-009: 请求级松弛开关。
- * CONFLICT-010: 输出解释完整性。
+ * RFC-0003 CONFLICT-001: 鍩虹绾挎€ц鍒欏啿绐併€?
+ * CONFLICT-009: 璇锋眰绾ф澗寮涘紑鍏炽€?
+ * CONFLICT-010: 杈撳嚭瑙ｉ噴瀹屾暣鎬с€?
  */
 @Slf4j
 public class ConflictDiagnosisTest extends ModuleScenarioTestBase {
 
     @ModuleAnno(id = 1001L)
-    static public class Conflict001Constraint extends ConstraintAlgBase {
+    static public class Conflict001Constraint extends ModuleAlgBase {
         @PartAnno(maxQuantity = 50)
         private PartVar x;
 
@@ -35,32 +35,32 @@ public class ConflictDiagnosisTest extends ModuleScenarioTestBase {
         // rule1: x.quantityVar() + y.quantityVar() < 20
         @CodeRuleAnno(normalNaturalCode = "x.quantityVar() + y.quantityVar() < 20")
         private void rule1() {
-            AlgCPLinearExpr sumXY = new AlgCPLinearExpr("sum_x_y");
+            AlgCPLinearExpr sumXY = model().newLinearExpr("sum_x_y");
             sumXY.addTerm(x.quantityVar(), 1);
             sumXY.addTerm(y.quantityVar(), 1);
-            model.addLessThan(sumXY, 20);
+            model().addLessThan(sumXY, 20);
         }
 
         // rule2: x.quantityVar() - y.quantityVar() > 10
         @CodeRuleAnno(normalNaturalCode = "x.quantityVar() - y.quantityVar() > 10")
         private void rule2() {
             AlgCPLinearExpr diffXY = AlgCPLinearExpr.weightedSum(
-                    new IntVar[]{x.quantityVar(), y.quantityVar()}, new long[]{1, -1});
-            model.addGreaterThan(diffXY, 10);
+                    new AlgCPIntVar[]{x.quantityVar(), y.quantityVar()}, new long[]{1, -1});
+            model().addGreaterThan(diffXY, 10);
         }
 
         // rule3: y.quantityVar() > 45
         @CodeRuleAnno(normalNaturalCode = "y.quantityVar() > 45")
         private void rule3() {
-            model.addGreaterThan(y.quantityVar(), 45);
+            model().addGreaterThan(y.quantityVar(), 45);
         }
 
         // rule4: x.quantityVar() + 2 * y.quantityVar() > 10
         @CodeRuleAnno(normalNaturalCode = "x.quantityVar() + 2 * y.quantityVar() > 10")
         private void rule4() {
             AlgCPLinearExpr sumX2Y = AlgCPLinearExpr.weightedSum(
-                    new IntVar[]{x.quantityVar(), y.quantityVar()}, new long[]{1, 2});
-            model.addGreaterThan(sumX2Y, 10);
+                    new AlgCPIntVar[]{x.quantityVar(), y.quantityVar()}, new long[]{1, 2});
+            model().addGreaterThan(sumX2Y, 10);
         }
     }
 
@@ -68,7 +68,7 @@ public class ConflictDiagnosisTest extends ModuleScenarioTestBase {
         super(Conflict001Constraint.class);
     }
 
-    // ====================== CONFLICT-001: 基础线性规则冲突 ======================
+    // ====================== CONFLICT-001: 鍩虹绾挎€ц鍒欏啿绐?======================
 
     @Test
     public void testConflict001_1_relaxSolveDefault_noRelaxation() {
@@ -99,7 +99,7 @@ public class ConflictDiagnosisTest extends ModuleScenarioTestBase {
                 .assertDiagnosticConstraintsContains("rule3");
     }
 
-    // ====================== CONFLICT-009: 请求级松弛开关 ======================
+    // ====================== CONFLICT-009: 璇锋眰绾ф澗寮涘紑鍏?======================
 
     @Test
     public void testConflict009_1_relaxSolveNotSet_noDiagnosisReturned() {
@@ -122,7 +122,7 @@ public class ConflictDiagnosisTest extends ModuleScenarioTestBase {
                 .assertPartialSolutionSizeGreaterThanOrEqual(1);
     }
 
-    // ====================== CONFLICT-010: 输出解释完整性 ======================
+    // ====================== CONFLICT-010: 杈撳嚭瑙ｉ噴瀹屾暣鎬?======================
 
     @Test
     public void testConflict010_1_messageExplainsConflictAndRelaxation() {

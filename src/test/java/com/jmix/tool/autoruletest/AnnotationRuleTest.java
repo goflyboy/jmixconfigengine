@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.ModuleAlgBase;
 import com.jmix.executor.southinf.var.ParaVar;
 import com.jmix.executor.southinf.var.PartCategoryVar;
 import com.jmix.executor.southinf.var.PartVar;
@@ -28,103 +28,103 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Method;
 
 /**
- * 注解规则测试类
- * 用于测试CompatiableRuleAnno和CodeRuleAnno注解的功能
+ * 娉ㄨВ瑙勫垯娴嬭瘯绫?
+ * 鐢ㄤ簬娴嬭瘯CompatiableRuleAnno鍜孋odeRuleAnno娉ㄨВ鐨勫姛鑳?
  * 
  * @since 2025-09-23
  */
 @Slf4j
 /**
- * 注解规则测试约束模型类
+ * 娉ㄨВ瑙勫垯娴嬭瘯绾︽潫妯″瀷绫?
  * 
  * @since 2025-09-23
  */
-@ModuleAnno(id = 123, code = "AnnotationRule", packageName = "com.jmix.configengine.scenario.ruletest", version = "1.0", description = "注解规则测试模块", sortNo = 1)
-public class AnnotationRuleTest extends ConstraintAlgBase {
+@ModuleAnno(id = 123, code = "AnnotationRule", packageName = "com.jmix.configengine.scenario.ruletest", version = "1.0", description = "娉ㄨВ瑙勫垯娴嬭瘯妯″潡", sortNo = 1)
+public class AnnotationRuleTest extends ModuleAlgBase {
 
-    @ParaAnno(description = "颜色参数", type = ParaType.ENUM, options = { "Red", "Blue", "Green" })
+    @ParaAnno(description = "棰滆壊鍙傛暟", type = ParaType.ENUM, options = { "Red", "Blue", "Green" })
     private ParaVar colorVar;
 
-    @ParaAnno(description = "尺寸参数", type = ParaType.ENUM, options = { "Small", "Medium", "Large" })
+    @ParaAnno(description = "灏哄鍙傛暟", type = ParaType.ENUM, options = { "Small", "Medium", "Large" })
     private ParaVar sizeVar;
 
-    @PartAnno(description = "部件1", maxQuantity = 10)
+    @PartAnno(description = "閮ㄤ欢1", maxQuantity = 10)
     private PartVar part1Var;
 
     /**
-     * 兼容性规则：如果颜色是红色，则部件1的数量必须是1
+     * 鍏煎鎬ц鍒欙細濡傛灉棰滆壊鏄孩鑹诧紝鍒欓儴浠?鐨勬暟閲忓繀椤绘槸1
      */
-    @CompatiableRuleAnno(leftExprCode = "color.valueVar()==\"Red\"", operator = "Requires", rightExprCode = "part1.quantityVar()==1", normalNaturalCode = "如果颜色是红色，则部件1的数量必须是1")
+    @CompatiableRuleAnno(leftExprCode = "color.valueVar()==\"Red\"", operator = "Requires", rightExprCode = "part1.quantityVar()==1", normalNaturalCode = "濡傛灉棰滆壊鏄孩鑹诧紝鍒欓儴浠?鐨勬暟閲忓繀椤绘槸1")
     /**
-     * 规则1：兼容性规则
+     * 瑙勫垯1锛氬吋瀹规€ц鍒?
      */
     public void rule1() {
-        // 自动生成的约束代码将在这里注入
+        // 鑷姩鐢熸垚鐨勭害鏉熶唬鐮佸皢鍦ㄨ繖閲屾敞鍏?
     }
 
     /**
-     * 代码规则：自定义逻辑
+     * 浠ｇ爜瑙勫垯锛氳嚜瀹氫箟閫昏緫
      */
-    @CodeRuleAnno(code = "if (color.valueVar() == \"Blue\" && size.valueVar() == \"Large\") { return false; }", normalNaturalCode = "蓝色大尺寸的组合不允许")
+    @CodeRuleAnno(code = "if (color.valueVar() == \"Blue\" && size.valueVar() == \"Large\") { return false; }", normalNaturalCode = "blue large is incompatible")
     public void rule2() {
-        // 代码规则不需要注入代码
+        // 浠ｇ爜瑙勫垯涓嶉渶瑕佹敞鍏ヤ唬鐮?
     }
 
     /**
-     * 初始化约束
+     * 鍒濆鍖栫害鏉?
      */
     @CodeRuleAnno
     private void initConstraint() {
-        // 约束初始化逻辑
+        // 绾︽潫鍒濆鍖栭€昏緫
     }
 
     /**
-     * 测试规则生成
+     * 娴嬭瘯瑙勫垯鐢熸垚
      */
     @Test
     @Disabled
     public void testRuleGeneration() {
-        // 创建临时路径
+        // 鍒涘缓涓存椂璺緞
         String tempPath = CommHelper.createTempPath(AnnotationRuleTest.class);
 
-        // 生成Module
+        // 鐢熸垚Module
         Module module = ModuleGenneratorByAnno.build(AnnotationRuleTest.class, tempPath);
 
-        // 验证Module中包含了生成的规则
+        // 楠岃瘉Module涓寘鍚簡鐢熸垚鐨勮鍒?
         assertNotNull(module, "Module should not be null");
         assertNotNull(module.getRules(), "Module rules should not be null");
         assertEquals(2, module.getRules().size(), "Should have 2 rules");
 
-        // 验证第一个规则是兼容性规则
+        // 楠岃瘉绗竴涓鍒欐槸鍏煎鎬ц鍒?
         Rule rule1 = module.getRules().get(0);
         assertEquals(rule1.getCode(), "rule1", "First rule should be rule1");
         assertEquals(rule1.getRuleSchemaTypeFullName(),
                 "CDSL.V5.Struct.CompatiableRule", "First rule should be CompatiableRule");
-        // 验证第二个规则是代码规则
+        // 楠岃瘉绗簩涓鍒欐槸浠ｇ爜瑙勫垯
         Rule rule2 = module.getRules().get(1);
         assertEquals(rule2.getCode(), "rule2", "Second rule should be rule2");
         assertEquals(rule2.getRuleSchemaTypeFullName(), "CDSL.V5.Struct.CodeRule", "Second rule should be CodeRule");
 
-        // 验证参数和部件
+        // 楠岃瘉鍙傛暟鍜岄儴浠?
         assertNotNull(module.getParas(), "Module paras should not be null");
         assertEquals(2, module.getParas().size(), "Should have 2 paras");
 
         assertNotNull(module.getAllParts(), "Module parts should not be null");
         assertEquals(1, module.getAllParts().size(), "Should have 1 part");
 
-        log.info("✓ Rule generation test passed");
+        log.info("鉁?Rule generation test passed");
         log.info("  Generated rule count: {}", module.getRules().size());
         log.info("  Generated parameter count: {}", module.getParas().size());
         log.info("  Generated part count: {}", module.getAllParts().size());
     }
 
     /**
-     * 测试注解解析
+     * 娴嬭瘯娉ㄨВ瑙ｆ瀽
      */
     @Test
     @Disabled
     public void testAnnotationParsing() {
-        // 测试CompatiableRuleAnno注解解析
+        // 娴嬭瘯CompatiableRuleAnno娉ㄨВ瑙ｆ瀽
         try {
             Method rule1Method = AnnotationRuleTest.class.getMethod("rule1");
             CompatiableRuleAnno compatiableRuleAnno = rule1Method.getAnnotation(CompatiableRuleAnno.class);
@@ -134,12 +134,12 @@ public class AnnotationRuleTest extends ConstraintAlgBase {
             assertEquals(compatiableRuleAnno.operator(), "Requires", "Operator should match");
             assertEquals(compatiableRuleAnno.rightExprCode(), "Part1.quantityVar()==1", "Right expression should match");
 
-            log.info("✓ CompatiableRuleAnno annotation parsing test passed");
+            log.info("鉁?CompatiableRuleAnno annotation parsing test passed");
         } catch (NoSuchMethodException e) {
             fail("Method rule1 not found: " + e.getMessage());
         }
 
-        // 测试CodeRuleAnno注解解析
+        // 娴嬭瘯CodeRuleAnno娉ㄨВ瑙ｆ瀽
         try {
             Method rule2Method = AnnotationRuleTest.class.getMethod("rule2");
             CodeRuleAnno codeRuleAnno = rule2Method.getAnnotation(CodeRuleAnno.class);
@@ -148,7 +148,7 @@ public class AnnotationRuleTest extends ConstraintAlgBase {
             assertTrue(codeRuleAnno.code().contains("Color.valueVar()"), "Code should contain Color.valueVar()");
             assertTrue(codeRuleAnno.code().contains("Size.valueVar()"), "Code should contain Size.valueVar()");
 
-            log.info("✓ CodeRuleAnno annotation parsing test passed");
+            log.info("鉁?CodeRuleAnno annotation parsing test passed");
         } catch (NoSuchMethodException e) {
             fail("Method rule2 not found: " + e.getMessage());
         }

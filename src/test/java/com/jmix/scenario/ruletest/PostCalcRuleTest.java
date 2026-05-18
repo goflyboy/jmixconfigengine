@@ -3,7 +3,7 @@ package com.jmix.scenario.ruletest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.ModuleAlgBase;
 import com.jmix.executor.southinf.var.ParaVar;
 import com.jmix.executor.southinf.var.PartCategoryVar;
 import com.jmix.executor.southinf.var.PartVar;
@@ -28,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 /**
- * POST后置计算规则测试
+ * POST鍚庣疆璁＄畻瑙勫垯娴嬭瘯
  *
  * @since 2026-05-03
  */
@@ -40,7 +40,7 @@ public class PostCalcRuleTest extends ModuleScenarioTestBase {
     }
 
     @ModuleAnno(id = 123L)
-    public static class PostCalcConstraint extends ConstraintAlgBase {
+    public static class PostCalcConstraint extends ModuleAlgBase {
 
         @PartAnno(code = "drive")
         @DAttrAnno2(code = "Speed", dynAttrType = DynamicAttributeType.E_STRING,
@@ -76,12 +76,12 @@ public class PostCalcRuleTest extends ModuleScenarioTestBase {
 
         @CodeRuleAnno(calcStage = CalcStage.POST)
         private void postRule() {
-            int sum = toInt(getSumDynAttr("drive", "Capacity"));
-            setParaValue("pDriveSumCapacity", String.valueOf(sum));
-            setParaValue("drive", "pSumCapacity", String.valueOf(sum));
-            setParaValue("pFirstCapacity", getDynAttr("drive", "Capacity"));
-            setParaValue("pDriveQuantity", toString(getQuantity("drive")));
-            setParaValue("pDriveAttrCount", toString(getDynAttrValues("drive", "Capacity").size()));
+            int sum = partCategorySum("drive").sumDynAttr4Int("Capacity");
+            parameter("pDriveSumCapacity").setValue(String.valueOf(sum));
+            partCategory("drive").parameter("pSumCapacity").setValue(String.valueOf(sum));
+            parameter("pFirstCapacity").setValue(partCategorySum("drive").dynAttr("Capacity"));
+            parameter("pDriveQuantity").setValue(String.valueOf(partCategory("drive").sumQuantity()));
+            parameter("pDriveAttrCount").setValue(String.valueOf(partCategorySum("drive").dynAttrs("Capacity").size()));
         }
     }
 
@@ -98,7 +98,7 @@ public class PostCalcRuleTest extends ModuleScenarioTestBase {
         resultAssert().assertSuccess();
         assertEquals(3, getSolutions().size(), "Should have 3 solutions");
 
-        // 验证每个解的POST参数已写入(通过ParaInst.value检查)
+        // 楠岃瘉姣忎釜瑙ｇ殑POST鍙傛暟宸插啓鍏?閫氳繃ParaInst.value妫€鏌?
         for (ModuleInst sol : getSolutions()) {
             String driveSumCapacity = findParaValue(sol, "pDriveSumCapacity");
             assertTrue(driveSumCapacity != null && !driveSumCapacity.isEmpty(),
@@ -117,7 +117,7 @@ public class PostCalcRuleTest extends ModuleScenarioTestBase {
 
         resultAssert().assertSuccess();
 
-        // 在解md1(Q:1,S:1), sd1(Q:1,S:1)中, pFirstCapacity应为md1的Capacity=1
+        // 鍦ㄨВmd1(Q:1,S:1), sd1(Q:1,S:1)涓? pFirstCapacity搴斾负md1鐨凜apacity=1
         for (ModuleInst sol : getSolutions()) {
             String firstCapacity = findParaValue(sol, "pFirstCapacity");
             assertTrue(firstCapacity != null && !firstCapacity.isEmpty(),
@@ -136,7 +136,7 @@ public class PostCalcRuleTest extends ModuleScenarioTestBase {
 
         resultAssert().assertSuccess();
 
-        // 验证INPUT参数值由POST写入，而非CP求解（POST写入的值应该>0）
+        // 楠岃瘉INPUT鍙傛暟鍊肩敱POST鍐欏叆锛岃€岄潪CP姹傝В锛圥OST鍐欏叆鐨勫€煎簲璇?0锛?
         for (ModuleInst sol : getSolutions()) {
             String value = findParaValue(sol, "pDriveSumCapacity");
             int intValue = Integer.parseInt(value);
@@ -146,7 +146,7 @@ public class PostCalcRuleTest extends ModuleScenarioTestBase {
     }
 
     /**
-     * 在ModuleInst及其所有PartCategoryInst中查找指定code的ParaInst值
+     * 鍦∕oduleInst鍙婂叾鎵€鏈塒artCategoryInst涓煡鎵炬寚瀹歝ode鐨凱araInst鍊?
      */
     private String findParaValue(ModuleInst sol, String paraCode) {
         for (ParaInst pi : sol.getParas()) {

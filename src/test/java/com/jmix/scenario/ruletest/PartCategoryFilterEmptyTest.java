@@ -1,6 +1,6 @@
 package com.jmix.scenario.ruletest;
 
-import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.ModuleAlgBase;
 import com.jmix.executor.southinf.var.ParaVar;
 import com.jmix.executor.southinf.var.PartCategoryVar;
 import com.jmix.executor.southinf.var.PartVar;
@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 /**
- * PartCategory 过滤为空时的输出处理测试
+ * PartCategory 杩囨护涓虹┖鏃剁殑杈撳嚭澶勭悊娴嬭瘯
  * RFC-0002: PartCategory Filter Empty Handling
  *
  * @since 2026-04-30
@@ -29,9 +29,9 @@ public class PartCategoryFilterEmptyTest extends ModuleScenarioTestBase {
         super(FilterEmptyConstraint.class);
     }
 
-    // ---------------模型定义----------------------------------------
+    // ---------------妯″瀷瀹氫箟----------------------------------------
     @ModuleAnno(id = 123L)
-    public static class FilterEmptyConstraint extends ConstraintAlgBase {
+    public static class FilterEmptyConstraint extends ModuleAlgBase {
 
         @PartAnno(code = "cpu")
         @DAttrAnno1(code = "CoreNum", dynAttrType = DynamicAttributeType.E_STRING,
@@ -50,18 +50,18 @@ public class PartCategoryFilterEmptyTest extends ModuleScenarioTestBase {
         private PartVar drive1;
     }
 
-    // ---------------模型定义结束----------------------------------------
+    // ---------------妯″瀷瀹氫箟缁撴潫----------------------------------------
 
     @Override
     protected void beforeInitConfig(ConstraintConfig cfg) {
         cfg.setLoadType(ConstraintConfig.LOAD_TYPE_FULL);
     }
 
-    // ==================== ERR-001: 单个分类过滤为空 ====================
+    // ==================== ERR-001: 鍗曚釜鍒嗙被杩囨护涓虹┖ ====================
 
     /**
-     * ERR-001-1: cpu 过滤为空，drive 正常
-     * cpu: CoreNum=8 无匹配部件，drive: Speed=5400 匹配 drive1(PT1)
+     * ERR-001-1: cpu 杩囨护涓虹┖锛宒rive 姝ｅ父
+     * cpu: CoreNum=8 鏃犲尮閰嶉儴浠讹紝drive: Speed=5400 鍖归厤 drive1(PT1)
      */
     @Test
     public void testErr001_CpuFilterEmpty_DriveOk() {
@@ -75,8 +75,8 @@ public class PartCategoryFilterEmptyTest extends ModuleScenarioTestBase {
     }
 
     /**
-     * ERR-001-2: drive 过滤为空，cpu 正常
-     * cpu: CoreNum=4 匹配 cpu4，drive: Speed=7200 无匹配部件
+     * ERR-001-2: drive 杩囨护涓虹┖锛宑pu 姝ｅ父
+     * cpu: CoreNum=4 鍖归厤 cpu4锛宒rive: Speed=7200 鏃犲尮閰嶉儴浠?
      */
     @Test
     public void testErr001_CpuOk_DriveFilterEmpty() {
@@ -90,8 +90,8 @@ public class PartCategoryFilterEmptyTest extends ModuleScenarioTestBase {
     }
 
     /**
-     * ERR-001-3: 两个都正常
-     * cpu: CoreNum=4 匹配 cpu4，drive: Speed=5400 匹配 drive1
+     * ERR-001-3: 涓や釜閮芥甯?
+     * cpu: CoreNum=4 鍖归厤 cpu4锛宒rive: Speed=5400 鍖归厤 drive1
      */
     @Test
     public void testErr001_BothOk() {
@@ -102,15 +102,15 @@ public class PartCategoryFilterEmptyTest extends ModuleScenarioTestBase {
 
         resultAssert().assertCodeEqual(Result.SUCCESS);
         assertSoluContain("cpu4");
-        // drive part 的 shortCode 是 PT1 (auto-generated), code 是 drive1
+        // drive part 鐨?shortCode 鏄?PT1 (auto-generated), code 鏄?drive1
         assertSoluContain("PT1");
     }
 
-    // ==================== ERR-002: 两个分类都过滤为空 ====================
+    // ==================== ERR-002: 涓や釜鍒嗙被閮借繃婊や负绌?====================
 
     /**
-     * ERR-002-1: 两个都为空
-     * cpu: CoreNum=8 无匹配，drive: Speed=7200 无匹配
+     * ERR-002-1: 涓や釜閮戒负绌?
+     * cpu: CoreNum=8 鏃犲尮閰嶏紝drive: Speed=7200 鏃犲尮閰?
      */
     @Test
     public void testErr002_BothFilterEmpty() {

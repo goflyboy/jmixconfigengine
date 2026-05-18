@@ -11,7 +11,6 @@ import com.jmix.executor.impl.algmodel.PartCategoryAlgImpl;
 import com.jmix.executor.impl.algmodel.PartVarImpl;
 import com.jmix.executor.impl.algmodel.VarImpl;
 import com.jmix.executor.model.AlgLoaderException;
-import com.jmix.executor.southinf.IModuleAlg;
 
 import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.IntVar;
@@ -29,43 +28,43 @@ import java.util.Map;
 public class ConstraintAlgImplTestBase extends ModuleAlgImpl {
 
     /**
-     * 为了简化测试用例中算法的表达，类似 p1.value + p2.value 的表达，而不是
-     * p1.getValue() + p2.getValue()。和 ParaVarImpl/Part 类似，但不是继承，而是内部类。
+     * 涓轰簡绠€鍖栨祴璇曠敤渚嬩腑绠楁硶鐨勮〃杈撅紝绫讳技 p1.value + p2.value 鐨勮〃杈撅紝鑰屼笉鏄?
+     * p1.getValue() + p2.getValue()銆傚拰 ParaVarImpl/Part 绫讳技锛屼絾涓嶆槸缁ф壙锛岃€屾槸鍐呴儴绫汇€?
      */
     static public class ParaVar extends VarImpl<Para> {
 
         /**
-         * 参数值状态
+         * 鍙傛暟鍊肩姸鎬?
          */
         public IntVar value;
 
         /**
-         * 兼容旧模型的隐藏布尔变量
-         * 0-显示，1-隐藏
+         * 鍏煎鏃фā鍨嬬殑闅愯棌甯冨皵鍙橀噺
+         * 0-鏄剧ず锛?-闅愯棌
          */
         public BoolVar isHidden;
 
         /**
-         * 参数可选值的选中状态(CodeId -> ParaOptionVar)
+         * 鍙傛暟鍙€夊€肩殑閫変腑鐘舵€?CodeId -> ParaOptionVar)
          */
         public Map<Integer, ParaOptionVarImpl> optionSelectVars = new HashMap<>();
 
         /**
-         * 根据代码ID获取参数选项变量
+         * 鏍规嵁浠ｇ爜ID鑾峰彇鍙傛暟閫夐」鍙橀噺
          *
-         * @param codeId 选项的代码ID
-         * @return 对应的参数选项变量，如果不存在则返回null
+         * @param codeId 閫夐」鐨勪唬鐮両D
+         * @return 瀵瑰簲鐨勫弬鏁伴€夐」鍙橀噺锛屽鏋滀笉瀛樺湪鍒欒繑鍥瀗ull
          */
         public ParaOptionVarImpl getParaOptionByCodeId(Integer codeId) {
             return optionSelectVars.get(codeId);
         }
 
         /**
-         * 根据代码获取参数选项变量
+         * 鏍规嵁浠ｇ爜鑾峰彇鍙傛暟閫夐」鍙橀噺
          *
-         * @param code 选项的代码
-         * @return 对应的参数选项变量
-         * @throws AlgLoaderException 如果找不到对应的选项
+         * @param code 閫夐」鐨勪唬鐮?
+         * @return 瀵瑰簲鐨勫弬鏁伴€夐」鍙橀噺
+         * @throws AlgLoaderException 濡傛灉鎵句笉鍒板搴旂殑閫夐」
          */
         public ParaOptionVarImpl getParaOptionByCode(String code) {
             for (ParaOptionVarImpl option : optionSelectVars.values()) {
@@ -99,54 +98,54 @@ public class ConstraintAlgImplTestBase extends ModuleAlgImpl {
     @Data
     public class PartVar extends VarImpl<Part> {
         /**
-         * 部件的数量值
+         * 閮ㄤ欢鐨勬暟閲忓€?
          */
         public IntVar qty;
 
         /**
-         * 显示隐藏属性
+         * 鏄剧ず闅愯棌灞炴€?
          */
         public BoolVar isHidden;
 
         /**
-         * 子部件选中状态(Part.code -> BoolVar)
+         * 瀛愰儴浠堕€変腑鐘舵€?Part.code -> BoolVar)
          */
         // public Map<String, BoolVar> subPartSelectedVars = new HashMap<>();
 
         /**
-         * 是否选中
+         * 鏄惁閫変腑
          */
         public BoolVar isSelected;
     }
 
     /**
-     * 初始化Module后
+     * 鍒濆鍖朚odule鍚?
      *
      * @param module
      * @param moduleAlg
      */
-    protected void afterInitData(IModule module, IModuleAlg moduleAlg) {
+    protected void afterInitData(IModule module, Object moduleAlg) {
         List<PartCategoryAlgImpl> partCategoryAlgImpls = this.getPartCategoryAlgs();
 
-        // 获取当前类的所有字段
+        // 鑾峰彇褰撳墠绫荤殑鎵€鏈夊瓧娈?
         Map<String, Field> fieldMap = new HashMap<>();
         for (Field field : this.getClass().getDeclaredFields()) {
             field.setAccessible(true);
             fieldMap.put(field.getName(), field);
         }
 
-        // 遍历partCategoryAlgImpls，创建PartCategoryVar并设置到对应的字段上
+        // 閬嶅巻partCategoryAlgImpls锛屽垱寤篜artCategoryVar骞惰缃埌瀵瑰簲鐨勫瓧娈典笂
         for (PartCategoryAlgImpl partCategoryAlgImpl : partCategoryAlgImpls) {
             String categoryCode = partCategoryAlgImpl.getCategoryCode();
             Field field = fieldMap.get(categoryCode);
 
             if (field != null && PartCategoryVar.class.isAssignableFrom(field.getType())) {
                 try {
-                    // 创建PartCategoryVar
+                    // 鍒涘缓PartCategoryVar
                     PartCategoryVar partCategoryVar = new PartCategoryVar();
                     partCategoryVar.setAlgImpl((ModuleBaseAlgImpl) partCategoryAlgImpl);
 
-                    // 设置到字段上
+                    // 璁剧疆鍒板瓧娈典笂
                     field.set(this, partCategoryVar);
                     log.info("Set PartCategoryVar for field: {}, categoryCode: {}", field.getName(), categoryCode);
                 } catch (IllegalAccessException e) {
@@ -158,7 +157,7 @@ public class ConstraintAlgImplTestBase extends ModuleAlgImpl {
 
     public class PartCategoryVar extends PartVar {
         /**
-         * 引用到内部算法实现
+         * 寮曠敤鍒板唴閮ㄧ畻娉曞疄鐜?
          */
         private ModuleBaseAlgImpl algImpl;
 
@@ -178,12 +177,12 @@ public class ConstraintAlgImplTestBase extends ModuleAlgImpl {
     }
 
     /**
-     * 创建部件变量，继承类可以重载
+     * 鍒涘缓閮ㄤ欢鍙橀噺锛岀户鎵跨被鍙互閲嶈浇
      *
-     * @param internalPartVar 内部部件变量
-     * @return 创建的部件变量
+     * @param internalPartVar 鍐呴儴閮ㄤ欢鍙橀噺
+     * @return 鍒涘缓鐨勯儴浠跺彉閲?
      */
-    protected VarImpl<?> newPartVar(PartVarImpl internalPartVar) {
+    protected Object newPartVar(PartVarImpl internalPartVar) {
         PartVar partVar = new PartVar();
         partVar.setBase((Part) internalPartVar.getBase());
         partVar.qty = internalPartVar.getQty();
@@ -193,20 +192,20 @@ public class ConstraintAlgImplTestBase extends ModuleAlgImpl {
     }
 
     /**
-     * 创建参数变量，继承类可以重载
+     * 鍒涘缓鍙傛暟鍙橀噺锛岀户鎵跨被鍙互閲嶈浇
      *
-     * @param internalParaVar 内部参数变量
-     * @return 创建的参数变量
+     * @param internalParaVar 鍐呴儴鍙傛暟鍙橀噺
+     * @return 鍒涘缓鐨勫弬鏁板彉閲?
      */
-    protected VarImpl<?> newParaVar(ParaVarImpl internalParaVar) {
+    protected Object newParaVar(ParaVarImpl internalParaVar) {
         return toParaVar(internalParaVar);
     }
 
     /**
-     * 将内部ParaVar转换为测试用的ParaVar
+     * 灏嗗唴閮≒araVar杞崲涓烘祴璇曠敤鐨凱araVar
      *
-     * @param internalParaVar 内部参数变量
-     * @return 转换后的参数变量
+     * @param internalParaVar 鍐呴儴鍙傛暟鍙橀噺
+     * @return 杞崲鍚庣殑鍙傛暟鍙橀噺
      */
     public static ParaVar toParaVar(ParaVarImpl internalParaVar) {
         if (internalParaVar == null) {

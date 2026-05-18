@@ -12,7 +12,6 @@ import com.jmix.executor.impl.MultiInstPartCategoryInput;
 import com.jmix.executor.impl.PartCategoryInput;
 import com.jmix.executor.impl.PartCategoryInputBase;
 import com.jmix.executor.model.AlgLoaderException;
-import com.jmix.executor.southinf.IModuleAlg;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,8 +23,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * 部件分类级算法实现
- * 专注于单个部件分类的约束处理
+ * 閮ㄤ欢鍒嗙被绾х畻娉曞疄鐜?
+ * 涓撴敞浜庡崟涓儴浠跺垎绫荤殑绾︽潫澶勭悊
  * 
  * @since 2025-12-27
  */
@@ -35,7 +34,7 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
     private Map<String, Pair<PartCategoryInput, SingleInstPartCategoryAlgImpl>> partCategoryAlgs = new LinkedHashMap<>();
 
     /**
-     * 默认构造函数
+     * 榛樿鏋勯€犲嚱鏁?
      */
     public MultiInstPartCategoryAlgImpl() {
         super();
@@ -60,7 +59,7 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
 
     protected void initData(AlgCPModel model, IModule module,
             IModuleInput partCategoryInput,
-            IModuleAlg moduleAlgFile) {
+            Object moduleAlgFile) {
         super.initData(model, module, partCategoryInput, moduleAlgFile);
         for (PartCategoryInput partCategoryInputInst : this.getPartCategoryInputs()) {
             SingleInstPartCategoryAlgImpl partCategoryAlg = new SingleInstPartCategoryAlgImpl();
@@ -78,12 +77,12 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
     }
 
     protected void setSumSumToSumAttrParaRelation() {
-        // 设置 总总 和 总变量的关系
+        // 璁剧疆 鎬绘€?鍜?鎬诲彉閲忕殑鍏崇郴
         List<AttrPara> sumSumAttrParas = getMultiInstPartCategoryInput().getSumSumAttrParas();
         for (AttrPara attrPara : sumSumAttrParas) {
-            // 有一个已经输入，则汇总也设置数据
-            // 如果汇总已经输入，一输入的为准
-            // 总总参，和总参的关系，后续支持写逻辑（多个总总之间issue, 总参和下面的变量的关系）
+            // 鏈変竴涓凡缁忚緭鍏ワ紝鍒欐眹鎬讳篃璁剧疆鏁版嵁
+            // 濡傛灉姹囨€诲凡缁忚緭鍏ワ紝涓€杈撳叆鐨勪负鍑?
+            // 鎬绘€诲弬锛屽拰鎬诲弬鐨勫叧绯伙紝鍚庣画鏀寔鍐欓€昏緫锛堝涓€绘€讳箣闂磇ssue, 鎬诲弬鍜屼笅闈㈢殑鍙橀噺鐨勫叧绯伙級
             Pair<Boolean, Integer> hasSetSumPara = hasSetSumPara(attrPara);
             if (hasSetSumPara.getFirst()) {
                 ParaVarImpl sumSumParaVar = getSumSumParaByAttr(attrPara.getAttrCode());
@@ -95,7 +94,7 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
         }
     }
 
-    // 判断本总总参在其子类是否已经设置, 有一个设置了，则为设置
+    // 鍒ゆ柇鏈€绘€诲弬鍦ㄥ叾瀛愮被鏄惁宸茬粡璁剧疆, 鏈変竴涓缃簡锛屽垯涓鸿缃?
     private Pair<Boolean, Integer> hasSetSumPara(AttrPara sumSumPara) {
         boolean hasSet = false;
         int sumSumValue = 0;
@@ -128,20 +127,20 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
     // }
     // }
 
-    public void initRules(Map<String, Method> allRuleMethods, IModuleAlg moduleAlgFile, CalcStage calcStage) {
+    public void initRules(Map<String, Method> allRuleMethods, Object moduleAlgFile, CalcStage calcStage) {
         super.buildPriorityConstraint(getMultiInstPartCategoryInput());
 
         for (Pair<PartCategoryInput, SingleInstPartCategoryAlgImpl> partCategoryAlg : partCategoryAlgs.values()) {
             partCategoryAlg.getSecond().initRules(allRuleMethods, moduleAlgFile, calcStage);
         }
 
-        // 执行当前层的所有实例的规则
+        // 鎵ц褰撳墠灞傜殑鎵€鏈夊疄渚嬬殑瑙勫垯
         super.executeModuleRules(getMultiInstPartCategoryInput().getAllInstRules(), moduleAlgFile, allRuleMethods,
                 calcStage);
     }
 
     @Override
-    public void initInput(IModuleAlg moduleAlgFile) {
+    public void initInput(Object moduleAlgFile) {
         MultiInstPartCategoryInput multiInstPartCategoryInput = (MultiInstPartCategoryInput) this.moduleInput;
         newAttrParaVar(multiInstPartCategoryInput.getSumSumAttrParas());
         super.initInput(moduleAlgFile);
@@ -165,7 +164,7 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
                     partConstraint.getSumAttrCode(), "Q",
                     PartVarImpl::getQty, "");
         }
-        // 应用约束
+        // 搴旂敤绾︽潫
         ComparisonOperator operator = ComparisonOperator.fromSymbol(partConstraint.getComparator());
         operator.applyConstraint(model, sumFunExpr, partConstraint.getLeftValue());
         log.info("Priority-Added sum constraint: {} for {}",
@@ -174,12 +173,12 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
     }
 
     @Override
-    protected VarImpl<?> newPartVar(PartVarImpl internalPartVar) {
+    protected Object newPartVar(PartVarImpl internalPartVar) {
         throw new UnsupportedOperationException("Unimplemented method 'newPartVar'");
     }
 
     @Override
-    protected VarImpl<?> newParaVar(ParaVarImpl internalParaVar) {
+    protected Object newParaVar(ParaVarImpl internalParaVar) {
         throw new UnsupportedOperationException("Unimplemented method 'newParaVar'");
     }
 

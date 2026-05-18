@@ -11,7 +11,6 @@ import com.jmix.executor.impl.IModuleInput;
 import com.jmix.executor.impl.PartCategoryInput;
 import com.jmix.executor.impl.PartCategoryInputBase;
 import com.jmix.executor.model.AlgLoaderException;
-import com.jmix.executor.southinf.IModuleAlg;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,20 +19,20 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 部件分类级算法实现
- * 专注于单个部件分类的约束处理
+ * 閮ㄤ欢鍒嗙被绾х畻娉曞疄鐜?
+ * 涓撴敞浜庡崟涓儴浠跺垎绫荤殑绾︽潫澶勭悊
  * 
  * @since 2025-12-27
  */
 @Slf4j
 public class SingleInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements PartCategoryAlgImpl {
     /**
-     * 实例ID
+     * 瀹炰緥ID
      */
     private int instId = ModuleInst.DEFAULT_INSTANCE_ID;
 
     /**
-     * 默认构造函数
+     * 榛樿鏋勯€犲嚱鏁?
      */
     public SingleInstPartCategoryAlgImpl() {
         super();
@@ -41,29 +40,29 @@ public class SingleInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements 
 
     @Override
     protected void initData(AlgCPModel model, IModule module, IModuleInput moduleInput,
-            IModuleAlg moduleAlgFile) {
+            Object moduleAlgFile) {
         PartCategoryInput input = (PartCategoryInput) moduleInput;
         this.instId = input.getInstId();
         super.initData(model, module, moduleInput, moduleAlgFile);
     }
 
     @Override
-    public void initInput(IModuleAlg moduleAlgFile) {
+    public void initInput(Object moduleAlgFile) {
         PartCategoryInput input = (PartCategoryInput) (this.moduleInput);
         newAttrParaVar(input.getSumAttrParas());
         super.initInput(moduleAlgFile);
         setPartCategoryInput(input);
     }
 
-    public void initRules(Map<String, Method> allRuleMethods, IModuleAlg moduleAlgFile, CalcStage calcStage) {
-        super.buildPriorityConstraint(getModule()); // 先构建本部件分类的优先类规则
+    public void initRules(Map<String, Method> allRuleMethods, Object moduleAlgFile, CalcStage calcStage) {
+        super.buildPriorityConstraint(getModule()); // 鍏堟瀯寤烘湰閮ㄤ欢鍒嗙被鐨勪紭鍏堢被瑙勫垯
         super.initRules(allRuleMethods, moduleAlgFile, calcStage);
     }
 
     /**
-     * 获取实例ID
+     * 鑾峰彇瀹炰緥ID
      * 
-     * @return 实例ID
+     * @return 瀹炰緥ID
      */
     public int getInstId() {
         return getPartCategory().isEnumMutiInst() ? getPartCategory().getEnumInstId() : instId;
@@ -78,12 +77,12 @@ public class SingleInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements 
     }
 
     @Override
-    protected VarImpl<?> newPartVar(PartVarImpl internalPartVar) {
+    protected Object newPartVar(PartVarImpl internalPartVar) {
         throw new UnsupportedOperationException("Unimplemented method 'newPartVar'");
     }
 
     @Override
-    protected VarImpl<?> newParaVar(ParaVarImpl internalParaVar) {
+    protected Object newParaVar(ParaVarImpl internalParaVar) {
         throw new UnsupportedOperationException("Unimplemented method 'newParaVar'");
     }
 
@@ -103,7 +102,7 @@ public class SingleInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements 
     }
 
     public ParaVarImpl getSumSumParaByAttr(String attrCode) {
-        // 如果一个支持多实例的分类，仅初始化了一个分类，则需要把访问sumsum转变为sum的访问
+        // 濡傛灉涓€涓敮鎸佸瀹炰緥鐨勫垎绫伙紝浠呭垵濮嬪寲浜嗕竴涓垎绫伙紝鍒欓渶瑕佹妸璁块棶sumsum杞彉涓簊um鐨勮闂?
         return getSumParaByAttr(attrCode);
     }
 
@@ -129,7 +128,7 @@ public class SingleInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements 
                 singleInstPartCategoryAlgImpl,
                 partConstraint.getSumAttrCode(), "Q",
                 PartVarImpl::getQty, "");
-        // 应用约束
+        // 搴旂敤绾︽潫
         ComparisonOperator operator = ComparisonOperator.fromSymbol(partConstraint.getComparator());
         operator.applyConstraint(model, sumFunExpr, partConstraint.getLeftValue());
         log.info("Priority-Added sum constraint: {} for {}",

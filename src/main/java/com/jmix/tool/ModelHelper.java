@@ -4,7 +4,6 @@ import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.logic.Rule;
 import com.jmix.executor.impl.util.CommHelper;
 import com.jmix.executor.model.AlgLoaderException;
-import com.jmix.executor.southinf.IModuleAlg;
 import com.jmix.tool.artbuilder.ModuleAlgArtifactGenerator;
 import com.jmix.tool.artbuilder.impl.ModuleVarInfo;
 import com.jmix.tool.bbuilder.ModuleGenneratorByAnno;
@@ -24,8 +23,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * 模型文件生成器
- * 用于根据用户输入生成测试代码文件
+ * 妯″瀷鏂囦欢鐢熸垚鍣?
+ * 鐢ㄤ簬鏍规嵁鐢ㄦ埛杈撳叆鐢熸垚娴嬭瘯浠ｇ爜鏂囦欢
  * 
  * @since 2025-09-22
  */
@@ -33,11 +32,11 @@ import java.nio.file.Paths;
 public class ModelHelper {
 
     /**
-     * 生成ModelFile文件（使用默认包名）
+     * 鐢熸垚ModelFile鏂囦欢锛堜娇鐢ㄩ粯璁ゅ寘鍚嶏級
      * 
-     * @param modelScenarioName     模型场景名称
-     * @param userVariableModel     用户变量模型
-     * @param userLogicByPseudocode 用户逻辑伪代码
+     * @param modelScenarioName     妯″瀷鍦烘櫙鍚嶇О
+     * @param userVariableModel     鐢ㄦ埛鍙橀噺妯″瀷
+     * @param userLogicByPseudocode 鐢ㄦ埛閫昏緫浼唬鐮?
      */
     public void generatorModelFile(String modelScenarioName, String userVariableModel, String userLogicByPseudocode) {
         generatorModelFile("com.jmix.configengine.scenario.ruletest", modelScenarioName, userVariableModel,
@@ -45,12 +44,12 @@ public class ModelHelper {
     }
 
     /**
-     * 生成ModelFile文件
+     * 鐢熸垚ModelFile鏂囦欢
      * 
-     * @param packageName           包名
-     * @param modelScenarioName     模型场景名称
-     * @param userVariableModel     用户变量模型
-     * @param userLogicByPseudocode 用户逻辑伪代码
+     * @param packageName           鍖呭悕
+     * @param modelScenarioName     妯″瀷鍦烘櫙鍚嶇О
+     * @param userVariableModel     鐢ㄦ埛鍙橀噺妯″瀷
+     * @param userLogicByPseudocode 鐢ㄦ埛閫昏緫浼唬鐮?
      */
     public void generatorModelFile(String packageName, String modelScenarioName, String userVariableModel,
             String userLogicByPseudocode) {
@@ -58,39 +57,39 @@ public class ModelHelper {
     }
 
     /**
-     * 生成ModelFile文件（包含用户测试用例特殊规格）
+     * 鐢熸垚ModelFile鏂囦欢锛堝寘鍚敤鎴锋祴璇曠敤渚嬬壒娈婅鏍硷級
      * 
-     * @param packageName           包名
-     * @param modelScenarioName     模型场景名称
-     * @param userVariableModel     用户变量模型
-     * @param userLogicByPseudocode 用户逻辑伪代码
-     * @param userTestCaseSpec      用户测试用例特殊规格
+     * @param packageName           鍖呭悕
+     * @param modelScenarioName     妯″瀷鍦烘櫙鍚嶇О
+     * @param userVariableModel     鐢ㄦ埛鍙橀噺妯″瀷
+     * @param userLogicByPseudocode 鐢ㄦ埛閫昏緫浼唬鐮?
+     * @param userTestCaseSpec      鐢ㄦ埛娴嬭瘯鐢ㄤ緥鐗规畩瑙勬牸
      */
     public void generatorModelFile(String packageName, String modelScenarioName, String userVariableModel,
             String userLogicByPseudocode, String userTestCaseSpec) {
         try {
-            // 调用大模型（如:deepseek,Qwen）的深度思考模式
+            // 璋冪敤澶фā鍨嬶紙濡?deepseek,Qwen锛夌殑娣卞害鎬濊€冩ā寮?
             ModuleGenerator moduleGenerator = new ModuleGenerator();
             String code = moduleGenerator.generatorModelCode(packageName, modelScenarioName, userVariableModel,
                     userLogicByPseudocode, userTestCaseSpec);
 
-            // 根据code生成类 {modelScenarioName}Test.java
+            // 鏍规嵁code鐢熸垚绫?{modelScenarioName}Test.java
             String className = modelScenarioName + "Test";
             String fileName = className + ".java";
 
-            // 类文件保存在当前工程的测试代码 + packageName
+            // 绫绘枃浠朵繚瀛樺湪褰撳墠宸ョ▼鐨勬祴璇曚唬鐮?+ packageName
             String targetPath = getTestSourcePath(packageName);
             Path fullPath = Paths.get(targetPath, fileName);
 
-            // 确保目录存在
+            // 纭繚鐩綍瀛樺湪
             Files.createDirectories(fullPath.getParent());
 
-            // 如果fullPath存在，则删除
+            // 濡傛灉fullPath瀛樺湪锛屽垯鍒犻櫎
             if (Files.exists(fullPath)) {
                 Files.delete(fullPath);
             }
 
-            // 写入文件，使用UTF-8编码
+            // 鍐欏叆鏂囦欢锛屼娇鐢║TF-8缂栫爜
             try (OutputStreamWriter writer = new OutputStreamWriter(
                     new FileOutputStream(fullPath.toFile()), "UTF-8")) {
                 writer.write(code);
@@ -98,17 +97,17 @@ public class ModelHelper {
 
             log.info("Successfully generated test file: {}", fullPath.toAbsolutePath());
 
-            // 尝试编译生成的Java文件
+            // 灏濊瘯缂栬瘧鐢熸垚鐨凧ava鏂囦欢
             String projectRoot = System.getProperty("user.dir");
 
             ModuleCompiler compiler = new ModuleCompiler();
             compiler.compile(projectRoot, fullPath.toString());
             log.info("Successfully compiled test file: {}", fullPath.toAbsolutePath());
 
-            // // 新增代码：自动注入约束代码
+            // // 鏂板浠ｇ爜锛氳嚜鍔ㄦ敞鍏ョ害鏉熶唬鐮?
             // boolean isNeedInject = autoInjectConstraintCode(className, packageName);
             // if (isNeedInject) {
-            // compileJavaFile(fullPath); // 再次编译这个文件
+            // compileJavaFile(fullPath); // 鍐嶆缂栬瘧杩欎釜鏂囦欢
             // }
 
         } catch (Exception e) {
@@ -118,29 +117,29 @@ public class ModelHelper {
     }
 
     /**
-     * 获取测试源码路径
+     * 鑾峰彇娴嬭瘯婧愮爜璺緞
      * 
-     * @param packageName 包名
-     * @return 测试源码路径
+     * @param packageName 鍖呭悕
+     * @return 娴嬭瘯婧愮爜璺緞
      */
     private String getTestSourcePath(String packageName) {
-        // 获取当前工作目录
-        String currentDir = ""; // System.getProperty("user.dir"); 多Module的情况下，路径取的是跟project的地址
+        // 鑾峰彇褰撳墠宸ヤ綔鐩綍
+        String currentDir = ""; // System.getProperty("user.dir"); 澶歁odule鐨勬儏鍐典笅锛岃矾寰勫彇鐨勬槸璺焢roject鐨勫湴鍧€
         String classPath = Thread.currentThread().getContextClassLoader().getResource("").getPath();
         currentDir = classPath.substring(1, classPath.indexOf("/target"));
         currentDir = currentDir.replace('/', File.separatorChar);
-        // 构建测试源码路径
+        // 鏋勫缓娴嬭瘯婧愮爜璺緞
         String packagePath = packageName.replace('.', File.separatorChar);
         return currentDir + File.separator + "src" + File.separator + "test" + File.separator + "java" + File.separator
                 + packagePath;
     }
 
     /**
-     * 生成ModelFile文件，并运行（使用默认包名）
+     * 鐢熸垚ModelFile鏂囦欢锛屽苟杩愯锛堜娇鐢ㄩ粯璁ゅ寘鍚嶏級
      * 
-     * @param modelScenarioName     模型场景名称
-     * @param userVariableModel     用户变量模型
-     * @param userLogicByPseudocode 用户逻辑伪代码
+     * @param modelScenarioName     妯″瀷鍦烘櫙鍚嶇О
+     * @param userVariableModel     鐢ㄦ埛鍙橀噺妯″瀷
+     * @param userLogicByPseudocode 鐢ㄦ埛閫昏緫浼唬鐮?
      */
     public void generatorRunModelFile(String modelScenarioName, String userVariableModel,
             String userLogicByPseudocode) {
@@ -149,12 +148,12 @@ public class ModelHelper {
     }
 
     /**
-     * 生成ModelFile文件，并运行
+     * 鐢熸垚ModelFile鏂囦欢锛屽苟杩愯
      * 
-     * @param packageName           包名
-     * @param modelScenarioName     模型场景名称
-     * @param userVariableModel     用户变量模型
-     * @param userLogicByPseudocode 用户逻辑伪代码
+     * @param packageName           鍖呭悕
+     * @param modelScenarioName     妯″瀷鍦烘櫙鍚嶇О
+     * @param userVariableModel     鐢ㄦ埛鍙橀噺妯″瀷
+     * @param userLogicByPseudocode 鐢ㄦ埛閫昏緫浼唬鐮?
      */
     public void generatorRunModelFile(String packageName, String modelScenarioName,
             String userVariableModel, String userLogicByPseudocode) {
@@ -162,22 +161,22 @@ public class ModelHelper {
     }
 
     /**
-     * 生成ModelFile文件，并运行（包含用户测试用例特殊规格）
+     * 鐢熸垚ModelFile鏂囦欢锛屽苟杩愯锛堝寘鍚敤鎴锋祴璇曠敤渚嬬壒娈婅鏍硷級
      * 
-     * @param packageName           包名
-     * @param modelScenarioName     模型场景名称
-     * @param userVariableModel     用户变量模型
-     * @param userLogicByPseudocode 用户逻辑伪代码
-     * @param userTestCaseSpec      用户测试用例特殊规格
+     * @param packageName           鍖呭悕
+     * @param modelScenarioName     妯″瀷鍦烘櫙鍚嶇О
+     * @param userVariableModel     鐢ㄦ埛鍙橀噺妯″瀷
+     * @param userLogicByPseudocode 鐢ㄦ埛閫昏緫浼唬鐮?
+     * @param userTestCaseSpec      鐢ㄦ埛娴嬭瘯鐢ㄤ緥鐗规畩瑙勬牸
      */
     public void generatorRunModelFile(String packageName, String modelScenarioName,
             String userVariableModel, String userLogicByPseudocode, String userTestCaseSpec) {
         try {
-            // 调用generatorModelFile生成文件（是一个测试用例），如：CalculateRuleSimpleTest.java
+            // 璋冪敤generatorModelFile鐢熸垚鏂囦欢锛堟槸涓€涓祴璇曠敤渚嬶級锛屽锛欳alculateRuleSimpleTest.java
             generatorModelFile(packageName, modelScenarioName, userVariableModel, userLogicByPseudocode,
                     userTestCaseSpec);
 
-            // 使用 ModuleRunner 运行这个文件（运行这个测试类）
+            // 浣跨敤 ModuleRunner 杩愯杩欎釜鏂囦欢锛堣繍琛岃繖涓祴璇曠被锛?
             ModuleRunner moduleRunner = new ModuleRunner();
             moduleRunner.runTestFile(packageName, modelScenarioName);
             log.info("Successfully run test file: {}", packageName + "." + modelScenarioName);
@@ -188,14 +187,14 @@ public class ModelHelper {
     }
 
     /**
-     * 自动注入约束代码
+     * 鑷姩娉ㄥ叆绾︽潫浠ｇ爜
      * 
-     * @param className   类名
-     * @param packageName 包名
-     * @return 是否需要注入
+     * @param className   绫诲悕
+     * @param packageName 鍖呭悕
+     * @return 鏄惁闇€瑕佹敞鍏?
      */
     public boolean autoInjectConstraintCode(String className, String packageName) {
-        // 获取完整的类名
+        // 鑾峰彇瀹屾暣鐨勭被鍚?
         String fullClassName = packageName + "." + className;
         Class<?> injectedClazz;
         try {
@@ -208,28 +207,26 @@ public class ModelHelper {
     }
 
     /**
-     * 自动注入约束代码
+     * 鑷姩娉ㄥ叆绾︽潫浠ｇ爜
      * 
-     * @param injectedClazz 类
-     * @return 是否需要注入
+     * @param injectedClazz 绫?
+     * @return 鏄惁闇€瑕佹敞鍏?
      */
     public boolean autoInjectConstraintCode(Class<?> injectedClazz) {
         try {
-            // 创建临时路径
+            // 鍒涘缓涓存椂璺緞
             String tempPath = CommHelper.createTempPath(injectedClazz);
 
-            // 生成Module
-            @SuppressWarnings("unchecked")
-            Class<? extends IModuleAlg> constraintAlgClass = (Class<? extends IModuleAlg>) injectedClazz;
-            Module module = ModuleGenneratorByAnno.build(constraintAlgClass, tempPath);
+            // 鐢熸垚Module
+            Module module = ModuleGenneratorByAnno.build(injectedClazz, tempPath);
 
-            // 检查是否需要注入
+            // 妫€鏌ユ槸鍚﹂渶瑕佹敞鍏?
             boolean isNeedInject = checkNeedInject(module);
 
             if (isNeedInject) {
-                // 执行注入操作
+                // 鎵ц娉ㄥ叆鎿嶄綔
                 performInjection(injectedClazz, module);
-                log.info("✓ Automatic constraint code injection completed");
+                log.info("鉁?Automatic constraint code injection completed");
             }
 
             return isNeedInject;
@@ -242,10 +239,10 @@ public class ModelHelper {
     }
 
     /**
-     * 检查是否需要注入约束代码
+     * 妫€鏌ユ槸鍚﹂渶瑕佹敞鍏ョ害鏉熶唬鐮?
      * 
-     * @param module 模块对象
-     * @return 是否需要注入
+     * @param module 妯″潡瀵硅薄
+     * @return 鏄惁闇€瑕佹敞鍏?
      */
     private boolean checkNeedInject(Module module) {
         if (module.getRules() == null) {
@@ -262,18 +259,18 @@ public class ModelHelper {
     }
 
     /**
-     * 执行约束代码注入
+     * 鎵ц绾︽潫浠ｇ爜娉ㄥ叆
      * 
-     * @param injectedClazz 注入的类
-     * @param module        模块对象
-     * @throws Exception 注入过程中的异常
+     * @param injectedClazz 娉ㄥ叆鐨勭被
+     * @param module        妯″潡瀵硅薄
+     * @throws Exception 娉ㄥ叆杩囩▼涓殑寮傚父
      */
     private void performInjection(Class<?> injectedClazz, Module module) throws Exception {
-        // 生成ModuleInfo
+        // 鐢熸垚ModuleInfo
         ModuleAlgArtifactGenerator generator = new ModuleAlgArtifactGenerator();
         ModuleVarInfo moduleInfo = generator.buildModuleInfo(module);
 
-        // 注入规则
+        // 娉ㄥ叆瑙勫垯
         StructCodeInjector injector = new StructCodeInjector();
         injector.injectRule(injectedClazz, moduleInfo.getRules());
     }
