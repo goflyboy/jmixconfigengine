@@ -4,7 +4,6 @@ import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.logic.Rule;
 import com.jmix.executor.impl.util.CommHelper;
 import com.jmix.executor.model.AlgLoaderException;
-import com.jmix.executor.southinf.IModuleAlg;
 import com.jmix.tool.artbuilder.ModuleAlgArtifactGenerator;
 import com.jmix.tool.artbuilder.impl.ModuleVarInfo;
 import com.jmix.tool.bbuilder.ModuleGenneratorByAnno;
@@ -47,7 +46,7 @@ public class ModelHelper {
     /**
      * 生成ModelFile文件
      * 
-     * @param packageName           包名
+     * @param packageName           鍖呭悕
      * @param modelScenarioName     模型场景名称
      * @param userVariableModel     用户变量模型
      * @param userLogicByPseudocode 用户逻辑伪代码
@@ -60,7 +59,7 @@ public class ModelHelper {
     /**
      * 生成ModelFile文件（包含用户测试用例特殊规格）
      * 
-     * @param packageName           包名
+     * @param packageName           鍖呭悕
      * @param modelScenarioName     模型场景名称
      * @param userVariableModel     用户变量模型
      * @param userLogicByPseudocode 用户逻辑伪代码
@@ -120,7 +119,7 @@ public class ModelHelper {
     /**
      * 获取测试源码路径
      * 
-     * @param packageName 包名
+     * @param packageName 鍖呭悕
      * @return 测试源码路径
      */
     private String getTestSourcePath(String packageName) {
@@ -151,7 +150,7 @@ public class ModelHelper {
     /**
      * 生成ModelFile文件，并运行
      * 
-     * @param packageName           包名
+     * @param packageName           鍖呭悕
      * @param modelScenarioName     模型场景名称
      * @param userVariableModel     用户变量模型
      * @param userLogicByPseudocode 用户逻辑伪代码
@@ -164,7 +163,7 @@ public class ModelHelper {
     /**
      * 生成ModelFile文件，并运行（包含用户测试用例特殊规格）
      * 
-     * @param packageName           包名
+     * @param packageName           鍖呭悕
      * @param modelScenarioName     模型场景名称
      * @param userVariableModel     用户变量模型
      * @param userLogicByPseudocode 用户逻辑伪代码
@@ -190,8 +189,8 @@ public class ModelHelper {
     /**
      * 自动注入约束代码
      * 
-     * @param className   类名
-     * @param packageName 包名
+     * @param className   绫诲悕
+     * @param packageName 鍖呭悕
      * @return 是否需要注入
      */
     public boolean autoInjectConstraintCode(String className, String packageName) {
@@ -219,9 +218,7 @@ public class ModelHelper {
             String tempPath = CommHelper.createTempPath(injectedClazz);
 
             // 生成Module
-            @SuppressWarnings("unchecked")
-            Class<? extends IModuleAlg> constraintAlgClass = (Class<? extends IModuleAlg>) injectedClazz;
-            Module module = ModuleGenneratorByAnno.build(constraintAlgClass, tempPath);
+            Module module = ModuleGenneratorByAnno.build(injectedClazz, tempPath);
 
             // 检查是否需要注入
             boolean isNeedInject = checkNeedInject(module);

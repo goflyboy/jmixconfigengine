@@ -14,13 +14,15 @@ import com.jmix.executor.bmodel.para.Para;
 import com.jmix.executor.bmodel.para.ParaType;
 import com.jmix.executor.cmodel.ModuleInst;
 import com.jmix.executor.impl.IModuleInput;
-import com.jmix.executor.impl.ModuleInstAccessor;
 import com.jmix.executor.impl.PartCategoryInputBase;
 import com.jmix.executor.impl.PriorityConstraint;
 import com.jmix.executor.impl.util.FilterExpressionExecutor;
 import com.jmix.executor.model.AlgLoaderException;
 import com.jmix.executor.model.PartConstantAttr;
-import com.jmix.executor.southinf.IModuleAlg;
+import com.jmix.executor.southinf.ModuleAlgBase;
+import com.jmix.executor.southinf.view.ModuleInstView;
+import com.jmix.executor.southinf.var.Var;
+import com.jmix.executor.impl.southbridge.SouthboundModuleAlgAdapter;
 
 import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.IntVar;
@@ -117,9 +119,9 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
     protected IModuleInput moduleInput;
 
     /**
-     * 当前模块实例访问器，用于POST阶段读写ModuleInst
+     * 当前模块实例视图，用于POST阶段读写ModuleInst
      */
-    private ModuleInstAccessor currentModuleInstAccessor;
+    private ModuleInstView currentModuleInstView;
 
     /**
      * 获取实例ID
@@ -297,7 +299,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         setCurrentModule4Rule(this, null);
     }
 
-    protected void executeRuleMethod(Rule rule, IModuleAlg moduleAlgFile, Method method) {
+    protected void executeRuleMethod(Rule rule, Object moduleAlgFile, Method method) {
         if (method == null) {
             log.error("Rule method not found for execution: " + rule.getCode());
             throw new AlgLoaderException("Rule method not found for execution: " + rule.getCode());
@@ -331,7 +333,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * 遍历module的paras，创建ParaVar并放到paraMap
      * 遍历module的parts，创建PartVar并放到partMap
      */
-    protected void initAll(IModuleAlg moduleAlgFile) {
+    protected void initAll(Object moduleAlgFile) {
         if (module == null) {
             log.warn("Module is null, skip initAll");
             return;
@@ -527,7 +529,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         return buildAllRuleMethods(module, this);
     }
 
-    protected Map<String, Method> buildAllRuleMethods(IModule module, IModuleAlg moduleAlgFile) {
+    protected Map<String, Method> buildAllRuleMethods(IModule module, Object moduleAlgFile) {
         if (module == null || module.getAllRules() == null) {
             return new HashMap<>();
         }
@@ -587,16 +589,15 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
     /**
      * 将变量写回字段，保证规则使用变量是同一个
      */
-    protected void writeBackToFields(IModuleAlg moduleAlgFile) {
+    protected void writeBackToFields(Object moduleAlgFile) {
         Map<String, Field> fieldMap = getAllFieldVariables(moduleAlgFile);
-        ModuleBaseAlgImpl algFileImpl = (ModuleBaseAlgImpl) moduleAlgFile;
         // 处理PartVar
         for (Map.Entry<String, PartVarImpl> entry : partMap.entrySet()) {
             String code = entry.getKey();
             PartVarImpl partVar = entry.getValue();
             Field field = fieldMap.get(code);
             if (field != null) {
-                VarImpl<?> tVar = algFileImpl.newPartVarForField(partVar, field);
+                Object tVar = newPartVarForModuleField(moduleAlgFile, partVar, field);
                 setVariableField(moduleAlgFile, tVar, field);
             }
         }
@@ -607,10 +608,30 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
             ParaVarImpl paraVar = entry.getValue();
             Field field = fieldMap.get(code);
             if (field != null) {
-                VarImpl<?> tVar = algFileImpl.newParaVarForField(paraVar, field);
+                Object tVar = newParaVarForModuleField(moduleAlgFile, paraVar, field);
                 setVariableField(moduleAlgFile, tVar, field);
             }
         }
+    }
+
+    private Object newPartVarForModuleField(Object moduleAlgFile, PartVarImpl internalPartVar, Field field) {
+        if (moduleAlgFile instanceof ModuleBaseAlgImpl algFileImpl) {
+            return algFileImpl.newPartVarForField(internalPartVar, field);
+        }
+        if (moduleAlgFile instanceof ModuleAlgBase southboundAlg) {
+            return SouthboundModuleAlgAdapter.newPartVarForField(southboundAlg, internalPartVar, field);
+        }
+        return newPartVarForField(internalPartVar, field);
+    }
+
+    private Object newParaVarForModuleField(Object moduleAlgFile, ParaVarImpl internalParaVar, Field field) {
+        if (moduleAlgFile instanceof ModuleBaseAlgImpl algFileImpl) {
+            return algFileImpl.newParaVarForField(internalParaVar, field);
+        }
+        if (moduleAlgFile instanceof ModuleAlgBase southboundAlg) {
+            return SouthboundModuleAlgAdapter.newParaVarForField(southboundAlg, internalParaVar, field);
+        }
+        return newParaVarForField(internalParaVar, field);
     }
 
     /**
@@ -618,7 +639,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      *
      * @param allRuleMethods 所有规则方法映射
      */
-    protected void executeModuleRules(IModuleAlg moduleAlgFile, Map<String, Method> allRuleMethods,
+    protected void executeModuleRules(Object moduleAlgFile, Map<String, Method> allRuleMethods,
             CalcStage calcStage) {
         if (module == null || module.getAllRules() == null || allRuleMethods == null) {
             return;
@@ -633,7 +654,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      *
      * @param allRuleMethods 所有规则方法映射
      */
-    protected void executeModuleRules(List<Rule> rules, IModuleAlg moduleAlgFile, Map<String, Method> allRuleMethods,
+    protected void executeModuleRules(List<Rule> rules, Object moduleAlgFile, Map<String, Method> allRuleMethods,
             CalcStage calcStage) {
         if (rules == null || allRuleMethods == null) {
             return;
@@ -653,15 +674,18 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         }
     }
 
-    private void setCurrentModule4Rule(IModuleAlg moduleAlgFile, ModuleBaseAlgImpl tmpModuleAlg) {
-        ModuleBaseAlgImpl algFileImpl = (ModuleBaseAlgImpl) moduleAlgFile;
-        algFileImpl.currentModule = (tmpModuleAlg == null ? null : tmpModuleAlg.getModule());
-        algFileImpl.currentModuleAlg = tmpModuleAlg;
-
+    private void setCurrentModule4Rule(Object moduleAlgFile, ModuleBaseAlgImpl tmpModuleAlg) {
+        if (moduleAlgFile instanceof ModuleBaseAlgImpl algFileImpl) {
+            algFileImpl.currentModule = (tmpModuleAlg == null ? null : tmpModuleAlg.getModule());
+            algFileImpl.currentModuleAlg = tmpModuleAlg;
+        }
+        if (moduleAlgFile instanceof ModuleAlgBase southboundAlg) {
+            SouthboundModuleAlgAdapter.updateRuntimeContext(southboundAlg, tmpModuleAlg);
+        }
     }
 
     protected void initData(AlgCPModel model, IModule module, IModuleInput moduleInput,
-            IModuleAlg moduleAlgFile) {
+            Object moduleAlgFile) {
         // Module级别
         this.model = model;
         this.module = module;
@@ -674,14 +698,14 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         initAll(moduleAlgFile);
     }
 
-    protected void initInput(IModuleAlg moduleAlgFile) {
+    protected void initInput(Object moduleAlgFile) {
         // 将变量写回字段
         writeBackToFields(moduleAlgFile);
 
         log.info("ModuleBaseAlgImpl initInput {}", module.getClass().getSimpleName());
     }
 
-    public void initRules(Map<String, Method> allRuleMethods, IModuleAlg moduleAlgFile, CalcStage calcStage) {
+    public void initRules(Map<String, Method> allRuleMethods, Object moduleAlgFile, CalcStage calcStage) {
         // 执行本层的规则
         executeModuleRules(moduleAlgFile, allRuleMethods, calcStage);
 
@@ -699,9 +723,9 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * @param internalPartVar 内部部件变量
      * @return 创建的部件变量
      */
-    protected abstract VarImpl<?> newPartVar(PartVarImpl internalPartVar);
+    protected abstract Object newPartVar(PartVarImpl internalPartVar);
 
-    protected VarImpl<?> newPartVarForField(PartVarImpl internalPartVar, Field field) {
+    protected Object newPartVarForField(PartVarImpl internalPartVar, Field field) {
         return newPartVar(internalPartVar);
     }
 
@@ -711,9 +735,9 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * @param internalParaVar 内部参数变量
      * @return 创建的参数变量
      */
-    protected abstract VarImpl<?> newParaVar(ParaVarImpl internalParaVar);
+    protected abstract Object newParaVar(ParaVarImpl internalParaVar);
 
-    protected VarImpl<?> newParaVarForField(ParaVarImpl internalParaVar, Field field) {
+    protected Object newParaVarForField(ParaVarImpl internalParaVar, Field field) {
         return newParaVar(internalParaVar);
     }
 
@@ -724,22 +748,33 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * @param field 字段对象
      * @throws AlgLoaderException 异常
      */
-    protected void setVariableField(VarImpl<?> v, Field field) throws AlgLoaderException {
+    protected void setVariableField(Object v, Field field) throws AlgLoaderException {
         setVariableField(this, v, field);
     }
 
-    protected void setVariableField(IModuleAlg moduleAlgFile, VarImpl<?> v, Field field) throws AlgLoaderException {
+    protected void setVariableField(Object moduleAlgFile, Object v, Field field) throws AlgLoaderException {
+        String variableCode = variableCode(v);
         if (field == null) {
-            log.error("Field not found for code: null {}", v.getCode());
-            throw new AlgLoaderException("Field not found for code: null " + v.getCode());
+            log.error("Field not found for code: null {}", variableCode);
+            throw new AlgLoaderException("Field not found for code: null " + variableCode);
         }
         try {
             field.setAccessible(true);
             field.set(moduleAlgFile, v);
         } catch (IllegalArgumentException | IllegalAccessException e) {
-            log.error("Failed to write back variable to field: " + v.getCode(), e);
-            throw new AlgLoaderException("Failed to write back variable to field: " + v.getCode(), e);
+            log.error("Failed to write back variable to field: " + variableCode, e);
+            throw new AlgLoaderException("Failed to write back variable to field: " + variableCode, e);
         }
+    }
+
+    private String variableCode(Object value) {
+        if (value instanceof VarImpl) {
+            return ((VarImpl<?>) value).getCode();
+        }
+        if (value instanceof Var) {
+            return ((Var) value).code();
+        }
+        return String.valueOf(value);
     }
 
     /**
@@ -762,7 +797,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * 
      * @return 字段映射表
      */
-    protected Map<String, Field> getAllFieldVariables(IModuleAlg moduleAlgFile) {
+    protected Map<String, Field> getAllFieldVariables(Object moduleAlgFile) {
         Field[] fields = moduleAlgFile.getClass().getDeclaredFields();
         Map<String, Field> fieldMap = new HashMap<>();
         for (Field field : fields) {
@@ -1285,95 +1320,92 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         return this.module.getCode();
     }
 
-    // ==================== ModuleInstAccessor binding ====================
+    // ==================== POST instance view binding ====================
 
-    /**
-     * 绑定当前ModuleInst访问器，用于POST阶段读写实例数据
-     */
-    public void bindModuleInstAccessor(ModuleInstAccessor accessor) {
-        this.currentModuleInstAccessor = accessor;
+    public void bindModuleInstView(ModuleInstView view) {
+        this.currentModuleInstView = view;
     }
 
-    /**
-     * 清理当前ModuleInst访问器
-     */
-    public void clearModuleInstAccessor() {
-        this.currentModuleInstAccessor = null;
+    public void clearModuleInstView() {
+        this.currentModuleInstView = null;
     }
 
-    /**
-     * 获取当前ModuleInst访问器，仅在POST上下文可用
-     */
-    protected ModuleInstAccessor currentModuleInstAccessor() {
-        if (currentModuleInstAccessor == null) {
+    protected ModuleInstView currentModuleInstView() {
+        if (currentModuleInstView == null) {
             throw new AlgLoaderException(
-                    "ModuleInstAccessor is not bound. This method is only available in POST context.");
+                    "ModuleInstView is not bound. This method is only available in POST context.");
         }
-        return currentModuleInstAccessor;
+        return currentModuleInstView;
     }
-
-    // ==================== forwarding methods to ModuleInstAccessor ====================
 
     public String getDynAttr(String partCategoryCode, String attrCode) {
-        return currentModuleInstAccessor().getDynAttr(partCategoryCode, attrCode);
+        return currentModuleInstView().partCategorySum(partCategoryCode).dynAttr(attrCode);
     }
 
     public String getDynAttr(String partCategoryCode, int instId, String attrCode) {
-        return currentModuleInstAccessor().getDynAttr(partCategoryCode, instId, attrCode);
+        return currentModuleInstView().partCategory(partCategoryCode, instId).dynAttr(attrCode);
     }
 
     public List<String> getDynAttrValues(String partCategoryCode, String attrCode) {
-        return currentModuleInstAccessor().getDynAttrValues(partCategoryCode, attrCode);
+        return currentModuleInstView().partCategorySum(partCategoryCode).dynAttrs(attrCode);
     }
 
     public List<String> getDynAttrValues(String partCategoryCode, int instId, String attrCode) {
-        return currentModuleInstAccessor().getDynAttrValues(partCategoryCode, instId, attrCode);
+        return currentModuleInstView().partCategory(partCategoryCode, instId).parts().stream()
+                .filter(part -> part.selected() || part.quantity() > 0)
+                .map(part -> part.dynAttr(attrCode))
+                .collect(Collectors.toList());
     }
 
     public String getSumDynAttr(String partCategoryCode, String attrCode) {
-        return currentModuleInstAccessor().getSumDynAttr(partCategoryCode, attrCode);
+        return currentModuleInstView().partCategorySum(partCategoryCode).sumDynAttr(attrCode);
     }
 
     public String getSumDynAttr(String partCategoryCode, int instId, String attrCode) {
-        return currentModuleInstAccessor().getSumDynAttr(partCategoryCode, instId, attrCode);
+        int sum = currentModuleInstView().partCategory(partCategoryCode, instId).parts().stream()
+                .filter(part -> part.selected() || part.quantity() > 0)
+                .map(part -> toInt(part.dynAttr(attrCode)) * part.quantity())
+                .reduce(0, Integer::sum);
+        return String.valueOf(sum);
     }
 
     public int getQuantity(String partCategoryCode) {
-        return currentModuleInstAccessor().getQuantity(partCategoryCode);
+        return currentModuleInstView().partCategory(partCategoryCode).sumQuantity();
     }
 
     public int getQuantity(String partCategoryCode, int instId) {
-        return currentModuleInstAccessor().getQuantity(partCategoryCode, instId);
+        return currentModuleInstView().partCategory(partCategoryCode, instId).sumQuantity();
     }
 
     public List<Integer> getInstanceIds(String partCategoryCode) {
-        return currentModuleInstAccessor().getInstanceIds(partCategoryCode);
+        return currentModuleInstView().partCategorySum(partCategoryCode).insts().stream()
+                .map(inst -> inst.instanceId())
+                .collect(Collectors.toList());
     }
 
     public void setParaValue(String paraCode, String value) {
-        currentModuleInstAccessor().setParaValue(paraCode, value);
+        currentModuleInstView().parameter(paraCode).setValue(value);
     }
 
     public void setParaValue(String partCategoryCode, String paraCode, String value) {
-        currentModuleInstAccessor().setParaValue(partCategoryCode, paraCode, value);
+        currentModuleInstView().partCategory(partCategoryCode).parameter(paraCode).setValue(value);
     }
 
     public void setParaValue(String partCategoryCode, int instId, String paraCode, String value) {
-        currentModuleInstAccessor().setParaValue(partCategoryCode, instId, paraCode, value);
+        currentModuleInstView().partCategory(partCategoryCode, instId).parameter(paraCode).setValue(value);
     }
 
     public String getParaValue(String paraCode) {
-        return currentModuleInstAccessor().getParaValue(paraCode);
+        return currentModuleInstView().parameter(paraCode).value();
     }
 
     public String getParaValue(String partCategoryCode, String paraCode) {
-        return currentModuleInstAccessor().getParaValue(partCategoryCode, paraCode);
+        return currentModuleInstView().partCategory(partCategoryCode).parameter(paraCode).value();
     }
 
     public String getParaValue(String partCategoryCode, int instId, String paraCode) {
-        return currentModuleInstAccessor().getParaValue(partCategoryCode, instId, paraCode);
+        return currentModuleInstView().partCategory(partCategoryCode, instId).parameter(paraCode).value();
     }
-
     // ==================== type conversion helpers ====================
 
     protected int toInt(String value) {

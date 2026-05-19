@@ -1,6 +1,6 @@
 package com.jmix.scenario.ruletest;
 
-import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.ModuleAlgBase;
 import com.jmix.executor.southinf.var.ParaVar;
 import com.jmix.executor.southinf.var.PartCategoryVar;
 import com.jmix.executor.southinf.var.PartVar;
@@ -11,8 +11,8 @@ import com.jmix.tool.bbuilder.anno.ModuleAnno;
 import com.jmix.tool.bbuilder.anno.ParaAnno;
 import com.jmix.tool.bbuilder.anno.PartAnno;
 
-import com.google.ortools.sat.BoolVar;
-import com.google.ortools.sat.Literal;
+import com.jmix.executor.southinf.cp.AlgCPBoolVar;
+import com.jmix.executor.southinf.cp.AlgCPLiteral;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,7 +39,7 @@ public class CalculateRuleSimpleTest extends ModuleScenarioTestBase {
      * @since 2025-09-23
      */
     @ModuleAnno(id = 123L)
-    public static class CalculateRuleConstraint extends ConstraintAlgBase {
+    public static class CalculateRuleConstraint extends ModuleAlgBase {
 
         @ParaAnno(options = { "op11", "op12", "op13" })
         private ParaVar p1Var;
@@ -64,24 +64,24 @@ public class CalculateRuleSimpleTest extends ModuleScenarioTestBase {
             // }
 
             // 创建条件变量：p1是op11
-            BoolVar op11 = model.newBoolVar("rule1_op11");
+            AlgCPBoolVar op11 = model().newBoolVar("rule1_op11");
 
             // 实现条件逻辑：rule1_op11 = (p1 == op11)
-            model.addBoolAnd(new Literal[] {
+            model().addBoolAnd(new AlgCPLiteral[] {
                     this.p1Var.option("op11").selectedVar()
             }).onlyEnforceIf(op11);
 
             // 如果p1不是op11，则rule1_op11为false
-            model.addBoolOr(new Literal[] {
+            model().addBoolOr(new AlgCPLiteral[] {
                     this.p1Var.option("op11").selectedVar().not()
             }).onlyEnforceIf(op11.not());
 
             // 根据条件设置pt1Var的数量
             // 如果rule1_op11为true，则pt1Var数量为1
-            model.addEquality(pt1Var.quantityVar(), 1).onlyEnforceIf(op11);
+            model().addEquality(pt1Var.quantityVar(), 1).onlyEnforceIf(op11);
 
             // 如果rule1_op11为false，则pt1Var数量为3
-            model.addEquality(pt1Var.quantityVar(), 3).onlyEnforceIf(op11.not());
+            model().addEquality(pt1Var.quantityVar(), 3).onlyEnforceIf(op11.not());
         }
     }
 

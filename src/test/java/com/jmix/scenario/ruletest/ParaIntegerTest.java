@@ -1,12 +1,12 @@
 package com.jmix.scenario.ruletest;
 
-import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.ModuleAlgBase;
 import com.jmix.executor.southinf.var.ParaVar;
 import com.jmix.executor.southinf.var.PartCategoryVar;
 import com.jmix.executor.southinf.var.PartVar;
 import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.executor.bmodel.para.ParaType;
-import com.jmix.executor.impl.algmodel.AlgCPLinearExpr;
+import com.jmix.executor.southinf.cp.AlgCPLinearExpr;
 import com.jmix.executor.model.ConstraintConfig;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
 import com.jmix.tool.bbuilder.anno.ModuleAnno;
@@ -40,7 +40,7 @@ public class ParaIntegerTest extends ModuleScenarioTestBase {
      * @since 2025-09-23
      */
     @ModuleAnno(id = 123L)
-    public static class ParaIntegerConstraint extends ConstraintAlgBase {
+    public static class ParaIntegerConstraint extends ModuleAlgBase {
         @ParaAnno(type = ParaType.INTEGER, defaultValue = "0", minValue = "0", maxValue = "50")
         private ParaVar p1;
 
@@ -53,10 +53,10 @@ public class ParaIntegerTest extends ModuleScenarioTestBase {
         @CodeRuleAnno
         private void initConstraint() {
             // part1.quantity = p1.valueVar() + p2.valueVar()
-            AlgCPLinearExpr sumExpr = model.newLinearExpr("sum_p1_p2");
+            AlgCPLinearExpr sumExpr = model().newLinearExpr("sum_p1_p2");
             sumExpr.addTerm(p1.valueVar(), 1);
             sumExpr.addTerm(p2.valueVar(), 1);
-            model.addEquality(part1.quantityVar(), sumExpr);
+            model().addEquality(part1.quantityVar(), sumExpr);
         }
     }
 

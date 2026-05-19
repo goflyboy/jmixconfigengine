@@ -16,8 +16,8 @@
 ```java
 public class ParaVar { 
     public String code;                    // 参数的code，如:color
-    public IntVar value;                   // 参数的值，对应一个约束的变量，代表当前选择的值（可选值的codeId，如10）
-    public BoolVar isHidden;               // 本参数是否隐藏（1-表示隐藏，0表示显示），对应约束的一个变量
+    public AlgCPIntVar value;                   // 参数的值，对应一个约束的变量，代表当前选择的值（可选值的codeId，如10）
+    public AlgCPBoolVar isHidden;               // 本参数是否隐藏（1-表示隐藏，0表示显示），对应约束的一个变量
     public Map<Integer, ParaOptionVar> optionSelectVars = new HashMap<>(); // 本参数每个可选择值选中状态
     public ParaOptionVar getParaOptionByCode(String code){...}
 }
@@ -28,7 +28,7 @@ public class ParaVar {
 public class ParaOptionVar {
     public Integer codeId;                 // 参数可选值的codeId，整数，如:10 
     public String code;                    // 参数可选值的Code，如:Red
-    public BoolVar isSelectedVar;          // 对应一个约束的变量，表示是否选中
+    public AlgCPBoolVar isSelectedVar;          // 对应一个约束的变量，表示是否选中
 }
 ```
 
@@ -36,9 +36,9 @@ public class ParaOptionVar {
 ```java
 public class PartVar { 
     public String code;                    // Part的Code，如:part1
-    public IntVar qty;                     // 部件的数量值quantity，对应一个约束的变量
-    public BoolVar isHidden;                // 对应一个约束的变量，本Part是否隐藏（1-表示隐藏，0表示显示）
-    public BoolVar isSelected;          // 对应一个约束的变量，表示是否选中}
+    public AlgCPIntVar qty;                     // 部件的数量值quantity，对应一个约束的变量
+    public AlgCPBoolVar isHidden;                // 对应一个约束的变量，本Part是否隐藏（1-表示隐藏，0表示显示）
+    public AlgCPBoolVar isSelected;          // 对应一个约束的变量，表示是否选中}
 public class PartCategoryVar { 
     public String code;                    // Part的Code，如:part1
     public Map<String,PartVar> partMap;   
@@ -56,7 +56,7 @@ public class PartCategoryVar {
 - 约束代码依赖的基类已经定义了CPModel信息和变量信息和调用rule方法的代码, 不需要生成initConstraint方法的代码
 - 不需要生成基类，仅需要生成每个rule对应的约束代码
 - 每个rule生成一个方法，并使用@CodeRuleAnno注解，注解中需要生成normalNaturalCode
---在基类会统一创建公用的变量，例如:colorVar, 每个rule方法不需要创建变量，例如:model.newInt*等
+--在基类会统一创建公用的变量，例如:colorVar, 每个rule方法不需要创建变量，例如:model().newInt*等
 --rule方法里关键步骤都要生成注释，方便理解
 --如果约束代码里使用了isHidden,则该变量需要调用addVarAboutHiddenConstraints(在“约束关联的变量设置地方”)
 -----例如： 有约束 P1.isHidden = P2.isHidden,则需要增加： addVarAboutHiddenConstraints(P1,P2);
@@ -77,8 +77,8 @@ class ConstraintAlgImplTestBase {
     void createParaVar() {
         // 参数value和optionSelectVars的关系
         paraVar.optionSelectVars.forEach((optionId, optionVar) -> {
-            model.addEquality( paraVar.value, optionId).onlyEnforceIf(optionVar.getIsSelectedVar());
-            model.addDifferent( paraVar.value, optionId).onlyEnforceIf(optionVar.getIsSelectedVar().not());
+            model().addEquality( paraVar.value, optionId).onlyEnforceIf(optionVar.getIsSelectedVar());
+            model().addDifferent( paraVar.value, optionId).onlyEnforceIf(optionVar.getIsSelectedVar().not());
         });
     }
 }
@@ -91,7 +91,7 @@ class ConstraintAlgImplTestBase {
 - 保证编译能通过
 ### 3.常见使用生成约束代码的案例：
 3.1.a  逻辑代码： Part1.quantity = P1.value + P2.value
-3.1.b  约束代码为： model.addEquality(Part1.qty, LinearExpr.sum(new IntVar[]{P1.value, P2.value}));
+3.1.b  约束代码为： model().addEquality(Part1.qty, LinearExpr.sum(new AlgCPIntVar[]{P1.value, P2.value}));
 
 
 ## 三、测试代码生成要求
@@ -199,7 +199,7 @@ public class ${modelName}Test extends ModuleScenarioTestBase {
     //---------------模型的定义start----------------------------------------
     @ModuleAnno(id = 123L)
     @AlgorithmApiVersion(southApiVersion = "1.0", algorithmVersion = "generated")
-    static public class ${modelName}Constraint extends ConstraintAlgBase {
+    static public class ${modelName}Constraint extends ModuleAlgBase {
         ${userVariableModel}
         
         ${生成的约束代码}// 每个rule一个rule方法
@@ -290,7 +290,7 @@ public class HelloSampleTest extends ModuleScenarioTestBase {
      */
     @ModuleAnno(id = 123L)
     @AlgorithmApiVersion(southApiVersion = "1.0", algorithmVersion = "generated")
-    static public class HelloSampleConstraint extends ConstraintAlgBase {
+    static public class HelloSampleConstraint extends ModuleAlgBase {
         @ParaAnno(
                 options = {"Red", "Black", "White"}
         )
@@ -308,33 +308,33 @@ public class HelloSampleTest extends ModuleScenarioTestBase {
         @CodeRuleAnno(normalNaturalCode = "if(colorVar.value == Red && sizeVar.value == Small) {\n tShirt11Var.qty = 1;\n  } else {\n tShirt11Var.qty = 3; }")
         private void rule1() {
             // 创建条件变量：颜色是红色且尺寸是小号
-            BoolVar redAndSmall = model.newBoolVar("rule2_redAndSmall");
+            AlgCPBoolVar redAndSmall = model().newBoolVar("rule2_redAndSmall");
 
             // 实现条件逻辑：redAndSmall = (color == Red) AND (size == Small)
-            model.addBoolAnd(new Literal[]{
+            model().addBoolAnd(new AlgCPLiteral[]{
                     this.colorVar.getParaOptionByCode("Red").getIsSelectedVar(),
                     this.sizeVar.getParaOptionByCode("Small").getIsSelectedVar()
             }).onlyEnforceIf(redAndSmall);
 
             // 如果不是红色且小号的组合，则redAndSmall为false
-            model.addBoolOr(new Literal[]{
+            model().addBoolOr(new AlgCPLiteral[]{
                     this.colorVar.getParaOptionByCode("Red").getIsSelectedVar().not(),
                     this.sizeVar.getParaOptionByCode("Small").getIsSelectedVar().not()
             }).onlyEnforceIf(redAndSmall.not());
 
             // 根据条件设置tShirt11的数量
             // 如果redAndSmall为true，则tShirt11数量为1
-            model.addEquality(this.tShirt11Var.value, 1).onlyEnforceIf(redAndSmall);
+            model().addEquality(this.tShirt11Var.value, 1).onlyEnforceIf(redAndSmall);
 
             // 如果redAndSmall为false，则tShirt11数量为3
-            model.addEquality(this.tShirt11Var.value, 3).onlyEnforceIf(redAndSmall.not());
+            model().addEquality(this.tShirt11Var.value, 3).onlyEnforceIf(redAndSmall.not());
         }
 
         //rule2:
         @CodeRuleAnno(normalNaturalCode = "colorVar.isHidden and sizeVar.isHidden 是兼容的)
         private void rule2() {
             addVarAboutHiddenConstraints(colorVar, sizeVar);
-            model.addEquality(colorVar.isHidden,sizeVar.isHidden));
+            model().addEquality(colorVar.isHidden,sizeVar.isHidden));
         }
     }
     //-------------- cpmodel end----------------------------------------

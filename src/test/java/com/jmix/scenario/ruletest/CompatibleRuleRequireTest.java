@@ -1,6 +1,6 @@
 package com.jmix.scenario.ruletest;
 
-import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.ModuleAlgBase;
 import com.jmix.executor.southinf.var.ParaVar;
 import com.jmix.executor.southinf.var.PartCategoryVar;
 import com.jmix.executor.southinf.var.PartVar;
@@ -10,8 +10,8 @@ import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
 import com.jmix.tool.bbuilder.anno.ModuleAnno;
 import com.jmix.tool.bbuilder.anno.ParaAnno;
 
-import com.google.ortools.sat.BoolVar;
-import com.google.ortools.sat.Literal;
+import com.jmix.executor.southinf.cp.AlgCPBoolVar;
+import com.jmix.executor.southinf.cp.AlgCPLiteral;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,7 +41,7 @@ public class CompatibleRuleRequireTest extends ModuleScenarioTestBase {
      * @since 2025-09-23
      */
     @ModuleAnno(id = 123L)
-    public static class CompatibleRuleRequireConstraint extends ConstraintAlgBase {
+    public static class CompatibleRuleRequireConstraint extends ModuleAlgBase {
         @ParaAnno(options = { "a1", "a2", "a3", "a4" })
         private ParaVar aVar;
 
@@ -70,31 +70,31 @@ public class CompatibleRuleRequireTest extends ModuleScenarioTestBase {
          */
         protected void initConstraintNote() {
             // 创建条件变量：A是a1或a3
-            BoolVar a1OrA3 = model.newBoolVar("a1OrA3");
-            model.addBoolOr(new Literal[] {
+            AlgCPBoolVar a1OrA3 = model().newBoolVar("a1OrA3");
+            model().addBoolOr(new AlgCPLiteral[] {
                     aVar.option("a1").selectedVar(),
                     aVar.option("a3").selectedVar()
             }).onlyEnforceIf(a1OrA3);
-            model.addBoolAnd(new Literal[] {
+            model().addBoolAnd(new AlgCPLiteral[] {
                     aVar.option("a1").selectedVar().not(),
                     aVar.option("a3").selectedVar().not()
             }).onlyEnforceIf(a1OrA3.not());
 
             // 创建条件变量：B是b1、b2或b3
-            BoolVar b1OrB2OrB3 = model.newBoolVar("b1OrB2OrB3");
-            model.addBoolOr(new Literal[] {
+            AlgCPBoolVar b1OrB2OrB3 = model().newBoolVar("b1OrB2OrB3");
+            model().addBoolOr(new AlgCPLiteral[] {
                     bVar.option("b1").selectedVar(),
                     bVar.option("b2").selectedVar(),
                     bVar.option("b3").selectedVar()
             }).onlyEnforceIf(b1OrB2OrB3);
-            model.addBoolAnd(new Literal[] {
+            model().addBoolAnd(new AlgCPLiteral[] {
                     bVar.option("b1").selectedVar().not(),
                     bVar.option("b2").selectedVar().not(),
                     bVar.option("b3").selectedVar().not()
             }).onlyEnforceIf(b1OrB2OrB3.not());
 
             // 添加约束：如果A是a1或a3，则B必须是b1、b2或b3
-            model.addImplication(a1OrA3, b1OrB2OrB3);
+            model().addImplication(a1OrA3, b1OrB2OrB3);
 
             // 注意：反向约束不需要显式添加，因为这是"Requires"关系的单向约束
             // 反向推理的结果是正向约束的自然结果

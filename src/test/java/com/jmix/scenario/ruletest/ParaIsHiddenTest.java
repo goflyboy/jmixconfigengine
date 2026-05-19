@@ -1,21 +1,21 @@
 package com.jmix.scenario.ruletest;
 
-import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.ModuleAlgBase;
 import com.jmix.executor.southinf.var.ParaVar;
 import com.jmix.executor.southinf.var.PartCategoryVar;
 import com.jmix.executor.southinf.var.PartVar;
 import com.jmix.coretest.ModuleScenarioTestBase;
 import com.jmix.executor.bmodel.para.ParaType;
-import com.jmix.executor.impl.algmodel.AlgCPLinearExpr;
+import com.jmix.executor.southinf.cp.AlgCPLinearExpr;
 import com.jmix.executor.model.ConstraintConfig;
-import com.jmix.executor.southinf.AlgorithmApiVersion;
+import com.jmix.tool.bbuilder.anno.AlgorithmApiVersion;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
 import com.jmix.tool.bbuilder.anno.ModuleAnno;
 import com.jmix.tool.bbuilder.anno.ParaAnno;
 import com.jmix.tool.bbuilder.anno.PartAnno;
 
-import com.google.ortools.sat.BoolVar;
-import com.google.ortools.sat.Literal;
+import com.jmix.executor.southinf.cp.AlgCPBoolVar;
+import com.jmix.executor.southinf.cp.AlgCPLiteral;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,7 +44,7 @@ public class ParaIsHiddenTest extends ModuleScenarioTestBase {
      */
     @ModuleAnno(id = 123L)
     @AlgorithmApiVersion(southApiVersion = "1.0", algorithmVersion = "para-hidden-2026.05")
-    public static class ParaIsHiddenConstraint extends ConstraintAlgBase {
+    public static class ParaIsHiddenConstraint extends ModuleAlgBase {
         @ParaAnno(type = ParaType.INTEGER, defaultValue = "0", minValue = "0", maxValue = "3")
         private ParaVar p0;
 
@@ -60,38 +60,38 @@ public class ParaIsHiddenTest extends ModuleScenarioTestBase {
         @CodeRuleAnno
         private void initConstraint() {
             // Logic1: p1.hiddenVar() and p2.hiddenVar() are incompatible
-            model.addBoolOr(new Literal[] { p1.hiddenVar().not(), p2.hiddenVar().not() });
+            model().addBoolOr(new AlgCPLiteral[] { p1.hiddenVar().not(), p2.hiddenVar().not() });
             addVarAboutHiddenConstraints(p1, p2);
 
             // Logic2: if p0.valueVar() in (0,1) then p1.hiddenVar()=1 else p2.hiddenVar()=1
-            BoolVar p0Eq0 = model.newBoolVar("p0_eq_0");
-            BoolVar p0Eq1 = model.newBoolVar("p0_eq_1");
-            model.addEquality(p0.valueVar(), 0).onlyEnforceIf(p0Eq0);
-            model.addDifferent(p0.valueVar(), 0).onlyEnforceIf(p0Eq0.not());
-            model.addEquality(p0.valueVar(), 1).onlyEnforceIf(p0Eq1);
-            model.addDifferent(p0.valueVar(), 1).onlyEnforceIf(p0Eq1.not());
+            AlgCPBoolVar p0Eq0 = model().newBoolVar("p0_eq_0");
+            AlgCPBoolVar p0Eq1 = model().newBoolVar("p0_eq_1");
+            model().addEquality(p0.valueVar(), 0).onlyEnforceIf(p0Eq0);
+            model().addDifferent(p0.valueVar(), 0).onlyEnforceIf(p0Eq0.not());
+            model().addEquality(p0.valueVar(), 1).onlyEnforceIf(p0Eq1);
+            model().addDifferent(p0.valueVar(), 1).onlyEnforceIf(p0Eq1.not());
 
             // p0In01 is true iff p0.valueVar() == 0 or p0.valueVar() == 1
-            BoolVar p0In01 = model.newBoolVar("p0_in_01");
-            model.addBoolOr(new Literal[] { p0Eq0, p0Eq1 }).onlyEnforceIf(p0In01);
-            model.addBoolAnd(new Literal[] { p0Eq0.not(), p0Eq1.not() }).onlyEnforceIf(p0In01.not());
+            AlgCPBoolVar p0In01 = model().newBoolVar("p0_in_01");
+            model().addBoolOr(new AlgCPLiteral[] { p0Eq0, p0Eq1 }).onlyEnforceIf(p0In01);
+            model().addBoolAnd(new AlgCPLiteral[] { p0Eq0.not(), p0Eq1.not() }).onlyEnforceIf(p0In01.not());
             // Ensure not both p0Eq0 and p0Eq1 are true simultaneously
-            model.addBoolOr(new Literal[] { p0Eq0.not(), p0Eq1.not() });
+            model().addBoolOr(new AlgCPLiteral[] { p0Eq0.not(), p0Eq1.not() });
 
-            model.addEquality(p1.hiddenVar(), 1).onlyEnforceIf(p0In01);
-            model.addEquality(p2.hiddenVar(), 1).onlyEnforceIf(p0In01.not());
+            model().addEquality(p1.hiddenVar(), 1).onlyEnforceIf(p0In01);
+            model().addEquality(p2.hiddenVar(), 1).onlyEnforceIf(p0In01.not());
 
             // Logic3: if p1.hiddenVar()=1 then p1.valueVar()=0
-            model.addEquality(p1.valueVar(), 0).onlyEnforceIf(p1.hiddenVar());
+            model().addEquality(p1.valueVar(), 0).onlyEnforceIf(p1.hiddenVar());
 
             // Logic4: if p2.hiddenVar()=1 then p2.valueVar()=0
-            model.addEquality(p2.valueVar(), 0).onlyEnforceIf(p2.hiddenVar());
+            model().addEquality(p2.valueVar(), 0).onlyEnforceIf(p2.hiddenVar());
 
             // Logic5: part1.quantity = p1.valueVar() + p2.valueVar()
-            AlgCPLinearExpr sumExpr = model.newLinearExpr("sum_p1_p2");
+            AlgCPLinearExpr sumExpr = model().newLinearExpr("sum_p1_p2");
             sumExpr.addTerm(p1.valueVar(), 1);
             sumExpr.addTerm(p2.valueVar(), 1);
-            model.addEquality(part1.quantityVar(), sumExpr);
+            model().addEquality(part1.quantityVar(), sumExpr);
         }
     }
 

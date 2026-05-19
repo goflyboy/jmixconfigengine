@@ -3,7 +3,7 @@ package com.jmix.scenario.ruletest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.ModuleAlgBase;
 import com.jmix.executor.southinf.var.ParaVar;
 import com.jmix.executor.southinf.var.PartCategoryVar;
 import com.jmix.executor.southinf.var.PartVar;
@@ -40,7 +40,7 @@ public class PostCalcRuleTest extends ModuleScenarioTestBase {
     }
 
     @ModuleAnno(id = 123L)
-    public static class PostCalcConstraint extends ConstraintAlgBase {
+    public static class PostCalcConstraint extends ModuleAlgBase {
 
         @PartAnno(code = "drive")
         @DAttrAnno2(code = "Speed", dynAttrType = DynamicAttributeType.E_STRING,
@@ -76,12 +76,12 @@ public class PostCalcRuleTest extends ModuleScenarioTestBase {
 
         @CodeRuleAnno(calcStage = CalcStage.POST)
         private void postRule() {
-            int sum = toInt(getSumDynAttr("drive", "Capacity"));
-            setParaValue("pDriveSumCapacity", String.valueOf(sum));
-            setParaValue("drive", "pSumCapacity", String.valueOf(sum));
-            setParaValue("pFirstCapacity", getDynAttr("drive", "Capacity"));
-            setParaValue("pDriveQuantity", toString(getQuantity("drive")));
-            setParaValue("pDriveAttrCount", toString(getDynAttrValues("drive", "Capacity").size()));
+            int sum = partCategorySum("drive").sumDynAttr4Int("Capacity");
+            parameter("pDriveSumCapacity").setValue(String.valueOf(sum));
+            partCategory("drive").parameter("pSumCapacity").setValue(String.valueOf(sum));
+            parameter("pFirstCapacity").setValue(partCategorySum("drive").dynAttr("Capacity"));
+            parameter("pDriveQuantity").setValue(String.valueOf(partCategory("drive").sumQuantity()));
+            parameter("pDriveAttrCount").setValue(String.valueOf(partCategorySum("drive").dynAttrs("Capacity").size()));
         }
     }
 

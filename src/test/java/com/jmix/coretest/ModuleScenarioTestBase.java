@@ -16,7 +16,6 @@ import com.jmix.executor.cmodel.PartInst;
 import com.jmix.executor.cmodel.SolverResult;
 import com.jmix.executor.impl.ModuleConstraintExecutorImpl;
 import com.jmix.executor.impl.SolutionUtils;
-import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
 import com.jmix.executor.impl.util.CommHelper;
 import com.jmix.executor.impl.util.ParaTypeHandler;
 import com.jmix.executor.model.AlgLoaderException;
@@ -56,7 +55,7 @@ public abstract class ModuleScenarioTestBase {
     /**
      * 约束算法类
      */
-    private Class<? extends ModuleAlgImpl> constraintAlgClazz;
+    private Class<?> constraintAlgClazz;
 
     /**
      * 临时资源路径
@@ -93,7 +92,7 @@ public abstract class ModuleScenarioTestBase {
      * 
      * @param constraintAlgClazz 约束算法类
      */
-    public ModuleScenarioTestBase(Class<? extends ModuleAlgImpl> constraintAlgClazz) {
+    public ModuleScenarioTestBase(Class<?> constraintAlgClazz) {
         this.constraintAlgClazz = constraintAlgClazz;
     }
 
@@ -119,7 +118,7 @@ public abstract class ModuleScenarioTestBase {
      * @param moduleAlgClazz 模块算法类
      * @return 构建的模块
      */
-    protected Module buildModule(Class<? extends ModuleAlgImpl> moduleAlgClazz) {
+    protected Module buildModule(Class<?> moduleAlgClazz) {
         // 通过注解生成Module
         module = ModuleGenneratorByAnno.build(moduleAlgClazz, tempResourcePath);
         return module;

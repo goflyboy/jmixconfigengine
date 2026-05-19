@@ -1,6 +1,6 @@
 package com.jmix.scenario.ruletest;
 
-import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.ModuleAlgBase;
 import com.jmix.executor.southinf.var.ParaVar;
 import com.jmix.executor.southinf.var.PartCategoryVar;
 import com.jmix.executor.southinf.var.PartVar;
@@ -10,8 +10,8 @@ import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
 import com.jmix.tool.bbuilder.anno.ModuleAnno;
 import com.jmix.tool.bbuilder.anno.ParaAnno;
 
-import com.google.ortools.sat.BoolVar;
-import com.google.ortools.sat.Literal;
+import com.jmix.executor.southinf.cp.AlgCPBoolVar;
+import com.jmix.executor.southinf.cp.AlgCPLiteral;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,7 +33,7 @@ public class CompatibleRuleCodependentTest extends ModuleScenarioTestBase {
      * @since 2025-09-23
      */
     @ModuleAnno(id = 123L)
-    public static class CompatibleRuleCodependentConstraint extends ConstraintAlgBase {
+    public static class CompatibleRuleCodependentConstraint extends ModuleAlgBase {
         @ParaAnno(options = { "a1", "a2", "a3", "a4", "a5" })
         private ParaVar aVar;
 
@@ -70,65 +70,65 @@ public class CompatibleRuleCodependentTest extends ModuleScenarioTestBase {
          */
         public void addCompatibleConstraintCoDependentNote() {
             // 创建条件变量：A在CA中
-            BoolVar inCA = model.newBoolVar("inCA");
-            model.addBoolOr(new Literal[] {
+            AlgCPBoolVar inCA = model().newBoolVar("inCA");
+            model().addBoolOr(new AlgCPLiteral[] {
                     aVar.option("a1").selectedVar(),
                     aVar.option("a3").selectedVar()
             }).onlyEnforceIf(inCA);
-            model.addBoolAnd(new Literal[] {
+            model().addBoolAnd(new AlgCPLiteral[] {
                     aVar.option("a1").selectedVar().not(),
                     aVar.option("a3").selectedVar().not()
             }).onlyEnforceIf(inCA.not());
 
             // 创建条件变量：B在CB中
-            BoolVar inCB = model.newBoolVar("inCB");
-            model.addBoolOr(new Literal[] {
+            AlgCPBoolVar inCB = model().newBoolVar("inCB");
+            model().addBoolOr(new AlgCPLiteral[] {
                     bVar.option("b1").selectedVar(),
                     bVar.option("b2").selectedVar(),
                     bVar.option("b3").selectedVar()
             }).onlyEnforceIf(inCB);
-            model.addBoolAnd(new Literal[] {
+            model().addBoolAnd(new AlgCPLiteral[] {
                     bVar.option("b1").selectedVar().not(),
                     bVar.option("b2").selectedVar().not(),
                     bVar.option("b3").selectedVar().not()
             }).onlyEnforceIf(inCB.not());
 
             // 创建条件变量：A不在CA中
-            BoolVar notInCA = model.newBoolVar("notInCA");
-            model.addBoolOr(new Literal[] {
+            AlgCPBoolVar notInCA = model().newBoolVar("notInCA");
+            model().addBoolOr(new AlgCPLiteral[] {
                     aVar.option("a2").selectedVar(),
                     aVar.option("a4").selectedVar(),
                     aVar.option("a5").selectedVar()
             }).onlyEnforceIf(notInCA);
-            model.addBoolAnd(new Literal[] {
+            model().addBoolAnd(new AlgCPLiteral[] {
                     aVar.option("a2").selectedVar().not(),
                     aVar.option("a4").selectedVar().not(),
                     aVar.option("a5").selectedVar().not()
             }).onlyEnforceIf(notInCA.not());
 
             // 创建条件变量：B不在CB中
-            BoolVar notInCB = model.newBoolVar("notInCB");
-            model.addBoolOr(new Literal[] {
+            AlgCPBoolVar notInCB = model().newBoolVar("notInCB");
+            model().addBoolOr(new AlgCPLiteral[] {
                     bVar.option("b4").selectedVar(),
                     bVar.option("b5").selectedVar()
             }).onlyEnforceIf(notInCB);
-            model.addBoolAnd(new Literal[] {
+            model().addBoolAnd(new AlgCPLiteral[] {
                     bVar.option("b4").selectedVar().not(),
                     bVar.option("b5").selectedVar().not()
             }).onlyEnforceIf(notInCB.not());
 
             // Codependent 双向约束：
             // 正向1.1：如果A在CA中，则B必须在CB中
-            model.addImplication(inCA, inCB);
+            model().addImplication(inCA, inCB);
 
             // 正向1.2：如果A不在CA中，则B必须不在CB中
-            model.addImplication(notInCA, notInCB);
+            model().addImplication(notInCA, notInCB);
 
             // 反向2.1：如果B在CB中，则A必须在CA中
-            model.addImplication(inCB, inCA);
+            model().addImplication(inCB, inCA);
 
             // 反向2.2：如果B不在CB中，则A必须不在CA中
-            model.addImplication(notInCB, notInCA);
+            model().addImplication(notInCB, notInCA);
         }
     }
     // ---------------规则定义end----------------------------------------

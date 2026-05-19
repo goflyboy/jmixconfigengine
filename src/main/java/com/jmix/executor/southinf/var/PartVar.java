@@ -1,66 +1,74 @@
 package com.jmix.executor.southinf.var;
 
-import com.jmix.executor.bmodel.IPart;
-import com.jmix.executor.impl.algmodel.PartVarImpl;
-
-import com.google.ortools.sat.BoolVar;
-import com.google.ortools.sat.IntVar;
+import com.jmix.executor.southinf.cp.AlgCPBoolVar;
+import com.jmix.executor.southinf.cp.AlgCPIntVar;
 
 /**
  * Stable part variable facade.
  */
-public class PartVar extends SouthboundVarAdapter<IPart> implements Var {
+public class PartVar implements Var {
 
-    private final PartVarImpl internal;
+    private final Delegate delegate;
 
-    public PartVar(PartVarImpl internal) {
-        this.internal = internal;
-        setBase(internal.getBase());
+    public PartVar(Delegate delegate) {
+        this.delegate = delegate;
     }
 
-    public PartVarImpl internal() {
-        return internal;
+    public interface Delegate {
+        String code();
+
+        String fatherCode();
+
+        String attr(String attrCode);
+
+        int attrAsInt(String attrCode);
+
+        AlgCPIntVar quantityVar();
+
+        AlgCPBoolVar selectedVar();
+
+        AlgCPBoolVar hiddenVar();
     }
 
-    public IntExpr quantity() {
-        return Exprs.intExpr(internal.getQty());
+    public AlgCPIntVar quantity() {
+        return quantityVar();
     }
 
-    public BoolExpr selected() {
-        return Exprs.boolExpr(internal.getIsSelected());
+    public AlgCPBoolVar selected() {
+        return selectedVar();
     }
 
-    public BoolExpr hidden() {
-        return Exprs.boolExpr(internal.getIsHidden());
+    public AlgCPBoolVar hidden() {
+        return hiddenVar();
     }
 
-    public IntVar quantityVar() {
-        return internal.getQty();
+    public AlgCPIntVar quantityVar() {
+        return delegate.quantityVar();
     }
 
-    public BoolVar selectedVar() {
-        return internal.getIsSelected();
+    public AlgCPBoolVar selectedVar() {
+        return delegate.selectedVar();
     }
 
-    public BoolVar hiddenVar() {
-        return internal.getIsHidden();
+    public AlgCPBoolVar hiddenVar() {
+        return delegate.hiddenVar();
     }
 
     public String fatherCode() {
-        return internal.getBase().getFatherCode();
+        return delegate.fatherCode();
     }
 
     public String attr(String attrCode) {
-        return internal.getAttr(attrCode);
+        return delegate.attr(attrCode);
     }
 
     public int attrAsInt(String attrCode) {
-        return internal.getAttr4Int(attrCode);
+        return delegate.attrAsInt(attrCode);
     }
 
     @Override
     public String code() {
-        return internal.getCode();
+        return delegate.code();
     }
 
     @Override

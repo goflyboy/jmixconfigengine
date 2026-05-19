@@ -11,7 +11,6 @@ import com.jmix.executor.impl.IModuleInput;
 import com.jmix.executor.impl.PartCategoryInput;
 import com.jmix.executor.impl.PartCategoryInputBase;
 import com.jmix.executor.model.AlgLoaderException;
-import com.jmix.executor.southinf.IModuleAlg;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,21 +40,21 @@ public class SingleInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements 
 
     @Override
     protected void initData(AlgCPModel model, IModule module, IModuleInput moduleInput,
-            IModuleAlg moduleAlgFile) {
+            Object moduleAlgFile) {
         PartCategoryInput input = (PartCategoryInput) moduleInput;
         this.instId = input.getInstId();
         super.initData(model, module, moduleInput, moduleAlgFile);
     }
 
     @Override
-    public void initInput(IModuleAlg moduleAlgFile) {
+    public void initInput(Object moduleAlgFile) {
         PartCategoryInput input = (PartCategoryInput) (this.moduleInput);
         newAttrParaVar(input.getSumAttrParas());
         super.initInput(moduleAlgFile);
         setPartCategoryInput(input);
     }
 
-    public void initRules(Map<String, Method> allRuleMethods, IModuleAlg moduleAlgFile, CalcStage calcStage) {
+    public void initRules(Map<String, Method> allRuleMethods, Object moduleAlgFile, CalcStage calcStage) {
         super.buildPriorityConstraint(getModule()); // 先构建本部件分类的优先类规则
         super.initRules(allRuleMethods, moduleAlgFile, calcStage);
     }
@@ -78,12 +77,12 @@ public class SingleInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements 
     }
 
     @Override
-    protected VarImpl<?> newPartVar(PartVarImpl internalPartVar) {
+    protected Object newPartVar(PartVarImpl internalPartVar) {
         throw new UnsupportedOperationException("Unimplemented method 'newPartVar'");
     }
 
     @Override
-    protected VarImpl<?> newParaVar(ParaVarImpl internalParaVar) {
+    protected Object newParaVar(ParaVarImpl internalParaVar) {
         throw new UnsupportedOperationException("Unimplemented method 'newParaVar'");
     }
 

@@ -1,6 +1,6 @@
 package com.jmix.scenario.ruletest;
 
-import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.ModuleAlgBase;
 import com.jmix.executor.southinf.var.ParaVar;
 import com.jmix.executor.southinf.var.PartCategoryVar;
 import com.jmix.executor.southinf.var.PartVar;
@@ -31,7 +31,7 @@ public class PartCategoryFilterEmptyTest extends ModuleScenarioTestBase {
 
     // ---------------模型定义----------------------------------------
     @ModuleAnno(id = 123L)
-    public static class FilterEmptyConstraint extends ConstraintAlgBase {
+    public static class FilterEmptyConstraint extends ModuleAlgBase {
 
         @PartAnno(code = "cpu")
         @DAttrAnno1(code = "CoreNum", dynAttrType = DynamicAttributeType.E_STRING,

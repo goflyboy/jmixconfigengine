@@ -1,6 +1,6 @@
 package com.jmix.opti.base;
 
-import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.ModuleAlgBase;
 import com.jmix.executor.southinf.var.ParaVar;
 import com.jmix.executor.southinf.var.PartCategoryVar;
 import com.jmix.executor.southinf.var.PartVar;
@@ -9,9 +9,8 @@ import com.jmix.executor.bmodel.attr.DynamicAttributeType;
 import com.jmix.executor.bmodel.base.AssignType;
 import com.jmix.executor.bmodel.logic.PriorityStrategy;
 import com.jmix.executor.bmodel.para.ParaType;
-import com.jmix.executor.impl.algmodel.AlgCPLinearExpr;
-import com.jmix.executor.impl.algmodel.AlgCPModel;
-import com.jmix.executor.impl.algmodel.PartAlgCPLinearExpr;
+import com.jmix.executor.southinf.cp.AlgCPLinearExpr;
+import com.jmix.executor.southinf.cp.PartAlgCPLinearExpr;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
 import com.jmix.tool.bbuilder.anno.DAttrAnno2;
 import com.jmix.tool.bbuilder.anno.DAttrAnno3;
@@ -21,7 +20,7 @@ import com.jmix.tool.bbuilder.anno.ParaAnno;
 import com.jmix.tool.bbuilder.anno.PartAnno;
 import com.jmix.tool.bbuilder.anno.PriorityRuleAnno;
 
-import com.google.ortools.sat.BoolVar;
+import com.jmix.executor.southinf.cp.AlgCPBoolVar;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,16 +33,16 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
 
     // ---------------模型的定义start----------------------------------------
     @ModuleAnno(id = 123L)
-    static public class BaseOptiConstraint extends ConstraintAlgBase {
+    static public class BaseOptiConstraint extends ModuleAlgBase {
         // 硬盘部件分类定义--严格按层级结构定义（顺序很重要），部件的attrs也要按定义的顺序来
         @PartAnno(code = "drive")
         @DAttrAnno2(code = "Speed", dynAttrType = DynamicAttributeType.E_STRING, optionExtSchema = "StringUnit", options = {
-                "Speed_3000:3000:转",
-                "Speed_9000:9000:转",
-                "Speed_5400:5400:转",
-                "Speed_9900:9900:转",
-                "Speed_7200a5400:7200/5400:转",
-                "Speed_7200:7200:转" }, instType = 0)
+                "Speed_3000:3000:rpm",
+                "Speed_9000:9000:rpm",
+                "Speed_5400:5400:rpm",
+                "Speed_9900:9900:rpm",
+                "Speed_7200a5400:7200/5400:rpm",
+                "Speed_7200:7200:rpm" }, instType = 0)
         @DAttrAnno3(code = "Capacity", optionExtSchema = "IntegerUnit", options = { "Capacity_1T:1:T",
                 "Capacity_2T:2:T",
                 "Capacity_3T:3:T",
@@ -66,11 +65,11 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
         @PartAnno(fatherCode = "sd", attrs = { "5400", "3" })
         private PartVar sd1;
 
-        // 固态硬盘实例2
+        // 固态硬盘实例1
         @PartAnno(fatherCode = "sd", attrs = { "7200", "6" })
         private PartVar sd2;
 
-        // 固态硬盘实例3
+        // 固态硬盘实例1
         @PartAnno(fatherCode = "sd", attrs = { "9000", "9" })
         private PartVar sd3;
 
@@ -98,12 +97,12 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
             // proRule1-natuarl: 固态硬盘必须配置同一种，并且最多配置2块
             // proRule1-dsl: 拆分为proRule11和proRule11两条约束（和isSelected(S)、qty(Q)相关）
             // proRule11-cRule: sd1.S + sd2.S <=1
-            AlgCPLinearExpr sumSelected = sum4Selected("fatherCode=sd");
-            model.addLessOrEqual(sumSelected, 1);
+            AlgCPLinearExpr sumSelected = model().sum4Selected("fatherCode=sd");
+            model().addLessOrEqual(sumSelected, 1);
 
             // proRule12-cRule: sd1.Q + sd2.Q <= 2
-            AlgCPLinearExpr sumQty = sum4Quantity("fatherCode=sd");
-            model.addLessOrEqual(sumQty, 2);
+            AlgCPLinearExpr sumQty = model().sum4Quantity("fatherCode=sd");
+            model().addLessOrEqual(sumQty, 2);
         }
 
         // // proRule2:固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量
@@ -126,38 +125,38 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
             // proRule2-expr: sd1.S*110 +sd2.S*120 + md1.S*13
             // proRule2-step1: maximum(expr) ->
             // proRule2-step2: expr >= 200*(1-30%) = 84
-            applyPriorityRule(model);
+            applyPriorityRule();
 
         } // 优先使用固态硬盘：如果固态硬盘容量已足够，限制机械硬盘使用 TODO，怎么表达
 
         // 规则1: 固态硬盘优先匹配高速率容量，用机械硬盘增配低速率容量
-        private void applyPriorityRule(AlgCPModel model) {
+        private void applyPriorityRule() {
             List<PartVar> partVars = partVars("");
 
-            PartAlgCPLinearExpr ssTotalCapacity = sum4Quantity("Capacity", "fatherCode=sd");
-            PartAlgCPLinearExpr mechTotalCapacity = sum4Quantity("Capacity", "fatherCode=md");
+            PartAlgCPLinearExpr ssTotalCapacity = model().sum4Quantity("Capacity", "fatherCode=sd");
+            PartAlgCPLinearExpr mechTotalCapacity = model().sum4Quantity("Capacity", "fatherCode=md");
             // 如果是容量需求
             // if ("Capacity".equals(req.getAttrCode())) {
             if (Sum_Capacity.hasInput()) {
                 int requiredCapacity = Sum_Capacity.inputValue();
                 // 创建固态硬盘是否足够的布尔变量
-                BoolVar ssSufficient = model.newBoolVar(
+                AlgCPBoolVar ssSufficient = model().newBoolVar(
                         "ssSufficient");
 
                 // 定义：如果固态硬盘容量 >= 需求容量，则 ssSufficient = true
-                model.addGreaterOrEqual(ssTotalCapacity,
+                model().addGreaterOrEqual(ssTotalCapacity,
                         requiredCapacity).onlyEnforceIf(ssSufficient);
-                model.addLessThan(ssTotalCapacity,
+                model().addLessThan(ssTotalCapacity,
                         requiredCapacity).onlyEnforceIf(ssSufficient.not());
 
                 // 规则1.1: 如果固态硬盘足够，则禁止使用机械硬盘
                 List<PartVar> mechanicalParts = partVars("fatherCode=md");
                 for (PartVar pv : mechanicalParts) {
-                    model.addEquality(pv.quantityVar(), 0).onlyEnforceIf(ssSufficient);
+                    model().addEquality(pv.quantityVar(), 0).onlyEnforceIf(ssSufficient);
                 }
 
                 // 创建目标函数
-                PartAlgCPLinearExpr objectiveExpr = model.newPartLinearExpr("ObjectiveFun");
+                PartAlgCPLinearExpr objectiveExpr = model().newPartLinearExpr("ObjectiveFun");
 
                 // 基础目标: 最大化SSD使用（负权重）--容量越大越好
                 objectiveExpr.addExpr(ssTotalCapacity, -100);
@@ -166,46 +165,46 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
                 objectiveExpr.addExpr(mechTotalCapacity, 1);
 
                 // 3. 惩罚过度配置（重要！）
-                PartAlgCPLinearExpr totalCapacityExpr = sum4Selected("Capacity", "").name("totalCapacityExpr");
+                PartAlgCPLinearExpr totalCapacityExpr = model().sum4Selected("Capacity", "").name("totalCapacityExpr");
 
                 // 创建过度配置变量约束：excessCapacity = totalCapacity - requiredCapacity
-                PartAlgCPLinearExpr tExpr = model.newPartLinearExpr("excessCapacityExpr");
+                PartAlgCPLinearExpr tExpr = model().newPartLinearExpr("excessCapacityExpr");
                 tExpr.addExpr(totalCapacityExpr, 1);
                 tExpr.addConstant(-requiredCapacity);
                 // 2. 过度配置惩罚
                 objectiveExpr.addExpr(tExpr, 500); // 惩罚过度配置
 
-                // 4. 惩罚使用多.个零件（鼓励简洁配置）
+                // 4. 惩罚使用多个零件（鼓励简洁配置）
                 // 总零件数量惩罚
-                PartAlgCPLinearExpr totalPartsExpr = sum4Quantity("").name("totalPartsExpr");
+                PartAlgCPLinearExpr totalPartsExpr = model().sum4Quantity("").name("totalPartsExpr");
 
                 objectiveExpr.addExpr(totalPartsExpr, 500); // 零件数量惩罚
-                model.setObjectExpr(objectiveExpr);
+                model().setObjectExpr(objectiveExpr);
                 updatePriorityObjectFuntion("rule2", objectiveExpr);
 
             } else {// 给的数量qty总数
 
-                PartAlgCPLinearExpr ssTotalQty = sum4Quantity("fatherCode=sd");
-                PartAlgCPLinearExpr mechTotalQty = sum4Quantity("fatherCode=md");
+                PartAlgCPLinearExpr ssTotalQty = model().sum4Quantity("fatherCode=sd");
+                PartAlgCPLinearExpr mechTotalQty = model().sum4Quantity("fatherCode=md");
 
                 // int requiredQty = Integer.parseInt(req.getAttrValue());
                 int requiredQty = Sum_Quantity.inputValue();
                 // 创建固态硬盘是否足够的布尔变量
-                BoolVar ssSufficientQty = (BoolVar) model.newBoolVar(
+                AlgCPBoolVar ssSufficientQty = (AlgCPBoolVar) model().newBoolVar(
                         "ssSufficientQty");
                 // 定义：如果固态硬盘容量 >= 需求容量，则 ssSufficient = true
-                model.addGreaterOrEqual(ssTotalQty,
+                model().addGreaterOrEqual(ssTotalQty,
                         requiredQty).onlyEnforceIf(ssSufficientQty);
-                model.addLessThan(ssTotalQty,
+                model().addLessThan(ssTotalQty,
                         requiredQty).onlyEnforceIf(ssSufficientQty.not());
                 // 规则1.1: 如果固态硬盘足够，则禁止使用机械硬盘
                 List<PartVar> mechanicalParts = partVars("fatherCode=md");
                 for (PartVar pv : mechanicalParts) {
-                    model.addEquality(pv.quantityVar(), 0).onlyEnforceIf(ssSufficientQty);
+                    model().addEquality(pv.quantityVar(), 0).onlyEnforceIf(ssSufficientQty);
                 }
 
                 // 创建目标函数
-                PartAlgCPLinearExpr objectiveExpr = model.newPartLinearExpr("ObjectiveFunQty");
+                PartAlgCPLinearExpr objectiveExpr = model().newPartLinearExpr("ObjectiveFunQty");
 
                 // 基础目标: 最大化SSD使用（负权重）--容量越大越好
                 objectiveExpr.addExpr(ssTotalCapacity, -100);
@@ -215,16 +214,16 @@ public class BaseOptiTest extends ModuleScenarioTestBase {
                 // objectiveExpr.addExpr(mechTotalQty, 1);
 
                 // 3. 惩罚过度配置（重要！）
-                PartAlgCPLinearExpr totalQtyExpr = sum4Quantity("");
+                PartAlgCPLinearExpr totalQtyExpr = model().sum4Quantity("");
 
                 // 创建过度配置变量 约束：excessCapacity = totalCapacity - requiredCapacity
-                PartAlgCPLinearExpr excessQyExpr = model.newPartLinearExpr("excessQyExpr");
+                PartAlgCPLinearExpr excessQyExpr = model().newPartLinearExpr("excessQyExpr");
                 excessQyExpr.addExpr(totalQtyExpr, 1);
                 excessQyExpr.addConstant(-requiredQty);
                 // 2. 过度配置惩罚
                 objectiveExpr.addExpr(excessQyExpr, 500); // 惩罚过度配置
 
-                model.setObjectExpr(objectiveExpr); // 分minimize/adddGreaterxx
+                model().setObjectExpr(objectiveExpr); // 分minimize/adddGreaterxx
                 // model.minimize(objectiveExpr); // 设置目标函数为最小化（因为SSD有负权重）
                 updatePriorityObjectFuntion("rule2", objectiveExpr);
             }

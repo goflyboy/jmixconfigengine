@@ -11,7 +11,6 @@ import com.jmix.executor.impl.algmodel.PartCategoryAlgImpl;
 import com.jmix.executor.impl.algmodel.PartVarImpl;
 import com.jmix.executor.impl.algmodel.VarImpl;
 import com.jmix.executor.model.AlgLoaderException;
-import com.jmix.executor.southinf.IModuleAlg;
 
 import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.IntVar;
@@ -54,7 +53,7 @@ public class ConstraintAlgImplTestBase extends ModuleAlgImpl {
          * 根据代码ID获取参数选项变量
          *
          * @param codeId 选项的代码ID
-         * @return 对应的参数选项变量，如果不存在则返回null
+         * @return 对应的参数选项变量
          */
         public ParaOptionVarImpl getParaOptionByCodeId(Integer codeId) {
             return optionSelectVars.get(codeId);
@@ -125,7 +124,7 @@ public class ConstraintAlgImplTestBase extends ModuleAlgImpl {
      * @param module
      * @param moduleAlg
      */
-    protected void afterInitData(IModule module, IModuleAlg moduleAlg) {
+    protected void afterInitData(IModule module, Object moduleAlg) {
         List<PartCategoryAlgImpl> partCategoryAlgImpls = this.getPartCategoryAlgs();
 
         // 获取当前类的所有字段
@@ -183,7 +182,7 @@ public class ConstraintAlgImplTestBase extends ModuleAlgImpl {
      * @param internalPartVar 内部部件变量
      * @return 创建的部件变量
      */
-    protected VarImpl<?> newPartVar(PartVarImpl internalPartVar) {
+    protected Object newPartVar(PartVarImpl internalPartVar) {
         PartVar partVar = new PartVar();
         partVar.setBase((Part) internalPartVar.getBase());
         partVar.qty = internalPartVar.getQty();
@@ -198,7 +197,7 @@ public class ConstraintAlgImplTestBase extends ModuleAlgImpl {
      * @param internalParaVar 内部参数变量
      * @return 创建的参数变量
      */
-    protected VarImpl<?> newParaVar(ParaVarImpl internalParaVar) {
+    protected Object newParaVar(ParaVarImpl internalParaVar) {
         return toParaVar(internalParaVar);
     }
 

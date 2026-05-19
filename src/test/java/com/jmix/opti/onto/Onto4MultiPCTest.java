@@ -5,12 +5,11 @@ import com.jmix.executor.bmodel.attr.DynamicAttributeType;
 import com.jmix.executor.bmodel.base.AssignType;
 import com.jmix.executor.bmodel.logic.PriorityStrategy;
 import com.jmix.executor.bmodel.para.ParaType;
-import com.jmix.executor.impl.algmodel.AlgCPLinearExpr;
+import com.jmix.executor.southinf.cp.AlgCPLinearExpr;
 import com.jmix.executor.impl.algmodel.ParaVarImpl;
-import com.jmix.executor.impl.algmodel.PartAlgCPLinearExpr;
+import com.jmix.executor.southinf.cp.PartAlgCPLinearExpr;
 import com.jmix.executor.impl.algmodel.PartVarImpl;
-import com.jmix.executor.southinf.ModuleAlg;
-import com.jmix.executor.southinf.PartCategoryAlg;
+import com.jmix.executor.southinf.ModuleAlgBase;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
 import com.jmix.tool.bbuilder.anno.DAttrAnno1;
 import com.jmix.tool.bbuilder.anno.DAttrAnno2;
@@ -27,17 +26,17 @@ public class Onto4MultiPCTest extends ModuleScenarioTestBase {
 
     // ---------------模型的定义start----------------------------------------
     @ModuleAnno(id = 123L)
-    static public class Onto4MultiPCConstraint extends ModuleAlg {
+    static public class Onto4MultiPCConstraint extends ModuleAlgBase {
 
         // 硬盘部件分类定义--严格按层级结构定义（顺序很重要），部件的attrs也要按定义的顺序来
         @PartAnno()
         @DAttrAnno1(code = "Speed", dynAttrType = DynamicAttributeType.E_STRING, optionExtSchema = "StringUnit", options = {
-                "Speed_3000:3000:转",
-                "Speed_9000:9000:转",
-                "Speed_5400:5400:转",
-                "Speed_9900:9900:转",
-                "Speed_7200a5400:7200/5400:转",
-                "Speed_7200:7200:转" })
+                "Speed_3000:3000:rpm",
+                "Speed_9000:9000:rpm",
+                "Speed_5400:5400:rpm",
+                "Speed_9900:9900:rpm",
+                "Speed_7200a5400:7200/5400:rpm",
+                "Speed_7200:7200:rpm" })
         @DAttrAnno2(code = "Capacity", optionExtSchema = "IntegerUnit", options = { "Capacity_1T:1:T",
                 "Capacity_2T:2:T",
                 "Capacity_3T:3:T",
@@ -46,16 +45,16 @@ public class Onto4MultiPCTest extends ModuleScenarioTestBase {
                 "Capacity_4T:4:T" })
         @DAttrAnno3(code = "Type", dynAttrType = DynamicAttributeType.E_STRING, options = { "SD:sd",
                 "MD:md" }, instType = 0)
-        static public class drive extends PartCategoryAlg {
+        static public class drive extends ModuleAlgBase {
             // 固态硬盘实例1
             @PartAnno(attrs = { "5400", "3", "sd" }, price = 50)
             private PartVarImpl sd1;
 
-            // 固态硬盘实例2
+            // 固态硬盘实例1
             @PartAnno(attrs = { "7200", "6", "sd" }, price = 80)
             private PartVarImpl sd2;
 
-            // 固态硬盘实例3
+            // 固态硬盘实例1
             @PartAnno(attrs = { "9000", "9", "sd" }, price = 90)
             private PartVarImpl sd3;
 
@@ -85,42 +84,42 @@ public class Onto4MultiPCTest extends ModuleScenarioTestBase {
                 // proRule1-natuarl: 固态硬盘必须配置同一种，并且最多配置2块
                 // proRule1-dsl: 拆分为proRule11和proRule11两条约束（和isSelected(S)、qty(Q)相关）
                 // proRule11-cRule: sd1.S + sd2.S <=1
-                AlgCPLinearExpr sdTypeSumNum = sum4Selected("Type=sd").name("sdTypeSumNum");
-                addLessOrEqual(sdTypeSumNum, 1);
+                AlgCPLinearExpr sdTypeSumNum = model().sum4Selected("Type=sd").name("sdTypeSumNum");
+                model().addLessOrEqual(sdTypeSumNum, 1);
 
                 // proRule12-cRule: sd1.Q + sd2.Q <= 2
-                AlgCPLinearExpr sdTypeSumQty = sum4Quantity("Type=sd").name("sdTypeSumQty");
-                addLessOrEqual(sdTypeSumQty, 2);
+                AlgCPLinearExpr sdTypeSumQty = model().sum4Quantity("Type=sd").name("sdTypeSumQty");
+                model().addLessOrEqual(sdTypeSumQty, 2);
             }
 
-            @PriorityRuleAnno(normalNaturalCode = " 优先使用高容量硬盘", strategy = PriorityStrategy.MIN)
+            @PriorityRuleAnno(normalNaturalCode = "优先使用高容量硬盘", strategy = PriorityStrategy.MIN)
             private void logicB2() {
 
-                PartAlgCPLinearExpr totalCapacity = sum4Quantity("Capacity", "").name("totalCapacity");
+                PartAlgCPLinearExpr totalCapacity = model().sum4Quantity("Capacity", "").name("totalCapacity");
                 // 如果是容量需求
                 if (driveSumCapacity.getHasInputed()) {
                     int requiredCapacity = driveSumCapacity.getInputValue();
 
                     // a1.满足输入容量需求 totalCapacity >= requiredCapacity
-                    addGreaterOrEqual(totalCapacity, requiredCapacity);
+                    model().addGreaterOrEqual(totalCapacity, requiredCapacity);
 
                     // 创建目标函数
-                    PartAlgCPLinearExpr objectiveExpr = newPartLinearExpr("ObjectiveFun");
+                    PartAlgCPLinearExpr objectiveExpr = model().newPartLinearExpr("ObjectiveFun");
 
                     // a2.使用高容量硬盘 -> "被选择部件单容量总和越大越好"
-                    PartAlgCPLinearExpr highCapacityExpr = sum4Selected("Capacity", "").name("highCapacityExpr");
+                    PartAlgCPLinearExpr highCapacityExpr = model().sum4Selected("Capacity", "").name("highCapacityExpr");
                     objectiveExpr.addExpr(highCapacityExpr, -100);
 
                     // a3.在满足容量需求的前提下，容量越接近需求容量越好
-                    PartAlgCPLinearExpr excessCapacityExpr = newPartLinearExpr("excessCapacityExpr");
+                    PartAlgCPLinearExpr excessCapacityExpr = model().newPartLinearExpr("excessCapacityExpr");
                     excessCapacityExpr.addExpr(totalCapacity, 1);
                     excessCapacityExpr.addConstant(-requiredCapacity);
                     objectiveExpr.addExpr(excessCapacityExpr, 1);
 
                     // a4.在满足容量需求的前提下， 配置的部件数量越少越好
-                    PartAlgCPLinearExpr excessQuantityExpr = sum4Quantity("", "").name("excessQuantityExpr");
+                    PartAlgCPLinearExpr excessQuantityExpr = model().sum4Quantity("", "").name("excessQuantityExpr");
                     objectiveExpr.addExpr(excessQuantityExpr, 800);
-                    // model.setObjectExpr(objectiveExpr);
+                    // model().setObjectExpr(objectiveExpr);
                     // updatePriorityObjectFuntion("logicB2", objectiveExpr);
                     // TODO
 
@@ -129,20 +128,20 @@ public class Onto4MultiPCTest extends ModuleScenarioTestBase {
                     // int requiredQty = Integer.parseInt(req.getAttrValue());
                     int requiredQuantity = driveSumQuantity.getInputValue();
                     // a1.满足输入总数量需求 totalQuantity >= requiredQuantity
-                    PartAlgCPLinearExpr totalQuantity = sum4Quantity("", "").name("totalQuantity");
-                    addGreaterOrEqual(totalQuantity, requiredQuantity);
+                    PartAlgCPLinearExpr totalQuantity = model().sum4Quantity("", "").name("totalQuantity");
+                    model().addGreaterOrEqual(totalQuantity, requiredQuantity);
 
                     // 创建目标函数
-                    PartAlgCPLinearExpr objectiveExpr = newPartLinearExpr("ObjectiveFunQty");
+                    PartAlgCPLinearExpr objectiveExpr = model().newPartLinearExpr("ObjectiveFunQty");
 
                     // a2.使用高容量硬盘 -> "被选择部件单容量总和越大越好"
-                    PartAlgCPLinearExpr highCapacityExpr = sum4Selected("Capacity", "").name("highCapacityExpr");
+                    PartAlgCPLinearExpr highCapacityExpr = model().sum4Selected("Capacity", "").name("highCapacityExpr");
                     objectiveExpr.addExpr(highCapacityExpr, -1);
 
                     // a3.在满足数量需求的前提下，数量越接近需求数量越好
-                    PartAlgCPLinearExpr excessQuantityExpr = sum4Quantity("", "").name("excessQuantityExpr");
+                    PartAlgCPLinearExpr excessQuantityExpr = model().sum4Quantity("", "").name("excessQuantityExpr");
                     excessQuantityExpr.addConstant(-requiredQuantity);
-                    // model.setObjectExpr(objectiveExpr);
+                    // model().setObjectExpr(objectiveExpr);
                     // updatePriorityObjectFuntion("logicB2", objectiveExpr);
                     // TODO
                 }
@@ -152,10 +151,10 @@ public class Onto4MultiPCTest extends ModuleScenarioTestBase {
         // ==================== CPU部件分类定义 ====================
         @PartAnno()
         @DAttrAnno1(code = "CoreNum", dynAttrType = DynamicAttributeType.E_INT, optionExtSchema = "IntegerUnit", options = {
-                "CoreNum_2:2:核",
-                "CoreNum_4:4:核",
-                "CoreNum_8:8:核",
-                "CoreNum_18:18:核" })
+                "CoreNum_2:2:core",
+                "CoreNum_4:4:core",
+                "CoreNum_8:8:core",
+                "CoreNum_18:18:core" })
         @DAttrAnno2(code = "Memory", dynAttrType = DynamicAttributeType.E_INT, optionExtSchema = "IntegerUnit", options = {
                 "Memory_123:123:G",
                 "Memory_256:256:G",
@@ -164,7 +163,7 @@ public class Onto4MultiPCTest extends ModuleScenarioTestBase {
         @DAttrAnno3(code = "ConfigType", dynAttrType = DynamicAttributeType.E_INT, optionExtSchema = "IntegerUnit", options = {
                 "ConfigType_2:2:配置",
                 "ConfigType_5:5:配置" })
-        public class cpu extends PartCategoryAlg {
+        public class cpu extends ModuleAlgBase {
 
             // CPU实例1: CoreNum=2, Memory=123, ConfigType=2
             @PartAnno(fatherCode = "cpu", attrs = { "2", "123", "2" }, price = 100)
@@ -193,8 +192,8 @@ public class Onto4MultiPCTest extends ModuleScenarioTestBase {
 
             @CodeRuleAnno(fatherCode = "cpu", normalNaturalCode = "仅能使用一种CPU")
             private void logicA1() {
-                AlgCPLinearExpr cpuSelected = sum4Selected("").name("cpuSelected");
-                addLessOrEqual(cpuSelected, 1);
+                AlgCPLinearExpr cpuSelected = model().sum4Selected("").name("cpuSelected");
+                model().addLessOrEqual(cpuSelected, 1);
             }
 
         }
@@ -242,7 +241,7 @@ public class Onto4MultiPCTest extends ModuleScenarioTestBase {
         // 预期结果：
         // 解1： cpu2.Q=2 md1.Q=5
         // --过滤，执行req1F,req2F: -->drive:sd1,md1, cpu:cpu2
-        // --产品规则实例化:
+        // --关键执行过程：
         // ----LogicA1:cpu2.S<=1
         // ----LogicB1:sd1.S +md1.S <=1,sd1.Q<=2 --生效
         // ----LogicB2: (cpu2.S) InCompatible (sd1.S) (Left-Y,Right-Y)

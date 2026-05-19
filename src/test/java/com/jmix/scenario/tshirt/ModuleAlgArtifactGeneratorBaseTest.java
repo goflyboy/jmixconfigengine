@@ -81,9 +81,9 @@ public class ModuleAlgArtifactGeneratorBaseTest {
         // 验证模块数据是否正确创建
         assertNotNull(tshirtModule, "T恤衫模块应该创建成功");
         assertEquals("模块代码应该是TShirt", "TShirt", tshirtModule.getCode());
-        assertNotNull(tshirtModule.getParas(), "参数列表不应该为空");
-        assertNotNull(tshirtModule.getAllParts(), "部件列表不应该为空");
-        assertNotNull(tshirtModule.getRules(), "规则列表不应该为空");
+        assertNotNull(tshirtModule.getParas(), "paras should not be null");
+        assertNotNull(tshirtModule.getAllParts(), "parts should not be null");
+        assertNotNull(tshirtModule.getRules(), "rules should not be null");
 
         log.info("✓ Module data validation passed");
         log.info("  Parameter count: {}", tshirtModule.getParas().size());
@@ -106,8 +106,8 @@ public class ModuleAlgArtifactGeneratorBaseTest {
 
         // 验证生成的代码文件是否存在
         File generatedFile = new File(outputPath);
-        assertTrue(generatedFile.exists(), "生成的约束代码文件应该存在");
-        assertTrue(generatedFile.canRead(), "生成的约束代码文件应该可读");
+        assertTrue(generatedFile.exists(), "generated file should exist");
+        assertTrue(generatedFile.canRead(), "generated file should be readable");
 
         log.info("✓ Constraint code file generated successfully");
         log.info("  File path: {}", generatedFile.getAbsolutePath());
@@ -128,7 +128,7 @@ public class ModuleAlgArtifactGeneratorBaseTest {
 
         // 验证基本结构
         assertTrue(content.contains("public class TShirtConstraint"), "生成的代码应该包含类定义");
-        assertTrue(content.contains("extends ConstraintAlgBase"), "Generated code should extend ConstraintAlgBase");
+        assertTrue(content.contains("extends ModuleAlgBase"), "Generated code should extend ModuleAlgBase");
 
         // 验证参数变量
         assertTrue(content.contains("private ParaVar colorVar"), "应该包含Color参数变量");
@@ -139,13 +139,13 @@ public class ModuleAlgArtifactGeneratorBaseTest {
         assertTrue(content.contains("private PartVar tShirt12Var"), "应该包含TShirt12部件变量");
 
         // 验证方法
-        assertTrue(content.contains("import com.jmix.executor.southinf.ConstraintAlgBase"),
+        assertTrue(content.contains("import com.jmix.executor.southinf.ModuleAlgBase"),
                 "Should import southbound base class");
 
         // 验证约束规则方法
-        assertTrue(content.contains("addConstraint_rule1"), "应该包含规则1的约束方法");
-        assertTrue(content.contains("addConstraint_rule2"), "应该包含规则2的约束方法");
-        assertTrue(content.contains("addConstraint_rule3"), "应该包含规则3的约束方法");
+        assertTrue(content.contains("addConstraint_rule1"), "should contain rule1 constraint method");
+        assertTrue(content.contains("addConstraint_rule2"), "should contain rule2 constraint method");
+        assertTrue(content.contains("addConstraint_rule3"), "should contain rule3 constraint method");
 
         log.info("✓ Generated code content validation passed");
         log.info("  Contains correct class definition");

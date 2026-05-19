@@ -65,6 +65,8 @@ Solution enumeration (ModuleInst/ParaInst/PartInst)
 ## Code Style
 
 - **Log messages MUST be in English** — this is a hard rule from `.cursorrules`. Use `log.info("User authentication successful")` not `log.info("用户认证成功")`.
+- **Existing Chinese comments and natural-language metadata MUST stay Chinese** — do not translate existing JavaDoc, inline comments, annotation text such as `normalNaturalCode`, or JSON natural-language fields into English.
+- **Edit Chinese text as UTF-8 only** — never save Java/JSON/Markdown files through a non-UTF-8 encoding path. Before committing, scan for mojibake markers such as replacement character `U+FFFD`, private-use characters, and common mojibake code points such as `U+9205`, `U+9227`, `U+95BA`, `U+940E`, `U+9346`, `U+95B0`, `U+6D60`, `U+93C4`, `U+7459`, `U+59AF`, `U+7029`, `U+95AE`, `U+9359`, `U+9352`, `U+93C1`, `U+9422`, `U+93AC`.
 - **Comments may use Chinese** — JavaDoc and inline comments can use Chinese for explaining complex business logic.
 - Communication with this user should be in simplified Chinese.
 - Java source level: 21. Max line length: 120 (per `checkstyle.xml` and `CodeFormatterFromIdea.xml`).

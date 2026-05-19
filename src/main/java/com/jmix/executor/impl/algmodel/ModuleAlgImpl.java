@@ -23,7 +23,6 @@ import com.jmix.executor.model.AlgLoaderException;
 import com.jmix.executor.model.PartConstraintReq;
 import com.jmix.executor.model.StrategyConfig;
 import com.jmix.executor.model.StrategyType;
-import com.jmix.executor.southinf.IModuleAlg;
 import com.jmix.tool.bbuilder.MultiInstCategoryUtils;
 
 import com.google.ortools.sat.DecisionStrategyProto;
@@ -77,9 +76,10 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
      */
     public void init(AlgCPModel model, IModule module,
             ModuleInput moduleInput) {
-        initData(model, module, moduleInput, this);
+        Object moduleAlgFile = moduleAlgFile();
+        initData(model, module, moduleInput, moduleAlgFile);
 
-        afterInitData(this.module, this);
+        afterInitData(this.module, moduleAlgFile);
 
         initInput();
 
@@ -90,12 +90,20 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
         applyDecisionStrategies();
 
         // midCalculate
-        initRules(this, CalcStage.MID);
+        initRules(moduleAlgFile, CalcStage.MID);
         // postCalculate
     }
 
+    protected Object moduleAlgFile() {
+        return this;
+    }
+
+    public Object ruleMethodOwner() {
+        return moduleAlgFile();
+    }
+
     // 重写父类的方法
-    protected void executeRuleMethod(Rule rule, IModuleAlg moduleAlgFile, Method method) {
+    protected void executeRuleMethod(Rule rule, Object moduleAlgFile, Method method) {
         if (isOneManyRule(rule)) {
             executeRuleMethod4OneManyRule(rule, moduleAlgFile, method);
         } else {
@@ -108,7 +116,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
     }
 
     // 执行类似logicAB1(1-*)的用例
-    private void executeRuleMethod4OneManyRule(Rule rule, IModuleAlg moduleAlgFile, Method method) {
+    private void executeRuleMethod4OneManyRule(Rule rule, Object moduleAlgFile, Method method) {
         String leftPartCategoryCode = rule.getLeftCategoryCode();
         String rightPartCategoryCode = rule.getRightCategoryCode();
         if (Strings.isEmpty(leftPartCategoryCode) || Strings.isEmpty(rightPartCategoryCode)) {
@@ -157,7 +165,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
     }
 
     protected void initInput() {
-        super.initInput(this);
+        super.initInput(moduleAlgFile());
 
         // 本模块的初始化
         ModuleInput req = getModuleInput();
@@ -178,7 +186,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
         // 分类的input初始化
         // 如果module有PartCategorys，则对每个PartCategory创建并初始化PartCategoryAlgImpl
         for (PartCategoryAlgImpl partCategoryAlgImpl : this.getPartCategoryAlgs()) {
-            partCategoryAlgImpl.initInput(this);
+            partCategoryAlgImpl.initInput(moduleAlgFile());
         }
 
     }
@@ -189,7 +197,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
      * @param module
      * @param moduleAlg
      */
-    protected void afterInitData(IModule module, IModuleAlg moduleAlg) {
+    protected void afterInitData(IModule module, Object moduleAlg) {
 
     }
 
@@ -199,14 +207,14 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
         if (!(module instanceof Module)) {
             return;
         }
-        initRules(this, CalcStage.PRE);
+        initRules(moduleAlgFile(), CalcStage.PRE);
     }
 
     protected void initData(AlgCPModel model, IModule module,
             ModuleInput moduleInput,
-            IModuleAlg moduleAlgFile) {
+            Object moduleAlgFile) {
         // 调用基类初始化
-        super.initData(model, module, moduleInput, this);
+        super.initData(model, module, moduleInput, moduleAlgFile);
 
         // 按partCategoryCode对partCategoryInputs进行分组
         Map<String, PartCategoryInputBase> partConstraintFromReqMap = new LinkedHashMap<>();
@@ -231,10 +239,10 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
                 if (partCategory.isSupportMultiInst() && pc4partCategoryInput instanceof MultiInstPartCategoryInput) {
                     pcAlg = new MultiInstPartCategoryAlgImpl();
                     MultiInstPartCategoryInput multiInstPartCategoryInput = (MultiInstPartCategoryInput) pc4partCategoryInput;
-                    pcAlg.initData(model, (IModule) multiInstPartCategoryInput, pc4partCategoryInput, this);
+                    pcAlg.initData(model, (IModule) multiInstPartCategoryInput, pc4partCategoryInput, moduleAlgFile);
                 } else {
                     pcAlg = new SingleInstPartCategoryAlgImpl();
-                    pcAlg.initData(model, (IModule) partCategory, pc4partCategoryInput, this);
+                    pcAlg.initData(model, (IModule) partCategory, pc4partCategoryInput, moduleAlgFile);
                 }
                 partCategoryAlgs.put(categoryCode, (PartCategoryAlgImpl) pcAlg);
             }
@@ -242,8 +250,8 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
         log.info("ModuleAlgImpl initialized with {} partCategory algorithms", partCategoryAlgs.size());
     }
 
-    protected void initRules(IModuleAlg moduleAlgFile, CalcStage calcStage) {
-        Map<String, Method> allRuleMethods = buildAllRuleMethods(module, this);
+    protected void initRules(Object moduleAlgFile, CalcStage calcStage) {
+        Map<String, Method> allRuleMethods = buildAllRuleMethods(module, moduleAlgFile);
         // 先本身这个模块的前置算法
 
         // 先构建本模块的优先类规则
@@ -386,12 +394,12 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
     }
 
     @Override
-    protected VarImpl<?> newPartVar(PartVarImpl internalPartVar) {
+    protected Object newPartVar(PartVarImpl internalPartVar) {
         return internalPartVar;
     }
 
     @Override
-    protected VarImpl<?> newParaVar(ParaVarImpl internalParaVar) {
+    protected Object newParaVar(ParaVarImpl internalParaVar) {
         return internalParaVar;
     }
 
@@ -573,7 +581,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
     /**
      * 通用的部件求和方法，根据指定的变量获取函数计算总和
      * 
-     * @param cofAttrCode        属性代码，如果为null或空则使用默认值1
+     * @param cofAttrCode          属性代码
      * @param varGetter          从PartVar获取LinearArgument的函数（如getIsSelected或getQty）
      * @param varName            变量名称（如"isSelected"或"qty"），用于构建字符串表达式
      * @param filtedConditionStr 过滤条件字符串
@@ -647,7 +655,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
     /**
      * 对选中的部件求和（带属性系数）
      *
-     * @param cofAttrCode        属性代码，如果为null或空则使用默认值1
+     * @param cofAttrCode          属性代码
      * @param filtedConditionStr 过滤条件字符串
      * @return 求和后的AlgCPLinearExpr表达式
      */
@@ -671,7 +679,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
     /**
      * 对数量的部件求和（带属性系数）
      *
-     * @param cofAttrCode        属性代码，如果为null或空则使用默认值1
+     * @param cofAttrCode          属性代码
      * @param filtedConditionStr 过滤条件字符串
      * @return 求和后的AlgCPLinearExpr表达式
      */

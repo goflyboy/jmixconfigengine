@@ -1,6 +1,6 @@
 package com.jmix.tool.autoruletest;
 
-import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.ModuleAlgBase;
 import com.jmix.executor.southinf.var.ParaVar;
 import com.jmix.executor.southinf.var.PartCategoryVar;
 import com.jmix.executor.southinf.var.PartVar;
@@ -37,7 +37,7 @@ public class InjectCompatibleRuleTest extends ModuleScenarioTestBase {
      * @since 2025-09-23
      */
     @ModuleAnno(id = 123L)
-    public static class InjectCompatibleRuleConstraint extends ConstraintAlgBase {
+    public static class InjectCompatibleRuleConstraint extends ModuleAlgBase {
         @ParaAnno(options = { "Red", "Black", "White" })
         private ParaVar colorVar;
 

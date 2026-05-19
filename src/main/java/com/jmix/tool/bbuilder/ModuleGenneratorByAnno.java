@@ -5,7 +5,7 @@ import com.jmix.executor.bmodel.AttrParaType;
 import com.jmix.executor.bmodel.IPart;
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.ModuleAlgArtifact;
-import com.jmix.executor.southinf.AlgorithmApiVersion;
+import com.jmix.tool.bbuilder.anno.AlgorithmApiVersion;
 import com.jmix.executor.southinf.var.ParaVar;
 import com.jmix.executor.southinf.var.PartCategoryVar;
 import com.jmix.executor.southinf.var.PartVar;
@@ -31,7 +31,6 @@ import com.jmix.executor.impl.algmodel.PartCategoryVarImpl;
 import com.jmix.executor.impl.algmodel.PartVarImpl;
 import com.jmix.executor.impl.util.ModuleUtils;
 import com.jmix.executor.model.AlgLoaderException;
-import com.jmix.executor.southinf.IModuleAlg;
 import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
 import com.jmix.tool.bbuilder.anno.CompatiableRuleAnno;
 import com.jmix.tool.bbuilder.anno.DAttrAnno1;
@@ -93,7 +92,7 @@ public final class ModuleGenneratorByAnno {
      * @param moduleAlgClazz 约束算法类
      * @return 构建的Module对象
      */
-    public static Module buildModule(Class<? extends IModuleAlg> moduleAlgClazz) {
+    public static Module buildModule(Class<?> moduleAlgClazz) {
         Module module = new Module();
 
         // 1. 根据ModuleAnno信息创建Module
@@ -134,7 +133,7 @@ public final class ModuleGenneratorByAnno {
      * @param resourcePath   资源路径
      * @return 构建的Module对象
      */
-    public static Module build(Class<? extends IModuleAlg> moduleAlgClazz, String resourcePath) {
+    public static Module build(Class<?> moduleAlgClazz, String resourcePath) {
         Module module = buildModule(moduleAlgClazz);
 
         // 保存Module到文件
@@ -387,7 +386,7 @@ public final class ModuleGenneratorByAnno {
     private static Rule createCompatibleRule(java.lang.reflect.Method method, CompatiableRuleAnno anno, Module module) {
         Rule rule = new Rule();
 
-        // 设置基本信息
+        // 璁剧疆鍩烘湰淇℃伅
         String methodName = method.getName();
         rule.setCode(methodName);
         rule.setFatherCode(anno.fatherCode());
@@ -440,7 +439,7 @@ public final class ModuleGenneratorByAnno {
     private static Rule createPriorityRule(java.lang.reflect.Method method, PriorityRuleAnno anno, Module module) {
         Rule rule = new Rule();
 
-        // 设置基本信息
+        // 璁剧疆鍩烘湰淇℃伅
         String methodName = method.getName();
         String ruleCode = anno.code().isEmpty() ? methodName : anno.code();
         rule.setCode(ruleCode);
@@ -489,7 +488,7 @@ public final class ModuleGenneratorByAnno {
     private static Rule createCodeRule(java.lang.reflect.Method method, CodeRuleAnno anno, Module module) {
         Rule rule = new Rule();
 
-        // 设置基本信息
+        // 璁剧疆鍩烘湰淇℃伅
         String methodName = method.getName();
         rule.setCode(methodName);
         rule.setFatherCode(anno.fatherCode());
@@ -625,7 +624,7 @@ public final class ModuleGenneratorByAnno {
             // 则：leftRefProgObjs=P0,rightRefProgObjs=(P11,P0)
             String[] parts = normalNaturalCode.split(" then ");
             if (parts.length >= 2) {
-                String leftPart = parts[0].replaceFirst(".*if\\s+", ""); // 去掉"if "前缀
+                String leftPart = parts[0].replaceFirst(".*if\\s+", ""); // 鍘绘帀"if "鍓嶇紑
                 String rightPart = parts[1];
 
                 log.info("Left part: {}, Right part: {}", leftPart, rightPart);

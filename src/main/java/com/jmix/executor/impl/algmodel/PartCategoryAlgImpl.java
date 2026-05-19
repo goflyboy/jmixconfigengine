@@ -3,7 +3,6 @@ package com.jmix.executor.impl.algmodel;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.base.Pair;
 import com.jmix.executor.bmodel.logic.CalcStage;
-import com.jmix.executor.southinf.IModuleAlg;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -49,7 +48,7 @@ public interface PartCategoryAlgImpl {
      */
     ParaVarImpl getSumParaByAttr(String attrCode);
 
-    void initRules(Map<String, Method> allRuleMethods, IModuleAlg moduleAlgFile, CalcStage calcStage);
+    void initRules(Map<String, Method> allRuleMethods, Object moduleAlgFile, CalcStage calcStage);
 
-    void initInput(IModuleAlg moduleAlgFile);
+    void initInput(Object moduleAlgFile);
 }

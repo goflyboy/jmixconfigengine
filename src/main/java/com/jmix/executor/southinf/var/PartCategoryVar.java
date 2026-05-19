@@ -1,28 +1,25 @@
 package com.jmix.executor.southinf.var;
 
-import com.jmix.executor.bmodel.IPart;
-import com.jmix.executor.impl.algmodel.ModuleBaseAlgImpl;
-import com.jmix.executor.impl.algmodel.PartCategoryAlgImpl;
-import com.jmix.executor.impl.algmodel.PartVarImpl;
-
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Stable part category variable facade.
  */
 public class PartCategoryVar extends PartVar {
 
-    private final PartCategoryAlgImpl categoryAlg;
+    private final Delegate delegate;
 
-    public PartCategoryVar(PartCategoryAlgImpl categoryAlg) {
-        super(newCategoryPartVar(categoryAlg));
-        this.categoryAlg = categoryAlg;
+    public PartCategoryVar(Delegate delegate) {
+        super(delegate);
+        this.delegate = delegate;
     }
 
-    public PartCategoryVar(PartVarImpl internal) {
-        super(internal);
-        this.categoryAlg = null;
+    public interface Delegate extends PartVar.Delegate {
+        List<PartVar> parts(String filterCondition);
+
+        ParaVar sumPara(String attrCode);
+
+        ParaVar sumSumPara(String attrCode);
     }
 
     public List<PartVar> parts() {
@@ -30,33 +27,14 @@ public class PartCategoryVar extends PartVar {
     }
 
     public List<PartVar> parts(String filterCondition) {
-        ensureCategoryAlg();
-        return categoryAlg.getAllPartVars(filterCondition).stream()
-                .map(PartVar::new)
-                .collect(Collectors.toList());
+        return delegate.parts(filterCondition);
     }
 
     public ParaVar sumPara(String attrCode) {
-        ensureCategoryAlg();
-        return new ParaVar(((ModuleBaseAlgImpl) categoryAlg).getSumParaByAttr(attrCode));
+        return delegate.sumPara(attrCode);
     }
 
     public ParaVar sumSumPara(String attrCode) {
-        ensureCategoryAlg();
-        return new ParaVar(((ModuleBaseAlgImpl) categoryAlg).getSumSumParaByAttr(attrCode));
-    }
-
-    private void ensureCategoryAlg() {
-        if (categoryAlg == null) {
-            throw new IllegalStateException("PartCategoryVar is not bound to a category algorithm");
-        }
-    }
-
-    private static PartVarImpl newCategoryPartVar(PartCategoryAlgImpl categoryAlg) {
-        PartVarImpl partVar = new PartVarImpl();
-        if (((ModuleBaseAlgImpl) categoryAlg).getModule() instanceof IPart) {
-            partVar.setBase((IPart) ((ModuleBaseAlgImpl) categoryAlg).getModule());
-        }
-        return partVar;
+        return delegate.sumSumPara(attrCode);
     }
 }

@@ -1,7 +1,6 @@
 package com.jmix.tool.impl;
 
 import com.jmix.executor.bmodel.Module;
-import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
 import com.jmix.executor.impl.util.CommHelper;
 import com.jmix.executor.impl.util.ModuleUtils;
 import com.jmix.executor.model.AlgLoaderException;
@@ -23,69 +22,61 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
 /**
- * 模块打包器
- * 负责将约束算法类打包成jar文件，支持单文件和多文件模式
- * 
+ * Packs module algorithm artifacts into runtime and source jars.
+ *
  * @since 2025-09-27
  */
 @Slf4j
 public class ModulePacker {
 
     /**
-     * 对算法进行打包
-     * 
-     * @param cpClazz    约束算法类
-     * @param outRootDir 输出根目录
-     * @return 输出目录路径
+     * Packs an algorithm class.
+     *
+     * @param cpClazz    algorithm class
+     * @param outRootDir output root directory
+     * @return output directory path
      */
-    public String pack(Class<? extends ModuleAlgImpl> cpClazz, String outRootDir) {
+    public String pack(Class<?> cpClazz, String outRootDir) {
         Module module = ModuleGenneratorByAnno.buildModule(cpClazz);
         return pack(module, cpClazz, outRootDir);
     }
 
     /**
-     * 对模块进行打包
-     * 
-     * @param module     模块对象
-     * @param cpClazz    约束算法类
-     * @param outRootDir 输出根目录
-     * @return 输出目录路径
+     * Packs a module and its algorithm class.
+     *
+     * @param module     module metadata
+     * @param cpClazz    algorithm class
+     * @param outRootDir output root directory
+     * @return output directory path
      */
-    public String pack(Module module, Class<? extends ModuleAlgImpl> cpClazz, String outRootDir) {
+    public String pack(Module module, Class<?> cpClazz, String outRootDir) {
         try {
             String inputDir = CommHelper.getJavaFilePath(cpClazz);
 
-            // 根据module的code和id在outRootDir创建这个module的子文件夹
             String outDir = module.getAlg().getModuleDirPath(outRootDir);
 
-            // 如果目录已存在则删除
             Path outDirPath = Paths.get(outDir);
             if (Files.exists(outDirPath)) {
                 log.info("Removing existing directory: {}", outDir);
                 deleteDirectory(outDirPath);
             }
 
-            // 创建输出目录
             Files.createDirectories(outDirPath);
             log.info("Created output directory: {}", outDir);
 
-            // 保存Module到文件
             String moduleFilePath = module.getAlg().getBaseJsonPath(outRootDir);
             ModuleUtils.toJsonFile(module, moduleFilePath);
             log.info("Module saved to: {}", moduleFilePath);
 
-            // 判断是否为多文件模式
             boolean isMultifile = isMultifile(cpClazz);
             log.info("Pack mode: {}", isMultifile ? "multifile" : "singlefile");
 
-            // 打包class文件
             boolean classJarSuccess = packClassJar(inputDir, module, isMultifile, outDir);
             if (!classJarSuccess) {
                 log.error("Failed to pack class jar");
                 throw new AlgLoaderException("Failed to pack class jar");
             }
 
-            // 打包源码文件
             boolean sourceJarSuccess = packSourceJar(inputDir, module, isMultifile, outDir);
             if (!sourceJarSuccess) {
                 log.error("Failed to pack source jar");
@@ -102,58 +93,45 @@ public class ModulePacker {
     }
 
     /**
-     * 判断是否为多文件模式
-     * 
-     * @param cpClassName 约束算法类
-     * @return true表示多文件模式，false表示单文件模式
+     * Returns whether the algorithm is represented by multiple source files.
+     *
+     * @param cpClassName algorithm class
+     * @return true for multifile algorithms, false for single-file tests
      */
-    public boolean isMultifile(Class<? extends ModuleAlgImpl> cpClassName) {
-        // 如果cpClass继承了ModuleAlgImpl且不是内部类，则是多个文件
-        // 例如：com.jmix.scenario.hello.HelloConstraint (HelloConstraint extends
-        // ModuleAlgImpl)
-        // 否则就是单文件，com.jmix.scenario.ruletest.ParaIsHiddenTest (ParaIsHiddenTest extends
-        // ModuleScenarioTestBase)
-        return ModuleAlgImpl.class.isAssignableFrom(cpClassName)
-                && cpClassName.getEnclosingClass() == null
+    public boolean isMultifile(Class<?> cpClassName) {
+        return cpClassName.getEnclosingClass() == null
                 && !cpClassName.getSimpleName().endsWith("Test");
     }
 
     /**
-     * 打包class文件为jar
-     * 
-     * @param inputDir    输入目录
-     * @param module      模块对象
-     * @param isMultifile 是否为多文件模式
-     * @param outDir      输出目录
-     * @return 是否成功
+     * Packs class files into the runtime jar.
+     *
+     * @param inputDir    source input directory
+     * @param module      module metadata
+     * @param isMultifile whether this is a multifile algorithm
+     * @param outDir      output directory
+     * @return whether packing succeeded
      */
     public boolean packClassJar(String inputDir, Module module, boolean isMultifile, String outDir) {
         try {
             String jarFilePath = module.getAlg()
                     .getRuntimeJarPath(outDir.substring(0, outDir.lastIndexOf(File.separator)));
 
-            // 在target/test-classes目录下查找class文件
             String testClassesDir = inputDir.replace("src\\test\\java", "target\\test-classes");
             log.info("Looking for class files in: {}", testClassesDir);
 
             List<File> classFiles = new ArrayList<>();
 
             if (isMultifile) {
-                // 多文件模式：需要将ConstraintAlg类及测试类对应的class打成jar包
-                // 例如：HelloConstraint.class、HelloConstraintTest.class
                 String constraintClassName = module.getCode() + "Constraint";
                 String testClassName = module.getCode() + "ConstraintTest";
 
-                // 查找对应的class文件
                 findClassFiles(testClassesDir, constraintClassName, classFiles);
                 findClassFiles(testClassesDir, testClassName, classFiles);
             } else {
-                // 单文件模式：需要将ConstraintAlg类和其父类对应的class文件打成jar包
-                // 例如：ParaIsHiddenTest.class、ParaIsHiddenTest$ParaIsHiddenConstraint.class
                 String testClassName = module.getCode() + "Test";
                 String constraintClassName = testClassName + "$" + module.getCode() + "Constraint";
 
-                // 查找对应的class文件
                 findClassFiles(testClassesDir, testClassName, classFiles);
                 findClassFiles(testClassesDir, constraintClassName, classFiles);
             }
@@ -163,7 +141,6 @@ public class ModulePacker {
                 return false;
             }
 
-            // 创建jar文件
             createJarFile(jarFilePath, classFiles, testClassesDir);
             log.info("Class jar created: {}", jarFilePath);
 
@@ -176,13 +153,13 @@ public class ModulePacker {
     }
 
     /**
-     * 打包源码文件为jar
-     * 
-     * @param inputDir    输入目录
-     * @param module      模块对象
-     * @param isMultifile 是否为多文件模式
-     * @param outDir      输出目录
-     * @return 是否成功
+     * Packs source files into the source jar.
+     *
+     * @param inputDir    source input directory
+     * @param module      module metadata
+     * @param isMultifile whether this is a multifile algorithm
+     * @param outDir      output directory
+     * @return whether packing succeeded
      */
     public boolean packSourceJar(String inputDir, Module module, boolean isMultifile, String outDir) {
         try {
@@ -192,20 +169,14 @@ public class ModulePacker {
             List<File> sourceFiles = new ArrayList<>();
 
             if (isMultifile) {
-                // 多文件模式：需要将ConstraintAlg类及测试类源码
-                // 例如：HelloConstraint.java、HelloConstraintTest.java
                 String constraintClassName = module.getCode() + "Constraint";
                 String testClassName = module.getCode() + "ConstraintTest";
 
-                // 查找对应的java文件
                 findSourceFiles(inputDir, constraintClassName, sourceFiles);
                 findSourceFiles(inputDir, testClassName, sourceFiles);
             } else {
-                // 单文件模式：需要将测试类（含ConstraintAlg类）源码
-                // 例如：ParaIsHiddenTest.java，内部包含了ParaIsHiddenConstraint
                 String testClassName = module.getCode() + "Test";
 
-                // 查找对应的java文件
                 findSourceFiles(inputDir, testClassName, sourceFiles);
             }
 
@@ -214,7 +185,6 @@ public class ModulePacker {
                 return false;
             }
 
-            // 创建jar文件
             createJarFile(jarFilePath, sourceFiles, inputDir);
             log.info("Source jar created: {}", jarFilePath);
 
@@ -226,16 +196,8 @@ public class ModulePacker {
         }
     }
 
-    /**
-     * 查找class文件
-     * 
-     * @param inputDir   输入目录
-     * @param className  类名
-     * @param classFiles 结果列表
-     */
     private void findClassFiles(String inputDir, String className, List<File> classFiles) {
         String classFileName = className + ".class";
-        // 标准化路径，解决Windows路径问题
         if (inputDir.startsWith("/")) {
             inputDir = inputDir.substring(1, inputDir.length());
         }
@@ -250,16 +212,8 @@ public class ModulePacker {
         }
     }
 
-    /**
-     * 查找源码文件
-     * 
-     * @param inputDir    输入目录
-     * @param className   类名
-     * @param sourceFiles 结果列表
-     */
     private void findSourceFiles(String inputDir, String className, List<File> sourceFiles) {
         String sourceFileName = className + ".java";
-        // 标准化路径，解决Windows路径问题
         if (inputDir.startsWith("/")) {
             inputDir = inputDir.substring(1, inputDir.length());
         }
@@ -274,13 +228,6 @@ public class ModulePacker {
         }
     }
 
-    /**
-     * 创建jar文件
-     * 
-     * @param jarFilePath jar文件路径
-     * @param files       要打包的文件列表
-     * @param baseDir     基础目录
-     */
     private void createJarFile(String jarFilePath, List<File> files, String baseDir) throws IOException {
         try (JarOutputStream jarOut = new JarOutputStream(new FileOutputStream(jarFilePath), new Manifest())) {
             for (File file : files) {
@@ -299,15 +246,10 @@ public class ModulePacker {
         }
     }
 
-    /**
-     * 递归删除目录
-     * 
-     * @param dir 目录路径
-     */
     private void deleteDirectory(Path dir) throws IOException {
         if (Files.exists(dir)) {
             Files.walk(dir)
-                    .sorted((a, b) -> b.compareTo(a)) // 反向排序，先删除文件再删除目录
+                    .sorted((a, b) -> b.compareTo(a))
                     .forEach(path -> {
                         try {
                             Files.delete(path);

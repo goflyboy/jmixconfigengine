@@ -2,9 +2,11 @@ package com.jmix.executor.impl;
 
 import com.jmix.executor.bmodel.ModuleAlgArtifact;
 import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
+import com.jmix.executor.impl.southbridge.SouthboundModuleAlgAdapter;
 import com.jmix.executor.model.AlgLoaderException;
 import com.jmix.executor.model.ConstraintConfig;
-import com.jmix.executor.southinf.AlgorithmApiVersion;
+import com.jmix.executor.southinf.ModuleAlgBase;
+import com.jmix.tool.bbuilder.anno.AlgorithmApiVersion;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -302,6 +304,9 @@ public class ModuleAlgClassLoader extends ClassLoader {
             log.error("Failed to create instance of ModuleAlgImpl: {}", className, e);
             throw new AlgLoaderException("Failed to create instance of ModuleAlgImpl: " + className, e);
         }
+        if (instance instanceof ModuleAlgBase southboundAlgorithm) {
+            return new SouthboundModuleAlgAdapter(southboundAlgorithm);
+        }
         if (!(instance instanceof ModuleAlgImpl)) {
             log.error("Loaded class is not an instance of ModuleAlgImpl: {}", className);
             throw new AlgLoaderException("Loaded class is not an instance of ModuleAlgImpl: " + className);
@@ -310,7 +315,7 @@ public class ModuleAlgClassLoader extends ClassLoader {
     }
 
     /**
-     * 清理资源
+     * 娓呯悊璧勬簮
      */
     public void cleanup() {
         if (jarClassLoader != null) {

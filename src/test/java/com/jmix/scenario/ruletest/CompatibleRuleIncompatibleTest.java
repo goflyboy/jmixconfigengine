@@ -1,6 +1,6 @@
 package com.jmix.scenario.ruletest;
 
-import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.ModuleAlgBase;
 import com.jmix.executor.southinf.var.ParaVar;
 import com.jmix.executor.southinf.var.PartCategoryVar;
 import com.jmix.executor.southinf.var.PartVar;
@@ -10,8 +10,8 @@ import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
 import com.jmix.tool.bbuilder.anno.ModuleAnno;
 import com.jmix.tool.bbuilder.anno.ParaAnno;
 
-import com.google.ortools.sat.BoolVar;
-import com.google.ortools.sat.Literal;
+import com.jmix.executor.southinf.cp.AlgCPBoolVar;
+import com.jmix.executor.southinf.cp.AlgCPLiteral;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,7 +33,7 @@ public class CompatibleRuleIncompatibleTest extends ModuleScenarioTestBase {
      * @since 2025-09-23
      */
     @ModuleAnno(id = 123L)
-    public static class CompatibleRuleIncompatibleConstraint extends ConstraintAlgBase {
+    public static class CompatibleRuleIncompatibleConstraint extends ModuleAlgBase {
 
         @ParaAnno(options = { "a1", "a2", "a3", "a4", "a5" })
         private ParaVar aVar;
@@ -73,62 +73,62 @@ public class CompatibleRuleIncompatibleTest extends ModuleScenarioTestBase {
          */
         public void addCompatibleConstraintIncompatibleNote() {
             // 创建条件变量：A在CA中
-            BoolVar inCA = model.newBoolVar("inCA");
-            model.addBoolOr(new Literal[] {
+            AlgCPBoolVar inCA = model().newBoolVar("inCA");
+            model().addBoolOr(new AlgCPLiteral[] {
                     aVar.option("a1").selectedVar(),
                     aVar.option("a3").selectedVar()
             }).onlyEnforceIf(inCA);
-            model.addBoolAnd(new Literal[] {
+            model().addBoolAnd(new AlgCPLiteral[] {
                     aVar.option("a1").selectedVar().not(),
                     aVar.option("a3").selectedVar().not()
             }).onlyEnforceIf(inCA.not());
 
             // 创建条件变量：B在CB中
-            BoolVar inCB = model.newBoolVar("inCB");
-            model.addBoolOr(new Literal[] {
+            AlgCPBoolVar inCB = model().newBoolVar("inCB");
+            model().addBoolOr(new AlgCPLiteral[] {
                     bVar.option("b1").selectedVar(),
                     bVar.option("b2").selectedVar(),
                     bVar.option("b3").selectedVar()
             }).onlyEnforceIf(inCB);
-            model.addBoolAnd(new Literal[] {
+            model().addBoolAnd(new AlgCPLiteral[] {
                     bVar.option("b1").selectedVar().not(),
                     bVar.option("b2").selectedVar().not(),
                     bVar.option("b3").selectedVar().not()
             }).onlyEnforceIf(inCB.not());
 
             // 创建条件变量：A不在CA中
-            BoolVar notInCA = model.newBoolVar("notInCA");
-            model.addBoolOr(new Literal[] {
+            AlgCPBoolVar notInCA = model().newBoolVar("notInCA");
+            model().addBoolOr(new AlgCPLiteral[] {
                     aVar.option("a2").selectedVar(),
                     aVar.option("a4").selectedVar(),
                     aVar.option("a5").selectedVar()
             }).onlyEnforceIf(notInCA);
-            model.addBoolAnd(new Literal[] {
+            model().addBoolAnd(new AlgCPLiteral[] {
                     aVar.option("a2").selectedVar().not(),
                     aVar.option("a4").selectedVar().not(),
                     aVar.option("a5").selectedVar().not()
             }).onlyEnforceIf(notInCA.not());
 
             // 创建条件变量：B不在CB中
-            BoolVar notInCB = model.newBoolVar("notInCB");
-            model.addBoolOr(new Literal[] {
+            AlgCPBoolVar notInCB = model().newBoolVar("notInCB");
+            model().addBoolOr(new AlgCPLiteral[] {
                     bVar.option("b4").selectedVar(),
                     bVar.option("b5").selectedVar()
             }).onlyEnforceIf(notInCB);
-            model.addBoolAnd(new Literal[] {
+            model().addBoolAnd(new AlgCPLiteral[] {
                     bVar.option("b4").selectedVar().not(),
                     bVar.option("b5").selectedVar().not()
             }).onlyEnforceIf(notInCB.not());
 
             // Incompatible 双向约束：
             // 正向1.1：如果A在CA中，则B必须不在CB中（必须在NCB中）
-            model.addImplication(inCA, notInCB);
+            model().addImplication(inCA, notInCB);
 
             // 正向1.2：如果A不在CA中，则B可以在CB中或NCB中（无约束）
             // 这个约束不需要显式添加，因为默认允许
 
             // 反向2.1：如果B在CB中，则A必须不在CA中（必须在NCA中）
-            model.addImplication(inCB, notInCA);
+            model().addImplication(inCB, notInCA);
 
             // 反向2.2：如果B不在CB中，则A可以在CA中或NCA中（无约束）
             // 这个约束不需要显式添加，因为默认允许

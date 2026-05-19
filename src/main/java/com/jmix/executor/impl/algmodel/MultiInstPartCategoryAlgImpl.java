@@ -12,7 +12,6 @@ import com.jmix.executor.impl.MultiInstPartCategoryInput;
 import com.jmix.executor.impl.PartCategoryInput;
 import com.jmix.executor.impl.PartCategoryInputBase;
 import com.jmix.executor.model.AlgLoaderException;
-import com.jmix.executor.southinf.IModuleAlg;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -60,7 +59,7 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
 
     protected void initData(AlgCPModel model, IModule module,
             IModuleInput partCategoryInput,
-            IModuleAlg moduleAlgFile) {
+            Object moduleAlgFile) {
         super.initData(model, module, partCategoryInput, moduleAlgFile);
         for (PartCategoryInput partCategoryInputInst : this.getPartCategoryInputs()) {
             SingleInstPartCategoryAlgImpl partCategoryAlg = new SingleInstPartCategoryAlgImpl();
@@ -128,7 +127,7 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
     // }
     // }
 
-    public void initRules(Map<String, Method> allRuleMethods, IModuleAlg moduleAlgFile, CalcStage calcStage) {
+    public void initRules(Map<String, Method> allRuleMethods, Object moduleAlgFile, CalcStage calcStage) {
         super.buildPriorityConstraint(getMultiInstPartCategoryInput());
 
         for (Pair<PartCategoryInput, SingleInstPartCategoryAlgImpl> partCategoryAlg : partCategoryAlgs.values()) {
@@ -141,7 +140,7 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
     }
 
     @Override
-    public void initInput(IModuleAlg moduleAlgFile) {
+    public void initInput(Object moduleAlgFile) {
         MultiInstPartCategoryInput multiInstPartCategoryInput = (MultiInstPartCategoryInput) this.moduleInput;
         newAttrParaVar(multiInstPartCategoryInput.getSumSumAttrParas());
         super.initInput(moduleAlgFile);
@@ -174,12 +173,12 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
     }
 
     @Override
-    protected VarImpl<?> newPartVar(PartVarImpl internalPartVar) {
+    protected Object newPartVar(PartVarImpl internalPartVar) {
         throw new UnsupportedOperationException("Unimplemented method 'newPartVar'");
     }
 
     @Override
-    protected VarImpl<?> newParaVar(ParaVarImpl internalParaVar) {
+    protected Object newParaVar(ParaVarImpl internalParaVar) {
         throw new UnsupportedOperationException("Unimplemented method 'newParaVar'");
     }
 

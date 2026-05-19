@@ -1,6 +1,6 @@
 package com.jmix.scenario.ruletest;
 
-import com.jmix.executor.southinf.ConstraintAlgBase;
+import com.jmix.executor.southinf.ModuleAlgBase;
 import com.jmix.executor.southinf.var.ParaVar;
 import com.jmix.executor.southinf.var.PartCategoryVar;
 import com.jmix.executor.southinf.var.PartVar;
@@ -12,7 +12,7 @@ import com.jmix.tool.bbuilder.anno.DAttrAnno1;
 import com.jmix.tool.bbuilder.anno.ModuleAnno;
 import com.jmix.tool.bbuilder.anno.PartAnno;
 
-import com.google.ortools.sat.Literal;
+import com.jmix.executor.southinf.cp.AlgCPLiteral;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,7 +35,7 @@ public class SearchStrategyMultiTest extends ModuleScenarioTestBase {
      * Constraint model for multi-instance strategy testing.
      */
     @ModuleAnno(id = 123L)
-    public static class MultiSearchConstraint extends ConstraintAlgBase {
+    public static class MultiSearchConstraint extends ModuleAlgBase {
 
         // Single-instance CPU category
         @PartAnno(code = "cpu")
@@ -67,7 +67,7 @@ public class SearchStrategyMultiTest extends ModuleScenarioTestBase {
 
         @CodeRuleAnno()
         private void rule1() {
-            model.addAtMostOne(new Literal[] { cpu1Var.selectedVar(), cpu2Var.selectedVar(), cpu3Var.selectedVar() });
+            model().addAtMostOne(new AlgCPLiteral[] { cpu1Var.selectedVar(), cpu2Var.selectedVar(), cpu3Var.selectedVar() });
         }
     }
 
