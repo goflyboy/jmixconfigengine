@@ -146,6 +146,13 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
     public Result<List<ModuleInst>> processProduct(Module startModule, InferPartCategoryReq partCategoryReq) {
         try {
             ModuleInput moduleInput = new ModuleInput();
+            moduleInput.setModuleId(startModule.getId());
+            moduleInput.setModuleCode(startModule.getCode());
+            moduleInput.setPreParaInsts(partCategoryReq.getPreParaInsts());
+            moduleInput.setPrePartInsts(partCategoryReq.getPrePartInsts());
+            moduleInput.setEnumerateAllSolution(partCategoryReq.isEnumerateAllSolution());
+            moduleInput.setMaxSolutionNum(partCategoryReq.getMaxSolutionNum());
+            moduleInput.setRelaxSolve(partCategoryReq.isRelaxSolve());
 
             Map<String, List<PartConstraintReq>> partConstraintReqMap = normalizePartConstraint(
                     partCategoryReq.getPartConstraintReqs(), startModule);
