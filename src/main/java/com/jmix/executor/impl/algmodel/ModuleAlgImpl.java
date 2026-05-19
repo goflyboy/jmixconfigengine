@@ -134,7 +134,8 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
                     "leftPartCategoryAlgImpl or rightPartCategoryAlgImpl is null, cannot execute one many rule");
         }
         if (rightPartCategoryAlgImpl instanceof MultiInstPartCategoryAlgImpl) {
-            MultiInstPartCategoryAlgImpl multiInstPartCategoryAlgImpl = (MultiInstPartCategoryAlgImpl) rightPartCategoryAlgImpl;
+            MultiInstPartCategoryAlgImpl multiInstPartCategoryAlgImpl =
+                    (MultiInstPartCategoryAlgImpl) rightPartCategoryAlgImpl;
             for (SingleInstPartCategoryAlgImpl rightPartCategoryAlgImplItem : multiInstPartCategoryAlgImpl
                     .getPartCategoryInsts()) {
 
@@ -179,7 +180,7 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
         }
         if (req.getPrePartInsts() != null) {
             for (PartInst partInst : req.getPrePartInsts()) {
-                this.addPartEquality(partInst.getCode(), partInst.getQuantity());
+                this.addPartEqualityInModule(partInst.getCode(), partInst.getQuantity());
             }
         }
 
@@ -189,6 +190,30 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
             partCategoryAlgImpl.initInput(moduleAlgFile());
         }
 
+    }
+
+    private void addPartEqualityInModule(String partCode, int partQuantity) {
+        if (getPartVar(partCode) != null) {
+            addPartEquality(partCode, partQuantity);
+            return;
+        }
+        for (PartCategoryAlgImpl partCategoryAlg : getPartCategoryAlgs()) {
+            if (partCategoryAlg instanceof MultiInstPartCategoryAlgImpl multiInstPartCategoryAlg) {
+                for (SingleInstPartCategoryAlgImpl singleInstPartCategoryAlg : multiInstPartCategoryAlg
+                        .getPartCategoryInsts()) {
+                    if (singleInstPartCategoryAlg.getPartVar(partCode) != null) {
+                        singleInstPartCategoryAlg.addPartEquality(partCode, partQuantity);
+                        return;
+                    }
+                }
+            } else if (partCategoryAlg instanceof ModuleBaseAlgImpl moduleBaseAlg
+                    && moduleBaseAlg.getPartVar(partCode) != null) {
+                moduleBaseAlg.addPartEquality(partCode, partQuantity);
+                return;
+            }
+        }
+        log.error("PartVarImpl not found for code: {}", partCode);
+        throw new AlgLoaderException("PartVarImpl not found for code: " + partCode);
     }
 
     /**
@@ -238,7 +263,8 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
                 }
                 if (partCategory.isSupportMultiInst() && pc4partCategoryInput instanceof MultiInstPartCategoryInput) {
                     pcAlg = new MultiInstPartCategoryAlgImpl();
-                    MultiInstPartCategoryInput multiInstPartCategoryInput = (MultiInstPartCategoryInput) pc4partCategoryInput;
+                    MultiInstPartCategoryInput multiInstPartCategoryInput =
+                            (MultiInstPartCategoryInput) pc4partCategoryInput;
                     pcAlg.initData(model, (IModule) multiInstPartCategoryInput, pc4partCategoryInput, moduleAlgFile);
                 } else {
                     pcAlg = new SingleInstPartCategoryAlgImpl();

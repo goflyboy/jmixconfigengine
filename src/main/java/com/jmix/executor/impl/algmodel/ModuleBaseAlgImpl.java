@@ -10,6 +10,8 @@ import com.jmix.executor.bmodel.base.Pair;
 import com.jmix.executor.bmodel.logic.CalcStage;
 import com.jmix.executor.bmodel.logic.PriorityRuleSchema;
 import com.jmix.executor.bmodel.logic.Rule;
+import com.jmix.executor.bmodel.logic.RuleSchema;
+import com.jmix.executor.bmodel.logic.RuleTypeConstants;
 import com.jmix.executor.bmodel.para.Para;
 import com.jmix.executor.bmodel.para.ParaType;
 import com.jmix.executor.cmodel.ModuleInst;
@@ -555,7 +557,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
                 // if (RuleTypeConstants.isPriorityRule(rule.getRuleSchemaTypeFullName())) {
                 // buildPriorityConstraint(rule);
                 // }
-            } else {
+            } else if (!isInternalStructRule(rule) && !isCombinationChildRule(rule)) {
                 log.warn("Rule method not found for rule code: {} in class {}", ruleCode, this.getClass().getName());
             }
         }
@@ -661,6 +663,15 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         }
         for (Rule rule : rules) {
             String ruleCode = rule.getCode();
+            if (isCombinationChildRule(rule)) {
+                log.info("Skip structured child rule execution: {}", ruleCode);
+                continue;
+            }
+            if (isInternalStructRule(rule)) {
+                model.addRuleSeperator(ruleCode);
+                executeInternalStructRule(rule, moduleAlgFile);
+                continue;
+            }
             Method method = allRuleMethods.get(ruleCode);
             if (method == null) {
                 log.error("Rule method not found for rule code: {} in class {}", ruleCode, this.getClass().getName());
@@ -672,6 +683,40 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
             executeRuleMethod(rule, moduleAlgFile, method);
             setCurrentModule4Rule(moduleAlgFile, null);
         }
+    }
+
+    private boolean isCombinationChildRule(Rule rule) {
+        return rule != null && Strings.isNotEmpty(rule.getParentRuleCode());
+    }
+
+    private boolean isInternalStructRule(Rule rule) {
+        if (rule == null) {
+            return false;
+        }
+        RuleSchema rawCode = rule.getRawCode();
+        RuleSchema exeSchema = rule.getExeSchema();
+        return rawCode instanceof com.jmix.executor.bmodel.logic.PairStructRuleSchema
+                || rawCode instanceof com.jmix.executor.bmodel.logic.TripleStructRuleSchema
+                || rawCode instanceof com.jmix.executor.bmodel.logic.CombinationStructRuleSchema
+                || exeSchema instanceof com.jmix.executor.bmodel.logic.CodependantRuleSchema
+                || RuleTypeConstants.isStructRule(rule.getRuleSchemaTypeFullName());
+    }
+
+    private void executeInternalStructRule(Rule rule, Object moduleAlgFile) {
+        ModuleAlgImpl rootAlg = null;
+        if (this instanceof ModuleAlgImpl moduleAlgImpl) {
+            rootAlg = moduleAlgImpl;
+        } else if (moduleAlgFile instanceof ModuleAlgImpl moduleAlgImpl) {
+            rootAlg = moduleAlgImpl;
+        }
+        if (rootAlg == null) {
+            log.error("Structured rule must be executed from a module algorithm context: {}", rule.getCode());
+            throw new AlgLoaderException("Structured rule must be executed from a module algorithm context: "
+                    + rule.getCode());
+        }
+        this.model.setRelax4CustomRule(rule.getCode());
+        new CodependantConstraintExecutor(rootAlg).execute(rule);
+        log.info("Executed internal structured rule: {}", rule.getCode());
     }
 
     private void setCurrentModule4Rule(Object moduleAlgFile, ModuleBaseAlgImpl tmpModuleAlg) {

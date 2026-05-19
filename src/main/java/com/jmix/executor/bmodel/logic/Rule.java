@@ -73,6 +73,16 @@ public class Rule extends Extensible {
     private String fatherCode = "";
 
     /**
+     * 组合规则父规则 code。为空表示独立规则或组合父规则。
+     */
+    private String parentRuleCode = "";
+
+    /**
+     * 结构化规则编译后的运行态 Schema。
+     */
+    private RuleSchema exeSchema;
+
+    /**
      * 计算阶段
      * 用于指定规则在哪个计算阶段执行
      */
