@@ -103,4 +103,9 @@ public @interface PartAnno {
      * 当设置为true时，该部件分类将支持多实例复制
      */
     boolean supportMultiInst() default false;
+
+    /**
+     * Whether this PartCategory is required in the main solve.
+     */
+    boolean required() default true;
 }

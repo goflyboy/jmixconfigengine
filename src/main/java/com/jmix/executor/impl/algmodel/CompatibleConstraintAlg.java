@@ -86,6 +86,10 @@ public class CompatibleConstraintAlg {
 
         // 定义条件变量
         BoolVar condition = model.newBoolVar(ruleCode + "_" + conditionSuffix);
+        if (partVars == null || partVars.isEmpty()) {
+            model.addEquality(condition, 0);
+            return condition;
+        }
 
         // 获取选中变量数组
         Literal[] selected = partVars.stream()

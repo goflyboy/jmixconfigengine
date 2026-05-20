@@ -28,6 +28,7 @@ import com.jmix.executor.model.InferParasReq;
 import com.jmix.executor.model.InferPartCategoryReq;
 import com.jmix.executor.model.ModulePostCalcReq;
 import com.jmix.executor.model.PartConstraintReq;
+import com.jmix.executor.model.PartConstantAttr;
 import com.jmix.executor.model.Result;
 import com.jmix.executor.model.RunInferParasRsp;
 
@@ -145,32 +146,15 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
      */
     public Result<List<ModuleInst>> processProduct(Module startModule, InferPartCategoryReq partCategoryReq) {
         try {
-            ModuleInput moduleInput = new ModuleInput();
-            moduleInput.setModuleId(startModule.getId());
-            moduleInput.setModuleCode(startModule.getCode());
-            moduleInput.setPreParaInsts(partCategoryReq.getPreParaInsts());
-            moduleInput.setPrePartInsts(partCategoryReq.getPrePartInsts());
-            moduleInput.setEnumerateAllSolution(partCategoryReq.isEnumerateAllSolution());
-            moduleInput.setMaxSolutionNum(partCategoryReq.getMaxSolutionNum());
-            moduleInput.setRelaxSolve(partCategoryReq.isRelaxSolve());
-
             Map<String, List<PartConstraintReq>> partConstraintReqMap = normalizePartConstraint(
                     partCategoryReq.getPartConstraintReqs(), startModule);
             // 查找原始部件分类
             FilterCloneResult filterResult = filterClone(startModule, partConstraintReqMap);
-            moduleInput.setPartCategoryInputs(filterResult.partCategoryInputs());
-            moduleInput.setPartCategoryErrorInfoMap(filterResult.errorInfoMap());
 
             Module filterModule = filterResult.filteredModule();
             log.info("Priority-orignal module: {}", ModuleUtils.toShortString(startModule));
             log.info("Priority-filter module: {}", ModuleUtils.toShortString(filterModule));
-            SolverResult sr = null;
-            // 检查是否有优先级规则，如果有则使用分级求解
-            if (filterModule.hasAllPriorityRule()) {
-                sr = solveWithPriorityConstraints(filterModule, moduleInput);
-            } else {
-                sr = solveWithOutPriorityConstraints(filterModule, moduleInput);
-            }
+            SolverResult sr = solveProductBranches(filterModule, filterResult);
             // 后处理：注入过滤为空的 PartCategoryInst 错误信息
             injectPartCategoryErrors(sr.getSolutions(), filterResult.errorInfoMap());
 
@@ -184,6 +168,12 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
                     return Result.noSolution("All categories have empty filter results");
                 }
             }
+            if (!sr.hasSolution()) {
+                Result<List<ModuleInst>> r = Result.noSolution("Cannot find solution");
+                r.setData(sr.getSolutions());
+                r.setSolverResult(sr);
+                return r;
+            }
             return Result.success(sr.getSolutions());
 
         } catch (Exception e) {
@@ -196,6 +186,7 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
             Map<String, List<PartConstraintReq>> partConstraintReqMap) {
         Module result = startModule.clone();
         List<PartCategoryInputBase> partCategoryInputs = new ArrayList<>();
+        List<PartCategoryInputBase> optionalPartCategoryInputs = new ArrayList<>();
         Map<String, ErrorInfo> errorInfoMap = new LinkedHashMap<>();
         List<PartConstraintReq> reqs = null;
         PartCategory filterPartCategory = null;
@@ -204,6 +195,11 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
             if (reqs == null) {
                 // 如果是穷举多实例的情况，默认是放进去的，TODO：是不是一个也没有的时候也补充一个
                 if (partCategory.isEnumMutiInst()) {
+                    continue;
+                }
+                if (partCategory.isOptionalSelection()) {
+                    optionalPartCategoryInputs.add(toOptionalInput(partCategory));
+                    log.info("Defer optional category {} to augmentation branch", partCategory.getCode());
                     continue;
                 }
                 result.addPart(partCategory); // 完全挪过来
@@ -222,12 +218,17 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
                                         "No parts found for condition: " + req.getAttrWhereCondition()
                                                 + " in category " + partCategory.getCode()));
                     }
-                    result.addPartCategory(filterPartCategory);
                     PartCategoryInput partCategoryInput = PartCategoryConstraintExecutorImpl
                             .toPartCategoryInput(
                                     filterPartCategory, req);
                     partCategoryInput.setSumAttrParas(partCategory.getAttrParas(AttrParaType.Sum));
-                    partCategoryInputs.add(partCategoryInput);
+                    if (partCategory.isOptionalSelection() && isMentionOnlyOptionalReq(req)) {
+                        forcePresentOptionalInput(partCategoryInput);
+                        optionalPartCategoryInputs.add(partCategoryInput);
+                    } else {
+                        result.addPartCategory(filterPartCategory);
+                        partCategoryInputs.add(partCategoryInput);
+                    }
                 } else {
                     Pair<List<Rule>, List<Rule>> rulePair = RuleUtils.splitRules(partCategory.getRules());
                     List<AttrPara> sumsumAttrParas = partCategory.getAttrParas(AttrParaType.SumSum);
@@ -265,12 +266,130 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
                     }
                     multiInstPartCategoryInput.setAllInstRules(rulePair.getSecond());
                     multiInstPartCategoryInput.setSumSumAttrParas(sumsumAttrParas);
-                    result.addPartCategory(partCategory); // 放的是全的
-                    partCategoryInputs.add(multiInstPartCategoryInput);
+                    if (partCategory.isOptionalSelection()) {
+                        optionalPartCategoryInputs.add(multiInstPartCategoryInput);
+                    } else {
+                        result.addPartCategory(partCategory); // 放的是全的
+                        partCategoryInputs.add(multiInstPartCategoryInput);
+                    }
                 }
             }
         }
-        return new FilterCloneResult(result, partCategoryInputs, errorInfoMap);
+        return new FilterCloneResult(result, partCategoryInputs, errorInfoMap, optionalPartCategoryInputs);
+    }
+
+    private SolverResult solveProductBranches(Module baseModule, FilterCloneResult filterResult) {
+        ModuleInput baseInput = new ModuleInput();
+        baseInput.setPartCategoryInputs(new ArrayList<>(filterResult.partCategoryInputs()));
+        baseInput.setPartCategoryErrorInfoMap(filterResult.errorInfoMap());
+
+        SolverResult merged = solveBranch(baseModule, baseInput);
+        appendOptionalBranches(baseModule, filterResult, 0, new ArrayList<>(), merged,
+                getOptionalBranchLimit());
+        return merged;
+    }
+
+    private int appendOptionalBranches(Module baseModule, FilterCloneResult filterResult, int startIndex,
+            List<PartCategoryInputBase> selectedOptionalInputs, SolverResult merged, int remainingBranchCount) {
+        if (remainingBranchCount <= 0 || filterResult.optionalPartCategoryInputs().isEmpty()) {
+            return remainingBranchCount;
+        }
+        for (int i = startIndex; i < filterResult.optionalPartCategoryInputs().size(); i++) {
+            selectedOptionalInputs.add(filterResult.optionalPartCategoryInputs().get(i));
+            SolverResult presentResult = solveOptionalBranch(baseModule, filterResult, selectedOptionalInputs);
+            merged.getSolutions().addAll(presentResult.getSolutions());
+            remainingBranchCount--;
+            if (remainingBranchCount <= 0) {
+                selectedOptionalInputs.remove(selectedOptionalInputs.size() - 1);
+                return remainingBranchCount;
+            }
+            remainingBranchCount = appendOptionalBranches(baseModule, filterResult, i + 1,
+                    selectedOptionalInputs, merged, remainingBranchCount);
+            selectedOptionalInputs.remove(selectedOptionalInputs.size() - 1);
+            if (remainingBranchCount <= 0) {
+                return remainingBranchCount;
+            }
+        }
+        return remainingBranchCount;
+    }
+
+    private SolverResult solveOptionalBranch(Module baseModule, FilterCloneResult filterResult,
+            List<PartCategoryInputBase> optionalInputs) {
+        Module presentModule = cloneModuleWithCurrentCategories(baseModule);
+        ModuleInput presentInput = new ModuleInput();
+        presentInput.setPartCategoryInputs(new ArrayList<>(filterResult.partCategoryInputs()));
+        presentInput.setPartCategoryErrorInfoMap(filterResult.errorInfoMap());
+
+        for (PartCategoryInputBase optionalInput : optionalInputs) {
+            PartCategory presentCategory = toPresentPartCategory(optionalInput);
+            if (presentCategory == null) {
+                continue;
+            }
+            presentModule.addPartCategory(presentCategory);
+            presentInput.getPartCategoryInputs().add(optionalInput);
+        }
+        return solveBranch(presentModule, presentInput);
+    }
+
+    private int getOptionalBranchLimit() {
+        if (config == null || config.getMaxOptionalPartCategoryBranches() <= 0) {
+            return 16;
+        }
+        return config.getMaxOptionalPartCategoryBranches();
+    }
+
+    private static Module cloneModuleWithCurrentCategories(Module source) {
+        Module clone = source.clone();
+        for (PartCategory partCategory : source.getPartCategorys()) {
+            clone.addPartCategory(partCategory);
+        }
+        return clone;
+    }
+
+    private SolverResult solveBranch(Module filteredModule, ModuleInput moduleInput) {
+        if (filteredModule.hasAllPriorityRule()) {
+            return solveWithPriorityConstraints(filteredModule, moduleInput);
+        }
+        return solveWithOutPriorityConstraints(filteredModule, moduleInput);
+    }
+
+    private static PartCategory toPresentPartCategory(PartCategoryInputBase input) {
+        if (input instanceof PartCategoryInput partCategoryInput) {
+            return partCategoryInput.getFilteredCategory();
+        }
+        if (input instanceof MultiInstPartCategoryInput multiInput) {
+            List<PartCategoryInput> inputs = multiInput.getPartCategoryInputs();
+            if (inputs == null || inputs.isEmpty()) {
+                return null;
+            }
+            return inputs.get(0).getFilteredCategory();
+        }
+        return null;
+    }
+
+    private static PartCategoryInput toOptionalInput(PartCategory partCategory) {
+        PartCategoryInput input = new PartCategoryInput();
+        input.setFilteredCategory(partCategory);
+        input.setSumAttrParas(partCategory.getAttrParas(AttrParaType.Sum));
+        forcePresentOptionalInput(input);
+        return input;
+    }
+
+    private static void forcePresentOptionalInput(PartCategoryInputBase input) {
+        input.setAttrType(AttrParaType.Sum);
+        input.setSumAttrCode(PartConstantAttr.Quantity.getCode());
+        input.setComparator(">=");
+        input.setLeftValue(1);
+    }
+
+    private static boolean isMentionOnlyOptionalReq(PartConstraintReq req) {
+        if (req == null) {
+            return false;
+        }
+        return Strings.isNullOrEmpty(req.getAttrCode())
+                && Strings.isNullOrEmpty(req.getAttrComparator())
+                && (!Strings.isNullOrEmpty(req.getAttrWhereCondition())
+                        || (req.getDecisionStrategies() != null && !req.getDecisionStrategies().isEmpty()));
     }
 
     /**

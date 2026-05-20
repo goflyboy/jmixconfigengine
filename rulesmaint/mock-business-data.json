@@ -1,0 +1,125 @@
+{
+  "domains": [
+    {
+      "code": "Server",
+      "name": "服务器配置",
+      "type": "BUSINESS_DOMAIN_OBJECT",
+      "fields": [
+        {"code": "TotalUsers", "name": "总用户数", "dataType": "INTEGER"},
+        {"code": "PreferDiskType", "name": "硬盘偏好", "dataType": "STRING"}
+      ]
+    },
+    {
+      "code": "cpu",
+      "name": "CPU 分类",
+      "type": "BUSINESS_DOMAIN_OBJECT",
+      "fields": [
+        {"code": "CoreNum", "name": "CPU 核数", "dataType": "INTEGER"},
+        {"code": "Quantity", "name": "CPU 数量", "dataType": "INTEGER"}
+      ],
+      "parts": [
+        {"code": "cpu4", "name": "4 核 CPU", "CoreNum": 4, "Memory": 256},
+        {"code": "cpu8", "name": "8 核 CPU", "CoreNum": 8, "Memory": 512},
+        {"code": "cpu12", "name": "12 核 CPU", "CoreNum": 12, "Memory": 768}
+      ]
+    },
+    {
+      "code": "drive",
+      "name": "硬盘分类",
+      "type": "BUSINESS_DOMAIN_OBJECT",
+      "fields": [
+        {"code": "Speed", "name": "转速", "dataType": "INTEGER"},
+        {"code": "Capacity", "name": "容量", "dataType": "INTEGER"},
+        {"code": "Type", "name": "介质类型", "dataType": "STRING"},
+        {"code": "Quantity", "name": "硬盘数量", "dataType": "INTEGER"}
+      ],
+      "parts": [
+        {"code": "drive5400", "name": "5400 转 1T 机械盘", "Speed": 5400, "Capacity": 1, "Type": "MD"},
+        {"code": "drive7200", "name": "7200 转 2T 机械盘", "Speed": 7200, "Capacity": 2, "Type": "MD"},
+        {"code": "driveSSD6T", "name": "7200 转 6T 固态盘", "Speed": 7200, "Capacity": 6, "Type": "SD"}
+      ]
+    },
+    {
+      "code": "Contract",
+      "name": "合同",
+      "type": "BUSINESS_DOMAIN_OBJECT",
+      "fields": [
+        {"code": "ContractNo", "name": "合同号", "dataType": "STRING"},
+        {"code": "Customer_Code", "name": "客户编码", "dataType": "STRING"},
+        {"code": "Price", "name": "合同金额", "dataType": "DECIMAL"},
+        {"code": "Discount", "name": "折扣率", "dataType": "DECIMAL"},
+        {"code": "RiskLevel", "name": "风险等级", "dataType": "STRING"}
+      ]
+    },
+    {
+      "code": "Order",
+      "name": "订单",
+      "type": "BUSINESS_DOMAIN_OBJECT",
+      "fields": [
+        {"code": "OrderNo", "name": "订单号", "dataType": "STRING"},
+        {"code": "Amount", "name": "订单金额", "dataType": "DECIMAL"},
+        {"code": "ContractNo", "name": "关联合同号", "dataType": "STRING"}
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "code": "cpu_drive_combo_white",
+      "name": "CPU 与硬盘配套白名单",
+      "ownerCode": "Server",
+      "ruleKind": "COMPOSITE",
+      "calcStage": "MID",
+      "repr": "4 核 CPU 只能配 5400 转硬盘；8 核 CPU 可配 5400 或 7200 转硬盘；12 核 CPU 必须配 7200 转硬盘。",
+      "semanticDsl": "rule cpu_drive_combo_white { owner Server; stage MID; type WHITE_LIST; allow when cpu.CoreNum == 4 and drive.Speed == 5400; allow when cpu.CoreNum == 8 and drive.Speed in [5400, 7200]; allow when cpu.CoreNum >= 12 and drive.Speed == 7200; }"
+    },
+    {
+      "code": "contract_discount_guard",
+      "name": "海尔大额合同折扣控制",
+      "ownerCode": "Contract",
+      "ruleKind": "ATOMIC",
+      "calcStage": "PRE",
+      "repr": "当客户编码为 HAIER 且订单金额大于等于 100000 时，合同折扣率不得超过 8%。",
+      "semanticDsl": "rule contract_discount_guard { owner Contract; stage PRE; if Contract.Customer_Code == \"HAIER\" and Order.Amount >= 100000 then Contract.Discount <= 0.08; }"
+    },
+    {
+      "code": "post_drive_capacity",
+      "name": "硬盘容量后置计算",
+      "ownerCode": "drive",
+      "ruleKind": "ATOMIC",
+      "calcStage": "POST",
+      "repr": "求解后写入硬盘总容量、首个硬盘容量和硬盘数量。",
+      "semanticDsl": "rule post_drive_capacity { owner drive; stage POST; set Server.pDriveSumCapacity = sum(drive.Capacity * drive.Quantity); set Server.pDriveQuantity = sum(drive.Quantity); }"
+    }
+  ],
+  "testCases": [
+    {
+      "id": "TC-001",
+      "ruleCode": "cpu_drive_combo_white",
+      "input": "cpu.CoreNum=4, drive.Speed=5400",
+      "expected": "PASS",
+      "actual": "PASS"
+    },
+    {
+      "id": "TC-002",
+      "ruleCode": "cpu_drive_combo_white",
+      "input": "cpu.CoreNum=4, drive.Speed=7200",
+      "expected": "FAIL",
+      "actual": "FAIL"
+    },
+    {
+      "id": "TC-003",
+      "ruleCode": "contract_discount_guard",
+      "input": "Contract.Customer_Code=HAIER, Order.Amount=120000, Contract.Discount=0.10",
+      "expected": "FAIL",
+      "actual": "FAIL"
+    },
+    {
+      "id": "TC-004",
+      "ruleCode": "contract_discount_guard",
+      "input": "Contract.Customer_Code=HAIER, Order.Amount=120000, Contract.Discount=0.05",
+      "expected": "PASS",
+      "actual": "PASS"
+    }
+  ]
+}
+

@@ -51,6 +51,11 @@ public class PartCategory extends ModuleBase implements IModule, IPart {
      */
     private boolean supportMultiInst = false;
 
+    /**
+     * Selection policy for this category.
+     */
+    private PartCategorySelectionPolicy selectionPolicy = PartCategorySelectionPolicy.REQUIRED;
+
     public PartCategory() {
         super();
         this.setPartType(PartType.CATEGORY);
@@ -87,9 +92,20 @@ public class PartCategory extends ModuleBase implements IModule, IPart {
         // 复制PartCategory特有的属性
         to.setPartType(this.getPartType());
         to.setSupportMultiInst(this.isSupportMultiInst());
+        to.setSelectionPolicy(this.getSelectionPolicy());
         // 调用init方法初始化映射表
         to.init();
         return to;
+    }
+
+    @JsonIgnore
+    public boolean isRequiredSelection() {
+        return selectionPolicy == null || selectionPolicy == PartCategorySelectionPolicy.REQUIRED;
+    }
+
+    @JsonIgnore
+    public boolean isOptionalSelection() {
+        return selectionPolicy == PartCategorySelectionPolicy.OPTIONAL;
     }
 
     @Override

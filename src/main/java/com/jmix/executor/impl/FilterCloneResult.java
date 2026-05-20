@@ -16,7 +16,14 @@ import java.util.Map;
  */
 public record FilterCloneResult(Module filteredModule,
                                 List<PartCategoryInputBase> partCategoryInputs,
-                                Map<String, ErrorInfo> errorInfoMap) {
+                                Map<String, ErrorInfo> errorInfoMap,
+                                List<PartCategoryInputBase> optionalPartCategoryInputs) {
+
+    public FilterCloneResult(Module filteredModule,
+                             List<PartCategoryInputBase> partCategoryInputs,
+                             Map<String, ErrorInfo> errorInfoMap) {
+        this(filteredModule, partCategoryInputs, errorInfoMap, List.of());
+    }
 
     public boolean hasError() {
         return errorInfoMap != null && !errorInfoMap.isEmpty();

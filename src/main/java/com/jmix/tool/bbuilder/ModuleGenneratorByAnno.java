@@ -11,6 +11,7 @@ import com.jmix.executor.southinf.var.PartCategoryVar;
 import com.jmix.executor.southinf.var.PartVar;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartCategory;
+import com.jmix.executor.bmodel.PartCategorySelectionPolicy;
 import com.jmix.executor.bmodel.PartType;
 import com.jmix.executor.bmodel.attr.DynamicAttribute;
 import com.jmix.executor.bmodel.attr.DynamicAttributeType;
@@ -207,6 +208,9 @@ public final class ModuleGenneratorByAnno {
             part.setDefaultValue(0); // Part的默认值类型是Integer
             part.setDescription(partAnno.description());
             part.setSortNo(partAnno.sortNo());
+            part.setSelectionPolicy(partAnno.required()
+                    ? PartCategorySelectionPolicy.REQUIRED
+                    : PartCategorySelectionPolicy.OPTIONAL);
             // part.setMaxQuantity(partAnno.maxQuantity());
             // part.setPrice(partAnno.price());
             part.setExtSchema(partAnno.extSchema());

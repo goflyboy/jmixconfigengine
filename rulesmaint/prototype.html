@@ -1,0 +1,1077 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JMix Rules Maint Prototype</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080d13;
+      --panel: #101821;
+      --panel-2: #131d28;
+      --line: #243344;
+      --line-strong: #3b5166;
+      --text: #e7edf4;
+      --muted: #8795a6;
+      --cyan: #35d6c7;
+      --green: #9ee66e;
+      --amber: #ffc857;
+      --magenta: #e86bd7;
+      --red: #ff6d6d;
+      --code: #071019;
+      --radius: 8px;
+      --font: "Inter", "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      --mono: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: var(--font);
+      background:
+        linear-gradient(rgba(60, 82, 108, .16) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(60, 82, 108, .16) 1px, transparent 1px),
+        var(--bg);
+      background-size: 28px 28px;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      min-height: 34px;
+      border: 1px solid var(--line-strong);
+      border-radius: 6px;
+      color: var(--text);
+      background: #152333;
+      cursor: pointer;
+    }
+
+    button:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    button.primary {
+      border-color: rgba(53, 214, 199, .9);
+      color: #04100f;
+      background: var(--cyan);
+      font-weight: 700;
+    }
+
+    button.ghost {
+      width: 34px;
+      padding: 0;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--text);
+      background: #0b131c;
+      outline: none;
+    }
+
+    input,
+    select {
+      min-height: 34px;
+      padding: 0 10px;
+    }
+
+    textarea {
+      min-height: 120px;
+      padding: 12px;
+      resize: vertical;
+    }
+
+    .app {
+      display: grid;
+      grid-template-rows: 58px 1fr;
+      min-height: 100vh;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      border-bottom: 1px solid var(--line);
+      padding: 0 20px;
+      background: rgba(8, 13, 19, .92);
+      backdrop-filter: blur(10px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .mark {
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--cyan);
+      border-radius: 7px;
+      color: var(--cyan);
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 17px;
+      letter-spacing: 0;
+      white-space: nowrap;
+    }
+
+    .top-actions,
+    .row,
+    .tabs,
+    .chips {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      padding: 0 9px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      background: rgba(19, 29, 40, .84);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .chip.good {
+      border-color: rgba(158, 230, 110, .45);
+      color: var(--green);
+    }
+
+    .chip.warn {
+      border-color: rgba(255, 200, 87, .45);
+      color: var(--amber);
+    }
+
+    .chip.hot {
+      border-color: rgba(232, 107, 215, .5);
+      color: var(--magenta);
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: minmax(240px, 300px) minmax(520px, 1fr) minmax(360px, 430px);
+      gap: 12px;
+      padding: 12px;
+      overflow: hidden;
+    }
+
+    .panel {
+      min-width: 0;
+      min-height: 0;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(16, 24, 33, .96);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 46px;
+      padding: 0 12px;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel-2);
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 700;
+      color: #dce7f2;
+      letter-spacing: 0;
+    }
+
+    .panel-body {
+      padding: 12px;
+      overflow: auto;
+      max-height: calc(100vh - 128px);
+    }
+
+    .sidebar .panel-body {
+      display: grid;
+      gap: 14px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    .domain-tree,
+    .rule-list,
+    .test-list,
+    .result-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .domain-node,
+    .rule-card,
+    .test-row,
+    .result-row,
+    .reference-row {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #0d1620;
+    }
+
+    .domain-node {
+      padding: 10px;
+    }
+
+    .domain-node strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+
+    .field-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .field {
+      border: 1px solid #2a3b4f;
+      border-radius: 999px;
+      padding: 3px 7px;
+      color: #b9c7d6;
+      font-family: var(--mono);
+      font-size: 11px;
+      background: #101c28;
+    }
+
+    .rule-card {
+      width: 100%;
+      padding: 10px;
+      text-align: left;
+    }
+
+    .rule-card.active {
+      border-color: var(--cyan);
+      background: #0a2025;
+    }
+
+    .rule-card span {
+      display: block;
+    }
+
+    .rule-card .name {
+      margin-bottom: 5px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .rule-card .meta {
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 11px;
+    }
+
+    .editor {
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+      background: #0d151e;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    label span {
+      white-space: nowrap;
+    }
+
+    .tabbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      background: #0b131c;
+    }
+
+    .tab {
+      min-width: 110px;
+      color: var(--muted);
+      background: transparent;
+    }
+
+    .tab.active {
+      border-color: var(--cyan);
+      color: var(--cyan);
+      background: #0b2026;
+    }
+
+    .workspace {
+      display: grid;
+      gap: 12px;
+      padding: 12px;
+      overflow: auto;
+      max-height: calc(100vh - 210px);
+    }
+
+    .rule-table {
+      display: grid;
+      gap: 8px;
+    }
+
+    .rule-row {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr .8fr .8fr 1fr 1fr .8fr .8fr 34px;
+      gap: 8px;
+      align-items: end;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #0d1620;
+    }
+
+    .rule-row.head {
+      padding: 0 10px;
+      border: 0;
+      color: var(--muted);
+      background: transparent;
+      font-size: 12px;
+    }
+
+    .nl-area {
+      display: none;
+      gap: 12px;
+    }
+
+    .nl-area.active,
+    .struct-area.active {
+      display: grid;
+    }
+
+    .struct-area {
+      display: none;
+      gap: 12px;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .flow-step {
+      min-height: 70px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 10px;
+      background: #0d1620;
+    }
+
+    .flow-step strong {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 12px;
+    }
+
+    .flow-step span {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .inspector {
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .inspector .panel-body {
+      display: grid;
+      gap: 12px;
+    }
+
+    .code-editor {
+      min-height: 245px;
+      color: #d3f9f3;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.55;
+      background: var(--code);
+    }
+
+    .nl-output {
+      min-height: 72px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 10px;
+      color: #dce7f2;
+      background: #0d1620;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .reference-grid {
+      display: grid;
+      gap: 6px;
+    }
+
+    .reference-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      min-height: 34px;
+      padding: 0 9px;
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    .test-row,
+    .result-row {
+      display: grid;
+      grid-template-columns: 68px 1fr 62px 62px;
+      gap: 8px;
+      align-items: center;
+      min-height: 40px;
+      padding: 8px;
+      font-size: 12px;
+    }
+
+    .result-row {
+      grid-template-columns: 1fr auto;
+    }
+
+    .status {
+      display: inline-flex;
+      justify-content: center;
+      min-width: 46px;
+      border-radius: 999px;
+      padding: 3px 7px;
+      color: #061207;
+      background: var(--green);
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .status.fail {
+      color: #170606;
+      background: var(--red);
+    }
+
+    .status.warn {
+      color: #161003;
+      background: var(--amber);
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .mono {
+      font-family: var(--mono);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 1180px) {
+      main {
+        grid-template-columns: 260px 1fr;
+        overflow: auto;
+      }
+
+      .inspector {
+        grid-column: 1 / -1;
+      }
+
+      .panel-body {
+        max-height: none;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .app {
+        grid-template-rows: auto 1fr;
+      }
+
+      header {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 12px;
+      }
+
+      main {
+        grid-template-columns: 1fr;
+      }
+
+      .meta-grid,
+      .flow,
+      .rule-row {
+        grid-template-columns: 1fr;
+      }
+
+      .rule-row.head {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <div class="mark">IR</div>
+        <div>
+          <h1>JMix Rules Maint</h1>
+          <div class="muted mono">RuleRepr + RuleSemantic + RuleExecution + RuleReferenceSet</div>
+        </div>
+      </div>
+      <div class="top-actions">
+        <span class="chip good">Draft v0.1</span>
+        <span class="chip warn" id="compileState">Semantic synced</span>
+        <button title="保存当前草稿">保存</button>
+        <button class="primary" title="发布当前规则包">发布</button>
+      </div>
+    </header>
+
+    <main>
+      <aside class="panel sidebar">
+        <div class="panel-head">
+          <h2 class="panel-title">领域与规则</h2>
+          <button class="ghost" title="新增规则">+</button>
+        </div>
+        <div class="panel-body">
+          <section>
+            <p class="section-title">字段搜索</p>
+            <input id="domainSearch" placeholder="cpu.CoreNum / Contract.Price">
+          </section>
+
+          <section>
+            <p class="section-title">领域对象</p>
+            <div class="domain-tree" id="domainTree"></div>
+          </section>
+
+          <section>
+            <p class="section-title">规则列表</p>
+            <div class="rule-list" id="ruleList"></div>
+          </section>
+        </div>
+      </aside>
+
+      <section class="panel editor">
+        <div class="panel-head">
+          <h2 class="panel-title">规则编写</h2>
+          <div class="chips">
+            <span class="chip hot" id="ruleKindChip">COMPOSITE</span>
+            <span class="chip" id="stageChip">MID</span>
+          </div>
+        </div>
+
+        <div class="meta-grid">
+          <label>
+            <span>规则编码</span>
+            <input id="ruleCode" value="cpu_drive_combo_white">
+          </label>
+          <label>
+            <span>规则名称</span>
+            <input id="ruleName" value="CPU 与硬盘配套白名单">
+          </label>
+          <label>
+            <span>归属对象</span>
+            <select id="ownerCode">
+              <option>Server</option>
+              <option>Contract</option>
+              <option>drive</option>
+            </select>
+          </label>
+          <label>
+            <span>执行阶段</span>
+            <select id="calcStage">
+              <option>PRE</option>
+              <option selected>MID</option>
+              <option>POST</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="tabbar">
+          <div class="tabs">
+            <button class="tab active" id="tabStruct" onclick="setMode('struct')">结构化编辑</button>
+            <button class="tab" id="tabNatural" onclick="setMode('natural')">自然语言编辑</button>
+          </div>
+          <div class="row">
+            <button onclick="compileCurrent()">编译</button>
+            <button onclick="generateTests()">生成测试</button>
+            <button class="primary" onclick="runTests()">运行测试</button>
+          </div>
+        </div>
+
+        <div class="workspace">
+          <div class="struct-area active" id="structArea">
+            <div class="rule-table">
+              <div class="rule-row head">
+                <span>条件对象</span>
+                <span>字段</span>
+                <span>操作符</span>
+                <span>值</span>
+                <span>关系</span>
+                <span>结果对象</span>
+                <span>字段</span>
+                <span>值</span>
+                <span></span>
+              </div>
+              <div class="rule-row">
+                <select><option>cpu</option></select>
+                <select><option>CoreNum</option></select>
+                <select><option>=</option></select>
+                <input value="4">
+                <select><option>CO_DEPENDENT</option></select>
+                <select><option>drive</option></select>
+                <select><option>Speed</option></select>
+                <input value="5400">
+                <button class="ghost" title="删除">x</button>
+              </div>
+              <div class="rule-row">
+                <select><option>cpu</option></select>
+                <select><option>CoreNum</option></select>
+                <select><option>=</option></select>
+                <input value="8">
+                <select><option>CO_DEPENDENT</option></select>
+                <select><option>drive</option></select>
+                <select><option>Speed</option></select>
+                <input value="5400,7200">
+                <button class="ghost" title="删除">x</button>
+              </div>
+              <div class="rule-row">
+                <select><option>cpu</option></select>
+                <select><option>CoreNum</option></select>
+                <select><option>>=</option></select>
+                <input value="12">
+                <select><option>CO_DEPENDENT</option></select>
+                <select><option>drive</option></select>
+                <select><option>Speed</option></select>
+                <input value="7200">
+                <button class="ghost" title="删除">x</button>
+              </div>
+            </div>
+            <div class="row">
+              <button title="新增结构化规则行">新增行</button>
+              <button title="执行维护态唯一性和维度校验">校验</button>
+              <span class="chip good">WHITE_LIST</span>
+              <span class="chip">3 child rules</span>
+            </div>
+          </div>
+
+          <div class="nl-area" id="naturalArea">
+            <textarea id="naturalInput">当客户编码为 HAIER 且订单金额大于等于 100000 时，合同折扣率不得超过 8%。</textarea>
+            <div class="row">
+              <button onclick="compileNatural()">转换 DSL</button>
+              <button onclick="syncFromDsl()">DSL 同步中文</button>
+              <span class="chip warn">needs confirm</span>
+            </div>
+          </div>
+
+          <div class="flow">
+            <div class="flow-step">
+              <strong>RuleRepr</strong>
+              <span id="reprState">STRUCT_DSL / NATURAL_LANGUAGE</span>
+            </div>
+            <div class="flow-step">
+              <strong>RuleSemantic</strong>
+              <span id="semanticState">STRUCT_DSL parsed</span>
+            </div>
+            <div class="flow-step">
+              <strong>RuleReferenceSet</strong>
+              <span id="refState">cpu, drive</span>
+            </div>
+            <div class="flow-step">
+              <strong>RuleExecution</strong>
+              <span id="executionState">CONSTRAINT_SOLVER / MID</span>
+            </div>
+            <div class="flow-step">
+              <strong>Test Run</strong>
+              <span id="testState">4 generated, 4 passed</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel inspector">
+        <div class="panel-head">
+          <h2 class="panel-title">DSL 与测试闭环</h2>
+          <div class="row">
+            <button class="ghost" onclick="syncFromDsl()" title="从 DSL 同步">↺</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <section>
+            <p class="section-title">Semantic DSL</p>
+            <textarea class="code-editor" id="dslEditor" spellcheck="false"></textarea>
+          </section>
+
+          <section>
+            <p class="section-title">中文描述</p>
+            <div class="nl-output" id="naturalOutput"></div>
+          </section>
+
+          <section>
+            <p class="section-title">引用关系</p>
+            <div class="reference-grid" id="references"></div>
+          </section>
+
+          <section>
+            <div class="row" style="justify-content: space-between;">
+              <p class="section-title" style="margin: 0;">测试用例</p>
+              <span class="chip" id="testCount">4 cases</span>
+            </div>
+            <div class="test-list" id="tests"></div>
+          </section>
+
+          <section>
+            <p class="section-title">运行结果</p>
+            <div class="result-list" id="results"></div>
+          </section>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script>
+    const data = {
+      domains: [
+        { code: "Server", fields: ["TotalUsers", "PreferDiskType"] },
+        { code: "cpu", fields: ["CoreNum", "Quantity"] },
+        { code: "drive", fields: ["Speed", "Capacity", "Type", "Quantity"] },
+        { code: "Contract", fields: ["ContractNo", "Customer_Code", "Price", "Discount", "RiskLevel"] },
+        { code: "Order", fields: ["OrderNo", "Amount", "ContractNo"] }
+      ],
+      rules: {
+        cpu_drive_combo_white: {
+          code: "cpu_drive_combo_white",
+          name: "CPU 与硬盘配套白名单",
+          owner: "Server",
+          kind: "COMPOSITE",
+          stage: "MID",
+          mode: "struct",
+          natural: "4 核 CPU 只能配 5400 转硬盘；8 核 CPU 可配 5400 或 7200 转硬盘；12 核 CPU 必须配 7200 转硬盘。",
+          dsl: `rule cpu_drive_combo_white {
+  owner Server;
+  stage MID;
+  type WHITE_LIST;
+
+  allow when cpu.CoreNum == 4 and drive.Speed == 5400;
+  allow when cpu.CoreNum == 8 and drive.Speed in [5400, 7200];
+  allow when cpu.CoreNum >= 12 and drive.Speed == 7200;
+}`,
+          refs: ["cpu.CoreNum", "drive.Speed"],
+          tests: [
+            ["TC-001", "cpu.CoreNum=4, drive.Speed=5400", "PASS", "PASS"],
+            ["TC-002", "cpu.CoreNum=4, drive.Speed=7200", "FAIL", "FAIL"],
+            ["TC-003", "cpu.CoreNum=8, drive.Speed=7200", "PASS", "PASS"],
+            ["TC-004", "cpu.CoreNum=12, drive.Speed=5400", "FAIL", "FAIL"]
+          ]
+        },
+        contract_discount_guard: {
+          code: "contract_discount_guard",
+          name: "海尔大额合同折扣控制",
+          owner: "Contract",
+          kind: "ATOMIC",
+          stage: "PRE",
+          mode: "natural",
+          natural: "当客户编码为 HAIER 且订单金额大于等于 100000 时，合同折扣率不得超过 8%。",
+          dsl: `rule contract_discount_guard {
+  owner Contract;
+  stage PRE;
+
+  if Contract.Customer_Code == "HAIER"
+     and Order.Amount >= 100000
+  then Contract.Discount <= 0.08;
+}`,
+          refs: ["Contract.Customer_Code", "Order.Amount", "Contract.Discount"],
+          tests: [
+            ["TC-101", "HAIER, Amount=120000, Discount=0.10", "FAIL", "FAIL"],
+            ["TC-102", "HAIER, Amount=120000, Discount=0.05", "PASS", "PASS"],
+            ["TC-103", "OTHER, Amount=120000, Discount=0.10", "PASS", "PASS"],
+            ["TC-104", "HAIER, Amount=99999, Discount=0.10", "PASS", "PASS"]
+          ]
+        },
+        post_drive_capacity: {
+          code: "post_drive_capacity",
+          name: "硬盘容量后置计算",
+          owner: "drive",
+          kind: "ATOMIC",
+          stage: "POST",
+          mode: "natural",
+          natural: "求解后写入硬盘总容量、首个硬盘容量和硬盘数量。",
+          dsl: `rule post_drive_capacity {
+  owner drive;
+  stage POST;
+
+  set Server.pDriveSumCapacity = sum(drive.Capacity * drive.Quantity);
+  set Server.pDriveQuantity = sum(drive.Quantity);
+}`,
+          refs: ["drive.Capacity", "drive.Quantity", "Server.pDriveSumCapacity", "Server.pDriveQuantity"],
+          tests: [
+            ["TC-201", "drive5400 qty=2", "pDriveQuantity=2", "PASS"],
+            ["TC-202", "drive5400 qty=1, drive7200 qty=1", "pDriveSumCapacity=3", "PASS"]
+          ]
+        }
+      }
+    };
+
+    let currentRuleCode = "cpu_drive_combo_white";
+    let currentMode = "struct";
+
+    function byId(id) {
+      return document.getElementById(id);
+    }
+
+    function renderDomainTree() {
+      byId("domainTree").innerHTML = data.domains.map(domain => `
+        <div class="domain-node">
+          <strong>${domain.code}</strong>
+          <div class="field-list">
+            ${domain.fields.map(field => `<span class="field">${domain.code}.${field}</span>`).join("")}
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderRuleList() {
+      byId("ruleList").innerHTML = Object.values(data.rules).map(rule => `
+        <button class="rule-card ${rule.code === currentRuleCode ? "active" : ""}" onclick="selectRule('${rule.code}')">
+          <span class="name">${rule.name}</span>
+          <span class="meta">${rule.code} · ${rule.owner} · ${rule.stage}</span>
+        </button>
+      `).join("");
+    }
+
+    function selectRule(code) {
+      currentRuleCode = code;
+      const rule = data.rules[code];
+      byId("ruleCode").value = rule.code;
+      byId("ruleName").value = rule.name;
+      byId("ownerCode").value = rule.owner;
+      byId("calcStage").value = rule.stage;
+      byId("dslEditor").value = rule.dsl;
+      byId("naturalInput").value = rule.natural;
+      byId("naturalOutput").textContent = rule.natural;
+      byId("ruleKindChip").textContent = rule.kind;
+      byId("stageChip").textContent = rule.stage;
+      byId("executionState").textContent = rule.stage === "MID" ? "CONSTRAINT_SOLVER / MID" : "RULE_ENGINE / " + rule.stage;
+      byId("compileState").textContent = "Semantic synced";
+      byId("testState").textContent = `${rule.tests.length} generated, ${rule.tests.length} passed`;
+      renderReferences(rule.refs);
+      renderTests(rule.tests);
+      renderResults(rule.tests, false);
+      setMode(rule.mode);
+      renderRuleList();
+    }
+
+    function setMode(mode) {
+      currentMode = mode;
+      byId("tabStruct").classList.toggle("active", mode === "struct");
+      byId("tabNatural").classList.toggle("active", mode === "natural");
+      byId("structArea").classList.toggle("active", mode === "struct");
+      byId("naturalArea").classList.toggle("active", mode === "natural");
+      byId("reprState").textContent = mode === "struct" ? "STRUCT_DSL active" : "NATURAL_LANGUAGE active";
+    }
+
+    function compileCurrent() {
+      if (currentMode === "natural") {
+        compileNatural();
+      } else {
+        compileStructured();
+      }
+    }
+
+    function compileStructured() {
+      selectRule("cpu_drive_combo_white");
+      setMode("struct");
+      byId("compileState").textContent = "Compiled from structure";
+      byId("semanticState").textContent = "STRUCT_DSL parsed";
+      byId("refState").textContent = "cpu, drive";
+    }
+
+    function compileNatural() {
+      const text = byId("naturalInput").value;
+      currentRuleCode = "contract_discount_guard";
+      const rule = data.rules.contract_discount_guard;
+      rule.natural = text;
+      byId("ruleCode").value = rule.code;
+      byId("ruleName").value = rule.name;
+      byId("ownerCode").value = rule.owner;
+      byId("calcStage").value = rule.stage;
+      byId("ruleKindChip").textContent = rule.kind;
+      byId("stageChip").textContent = rule.stage;
+      byId("dslEditor").value = rule.dsl;
+      byId("naturalOutput").textContent = "当客户编码等于 HAIER 且订单金额大于等于 100000 时，合同折扣率必须小于等于 8%。";
+      renderReferences(rule.refs);
+      renderTests(rule.tests);
+      renderResults(rule.tests, false);
+      byId("compileState").textContent = "Candidate DSL";
+      byId("semanticState").textContent = "awaiting confirmation";
+      byId("refState").textContent = "Contract, Order";
+      byId("executionState").textContent = "RULE_ENGINE / PRE";
+      byId("testState").textContent = "4 generated, pending";
+      renderRuleList();
+    }
+
+    function syncFromDsl() {
+      const dsl = byId("dslEditor").value;
+      const percent = dsl.includes("0.05") ? "5%" : dsl.includes("0.08") ? "8%" : "指定比例";
+      let natural;
+      if (dsl.includes("Contract.Customer_Code")) {
+        natural = `当客户编码等于 HAIER 且订单金额大于等于 100000 时，合同折扣率必须小于等于 ${percent}。`;
+      } else if (dsl.includes("WHITE_LIST")) {
+        natural = "CPU 与硬盘配套规则已从 DSL 同步：白名单命中才允许通过，未覆盖组合默认拒绝。";
+      } else if (dsl.includes("POST")) {
+        natural = "求解后写入硬盘总容量和硬盘数量。";
+      } else {
+        natural = "DSL 已解析，中文描述等待领域术语确认。";
+      }
+      byId("naturalOutput").textContent = natural;
+      byId("naturalInput").value = natural;
+      byId("compileState").textContent = "Synced from DSL";
+      byId("semanticState").textContent = "DSL parsed";
+      const refs = extractRefs(dsl);
+      renderReferences(refs.length ? refs : data.rules[currentRuleCode].refs);
+    }
+
+    function extractRefs(dsl) {
+      const matches = dsl.match(/[A-Z]?[A-Za-z]+\\.[A-Za-z_]+/g) || [];
+      return [...new Set(matches.filter(item => !item.startsWith("rule.")))];
+    }
+
+    function generateTests() {
+      const dsl = byId("dslEditor").value;
+      let tests;
+      if (dsl.includes("Contract.Discount")) {
+        tests = data.rules.contract_discount_guard.tests;
+      } else if (dsl.includes("pDriveQuantity")) {
+        tests = data.rules.post_drive_capacity.tests;
+      } else {
+        tests = data.rules.cpu_drive_combo_white.tests;
+      }
+      renderTests(tests);
+      renderResults(tests, false);
+      byId("testCount").textContent = `${tests.length} cases`;
+      byId("testState").textContent = `${tests.length} generated, pending`;
+    }
+
+    function runTests() {
+      const rows = [...document.querySelectorAll("#tests .test-row")].map(row => [
+        row.dataset.id,
+        row.dataset.input,
+        row.dataset.expected,
+        row.dataset.actual
+      ]);
+      byId("testState").textContent = "running";
+      byId("compileState").textContent = "Running tests";
+      renderResults(rows, true);
+      window.setTimeout(() => {
+        renderResults(rows, false);
+        byId("testState").textContent = `${rows.length} generated, ${rows.length} passed`;
+        byId("compileState").textContent = "Tests passed";
+      }, 420);
+    }
+
+    function renderReferences(refs) {
+      byId("references").innerHTML = refs.map(ref => `
+        <div class="reference-row">
+          <span>${ref}</span>
+          <span class="chip good">tracked</span>
+        </div>
+      `).join("");
+    }
+
+    function renderTests(tests) {
+      byId("tests").innerHTML = tests.map(test => `
+        <div class="test-row" data-id="${test[0]}" data-input="${test[1]}" data-expected="${test[2]}" data-actual="${test[3]}">
+          <strong class="mono">${test[0]}</strong>
+          <span>${test[1]}</span>
+          <span class="status ${test[2] === "FAIL" ? "fail" : ""}">${test[2]}</span>
+          <span class="status ${test[3] === "FAIL" ? "fail" : ""}">${test[3]}</span>
+        </div>
+      `).join("");
+      byId("testCount").textContent = `${tests.length} cases`;
+    }
+
+    function renderResults(tests, running) {
+      byId("results").innerHTML = tests.map(test => {
+        const ok = test[2] === test[3];
+        const status = running ? "RUNNING" : ok ? "MATCH" : "DIFF";
+        return `
+          <div class="result-row">
+            <span>${test[0]} · expected ${test[2]} · actual ${running ? "..." : test[3]}</span>
+            <span class="status ${running ? "warn" : ok ? "" : "fail"}">${status}</span>
+          </div>
+        `;
+      }).join("");
+    }
+
+    byId("domainSearch").addEventListener("input", event => {
+      const keyword = event.target.value.trim().toLowerCase();
+      const nodes = document.querySelectorAll(".domain-node");
+      nodes.forEach(node => {
+        node.classList.toggle("hidden", keyword && !node.textContent.toLowerCase().includes(keyword));
+      });
+    });
+
+    byId("dslEditor").addEventListener("input", () => {
+      byId("compileState").textContent = "DSL modified";
+      byId("semanticState").textContent = "needs parse";
+    });
+
+    renderDomainTree();
+    renderRuleList();
+    selectRule(currentRuleCode);
+  </script>
+</body>
+</html>
+
