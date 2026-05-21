@@ -263,7 +263,9 @@ public class StructExprSchema extends ExprSchema {
 }
 ```
 
-`StructExprSchema` 复用 `ExprSchema.rawCode` 保存由结构化字段生成的过滤表达式，例如 `CoreNum=4`、`Speed>=7200`。
+产品类上的注解优先使用面向维护/UI 的紧凑表达式，例如 `expr1 = "cpu.CoreNum=8"`、`expr2 = "drive.Speed IN [5400,7200]"`。构建器在生成 Module 基础数据时解析该表达式，并落成 `StructExprSchema`。旧式 `expr1ObjectCode`、`expr1AttrCode`、`expr1Operator`、`expr1Values` 字段仅作为兼容路径保留，不作为推荐写法。
+
+`StructExprSchema` 复用 `ExprSchema.rawCode` 保存原始表达式或由结构化字段生成的过滤表达式，例如 `cpu.CoreNum=4`、`drive.Speed>=7200`。
 
 比较操作符：
 
@@ -383,12 +385,13 @@ public class TripleStructRuleSchema extends RuleSchema {
 ```java
 public class CombinationStructRuleSchema extends RuleSchema {
     /**
-     * 2 或 3。
+     * 2 或 3。注解场景可省略，由子规则表达式数量推导。
      */
     private int arity;
 
     /**
-     * 参与组合的 PartCategory code，按表达式顺序存储。
+     * 参与组合的 PartCategory code，按表达式顺序存储。注解场景可省略，
+     * 由第一条子规则的 expr1/expr2/expr3.objectCode 推导。
      * 二元示例：["cpu", "drive"]
      * 三元示例：["cpu", "drive", "monitor"]
      */
@@ -400,7 +403,8 @@ public class CombinationStructRuleSchema extends RuleSchema {
     private PartCombinationType type;
 
     /**
-     * 子规则 code 列表。
+     * 子规则 code 列表。兼容旧式显式声明；推荐让子规则通过 parentRuleCode 指向父规则，
+     * 构建器直接反向收集子规则。
      * 子规则本身是 PairStructRuleSchema 或 TripleStructRuleSchema。
      */
     private List<String> subRuleCodes = new ArrayList<>();
@@ -467,17 +471,12 @@ public class PartCombination {
   "name": "CPU 与硬盘配套白名单",
   "rawCode": {
     "@type": "CombinationStructRule",
-    "arity": 2,
-    "dimensionCategoryCodes": ["cpu", "drive"],
-    "type": "WHITE",
-    "subRuleCodes": [
-      "cpu_drive_combo_001",
-      "cpu_drive_combo_002",
-      "cpu_drive_combo_003"
-    ]
+    "type": "WHITE"
   }
 }
 ```
+
+父规则不需要重复声明 `subRuleCodes`、`arity`、`dimensionCategoryCodes`。构建器根据子规则的 `parentRuleCode` 收集子规则，并从子规则表达式顺序推导元数和维度；显式字段只作为兼容旧数据的可选写法。
 
 子规则 1：
 
@@ -603,8 +602,8 @@ List<String> resolveToPartCodes(StructExprSchema expr, Module module) {
 构建期展开步骤：
 
 1. `ModuleGenneratorByAnno.createRulesFromMethods(...)` 或其后置阶段收集全部规则。
-2. 根据 `CombinationStructRuleSchema.subRuleCodes` 或 `Rule.parentRuleCode` 找到子规则。
-3. 校验父规则 `arity`、`dimensionCategoryCodes` 与子规则表达式一致。
+2. 优先根据子规则的 `Rule.parentRuleCode` 找到子规则，同时兼容旧式 `CombinationStructRuleSchema.subRuleCodes`。
+3. 父规则未显式填写时，从第一条子规则推导 `arity` 与 `dimensionCategoryCodes`；如显式填写，则校验它们与子规则表达式一致。
 4. 使用 `FilterExpressionExecutor` 基于 Module 静态 `Part` 数据解析每个 `StructExprSchema`。
 5. 对每条子规则解析出的部件 code 集合做笛卡尔积，生成 `PartCombination`。
 6. 去重后写入父规则 `exeSchema`。
@@ -945,88 +944,58 @@ public static class StructCombinationConstraint extends ModuleAlgBase {
     private PartVar monitor4k;
 
     @PairStructRuleAnno(
-            expr1ObjectCode = "cpu",
-            expr1AttrCode = "CoreNum",
-            expr1Values = {"4"},
+            expr1 = "cpu.CoreNum=4",
             relationType = BusinessRelationType.INCOMPATIBLE,
-            expr2ObjectCode = "drive",
-            expr2AttrCode = "Speed",
-            expr2Values = {"7000"})
+            expr2 = "drive.Speed=7000")
     public void pairCpu4Drive7000() {
     }
 
     @CombinationStructRuleAnno(
             code = "cpu_drive_white",
-            arity = 2,
-            dimensionCategoryCodes = {"cpu", "drive"},
-            combinationType = PartCombinationType.WHITE,
-            subRuleCodes = {"cpu_drive_white_001", "cpu_drive_white_002", "cpu_drive_white_003"})
+            combinationType = PartCombinationType.WHITE)
     public void cpuDriveWhite() {
     }
 
     @PairStructRuleAnno(
             code = "cpu_drive_white_001",
             parentRuleCode = "cpu_drive_white",
-            expr1ObjectCode = "cpu",
-            expr1AttrCode = "CoreNum",
-            expr1Values = {"4"},
+            expr1 = "cpu.CoreNum=4",
             relationType = BusinessRelationType.CO_DEPENDENT,
-            expr2ObjectCode = "drive",
-            expr2AttrCode = "Speed",
-            expr2Values = {"5400"})
+            expr2 = "drive.Speed=5400")
     public void cpuDriveWhite001() {
     }
 
     @PairStructRuleAnno(
             code = "cpu_drive_white_002",
             parentRuleCode = "cpu_drive_white",
-            expr1ObjectCode = "cpu",
-            expr1AttrCode = "CoreNum",
-            expr1Values = {"8"},
+            expr1 = "cpu.CoreNum=8",
             relationType = BusinessRelationType.CO_DEPENDENT,
-            expr2ObjectCode = "drive",
-            expr2AttrCode = "Speed",
-            expr2Operator = StructCompareOperator.IN,
-            expr2Values = {"5400", "7200"})
+            expr2 = "drive.Speed IN [5400,7200]")
     public void cpuDriveWhite002() {
     }
 
     @PairStructRuleAnno(
             code = "cpu_drive_white_003",
             parentRuleCode = "cpu_drive_white",
-            expr1ObjectCode = "cpu",
-            expr1AttrCode = "CoreNum",
-            expr1Operator = StructCompareOperator.GT,
-            expr1Values = {"8"},
+            expr1 = "cpu.CoreNum>8",
             relationType = BusinessRelationType.CO_DEPENDENT,
-            expr2ObjectCode = "drive",
-            expr2AttrCode = "Speed",
-            expr2Values = {"7200"})
+            expr2 = "drive.Speed=7200")
     public void cpuDriveWhite003() {
     }
 
     @CombinationStructRuleAnno(
             code = "cpu_drive_monitor_white",
-            arity = 3,
-            dimensionCategoryCodes = {"cpu", "drive", "monitor"},
-            combinationType = PartCombinationType.WHITE,
-            subRuleCodes = {"cpu_drive_monitor_white_001"})
+            combinationType = PartCombinationType.WHITE)
     public void cpuDriveMonitorWhite() {
     }
 
     @TripleStructRuleAnno(
             code = "cpu_drive_monitor_white_001",
             parentRuleCode = "cpu_drive_monitor_white",
-            expr1ObjectCode = "cpu",
-            expr1AttrCode = "CoreNum",
-            expr1Values = {"8"},
+            expr1 = "cpu.CoreNum=8",
             relationType = BusinessRelationType.CO_DEPENDENT,
-            expr2ObjectCode = "drive",
-            expr2AttrCode = "Speed",
-            expr2Values = {"7200"},
-            expr3ObjectCode = "monitor",
-            expr3AttrCode = "Resolution",
-            expr3Values = {"4K"})
+            expr2 = "drive.Speed=7200",
+            expr3 = "monitor.Resolution=4K")
     public void cpuDriveMonitorWhite001() {
     }
 }

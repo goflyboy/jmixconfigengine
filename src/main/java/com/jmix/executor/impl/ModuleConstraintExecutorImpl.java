@@ -755,10 +755,6 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
 
     private CodependantRuleSchema expandCombinationForValidate(Module module, Rule parentRule,
             CombinationStructRuleSchema schema) {
-        if (schema.getArity() != 2 && schema.getArity() != 3) {
-            throw new AlgLoaderException("Only binary and ternary structured rules are supported: "
-                    + schema.getArity());
-        }
         Map<String, Rule> rulesByCode = new LinkedHashMap<>();
         for (Rule rule : module.getAllRules()) {
             rulesByCode.put(rule.getCode(), rule);
@@ -766,6 +762,9 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
         Map<String, Rule> subRules = new LinkedHashMap<>();
         if (schema.getSubRuleCodes() != null) {
             for (String subRuleCode : schema.getSubRuleCodes()) {
+                if (Strings.isNullOrEmpty(subRuleCode)) {
+                    continue;
+                }
                 Rule subRule = rulesByCode.get(subRuleCode);
                 if (subRule == null) {
                     throw new AlgLoaderException("Combination sub rule not found: " + subRuleCode);
@@ -778,21 +777,64 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
                 subRules.put(rule.getCode(), rule);
             }
         }
+        if (subRules.isEmpty()) {
+            throw new AlgLoaderException("Combination rule has no sub rules: " + parentRule.getCode());
+        }
+        List<String> dimensions = resolveCombinationDimensions(parentRule, schema, subRules);
+        int arity = schema.getArity() > 0 ? schema.getArity() : dimensions.size();
+        if (arity != 2 && arity != 3) {
+            throw new AlgLoaderException("Only binary and ternary structured rules are supported: " + arity);
+        }
+        if (dimensions.size() != arity) {
+            throw new AlgLoaderException("Combination rule dimensions do not match arity: " + parentRule.getCode());
+        }
+        schema.setArity(arity);
+        schema.setDimensionCategoryCodes(new ArrayList<>(dimensions));
 
         CodependantRuleSchema exeSchema = new CodependantRuleSchema();
-        exeSchema.setArity(schema.getArity());
-        exeSchema.setDimensionCategoryCodes(new ArrayList<>(schema.getDimensionCategoryCodes()));
+        exeSchema.setArity(arity);
+        exeSchema.setDimensionCategoryCodes(new ArrayList<>(dimensions));
         exeSchema.setCombinationType(schema.getCombinationType());
         Map<String, PartCombination> combinations = new LinkedHashMap<>();
         for (Rule subRule : subRules.values()) {
             List<StructExprSchema> exprs = exprsOf(subRule.getRawCode());
+            validateCombinationSubRule(parentRule, dimensions, arity, subRule, exprs);
             for (PartCombination combination : expandStructExprs(module, exprs, subRule.getCode())) {
-                combinations.put(String.join("|", combination.getCodes(schema.getArity())), combination);
+                combinations.put(String.join("|", combination.getCodes(arity)), combination);
             }
         }
         exeSchema.setCombinations(new ArrayList<>(combinations.values()));
         ruleSetExeSchema(parentRule, exeSchema);
         return exeSchema;
+    }
+
+    private List<String> resolveCombinationDimensions(Rule parentRule, CombinationStructRuleSchema schema,
+            Map<String, Rule> subRules) {
+        if (schema.getDimensionCategoryCodes() != null && !schema.getDimensionCategoryCodes().isEmpty()) {
+            return schema.getDimensionCategoryCodes();
+        }
+        Rule firstSubRule = subRules.values().stream()
+                .findFirst()
+                .orElseThrow(() -> new AlgLoaderException("Combination rule has no sub rules: "
+                        + parentRule.getCode()));
+        return exprsOf(firstSubRule.getRawCode()).stream()
+                .map(StructExprSchema::getObjectCode)
+                .toList();
+    }
+
+    private void validateCombinationSubRule(Rule parentRule, List<String> dimensions, int arity,
+            Rule subRule, List<StructExprSchema> exprs) {
+        if (exprs.size() != arity) {
+            throw new AlgLoaderException("Combination sub rule arity mismatch: " + subRule.getCode());
+        }
+        for (int i = 0; i < exprs.size(); i++) {
+            String actualCategoryCode = exprs.get(i).getObjectCode();
+            String expectedCategoryCode = dimensions.get(i);
+            if (!expectedCategoryCode.equals(actualCategoryCode)) {
+                throw new AlgLoaderException("Combination sub rule dimension mismatch: parent="
+                        + parentRule.getCode() + ", sub=" + subRule.getCode());
+            }
+        }
     }
 
     private void ruleSetExeSchema(Rule rule, CodependantRuleSchema schema) {

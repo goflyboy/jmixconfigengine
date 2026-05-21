@@ -80,6 +80,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 基于注解的模块生成器
@@ -89,9 +91,12 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 public final class ModuleGenneratorByAnno {
+    private static final Pattern COMPACT_STRUCT_EXPR_PATTERN = Pattern.compile(
+            "^\\s*([^\\.\\s]+)\\.([^\\s=<>!]+)\\s*(NOT\\s+LIKE|NOT\\s+IN|LIKE|IN|>=|<=|!=|=|>|<)\\s*(.+?)\\s*$",
+            Pattern.CASE_INSENSITIVE);
+
     private static void expandStructRules(Module module, List<Rule> moduleRules) {
         module.setRules(moduleRules);
-        module.init();
         List<Rule> allRules = module.getAllRules();
         Map<String, Rule> rulesByCode = allRules.stream()
                 .collect(Collectors.toMap(Rule::getCode, rule -> rule, (left, right) -> left, LinkedHashMap::new));
@@ -113,19 +118,17 @@ public final class ModuleGenneratorByAnno {
                 rule.setExeSchema(expandTripleStructRule(module, rule, tripleSchema));
             }
         }
+        module.init();
     }
 
     private static CodependantRuleSchema expandCombinationStructRule(Module module, Rule parentRule,
             CombinationStructRuleSchema schema, Map<String, Rule> rulesByCode) {
-        validateStructArity(schema.getArity());
-        if (schema.getDimensionCategoryCodes() == null
-                || schema.getDimensionCategoryCodes().size() != schema.getArity()) {
-            throw new AlgLoaderException("Combination rule dimensions do not match arity: " + parentRule.getCode());
-        }
-
         Map<String, Rule> subRules = new LinkedHashMap<>();
         if (schema.getSubRuleCodes() != null) {
             for (String subRuleCode : schema.getSubRuleCodes()) {
+                if (Strings.isNullOrEmpty(subRuleCode)) {
+                    continue;
+                }
                 Rule subRule = rulesByCode.get(subRuleCode);
                 if (subRule == null) {
                     throw new AlgLoaderException("Combination sub rule not found: " + subRuleCode);
@@ -142,19 +145,41 @@ public final class ModuleGenneratorByAnno {
             throw new AlgLoaderException("Combination rule has no sub rules: " + parentRule.getCode());
         }
 
+        List<String> dimensions = resolveCombinationDimensions(parentRule, schema, subRules);
+        int arity = schema.getArity() > 0 ? schema.getArity() : dimensions.size();
+        validateStructArity(arity);
+        if (dimensions.size() != arity) {
+            throw new AlgLoaderException("Combination rule dimensions do not match arity: " + parentRule.getCode());
+        }
+        schema.setArity(arity);
+        schema.setDimensionCategoryCodes(new ArrayList<>(dimensions));
+
         Map<String, PartCombination> combinations = new LinkedHashMap<>();
         for (Rule subRule : subRules.values()) {
             List<StructExprSchema> exprs = structExprsOf(subRule.getRawCode());
             validateCombinationSubRule(parentRule, schema, subRule, exprs);
             for (PartCombination combination : expandStructExprs(module, exprs, subRule.getCode())) {
-                combinations.put(tupleKey(combination.getCodes(schema.getArity())), combination);
+                combinations.put(tupleKey(combination.getCodes(arity)), combination);
             }
         }
 
-        CodependantRuleSchema exeSchema = codependantSchema(schema.getArity(),
-                schema.getDimensionCategoryCodes(), schema.getCombinationType());
+        CodependantRuleSchema exeSchema = codependantSchema(arity, dimensions, schema.getCombinationType());
         exeSchema.setCombinations(new ArrayList<>(combinations.values()));
         return exeSchema;
+    }
+
+    private static List<String> resolveCombinationDimensions(Rule parentRule, CombinationStructRuleSchema schema,
+            Map<String, Rule> subRules) {
+        if (schema.getDimensionCategoryCodes() != null && !schema.getDimensionCategoryCodes().isEmpty()) {
+            return schema.getDimensionCategoryCodes();
+        }
+        Rule firstSubRule = subRules.values().stream()
+                .findFirst()
+                .orElseThrow(() -> new AlgLoaderException("Combination rule has no sub rules: "
+                        + parentRule.getCode()));
+        return structExprsOf(firstSubRule.getRawCode()).stream()
+                .map(StructExprSchema::getObjectCode)
+                .toList();
     }
 
     private static CodependantRuleSchema expandPairStructRule(Module module, Rule rule, PairStructRuleSchema schema) {
@@ -824,8 +849,8 @@ public final class ModuleGenneratorByAnno {
         CombinationStructRuleSchema schema = new CombinationStructRuleSchema();
         schema.setVersion("1.0");
         schema.setArity(anno.arity());
-        schema.setDimensionCategoryCodes(Arrays.asList(anno.dimensionCategoryCodes()));
-        schema.setSubRuleCodes(Arrays.asList(anno.subRuleCodes()));
+        schema.setDimensionCategoryCodes(toNonEmptyList(anno.dimensionCategoryCodes()));
+        schema.setSubRuleCodes(toNonEmptyList(anno.subRuleCodes()));
         schema.setCombinationType(anno.combinationType());
         rule.setRawCode(schema);
         return rule;
@@ -840,10 +865,10 @@ public final class ModuleGenneratorByAnno {
         PairStructRuleSchema schema = new PairStructRuleSchema();
         schema.setType("PairStructRule");
         schema.setVersion("1.0");
-        schema.setExpr1(structExpr(anno.expr1ObjectCode(), anno.expr1AttrCode(),
+        schema.setExpr1(structExpr(anno.expr1(), anno.expr1ObjectCode(), anno.expr1AttrCode(),
                 anno.expr1Operator(), anno.expr1Values()));
         schema.setRelationType(anno.relationType());
-        schema.setExpr2(structExpr(anno.expr2ObjectCode(), anno.expr2AttrCode(),
+        schema.setExpr2(structExpr(anno.expr2(), anno.expr2ObjectCode(), anno.expr2AttrCode(),
                 anno.expr2Operator(), anno.expr2Values()));
         rule.setRawCode(schema);
         return rule;
@@ -858,12 +883,12 @@ public final class ModuleGenneratorByAnno {
         TripleStructRuleSchema schema = new TripleStructRuleSchema();
         schema.setType("TripleStructRule");
         schema.setVersion("1.0");
-        schema.setExpr1(structExpr(anno.expr1ObjectCode(), anno.expr1AttrCode(),
+        schema.setExpr1(structExpr(anno.expr1(), anno.expr1ObjectCode(), anno.expr1AttrCode(),
                 anno.expr1Operator(), anno.expr1Values()));
         schema.setRelationType(anno.relationType());
-        schema.setExpr2(structExpr(anno.expr2ObjectCode(), anno.expr2AttrCode(),
+        schema.setExpr2(structExpr(anno.expr2(), anno.expr2ObjectCode(), anno.expr2AttrCode(),
                 anno.expr2Operator(), anno.expr2Values()));
-        schema.setExpr3(structExpr(anno.expr3ObjectCode(), anno.expr3AttrCode(),
+        schema.setExpr3(structExpr(anno.expr3(), anno.expr3ObjectCode(), anno.expr3AttrCode(),
                 anno.expr3Operator(), anno.expr3Values()));
         rule.setRawCode(schema);
         return rule;
@@ -884,8 +909,24 @@ public final class ModuleGenneratorByAnno {
         return rule;
     }
 
-    private static StructExprSchema structExpr(String objectCode, String attrCode, StructCompareOperator operator,
-            String[] values) {
+    private static List<String> toNonEmptyList(String[] values) {
+        if (values == null || values.length == 0) {
+            return new ArrayList<>();
+        }
+        return Arrays.stream(values)
+                .filter(value -> !Strings.isNullOrEmpty(value))
+                .toList();
+    }
+
+    private static StructExprSchema structExpr(String compactExpr, String objectCode, String attrCode,
+            StructCompareOperator operator, String[] values) {
+        if (!Strings.isNullOrEmpty(compactExpr)) {
+            return parseCompactStructExpr(compactExpr);
+        }
+        if (Strings.isNullOrEmpty(objectCode) || Strings.isNullOrEmpty(attrCode)
+                || values == null || values.length == 0) {
+            throw new AlgLoaderException("Structured rule expression cannot be empty");
+        }
         StructExprSchema expr = new StructExprSchema();
         expr.setObjectCode(objectCode);
         expr.setAttrCode(attrCode);
@@ -893,6 +934,70 @@ public final class ModuleGenneratorByAnno {
         expr.setValues(Arrays.asList(values));
         expr.setRawCode(toStructRawCode(attrCode, operator, values));
         return expr;
+    }
+
+    private static StructExprSchema parseCompactStructExpr(String compactExpr) {
+        Matcher matcher = COMPACT_STRUCT_EXPR_PATTERN.matcher(compactExpr);
+        if (!matcher.matches()) {
+            throw new AlgLoaderException("Invalid structured expression: " + compactExpr);
+        }
+        String objectCode = matcher.group(1).trim();
+        String attrCode = matcher.group(2).trim();
+        StructCompareOperator operator = parseStructOperator(matcher.group(3));
+        List<String> values = parseStructValues(matcher.group(4));
+        if (values.isEmpty()) {
+            throw new AlgLoaderException("Structured expression values cannot be empty: " + compactExpr);
+        }
+
+        StructExprSchema expr = new StructExprSchema();
+        expr.setObjectCode(objectCode);
+        expr.setAttrCode(attrCode);
+        expr.setOperator(operator);
+        expr.setValues(values);
+        expr.setRawCode(compactExpr.trim());
+        return expr;
+    }
+
+    private static StructCompareOperator parseStructOperator(String rawOperator) {
+        String operator = rawOperator.trim().replaceAll("\\s+", " ").toUpperCase();
+        return switch (operator) {
+            case "=" -> StructCompareOperator.EQ;
+            case "!=" -> StructCompareOperator.NE;
+            case ">" -> StructCompareOperator.GT;
+            case ">=" -> StructCompareOperator.GE;
+            case "<" -> StructCompareOperator.LT;
+            case "<=" -> StructCompareOperator.LE;
+            case "LIKE" -> StructCompareOperator.LIKE;
+            case "NOT LIKE" -> StructCompareOperator.NOT_LIKE;
+            case "IN" -> StructCompareOperator.IN;
+            case "NOT IN" -> StructCompareOperator.NOT_IN;
+            default -> throw new AlgLoaderException("Unsupported structured expression operator: " + rawOperator);
+        };
+    }
+
+    private static List<String> parseStructValues(String rawValues) {
+        String valueText = rawValues.trim();
+        if ((valueText.startsWith("[") && valueText.endsWith("]"))
+                || (valueText.startsWith("(") && valueText.endsWith(")"))) {
+            valueText = valueText.substring(1, valueText.length() - 1);
+        }
+        if ((valueText.startsWith("\"") && valueText.endsWith("\""))
+                || (valueText.startsWith("'") && valueText.endsWith("'"))) {
+            valueText = valueText.substring(1, valueText.length() - 1);
+        }
+        return Arrays.stream(valueText.split(","))
+                .map(String::trim)
+                .map(ModuleGenneratorByAnno::unquoteStructValue)
+                .filter(value -> !value.isEmpty())
+                .toList();
+    }
+
+    private static String unquoteStructValue(String value) {
+        if ((value.startsWith("\"") && value.endsWith("\""))
+                || (value.startsWith("'") && value.endsWith("'"))) {
+            return value.substring(1, value.length() - 1);
+        }
+        return value;
     }
 
     private static String toStructRawCode(String attrCode, StructCompareOperator operator, String[] values) {

@@ -53,25 +53,42 @@ public class StructRuleBuildExpander {
     }
 
     private CodependantRuleSchema expandCombination(Rule parentRule, CombinationStructRuleSchema schema) {
-        validateArity(schema.getArity());
-        List<String> dimensions = schema.getDimensionCategoryCodes();
-        if (dimensions == null || dimensions.size() != schema.getArity()) {
+        List<Rule> subRules = findSubRules(parentRule, schema);
+        List<String> dimensions = resolveDimensions(parentRule, schema, subRules);
+        int arity = schema.getArity() > 0 ? schema.getArity() : dimensions.size();
+        validateArity(arity);
+        if (dimensions.size() != arity) {
             throw new AlgLoaderException("Combination rule dimensions do not match arity: " + parentRule.getCode());
         }
-        List<Rule> subRules = findSubRules(parentRule, schema);
+        schema.setArity(arity);
+        schema.setDimensionCategoryCodes(new ArrayList<>(dimensions));
+
         Map<String, PartCombination> combinations = new LinkedHashMap<>();
         for (Rule subRule : subRules) {
             List<StructExprSchema> exprs = exprsOf(subRule.getRawCode());
             validateSubRule(parentRule, schema, subRule, exprs);
             for (PartCombination combination : expandExprs(exprs, subRule.getCode())) {
-                combinations.put(StructExprResolver.tupleKey(combination.getCodes(schema.getArity())), combination);
+                combinations.put(StructExprResolver.tupleKey(combination.getCodes(arity)), combination);
             }
         }
-        CodependantRuleSchema exeSchema = codependant(schema.getArity(), dimensions, schema.getCombinationType());
+        CodependantRuleSchema exeSchema = codependant(arity, dimensions, schema.getCombinationType());
         exeSchema.setCombinations(new ArrayList<>(combinations.values()));
         log.info("Expanded combination structured rule: rule={}, combinations={}",
                 parentRule.getCode(), exeSchema.getCombinations().size());
         return exeSchema;
+    }
+
+    private List<String> resolveDimensions(Rule parentRule, CombinationStructRuleSchema schema, List<Rule> subRules) {
+        if (schema.getDimensionCategoryCodes() != null && !schema.getDimensionCategoryCodes().isEmpty()) {
+            return schema.getDimensionCategoryCodes();
+        }
+        Rule firstSubRule = subRules.stream()
+                .findFirst()
+                .orElseThrow(() -> new AlgLoaderException("Combination rule has no sub rules: "
+                        + parentRule.getCode()));
+        return exprsOf(firstSubRule.getRawCode()).stream()
+                .map(StructExprSchema::getObjectCode)
+                .toList();
     }
 
     private CodependantRuleSchema expandPair(Rule rule, PairStructRuleSchema schema) {
@@ -135,6 +152,9 @@ public class StructRuleBuildExpander {
         List<Rule> subRules = new ArrayList<>();
         if (schema.getSubRuleCodes() != null && !schema.getSubRuleCodes().isEmpty()) {
             for (String subRuleCode : schema.getSubRuleCodes()) {
+                if (subRuleCode == null || subRuleCode.isEmpty()) {
+                    continue;
+                }
                 Rule subRule = rulesByCode.get(subRuleCode);
                 if (subRule == null) {
                     throw new AlgLoaderException("Combination sub rule not found: " + subRuleCode);

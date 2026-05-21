@@ -21,6 +21,8 @@ import com.jmix.executor.impl.util.ParaTypeHandler;
 import com.jmix.executor.model.AlgLoaderException;
 import com.jmix.executor.model.ConstraintConfig;
 import com.jmix.executor.model.InferParasReq;
+import com.jmix.executor.model.ModuleValidateReq;
+import com.jmix.executor.model.ModuleValidateResp;
 import com.jmix.executor.model.PartConstraintReq;
 import com.jmix.executor.model.Result;
 import com.jmix.executor.model.StrategyConfig;
@@ -261,6 +263,60 @@ public abstract class ModuleScenarioTestBase {
         setResult(result);
         setSolutions(result.getData());
         return getSolutions();
+    }
+
+    /**
+     * 校验给定部件组合是否满足当前模块规则。
+     */
+    protected boolean validData(String... selectedPartCodes) {
+        return validData(toPartInsts(selectedPartCodes).toArray(PartInst[]::new));
+    }
+
+    protected boolean validData(PartInst... partInsts) {
+        return validateData(partInsts).isValid();
+    }
+
+    protected ModuleValidateResp validateData(String... selectedPartCodes) {
+        return validateData(toPartInsts(selectedPartCodes).toArray(PartInst[]::new));
+    }
+
+    protected ModuleValidateResp validateData(PartInst... partInsts) {
+        Result<ModuleValidateResp> result = ModuleConstraintExecutor.INST.validate(
+                validateReq(moduleInst(partInsts)));
+        assertEquals(Result.SUCCESS, result.getCode(), "Validate failed: " + result.getMessage());
+        return result.getData();
+    }
+
+    protected ModuleInst moduleInst(PartInst... partInsts) {
+        ModuleInst inst = new ModuleInst();
+        inst.setId(getModule().getId());
+        inst.setCode(getModule().getCode());
+        for (PartInst partInst : partInsts) {
+            inst.addPartInst(partInst);
+        }
+        return inst;
+    }
+
+    protected PartInst partInst(String code, int quantity) {
+        PartInst partInst = new PartInst(code, quantity);
+        partInst.setSelected(quantity > 0);
+        return partInst;
+    }
+
+    private ModuleValidateReq validateReq(ModuleInst moduleInst) {
+        ModuleValidateReq req = new ModuleValidateReq();
+        req.setModuleId(getModule().getId());
+        req.setModuleCode(getModule().getCode());
+        req.setModuleInst(moduleInst);
+        return req;
+    }
+
+    private List<PartInst> toPartInsts(String... selectedPartCodes) {
+        List<PartInst> partInsts = new ArrayList<>();
+        for (String selectedPartCode : selectedPartCodes) {
+            partInsts.add(partInst(selectedPartCode, 1));
+        }
+        return partInsts;
     }
 
     /**

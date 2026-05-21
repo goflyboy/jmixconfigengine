@@ -29,23 +29,33 @@ public @interface PairStructRuleAnno {
      */
     String parentRuleCode() default "";
 
-    String expr1ObjectCode();
+    /**
+     * Compact UI-style expression, for example: cpu.CoreNum=8.
+     */
+    String expr1() default "";
 
-    String expr1AttrCode();
+    String expr1ObjectCode() default "";
+
+    String expr1AttrCode() default "";
 
     StructCompareOperator expr1Operator() default StructCompareOperator.EQ;
 
-    String[] expr1Values();
+    String[] expr1Values() default {};
 
     BusinessRelationType relationType() default BusinessRelationType.CO_DEPENDENT;
 
-    String expr2ObjectCode();
+    /**
+     * Compact UI-style expression, for example: drive.Speed IN [5400,7200].
+     */
+    String expr2() default "";
 
-    String expr2AttrCode();
+    String expr2ObjectCode() default "";
+
+    String expr2AttrCode() default "";
 
     StructCompareOperator expr2Operator() default StructCompareOperator.EQ;
 
-    String[] expr2Values();
+    String[] expr2Values() default {};
 
     CalcStage calcStage() default CalcStage.MID;
 }

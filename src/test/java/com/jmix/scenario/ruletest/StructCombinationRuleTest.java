@@ -6,21 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jmix.coretest.ModuleScenarioTestBase;
-import com.jmix.executor.ModuleConstraintExecutor;
-import com.jmix.executor.bmodel.AttrParaType;
 import com.jmix.executor.bmodel.logic.BusinessRelationType;
 import com.jmix.executor.bmodel.logic.CodependantRuleSchema;
 import com.jmix.executor.bmodel.logic.PartCombinationType;
 import com.jmix.executor.bmodel.logic.Rule;
-import com.jmix.executor.bmodel.logic.StructCompareOperator;
-import com.jmix.executor.cmodel.ModuleInst;
-import com.jmix.executor.cmodel.PartInst;
 import com.jmix.executor.model.ConstraintConfig;
-import com.jmix.executor.model.InferParasReq;
-import com.jmix.executor.model.ModuleValidateReq;
-import com.jmix.executor.model.ModuleValidateResp;
-import com.jmix.executor.model.PartConstraintReq;
-import com.jmix.executor.model.Result;
 import com.jmix.executor.southinf.ModuleAlgBase;
 import com.jmix.executor.southinf.var.PartCategoryVar;
 import com.jmix.executor.southinf.var.PartVar;
@@ -33,9 +23,8 @@ import com.jmix.tool.bbuilder.anno.PartAnno;
 import com.jmix.tool.bbuilder.anno.TripleStructRuleAnno;
 
 import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 /**
  * RFC-0007 structured combination rule tests.
@@ -92,100 +81,65 @@ public class StructCombinationRuleTest extends ModuleScenarioTestBase {
         private PartVar monitor4k;
 
         @PairStructRuleAnno(
-                expr1ObjectCode = "cpu",
-                expr1AttrCode = "CoreNum",
-                expr1Values = {"4"},
+                expr1 = "cpu.CoreNum=4",
                 relationType = BusinessRelationType.INCOMPATIBLE,
-                expr2ObjectCode = "drive",
-                expr2AttrCode = "Speed",
-                expr2Values = {"7000"})
+                expr2 = "drive.Speed=7000")
         public void pairCpu4Drive7000() {
         }
 
         @PairStructRuleAnno(
-                expr1ObjectCode = "cpu",
-                expr1AttrCode = "CoreNum",
-                expr1Values = {"4"},
+                expr1 = "cpu.CoreNum=4",
                 relationType = BusinessRelationType.INCOMPATIBLE,
-                expr2ObjectCode = "drive",
-                expr2AttrCode = "Speed",
-                expr2Operator = StructCompareOperator.LIKE,
-                expr2Values = {"71%"})
+                expr2 = "drive.Speed LIKE 71%")
         public void pairCpu4Drive54Like() {
         }
 
         @CombinationStructRuleAnno(
                 code = "cpu_drive_white",
-                arity = 2,
-                dimensionCategoryCodes = {"cpu", "drive"},
-                combinationType = PartCombinationType.WHITE,
-                subRuleCodes = {"cpu_drive_white_001", "cpu_drive_white_002", "cpu_drive_white_003"})
+                combinationType = PartCombinationType.WHITE)
         public void cpuDriveWhite() {
         }
 
         @PairStructRuleAnno(
                 code = "cpu_drive_white_001",
                 parentRuleCode = "cpu_drive_white",
-                expr1ObjectCode = "cpu",
-                expr1AttrCode = "CoreNum",
-                expr1Values = {"4"},
+                expr1 = "cpu.CoreNum=4",
                 relationType = BusinessRelationType.CO_DEPENDENT,
-                expr2ObjectCode = "drive",
-                expr2AttrCode = "Speed",
-                expr2Values = {"5400"})
+                expr2 = "drive.Speed=5400")
         public void cpuDriveWhite001() {
         }
 
         @PairStructRuleAnno(
                 code = "cpu_drive_white_002",
                 parentRuleCode = "cpu_drive_white",
-                expr1ObjectCode = "cpu",
-                expr1AttrCode = "CoreNum",
-                expr1Values = {"8"},
+                expr1 = "cpu.CoreNum=8",
                 relationType = BusinessRelationType.CO_DEPENDENT,
-                expr2ObjectCode = "drive",
-                expr2AttrCode = "Speed",
-                expr2Operator = StructCompareOperator.IN,
-                expr2Values = {"5400", "7200"})
+                expr2 = "drive.Speed IN [5400,7200]")
         public void cpuDriveWhite002() {
         }
 
         @PairStructRuleAnno(
                 code = "cpu_drive_white_003",
                 parentRuleCode = "cpu_drive_white",
-                expr1ObjectCode = "cpu",
-                expr1AttrCode = "CoreNum",
-                expr1Operator = StructCompareOperator.GT,
-                expr1Values = {"8"},
+                expr1 = "cpu.CoreNum>8",
                 relationType = BusinessRelationType.CO_DEPENDENT,
-                expr2ObjectCode = "drive",
-                expr2AttrCode = "Speed",
-                expr2Values = {"7200"})
+                expr2 = "drive.Speed=7200")
         public void cpuDriveWhite003() {
         }
 
         @CombinationStructRuleAnno(
                 code = "cpu_drive_monitor_white",
-                arity = 3,
-                dimensionCategoryCodes = {"cpu", "drive", "monitor"},
-                combinationType = PartCombinationType.WHITE,
-                subRuleCodes = {"cpu_drive_monitor_white_001"})
+                combinationType = PartCombinationType.WHITE)
         public void cpuDriveMonitorWhite() {
         }
 
         @TripleStructRuleAnno(
                 code = "cpu_drive_monitor_white_001",
                 parentRuleCode = "cpu_drive_monitor_white",
-                expr1ObjectCode = "cpu",
-                expr1AttrCode = "CoreNum",
-                expr1Values = {"8"},
+                expr1 = "cpu.CoreNum=8",
                 relationType = BusinessRelationType.CO_DEPENDENT,
-                expr2ObjectCode = "drive",
-                expr2AttrCode = "Speed",
-                expr2Values = {"7200"},
-                expr3ObjectCode = "monitor",
-                expr3AttrCode = "Resolution",
-                expr3Values = {"4K"})
+                expr2 = "drive.Speed=7200",
+                expr3 = "monitor.Resolution=4K")
         public void cpuDriveMonitorWhite001() {
         }
     }
@@ -199,139 +153,59 @@ public class StructCombinationRuleTest extends ModuleScenarioTestBase {
         assertEquals(4, schema.getCombinations().size());
     }
 
-    @Test
-    public void testPairStructRule_Incompatible() {
-        assertNoSolution("cpu4", "drive7000");
-        assertPass("cpu4", "drive5400");
-        assertPass("cpu4", "drive7200");
+    @ParameterizedTest
+    @CsvSource({
+            "cpu4, drive7000, false",
+            "cpu4, drive5400, true"
+    })
+    public void testPairStructRule_Incompatible(String cpuCode, String driveCode, boolean expected) {
+        assertEquals(expected, validData(cpuCode, driveCode));
     }
 
-    @Test
-    public void testCombinationWhiteList_Pair_Generation() {
-        assertPass("cpu4", "drive5400");
-        assertNoSolution("cpu4", "drive7200");
-        assertPass("cpu8", "drive5400");
-        assertPass("cpu8", "drive7200");
-        assertNoSolution("cpu12", "drive5400");
-        assertPass("cpu12", "drive7200");
+    @ParameterizedTest
+    @CsvSource({
+            "cpu4, drive5400, true",
+            "cpu4, drive7200, false",
+            "cpu8, drive5400, true",
+            "cpu8, drive7200, true",
+            "cpu12, drive5400, false",
+            "cpu12, drive7200, true"
+    })
+    public void testCombinationWhiteList_Pair(String cpuCode, String driveCode, boolean expected) {
+        assertEquals(expected, validData(cpuCode, driveCode));
     }
 
-    @Test
-    public void testCombinationWhiteList_Triple_Generation() {
-        assertPass("cpu8", "drive7200", "monitor4k");
-        assertNoSolution("cpu8", "drive5400", "monitor4k");
+    @ParameterizedTest
+    @CsvSource({
+            "cpu8, drive7200, monitor4k, true",
+            "cpu8, drive5400, monitor4k, false"
+    })
+    public void testCombinationWhiteList_Triple(String cpuCode, String driveCode, String monitorCode,
+            boolean expected) {
+        assertEquals(expected, validData(cpuCode, driveCode, monitorCode));
     }
 
     @Test
     public void testValidateCombinationWhiteList_Pair() {
-        assertTrue(ModuleConstraintExecutor.INST.validate(moduleInst("cpu4", "drive5400")));
-        assertFalse(ModuleConstraintExecutor.INST.validate(moduleInst("cpu4", "drive7200")));
-
-        Result<ModuleValidateResp> valid = validate(moduleInst("cpu4", "drive5400"));
-        assertEquals(Result.SUCCESS, valid.getCode());
-        assertTrue(valid.getData().isValid());
-
-        Result<ModuleValidateResp> invalid = validate(moduleInst("cpu4", "drive7200"));
-        assertEquals(Result.SUCCESS, invalid.getCode());
-        assertFalse(invalid.getData().isValid());
-        assertTrue(invalid.getData().getViolatedRuleCodes().contains("cpu_drive_white"));
+        assertTrue(validData("cpu4", "drive5400"));
+        assertFalse(validData("cpu4", "drive7200"));
+        assertTrue(validateData("cpu4", "drive7200").getViolatedRuleCodes().contains("cpu_drive_white"));
     }
 
     @Test
     public void testValidateCombination_WithQuantityInput() {
-        Result<ModuleValidateResp> result = validate(moduleInst(partInst("cpu4", 1), partInst("drive5400", 2)));
-        assertEquals(Result.SUCCESS, result.getCode());
-        assertTrue(result.getData().isValid());
+        assertTrue(validData(partInst("cpu4", 1), partInst("drive5400", 2)));
     }
 
     @Test
     public void testCombinationRule_IntersectWithRuntimeFilter() {
-        InferParasReq req = new InferParasReq();
-        req.setModuleId(getModule().getId());
-        req.setEnumerateAllSolution(false);
-
-        PartConstraintReq cpuReq = new PartConstraintReq();
-        cpuReq.setPartCategoryCode("cpu");
-        cpuReq.setAttrType(AttrParaType.Sum);
-        cpuReq.setAttrCode("Quantity");
-        cpuReq.setAttrComparator("==");
-        cpuReq.setAttrValue("1");
-        cpuReq.setAttrWhereCondition("CoreNum=4");
-
-        PartConstraintReq driveReq = new PartConstraintReq();
-        driveReq.setPartCategoryCode("drive");
-        driveReq.setAttrType(AttrParaType.Sum);
-        driveReq.setAttrCode("Quantity");
-        driveReq.setAttrComparator("==");
-        driveReq.setAttrValue("1");
-        driveReq.setAttrWhereCondition("Speed=7200");
-        req.setPartConstraintReqs(List.of(cpuReq, driveReq));
-
-        Result<List<ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(req);
-        setResult(result);
-        setSolutions(result.getData());
-        assertTrue(result.getCode() == Result.NO_SOLUTION
-                || (result.getCode() == Result.SUCCESS && (result.getData() == null || result.getData().isEmpty())));
+        inferRecommendModule("cpu:Sum_Quantity ==1 where CoreNum=4", "drive:Sum_Quantity ==1 where Speed=7200");
+        resultAssert().assertNoSolution();
     }
 
     @Test
     public void testChildRule_NotExecutedIndependently() {
-        assertPass("cpu4", "drive5400");
-        assertNoSolution("cpu4", "drive7200");
-    }
-
-    private Result<ModuleValidateResp> validate(ModuleInst moduleInst) {
-        ModuleValidateReq req = new ModuleValidateReq();
-        req.setModuleId(getModule().getId());
-        req.setModuleInst(moduleInst);
-        return ModuleConstraintExecutor.INST.validate(req);
-    }
-
-    private ModuleInst moduleInst(String... selectedPartCodes) {
-        return moduleInst(toPrePartInsts(selectedPartCodes).toArray(PartInst[]::new));
-    }
-
-    private ModuleInst moduleInst(PartInst... partInsts) {
-        ModuleInst inst = new ModuleInst();
-        inst.setId(getModule().getId());
-        for (PartInst partInst : partInsts) {
-            inst.addPartInst(partInst);
-        }
-        return inst;
-    }
-
-    private PartInst partInst(String code, int quantity) {
-        PartInst partInst = new PartInst(code, quantity);
-        partInst.setSelected(quantity > 0);
-        return partInst;
-    }
-
-    private void assertPass(String... selectedPartCodes) {
-        runWithSelectedParts(selectedPartCodes);
-        resultAssert().assertSuccess();
-    }
-
-    private void assertNoSolution(String... selectedPartCodes) {
-        runWithSelectedParts(selectedPartCodes);
-        resultAssert().assertSolutionSizeEqual(0);
-    }
-
-    private void runWithSelectedParts(String... selectedPartCodes) {
-        InferParasReq req = new InferParasReq();
-        req.setModuleId(getModule().getId());
-        req.setEnumerateAllSolution(false);
-        req.setPrePartInsts(toPrePartInsts(selectedPartCodes));
-        Result<List<ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(req);
-        setResult(result);
-        setSolutions(result.getData());
-    }
-
-    private List<PartInst> toPrePartInsts(String... selectedPartCodes) {
-        List<String> pairs = new ArrayList<>();
-        for (String selectedPartCode : selectedPartCodes) {
-            pairs.add(selectedPartCode);
-            pairs.add("1");
-        }
-        return toPreParts(pairs.toArray(String[]::new));
+        assertTrue(validData("cpu4", "drive5400"));
+        assertFalse(validData("cpu4", "drive7200"));
     }
 }

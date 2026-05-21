@@ -20,12 +20,21 @@ public @interface CombinationStructRuleAnno {
 
     String fatherCode() default "";
 
-    int arity();
+    /**
+     * Optional. When omitted, arity is inferred from child rules.
+     */
+    int arity() default 0;
 
-    String[] dimensionCategoryCodes();
+    /**
+     * Optional. When omitted, dimensions are inferred from child rule expressions.
+     */
+    String[] dimensionCategoryCodes() default {};
 
     PartCombinationType combinationType() default PartCombinationType.WHITE;
 
+    /**
+     * Optional legacy explicit child list. Prefer child rules with parentRuleCode.
+     */
     String[] subRuleCodes() default {};
 
     CalcStage calcStage() default CalcStage.MID;
