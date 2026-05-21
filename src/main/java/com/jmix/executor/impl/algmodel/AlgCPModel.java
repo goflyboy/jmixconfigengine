@@ -56,6 +56,11 @@ public class AlgCPModel {
     private boolean isAttachRelax = false;
 
     /**
+     * Whether system/input constraints should get relaxation variables.
+     */
+    private boolean relaxSystemRules = true;
+
+    /**
      * 松弛变量映射表，键为规则名称，值为松弛变量
      */
     private Map<String, RelaxVar> relaxationVarMap = new HashMap<>();
@@ -172,6 +177,11 @@ public class AlgCPModel {
      * @param ruleCode 规则代码
      */
     public void setRelax4SysRule(String ruleCode) {
+        if (!relaxSystemRules) {
+            currentRelaxVarName = "";
+            currentRelaxVar = null;
+            return;
+        }
         setCurrentRelaxVarName(ruleCode, RelaxVar.WEIGHT_SMALL);
     }
 
