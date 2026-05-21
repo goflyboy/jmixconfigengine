@@ -48,6 +48,7 @@ public class StructRuleBuildExpander {
         } else {
             throw new AlgLoaderException("Unsupported structured rule schema: " + rule.getCode());
         }
+        rule.setExeSchema(schema);
         return schema;
     }
 

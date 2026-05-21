@@ -12,25 +12,29 @@
 
 | 主题 | 决策 |
 | --- | --- |
+| 规则来源 | 结构化规则是产品/模块基础数据的一部分，优先通过产品类注解声明并由 `ModuleGenneratorByAnno` 生成；销售、推荐、校验测试不再手工 `installRule` |
 | 维护态表达 | 新增 `PairStructRuleSchema`、`TripleStructRuleSchema` 和 `CombinationStructRuleSchema` |
 | 表达式粒度 | 使用 `StructExprSchema` 表示“对象 + 属性 + 比较符 + 值” |
 | 父子规则关系 | 本 RFC 仍建议新增 `Rule.parentRuleCode`；不复用现有 `Rule.fatherCode`，因为当前代码中 `fatherCode` 已表示规则挂载的 PartCategory |
 | 关系类型 | 仅保留 `INCOMPATIBLE`、`REQUIRES`、`CO_DEPENDENT`；`CO_DEPENDENT` 同时表示兼容/配套关系 |
-| 运行态表达 | 本 RFC 建议在 `ModuleGenneratorByAnno` 构建数据后生成 `Rule.exeSchema = CodependantRuleSchema`；当前 `Rule` 类尚未包含 `parentRuleCode` / `exeSchema` |
+| 运行态表达 | `ModuleGenneratorByAnno` 读取结构化规则注解生成 `Rule.rawCode`，并在产品数据构建期展开为 `Rule.exeSchema = CodependantRuleSchema` |
 | 南向接口边界 | 结构化规则执行器属于引擎内部能力；若示例触达 CP 建模，应使用 `ModuleCPModel`、`AlgCPBoolVar`、`AlgCPLiteral`、`PartVar` 等 facade，不再在产品算法/RFC 示例中暴露 OR-Tools `BoolVar` / `Literal` |
 | 白名单组合规则 | 选中的部件组合必须命中至少一条允许组合 |
 | 黑名单组合规则 | 每条禁止组合生成“不能同时选中”的约束 |
 | 逻辑完备性 | 计算引擎只执行确定语义；维护态完备性策略不在本 RFC 建模 |
-| 校验接口 | 规划在 `ModuleConstraintExecutor` 新增 `validate(ModuleValidateReq)`；当前接口仍只有 `init/fini/addModule/removeModule/inferParas/postCalculate` |
+| 生成与校验 | 结构化规则同时服务原有 `inferParas` 推荐/生成链路和新增 `validate` 校验链路 |
+| 校验接口 | `ModuleConstraintExecutor` 新增 `boolean validate(ModuleInst)` 和 `Result<ModuleValidateResp> validate(ModuleValidateReq)` |
 | 二元/三元支持 | 首期支持二元和三元；更高元可由后续通用 `NaryStructRuleSchema` 扩展 |
 
 ---
 
 ## 1. 摘要
 
-当前规则更偏向代码式或已有兼容规则 Schema，难以支撑客户通过表格化界面维护“CPU 核数 = 4 不兼容硬盘速率 = 5400”这类结构化规则。本 RFC 提议在 `Rule.rawCode` 中新增二元、三元结构化规则 Schema，并在 `ModuleGenneratorByAnno` 构建数据后展开为 `CodependantRuleSchema`，使维护态可读、运行态可执行。
+当前规则更偏向代码式或已有兼容规则 Schema，难以支撑客户通过表格化界面维护“CPU 核数 = 4 不兼容硬盘速率 = 5400”这类结构化规则。本 RFC 提议在 `Rule.rawCode` 中新增二元、三元结构化规则 Schema，并在 `ModuleGenneratorByAnno` 构建产品/模块基础数据时展开为 `CodependantRuleSchema`，使维护态可读、运行态可执行。
 
-本文已按 `RFC-0005-0.1` 后的南向接口重构刷新：产品算法侧入口是 `ModuleAlgBase.model()`，CP 能力通过 `ModuleCPModel` / `AlgCP*` facade 暴露，`southinf` 不依赖 `impl` 包和 OR-Tools。结构化组合规则本身仍是引擎内部待实现能力，但验收示例和执行伪代码不再使用旧的 `ConstraintAlgBase` 或直接 OR-Tools 类型。
+本补丁进一步明确：结构化规则不应在销售、推荐或测试用例中临时拼装并安装，而应像现有 `@CompatiableRuleAnno` 一样声明在产品类上。销售环节只使用已经生成好的 Module 规则数据，通过原有 `inferParas` 链路做推荐/生成，通过新增 `validate` 链路校验已有 `ModuleInst`。
+
+本文已按 `RFC-0005-0.1` 后的南向接口重构刷新：产品算法侧入口是 `ModuleAlgBase.model()`，CP 能力通过 `ModuleCPModel` / `AlgCP*` facade 暴露，`southinf` 不依赖 `impl` 包和 OR-Tools。结构化组合规则是引擎内部能力，产品侧只声明结构化规则注解，不直接依赖内部执行器、旧 `ConstraintAlgBase` 或 OR-Tools 类型。
 
 ---
 
@@ -169,8 +173,9 @@ CodependantConstraintExecutor
 
 当前代码基线说明：
 
-- `Rule` 当前已有 `rawCode`、`ruleSchemaTypeFullName`、`fatherCode`、`calcStage` 等字段，尚未包含本 RFC 建议的 `parentRuleCode` 和 `exeSchema`。
-- `RuleSchema` 当前注册了 `CompatiableRuleSchema`、`CalculateRuleSchema`、`SelectRuleSchema`、`CodeRuleSchema`、`PriorityRuleSchema`，尚未注册本 RFC 新增的结构化 Schema。
+- `Rule` 已保留 `rawCode`、`ruleSchemaTypeFullName`、`fatherCode`、`calcStage` 等字段，并新增 `parentRuleCode` 与 `exeSchema`。
+- `RuleSchema` 已注册 `PairStructRuleSchema`、`TripleStructRuleSchema`、`CombinationStructRuleSchema`，结构化规则可序列化为维护态 Schema。
+- `ModuleGenneratorByAnno` 已支持读取结构化规则注解，并在构建 Module 后生成 `CodependantRuleSchema` 运行态 Schema。
 - 南向 API 已按 `RFC-0005-0.1` 收敛为 `ModuleAlgBase`、`ModuleCPModel`、`PartCategoryCPModel` 和 `com.jmix.executor.southinf.cp.*` facade；`ConstraintAlgBase`、`ConstraintModel`、`ConstraintVarRegistry`、`ModuleInstAccessor` 等不再作为正式南向类型。
 
 ### 3.2 术语
@@ -551,9 +556,9 @@ public class PartCombination {
 
 ### 3.11 构建期展开流程
 
-结构化表达式的解析位置在 `ModuleGenneratorByAnno` 构建流程之后，不是在计算引擎求解时。目标实现中，生成器读取 `Rule.rawCode` 中的 `PairStructRuleSchema`、`TripleStructRuleSchema`、`CombinationStructRuleSchema`，并生成父规则的 `Rule.exeSchema = CodependantRuleSchema`。
+结构化表达式的解析位置在 `ModuleGenneratorByAnno` 构建产品/模块基础数据时，不是在销售调用或计算引擎求解时临时拼装规则。当前实现中，生成器读取产品类上的 `@PairStructRuleAnno`、`@TripleStructRuleAnno`、`@CombinationStructRuleAnno`，生成 `Rule.rawCode` 中的结构化 Schema，并进一步展开为 `Rule.exeSchema = CodependantRuleSchema`。
 
-建议在 `ModuleGenneratorByAnno` 内部增加一个小的展开组件，例如：
+`ModuleGenneratorByAnno` 内部需要包含一个展开组件，例如：
 
 ```java
 final class StructRuleBuildExpander {
@@ -705,14 +710,16 @@ private void addWhitelist(String ruleCode, CodependantRuleSchema schema,
 }
 ```
 
-可选 PartCategory 的 guard 语义本 RFC 暂不实现，已由 `doc/RFC-0009-Optional-PartCategory-Whitelist-Guard.md` 单独跟踪。当前 `@PartAnno` 也尚未包含 `required` 字段，RFC-0007 不在此处扩展分类必选/可选模型。
+可选 PartCategory 的 guard 语义本 RFC 暂不实现，已由 `doc/RFC-0009-Optional-PartCategory-Whitelist-Guard.md` 单独跟踪。当前 `@PartAnno.required()` 已能表达分类必选/可选，但 RFC-0007 不在此处扩展白名单 guard 语义。
 
 ### 3.13 北向 validate 校验接口
 
-规划在 `ModuleConstraintExecutor` 新增 `validate(ModuleValidateReq)`，用于校验一个已给定的配置组合是否满足当前 Module 规则。它面向“校验现有配置是否 OK”，不是为了枚举或推荐新解。当前接口尚未包含该方法，本节定义的是 RFC-0007 的目标形态。
+在 `ModuleConstraintExecutor` 新增校验接口，用于校验一个已给定的配置组合是否满足当前 Module 规则。它面向“校验现有配置是否 OK”，不是为了枚举或推荐新解。推荐/生成仍走原有 `inferParas` 链路。
 
 ```java
 public interface ModuleConstraintExecutor {
+    boolean validate(ModuleInst moduleInst);
+
     Result<ModuleValidateResp> validate(ModuleValidateReq req);
 }
 
@@ -730,7 +737,6 @@ public class ModuleValidateReq {
 public class ModuleValidateResp {
     private boolean valid;
     private List<String> violatedRuleCodes = new ArrayList<>();
-    private List<String> messages = new ArrayList<>();
 }
 ```
 
@@ -738,6 +744,7 @@ public class ModuleValidateResp {
 
 ```java
 ModuleInst inst = new ModuleInst();
+inst.setId(7007L);
 inst.addPartInst(partInst("cpu4", 1));
 inst.addPartInst(partInst("drive5400", 1));
 
@@ -746,13 +753,16 @@ req.setModuleCode("Server");
 req.setModuleInst(inst);
 
 Result<ModuleValidateResp> result = ModuleConstraintExecutor.INST.validate(req);
+boolean ok = ModuleConstraintExecutor.INST.validate(inst);
 ```
 
 校验语义：
 
-- `validate` 使用给定 `ModuleInst` 作为固定输入，将其中的部件数量、选中状态、参数值转成输入约束。
-- 如果 CP-SAT 在这些固定输入下仍有可行解，则 `valid=true`。
-- 如果无可行解，则 `valid=false`，返回违反的规则 code；若开启松弛诊断，可复用现有松弛变量定位冲突规则。
+- `validate(ModuleInst)` 是便捷布尔接口，`moduleInst.id` 表示待校验的 Module id。
+- `validate(ModuleValidateReq)` 是带诊断的接口，支持通过 `moduleId` 或 `moduleCode` 找到产品模块，并返回违反的规则 code。
+- 校验使用给定 `ModuleInst` 作为固定输入，将其中的部件数量、选中状态、参数值转成输入约束。
+- 如果给定组合满足当前 Module 规则，则 `valid=true`。
+- 如果给定组合不满足规则，则 `valid=false`，返回违反的规则 code；若后续开启松弛诊断，可复用现有松弛变量定位冲突规则。
 - 对组合规则而言，白名单命中则通过，未命中则失败；黑名单命中则失败，未命中则通过。
 
 需要注意：校验输入可能不仅是 selected 状态，也可能包含数量，例如 `cpu1.quantity=1`、`drive2.quantity=2`。因此请求体选择复用 `ModuleInst`，而不是只传 part code 列表。
@@ -880,13 +890,13 @@ inCompatible("rule_cpu_drive_4_5400", "cpu:CoreNum=4", "drive:Speed=5400");
 
 ### 4.1 功能验收用例
 
-建议新增测试文件：
+更新结构化规则验收测试文件：
 
 ```text
 src/test/java/com/jmix/scenario/ruletest/StructCombinationRuleTest.java
 ```
 
-测试数据保持极简：
+测试数据保持极简。结构化规则直接声明在产品类中，和现有 `@CompatiableRuleAnno` 一样作为产品/模块基础数据生成；测试和销售调用只使用生成后的 Module 数据，不再手工 `installRule`：
 
 ```java
 @ModuleAnno(id = 7007)
@@ -926,30 +936,131 @@ public static class StructCombinationConstraint extends ModuleAlgBase {
 
     @PartAnno(fatherCode = "drive", attrs = {"7000"})
     private PartVar drive7000;
+
+    @PartAnno(code = "monitor")
+    @DAttrAnno1(code = "Resolution", options = {"FHD:FHD", "UHD:4K"})
+    private PartCategoryVar monitor;
+
+    @PartAnno(fatherCode = "monitor", attrs = {"4K"})
+    private PartVar monitor4k;
+
+    @PairStructRuleAnno(
+            expr1ObjectCode = "cpu",
+            expr1AttrCode = "CoreNum",
+            expr1Values = {"4"},
+            relationType = BusinessRelationType.INCOMPATIBLE,
+            expr2ObjectCode = "drive",
+            expr2AttrCode = "Speed",
+            expr2Values = {"7000"})
+    public void pairCpu4Drive7000() {
+    }
+
+    @CombinationStructRuleAnno(
+            code = "cpu_drive_white",
+            arity = 2,
+            dimensionCategoryCodes = {"cpu", "drive"},
+            combinationType = PartCombinationType.WHITE,
+            subRuleCodes = {"cpu_drive_white_001", "cpu_drive_white_002", "cpu_drive_white_003"})
+    public void cpuDriveWhite() {
+    }
+
+    @PairStructRuleAnno(
+            code = "cpu_drive_white_001",
+            parentRuleCode = "cpu_drive_white",
+            expr1ObjectCode = "cpu",
+            expr1AttrCode = "CoreNum",
+            expr1Values = {"4"},
+            relationType = BusinessRelationType.CO_DEPENDENT,
+            expr2ObjectCode = "drive",
+            expr2AttrCode = "Speed",
+            expr2Values = {"5400"})
+    public void cpuDriveWhite001() {
+    }
+
+    @PairStructRuleAnno(
+            code = "cpu_drive_white_002",
+            parentRuleCode = "cpu_drive_white",
+            expr1ObjectCode = "cpu",
+            expr1AttrCode = "CoreNum",
+            expr1Values = {"8"},
+            relationType = BusinessRelationType.CO_DEPENDENT,
+            expr2ObjectCode = "drive",
+            expr2AttrCode = "Speed",
+            expr2Operator = StructCompareOperator.IN,
+            expr2Values = {"5400", "7200"})
+    public void cpuDriveWhite002() {
+    }
+
+    @PairStructRuleAnno(
+            code = "cpu_drive_white_003",
+            parentRuleCode = "cpu_drive_white",
+            expr1ObjectCode = "cpu",
+            expr1AttrCode = "CoreNum",
+            expr1Operator = StructCompareOperator.GT,
+            expr1Values = {"8"},
+            relationType = BusinessRelationType.CO_DEPENDENT,
+            expr2ObjectCode = "drive",
+            expr2AttrCode = "Speed",
+            expr2Values = {"7200"})
+    public void cpuDriveWhite003() {
+    }
+
+    @CombinationStructRuleAnno(
+            code = "cpu_drive_monitor_white",
+            arity = 3,
+            dimensionCategoryCodes = {"cpu", "drive", "monitor"},
+            combinationType = PartCombinationType.WHITE,
+            subRuleCodes = {"cpu_drive_monitor_white_001"})
+    public void cpuDriveMonitorWhite() {
+    }
+
+    @TripleStructRuleAnno(
+            code = "cpu_drive_monitor_white_001",
+            parentRuleCode = "cpu_drive_monitor_white",
+            expr1ObjectCode = "cpu",
+            expr1AttrCode = "CoreNum",
+            expr1Values = {"8"},
+            relationType = BusinessRelationType.CO_DEPENDENT,
+            expr2ObjectCode = "drive",
+            expr2AttrCode = "Speed",
+            expr2Values = {"7200"},
+            expr3ObjectCode = "monitor",
+            expr3AttrCode = "Resolution",
+            expr3Values = {"4K"})
+    public void cpuDriveMonitorWhite001() {
+    }
 }
 ```
 
-#### AC-001: 二元结构化不兼容规则
+#### AC-001: 注解生成结构化规则基础数据
 
-目的：验证 `cpu.CoreNum = 4 INCOMPATIBLE drive.Speed = 5400` 可以被编译为二元不兼容约束。
+目的：验证结构化规则来自产品类注解，并在 Module 构建期生成 `Rule.rawCode` 与 `Rule.exeSchema`。
+
+```java
+@Test
+public void testAnnotationGeneratedStructRules() {
+    Rule parent = getModule().getRule("cpu_drive_white").orElseThrow();
+    assertNotNull(parent.getExeSchema());
+
+    CodependantRuleSchema schema = (CodependantRuleSchema) parent.getExeSchema();
+    assertEquals(2, schema.getArity());
+    assertEquals(4, schema.getCombinations().size());
+}
+```
+
+#### AC-002: 二元结构化不兼容规则
+
+目的：验证产品注解中的 `cpu.CoreNum = 4 INCOMPATIBLE drive.Speed = 7000` 可以被编译为二元不兼容约束，并通过原有 `inferParas` 生成链路生效。
 
 ```java
 @Test
 public void testPairStructRule_Incompatible() {
-    installRule(pairStructRule(
-            expr("cpu", "CoreNum", EQ, "4"),
-            INCOMPATIBLE,
-            expr("drive", "Speed", EQ, "5400")));
-
-    inferRecommendModule("cpu:code=cpu4,drive:code=drive5400");
-    resultAssert().assertSolutionSizeEqual(0);
-
-    inferRecommendModule("cpu:code=cpu4,drive:code=drive7200");
-    resultAssert().assertSuccess();
+    assertNoSolution("cpu4", "drive7000");
+    assertPass("cpu4", "drive5400");
 }
 ```
 
-#### AC-002: 二元组合白名单
+#### AC-003: 二元组合白名单生成
 
 目的：验证白名单组合中必须命中至少一条子规则。
 
@@ -966,136 +1077,127 @@ public void testPairStructRule_Incompatible() {
 
 ```java
 @Test
-public void testCombinationWhiteList_Pair() {
-    installRule(cpuDriveWhiteListRule());
-
-    assertPass("cpu:code=cpu4,drive:code=drive5400");
-    assertNoSolution("cpu:code=cpu4,drive:code=drive7200");
-    assertPass("cpu:code=cpu8,drive:code=drive5400");
-    assertPass("cpu:code=cpu8,drive:code=drive7200");
-    assertNoSolution("cpu:code=cpu12,drive:code=drive5400");
-    assertPass("cpu:code=cpu12,drive:code=drive7200");
+public void testCombinationWhiteList_Pair_Generation() {
+    assertPass("cpu4", "drive5400");
+    assertNoSolution("cpu4", "drive7200");
+    assertPass("cpu8", "drive5400");
+    assertPass("cpu8", "drive7200");
+    assertNoSolution("cpu12", "drive5400");
+    assertPass("cpu12", "drive7200");
 }
 ```
 
-#### AC-003: 二元组合黑名单
+#### AC-004: 二元组合黑名单
 
-目的：验证黑名单命中组合会被禁止，未命中的组合默认允许。
+目的：验证黑名单命中组合会被禁止，未命中的组合默认允许。黑名单同样以 `@CombinationStructRuleAnno(combinationType = PartCombinationType.BLACK)` 加子规则注解声明在产品类中。
 
 ```java
 @Test
 public void testCombinationBlackList_Pair() {
-    installRule(blackListRule(
-            pair(expr("cpu", "CoreNum", EQ, "4"),
-                    INCOMPATIBLE,
-                    expr("drive", "Speed", EQ, "7000"))));
-
-    assertNoSolution("cpu:code=cpu4,drive:code=drive7000");
-    assertPass("cpu:code=cpu4,drive:code=drive5400");
-    assertPass("cpu:code=cpu8,drive:code=drive7000");
+    assertNoSolution("cpu4", "drive7000");
+    assertPass("cpu4", "drive5400");
+    assertPass("cpu8", "drive7000");
 }
 ```
 
-#### AC-004: 三元组合白名单
+#### AC-005: 三元组合白名单生成
 
 目的：验证三元结构化规则可以展开为三元 `PartCombination` 并执行白名单。
 
 ```java
 @Test
-public void testCombinationWhiteList_Triple() {
-    installRule(cpuDriveMonitorWhiteListRule(
-            triple(expr("cpu", "CoreNum", EQ, "8"),
-                    CO_DEPENDENT,
-                    expr("drive", "Speed", EQ, "7200"),
-                    expr("monitor", "Resolution", EQ, "4K"))));
-
-    assertPass("cpu:code=cpu8,drive:code=drive7200,monitor:code=monitor4k");
-    assertNoSolution("cpu:code=cpu8,drive:code=drive5400,monitor:code=monitor4k");
+public void testCombinationWhiteList_Triple_Generation() {
+    assertPass("cpu8", "drive7200", "monitor4k");
+    assertNoSolution("cpu8", "drive5400", "monitor4k");
 }
 ```
 
-#### AC-005: validate 校验二元白名单
+#### AC-006: validate 校验二元白名单
 
-目的：验证 `ModuleConstraintExecutor.validate(ModuleValidateReq)` 可以校验给定 `ModuleInst` 组合是否满足白名单组合规则。
+目的：验证 `ModuleConstraintExecutor.validate(ModuleInst)` 和 `validate(ModuleValidateReq)` 可以校验给定 `ModuleInst` 组合是否满足白名单组合规则。
 
 ```java
 @Test
 public void testValidateCombinationWhiteList_Pair() {
-    installRule(cpuDriveWhiteListRule());
+    assertTrue(ModuleConstraintExecutor.INST.validate(moduleInst("cpu4", "drive5400")));
+    assertFalse(ModuleConstraintExecutor.INST.validate(moduleInst("cpu4", "drive7200")));
 
-    ModuleInst validInst = moduleInst(
-            partInst("cpu4", 1),
-            partInst("drive5400", 1));
-    Result<ModuleValidateResp> valid =
-            ModuleConstraintExecutor.INST.validate(validateReq(validInst));
+    Result<ModuleValidateResp> valid = validate(moduleInst("cpu4", "drive5400"));
+    assertEquals(Result.SUCCESS, valid.getCode());
     assertTrue(valid.getData().isValid());
 
-    ModuleInst invalidInst = moduleInst(
-            partInst("cpu4", 1),
-            partInst("drive7200", 1));
-    Result<ModuleValidateResp> invalid =
-            ModuleConstraintExecutor.INST.validate(validateReq(invalidInst));
+    Result<ModuleValidateResp> invalid = validate(moduleInst("cpu4", "drive7200"));
+    assertEquals(Result.SUCCESS, invalid.getCode());
     assertFalse(invalid.getData().isValid());
-    assertTrue(invalid.getData().getViolatedRuleCodes().contains("cpu_drive_combo"));
+    assertTrue(invalid.getData().getViolatedRuleCodes().contains("cpu_drive_white"));
 }
 ```
 
-#### AC-006: validate 支持数量输入
+#### AC-007: validate 支持数量输入
 
 目的：验证校验接口复用 `ModuleInst`，不仅能校验 selected 组合，也能校验数量输入。
 
 ```java
 @Test
 public void testValidateCombination_WithQuantityInput() {
-    installRule(cpuDriveWhiteListRule());
-
-    ModuleInst inst = moduleInst(
+    Result<ModuleValidateResp> result = validate(moduleInst(
             partInst("cpu4", 1),
-            partInst("drive5400", 2));
-
-    Result<ModuleValidateResp> result =
-            ModuleConstraintExecutor.INST.validate(validateReq(inst));
-
+            partInst("drive5400", 2)));
     assertEquals(Result.SUCCESS, result.getCode());
+    assertTrue(result.getData().isValid());
 }
 ```
 
-#### AC-007: 与请求态 PartCategory Filter 取交集
+#### AC-008: 与请求态 PartCategory Filter 取交集
 
-目的：验证运行态执行 `CodependantRuleSchema` 时会按当前求解模型中可见的 `PartVar` / 内部 `PartVarImpl` 解析 part code。如果请求态过滤让某个 code 不存在，则对应 tuple 不可命中。
+目的：验证结构化规则在生成场景仍走原有 `inferParas` 链路，并且运行态执行 `CodependantRuleSchema` 时会按当前求解模型中可见的 `PartVar` / 内部 `PartVarImpl` 解析 part code。如果请求态过滤让某个 code 不存在，则对应 tuple 不可命中。
 
 ```java
 @Test
 public void testCombinationRule_IntersectWithRuntimeFilter() {
-    installRule(cpuDriveWhiteListRule());
+    InferParasReq req = new InferParasReq();
+    req.setModuleId(getModule().getId());
+    req.setEnumerateAllSolution(false);
 
-    // 当前请求把 drive 过滤为 Speed=7200。
-    // 虽然规则中存在 cpu4 -> drive5400，但 drive5400 已不在运行态候选集合里。
-    inferRecommendModule("drive:Sum_Quantity == 1 where Speed=7200; cpu:code=cpu4");
+    PartConstraintReq cpuReq = new PartConstraintReq();
+    cpuReq.setPartCategoryCode("cpu");
+    cpuReq.setAttrType(AttrParaType.Sum);
+    cpuReq.setAttrCode("Quantity");
+    cpuReq.setAttrComparator("==");
+    cpuReq.setAttrValue("1");
+    cpuReq.setAttrWhereCondition("CoreNum=4");
 
-    resultAssert().assertSolutionSizeEqual(0);
+    PartConstraintReq driveReq = new PartConstraintReq();
+    driveReq.setPartCategoryCode("drive");
+    driveReq.setAttrType(AttrParaType.Sum);
+    driveReq.setAttrCode("Quantity");
+    driveReq.setAttrComparator("==");
+    driveReq.setAttrValue("1");
+    driveReq.setAttrWhereCondition("Speed=7200");
+    req.setPartConstraintReqs(List.of(cpuReq, driveReq));
+
+    Result<List<ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(req);
+
+    assertTrue(result.getCode() == Result.NO_SOLUTION
+            || (result.getCode() == Result.SUCCESS
+            && (result.getData() == null || result.getData().isEmpty())));
 }
 ```
 
-#### AC-008: 子规则不独立执行
+#### AC-009: 子规则不独立执行
 
 目的：验证 `parentRuleCode` 非空的子规则不会被普通规则执行链路重复执行。
 
 ```java
 @Test
 public void testChildRule_NotExecutedIndependently() {
-    Rule parent = cpuDriveWhiteListRule();
-    Rule child = childRule("cpu_drive_combo_001", parent.getCode());
-
-    installRules(parent, child);
-
-    // 如果 child 被独立执行，可能会额外生成 requires/codependent 等约束。
     // 预期只有 parent 组合规则的白名单语义生效。
-    assertPass("cpu:code=cpu4,drive:code=drive5400");
+    assertPass("cpu4", "drive5400");
+    assertNoSolution("cpu4", "drive7200");
 }
 ```
 
-#### AC-009: 维护态唯一性检查
+#### AC-010: 维护态唯一性检查
 
 目的：验证相同 owner 和相同维度的组合规则不能重复维护。
 
@@ -1143,19 +1245,20 @@ public void testMaintenanceUniqueKey_DuplicatePairCombinationRule() {
 
 | 阶段 | 任务 | 优先级 | 状态 |
 | --- | --- | --- | --- |
-| 1 | 新增 `StructExprSchema`、`PairStructRuleSchema`、`TripleStructRuleSchema`、`CombinationStructRuleSchema` | P0 | 规划中 |
-| 2 | 新增 `Rule.parentRuleCode` 和运行态 `Rule.exeSchema` | P0 | 规划中 |
-| 3 | 在 `ModuleGenneratorByAnno` 后置阶段新增 `StructRuleBuildExpander`，构建期展开结构化表达为 `CodependantRuleSchema` | P0 | 规划中 |
-| 4 | 新增 `StructExprResolver`，支持 EQ/NE/GT/GE/LT/LE/LIKE/IN 等表达式解析为 Part code 集合 | P0 | 规划中 |
-| 5 | 新增 `CodependantConstraintExecutor`，基于 `CodependantRuleSchema` 生成 WHITE/BLACK 二元组合约束，示例使用 `ModuleCPModel` / `AlgCP*` facade 口径 | P0 | 规划中 |
-| 6 | 补齐三元 BLACK 和三元 WHITE 组合约束 | P0 | 规划中 |
-| 7 | 集成规则执行链路，跳过 `parentRuleCode` 非空的子规则独立执行 | P0 | 规划中 |
-| 8 | `ModuleConstraintExecutor` 新增 `validate(ModuleValidateReq)`，校验给定 `ModuleInst` 是否满足规则 | P0 | 规划中 |
-| 9 | 新增维护态校验器：唯一性、元数一致、维度一致、表达式有效性、重复组合 | P1 | 规划中 |
-| 10 | 兼容 `ModuleAlgArtifactGenerator` 或 `StructCodeInjector` 的生成式路径，生成代码必须继承 `ModuleAlgBase` 并使用 `model()` | P2 | 规划中 |
-| 11 | 补充 RFC 中列出的自动化测试 | P0 | 规划中 |
-| 12 | 可选 PartCategory 白名单 guard 语义由 `RFC-0009` 单独设计 | P2 | 已拆分 |
-| 13 | 多实例分类组合规则单独 RFC 设计 | P2 | 待拆分 |
+| 1 | 新增 `StructExprSchema`、`PairStructRuleSchema`、`TripleStructRuleSchema`、`CombinationStructRuleSchema` | P0 | 已实现 |
+| 2 | 新增 `Rule.parentRuleCode` 和运行态 `Rule.exeSchema` | P0 | 已实现 |
+| 3 | 新增 `@PairStructRuleAnno`、`@TripleStructRuleAnno`、`@CombinationStructRuleAnno`，由产品类注解生成规则基础数据 | P0 | 已实现 |
+| 4 | 在 `ModuleGenneratorByAnno` 后置阶段构建期展开结构化表达为 `CodependantRuleSchema` | P0 | 已实现 |
+| 5 | 新增运行态结构表达式解析能力，支持 EQ/NE/GT/GE/LT/LE/LIKE/IN 等表达式解析为 Part code 集合 | P0 | 已实现 |
+| 6 | 新增 `CodependantConstraintExecutor`，基于 `CodependantRuleSchema` 生成 WHITE/BLACK 二元组合约束 | P0 | 已实现 |
+| 7 | 补齐三元 BLACK 和三元 WHITE 组合约束 | P0 | 已实现 |
+| 8 | 集成规则执行链路，跳过 `parentRuleCode` 非空的子规则独立执行 | P0 | 已实现 |
+| 9 | `ModuleConstraintExecutor` 新增 `boolean validate(ModuleInst)` 与 `validate(ModuleValidateReq)`，校验给定 `ModuleInst` 是否满足规则 | P0 | 已实现 |
+| 10 | 补充注解驱动的 `StructCombinationRuleTest` 自动化测试，覆盖 `inferParas` 生成和 `validate` 校验 | P0 | 已实现 |
+| 11 | 新增维护态校验器：唯一性、元数一致、维度一致、表达式有效性、重复组合 | P1 | 待实现 |
+| 12 | 兼容 `ModuleAlgArtifactGenerator` 或 `StructCodeInjector` 的生成式路径，生成代码必须继承 `ModuleAlgBase` 并使用 `model()` | P2 | 待评估 |
+| 13 | 可选 PartCategory 白名单 guard 语义由 `RFC-0009` 单独设计 | P2 | 已拆分 |
+| 14 | 多实例分类组合规则单独 RFC 设计 | P2 | 待拆分 |
 
 ---
 

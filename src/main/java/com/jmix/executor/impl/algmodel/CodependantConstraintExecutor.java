@@ -36,6 +36,10 @@ public class CodependantConstraintExecutor {
     }
 
     public void execute(Rule rule) {
+        if (rule.getExeSchema() instanceof CodependantRuleSchema schema) {
+            executeCodependant(rule.getCode(), schema);
+            return;
+        }
         RuleSchema rawCode = rule.getRawCode();
         if (rawCode instanceof PairStructRuleSchema pairSchema) {
             executePair(rule, pairSchema);

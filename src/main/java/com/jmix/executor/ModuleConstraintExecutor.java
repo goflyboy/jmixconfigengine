@@ -5,6 +5,8 @@ import com.jmix.executor.impl.ModuleConstraintExecutorImpl;
 import com.jmix.executor.model.ConstraintConfig;
 import com.jmix.executor.model.InferParasReq;
 import com.jmix.executor.model.ModulePostCalcReq;
+import com.jmix.executor.model.ModuleValidateReq;
+import com.jmix.executor.model.ModuleValidateResp;
 import com.jmix.executor.cmodel.ModuleInst;
 import com.jmix.executor.model.Result;
 
@@ -67,6 +69,10 @@ public interface ModuleConstraintExecutor {
      *         如果执行过程出错，则返回Result.FAILED <br>
      */
     Result<List<ModuleInst>> inferParas(InferParasReq req);
+
+    boolean validate(ModuleInst moduleInst);
+
+    Result<ModuleValidateResp> validate(ModuleValidateReq req);
 
     /**
      * 独立后置计算: 对已有解执行CalcStage.POST规则，写回派生参数

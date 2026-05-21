@@ -5,20 +5,33 @@ import com.jmix.executor.bmodel.AttrPara;
 import com.jmix.executor.bmodel.AttrParaType;
 import com.jmix.executor.bmodel.IModule;
 import com.jmix.executor.bmodel.Module;
+import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartCategory;
 import com.jmix.executor.bmodel.base.Pair;
+import com.jmix.executor.bmodel.logic.BusinessRelationType;
+import com.jmix.executor.bmodel.logic.CodependantRuleSchema;
+import com.jmix.executor.bmodel.logic.CombinationStructRuleSchema;
+import com.jmix.executor.bmodel.logic.PairStructRuleSchema;
+import com.jmix.executor.bmodel.logic.PartCombination;
+import com.jmix.executor.bmodel.logic.PartCombinationType;
 import com.jmix.executor.bmodel.logic.RefProgObjSchema;
 import com.jmix.executor.bmodel.logic.Rule;
+import com.jmix.executor.bmodel.logic.RuleSchema;
 import com.jmix.executor.bmodel.logic.RuleUtils;
+import com.jmix.executor.bmodel.logic.StructCompareOperator;
+import com.jmix.executor.bmodel.logic.StructExprSchema;
+import com.jmix.executor.bmodel.logic.TripleStructRuleSchema;
 import com.jmix.executor.cmodel.DiagnosticConstraint;
 import com.jmix.executor.cmodel.ErrorInfo;
 import com.jmix.executor.cmodel.InstErrorCode;
 import com.jmix.executor.cmodel.ModuleInst;
 import com.jmix.executor.cmodel.PartCategoryInst;
+import com.jmix.executor.cmodel.PartInst;
 import com.jmix.executor.cmodel.SolverResult;
 import com.jmix.executor.impl.algmodel.AlgCPModel;
 import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
 import com.jmix.executor.impl.algmodel.RelaxVar;
+import com.jmix.executor.impl.util.FilterExpressionExecutor;
 import com.jmix.executor.impl.util.ModuleUtils;
 import com.jmix.executor.impl.util.ReqUtils;
 import com.jmix.executor.model.AlgExecutorException;
@@ -27,6 +40,8 @@ import com.jmix.executor.model.ConstraintConfig;
 import com.jmix.executor.model.InferParasReq;
 import com.jmix.executor.model.InferPartCategoryReq;
 import com.jmix.executor.model.ModulePostCalcReq;
+import com.jmix.executor.model.ModuleValidateReq;
+import com.jmix.executor.model.ModuleValidateResp;
 import com.jmix.executor.model.PartConstraintReq;
 import com.jmix.executor.model.PartConstantAttr;
 import com.jmix.executor.model.Result;
@@ -45,9 +60,11 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 模块约束执行器实现类
@@ -461,6 +478,369 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
             log.error("Failed to infer paras", ex);
             return Result.failed("exception: " + ex.getMessage());
         }
+    }
+
+    @Override
+    public boolean validate(ModuleInst moduleInst) {
+        if (moduleInst == null || (moduleInst.getId() == null && Strings.isNullOrEmpty(moduleInst.getCode()))) {
+            return false;
+        }
+        ModuleValidateReq req = new ModuleValidateReq();
+        req.setModuleId(moduleInst.getId());
+        req.setModuleCode(moduleInst.getCode());
+        req.setModuleInst(moduleInst);
+        Result<ModuleValidateResp> result = validate(req);
+        return result.getCode() == Result.SUCCESS && result.getData() != null && result.getData().isValid();
+    }
+
+    @Override
+    public Result<ModuleValidateResp> validate(ModuleValidateReq req) {
+        if (req == null) {
+            return Result.failed("req is null");
+        }
+        if (req.getModuleInst() == null) {
+            return Result.failed("moduleInst is null");
+        }
+        try {
+            Module module = getModule(req.getModuleId(), req.getModuleCode());
+            module.init();
+            ModuleValidateResp resp = new ModuleValidateResp();
+            List<String> violatedRuleCodes = validateModuleInst(module, req.getModuleInst());
+            resp.setViolatedRuleCodes(violatedRuleCodes);
+            resp.setValid(violatedRuleCodes.isEmpty());
+            return Result.success(resp);
+        } catch (AlgLoaderException ex) {
+            log.error("Failed to validate module instance", ex);
+            return Result.failed("exception: " + ex.getMessage());
+        }
+    }
+
+    private List<String> validateModuleInst(Module module, ModuleInst moduleInst) {
+        Set<String> selectedCodes = selectedPartCodes(moduleInst);
+        List<String> violatedRuleCodes = new ArrayList<>();
+        for (Rule rule : module.getAllRules()) {
+            if (!Strings.isNullOrEmpty(rule.getParentRuleCode())) {
+                continue;
+            }
+            if (!isStructValidationRule(rule)) {
+                continue;
+            }
+            if (!validateStructRule(module, rule, moduleInst, selectedCodes)) {
+                violatedRuleCodes.add(rule.getCode());
+            }
+        }
+        return violatedRuleCodes;
+    }
+
+    private List<String> resolveStructExprCodes(Module module, StructExprSchema expr) {
+        validateStructExpr(module, expr);
+        List<Part> candidates = module.getAllAtomicParts(expr.getObjectCode());
+        if (candidates == null || candidates.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<Part> filtered = filterStructParts(candidates, expr);
+        return filtered.stream().map(Part::getCode).distinct().toList();
+    }
+
+    private List<Part> filterStructParts(List<Part> candidates, StructExprSchema expr) {
+        List<String> values = expr.getValues() == null ? List.of() : expr.getValues();
+        if (values.isEmpty()) {
+            throw new AlgLoaderException("Structured expression values cannot be empty: " + expr.getObjectCode());
+        }
+        if (expr.getOperator() == StructCompareOperator.IN) {
+            Map<String, Part> result = new LinkedHashMap<>();
+            for (String value : values) {
+                for (Part part : filterStructPartsBySingleValue(candidates, expr, value)) {
+                    result.put(part.getCode(), part);
+                }
+            }
+            return new ArrayList<>(result.values());
+        }
+        if (expr.getOperator() == StructCompareOperator.NOT_IN) {
+            List<Part> result = new ArrayList<>(candidates);
+            for (String value : values) {
+                result = filterStructPartsBySingleValue(result, expr, value);
+            }
+            return result;
+        }
+        return filterStructPartsBySingleValue(candidates, expr, values.get(0));
+    }
+
+    private List<Part> filterStructPartsBySingleValue(List<Part> candidates, StructExprSchema expr, String value) {
+        return FilterExpressionExecutor.doSelect(candidates, toFilterExpr(expr, value));
+    }
+
+    private String toFilterExpr(StructExprSchema expr, String value) {
+        return switch (expr.getOperator()) {
+            case EQ, IN -> expr.getAttrCode() + "=" + value;
+            case NE, NOT_IN -> expr.getAttrCode() + "!=" + value;
+            case GT -> expr.getAttrCode() + ">" + value;
+            case GE -> expr.getAttrCode() + ">=" + value;
+            case LT -> expr.getAttrCode() + "<" + value;
+            case LE -> expr.getAttrCode() + "<=" + value;
+            case LIKE -> expr.getAttrCode() + " like \"" + value + "\"";
+            case NOT_LIKE -> expr.getAttrCode() + " not like \"" + value + "\"";
+        };
+    }
+
+    private void validateStructExpr(Module module, StructExprSchema expr) {
+        if (expr == null) {
+            throw new AlgLoaderException("Structured expression cannot be null");
+        }
+        if (Strings.isNullOrEmpty(expr.getObjectCode())) {
+            throw new AlgLoaderException("Structured expression objectCode cannot be empty");
+        }
+        if (module.getPartCategory(expr.getObjectCode()) == null) {
+            throw new AlgLoaderException("PartCategory not found for structured expression: "
+                    + expr.getObjectCode());
+        }
+        if (Strings.isNullOrEmpty(expr.getAttrCode())) {
+            throw new AlgLoaderException("Structured expression attrCode cannot be empty");
+        }
+        if (expr.getOperator() == null) {
+            throw new AlgLoaderException("Structured expression operator cannot be null");
+        }
+    }
+
+    private List<PartCombination> expandStructExprs(Module module, List<StructExprSchema> exprs,
+            String sourceRuleCode) {
+        List<List<String>> partCodeSets = new ArrayList<>();
+        for (StructExprSchema expr : exprs) {
+            partCodeSets.add(resolveStructExprCodes(module, expr));
+        }
+        List<PartCombination> result = new ArrayList<>();
+        expandStructCartesian(partCodeSets, 0, new ArrayList<>(), sourceRuleCode, result);
+        return result;
+    }
+
+    private void expandStructCartesian(List<List<String>> partCodeSets, int index, List<String> tuple,
+            String sourceRuleCode, List<PartCombination> result) {
+        if (index == partCodeSets.size()) {
+            result.add(toPartCombination(tuple, sourceRuleCode));
+            return;
+        }
+        for (String partCode : partCodeSets.get(index)) {
+            tuple.add(partCode);
+            expandStructCartesian(partCodeSets, index + 1, tuple, sourceRuleCode, result);
+            tuple.remove(tuple.size() - 1);
+        }
+    }
+
+    private PartCombination toPartCombination(List<String> tuple, String sourceRuleCode) {
+        if (tuple.size() == 2) {
+            return new PartCombination(tuple.get(0), tuple.get(1), sourceRuleCode);
+        }
+        if (tuple.size() == 3) {
+            return new PartCombination(tuple.get(0), tuple.get(1), tuple.get(2), sourceRuleCode);
+        }
+        throw new AlgLoaderException("Unsupported structured rule arity: " + tuple.size());
+    }
+
+    private boolean validateStructRule(Module module, Rule rule, ModuleInst moduleInst, Set<String> selectedCodes) {
+        if (rule.getExeSchema() instanceof CodependantRuleSchema codependantRuleSchema) {
+            return validateCodependantRule(module, codependantRuleSchema, moduleInst, selectedCodes);
+        }
+        RuleSchema rawCode = rule.getRawCode();
+        if (rawCode instanceof PairStructRuleSchema pairSchema) {
+            return validatePairStructRule(module, pairSchema, selectedCodes);
+        }
+        if (rawCode instanceof TripleStructRuleSchema tripleSchema) {
+            return validateTripleStructRule(module, tripleSchema, moduleInst, selectedCodes);
+        }
+        if (rawCode instanceof CombinationStructRuleSchema combinationSchema) {
+            return validateCodependantRule(module, expandForValidate(module, rule, combinationSchema),
+                    moduleInst, selectedCodes);
+        }
+        return true;
+    }
+
+    private boolean validatePairStructRule(Module module, PairStructRuleSchema schema, Set<String> selectedCodes) {
+        BusinessRelationType relationType = schema.getRelationType();
+        if (relationType == null) {
+            throw new AlgLoaderException("Pair structured rule relationType cannot be null");
+        }
+        List<String> leftCodes = resolveStructExprCodes(module, schema.getExpr1());
+        List<String> rightCodes = resolveStructExprCodes(module, schema.getExpr2());
+        boolean leftSelected = intersects(selectedCodes, leftCodes);
+        boolean rightSelected = intersects(selectedCodes, rightCodes);
+        return switch (relationType) {
+            case INCOMPATIBLE -> !(leftSelected && rightSelected);
+            case REQUIRES -> !leftSelected || rightSelected;
+            case CO_DEPENDENT -> leftSelected == rightSelected;
+        };
+    }
+
+    private boolean validateTripleStructRule(Module module, TripleStructRuleSchema schema, ModuleInst moduleInst,
+            Set<String> selectedCodes) {
+        if (schema.getRelationType() != BusinessRelationType.INCOMPATIBLE) {
+            throw new AlgLoaderException("Only ternary incompatible structured validation is supported");
+        }
+        CodependantRuleSchema exeSchema = new CodependantRuleSchema();
+        exeSchema.setArity(3);
+        exeSchema.setDimensionCategoryCodes(List.of(schema.getExpr1().getObjectCode(),
+                schema.getExpr2().getObjectCode(), schema.getExpr3().getObjectCode()));
+        exeSchema.setCombinationType(PartCombinationType.BLACK);
+        exeSchema.setCombinations(expandStructExprs(module,
+                List.of(schema.getExpr1(), schema.getExpr2(), schema.getExpr3()), ""));
+        return validateCodependantRule(module, exeSchema, moduleInst, selectedCodes);
+    }
+
+    private boolean validateCodependantRule(Module module, CodependantRuleSchema schema, ModuleInst moduleInst,
+            Set<String> selectedCodes) {
+        if (schema.getCombinationType() == PartCombinationType.WHITE) {
+            return validateWhiteList(module, schema, moduleInst, selectedCodes);
+        }
+        return validateBlackList(schema, selectedCodes);
+    }
+
+    private boolean validateWhiteList(Module module, CodependantRuleSchema schema, ModuleInst moduleInst,
+            Set<String> selectedCodes) {
+        if (!allDimensionsSelected(module, schema.getDimensionCategoryCodes(), moduleInst)) {
+            return true;
+        }
+        for (PartCombination combination : schema.getCombinations()) {
+            List<String> codes = combination.getCodes(schema.getArity());
+            if (selectedCodes.containsAll(codes)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean validateBlackList(CodependantRuleSchema schema, Set<String> selectedCodes) {
+        for (PartCombination combination : schema.getCombinations()) {
+            List<String> codes = combination.getCodes(schema.getArity());
+            if (selectedCodes.containsAll(codes)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean allDimensionsSelected(Module module, List<String> dimensionCategoryCodes, ModuleInst moduleInst) {
+        for (String categoryCode : dimensionCategoryCodes) {
+            if (!isDimensionSelected(module, categoryCode, moduleInst)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isDimensionSelected(Module module, String categoryCode, ModuleInst moduleInst) {
+        PartCategory category = module.getPartCategory(categoryCode);
+        if (category == null) {
+            return false;
+        }
+        Set<String> categoryPartCodes = category.getAllAtomicParts().stream()
+                .map(Part::getCode)
+                .collect(java.util.stream.Collectors.toSet());
+        for (PartInst partInst : moduleInst.getAllParts()) {
+            if (!categoryPartCodes.contains(partInst.getCode())) {
+                continue;
+            }
+            Integer quantity = partInst.getQuantity();
+            if (partInst.isSelected() || (quantity != null && quantity > 0)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private CodependantRuleSchema expandForValidate(Module module, Rule rule, CombinationStructRuleSchema schema) {
+        if (rule.getExeSchema() instanceof CodependantRuleSchema codependantRuleSchema) {
+            return codependantRuleSchema;
+        }
+        return expandCombinationForValidate(module, rule, schema);
+    }
+
+    private CodependantRuleSchema expandCombinationForValidate(Module module, Rule parentRule,
+            CombinationStructRuleSchema schema) {
+        if (schema.getArity() != 2 && schema.getArity() != 3) {
+            throw new AlgLoaderException("Only binary and ternary structured rules are supported: "
+                    + schema.getArity());
+        }
+        Map<String, Rule> rulesByCode = new LinkedHashMap<>();
+        for (Rule rule : module.getAllRules()) {
+            rulesByCode.put(rule.getCode(), rule);
+        }
+        Map<String, Rule> subRules = new LinkedHashMap<>();
+        if (schema.getSubRuleCodes() != null) {
+            for (String subRuleCode : schema.getSubRuleCodes()) {
+                Rule subRule = rulesByCode.get(subRuleCode);
+                if (subRule == null) {
+                    throw new AlgLoaderException("Combination sub rule not found: " + subRuleCode);
+                }
+                subRules.put(subRule.getCode(), subRule);
+            }
+        }
+        for (Rule rule : rulesByCode.values()) {
+            if (parentRule.getCode().equals(rule.getParentRuleCode())) {
+                subRules.put(rule.getCode(), rule);
+            }
+        }
+
+        CodependantRuleSchema exeSchema = new CodependantRuleSchema();
+        exeSchema.setArity(schema.getArity());
+        exeSchema.setDimensionCategoryCodes(new ArrayList<>(schema.getDimensionCategoryCodes()));
+        exeSchema.setCombinationType(schema.getCombinationType());
+        Map<String, PartCombination> combinations = new LinkedHashMap<>();
+        for (Rule subRule : subRules.values()) {
+            List<StructExprSchema> exprs = exprsOf(subRule.getRawCode());
+            for (PartCombination combination : expandStructExprs(module, exprs, subRule.getCode())) {
+                combinations.put(String.join("|", combination.getCodes(schema.getArity())), combination);
+            }
+        }
+        exeSchema.setCombinations(new ArrayList<>(combinations.values()));
+        ruleSetExeSchema(parentRule, exeSchema);
+        return exeSchema;
+    }
+
+    private void ruleSetExeSchema(Rule rule, CodependantRuleSchema schema) {
+        rule.setExeSchema(schema);
+    }
+
+    private List<StructExprSchema> exprsOf(RuleSchema schema) {
+        if (schema instanceof PairStructRuleSchema pairSchema) {
+            return List.of(pairSchema.getExpr1(), pairSchema.getExpr2());
+        }
+        if (schema instanceof TripleStructRuleSchema tripleSchema) {
+            return List.of(tripleSchema.getExpr1(), tripleSchema.getExpr2(), tripleSchema.getExpr3());
+        }
+        throw new AlgLoaderException("Combination sub rule must be pair or triple structured rule");
+    }
+
+    private boolean isStructValidationRule(Rule rule) {
+        if (rule == null) {
+            return false;
+        }
+        RuleSchema rawCode = rule.getRawCode();
+        return rule.getExeSchema() instanceof CodependantRuleSchema
+                || rawCode instanceof PairStructRuleSchema
+                || rawCode instanceof TripleStructRuleSchema
+                || rawCode instanceof CombinationStructRuleSchema;
+    }
+
+    private Set<String> selectedPartCodes(ModuleInst moduleInst) {
+        Set<String> selectedCodes = new HashSet<>();
+        if (moduleInst.getAllParts() == null) {
+            return selectedCodes;
+        }
+        for (PartInst partInst : moduleInst.getAllParts()) {
+            Integer qty = partInst.getQuantity();
+            if (partInst.isSelected() || (qty != null && qty > 0)) {
+                selectedCodes.add(partInst.getCode());
+            }
+        }
+        return selectedCodes;
+    }
+
+    private boolean intersects(Set<String> selectedCodes, List<String> candidates) {
+        for (String candidate : candidates) {
+            if (selectedCodes.contains(candidate)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private Result<List<ModuleInst>> inferParasOld(InferParasReq req) {
