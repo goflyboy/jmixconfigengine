@@ -182,6 +182,8 @@ public class CodependantConstraintExecutor {
         for (PartVarImpl var : vars) {
             expr.addTerm(var.getIsSelected(), 1);
         }
+        log.info("Structured combination formula: rule={}, tuple={}, formula={} <= {}",
+                ruleCode, tupleName(vars), expr, vars.size() - 1);
         model.addLessOrEqual(expr, vars.size() - 1);
     }
 

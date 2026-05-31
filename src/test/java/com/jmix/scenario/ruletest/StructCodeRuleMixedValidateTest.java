@@ -9,6 +9,7 @@ import com.jmix.executor.bmodel.logic.PartCombinationType;
 import com.jmix.executor.model.ConstraintConfig;
 import com.jmix.executor.model.ModuleValidateResp;
 import com.jmix.executor.southinf.ModuleAlgBase;
+import com.jmix.executor.southinf.cp.PartAlgCPLinearExpr;
 import com.jmix.executor.southinf.var.PartCategoryVar;
 import com.jmix.executor.southinf.var.PartVar;
 import com.jmix.tool.bbuilder.anno.AlgorithmApiVersion;
@@ -85,7 +86,17 @@ public class StructCodeRuleMixedValidateTest extends ModuleScenarioTestBase {
 
         @CodeRuleAnno(leftProObjsStr = "cpu:Select", rightProObjsStr = "drive:Select")
         public void cpu8NotDrive5400() {
-            model().addImplication(cpu8.selectedVar(), drive5400.selectedVar().not());
+            PartAlgCPLinearExpr cpu8Selected = model().sum4Selected("cpu", "", "CoreNum=8")
+                    .name("cpu8Selected");
+            PartAlgCPLinearExpr drive5400Selected = model().sum4Selected("drive", "", "Speed=5400")
+                    .name("drive5400Selected");
+            model().addLessOrEqual(forbiddenPair(cpu8Selected, drive5400Selected), 1);
+        }
+
+        private PartAlgCPLinearExpr forbiddenPair(PartAlgCPLinearExpr left, PartAlgCPLinearExpr right) {
+            return model().newPartLinearExpr("cpu8_drive5400_pair")
+                    .addExpr(left, 1)
+                    .addExpr(right, 1);
         }
     }
 

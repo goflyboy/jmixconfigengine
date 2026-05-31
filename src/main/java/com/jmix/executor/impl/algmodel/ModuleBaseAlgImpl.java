@@ -548,6 +548,9 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         // 根据module.getAllRules()来构建ruleMethods
         Map<String, Method> ruleMethods = new HashMap<>();
         for (Rule rule : module.getAllRules()) {
+            if (isCombinationChildRule(rule)) {
+                continue;
+            }
             String ruleCode = rule.getCode();
             Method method = allMethods.get(ruleCode);
             if (method != null) {
@@ -661,12 +664,8 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         if (rules == null || allRuleMethods == null) {
             return;
         }
-        for (Rule rule : rules) {
+        for (Rule rule : executableRules(rules)) {
             String ruleCode = rule.getCode();
-            if (isCombinationChildRule(rule)) {
-                log.info("Skip structured child rule execution: {}", ruleCode);
-                continue;
-            }
             if (isInternalStructRule(rule)) {
                 model.addRuleSeperator(ruleCode);
                 executeInternalStructRule(rule, moduleAlgFile);
@@ -683,6 +682,12 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
             executeRuleMethod(rule, moduleAlgFile, method);
             setCurrentModule4Rule(moduleAlgFile, null);
         }
+    }
+
+    private List<Rule> executableRules(List<Rule> rules) {
+        return rules.stream()
+                .filter(rule -> !isCombinationChildRule(rule))
+                .collect(Collectors.toList());
     }
 
     private boolean isCombinationChildRule(Rule rule) {
