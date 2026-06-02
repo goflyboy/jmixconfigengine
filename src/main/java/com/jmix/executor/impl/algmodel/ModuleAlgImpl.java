@@ -83,6 +83,8 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
 
         initInput();
 
+        initCrossCategoryTotalInputs();
+
         // preCalculate
         preCalculate();
 
@@ -96,6 +98,15 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
 
     protected Object moduleAlgFile() {
         return this;
+    }
+
+    private void initCrossCategoryTotalInputs() {
+        ModuleInput input = getModuleInput();
+        if (input == null || input.getCrossCategoryConstraintReqs() == null
+                || input.getCrossCategoryConstraintReqs().isEmpty()) {
+            return;
+        }
+        new CrossCategoryTotalConstraintBuilder().build(this, input.getCrossCategoryConstraintReqs());
     }
 
     public Object ruleMethodOwner() {

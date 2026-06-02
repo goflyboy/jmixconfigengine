@@ -47,6 +47,16 @@ public class InferParasReq {
     private List<PartConstraintReq> partConstraintReqs;
 
     /**
+     * 标准单分类约束请求列表
+     */
+    private List<PartCategoryConstraintReq> partCategoryConstraintReqs;
+
+    /**
+     * 跨分类总量约束请求列表
+     */
+    private List<CrossCategoryPartCategoryConstraintReq> crossCategoryConstraintReqs;
+
+    /**
      * 是否枚举所有解, false，仅返回一个可行解，true，则返回所有的可选解
      */
     private boolean enumerateAllSolution = false;

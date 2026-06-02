@@ -27,11 +27,13 @@ import com.jmix.executor.impl.util.ReqUtils;
 import com.jmix.executor.model.AlgExecutorException;
 import com.jmix.executor.model.AlgLoaderException;
 import com.jmix.executor.model.ConstraintConfig;
+import com.jmix.executor.model.CrossCategoryPartCategoryConstraintReq;
 import com.jmix.executor.model.InferParasReq;
 import com.jmix.executor.model.InferPartCategoryReq;
 import com.jmix.executor.model.ModulePostCalcReq;
 import com.jmix.executor.model.ModuleValidateReq;
 import com.jmix.executor.model.ModuleValidateResp;
+import com.jmix.executor.model.PartCategoryConstraintReq;
 import com.jmix.executor.model.PartConstraintReq;
 import com.jmix.executor.model.PartConstantAttr;
 import com.jmix.executor.model.Result;
@@ -153,6 +155,8 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
      */
     public Result<List<ModuleInst>> processProduct(Module startModule, InferPartCategoryReq partCategoryReq) {
         try {
+            List<CrossCategoryPartCategoryConstraintReq> crossReqs = CrossCategoryConstraintValidator.validate(
+                    partCategoryReq.getCrossCategoryConstraintReqs(), startModule);
             Map<String, List<PartConstraintReq>> partConstraintReqMap = normalizePartConstraint(
                     partCategoryReq.getPartConstraintReqs(), startModule);
             // 查找原始部件分类
@@ -161,7 +165,7 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
             Module filterModule = filterResult.filteredModule();
             log.info("Priority-orignal module: {}", ModuleUtils.toShortString(startModule));
             log.info("Priority-filter module: {}", ModuleUtils.toShortString(filterModule));
-            SolverResult sr = solveProductBranches(filterModule, filterResult);
+            SolverResult sr = solveProductBranches(filterModule, filterResult, partCategoryReq, crossReqs);
             // 后处理：注入过滤为空的 PartCategoryInst 错误信息
             injectPartCategoryErrors(sr.getSolutions(), filterResult.errorInfoMap());
 
@@ -181,7 +185,9 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
                 r.setSolverResult(sr);
                 return r;
             }
-            return Result.success(sr.getSolutions());
+            Result<List<ModuleInst>> result = Result.success(sr.getSolutions());
+            result.setSolverResult(sr);
+            return result;
 
         } catch (Exception e) {
             log.error("Failed to process Module constraint", e);
@@ -285,32 +291,33 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
         return new FilterCloneResult(result, partCategoryInputs, errorInfoMap, optionalPartCategoryInputs);
     }
 
-    private SolverResult solveProductBranches(Module baseModule, FilterCloneResult filterResult) {
-        ModuleInput baseInput = new ModuleInput();
-        baseInput.setPartCategoryInputs(new ArrayList<>(filterResult.partCategoryInputs()));
-        baseInput.setPartCategoryErrorInfoMap(filterResult.errorInfoMap());
+    private SolverResult solveProductBranches(Module baseModule, FilterCloneResult filterResult,
+            InferPartCategoryReq req, List<CrossCategoryPartCategoryConstraintReq> crossReqs) {
+        ModuleInput baseInput = toProductModuleInput(baseModule, filterResult, req, crossReqs);
 
         SolverResult merged = solveBranch(baseModule, baseInput);
-        appendOptionalBranches(baseModule, filterResult, 0, new ArrayList<>(), merged,
+        appendOptionalBranches(baseModule, filterResult, req, crossReqs, 0, new ArrayList<>(), merged,
                 getOptionalBranchLimit());
         return merged;
     }
 
-    private int appendOptionalBranches(Module baseModule, FilterCloneResult filterResult, int startIndex,
+    private int appendOptionalBranches(Module baseModule, FilterCloneResult filterResult,
+            InferPartCategoryReq req, List<CrossCategoryPartCategoryConstraintReq> crossReqs, int startIndex,
             List<PartCategoryInputBase> selectedOptionalInputs, SolverResult merged, int remainingBranchCount) {
         if (remainingBranchCount <= 0 || filterResult.optionalPartCategoryInputs().isEmpty()) {
             return remainingBranchCount;
         }
         for (int i = startIndex; i < filterResult.optionalPartCategoryInputs().size(); i++) {
             selectedOptionalInputs.add(filterResult.optionalPartCategoryInputs().get(i));
-            SolverResult presentResult = solveOptionalBranch(baseModule, filterResult, selectedOptionalInputs);
+            SolverResult presentResult = solveOptionalBranch(baseModule, filterResult, req, crossReqs,
+                    selectedOptionalInputs);
             merged.getSolutions().addAll(presentResult.getSolutions());
             remainingBranchCount--;
             if (remainingBranchCount <= 0) {
                 selectedOptionalInputs.remove(selectedOptionalInputs.size() - 1);
                 return remainingBranchCount;
             }
-            remainingBranchCount = appendOptionalBranches(baseModule, filterResult, i + 1,
+            remainingBranchCount = appendOptionalBranches(baseModule, filterResult, req, crossReqs, i + 1,
                     selectedOptionalInputs, merged, remainingBranchCount);
             selectedOptionalInputs.remove(selectedOptionalInputs.size() - 1);
             if (remainingBranchCount <= 0) {
@@ -321,11 +328,10 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
     }
 
     private SolverResult solveOptionalBranch(Module baseModule, FilterCloneResult filterResult,
+            InferPartCategoryReq req, List<CrossCategoryPartCategoryConstraintReq> crossReqs,
             List<PartCategoryInputBase> optionalInputs) {
         Module presentModule = cloneModuleWithCurrentCategories(baseModule);
-        ModuleInput presentInput = new ModuleInput();
-        presentInput.setPartCategoryInputs(new ArrayList<>(filterResult.partCategoryInputs()));
-        presentInput.setPartCategoryErrorInfoMap(filterResult.errorInfoMap());
+        ModuleInput presentInput = toProductModuleInput(presentModule, filterResult, req, crossReqs);
 
         for (PartCategoryInputBase optionalInput : optionalInputs) {
             PartCategory presentCategory = toPresentPartCategory(optionalInput);
@@ -336,6 +342,22 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
             presentInput.getPartCategoryInputs().add(optionalInput);
         }
         return solveBranch(presentModule, presentInput);
+    }
+
+    private ModuleInput toProductModuleInput(Module module, FilterCloneResult filterResult,
+            InferPartCategoryReq req, List<CrossCategoryPartCategoryConstraintReq> crossReqs) {
+        ModuleInput input = new ModuleInput();
+        input.setModuleId(module.getId());
+        input.setModuleCode(module.getCode());
+        input.setPreParaInsts(req.getPreParaInsts());
+        input.setPrePartInsts(req.getPrePartInsts());
+        input.setEnumerateAllSolution(req.isEnumerateAllSolution());
+        input.setMaxSolutionNum(req.getMaxSolutionNum());
+        input.setRelaxSolve(req.isRelaxSolve());
+        input.setPartCategoryInputs(new ArrayList<>(filterResult.partCategoryInputs()));
+        input.setPartCategoryErrorInfoMap(filterResult.errorInfoMap());
+        input.setCrossCategoryConstraintReqs(new ArrayList<>(crossReqs));
+        return input;
     }
 
     private int getOptionalBranchLimit() {
@@ -438,7 +460,7 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
         if (req == null) {
             return Result.failed("req is null");
         }
-        if (req.getPartConstraintReqs() == null || req.getPartConstraintReqs().isEmpty()) {
+        if (!hasCategoryConstraintReqs(req)) {
             return inferParasOld(req);
         }
         try {
@@ -1022,12 +1044,15 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
         // moduleInput.setPartConstraintReqs(req.getPartConstraintReqs());
         moduleInput.setEnumerateAllSolution(req.isEnumerateAllSolution());
         // moduleInput.setPartCategoryCode(req.getPartCategoryCode());
-        Map<String, List<PartConstraintReq>> partConstraintReqMap = normalizePartConstraint(req.getPartConstraintReqs(),
+        List<PartConstraintReq> singleReqs = normalizeSinglePartCategoryReqs(req);
+        Map<String, List<PartConstraintReq>> partConstraintReqMap = normalizePartConstraint(singleReqs,
                 startModule);
         FilterCloneResult filterResult = ModuleConstraintExecutorImpl.filterClone(startModule,
                 partConstraintReqMap);
         moduleInput.setPartCategoryInputs(filterResult.partCategoryInputs());
         moduleInput.setPartCategoryErrorInfoMap(filterResult.errorInfoMap());
+        moduleInput.setCrossCategoryConstraintReqs(CrossCategoryConstraintValidator.validate(
+                req.getCrossCategoryConstraintReqs(), startModule));
         return moduleInput;
     }
 
@@ -1041,11 +1066,48 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
         InferPartCategoryReq cReq = new InferPartCategoryReq();
         cReq.setPreParaInsts(req.getPreParaInsts());
         cReq.setPrePartInsts(req.getPrePartInsts());
-        cReq.setPartConstraintReqs(req.getPartConstraintReqs());
+        cReq.setPartConstraintReqs(normalizeSinglePartCategoryReqs(req));
+        cReq.setCrossCategoryConstraintReqs(req.getCrossCategoryConstraintReqs());
         cReq.setEnumerateAllSolution(req.isEnumerateAllSolution());
         cReq.setPartCategoryCode(req.getPartCategoryCode());
         cReq.setRelaxSolve(req.isRelaxSolve());
         return cReq;
+    }
+
+    private boolean hasCategoryConstraintReqs(InferParasReq req) {
+        return (req.getPartConstraintReqs() != null && !req.getPartConstraintReqs().isEmpty())
+                || (req.getPartCategoryConstraintReqs() != null
+                        && !req.getPartCategoryConstraintReqs().isEmpty())
+                || (req.getCrossCategoryConstraintReqs() != null
+                        && !req.getCrossCategoryConstraintReqs().isEmpty());
+    }
+
+    private List<PartConstraintReq> normalizeSinglePartCategoryReqs(InferParasReq req) {
+        List<PartConstraintReq> result = new ArrayList<>();
+        if (req.getPartConstraintReqs() != null) {
+            result.addAll(req.getPartConstraintReqs());
+        }
+        if (req.getPartCategoryConstraintReqs() != null) {
+            for (PartCategoryConstraintReq partCategoryReq : req.getPartCategoryConstraintReqs()) {
+                result.add(toPartConstraintReq(partCategoryReq));
+            }
+        }
+        return result;
+    }
+
+    private PartConstraintReq toPartConstraintReq(PartCategoryConstraintReq req) {
+        if (req instanceof PartConstraintReq partConstraintReq) {
+            return partConstraintReq;
+        }
+        PartConstraintReq result = new PartConstraintReq();
+        result.setPartCategoryCode(req.getPartCategoryCode());
+        result.setAttrType(req.getAttrType());
+        result.setAttrCode(req.getAttrCode());
+        result.setAttrComparator(req.getAttrComparator());
+        result.setAttrValue(req.getAttrValue());
+        result.setAttrWhereCondition(req.getAttrWhereCondition());
+        result.setDecisionStrategies(req.getDecisionStrategies());
+        return result;
     }
 
     /**
