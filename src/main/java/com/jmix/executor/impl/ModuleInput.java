@@ -3,6 +3,7 @@ package com.jmix.executor.impl;
 import com.jmix.executor.cmodel.ErrorInfo;
 import com.jmix.executor.cmodel.ParaInst;
 import com.jmix.executor.cmodel.PartInst;
+import com.jmix.executor.model.CrossCategoryPartCategoryConstraintReq;
 
 import lombok.Data;
 
@@ -59,6 +60,11 @@ public class ModuleInput implements IModuleInput {
      * 部件分类输入列表
      */
     private List<PartCategoryInputBase> partCategoryInputs = new ArrayList<>();
+
+    /**
+     * 跨 PartCategory 总量约束请求列表
+     */
+    private List<CrossCategoryPartCategoryConstraintReq> crossCategoryConstraintReqs = new ArrayList<>();
 
     /**
      * 部件分类过滤错误信息映射，key 为 partCategoryCode

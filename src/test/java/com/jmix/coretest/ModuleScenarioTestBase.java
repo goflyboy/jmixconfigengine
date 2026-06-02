@@ -20,9 +20,11 @@ import com.jmix.executor.impl.util.CommHelper;
 import com.jmix.executor.impl.util.ParaTypeHandler;
 import com.jmix.executor.model.AlgLoaderException;
 import com.jmix.executor.model.ConstraintConfig;
+import com.jmix.executor.model.CrossCategoryPartCategoryConstraintReq;
 import com.jmix.executor.model.InferParasReq;
 import com.jmix.executor.model.ModuleValidateReq;
 import com.jmix.executor.model.ModuleValidateResp;
+import com.jmix.executor.model.PartCategoryConstraintReqBase;
 import com.jmix.executor.model.PartConstraintReq;
 import com.jmix.executor.model.Result;
 import com.jmix.executor.model.StrategyConfig;
@@ -805,7 +807,7 @@ public abstract class ModuleScenarioTestBase {
      * @param attrExpr 属性表达式（可能包含 where 子句）
      * @param req 部件约束请求对象，用于设置解析结果
      */
-    protected void parseAttrExpr(String attrExpr, PartConstraintReq req) {
+    protected void parseAttrExpr(String attrExpr, PartCategoryConstraintReqBase req) {
         String trimmedExpr = attrExpr.trim();
 
         // 处理 where 子句（过滤条件）
@@ -865,6 +867,39 @@ public abstract class ModuleScenarioTestBase {
      */
     protected List<ModuleInst> inferRecommendModule(String... constraintReqs) {
         return inferRecommend("", constraintReqs);
+    }
+
+    protected CrossCategoryPartCategoryConstraintReq totalReq(
+            String code,
+            List<String> partCategoryCodes,
+            String attrExpr,
+            String whereCondition) {
+        CrossCategoryPartCategoryConstraintReq req = new CrossCategoryPartCategoryConstraintReq();
+        req.setCode(code);
+        req.setPartCategoryCodes(partCategoryCodes);
+        parseAttrExpr(attrExpr, req);
+        req.setAttrWhereCondition(whereCondition);
+        return req;
+    }
+
+    protected List<ModuleInst> inferRecommendModuleWithReqs(
+            List<PartConstraintReq> partConstraintReqs,
+            List<CrossCategoryPartCategoryConstraintReq> crossReqs) {
+        InferParasReq req = new InferParasReq();
+        req.setModuleId(getModule().getId());
+        req.setEnumerateAllSolution(isEnumerateAllSolution());
+        req.setPartConstraintReqs(partConstraintReqs);
+        req.setCrossCategoryConstraintReqs(crossReqs);
+
+        Result<List<ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(req);
+        setResult(result);
+        setSolutions(result.getData());
+        return getSolutions();
+    }
+
+    protected List<ModuleInst> inferRecommendModuleWithReqs(
+            CrossCategoryPartCategoryConstraintReq... crossReqs) {
+        return inferRecommendModuleWithReqs(new ArrayList<>(), List.of(crossReqs));
     }
 
     /**
