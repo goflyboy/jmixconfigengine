@@ -1,0 +1,178 @@
+﻿<svg viewBox="0 0 1200 680" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, PingFang SC, Microsoft YaHei, sans-serif">
+  <title>3.1 什么是约束？——从杯子说起</title>
+  <desc>桌上三个杯子A、B、C，各放0到5颗糖，受5条业务规则约束</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#e2e8f0"/>
+    </linearGradient>
+    <filter id="cardShadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#64748b" flood-opacity="0.15"/>
+    </filter>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="1200" height="680" fill="url(#bg)"/>
+
+  <text x="600" y="48" text-anchor="middle" font-size="22" font-weight="700" fill="#0f172a" letter-spacing="1">3.1 什么是约束？——从杯子说起</text>
+  <line x1="150" y1="62" x2="1050" y2="62" stroke="#cbd5e1" stroke-width="1.5"/>
+  <text x="600" y="92" text-anchor="middle" font-size="13" fill="#64748b">桌上三个杯子 A、B、C，各放 0 到 5 颗糖，受 5 条业务规则约束</text>
+
+  <!-- Glass A -->
+  <g transform="translate(280,110)">
+    <path d="M10,20 L10,110 Q10,130 40,130 Q70,130 70,110 L70,20 Z" fill="#bfdbfe" stroke="#3b82f6" stroke-width="2" opacity="0.7"/>
+    <path d="M10,20 Q5,20 5,25 L5,105 Q5,110 10,110" fill="#93c5fd" opacity="0.5"/>
+    <rect x="20" y="90" width="14" height="14" rx="2" fill="#f59e0b" transform="rotate(-5,27,97)"/>
+    <rect x="36" y="90" width="14" height="14" rx="2" fill="#f59e0b" transform="rotate(3,43,97)"/>
+    <rect x="20" y="74" width="14" height="14" rx="2" fill="#fbbf24" transform="rotate(2,27,81)"/>
+    <rect x="36" y="74" width="14" height="14" rx="2" fill="#fbbf24" transform="rotate(-3,43,81)"/>
+    <rect x="28" y="58" width="14" height="14" rx="2" fill="#fcd34d" transform="rotate(0,35,65)"/>
+    <rect x="28" y="42" width="14" height="14" rx="2" fill="#fde68a" transform="rotate(1,35,49)"/>
+    <text x="40" y="160" text-anchor="middle" font-size="20" font-weight="700" fill="#1e40af">A = 4</text>
+    <text x="40" y="178" text-anchor="middle" font-size="12" fill="#64748b">[0, 5]</text>
+  </g>
+
+  <!-- Glass B -->
+  <g transform="translate(520,110)">
+    <path d="M10,20 L10,110 Q10,130 40,130 Q70,130 70,110 L70,20 Z" fill="#bfdbfe" stroke="#3b82f6" stroke-width="2" opacity="0.7"/>
+    <path d="M10,20 Q5,20 5,25 L5,105 Q5,110 10,110" fill="#93c5fd" opacity="0.5"/>
+    <rect x="20" y="90" width="14" height="14" rx="2" fill="#f59e0b" transform="rotate(-2,27,97)"/>
+    <rect x="36" y="90" width="14" height="14" rx="2" fill="#f59e0b" transform="rotate(4,43,97)"/>
+    <rect x="20" y="74" width="14" height="14" rx="2" fill="#fbbf24" transform="rotate(1,27,81)"/>
+    <rect x="36" y="74" width="14" height="14" rx="2" fill="#fbbf24" transform="rotate(-2,43,81)"/>
+    <rect x="28" y="58" width="14" height="14" rx="2" fill="#fcd34d" transform="rotate(0,35,65)"/>
+    <rect x="28" y="42" width="14" height="14" rx="2" fill="#fde68a" transform="rotate(-1,35,49)"/>
+    <text x="40" y="160" text-anchor="middle" font-size="20" font-weight="700" fill="#1e40af">B = 4</text>
+    <text x="40" y="178" text-anchor="middle" font-size="12" fill="#64748b">[0, 5]</text>
+  </g>
+
+  <!-- Glass C -->
+  <g transform="translate(760,110)">
+    <path d="M10,20 L10,110 Q10,130 40,130 Q70,130 70,110 L70,20 Z" fill="#bfdbfe" stroke="#3b82f6" stroke-width="2" opacity="0.7"/>
+    <path d="M10,20 Q5,20 5,25 L5,105 Q5,110 10,110" fill="#93c5fd" opacity="0.5"/>
+    <rect x="20" y="90" width="14" height="14" rx="2" fill="#f59e0b" transform="rotate(-3,27,97)"/>
+    <rect x="36" y="90" width="14" height="14" rx="2" fill="#f59e0b" transform="rotate(2,43,97)"/>
+    <text x="40" y="160" text-anchor="middle" font-size="20" font-weight="700" fill="#1e40af">C = 2</text>
+    <text x="40" y="178" text-anchor="middle" font-size="12" fill="#64748b">[0, 5]</text>
+  </g>
+
+  <text x="320" y="200" font-size="11" fill="#16a34a" font-weight="600">规则1：4+4=8 ≥ 8</text>
+  <text x="560" y="200" font-size="11" fill="#16a34a" font-weight="600">规则4：10 ≤ 12</text>
+  <text x="800" y="200" font-size="11" fill="#16a34a" font-weight="600">规则2：2 ≤ 3</text>
+
+  <text x="600" y="225" text-anchor="middle" font-size="13" fill="#64748b">五 条 业 务 规 则</text>
+
+  <!-- Rule 1 -->
+  <g filter="url(#cardShadow)">
+    <rect x="40" y="240" width="210" height="68" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1.5"/>
+    <rect x="40" y="240" width="6" height="68" rx="3" fill="#3b82f6"/>
+    <text x="60" y="264" font-size="12" font-weight="700" fill="#3b82f6">规则 1</text>
+    <text x="60" y="284" font-size="13" fill="#334155" font-weight="600">A + B ≥ 8</text>
+    <text x="60" y="300" font-size="11" fill="#94a3b8">A 和 B 的糖加起来至少 8 颗</text>
+  </g>
+
+  <!-- Rule 2 -->
+  <g filter="url(#cardShadow)">
+    <rect x="265" y="240" width="210" height="68" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1.5"/>
+    <rect x="265" y="240" width="6" height="68" rx="3" fill="#10b981"/>
+    <text x="285" y="264" font-size="12" font-weight="700" fill="#10b981">规则 2</text>
+    <text x="285" y="284" font-size="13" fill="#334155" font-weight="600">C ≤ 3</text>
+    <text x="285" y="300" font-size="11" fill="#94a3b8">C 的糖不超过 3 颗</text>
+  </g>
+
+  <!-- Rule 3 -->
+  <g filter="url(#cardShadow)">
+    <rect x="490" y="240" width="210" height="68" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1.5"/>
+    <rect x="490" y="240" width="6" height="68" rx="3" fill="#8b5cf6"/>
+    <text x="510" y="264" font-size="12" font-weight="700" fill="#8b5cf6">规则 3</text>
+    <text x="510" y="284" font-size="13" fill="#334155" font-weight="600">A &gt; 4 → C ≥ 2</text>
+    <text x="510" y="300" font-size="11" fill="#94a3b8">如果 A 超过 4，C 至少 2 颗</text>
+  </g>
+
+  <!-- Rule 4 -->
+  <g filter="url(#cardShadow)">
+    <rect x="715" y="240" width="210" height="68" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1.5"/>
+    <rect x="715" y="240" width="6" height="68" rx="3" fill="#f59e0b"/>
+    <text x="735" y="264" font-size="12" font-weight="700" fill="#f59e0b">规则 4</text>
+    <text x="735" y="284" font-size="13" fill="#334155" font-weight="600">A + B + C ≤ 12</text>
+    <text x="735" y="300" font-size="11" fill="#94a3b8">总量不超过 12 颗</text>
+  </g>
+
+  <!-- Rule 5 -->
+  <g filter="url(#cardShadow)">
+    <rect x="940" y="240" width="210" height="68" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1.5"/>
+    <rect x="940" y="240" width="6" height="68" rx="3" fill="#ef4444"/>
+    <text x="960" y="264" font-size="12" font-weight="700" fill="#ef4444">规则 5</text>
+    <text x="960" y="284" font-size="13" fill="#334155" font-weight="600">B &gt; 3 → A ≤ 4</text>
+    <text x="960" y="300" font-size="11" fill="#94a3b8">B 超过 3 时，A 不超过 4</text>
+  </g>
+
+  <!-- Rule 6 -->
+  <g filter="url(#cardShadow)">
+    <rect x="40" y="325" width="210" height="68" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1.5"/>
+    <rect x="40" y="325" width="6" height="68" rx="3" fill="#6366f1"/>
+    <text x="60" y="349" font-size="12" font-weight="700" fill="#6366f1">规则 6</text>
+    <text x="60" y="369" font-size="13" fill="#334155" font-weight="600">A + B ≥ 10</text>
+    <text x="60" y="385" font-size="11" fill="#94a3b8">叠加后变为 A+B ≥ 10</text>
+  </g>
+
+  <!-- Rule 7 -->
+  <g filter="url(#cardShadow)">
+    <rect x="265" y="325" width="210" height="68" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1.5"/>
+    <rect x="265" y="325" width="6" height="68" rx="3" fill="#dc2626"/>
+    <text x="285" y="349" font-size="12" font-weight="700" fill="#dc2626">规则 7</text>
+    <text x="285" y="369" font-size="13" fill="#334155" font-weight="600">A + B ≤ 9</text>
+    <text x="285" y="385" font-size="11" fill="#fca5a5">与规则6冲突！</text>
+  </g>
+
+  <!-- Conflict explanation -->
+  <g transform="translate(490,325)">
+    <rect x="0" y="0" width="660" height="68" rx="10" fill="#fef2f2" stroke="#fca5a5" stroke-width="1.5"/>
+    <text x="20" y="24" font-size="12" font-weight="700" fill="#dc2626">冲突检测</text>
+    <text x="20" y="46" font-size="13" fill="#7f1d1d">规则6：A+B ≥ 10  与  规则7：A+B ≤ 9</text>
+    <text x="20" y="64" font-size="12" fill="#991b1b">同时满足不可能 → 无解 (UNSAT)</text>
+  </g>
+
+  <rect x="200" y="415" width="800" height="50" rx="25" fill="#1e3a5f" filter="url(#cardShadow)"/>
+  <text x="600" y="447" text-anchor="middle" font-size="16" fill="white" font-weight="600">
+    求解器问题：有没有一种分配方案 (A, B, C) 同时满足所有规则？
+  </text>
+
+  <text x="600" y="490" text-anchor="middle" font-size="13" fill="#64748b">求解器穷举所有 (A,B,C) 组合，找到满足规则的解</text>
+
+  <g transform="translate(300,500)">
+    <g fill="#cbd5e1" opacity="0.5">
+      <circle cx="0" cy="0" r="3"/><circle cx="30" cy="0" r="3"/><circle cx="60" cy="0" r="3"/>
+      <circle cx="90" cy="0" r="3"/><circle cx="120" cy="0" r="3"/><circle cx="150" cy="0" r="3"/>
+      <circle cx="0" cy="30" r="3"/><circle cx="30" cy="30" r="3"/><circle cx="60" cy="30" r="3"/>
+      <circle cx="90" cy="30" r="3"/><circle cx="120" cy="30" r="3"/><circle cx="150" cy="30" r="3"/>
+      <circle cx="0" cy="60" r="3"/><circle cx="30" cy="60" r="3"/><circle cx="60" cy="60" r="3"/>
+      <circle cx="90" cy="60" r="3"/><circle cx="120" cy="60" r="3"/><circle cx="150" cy="60" r="3"/>
+      <circle cx="0" cy="90" r="3"/><circle cx="30" cy="90" r="3"/><circle cx="60" cy="90" r="3"/>
+      <circle cx="90" cy="90" r="3"/><circle cx="120" cy="90" r="3"/><circle cx="150" cy="90" r="3"/>
+      <circle cx="0" cy="120" r="3"/><circle cx="30" cy="120" r="3"/><circle cx="60" cy="120" r="3"/>
+      <circle cx="90" cy="120" r="3"/><circle cx="120" cy="120" r="3"/><circle cx="150" cy="120" r="3"/>
+      <circle cx="0" cy="150" r="3"/><circle cx="30" cy="150" r="3"/><circle cx="60" cy="150" r="3"/>
+      <circle cx="90" cy="150" r="3"/><circle cx="120" cy="150" r="3"/><circle cx="150" cy="150" r="3"/>
+    </g>
+    <circle cx="90" cy="60" r="8" fill="#22c55e" opacity="0.8" filter="url(#glow)"/>
+    <text x="100" y="55" font-size="11" fill="#16a34a" font-weight="700">解 (A=4, B=4, C=2)</text>
+    <line x1="98" y1="60" x2="130" y2="60" stroke="#22c55e" stroke-width="1" stroke-dasharray="3,2"/>
+    <rect x="90" y="0" width="60" height="150" rx="0" fill="#ef4444" opacity="0.08"/>
+    <text x="120" y="165" text-anchor="middle" font-size="10" fill="#ef4444">规则7冲突区</text>
+    <text x="60" y="185" font-size="12" fill="#64748b">每个点 = 一种 (A,B,C) 分配方案</text>
+  </g>
+
+  <g transform="translate(530,620)">
+    <rect x="0" y="0" width="140" height="36" rx="18" fill="#22c55e"/>
+    <text x="70" y="23" text-anchor="middle" font-size="14" font-weight="700" fill="white">有解</text>
+  </g>
+  <g transform="translate(760,620)">
+    <rect x="0" y="0" width="140" height="36" rx="18" fill="#ef4444"/>
+    <text x="70" y="23" text-anchor="middle" font-size="14" font-weight="700" fill="white">无解</text>
+  </g>
+
+  <text x="600" y="675" text-anchor="middle" font-size="11" fill="#94a3b8">CSP = 约束满足问题：在有限搜索空间中寻找满足所有约束的变量组合</text>
+</svg>
