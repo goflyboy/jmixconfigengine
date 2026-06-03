@@ -741,36 +741,66 @@ public abstract class ModuleScenarioTestBase {
         List<PartConstraintReq> reqs = new ArrayList<>();
 
         for (String strReq : strReqs) {
-            PartConstraintReq req = new PartConstraintReq();
-
-            // Parse strategy syntax: [strategy=ASCENDING:price]
-            String remainingStr = parseStrategyConfig(strReq, req);
-
-            // 解析格式：reqPartCategory:attrCode comparator value where condition
-            // 示例："sd:Sum_Quantity ==2 where Speed=5400"
-            String[] categoryParts = remainingStr.split(":", 2);
-            String reqPartCategory;
-            String attrExprStr;
-            if (categoryParts.length == 2) {
-                reqPartCategory = categoryParts[0].trim();
-                attrExprStr = categoryParts[1].trim();
-            } else {
-                // 如果没有:，则使用默认的partCategory
-                reqPartCategory = partCategory;
-                attrExprStr = remainingStr;
-            }
-            req.setPartCategoryCode(reqPartCategory);
-
-            // 解析属性表达式：支持三种场景
-            // 场景1：仅有过滤条件，如 "where Speed=5400"
-            // 场景2：仅有汇总条件，如 "Sum_Capacity >=5"
-            // 场景3：同时有汇总条件和过滤条件，如 "Sum_Capacity >=5 where Speed=5400"
-            parseAttrExpr(attrExprStr, req);
-
-            reqs.add(req);
+            parseConstraintReq(partCategory, strReq, reqs, null);
         }
 
         return reqs;
+    }
+
+    private void parseConstraintReq(
+            String partCategory,
+            String strReq,
+            List<PartConstraintReq> partReqs,
+            List<CrossCategoryPartCategoryConstraintReq> crossReqs) {
+        PartConstraintReq partReq = new PartConstraintReq();
+
+        // Parse strategy syntax: [strategy=ASCENDING:price]
+        String remainingStr = parseStrategyConfig(strReq, partReq);
+
+        // 解析格式：reqPartCategory:attrCode comparator value where condition
+        // 示例："sd:Sum_Quantity ==2 where Speed=5400"
+        String[] categoryParts = remainingStr.split(":", 2);
+        String reqPartCategory;
+        String attrExprStr;
+        if (categoryParts.length == 2) {
+            reqPartCategory = categoryParts[0].trim();
+            attrExprStr = categoryParts[1].trim();
+        } else {
+            // 如果没有:，则使用默认的partCategory
+            reqPartCategory = partCategory;
+            attrExprStr = remainingStr;
+        }
+
+        if (isCrossCategoryReq(reqPartCategory)) {
+            if (crossReqs == null) {
+                throw new IllegalArgumentException(
+                        "Cross category total request should be handled by inferRecommendModule");
+            }
+            CrossCategoryPartCategoryConstraintReq crossReq = new CrossCategoryPartCategoryConstraintReq();
+            crossReq.setPartCategoryCodes(toPartCategoryCodes(reqPartCategory));
+            parseAttrExpr(attrExprStr, crossReq);
+            crossReqs.add(crossReq);
+            return;
+        }
+
+        partReq.setPartCategoryCode(reqPartCategory);
+        parseAttrExpr(attrExprStr, partReq);
+        partReqs.add(partReq);
+    }
+
+    private boolean isCrossCategoryReq(String reqPartCategory) {
+        return reqPartCategory != null && reqPartCategory.contains(",");
+    }
+
+    private List<String> toPartCategoryCodes(String partCategoryList) {
+        List<String> codes = new ArrayList<>();
+        for (String code : partCategoryList.split(",")) {
+            String trimmedCode = code.trim();
+            if (!trimmedCode.isEmpty()) {
+                codes.add(trimmedCode);
+            }
+        }
+        return codes;
     }
 
     /**
@@ -869,39 +899,6 @@ public abstract class ModuleScenarioTestBase {
         return inferRecommend("", constraintReqs);
     }
 
-    protected CrossCategoryPartCategoryConstraintReq totalReq(
-            String code,
-            List<String> partCategoryCodes,
-            String attrExpr,
-            String whereCondition) {
-        CrossCategoryPartCategoryConstraintReq req = new CrossCategoryPartCategoryConstraintReq();
-        req.setCode(code);
-        req.setPartCategoryCodes(partCategoryCodes);
-        parseAttrExpr(attrExpr, req);
-        req.setAttrWhereCondition(whereCondition);
-        return req;
-    }
-
-    protected List<ModuleInst> inferRecommendModuleWithReqs(
-            List<PartConstraintReq> partConstraintReqs,
-            List<CrossCategoryPartCategoryConstraintReq> crossReqs) {
-        InferParasReq req = new InferParasReq();
-        req.setModuleId(getModule().getId());
-        req.setEnumerateAllSolution(isEnumerateAllSolution());
-        req.setPartConstraintReqs(partConstraintReqs);
-        req.setCrossCategoryConstraintReqs(crossReqs);
-
-        Result<List<ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(req);
-        setResult(result);
-        setSolutions(result.getData());
-        return getSolutions();
-    }
-
-    protected List<ModuleInst> inferRecommendModuleWithReqs(
-            CrossCategoryPartCategoryConstraintReq... crossReqs) {
-        return inferRecommendModuleWithReqs(new ArrayList<>(), List.of(crossReqs));
-    }
-
     /**
      * 基于部件约束进行推理推荐
      * 
@@ -910,13 +907,18 @@ public abstract class ModuleScenarioTestBase {
      * @return 推荐的模块实例列表
      */
     protected List<ModuleInst> inferRecommend(String partCategoryCode, String... constraintReqs) {
-        List<PartConstraintReq> partConstraintReqs = toPartConstraintReqs(partCategoryCode, constraintReqs);
+        List<PartConstraintReq> partConstraintReqs = new ArrayList<>();
+        List<CrossCategoryPartCategoryConstraintReq> crossReqs = new ArrayList<>();
+        for (String constraintReq : constraintReqs) {
+            parseConstraintReq(partCategoryCode, constraintReq, partConstraintReqs, crossReqs);
+        }
 
         InferParasReq req = new InferParasReq();
         req.setModuleId(getModule().getId());
         req.setEnumerateAllSolution(isEnumerateAllSolution());
         req.setPartCategoryCode(partCategoryCode);
         req.setPartConstraintReqs(partConstraintReqs);
+        req.setCrossCategoryConstraintReqs(crossReqs);
 
         long startTime = System.currentTimeMillis();
         Result<List<ModuleInst>> result = ModuleConstraintExecutor.INST.inferParas(req);
