@@ -15,11 +15,6 @@ import java.util.List;
 public class CrossCategoryPartCategoryConstraintReq extends PartCategoryConstraintReqBase {
 
     /**
-     * Stable aggregate constraint code.
-     */
-    private String code;
-
-    /**
      * Logical PartCategory codes participating in this aggregate total.
      */
     private List<String> partCategoryCodes;

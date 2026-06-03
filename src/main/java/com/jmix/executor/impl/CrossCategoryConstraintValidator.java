@@ -38,20 +38,16 @@ public final class CrossCategoryConstraintValidator {
         if (reqs == null || reqs.isEmpty()) {
             return normalized;
         }
-        for (int i = 0; i < reqs.size(); i++) {
-            CrossCategoryPartCategoryConstraintReq req = reqs.get(i);
-            validateReq(req, module, i);
+        for (CrossCategoryPartCategoryConstraintReq req : reqs) {
+            validateReq(req, module);
             normalized.add(req);
         }
         return normalized;
     }
 
-    private static void validateReq(CrossCategoryPartCategoryConstraintReq req, Module module, int index) {
+    private static void validateReq(CrossCategoryPartCategoryConstraintReq req, Module module) {
         if (req == null) {
             throw new IllegalArgumentException("Invalid cross-category total request: request is null");
-        }
-        if (Strings.isBlank(req.getCode())) {
-            req.setCode("cross_category_total_" + index);
         }
 
         List<String> categoryCodes = deduplicateCategoryCodes(req);
@@ -103,7 +99,7 @@ public final class CrossCategoryConstraintValidator {
             }
             String trimmed = code.trim();
             if (!deduped.add(trimmed)) {
-                log.warn("Duplicate category {} ignored in cross-category total request {}", trimmed, req.getCode());
+                log.warn("Duplicate category {} ignored in cross-category total request", trimmed);
             }
         }
         return new ArrayList<>(deduped);

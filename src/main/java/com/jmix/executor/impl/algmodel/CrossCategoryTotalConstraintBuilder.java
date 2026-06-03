@@ -4,9 +4,6 @@ import com.jmix.executor.model.CrossCategoryPartCategoryConstraintReq;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.logging.log4j.util.Strings;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,7 +28,8 @@ public final class CrossCategoryTotalConstraintBuilder {
 
         for (String categoryCode : req.getPartCategoryCodes()) {
             int beforeTerms = expr.getPartTerms().size();
-            for (PartCategoryAlgImpl categoryAlg : resolveCategoryAlgs(alg, categoryCode)) {
+            PartCategoryAlgImpl categoryAlg = alg.getPartCategoryAlg(categoryCode);
+            if (categoryAlg != null) {
                 alg.buildSumExprInternal(expr, categoryAlg, req.getAttrCode(), PartVarImpl.QTY_SHORT_NAME,
                         PartVarImpl::getQty, req.getAttrWhereCondition());
             }
@@ -44,22 +42,6 @@ public final class CrossCategoryTotalConstraintBuilder {
             expr.addConstant(0);
         }
         return expr;
-    }
-
-    private List<PartCategoryAlgImpl> resolveCategoryAlgs(ModuleAlgImpl alg, String categoryCode) {
-        List<PartCategoryAlgImpl> result = new ArrayList<>();
-        if (Strings.isBlank(categoryCode)) {
-            return result;
-        }
-
-        PartCategoryAlgImpl categoryAlg = alg.getPartCategoryAlg(categoryCode);
-        if (categoryAlg != null) {
-            result.add(categoryAlg);
-            return result;
-        }
-
-        result.addAll(alg.getPartCategoryAlgByInstPrefix(categoryCode));
-        return result;
     }
 
     private void addComparatorConstraint(ModuleAlgImpl alg, PartAlgCPLinearExpr expr,
@@ -75,13 +57,6 @@ public final class CrossCategoryTotalConstraintBuilder {
     }
 
     private String aggregateCode(CrossCategoryPartCategoryConstraintReq req) {
-        String code = req.getCode();
-        if (Strings.isBlank(code)) {
-            code = "cross_category_total";
-        }
-        if (code.startsWith("aggregate_")) {
-            return code;
-        }
-        return "aggregate_" + code;
+        return "aggregate_" + String.join("_", req.getPartCategoryCodes());
     }
 }
