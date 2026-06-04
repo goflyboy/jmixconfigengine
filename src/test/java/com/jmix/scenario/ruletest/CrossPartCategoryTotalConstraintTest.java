@@ -25,7 +25,7 @@ public class CrossPartCategoryTotalConstraintTest extends ModuleScenarioTestBase
     @ModuleAnno(id = 9010L)
     public static class CrossTotalConstraint extends ModuleAlgBase {
 
-        @PartAnno(supportMultiInst = true)
+        @PartAnno(code = "disk", supportMultiInst = true)
         @DAttrAnno1(code = "PortRate", dynAttrType = DynamicAttributeType.E_STRING,
                 options = {"Rate_10G:10G", "Rate_100G:100G"})
         @DAttrAnno2(code = "Capacity", dynAttrType = DynamicAttributeType.E_INT,
@@ -41,7 +41,7 @@ public class CrossPartCategoryTotalConstraintTest extends ModuleScenarioTestBase
         @PartAnno(fatherCode = "disk", attrs = {"100G", "100"})
         private PartVar d3;
 
-        @PartAnno
+        @PartAnno(code = "mainBoard")
         @DAttrAnno1(code = "PortRate", dynAttrType = DynamicAttributeType.E_STRING,
                 options = {"Rate_10G:10G", "Rate_100G:100G"})
         @DAttrAnno2(code = "Capacity", dynAttrType = DynamicAttributeType.E_INT,
@@ -57,7 +57,7 @@ public class CrossPartCategoryTotalConstraintTest extends ModuleScenarioTestBase
         @PartAnno(fatherCode = "mainBoard", attrs = {"100G", "120"})
         private PartVar b3;
 
-        @PartAnno(required = false)
+        @PartAnno(code = "expansionBoard", required = false)
         @DAttrAnno1(code = "PortRate", dynAttrType = DynamicAttributeType.E_STRING,
                 options = {"Rate_10G:10G", "Rate_100G:100G"})
         @DAttrAnno2(code = "Capacity", dynAttrType = DynamicAttributeType.E_INT,
@@ -66,6 +66,7 @@ public class CrossPartCategoryTotalConstraintTest extends ModuleScenarioTestBase
 
         @PartAnno(fatherCode = "expansionBoard", attrs = {"10G", "60"})
         private PartVar e1;
+
 
     }
 

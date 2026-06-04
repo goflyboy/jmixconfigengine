@@ -391,10 +391,11 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         Para para = new Para();
         para.setCode(paraCode);
         para.setAssignType(AssignType.INPUT);
-        // 从对应的属性里面获取数据issue（min，max等）
         para.setParaType(ParaType.INTEGER);
-        // ModuleBase tempModule = (ModuleBase) module;
-        // tempModule.addPara(para);
+        // Add to module's para list so initShortCode() can assign a shortCode
+        if (module instanceof com.jmix.executor.bmodel.Onto onto) {
+            onto.addPara(para);
+        }
         ParaVarImpl pVar = initParaVar(para);
         paraMap.put(paraCode, pVar);
         return pVar;

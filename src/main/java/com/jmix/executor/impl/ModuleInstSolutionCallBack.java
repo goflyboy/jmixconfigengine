@@ -173,6 +173,8 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
             pi.setOptions(options);
         } else {
             pi.setValue(String.valueOf(pv.getInputValue()));
+            // Mark as INPUT type so it can be excluded from solution output
+            pi.setExtAttrs(Map.of(ModuleBaseInst.PARA_INST_TYPE_KEY, "INPUT"));
         }
         return pi;
     }

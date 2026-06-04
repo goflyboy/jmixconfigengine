@@ -43,6 +43,12 @@ public class ModuleBaseInst {
     public static final String OTHER_VARIABLES_MEMO_KEY = "OTHER_VARIABLES_MEMO";
 
     /**
+     * ParaInst 类型键名
+     * 用于标记 INPUT 类型 ParaInst，值为 "INPUT"，用于在解输出时过滤
+     */
+    public static final String PARA_INST_TYPE_KEY = "PARA_INST_TYPE";
+
+    /**
      * 实例ID，默认为0，多个实例从0开始，如：0，1,2，....
      */
     private int instanceId = DEFAULT_INSTANCE_ID;
@@ -122,8 +128,11 @@ public class ModuleBaseInst {
         Collections.sort(paras, (a, b) -> a.getCode().compareTo(b.getCode()));
         // 对parts按code升序排序
         Collections.sort(parts, (a, b) -> a.getCode().compareTo(b.getCode()));
-        // 添加参数信息
+        // 添加参数信息（排除 INPUT 类型，这些是约束输入数据，不属于求解器输出）
         for (ParaInst para : paras) {
+            if ("INPUT".equals(para.getExtAttrs().get(ModuleBaseInst.PARA_INST_TYPE_KEY))) {
+                continue;
+            }
             if (sb.length() > 0) {
                 sb.append(",");
             }
