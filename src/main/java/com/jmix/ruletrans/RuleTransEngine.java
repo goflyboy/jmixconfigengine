@@ -8,9 +8,11 @@ import com.jmix.ruletrans.generator.RuleSnippetGenerator;
 import com.jmix.ruletrans.identifier.CategoryIdentifier;
 import com.jmix.ruletrans.postprocessor.CompilationProcessor;
 import com.jmix.ruletrans.postprocessor.CompilationResult;
+import com.jmix.ruletrans.postprocessor.TestExecutionResult;
 import com.jmix.ruletrans.postprocessor.TestExecutionProcessor;
 import com.jmix.ruletrans.prompt.PromptBuilder;
 import com.jmix.ruletrans.testgen.RuleTestCaseGenerator;
+import com.jmix.ruletrans.testgen.RuleTransTestCaseSet;
 
 import java.util.List;
 
@@ -55,22 +57,50 @@ public final class RuleTransEngine {
         int attemptsLimit = Math.max(1, maxRetries + 1);
         String snippet = null;
         CompilationResult lastResult = null;
+        TestExecutionResult lastTestResult = null;
+        RuleTransTestCaseSet testCaseSet = null;
 
         for (int attempt = 1; attempt <= attemptsLimit; attempt++) {
-            snippet = attempt == 1
-                    ? generator.generate(naturalLanguage, preparedContext)
-                    : generator.generateFromPrompt(promptBuilder.buildCompilationCorrectionPrompt(
-                            naturalLanguage, preparedContext, snippet, lastResult));
+            snippet = generateAttemptSnippet(
+                    naturalLanguage, preparedContext, attempt, snippet, lastResult, lastTestResult);
 
             AssembledRuleClass assembled = assembler.assembleCompileUnit(
                     snippet, preparedContext, "RuleTransCandidate" + String.format("%03d", attempt));
             lastResult = compilationProcessor.compile(assembled);
-            if (lastResult.success()) {
-                if (testCaseGenerator != null) {
-                    testCaseGenerator.generate(naturalLanguage, preparedContext, snippet);
-                }
+            if (!lastResult.success()) {
+                lastTestResult = null;
+                continue;
+            }
+
+            if (testCaseSet == null) {
+                testCaseSet = testCaseGenerator == null
+                        ? RuleTransTestCaseSet.empty()
+                        : testCaseGenerator.generate(naturalLanguage, preparedContext, snippet);
+            }
+            if (testCaseSet.isEmpty()) {
                 return new RuleTransResult(true, snippet, attempt, lastResult, null);
             }
+
+            AssembledRuleClass assembledTest = assembler.assembleExecutableTest(
+                    snippet,
+                    preparedContext,
+                    testCaseSet,
+                    "RuleTransExecutableTest" + String.format("%03d", attempt));
+            CompilationResult testCompilation = compilationProcessor.compile(assembledTest);
+            if (!testCompilation.success()) {
+                throw new RuleTransException("RuleTrans generated test compilation failed: "
+                        + String.join("\n", testCompilation.errors()));
+            }
+            lastTestResult = testExecutionProcessor.execute(assembledTest);
+            if (lastTestResult.success()) {
+                return new RuleTransResult(true, snippet, attempt, lastResult, lastTestResult);
+            }
+            if (!hasLikelyRuleLogicError(lastTestResult)) {
+                return new RuleTransResult(false, snippet, attempt, lastResult, lastTestResult);
+            }
+        }
+        if (lastTestResult != null && !lastTestResult.success()) {
+            return new RuleTransResult(false, snippet, attemptsLimit, lastResult, lastTestResult);
         }
         throw new RuleTransException("RuleTrans compilation retry limit exceeded: "
                 + String.join("\n", lastResult == null ? List.of() : lastResult.errors()));
@@ -89,6 +119,31 @@ public final class RuleTransEngine {
                 .map(code -> context.module().getPartCategory(code))
                 .toList();
         return new ProductRuleContext(context.module(), categories);
+    }
+
+    private String generateAttemptSnippet(
+            String naturalLanguage,
+            RuleContext context,
+            int attempt,
+            String previousSnippet,
+            CompilationResult lastCompilation,
+            TestExecutionResult lastTestResult) {
+        if (attempt == 1) {
+            return generator.generate(naturalLanguage, context);
+        }
+        if (lastCompilation != null && !lastCompilation.success()) {
+            return generator.generateFromPrompt(promptBuilder.buildCompilationCorrectionPrompt(
+                    naturalLanguage, context, previousSnippet, lastCompilation));
+        }
+        if (lastTestResult != null && !lastTestResult.success()) {
+            return generator.generateFromPrompt(promptBuilder.buildTestCorrectionPrompt(
+                    naturalLanguage, context, previousSnippet, lastTestResult.failedCases()));
+        }
+        return generator.generate(naturalLanguage, context);
+    }
+
+    private boolean hasLikelyRuleLogicError(TestExecutionResult result) {
+        return result.failedCases().stream().anyMatch(failed -> failed.likelyRuleLogicError());
     }
 
     private void validate(String naturalLanguage, RuleContext context) {

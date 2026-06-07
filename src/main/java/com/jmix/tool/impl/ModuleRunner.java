@@ -22,6 +22,7 @@ public class ModuleRunner {
     public void runTestFile(String packageName, String modelScenarioName) {
         String className = modelScenarioName + "Test";
         String fullClassName = packageName + "." + className;
+        ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
 
         try {
             log.info("Running test class: {}", fullClassName);
@@ -53,11 +54,13 @@ public class ModuleRunner {
 
             Class<?> testClass = Class.forName(fullClassName, true, urlClassLoader);
             runWithJUnit(testClass);
+        } catch (ClassNotFoundException e) {
+            log.error("Test class not found: {}", e.getMessage());
+            log.error("Please ensure the class has been generated and compiled correctly");
         } catch (Exception e) {
-            if (e instanceof ModelGenneratorException) {
-                throw (ModelGenneratorException) e;
-            }
-            throw new ModelGenneratorException("Failed to run test class: " + fullClassName, e);
+            log.error("Failed to run test file: {}", e.getMessage(), e);
+        } finally {
+            Thread.currentThread().setContextClassLoader(originalClassLoader);
         }
     }
 

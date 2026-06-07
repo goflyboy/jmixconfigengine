@@ -39,8 +39,11 @@ public final class TestExecutionProcessor {
         if (assembledTestClass == null) {
             throw new IllegalArgumentException("assembledTestClass must not be null");
         }
+        ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
         try {
-            Class<?> testClass = Class.forName(assembledTestClass.qualifiedClassName(), true, classLoader());
+            URLClassLoader loader = classLoader();
+            Thread.currentThread().setContextClassLoader(loader);
+            Class<?> testClass = Class.forName(assembledTestClass.qualifiedClassName(), true, loader);
             return execute(testClass);
         } catch (Exception e) {
             FailedTestCase failed = new FailedTestCase(
@@ -52,6 +55,8 @@ public final class TestExecutionProcessor {
                     e.getMessage(),
                     false);
             return new TestExecutionResult(false, 0, 0, 1, List.of(failed));
+        } finally {
+            Thread.currentThread().setContextClassLoader(originalClassLoader);
         }
     }
 

@@ -11,4 +11,24 @@ Generated rule snippet:
 ${snippet}
 
 Generate structured test cases for validating this rule.
-Return concise JSON only.
+Return concise JSON only, matching this schema:
+{
+  "ruleMethod": "optional method name",
+  "cases": [
+    {
+      "id": "shortCaseId",
+      "type": "validate",
+      "selectedParts": ["partCode1", "partCode2"],
+      "expectedValid": false,
+      "expectedViolatedRuleCodes": ["ruleCode"]
+    },
+    {
+      "id": "shortRecommendCaseId",
+      "type": "recommend",
+      "requests": ["category:Sum_Quantity ==1 where Attr=Value"],
+      "expectedResult": "NO_SOLUTION"
+    }
+  ]
+}
+
+Use validate cases for selected part combinations and recommend cases for inference paths.

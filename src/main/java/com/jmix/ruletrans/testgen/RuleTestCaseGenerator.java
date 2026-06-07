@@ -2,10 +2,11 @@ package com.jmix.ruletrans.testgen;
 
 import com.jmix.ruletrans.context.RuleContext;
 import com.jmix.ruletrans.prompt.PromptBuilder;
+import com.jmix.ruletrans.RuleTransException;
 import com.jmix.tool.impl.llm.LLMInvoker;
 
 /**
- * Placeholder P1 test case generator using the existing LLM invoker.
+ * Generates and parses structured P1 test cases using the existing LLM invoker.
  */
 public final class RuleTestCaseGenerator {
 
@@ -21,8 +22,14 @@ public final class RuleTestCaseGenerator {
         if (llmInvoker == null) {
             return RuleTransTestCaseSet.empty();
         }
-        // P1 execution is intentionally conservative until generated case schema is stabilized.
-        promptBuilder.buildTestCasePrompt(naturalLanguage, context, snippet);
-        return RuleTransTestCaseSet.empty();
+        String prompt = promptBuilder.buildTestCasePrompt(naturalLanguage, context, snippet);
+        try {
+            String response = llmInvoker.generate(PromptBuilder.SYSTEM_MESSAGE, prompt);
+            return RuleTransTestCaseSet.fromJson(response);
+        } catch (RuleTransException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuleTransException("LLM test case generation failed: " + e.getMessage(), e);
+        }
     }
 }

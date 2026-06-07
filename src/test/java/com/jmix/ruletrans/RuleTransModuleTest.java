@@ -1,6 +1,7 @@
 package com.jmix.ruletrans;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -19,6 +20,8 @@ import com.jmix.ruletrans.context.RuleContextFactory;
 import com.jmix.ruletrans.generator.RuleSnippetGenerator;
 import com.jmix.ruletrans.generator.RuleSnippetPostProcessor;
 import com.jmix.ruletrans.identifier.CategoryIdentifier;
+import com.jmix.ruletrans.ir.RuleTransIrAssessment;
+import com.jmix.ruletrans.ir.RuleTransIrEvaluator;
 import com.jmix.ruletrans.postprocessor.CompilationProcessor;
 import com.jmix.ruletrans.postprocessor.CompilationResult;
 import com.jmix.ruletrans.postprocessor.TestExecutionProcessor;
@@ -128,9 +131,69 @@ public class RuleTransModuleTest {
                 RuleContextFactory.partCategory(sampleModule(), "cpu"),
                 1);
 
-        assertTrue(result.success());
+        assertTrue(result.success(), String.valueOf(result.testExecutionResult()));
         assertTrue(result.snippet().contains("addLessOrEqual"));
         assertTrue(fake.prompts().get(1).contains("addLessOrEquals"));
+    }
+
+    @Test
+    public void testPartCategoryEndToEndGeneratedTestCasesPass() {
+        FakeLLMInvoker fake = new FakeLLMInvoker(cpuAtMostOneSnippet(), cpuAtMostOneTestCases());
+
+        RuleTransResult result = engineWithGeneratedCases(fake).translateWithRetry(
+                "CPU at most one",
+                RuleContextFactory.partCategory(sampleModule(), "cpu"),
+                0);
+
+        assertTrue(result.success(), String.valueOf(result.testExecutionResult()));
+        assertNotNull(result.testExecutionResult());
+        assertEquals(2, result.testExecutionResult().testsSucceeded());
+    }
+
+    @Test
+    public void testProductEndToEndGeneratedTestCasesPass() {
+        FakeLLMInvoker fake = new FakeLLMInvoker(
+                "[\"cpu\", \"drive\"]",
+                crossCategorySnippet(),
+                crossCategoryTestCases());
+
+        RuleTransResult result = engineWithGeneratedCases(fake).translateWithRetry(
+                "4-core CPU cannot use 5400 drive",
+                RuleContextFactory.product(sampleModule()),
+                0);
+
+        assertTrue(result.success(), String.valueOf(result.testExecutionResult()));
+        assertNotNull(result.testExecutionResult());
+        assertEquals(3, result.testExecutionResult().testsSucceeded());
+    }
+
+    @Test
+    public void testTestFailureDrivesRetry() {
+        FakeLLMInvoker fake = new FakeLLMInvoker(
+                cpuAtLeastTwoSnippet(),
+                cpuAtMostOneTestCases(),
+                cpuAtMostOneSnippet());
+
+        RuleTransResult result = engineWithGeneratedCases(fake).translateWithRetry(
+                "CPU at most one",
+                RuleContextFactory.partCategory(sampleModule(), "cpu"),
+                1);
+
+        assertTrue(result.success());
+        assertTrue(result.snippet().contains("addLessOrEqual"));
+        assertTrue(fake.prompts().get(2).contains("failed tests"));
+    }
+
+    @Test
+    public void testP2IrAssessmentReportsModuleAlgBaseBoundPath() {
+        RuleTransIrAssessment assessment = new RuleTransIrEvaluator().assess(
+                RuleContextFactory.product(sampleModule(), List.of("cpu", "drive")),
+                crossCategorySnippet());
+
+        assertEquals(RuleTransIrAssessment.Status.MODULE_ALG_BASE_BOUND, assessment.status());
+        assertFalse(assessment.schemaEmissionReady());
+        assertTrue(assessment.targetCategories().contains("cpu"));
+        assertFalse(assessment.blockers().isEmpty());
     }
 
     @Test
@@ -170,6 +233,14 @@ public class RuleTransModuleTest {
     }
 
     private RuleTransEngine engine(FakeLLMInvoker fake) {
+        return engine(fake, false);
+    }
+
+    private RuleTransEngine engineWithGeneratedCases(FakeLLMInvoker fake) {
+        return engine(fake, true);
+    }
+
+    private RuleTransEngine engine(FakeLLMInvoker fake, boolean generateCases) {
         RulePromptProjector projector = new RulePromptProjector();
         PromptBuilder promptBuilder = new PromptBuilder(projector);
         RuleSnippetPostProcessor postProcessor = new RuleSnippetPostProcessor();
@@ -179,7 +250,7 @@ public class RuleTransModuleTest {
                 new RuleSnippetGenerator(fake, promptBuilder, postProcessor),
                 new RuleSnippetAssembler(tempFileManager),
                 new CompilationProcessor(tempFileManager),
-                new RuleTestCaseGenerator(null, promptBuilder),
+                new RuleTestCaseGenerator(generateCases ? fake : null, promptBuilder),
                 new TestExecutionProcessor(tempFileManager),
                 promptBuilder);
     }
@@ -206,11 +277,88 @@ public class RuleTransModuleTest {
                 """;
     }
 
+    private String cpuAtLeastTwoSnippet() {
+        return """
+                @CodeRuleAnno(normalNaturalCode = "CPU at most one", fatherCode = "cpu")
+                public void ruleCpuAtMostOne() {
+                    model().addGreaterOrEqual(model().sum4Selected("cpu", "", ""), 2);
+                }
+                """;
+    }
+
     private String crossCategorySnippet() {
         return """
-                @CodeRuleAnno(normalNaturalCode = "4-core CPU cannot use 5400 drive")
+                @CodeRuleAnno(
+                        normalNaturalCode = "4-core CPU cannot use 5400 drive",
+                        leftProObjsStr = "cpu:Select",
+                        rightProObjsStr = "drive:Select")
                 public void cpu4NotDrive5400() {
-                    inCompatible("cpu4NotDrive5400", "cpu:CoreNum=4", "drive:Speed=5400");
+                    PartAlgCPLinearExpr cpu4Selected = model().sum4Selected("cpu", "", "CoreNum=4")
+                            .name("cpu4Selected");
+                    PartAlgCPLinearExpr drive5400Selected = model().sum4Selected("drive", "", "Speed=5400")
+                            .name("drive5400Selected");
+                    model().addLessOrEqual(forbiddenPair(cpu4Selected, drive5400Selected), 1);
+                }
+
+                private PartAlgCPLinearExpr forbiddenPair(PartAlgCPLinearExpr left, PartAlgCPLinearExpr right) {
+                    return model().newPartLinearExpr("cpu4_drive5400_pair")
+                            .addExpr(left, 1)
+                            .addExpr(right, 1);
+                }
+                """;
+    }
+
+    private String cpuAtMostOneTestCases() {
+        return """
+                {
+                  "ruleMethod": "ruleCpuAtMostOne",
+                  "cases": [
+                    {
+                      "id": "cpu_single_valid",
+                      "type": "validate",
+                      "selectedParts": ["cpu4"],
+                      "expectedValid": true
+                    },
+                    {
+                      "id": "cpu_double_invalid",
+                      "type": "validate",
+                      "selectedParts": ["cpu4", "cpu8"],
+                      "expectedValid": false,
+                      "expectedViolatedRuleCodes": ["ruleCpuAtMostOne"]
+                    }
+                  ]
+                }
+                """;
+    }
+
+    private String crossCategoryTestCases() {
+        return """
+                {
+                  "ruleMethod": "cpu4NotDrive5400",
+                  "cases": [
+                    {
+                      "id": "forbidden_pair_invalid",
+                      "type": "validate",
+                      "selectedParts": ["cpu4", "drive5400"],
+                      "expectedValid": false,
+                      "expectedViolatedRuleCodes": ["cpu4NotDrive5400"]
+                    },
+                    {
+                      "id": "allowed_pair_valid",
+                      "type": "validate",
+                      "selectedParts": ["cpu8", "drive7200"],
+                      "expectedValid": true
+                    },
+                    {
+                      "id": "recommend_forbidden_pair_no_solution",
+                      "type": "recommend",
+                      "requests": [
+                        "cpu:Sum_Quantity ==1 where CoreNum=4",
+                        "drive:Sum_Quantity ==1 where Speed=5400"
+                      ],
+                      "expectedResult": "NO_SOLUTION"
+                    }
+                  ]
                 }
                 """;
     }
