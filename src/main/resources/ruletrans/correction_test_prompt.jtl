@@ -1,0 +1,19 @@
+The generated rule passed compilation but failed tests.
+
+Natural-language rule:
+${naturalLanguage}
+
+Context:
+${contextSummary}
+
+Context JSON:
+${contextJson}
+
+Previous snippet:
+${previousSnippet}
+
+Failed test cases:
+${failedCases}
+
+Return only a corrected Java rule method snippet if the failure is likely a rule logic error.
+Do not include package, imports, class declarations, markdown, or explanations.

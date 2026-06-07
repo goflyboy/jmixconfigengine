@@ -1,0 +1,19 @@
+Natural-language product-level rule:
+${naturalLanguage}
+
+Context:
+${contextSummary}
+
+Identified target category codes:
+${targetCategories}
+
+Product context JSON:
+${contextJson}
+
+Generate exactly one Java rule method snippet for a ModuleAlgBase subclass.
+Requirements:
+- Return only a method annotated with @CodeRuleAnno.
+- Do not include package, imports, class declarations, markdown, or explanations.
+- For cross-category incompatibility, prefer inCompatible("ruleCode", "category:Attr=value",
+  "category:Attr=value") when it expresses the business rule.
+- Otherwise use model().sum4Selected(...), model().sum4Quantity(...), and other southbound facade APIs.

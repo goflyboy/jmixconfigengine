@@ -1,0 +1,14 @@
+Natural-language product-level rule:
+${naturalLanguage}
+
+Module code:
+${moduleCode}
+
+Available PartCategory list:
+${availableCategories}
+
+Identify the PartCategory codes involved in the rule.
+Return only a JSON string array, for example:
+["cpu","drive"]
+
+Return [] if no category can be identified.

@@ -1,0 +1,14 @@
+Natural-language rule:
+${naturalLanguage}
+
+Context:
+${contextSummary}
+
+Context JSON:
+${contextJson}
+
+Generated rule snippet:
+${snippet}
+
+Generate structured test cases for validating this rule.
+Return concise JSON only.

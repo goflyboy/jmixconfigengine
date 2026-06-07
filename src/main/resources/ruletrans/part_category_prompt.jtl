@@ -1,0 +1,20 @@
+Natural-language rule:
+${naturalLanguage}
+
+Context:
+${contextSummary}
+
+Target category codes:
+${targetCategories}
+
+PartCategory JSON:
+${contextJson}
+
+Generate exactly one Java rule method snippet for a ModuleAlgBase subclass.
+Requirements:
+- Return only a method annotated with @CodeRuleAnno.
+- Do not include package, imports, class declarations, markdown, or explanations.
+- Use only southbound facade APIs such as model(), para(...), partVar(...), partCategoryVar(...),
+  inCompatible(...), addCompatibleConstraintRequires(...), addCompatibleConstraintCoDependent(...),
+  addCompatibleConstraintInCompatible(...), and listOf(...).
+- Prefer business-friendly expressions and category codes from the context.

@@ -1,0 +1,23 @@
+The previous generated Java rule method snippet failed to compile.
+
+Natural-language rule:
+${naturalLanguage}
+
+Context:
+${contextSummary}
+
+Context JSON:
+${contextJson}
+
+Previous snippet:
+${previousSnippet}
+
+Compiler errors:
+${compilerErrors}
+
+Diagnostics:
+${diagnostics}
+
+Return only the corrected Java rule method snippet.
+Keep the intended business semantics unchanged and fix syntax, type, annotation, or facade API usage errors.
+Do not include package, imports, class declarations, markdown, or explanations.
