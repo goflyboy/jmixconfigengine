@@ -1,419 +1,155 @@
-# 产品配置器建模约束代码生成提示模板
+# Product configurator constraint code generation prompt
 
-## 基本信息
-- **包名**: ${packageName}
-- **模型名称**: ${modelName}
-- **变量模型描述**: ${userVariableModel}
-- **逻辑伪代码**: ${userLogicByPseudocode}
-- **用户测试用例特殊规格**: ${userTestCaseSpec}
-
-## 核心要求
-你是一名产品配置器建模方面的专家机器人，请根据用户的规则伪代码和变量建模生成Ortools SAT表示约束代码及对应的测试代码。
-
-## 一、约束的变量建模元信息
-
-### ParaVar类（参数变量）
+## Inputs
+- Package name: ${packageName}
+- Model name: ${modelName}
+- Variable model:
 ```java
-public class ParaVar { 
-    public String code;                    // 参数的code，如:color
-    public AlgCPIntVar value;                   // 参数的值，对应一个约束的变量，代表当前选择的值（可选值的codeId，如10）
-    public AlgCPBoolVar isHidden;               // 本参数是否隐藏（1-表示隐藏，0表示显示），对应约束的一个变量
-    public Map<Integer, ParaOptionVar> optionSelectVars = new HashMap<>(); // 本参数每个可选择值选中状态
-    public ParaOptionVar getParaOptionByCode(String code){...}
+${userVariableModel}
+```
+- Business rule pseudocode:
+```java
+${userLogicByPseudocode}
+```
+- Extra test specification:
+```java
+${userTestCaseSpec}
+```
+
+## Output Contract
+Return exactly one complete Java source file.
+Do not return Markdown, explanations, code fences, or multiple files.
+The file must compile as-is in the current project.
+
+## Required Imports
+```java
+import com.jmix.coretest.*;
+import com.jmix.executor.southinf.*;
+import com.jmix.executor.southinf.cp.*;
+import com.jmix.executor.southinf.var.*;
+import com.jmix.tool.bbuilder.anno.*;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Test;
+```
+
+Do not import or directly use `com.google.ortools.sat.*`.
+
+## Current Southbound API
+Generated constraint classes must extend `ModuleAlgBase` and must use only the southbound facade API.
+
+### ParaVar
+```java
+ParaVar colorVar;
+colorVar.value();                      // AlgCPIntVar
+colorVar.valueVar();                   // AlgCPIntVar
+colorVar.hidden();                     // AlgCPBoolVar
+colorVar.hiddenVar();                  // AlgCPBoolVar
+colorVar.option("Red").selected();     // AlgCPBoolVar
+colorVar.option("Red").selectedVar();  // AlgCPBoolVar
+```
+
+Never use old ParaVar APIs or field-style access:
+- `colorVar.value`
+- `colorVar.isHidden`
+- `colorVar.getParaOptionByCode("Red")`
+- `getIsSelectedVar()`
+
+### PartVar
+```java
+PartVar tShirt11Var;
+tShirt11Var.quantity();      // AlgCPIntVar
+tShirt11Var.quantityVar();   // AlgCPIntVar
+tShirt11Var.selected();      // AlgCPBoolVar
+tShirt11Var.selectedVar();   // AlgCPBoolVar
+tShirt11Var.hidden();        // AlgCPBoolVar
+tShirt11Var.hiddenVar();     // AlgCPBoolVar
+```
+
+Never use old PartVar APIs or field-style access:
+- `tShirt11Var.qty`
+- `tShirt11Var.value`
+- `tShirt11Var.isHidden`
+- `tShirt11Var.isSelected`
+
+## Constraint Rule Pattern
+Generate one private method per business rule.
+Every rule method must have `@CodeRuleAnno`.
+When a rule reads parameters and writes a part quantity, include dependency metadata in the annotation:
+
+```java
+@CodeRuleAnno(
+        leftProObjsStr = "color:Select,size:Select",
+        rightProObjsStr = "tShirt11:Quantity")
+private void rule1() {
+    AlgCPBoolVar cond = model().newBoolVar("rule1_cond");
+    model().addBoolAnd(new AlgCPLiteral[] {
+            colorVar.option("Red").selectedVar(),
+            sizeVar.option("Small").selectedVar()
+    }).onlyEnforceIf(cond);
+    model().addBoolOr(new AlgCPLiteral[] {
+            colorVar.option("Red").selectedVar().not(),
+            sizeVar.option("Small").selectedVar().not()
+    }).onlyEnforceIf(cond.not());
+    model().addEquality(tShirt11Var.quantityVar(), 1).onlyEnforceIf(cond);
+    model().addEquality(tShirt11Var.quantityVar(), 3).onlyEnforceIf(cond.not());
 }
 ```
 
-### ParaOptionVar类（参数选项变量）
+If hidden variables are needed, use:
 ```java
-public class ParaOptionVar {
-    public Integer codeId;                 // 参数可选值的codeId，整数，如:10 
-    public String code;                    // 参数可选值的Code，如:Red
-    public AlgCPBoolVar isSelectedVar;          // 对应一个约束的变量，表示是否选中
-}
+addVarAboutHiddenConstraints(colorVar, sizeVar);
+model().addEquality(colorVar.hiddenVar(), sizeVar.hiddenVar());
 ```
 
-### PartVar类（部件变量）
+## Test Requirements
+- Use JUnit Jupiter `org.junit.jupiter.api.Test`.
+- The test class must extend `ModuleScenarioTestBase`.
+- Its constructor must call `super(${modelName}Constraint.class)`.
+- Generate focused semantic tests only.
+- For each meaningful input case, call `inferParasByPara(...)`, assert success, then assert the expected part quantity.
+- Do not generate broad all-combination count tests unless the extra test specification explicitly asks for them.
+- Do not use `assertSolutionNum(...)` in generated tests.
+
+Allowed testing calls:
 ```java
-public class PartVar { 
-    public String code;                    // Part的Code，如:part1
-    public AlgCPIntVar qty;                     // 部件的数量值quantity，对应一个约束的变量
-    public AlgCPBoolVar isHidden;                // 对应一个约束的变量，本Part是否隐藏（1-表示隐藏，0表示显示）
-    public AlgCPBoolVar isSelected;          // 对应一个约束的变量，表示是否选中}
-public class PartCategoryVar { 
-    public String code;                    // Part的Code，如:part1
-    public Map<String,PartVar> partMap;   
-    public Map<String,PartCategoryVar> partCategoryMap;    
-}
-
-
+inferParas("partCode", qty);
+inferParas("partCode", qty, "paraCode", "OptionCode");
+inferParasByPara("paraCode1", "OptionCode1", "paraCode2", "OptionCode2");
+resultAssert().assertSuccess();
+resultAssert().assertNoSolution();
+resultAssert().assertSolutionSizeEqual(n);
+solutions(0).assertPara("color").valueEqual("Red");
+solutions(0).assertPart("tShirt11").quantityEqual(1);
+printSolutions();
 ```
 
-## 二、约束代码要求
-
-### 1. 基类依赖
-- 仅使用Ortool-java的9.12.4544版本的API，不要使用老版本的API
-- 如果生成不出来，就输出生成不出来，不要瞎输出
-- 约束代码依赖的基类已经定义了CPModel信息和变量信息和调用rule方法的代码, 不需要生成initConstraint方法的代码
-- 不需要生成基类，仅需要生成每个rule对应的约束代码
-- 每个rule生成一个方法，并使用@CodeRuleAnno注解，注解中需要生成normalNaturalCode
---在基类会统一创建公用的变量，例如:colorVar, 每个rule方法不需要创建变量，例如:model().newInt*等
---rule方法里关键步骤都要生成注释，方便理解
---如果约束代码里使用了isHidden,则该变量需要调用addVarAboutHiddenConstraints(在“约束关联的变量设置地方”)
------例如： 有约束 P1.isHidden = P2.isHidden,则需要增加： addVarAboutHiddenConstraints(P1,P2);
-```java
-class ConstraintAlgImplTestBase {
-    protected CpModel model; 
-    protected Module module;
-    protected void initConstraint() {
-        //调用rule方法的代码
-    }
-
-    protected void initVariables() {
-        // 变量初始化代码
-        // 约束关联的变量设置地方
-        
-    } 
-    
-    void createParaVar() {
-        // 参数value和optionSelectVars的关系
-        paraVar.optionSelectVars.forEach((optionId, optionVar) -> {
-            model().addEquality( paraVar.value, optionId).onlyEnforceIf(optionVar.getIsSelectedVar());
-            model().addDifferent( paraVar.value, optionId).onlyEnforceIf(optionVar.getIsSelectedVar().not());
-        });
-    }
-}
-```
-
-### 2. 技术规范
-- 使用Ortool-java的9.12.4544版本
-- 不要使用老版本的API
---代码注释尽量使用英文
-- 保证编译能通过
-### 3.常见使用生成约束代码的案例：
-3.1.a  逻辑代码： Part1.quantity = P1.value + P2.value
-3.1.b  约束代码为： model().addEquality(Part1.qty, LinearExpr.sum(new AlgCPIntVar[]{P1.value, P2.value}));
-
-
-## 三、测试代码生成要求
-
-### 1. 基本要求
-- **优先处理用户测试用例特殊规格**：如果 ${userTestCaseSpec} 非空，则优先按照用户指定的规格生成测试用例
-- **逻辑完备性测试**：在用户指定用例的基础上，根据约束逻辑的完备性补充生成必要的测试用例
-- 用例要求简洁、完备，需要包括代码逻辑的覆盖
-- 用户制定的用例一定要实现
-- 基于Junit4实现
-- 用例代码继承ModuleScenarioTestBase（测试框架）
-- 每个用例需要给出相应注释，解释这个注释是测试那个rule的,
---代码注释尽量使用英文
-
-### 2. 测试方法实现
-每个测试用例基于下列的流比较方法实现：
-
-#### 2.1 参数推理方法
-```java
-// 根据输入的Part的数量，运行约束求解来求解推理的参数
-inferParas(String partCode, Integer qty) -> 解的结果
-
-// 根据输入的Part的数量和预定义参数，运行约束求解来求解推理的参数
-// 支持同时指定部件和预定义参数，实现更精确的推理
-inferParas(String partCode, Integer qty, String paraCode1, String value1, String paraCode2, String value2, ...) -> 解的结果
-
-// 根据输入的Para的值，运行约束求解来求解推理的参数
-// 支持单个参数或多个参数
-inferParasByPara(String paraCode, String value) -> 解的结果
-inferParasByPara(String paraCode1, String value1, String paraCode2, String value2, ...) -> 解的结果
-
-// 根据约束，推理推荐解
-inferRecommend(String partCode,String partCategory, String constraintReq1,....)
-
-#### 2.1.1 典型调用案例
-```java
-// 案例1：仅指定部件数量进行推理
-inferParas("tShirt1", 2);  // 推理TShirt1数量为2时的所有参数组合
-
-// 案例2：指定部件数量+预定义参数进行推理
-inferParas("tShirt1", 2, "color", "Red");  // 推理TShirt1数量为2且颜色为红色时的参数组合
-inferParas("tShirt1", 2, "color", "Red", "size", "L");  // 推理TShirt1数量为2且颜色为红色、尺寸为L时的参数组合
-
-// 案例3：仅指定参数值进行推理
-inferParasByPara("color", "Red");  // 推理颜色为红色时的所有部件和参数组合
-inferParasByPara("color", "Red", "size", "L");  // 推理颜色为红色且尺寸为L时的所有组合
-
-// 案例4：复杂场景推理
-inferParas("tShirt1", 1, "color", "Red", "size", "L", "Style", "Casual");  // 推理特定配置的完整参数组合
-
-// 案例5：推理推荐解
-inferRecommend("drive", "sum.Quantity ==2 where Speed=540");   
-```
-
-#### 2.2 结果断言方法
-```java
-// 判断结果是正确还是失败，没有解
-resultAssert().assertSuccess() | assertFailure() | assertNoSolution()
-
-// 判断推理结果有几组解
-resultAssert().assertSolutionSizeEqual(int expectedSolutionsize)
-```
-
-#### 2.3 解验证方法
-```java
-// 第一个解(index=0)
-solutions(0)
-    .assertPara("P1").valueEqual("op11")        // 第一个解的参数P1的值是否等于"op11"
-    .assertPart("Part1").quantityEqual(1);      // 第一个解的部件Part1的数量是否等于1
-```
-
-#### 2.4 解数量验证方法
-```java
-// conditionExpr="ParaVar.code:ParaVar.value,PartVar.code:PartVar.value"
-void assertSolutionNum(String conditionExpr, int expectSolutionNum)
-
-// 示例：检查执行推理结果中满足(P1.value=op11 且 P2.value=op21)的个数是否等于0
-assertSolutionNum("P1:op11,P2:op21", 0);
-```
-
-## 四、输出代码要求
-
-### 1. 技术规范
-- 使用Java语言
-- 使用Ortool的9.12.4544版本,不要使用老版本的API
-- 输出需要包含依赖Ortool的包，例如：`import com.google.ortools.sat.*;`
-- 仅输出生成的Java代码，前后不要包含注解 ```java、```
-- 如果输入了多份PackageName和ModelName，则需要生成多份独立Java代码,不要放到一起
-
-### 2. 代码模板
+## Java File Template
 ```java
 package ${packageName};
 
-import com.jmix.coretest.*; 
+import com.jmix.coretest.*;
 import com.jmix.executor.southinf.*;
+import com.jmix.executor.southinf.cp.*;
 import com.jmix.executor.southinf.var.*;
 import com.jmix.tool.bbuilder.anno.*;
-import com.google.ortools.sat.*; 
-import lombok.extern.slf4j.Slf4j; 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 @Slf4j
 public class ${modelName}Test extends ModuleScenarioTestBase {
-    
-    //---------------模型的定义start----------------------------------------
-    @ModuleAnno(id = 123L)
-    @AlgorithmApiVersion(southApiVersion = "1.0", algorithmVersion = "generated")
-    static public class ${modelName}Constraint extends ModuleAlgBase {
-        ${userVariableModel}
-        
-        ${生成的约束代码}// 每个rule一个rule方法
-    }
-    //---------------模型的定义end----------------------------------------
 
     public ${modelName}Test() {
         super(${modelName}Constraint.class);
     }
 
-    ${生成的测试用例}
-}
-```
-
-## 五、案例示例 
-
-### 案例1：T恤衫配置
-#### 输入1：包名packageName
-```
-com.jmix.scenario
-```
-
-#### 输入2：模型名称modelName
-```
-HelloSample
-```
-
-#### 输入3：用户变量建模userVariableModel
-```java
-@ParaAnno( 
-    options = {"Red", "Black", "White"}
-)
-private ParaVar colorVar;
-
-@ParaAnno( 
-    options = {"Small", "Medium", "Big"}
-)
-private ParaVar sizeVar;
-
-@PartAnno()
-private PartVar tShirt11Var;
-```
-
-#### 输入4：用户逻辑伪代码userLogicByPseudocode
-```java
-
-//rule1:
-if(colorVar.value == Red && sizeVar.value == Small) {
-    tShirt11Var.qty = 1;
-}
-else {
-    tShirt11Var.qty = 3;
-}
-
-//rule2: 
-   colorVar.isHidden and sizeVar.isHidden 是兼容的
-   
-```
-
-#### 输出：完整的测试代码
-```java
-package com.jmix.scenario
-
-import com.jmix.coretest.*; 
-import com.jmix.executor.southinf.*;
-import com.jmix.executor.southinf.var.*;
-import com.jmix.tool.bbuilder.anno.*;
-import com.google.ortools.sat.*; 
-import lombok.extern.slf4j.Slf4j; 
-import org.junit.jupiter.api.Test;
-
-/**
- * Hello模块约束算法测试
- *
- * @since 2025-09-23
- */
-@Slf4j
-public class HelloSampleTest extends ModuleScenarioTestBase {    
-    public HelloSampleTest() {
-        super(HelloSampleConstraint.class);
-    }
-
-    //---------------cpmodel start----------------------------------
-    /**
-     * HelloSample的约束模型类
-     * 
-     * @since 2025-09-23
-     */
     @ModuleAnno(id = 123L)
     @AlgorithmApiVersion(southApiVersion = "1.0", algorithmVersion = "generated")
-    static public class HelloSampleConstraint extends ModuleAlgBase {
-        @ParaAnno(
-                options = {"Red", "Black", "White"}
-        )
-        private ParaVar colorVar;
+    static public class ${modelName}Constraint extends ModuleAlgBase {
+        ${userVariableModel}
 
-        @ParaAnno(
-                options = {"Small", "Medium", "Big"}
-        )
-        private ParaVar sizeVar;
-        
-        @PartAnno()
-        private PartVar tShirt11Var;
-
-        //rule1
-        @CodeRuleAnno(normalNaturalCode = "if(colorVar.value == Red && sizeVar.value == Small) {\n tShirt11Var.qty = 1;\n  } else {\n tShirt11Var.qty = 3; }")
-        private void rule1() {
-            // 创建条件变量：颜色是红色且尺寸是小号
-            AlgCPBoolVar redAndSmall = model().newBoolVar("rule2_redAndSmall");
-
-            // 实现条件逻辑：redAndSmall = (color == Red) AND (size == Small)
-            model().addBoolAnd(new AlgCPLiteral[]{
-                    this.colorVar.getParaOptionByCode("Red").getIsSelectedVar(),
-                    this.sizeVar.getParaOptionByCode("Small").getIsSelectedVar()
-            }).onlyEnforceIf(redAndSmall);
-
-            // 如果不是红色且小号的组合，则redAndSmall为false
-            model().addBoolOr(new AlgCPLiteral[]{
-                    this.colorVar.getParaOptionByCode("Red").getIsSelectedVar().not(),
-                    this.sizeVar.getParaOptionByCode("Small").getIsSelectedVar().not()
-            }).onlyEnforceIf(redAndSmall.not());
-
-            // 根据条件设置tShirt11的数量
-            // 如果redAndSmall为true，则tShirt11数量为1
-            model().addEquality(this.tShirt11Var.value, 1).onlyEnforceIf(redAndSmall);
-
-            // 如果redAndSmall为false，则tShirt11数量为3
-            model().addEquality(this.tShirt11Var.value, 3).onlyEnforceIf(redAndSmall.not());
-        }
-
-        //rule2:
-        @CodeRuleAnno(normalNaturalCode = "colorVar.isHidden and sizeVar.isHidden 是兼容的)
-        private void rule2() {
-            addVarAboutHiddenConstraints(colorVar, sizeVar);
-            model().addEquality(colorVar.isHidden,sizeVar.isHidden));
-        }
-    }
-    //-------------- cpmodel end----------------------------------------
-
-    @Test
-    public void testIfCondition() {
-        // 测试颜色参数推理
-        inferParas("tShirt11", 1);
-
-        // 使用resultAssert验证执行结果
-        resultAssert()
-                .assertSuccess()
-                .assertSolutionSizeEqual(1);
-
-        // 验证第一个解
-        solutions(0).assertPara("color").valueEqual("Red")
-                .assertPara("size").valueEqual("Small");
-        printSolutions();
+        // Generate one private method per rule here.
     }
 
-    @Test
-    public void testMultipleParaInference() {
-        // 测试多个参数同时推理
-        inferParasByPara("color", "Red", "size", "Small");
-        
-        resultAssert()
-                .assertSuccess()
-                .assertSolutionSizeEqual(1);
-        
-        solutions(0).assertPart("tShirt11").quantityEqual(1);
-        printSolutions();
-    }
-
-    @Test
-    public void testElseCondition() {
-        inferParas("tShirt11", 3);
-        printSolutions();
-        // 反推有8个解  8=3*3 - 1
-        resultAssert()
-                .assertSuccess()
-                .assertSolutionSizeEqual(8);
-        // if的解肯定不在其中
-        assertSolutionNum("color:Red,size:Small", 0);
-        // else的解可能解如下：
-        assertSolutionNum("color:Black,size:Big", 1);
-        assertSolutionNum("color:White,size:Medium", 1);
-        assertSolutionNum("color:Red,size:Medium", 1); 
-        printSolutions();
-    }
-
-    @Test
-    public void testNoneOfIfElse() {
-        // if/else都没有选择
-        // 测试颜色参数推理
-        inferParas("tShirt11", 10);
-        // 使用resultAssert验证执行结果
-        resultAssert().assertNoSolution();
-        printSolutions();
-    }
+    // Generate focused JUnit tests here.
 }
 ```
-
-## 六、注意事项
-
-1. **日志规范**: 所有日志内容必须使用英文，符合项目规范
-2. **代码质量**: 生成的代码应该简洁、清晰、可读性好
-3. **测试覆盖**: 测试用例需要覆盖所有逻辑分支，包括多参数推理场景
-4. **错误处理**: 包含适当的异常处理和边界条件测试
-5. **性能考虑**: 约束求解应该高效，避免不必要的复杂性
-6. **输出格式**: 直接输出纯Java代码，不要包含任何Markdown标记
-7. **多参数推理**: 优先使用多参数版本的inferParasByPara方法，提高测试效率
-
-## 七、重要提醒
-
-**请直接返回Java代码，不要包含以下内容：**
-- 不要包含```java标记
-- 不要包含```标记
-- 不要包含任何Markdown格式
-- 不要包含代码说明或解释
-- 只返回可以直接编译的Java代码
-- TODO:限制使用的函数：
-请根据以上模板和要求，生成符合标准的Java代码。

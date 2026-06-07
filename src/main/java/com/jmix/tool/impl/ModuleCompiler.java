@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -54,6 +56,7 @@ public class ModuleCompiler {
 
             ProcessBuilder pb = new ProcessBuilder(
                     javacPath,
+                    "-proc:full",
                     "-encoding", "UTF-8",
                     "-cp", classpath,
                     "-d", outDir,
@@ -64,30 +67,39 @@ public class ModuleCompiler {
 
             Process process = pb.start();
 
+            List<String> compilerOutput = new ArrayList<>();
+            List<String> compilerErrors = new ArrayList<>();
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    log.info("Compilation output: {}", line);
+                    compilerOutput.add(line);
                 }
             }
 
             try (BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
                 String line;
                 while ((line = errorReader.readLine()) != null) {
-                    log.error("Compilation error: {}", line);
+                    compilerErrors.add(line);
                 }
             }
 
             int exitCode = process.waitFor();
             if (exitCode == 0) {
+                compilerOutput.forEach(line -> log.debug("Compilation output: {}", line));
+                compilerErrors.forEach(line -> log.debug("Compilation diagnostic: {}", line));
                 log.info("Java file compiled successfully");
             } else {
-                log.error("Java file compilation failed, exit code: {}", exitCode);
+                compilerOutput.forEach(line -> log.info("Compilation output: {}", line));
+                compilerErrors.forEach(line -> log.error("Compilation error: {}", line));
+                throw new ModelGenneratorException("Java file compilation failed, exit code: " + exitCode
+                        + (compilerErrors.isEmpty() ? "" : ", errors: " + String.join(System.lineSeparator(), compilerErrors)));
             }
 
         } catch (Exception e) {
-            log.error("Failed to compile Java file: {}", e.getMessage());
-            log.error("Please ensure Java compiler (javac) is installed");
+            if (e instanceof ModelGenneratorException) {
+                throw (ModelGenneratorException) e;
+            }
+            throw new ModelGenneratorException("Failed to compile Java file: " + e.getMessage(), e);
         }
     }
 }

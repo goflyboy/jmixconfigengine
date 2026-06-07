@@ -63,8 +63,17 @@ public class ModuleAlgClassLoader extends ClassLoader {
     private URLClassLoader jarClassLoader;
 
     public ModuleAlgClassLoader(ConstraintConfig config, ModuleAlgArtifact algArtifact) {
+        super(resolveParentClassLoader());
         this.config = config;
         this.algArtifact = algArtifact;
+    }
+
+    private static ClassLoader resolveParentClassLoader() {
+        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+        if (contextClassLoader != null) {
+            return contextClassLoader;
+        }
+        return ModuleAlgClassLoader.class.getClassLoader();
     }
 
     /**

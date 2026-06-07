@@ -250,7 +250,37 @@ public class ModuleGenerator {
      * @return 处理后的代码
      */
     public String postProcessCode(String code) {
-        return code;
+        if (code == null || code.trim().isEmpty()) {
+            throw new ModelGenneratorException("Generated code is empty");
+        }
+
+        String processed = ensureProperEncoding(code).trim();
+        if (processed.startsWith("```")) {
+            int firstLineEnd = processed.indexOf('\n');
+            if (firstLineEnd >= 0) {
+                processed = processed.substring(firstLineEnd + 1);
+            }
+            int fenceEnd = processed.lastIndexOf("```");
+            if (fenceEnd >= 0) {
+                processed = processed.substring(0, fenceEnd);
+            }
+        }
+
+        int packageIndex = processed.indexOf("package ");
+        if (packageIndex > 0) {
+            processed = processed.substring(packageIndex);
+        }
+
+        processed = processed.trim();
+        if (!processed.startsWith("package ")) {
+            throw new ModelGenneratorException("Generated code does not contain a Java package declaration");
+        }
+
+        processed = alignWithSouthboundApi(processed);
+        processed = removeGeneratedSolutionCountAssertions(processed);
+
+        log.debug("Post-processed generated code length: {}", processed.length());
+        return processed + System.lineSeparator();
         // if (code == null || code.trim().isEmpty()) {
         // return code;
         // }
@@ -265,5 +295,61 @@ public class ModuleGenerator {
 
         // log.debug("Code post-processing completed");
         // return cleanedCode;
+    }
+
+    private String alignWithSouthboundApi(String code) {
+        String processed = code;
+
+        processed = processed.replace("import com.google.ortools.sat.*;\r\n", "");
+        processed = processed.replace("import com.google.ortools.sat.*;\n", "");
+
+        if (processed.contains("AlgCPBoolVar") || processed.contains("AlgCPLiteral")) {
+            processed = ensureImport(processed, "import com.jmix.executor.southinf.cp.*;");
+        }
+
+        processed = processed.replaceAll("\\.getParaOptionByCode\\(([^)]*)\\)\\.getIsSelectedVar\\(\\)",
+                ".option($1).selectedVar()");
+        processed = processed.replaceAll("\\.getParaOptionByCode\\(([^)]*)\\)\\.getIsSelectedVar",
+                ".option($1).selectedVar()");
+        processed = processed.replaceAll("\\.getParaOptionByCode\\(([^)]*)\\)\\.isSelectedVar",
+                ".option($1).selectedVar()");
+        processed = processed.replaceAll("\\.getParaOptionByCode\\(([^)]*)\\)\\.selectedVar",
+                ".option($1).selectedVar()");
+
+        processed = processed.replaceAll("((?:this\\.)?[A-Za-z_][A-Za-z0-9_]*Var)\\.qty\\b",
+                "$1.quantityVar()");
+        processed = processed.replaceAll("((?:this\\.)?[A-Za-z_][A-Za-z0-9_]*Var)\\.value\\b",
+                "$1.valueVar()");
+        processed = processed.replaceAll("((?:this\\.)?[A-Za-z_][A-Za-z0-9_]*Var)\\.isHidden\\b",
+                "$1.hiddenVar()");
+        processed = processed.replaceAll("((?:this\\.)?[A-Za-z_][A-Za-z0-9_]*Var)\\.isSelected\\b",
+                "$1.selectedVar()");
+
+        return processed;
+    }
+
+    private String removeGeneratedSolutionCountAssertions(String code) {
+        return code.replaceAll("(?m)^\\s*assertSolutionNum\\([^;]*\\);\\s*\\R?", "");
+    }
+
+    private String ensureImport(String code, String importLine) {
+        if (code.contains(importLine)) {
+            return code;
+        }
+
+        String anchor = "import com.jmix.executor.southinf.*;";
+        if (code.contains(anchor)) {
+            return code.replace(anchor, anchor + System.lineSeparator() + importLine);
+        }
+
+        int packageEnd = code.indexOf(';');
+        if (packageEnd >= 0) {
+            return code.substring(0, packageEnd + 1)
+                    + System.lineSeparator()
+                    + System.lineSeparator()
+                    + importLine
+                    + code.substring(packageEnd + 1);
+        }
+        return code;
     }
 }
