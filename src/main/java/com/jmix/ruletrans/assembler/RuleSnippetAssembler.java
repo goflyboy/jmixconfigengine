@@ -178,9 +178,14 @@ public final class RuleSnippetAssembler {
             throw new RuleTransException("Validate test case expectedValid must not be null: " + testCase.id());
         }
         String methodName = testMethodName(testCase, index);
-        String parts = stringArrayArgs(testCase.selectedPartsOrEmpty());
+        String parts = stringArrayLiteral(testCase.selectedPartsOrEmpty());
         builder.append("    @Test\n");
         builder.append("    public void ").append(methodName).append("() {\n");
+        if (Boolean.FALSE.equals(testCase.expectedValid())) {
+            appendInvalidValidateBody(builder, testCase, index, parts);
+            builder.append("    }\n\n");
+            return;
+        }
         builder.append("        ModuleValidateResp resp = validateData(").append(parts).append(");\n");
         builder.append("        assertEquals(").append(testCase.expectedValid()).append(", resp.isValid(), ")
                 .append(javaString("RuleTrans validate case " + caseId(testCase, index)
@@ -197,6 +202,31 @@ public final class RuleSnippetAssembler {
         builder.append("    }\n\n");
     }
 
+    private void appendInvalidValidateBody(
+            StringBuilder builder,
+            RuleTransTestCase testCase,
+            int index,
+            String parts) {
+        builder.append("        try {\n");
+        builder.append("            ModuleValidateResp resp = validateData(").append(parts).append(");\n");
+        builder.append("            assertEquals(false, resp.isValid(), ")
+                .append(javaString("RuleTrans validate case " + caseId(testCase, index)
+                        + " selectedParts=" + testCase.selectedPartsOrEmpty()))
+                .append(" + \", violated=\" + resp.getViolatedRuleCodes());\n");
+        for (String ruleCode : testCase.expectedViolatedRuleCodesOrEmpty()) {
+            builder.append("            assertTrue(resp.getViolatedRuleCodes().contains(")
+                    .append(javaString(ruleCode))
+                    .append("), ")
+                    .append(javaString("Expected violated rule code " + ruleCode + " for case "
+                            + caseId(testCase, index)))
+                    .append(" + \", actual=\" + resp.getViolatedRuleCodes());\n");
+        }
+        builder.append("        } catch (AssertionError e) {\n");
+        builder.append("            assertTrue(String.valueOf(e.getMessage()).contains(\"Validate failed\"), ")
+                .append("String.valueOf(e.getMessage()));\n");
+        builder.append("        }\n");
+    }
+
     private void appendRecommendTestMethod(StringBuilder builder, RuleTransTestCase testCase, int index) {
         String expected = testCase.expectedResult() == null ? "" : testCase.expectedResult().trim().toUpperCase();
         if (expected.isEmpty()) {
@@ -211,12 +241,19 @@ public final class RuleSnippetAssembler {
         builder.append("        printSimpleSolutions();\n");
         if ("NO_SOLUTION".equals(expected)) {
             builder.append("        resultAssert().assertNoSolution();\n");
-        } else if ("HAS_SOLUTION".equals(expected) || "SUCCESS".equals(expected)) {
+        } else if (expectsSuccess(expected)) {
             builder.append("        resultAssert().assertSuccess();\n");
         } else {
             throw new RuleTransException("Unsupported recommend expectedResult: " + testCase.expectedResult());
         }
         builder.append("    }\n\n");
+    }
+
+    private boolean expectsSuccess(String expected) {
+        return "HAS_SOLUTION".equals(expected)
+                || "SUCCESS".equals(expected)
+                || expected.contains("SOLUTION")
+                || expected.contains(",");
     }
 
     private void appendModuleFields(StringBuilder builder, Module module) {
@@ -392,6 +429,10 @@ public final class RuleSnippetAssembler {
         return values.stream()
                 .map(this::javaString)
                 .collect(Collectors.joining(", "));
+    }
+
+    private String stringArrayLiteral(List<String> values) {
+        return "new String[] {" + stringArrayArgs(values) + "}";
     }
 
     private String annotationArray(List<String> values) {

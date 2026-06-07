@@ -14,7 +14,20 @@ Generate exactly one Java rule method snippet for a ModuleAlgBase subclass.
 Requirements:
 - Return only a method annotated with @CodeRuleAnno.
 - Do not include package, imports, class declarations, markdown, or explanations.
-- Use only southbound facade APIs such as model(), para(...), partVar(...), partCategoryVar(...),
-  inCompatible(...), addCompatibleConstraintRequires(...), addCompatibleConstraintCoDependent(...),
-  addCompatibleConstraintInCompatible(...), and listOf(...).
+- @CodeRuleAnno supports code, normalNaturalCode, fatherCode, attrParaCodes,
+  leftProObjsStr, and rightProObjsStr. Do not use module or category attributes.
+- For category selection counts, use model().sum4Selected("categoryCode", "", "optional Attr=value filter").
+- For category quantity sums, use model().sum4Quantity("categoryCode", "", "optional Attr=value filter").
+- For numeric constraints, use model().addLessOrEqual(...), model().addGreaterOrEqual(...),
+  or model().addEqual(...).
+- For incompatibility, call inCompatible("ruleCode", "category:Attr=value", "category:Attr=value")
+  with string expressions only.
+- Do not call partCategoryVar(...).count(), totalQuantityVariable(), selectedCount(),
+  model().addConstraint(...), or inCompatible(partVar(...), partVar(...)).
 - Prefer business-friendly expressions and category codes from the context.
+
+Valid examples:
+@CodeRuleAnno(normalNaturalCode = "CPU at most one", fatherCode = "cpu")
+public void cpuAtMostOne() {
+    model().addLessOrEqual(model().sum4Selected("cpu", "", ""), 1);
+}

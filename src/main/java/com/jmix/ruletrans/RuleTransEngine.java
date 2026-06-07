@@ -14,11 +14,14 @@ import com.jmix.ruletrans.prompt.PromptBuilder;
 import com.jmix.ruletrans.testgen.RuleTestCaseGenerator;
 import com.jmix.ruletrans.testgen.RuleTransTestCaseSet;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.List;
 
 /**
  * Orchestrates natural-language rule translation.
  */
+@Slf4j
 public final class RuleTransEngine {
 
     private final CategoryIdentifier identifier;
@@ -88,8 +91,16 @@ public final class RuleTransEngine {
                     "RuleTransExecutableTest" + String.format("%03d", attempt));
             CompilationResult testCompilation = compilationProcessor.compile(assembledTest);
             if (!testCompilation.success()) {
-                throw new RuleTransException("RuleTrans generated test compilation failed: "
-                        + String.join("\n", testCompilation.errors()));
+                String message = "RuleTrans generated test compilation failed: "
+                        + String.join("\n", testCompilation.errors());
+                log.error("RuleTrans generated test compilation failed, naturalLanguage={}, attempt={}, "
+                                + "testClass={}, sourceFile={}, errors={}",
+                        naturalLanguage,
+                        attempt,
+                        assembledTest.qualifiedClassName(),
+                        testCompilation.sourceFile(),
+                        testCompilation.errors());
+                throw new RuleTransException(message);
             }
             lastTestResult = testExecutionProcessor.execute(assembledTest);
             if (lastTestResult.success()) {
@@ -102,8 +113,11 @@ public final class RuleTransEngine {
         if (lastTestResult != null && !lastTestResult.success()) {
             return new RuleTransResult(false, snippet, attemptsLimit, lastResult, lastTestResult);
         }
-        throw new RuleTransException("RuleTrans compilation retry limit exceeded: "
-                + String.join("\n", lastResult == null ? List.of() : lastResult.errors()));
+        List<String> errors = lastResult == null ? List.of() : lastResult.errors();
+        String message = "RuleTrans compilation retry limit exceeded: " + String.join("\n", errors);
+        log.error("RuleTrans compilation retry limit exceeded, naturalLanguage={}, attemptsLimit={}, errors={}",
+                naturalLanguage, attemptsLimit, errors);
+        throw new RuleTransException(message);
     }
 
     public TestExecutionProcessor testExecutionProcessor() {
@@ -148,9 +162,11 @@ public final class RuleTransEngine {
 
     private void validate(String naturalLanguage, RuleContext context) {
         if (naturalLanguage == null || naturalLanguage.trim().isEmpty()) {
+            log.warn("RuleTrans request rejected: naturalLanguage must not be blank");
             throw new IllegalArgumentException("naturalLanguage must not be blank");
         }
         if (context == null) {
+            log.warn("RuleTrans request rejected: context must not be null, naturalLanguage={}", naturalLanguage);
             throw new IllegalArgumentException("context must not be null");
         }
     }

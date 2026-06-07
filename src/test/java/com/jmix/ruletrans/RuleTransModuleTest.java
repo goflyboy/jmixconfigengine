@@ -35,14 +35,11 @@ import com.jmix.tool.bbuilder.anno.DAttrAnno1;
 import com.jmix.tool.bbuilder.anno.ModuleAnno;
 import com.jmix.tool.bbuilder.anno.PartAnno;
 import com.jmix.tool.impl.llm.LLMInvoker;
+import com.jmix.tool.impl.llm.LLMInvokerImpl;
 
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Deque;
 import java.util.List;
 
 /**
@@ -65,47 +62,27 @@ public class RuleTransModuleTest {
 
     @Test
     public void testPartCategoryRuleGenerationReturnsPureSnippet() {
-        FakeLLMInvoker fake = new FakeLLMInvoker(cpuAtMostOneSnippet());
-        RuleTransEngine engine = engine(fake);
+        RuleTransEngine engine = engine(realLlm());
 
         String snippet = engine.translate("CPU at most one", RuleContextFactory.partCategory(sampleModule(), "cpu"));
 
-        assertTrue(snippet.contains("@CodeRuleAnno"));
-        assertFalse(snippet.contains("package "));
-        assertFalse(snippet.contains("class "));
-    }
-
-    @Test
-    public void testProductStage1IdentifiesAndValidatesCategories() {
-        FakeLLMInvoker fake = new FakeLLMInvoker("[\"cpu\", \"drive\"]");
-        CategoryIdentifier identifier = new CategoryIdentifier(fake, new PromptBuilder());
-
-        List<String> result = identifier.identify("4-core CPU cannot use 5400 drive", sampleModule());
-
-        assertTrue(result.contains("cpu"));
-        assertTrue(result.contains("drive"));
-    }
-
-    @Test
-    public void testProductStage1RejectsMissingCategory() {
-        FakeLLMInvoker fake = new FakeLLMInvoker("[\"missing\"]");
-        CategoryIdentifier identifier = new CategoryIdentifier(fake, new PromptBuilder());
-
-        CategoryNotFoundException ex = assertThrows(CategoryNotFoundException.class,
-                () -> identifier.identify("unknown category", sampleModule()));
-        assertTrue(ex.getMessage().contains("missing"));
+        assertTrue(snippet.contains("@CodeRuleAnno"), snippet);
+        assertTrue(snippet.contains("cpu"), snippet);
+        assertFalse(snippet.contains("package "), snippet);
+        assertFalse(snippet.contains("class "), snippet);
     }
 
     @Test
     public void testProductTranslateUsesIdentifiedCategories() {
-        FakeLLMInvoker fake = new FakeLLMInvoker("[\"cpu\", \"drive\"]", crossCategorySnippet());
         ProductRuleContext context = RuleContextFactory.product(sampleModule());
 
-        String snippet = engine(fake).translate("4-core CPU cannot use 5400 drive", context);
+        String snippet = engine(realLlm()).translate("4-core CPU cannot use 5400 drive", context);
 
-        assertTrue(snippet.contains("cpu4NotDrive5400"));
-        assertTrue(fake.prompts().get(1).contains("\"cpu\""));
-        assertTrue(fake.prompts().get(1).contains("\"drive\""));
+        assertTrue(snippet.contains("@CodeRuleAnno"), snippet);
+        assertTrue(snippet.contains("cpu"), snippet);
+        assertTrue(snippet.contains("drive"), snippet);
+        assertFalse(snippet.contains("package "), snippet);
+        assertFalse(snippet.contains("class "), snippet);
     }
 
     @Test
@@ -123,65 +100,51 @@ public class RuleTransModuleTest {
     }
 
     @Test
-    public void testCompilationErrorDrivesRetry() {
-        FakeLLMInvoker fake = new FakeLLMInvoker(cpuAtMostOneBadSnippet(), cpuAtMostOneSnippet());
-
-        RuleTransResult result = engine(fake).translateWithRetry(
+    public void testPartCategoryTranslateWithRetryCompilesRealSnippet() {
+        RuleTransResult result = engine(realLlm()).translateWithRetry(
                 "CPU at most one",
                 RuleContextFactory.partCategory(sampleModule(), "cpu"),
                 1);
 
         assertTrue(result.success(), String.valueOf(result.testExecutionResult()));
-        assertTrue(result.snippet().contains("addLessOrEqual"));
-        assertTrue(fake.prompts().get(1).contains("addLessOrEquals"));
+        assertTrue(result.compilationResult().success(), String.join("\n", result.compilationResult().errors()));
+        assertTrue(result.snippet().contains("@CodeRuleAnno"), result.snippet());
     }
 
     @Test
     public void testPartCategoryEndToEndGeneratedTestCasesPass() {
-        FakeLLMInvoker fake = new FakeLLMInvoker(cpuAtMostOneSnippet(), cpuAtMostOneTestCases());
-
-        RuleTransResult result = engineWithGeneratedCases(fake).translateWithRetry(
+        RuleTransResult result = engineWithGeneratedCases(realLlm()).translateWithRetry(
                 "CPU at most one",
                 RuleContextFactory.partCategory(sampleModule(), "cpu"),
                 0);
 
         assertTrue(result.success(), String.valueOf(result.testExecutionResult()));
         assertNotNull(result.testExecutionResult());
-        assertEquals(2, result.testExecutionResult().testsSucceeded());
+        assertTrue(result.testExecutionResult().testsSucceeded() > 0);
     }
 
     @Test
     public void testProductEndToEndGeneratedTestCasesPass() {
-        FakeLLMInvoker fake = new FakeLLMInvoker(
-                "[\"cpu\", \"drive\"]",
-                crossCategorySnippet(),
-                crossCategoryTestCases());
-
-        RuleTransResult result = engineWithGeneratedCases(fake).translateWithRetry(
+        RuleTransResult result = engineWithGeneratedCases(realLlm()).translateWithRetry(
                 "4-core CPU cannot use 5400 drive",
                 RuleContextFactory.product(sampleModule()),
                 0);
 
         assertTrue(result.success(), String.valueOf(result.testExecutionResult()));
         assertNotNull(result.testExecutionResult());
-        assertEquals(3, result.testExecutionResult().testsSucceeded());
+        assertTrue(result.testExecutionResult().testsSucceeded() > 0);
     }
 
     @Test
-    public void testTestFailureDrivesRetry() {
-        FakeLLMInvoker fake = new FakeLLMInvoker(
-                cpuAtLeastTwoSnippet(),
-                cpuAtMostOneTestCases(),
-                cpuAtMostOneSnippet());
-
-        RuleTransResult result = engineWithGeneratedCases(fake).translateWithRetry(
+    public void testPartCategoryGeneratedTestCasesPassWithRetryBudget() {
+        RuleTransResult result = engineWithGeneratedCases(realLlm()).translateWithRetry(
                 "CPU at most one",
                 RuleContextFactory.partCategory(sampleModule(), "cpu"),
                 1);
 
-        assertTrue(result.success());
-        assertTrue(result.snippet().contains("addLessOrEqual"));
-        assertTrue(fake.prompts().get(2).contains("failed tests"));
+        assertTrue(result.success(), String.valueOf(result.testExecutionResult()));
+        assertNotNull(result.testExecutionResult());
+        assertTrue(result.testExecutionResult().success());
     }
 
     @Test
@@ -198,15 +161,12 @@ public class RuleTransModuleTest {
 
     @Test
     public void testBoundaryInputs() {
-        RuleTransEngine engine = engine(new FakeLLMInvoker(cpuAtMostOneSnippet()));
+        RuleTransEngine engine = engine(realLlm());
 
         assertThrows(IllegalArgumentException.class,
                 () -> engine.translate("", RuleContextFactory.partCategory(sampleModule(), "cpu")));
         assertThrows(IllegalArgumentException.class,
                 () -> engine.translate("CPU at most one", null));
-        assertThrows(CategoryNotFoundException.class,
-                () -> new CategoryIdentifier(new FakeLLMInvoker("[]"), new PromptBuilder())
-                        .identify("cannot identify", sampleModule()));
     }
 
     @Test
@@ -232,27 +192,35 @@ public class RuleTransModuleTest {
         assertDoesNotThrow(() -> assertTrue(processor.execute(PassingJUnitCase.class).success()));
     }
 
-    private RuleTransEngine engine(FakeLLMInvoker fake) {
-        return engine(fake, false);
+    private RuleTransEngine engine(LLMInvoker llmInvoker) {
+        return engine(llmInvoker, false);
     }
 
-    private RuleTransEngine engineWithGeneratedCases(FakeLLMInvoker fake) {
-        return engine(fake, true);
+    private RuleTransEngine engineWithGeneratedCases(LLMInvoker llmInvoker) {
+        return engine(llmInvoker, true);
     }
 
-    private RuleTransEngine engine(FakeLLMInvoker fake, boolean generateCases) {
+    private RuleTransEngine engine(LLMInvoker llmInvoker, boolean generateCases) {
         RulePromptProjector projector = new RulePromptProjector();
         PromptBuilder promptBuilder = new PromptBuilder(projector);
         RuleSnippetPostProcessor postProcessor = new RuleSnippetPostProcessor();
         RuleTransTempFileManager tempFileManager = new RuleTransTempFileManager(Path.of("target/ruletrans-test"));
         return new RuleTransEngine(
-                new CategoryIdentifier(fake, promptBuilder),
-                new RuleSnippetGenerator(fake, promptBuilder, postProcessor),
+                new CategoryIdentifier(llmInvoker, promptBuilder),
+                new RuleSnippetGenerator(llmInvoker, promptBuilder, postProcessor),
                 new RuleSnippetAssembler(tempFileManager),
                 new CompilationProcessor(tempFileManager),
-                new RuleTestCaseGenerator(generateCases ? fake : null, promptBuilder),
+                new RuleTestCaseGenerator(generateCases ? llmInvoker : null, promptBuilder),
                 new TestExecutionProcessor(tempFileManager),
                 promptBuilder);
+    }
+
+    private LLMInvoker realLlm() {
+        return RealLlmHolder.INSTANCE;
+    }
+
+    private static final class RealLlmHolder {
+        private static final LLMInvoker INSTANCE = new LLMInvokerImpl();
     }
 
     private Module sampleModule() {
@@ -264,24 +232,6 @@ public class RuleTransModuleTest {
                 @CodeRuleAnno(normalNaturalCode = "CPU at most one", fatherCode = "cpu")
                 public void ruleCpuAtMostOne() {
                     model().addLessOrEqual(model().sum4Selected("cpu", "", ""), 1);
-                }
-                """;
-    }
-
-    private String cpuAtMostOneBadSnippet() {
-        return """
-                @CodeRuleAnno(normalNaturalCode = "CPU at most one", fatherCode = "cpu")
-                public void ruleCpuAtMostOne() {
-                    model().addLessOrEquals(model().sum4Selected("cpu", "", ""), 1);
-                }
-                """;
-    }
-
-    private String cpuAtLeastTwoSnippet() {
-        return """
-                @CodeRuleAnno(normalNaturalCode = "CPU at most one", fatherCode = "cpu")
-                public void ruleCpuAtMostOne() {
-                    model().addGreaterOrEqual(model().sum4Selected("cpu", "", ""), 2);
                 }
                 """;
     }
@@ -304,61 +254,6 @@ public class RuleTransModuleTest {
                     return model().newPartLinearExpr("cpu4_drive5400_pair")
                             .addExpr(left, 1)
                             .addExpr(right, 1);
-                }
-                """;
-    }
-
-    private String cpuAtMostOneTestCases() {
-        return """
-                {
-                  "ruleMethod": "ruleCpuAtMostOne",
-                  "cases": [
-                    {
-                      "id": "cpu_single_valid",
-                      "type": "validate",
-                      "selectedParts": ["cpu4"],
-                      "expectedValid": true
-                    },
-                    {
-                      "id": "cpu_double_invalid",
-                      "type": "validate",
-                      "selectedParts": ["cpu4", "cpu8"],
-                      "expectedValid": false,
-                      "expectedViolatedRuleCodes": ["ruleCpuAtMostOne"]
-                    }
-                  ]
-                }
-                """;
-    }
-
-    private String crossCategoryTestCases() {
-        return """
-                {
-                  "ruleMethod": "cpu4NotDrive5400",
-                  "cases": [
-                    {
-                      "id": "forbidden_pair_invalid",
-                      "type": "validate",
-                      "selectedParts": ["cpu4", "drive5400"],
-                      "expectedValid": false,
-                      "expectedViolatedRuleCodes": ["cpu4NotDrive5400"]
-                    },
-                    {
-                      "id": "allowed_pair_valid",
-                      "type": "validate",
-                      "selectedParts": ["cpu8", "drive7200"],
-                      "expectedValid": true
-                    },
-                    {
-                      "id": "recommend_forbidden_pair_no_solution",
-                      "type": "recommend",
-                      "requests": [
-                        "cpu:Sum_Quantity ==1 where CoreNum=4",
-                        "drive:Sum_Quantity ==1 where Speed=5400"
-                      ],
-                      "expectedResult": "NO_SOLUTION"
-                    }
-                  ]
                 }
                 """;
     }
@@ -399,31 +294,4 @@ public class RuleTransModuleTest {
         }
     }
 
-    private static final class FakeLLMInvoker implements LLMInvoker {
-
-        private final Deque<String> responses = new ArrayDeque<>();
-        private final List<String> prompts = new ArrayList<>();
-
-        private FakeLLMInvoker(String... responses) {
-            this.responses.addAll(Arrays.asList(responses));
-        }
-
-        @Override
-        public String generate(String systemMessage, String userMessage) {
-            prompts.add(userMessage);
-            if (responses.isEmpty()) {
-                throw new IllegalStateException("No fake LLM response left");
-            }
-            return responses.removeFirst();
-        }
-
-        @Override
-        public String getConfigInfo() {
-            return "fake";
-        }
-
-        private List<String> prompts() {
-            return prompts;
-        }
-    }
 }

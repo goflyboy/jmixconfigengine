@@ -17,3 +17,6 @@ ${failedCases}
 
 Return only a corrected Java rule method snippet if the failure is likely a rule logic error.
 Do not include package, imports, class declarations, markdown, or explanations.
+Use only ModuleAlgBase APIs that compile, such as model().sum4Selected(...),
+model().sum4Quantity(...), model().addLessOrEqual(...), model().addGreaterOrEqual(...),
+model().addEqual(...), and inCompatible("ruleCode", "category:Attr=value", "category:Attr=value").

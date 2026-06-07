@@ -21,6 +21,8 @@ import java.util.Properties;
 public class LLMInvokerImpl extends LLMInvokerBase implements LLMInvoker {
 
     private static final String DEEPSEEK_COMPLETIONS_PATH = "/chat/completions";
+    private static final String SOURCE_ENV = "environment variable";
+    private static final String SOURCE_CONFIG = "configuration file";
 
     private final ChatModel chatModel;
 
@@ -77,39 +79,38 @@ public class LLMInvokerImpl extends LLMInvokerBase implements LLMInvoker {
     }
 
     private ChatModel createDeepSeekModel(Properties config) {
-        String apiKey = firstNonBlank(
-                System.getenv("DEEPSEEK_API_KEY"),
-                config.getProperty("deepseek.api.key"),
-                config.getProperty("llm.deepseek.apiKey"));
-        if (apiKey == null) {
+        ConfigValue apiKey = firstConfigured("DEEPSEEK_API_KEY",
+                "deepseek.api.key",
+                "llm.deepseek.apiKey");
+        if (apiKey.value() == null) {
             throw new ModelGenneratorException("DEEPSEEK_API_KEY is not configured");
         }
 
-        String baseUrl = firstNonBlank(
-                System.getenv("DEEPSEEK_API_BASE_URL"),
-                config.getProperty("deepseek.api.base.url"),
-                config.getProperty("llm.deepseek.baseUrl"),
-                "https://api.deepseek.com");
+        String baseUrl = firstConfiguredOrDefault(
+                "DEEPSEEK_API_BASE_URL",
+                "https://api.deepseek.com",
+                "deepseek.api.base.url",
+                "llm.deepseek.baseUrl");
         baseUrl = normalizeBaseUrl(baseUrl);
         if (baseUrl.endsWith("/v1")) {
             baseUrl = baseUrl.substring(0, baseUrl.length() - 3);
         }
 
-        String configuredModelName = firstNonBlank(
-                System.getenv("DEEPSEEK_MODEL_NAME"),
-                config.getProperty("deepseek.model.name"),
-                config.getProperty("llm.deepseek.modelName"),
-                "deepseek-v4-pro");
+        String configuredModelName = firstConfiguredOrDefault(
+                "DEEPSEEK_MODEL_NAME",
+                "deepseek-v4-pro",
+                "deepseek.model.name",
+                "llm.deepseek.modelName");
         activeModelName = configuredModelName;
 
-        double temperature = Double.parseDouble(config.getProperty("llm.deepseek.temperature", "0.7"));
+        double temperature = Double.parseDouble(config.getProperty("llm.deepseek.temperature", "0.3"));
         int maxTokens = Integer.parseInt(config.getProperty("llm.deepseek.maxTokens", "4000"));
 
-        log.info("Creating DeepSeek model: {} with baseUrl: {}, apiKey: {}",
-                configuredModelName, baseUrl, maskApiKey(apiKey));
+        log.info("Creating DeepSeek model: {} with baseUrl: {}, apiKey: {} ({})",
+                configuredModelName, baseUrl, maskApiKey(apiKey.value()), apiKey.source());
 
         OpenAiApi openAiApi = OpenAiApi.builder()
-                .apiKey(apiKey)
+                .apiKey(apiKey.value())
                 .baseUrl(baseUrl)
                 .completionsPath(DEEPSEEK_COMPLETIONS_PATH)
                 .build();
@@ -126,36 +127,35 @@ public class LLMInvokerImpl extends LLMInvokerBase implements LLMInvoker {
     }
 
     private ChatModel createQWenModel(Properties config) {
-        String apiKey = firstNonBlank(
-                System.getenv("QWEN_API_KEY"),
-                config.getProperty("qwen.api.key"),
-                config.getProperty("llm.qwen.apiKey"));
-        if (apiKey == null) {
+        ConfigValue apiKey = firstConfigured("QWEN_API_KEY",
+                "qwen.api.key",
+                "llm.qwen.apiKey");
+        if (apiKey.value() == null) {
             throw new ModelGenneratorException("QWEN_API_KEY is not configured");
         }
 
-        String baseUrl = firstNonBlank(
-                System.getenv("QWEN_API_BASE_URL"),
-                config.getProperty("qwen.api.base.url"),
-                config.getProperty("llm.qwen.baseUrl"),
-                "https://dashscope.aliyuncs.com/compatible-mode/v1");
+        String baseUrl = firstConfiguredOrDefault(
+                "QWEN_API_BASE_URL",
+                "https://dashscope.aliyuncs.com/compatible-mode/v1",
+                "qwen.api.base.url",
+                "llm.qwen.baseUrl");
         baseUrl = normalizeBaseUrl(baseUrl);
 
-        String configuredModelName = firstNonBlank(
-                System.getenv("QWEN_MODEL_NAME"),
-                config.getProperty("qwen.model.name"),
-                config.getProperty("llm.qwen.modelName"),
-                "qwen-plus");
+        String configuredModelName = firstConfiguredOrDefault(
+                "QWEN_MODEL_NAME",
+                "qwen-plus",
+                "qwen.model.name",
+                "llm.qwen.modelName");
         activeModelName = configuredModelName;
 
         double temperature = Double.parseDouble(config.getProperty("llm.qwen.temperature", "0.7"));
         int maxTokens = Integer.parseInt(config.getProperty("llm.qwen.maxTokens", "4000"));
 
-        log.info("Creating QWen model: {} with baseUrl: {}, apiKey: {}",
-                configuredModelName, baseUrl, maskApiKey(apiKey));
+        log.info("Creating QWen model: {} with baseUrl: {}, apiKey: {} ({})",
+                configuredModelName, baseUrl, maskApiKey(apiKey.value()), apiKey.source());
 
         OpenAiApi openAiApi = OpenAiApi.builder()
-                .apiKey(apiKey)
+                .apiKey(apiKey.value())
                 .baseUrl(baseUrl)
                 .build();
 
@@ -189,16 +189,73 @@ public class LLMInvokerImpl extends LLMInvokerBase implements LLMInvoker {
         return normalized;
     }
 
-    private String firstNonBlank(String... values) {
-        for (String value : values) {
-            if (value != null && !value.trim().isEmpty()) {
-                return value.trim();
+    private ConfigValue firstConfigured(String envName, String... propertyNames) {
+        ConfigValue envValue = configuredFromEnv(envName);
+        if (envValue.value() != null) {
+            return envValue;
+        }
+        for (String propertyName : propertyNames) {
+            ConfigValue configValue = configuredFromProperty(propertyName);
+            if (configValue.value() != null) {
+                return configValue;
             }
         }
-        return null;
+        return new ConfigValue(null, "");
+    }
+
+    private String firstConfiguredOrDefault(String envName, String defaultValue, String... propertyNames) {
+        ConfigValue configured = firstConfigured(envName, propertyNames);
+        if (configured.value() != null) {
+            return configured.value();
+        }
+        return defaultValue;
+    }
+
+    private ConfigValue configuredFromEnv(String envName) {
+        return new ConfigValue(normalizeConfiguredValue(System.getenv(envName)), SOURCE_ENV + " " + envName);
+    }
+
+    private ConfigValue configuredFromProperty(String propertyName) {
+        return new ConfigValue(
+                normalizeConfiguredValue(config.getProperty(propertyName)),
+                SOURCE_CONFIG + " " + propertyName);
+    }
+
+    private String normalizeConfiguredValue(String rawValue) {
+        if (rawValue == null) {
+            return null;
+        }
+        String value = rawValue.trim();
+        if (value.isEmpty() || isPlaceholderValue(value)) {
+            return null;
+        }
+        String envName = envPlaceholderName(value);
+        if (envName != null) {
+            return normalizeConfiguredValue(System.getenv(envName));
+        }
+        return value;
+    }
+
+    private boolean isPlaceholderValue(String value) {
+        String lower = value.toLowerCase();
+        return lower.startsWith("your-")
+                || lower.startsWith("your_")
+                || lower.endsWith("-api-key")
+                || lower.endsWith("_api_key");
+    }
+
+    private String envPlaceholderName(String value) {
+        if (!value.startsWith("${") || !value.endsWith("}")) {
+            return null;
+        }
+        String envName = value.substring(2, value.length() - 1).trim();
+        return envName.isEmpty() ? null : envName;
     }
 
     private String maskApiKey(String apiKey) {
         return "***" + apiKey.substring(Math.max(0, apiKey.length() - 4));
+    }
+
+    private record ConfigValue(String value, String source) {
     }
 }

@@ -21,3 +21,15 @@ ${diagnostics}
 Return only the corrected Java rule method snippet.
 Keep the intended business semantics unchanged and fix syntax, type, annotation, or facade API usage errors.
 Do not include package, imports, class declarations, markdown, or explanations.
+
+Use only APIs that compile in ModuleAlgBase:
+- @CodeRuleAnno supports code, normalNaturalCode, fatherCode, attrParaCodes,
+  leftProObjsStr, and rightProObjsStr. Do not use module or category attributes.
+- Category counts: model().sum4Selected("categoryCode", "", "optional Attr=value filter").
+- Category quantities: model().sum4Quantity("categoryCode", "", "optional Attr=value filter").
+- Numeric constraints: model().addLessOrEqual(...), model().addGreaterOrEqual(...),
+  or model().addEqual(...).
+- Incompatibility: inCompatible("ruleCode", "category:Attr=value", "category:Attr=value").
+Do not use partCategoryVar(...).count(), totalQuantityVariable(), selectedCount(),
+model().addConstraint(...), addCompatibleConstraintInCompatible(partVar(...), partVar(...)),
+or inCompatible(partVar(...), partVar(...)).
