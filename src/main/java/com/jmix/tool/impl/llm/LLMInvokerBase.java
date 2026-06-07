@@ -51,7 +51,7 @@ public abstract class LLMInvokerBase {
         Properties defaultConfig = new Properties();
         defaultConfig.setProperty("llm.deepseek.apiKey", "your-deepseek-api-key");
         defaultConfig.setProperty("llm.deepseek.baseUrl", "https://api.deepseek.com/v1");
-        defaultConfig.setProperty("llm.deepseek.modelName", "deepseek-chat");
+        defaultConfig.setProperty("llm.deepseek.modelName", "deepseek-v4-pro");
         defaultConfig.setProperty("llm.deepseek.temperature", "0.7");
         defaultConfig.setProperty("llm.deepseek.maxTokens", "4000");
         defaultConfig.setProperty("llm.qwen.apiKey", "your-qwen-api-key");

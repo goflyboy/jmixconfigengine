@@ -1,0 +1,189 @@
+# -*- coding: utf-8 -*-
+content = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 640" font-family="'Microsoft YaHei','PingFang SC',sans-serif">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#f1f5f9"/>
+    </linearGradient>
+    <linearGradient id="col1Grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#dbeafe" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#dbeafe" stop-opacity="0.1"/>
+    </linearGradient>
+    <linearGradient id="col2Grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fef3c7" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#fef3c7" stop-opacity="0.1"/>
+    </linearGradient>
+    <linearGradient id="col3Grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#d1fae5" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#d1fae5" stop-opacity="0.1"/>
+    </linearGradient>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0,10 3.5,0 7" fill="#3b82f6"/>
+    </marker>
+    <marker id="arrowAmber" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0,10 3.5,0 7" fill="#f59e0b"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0,10 3.5,0 7" fill="#10b981"/>
+    </marker>
+    <filter id="cardShadow" x="-5%" y="-5%" width="110%" height="115%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#64748b" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <rect width="960" height="640" fill="url(#bgGrad)"/>
+
+  <text x="480" y="40" text-anchor="middle" font-size="22" font-weight="700" fill="#1e293b">本体实例化方法</text>
+  <text x="480" y="62" text-anchor="middle" font-size="13" fill="#64748b">从真实业务到隐喻案例的三段式演进</text>
+
+  <rect x="24" y="82" width="294" height="488" rx="16" fill="url(#col1Grad)" stroke="#93c5fd" stroke-width="1.5" stroke-opacity="0.5"/>
+  <rect x="333" y="82" width="294" height="488" rx="16" fill="url(#col2Grad)" stroke="#fcd34d" stroke-width="1.5" stroke-opacity="0.5"/>
+  <rect x="642" y="82" width="294" height="488" rx="16" fill="url(#col3Grad)" stroke="#6ee7b7" stroke-width="1.5" stroke-opacity="0.5"/>
+
+  <line x1="318" y1="82" x2="318" y2="570" stroke="#cbd5e1" stroke-width="1" stroke-opacity="0.6"/>
+  <line x1="627" y1="82" x2="627" y2="570" stroke="#cbd5e1" stroke-width="1" stroke-opacity="0.6"/>
+
+  <rect x="24" y="82" width="294" height="50" rx="16" fill="#3b82f6" fill-opacity="0.1"/>
+  <text x="171" y="106" text-anchor="middle" font-size="15" font-weight="700" fill="#1d4ed8">1. 真实业务案例</text>
+  <text x="171" y="124" text-anchor="middle" font-size="10" fill="#93c5fd">Product Configuration Metamodel</text>
+
+  <rect x="333" y="82" width="294" height="50" rx="16" fill="#f59e0b" fill-opacity="0.1"/>
+  <text x="480" y="106" text-anchor="middle" font-size="15" font-weight="700" fill="#b45309">2. 配置本体 / 元模型</text>
+  <text x="480" y="124" text-anchor="middle" font-size="10" fill="#fcd34d">Ontology Abstraction Layer</text>
+
+  <rect x="642" y="82" width="294" height="50" rx="16" fill="#10b981" fill-opacity="0.1"/>
+  <text x="789" y="106" text-anchor="middle" font-size="15" font-weight="700" fill="#065f46">3. 隐喻案例实例化</text>
+  <text x="789" y="124" text-anchor="middle" font-size="10" fill="#6ee7b7">Metaphor Case Instantiation</text>
+
+  <rect x="44" y="148" width="254" height="108" rx="12" fill="white" filter="url(#cardShadow)" stroke="#3b82f6" stroke-width="1.5"/>
+  <rect x="44" y="148" width="254" height="7" rx="7" fill="#3b82f6"/>
+  <text x="171" y="178" text-anchor="middle" font-size="14" font-weight="700" fill="#1e293b">看山是山</text>
+  <text x="171" y="200" text-anchor="middle" font-size="12" fill="#64748b">保留真实业务场景</text>
+  <text x="171" y="220" text-anchor="middle" font-size="11" fill="#94a3b8">业务人员描述具体设备配置规则</text>
+  <text x="171" y="240" text-anchor="middle" font-size="11" fill="#94a3b8">产品选型、规格约束、不兼容场景</text>
+
+  <rect x="353" y="148" width="254" height="108" rx="12" fill="white" filter="url(#cardShadow)" stroke="#f59e0b" stroke-width="1.5"/>
+  <rect x="353" y="148" width="254" height="7" rx="7" fill="#f59e0b"/>
+  <text x="480" y="178" text-anchor="middle" font-size="14" font-weight="700" fill="#1e293b">看山不是山</text>
+  <text x="480" y="200" text-anchor="middle" font-size="12" fill="#64748b">抽象成产品配置元模型</text>
+  <text x="480" y="220" text-anchor="middle" font-size="11" fill="#94a3b8">Module / PartCategory / Part / Para</text>
+  <text x="480" y="240" text-anchor="middle" font-size="11" fill="#94a3b8">RuleSchema / 兼容性 / 计算 / 优先级</text>
+
+  <rect x="662" y="148" width="254" height="108" rx="12" fill="white" filter="url(#cardShadow)" stroke="#10b981" stroke-width="1.5"/>
+  <rect x="662" y="148" width="254" height="7" rx="7" fill="#10b981"/>
+  <text x="789" y="178" text-anchor="middle" font-size="14" font-weight="700" fill="#1e293b">看山还是山</text>
+  <text x="789" y="200" text-anchor="middle" font-size="12" fill="#64748b">用隐喻案例重新实例化</text>
+  <text x="789" y="220" text-anchor="middle" font-size="11" fill="#94a3b8">低门槛、易沟通、可执行测试</text>
+  <text x="789" y="240" text-anchor="middle" font-size="11" fill="#94a3b8">开发 / 验收 / AI 样例</text>
+
+  <path d="M 171 266 L 171 284 L 318 284 L 318 300" fill="none" stroke="#3b82f6" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrowBlue)"/>
+  <path d="M 480 266 L 480 284 L 627 284 L 627 300" fill="none" stroke="#f59e0b" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrowAmber)"/>
+  <path d="M 789 266 L 789 284 L 920 284 L 920 402 L 804 402 L 804 386" fill="none" stroke="#10b981" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrowGreen)"/>
+
+  <rect x="44" y="310" width="254" height="48" rx="24" fill="#3b82f6" filter="url(#cardShadow)"/>
+  <text x="171" y="331" text-anchor="middle" font-size="15" font-weight="700" fill="white">看山是山</text>
+  <text x="171" y="349" text-anchor="middle" font-size="9.5" fill="#bfdbfe">Look at the mountain as a mountain</text>
+
+  <rect x="353" y="310" width="254" height="48" rx="24" fill="#f59e0b" filter="url(#cardShadow)"/>
+  <text x="480" y="331" text-anchor="middle" font-size="15" font-weight="700" fill="white">看山不是山</text>
+  <text x="480" y="349" text-anchor="middle" font-size="9.5" fill="#fef3c7">Look at the mountain as not a mountain</text>
+
+  <rect x="662" y="310" width="254" height="48" rx="24" fill="#10b981" filter="url(#cardShadow)"/>
+  <text x="789" y="331" text-anchor="middle" font-size="15" font-weight="700" fill="white">看山还是山</text>
+  <text x="789" y="349" text-anchor="middle" font-size="9.5" fill="#d1fae5">Look at the mountain again as a mountain</text>
+
+  <line x1="171" y1="368" x2="171" y2="398" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowBlue)"/>
+  <line x1="480" y1="368" x2="480" y2="398" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowAmber)"/>
+  <line x1="789" y1="368" x2="789" y2="398" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowGreen)"/>
+
+  <text x="171" y="415" text-anchor="middle" font-size="13" font-weight="700" fill="#1d4ed8">真实业务实例</text>
+  <text x="171" y="432" text-anchor="middle" font-size="10.5" fill="#64748b">实际产品配置场景</text>
+
+  <g transform="translate(56, 442)">
+    <rect x="0" y="0" width="110" height="36" rx="8" fill="white" stroke="#3b82f6" stroke-width="1.2" filter="url(#cardShadow)"/>
+    <text x="55" y="17" text-anchor="middle" font-size="12" font-weight="600" fill="#1e293b">电信产品</text>
+    <text x="55" y="30" text-anchor="middle" font-size="9" fill="#94a3b8">Telecom Product</text>
+    <rect x="124" y="0" width="110" height="36" rx="8" fill="white" stroke="#3b82f6" stroke-width="1.2" filter="url(#cardShadow)"/>
+    <text x="179" y="17" text-anchor="middle" font-size="12" font-weight="600" fill="#1e293b">服务器</text>
+    <text x="179" y="30" text-anchor="middle" font-size="9" fill="#94a3b8">Server</text>
+    <rect x="0" y="44" width="110" height="36" rx="8" fill="white" stroke="#3b82f6" stroke-width="1.2" filter="url(#cardShadow)"/>
+    <text x="55" y="61" text-anchor="middle" font-size="12" font-weight="600" fill="#1e293b">交换机</text>
+    <text x="55" y="74" text-anchor="middle" font-size="9" fill="#94a3b8">Switch</text>
+    <rect x="124" y="44" width="110" height="36" rx="8" fill="white" stroke="#3b82f6" stroke-width="1.2" filter="url(#cardShadow)"/>
+    <text x="179" y="61" text-anchor="middle" font-size="12" font-weight="600" fill="#1e293b">OLT 产品</text>
+    <text x="179" y="74" text-anchor="middle" font-size="9" fill="#94a3b8">OLT Product</text>
+  </g>
+
+  <text x="480" y="415" text-anchor="middle" font-size="13" font-weight="700" fill="#b45309">业务概念抽象模型</text>
+  <text x="480" y="432" text-anchor="middle" font-size="10.5" fill="#64748b">产品配置元模型映射</text>
+
+  <g transform="translate(365, 442)">
+    <rect x="0" y="0" width="100" height="34" rx="8" fill="white" stroke="#f59e0b" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <text x="50" y="15" text-anchor="middle" font-size="11" font-weight="700" fill="#1e293b">Module</text>
+    <text x="50" y="28" text-anchor="middle" font-size="9" fill="#94a3b8">完整配置对象</text>
+    <rect x="112" y="0" width="100" height="34" rx="8" fill="white" stroke="#f59e0b" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <text x="162" y="15" text-anchor="middle" font-size="11" font-weight="700" fill="#1e293b">PartCategory</text>
+    <text x="162" y="28" text-anchor="middle" font-size="9" fill="#94a3b8">部件分类</text>
+    <rect x="0" y="42" width="100" height="34" rx="8" fill="white" stroke="#f59e0b" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <text x="50" y="57" text-anchor="middle" font-size="11" font-weight="700" fill="#1e293b">Part</text>
+    <text x="50" y="70" text-anchor="middle" font-size="9" fill="#94a3b8">具体部件</text>
+    <rect x="112" y="42" width="100" height="34" rx="8" fill="white" stroke="#f59e0b" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <text x="162" y="57" text-anchor="middle" font-size="11" font-weight="700" fill="#1e293b">Para</text>
+    <text x="162" y="70" text-anchor="middle" font-size="9" fill="#94a3b8">可配置参数</text>
+    <rect x="0" y="84" width="100" height="34" rx="8" fill="white" stroke="#f59e0b" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <text x="50" y="99" text-anchor="middle" font-size="11" font-weight="700" fill="#1e293b">RuleSchema</text>
+    <text x="50" y="112" text-anchor="middle" font-size="9" fill="#94a3b8">规则表达</text>
+    <rect x="112" y="84" width="100" height="34" rx="8" fill="white" stroke="#f59e0b" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <text x="162" y="99" text-anchor="middle" font-size="11" font-weight="700" fill="#1e293b">ModuleInst</text>
+    <text x="162" y="112" text-anchor="middle" font-size="9" fill="#94a3b8">运行时实例</text>
+  </g>
+
+  <text x="789" y="415" text-anchor="middle" font-size="13" font-weight="700" fill="#065f46">隐喻案例</text>
+  <text x="789" y="432" text-anchor="middle" font-size="10.5" fill="#64748b">通俗易懂的隐喻实例</text>
+
+  <g transform="translate(662, 442)">
+    <rect x="0" y="0" width="120" height="62" rx="10" fill="white" stroke="#10b981" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <rect x="0" y="0" width="120" height="24" rx="10" fill="#10b981" fill-opacity="0.15"/>
+    <rect x="0" y="12" width="120" height="12" fill="white"/>
+    <text x="60" y="17" text-anchor="middle" font-size="11" font-weight="700" fill="#065f46">Computer 电脑</text>
+    <text x="60" y="40" text-anchor="middle" font-size="10" fill="#1e293b">PartCategory 示例</text>
+    <text x="60" y="54" text-anchor="middle" font-size="9" fill="#64748b">CPU / 硬盘 / 内存</text>
+    <rect x="134" y="0" width="120" height="62" rx="10" fill="white" stroke="#10b981" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <rect x="134" y="0" width="120" height="24" rx="10" fill="#10b981" fill-opacity="0.15"/>
+    <rect x="134" y="12" width="120" height="12" fill="white"/>
+    <text x="194" y="17" text-anchor="middle" font-size="11" font-weight="700" fill="#065f46">T-Shirt T恤</text>
+    <text x="194" y="40" text-anchor="middle" font-size="10" fill="#1e293b">最小规则闭环</text>
+    <text x="194" y="54" text-anchor="middle" font-size="9" fill="#64748b">参数 / 数量计算</text>
+    <rect x="0" y="72" width="120" height="62" rx="10" fill="white" stroke="#10b981" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <rect x="0" y="72" width="120" height="24" rx="10" fill="#10b981" fill-opacity="0.15"/>
+    <rect x="0" y="84" width="120" height="12" fill="white"/>
+    <text x="60" y="89" text-anchor="middle" font-size="11" font-weight="700" fill="#065f46">Phone 手机</text>
+    <text x="60" y="112" text-anchor="middle" font-size="10" fill="#1e293b">配置参数组合</text>
+    <text x="60" y="126" text-anchor="middle" font-size="9" fill="#64748b">颜色 / 内存 / 套餐</text>
+    <rect x="134" y="72" width="120" height="62" rx="10" fill="white" stroke="#10b981" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <rect x="134" y="72" width="120" height="24" rx="10" fill="#10b981" fill-opacity="0.15"/>
+    <rect x="134" y="84" width="120" height="12" fill="white"/>
+    <text x="194" y="89" text-anchor="middle" font-size="11" font-weight="700" fill="#065f46">Clothing 服装</text>
+    <text x="194" y="112" text-anchor="middle" font-size="10" fill="#1e293b">不兼容约束</text>
+    <text x="194" y="126" text-anchor="middle" font-size="9" fill="#64748b">尺码 / 款式冲突</text>
+  </g>
+
+  <line x1="24" y1="575" x2="936" y2="575" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="480" y="594" text-anchor="middle" font-size="11" fill="#64748b">真实业务 → 抽象元模型 → 隐喻实例化 → 可执行测试</text>
+  <text x="480" y="610" text-anchor="middle" font-size="10" fill="#94a3b8">业务专家输入 → BA/架构抽象 → 开发测试落地 → AI 样例</text>
+
+  <g transform="translate(24, 568)">
+    <circle cx="6" cy="0" r="4" fill="#3b82f6"/>
+    <text x="14" y="4" font-size="10" fill="#64748b">业务人员</text>
+    <circle cx="84" cy="0" r="4" fill="#f59e0b"/>
+    <text x="92" y="4" font-size="10" fill="#64748b">BA / 架构</text>
+    <circle cx="164" cy="0" r="4" fill="#10b981"/>
+    <text x="172" y="4" font-size="10" fill="#64748b">开发 / 测试</text>
+    <circle cx="248" cy="0" r="4" fill="#8b5cf6"/>
+    <text x="256" y="4" font-size="10" fill="#64748b">AI 助手</text>
+  </g>
+</svg>"""
+
+with open(r'd:\03.code4cursor\jmixconfigengine\persum\本体实例化方法图解.svg', 'w', encoding='utf-8') as f:
+    f.write(content)
+print('Done')

@@ -19,15 +19,13 @@ public class ImageBuilderTest {
     private static final String ASSETS_DIR = "persum/assets/";
 
     public static void main(String[] args) throws Exception {
-        // String apiKey = System.getenv("OPENAI_API_KEY");
-        // if (apiKey == null || apiKey.trim().isEmpty()) {
-        // log.warn("OPENAI_API_KEY not set in environment. Use main() method with
-        // explicit API key.");
-        // return;
-        // }
+        String apiKey = System.getenv("TOP_IMAGE_KEY");
+        if (apiKey == null || apiKey.trim().isEmpty()) {
+            log.warn("TOP_IMAGE_KEY not set in environment. Use main() method with explicit API key.");
+            return;
+        }
 
         // String baseUrl = args.length > 1 ? args[1] : "https://code.codingplay.top";
-        String apiKey = "sk-4552f3b96e14a7eeba207a41659b258c74961fd15e77683c9ddfec5954ef8f29";
         String baseUrl = "https://code.codingplay.top";
         Files.createDirectories(Paths.get(ASSETS_DIR));
 
@@ -35,7 +33,7 @@ public class ImageBuilderTest {
 
         log.info("Starting image generation...");
         // generateCoverImage(builder);
-        generateMethodDiagramImage(builder);
+        // generateMethodDiagramImage(builder);
         generateCollabSwimlaneImage(builder);
 
         log.info("All images generated successfully!");
@@ -44,7 +42,7 @@ public class ImageBuilderTest {
     @Test
     void generateAllImages() throws Exception {
         // 硬编码测试用 API Key
-        String apiKey = "sk-4552f3b96e14a7eeba207a41659b258c74961fd15e77683c9ddfec5954ef8f29";
+        String apiKey = "";
         String baseUrl = "https://code.codingplay.top";
         
         Files.createDirectories(Paths.get(ASSETS_DIR));
@@ -107,7 +105,7 @@ public class ImageBuilderTest {
                 Constraints: no brand marks, no company names, no exaggerated cartoon style, no watermark
                 """;
 
-        String outputPath = ASSETS_DIR + "03-协作泳道图.png";
+        String outputPath = ASSETS_DIR + "03-协作泳道图2.png";
         builder.generateImage(prompt, outputPath);
         log.info("协作泳道图已生成: {}", outputPath);
     }

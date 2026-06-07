@@ -1,0 +1,207 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" width="1200" height="900">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0%" stop-color="#FAFAF8"/>
+      <stop offset="100%" stop-color="#F2F0EB"/>
+    </linearGradient>
+    <filter id="cardShadow" x="-4%" y="-4%" width="112%" height="118%">
+      <feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#1A1A2E" flood-opacity="0.07"/>
+    </filter>
+    <pattern id="dotGrid" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle cx="10" cy="10" r="0.6" fill="#C8C4BC" opacity="0.35"/>
+    </pattern>
+    <marker id="arrowHead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <polygon points="0 0, 8 3, 0 6" fill="#9A9590" opacity="0.7"/>
+    </marker>
+    <linearGradient id="blueCard" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#EBF1FA"/>
+      <stop offset="100%" stop-color="#D6E4F5"/>
+    </linearGradient>
+    <linearGradient id="orangeCard" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FBF0E8"/>
+      <stop offset="100%" stop-color="#F5DFC8"/>
+    </linearGradient>
+    <linearGradient id="greenCard" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#E8F5EE"/>
+      <stop offset="100%" stop-color="#D0ECD8"/>
+    </linearGradient>
+    <linearGradient id="blueTopLine" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#2C5282" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#2C5282" stop-opacity="0.3"/>
+    </linearGradient>
+    <linearGradient id="orangeTopLine" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#C05A1A" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#C05A1A" stop-opacity="0.3"/>
+    </linearGradient>
+    <linearGradient id="greenTopLine" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#276749" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#276749" stop-opacity="0.3"/>
+    </linearGradient>
+    <filter id="roleShadow" x="-10%" y="-10%" width="130%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1A1A2E" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="900" fill="url(#bgGrad)"/>
+  <rect width="1200" height="900" fill="url(#dotGrid)"/>
+  <line x1="40" y1="28" x2="1160" y2="28" stroke="#D4D0C8" stroke-width="0.5"/>
+  <line x1="40" y1="872" x2="1160" y2="872" stroke="#D4D0C8" stroke-width="0.5"/>
+  <text x="60" y="56" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#1A1814" letter-spacing="0.5" font-weight="400">本体实例化方法图解</text>
+  <text x="60" y="76" font-family="'Arial', 'Helvetica', sans-serif" font-size="10" fill="#9A9590" letter-spacing="3">ONTOLOGICAL INSTANTIATION METHOD</text>
+  <text x="1140" y="52" font-family="'Arial', sans-serif" font-size="9" fill="#B0ACA4" text-anchor="end" letter-spacing="1.5">CONFIG ENGINE</text>
+  <text x="1140" y="68" font-family="'Arial', sans-serif" font-size="9" fill="#C0BCB4" text-anchor="end" letter-spacing="1">v2.0 · DIAGRAM</text>
+  <line x1="60" y1="92" x2="1140" y2="92" stroke="#D8D4CC" stroke-width="0.75"/>
+  <g transform="translate(60, 110)">
+    <rect width="340" height="210" rx="8" fill="url(#blueCard)" filter="url(#cardShadow)"/>
+    <rect width="340" height="3" rx="1.5" fill="url(#blueTopLine)"/>
+    <text x="24" y="36" font-family="Georgia, serif" font-size="36" fill="#2C5282" opacity="0.25" font-weight="300">①</text>
+    <rect x="0" y="52" width="3" height="148" rx="1.5" fill="#2C5282" opacity="0.2"/>
+    <text x="28" y="46" font-family="'Arial', sans-serif" font-size="11" fill="#2C5282" letter-spacing="2.5" font-weight="600">PHASE 01</text>
+    <text x="28" y="76" font-family="Georgia, serif" font-size="20" fill="#1A2844" font-weight="400">真实业务案例</text>
+    <text x="28" y="96" font-family="'PingFang SC', 'Microsoft YaHei', 'SimHei', sans-serif" font-size="13" fill="#2C5282" font-weight="500" letter-spacing="1">看山是山</text>
+    <text x="28" y="118" font-family="'PingFang SC', 'Microsoft YaHei', 'SimHei', sans-serif" font-size="11" fill="#4A5568" line-height="18"><tspan x="28" dy="0">保留真实业务场景，</tspan><tspan x="28" dy="16">从具体问题出发。</tspan></text>
+    <line x1="28" y1="145" x2="312" y2="145" stroke="#2C5282" stroke-width="0.4" opacity="0.3"/>
+    <text x="28" y="165" font-family="'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="10" fill="#6B7A9A" letter-spacing="0.5">业务专家 · 原始需求 · 具体场景</text>
+    <text x="28" y="196" font-family="'Arial', sans-serif" font-size="8.5" fill="#9AABB8" letter-spacing="1">CONCRETE PRACTICE</text>
+  </g>
+  <g transform="translate(430, 110)">
+    <rect width="340" height="210" rx="8" fill="url(#orangeCard)" filter="url(#cardShadow)"/>
+    <rect width="340" height="3" rx="1.5" fill="url(#orangeTopLine)"/>
+    <text x="24" y="36" font-family="Georgia, serif" font-size="36" fill="#C05A1A" opacity="0.25" font-weight="300">②</text>
+    <rect x="0" y="52" width="3" height="148" rx="1.5" fill="#C05A1A" opacity="0.2"/>
+    <text x="28" y="46" font-family="'Arial', sans-serif" font-size="11" fill="#C05A1A" letter-spacing="2.5" font-weight="600">PHASE 02</text>
+    <text x="28" y="76" font-family="Georgia, serif" font-size="20" fill="#3D1A08" font-weight="400">配置本体 / 元模型</text>
+    <text x="28" y="96" font-family="'PingFang SC', 'Microsoft YaHei', 'SimHei', sans-serif" font-size="13" fill="#C05A1A" font-weight="500" letter-spacing="1">看山不是山</text>
+    <text x="28" y="118" font-family="'PingFang SC', 'Microsoft YaHei', 'SimHei', sans-serif" font-size="11" fill="#4A5568" line-height="18"><tspan x="28" dy="0">抽象成产品配置元模型，</tspan><tspan x="28" dy="16">提取通用结构与约束。</tspan></text>
+    <line x1="28" y1="145" x2="312" y2="145" stroke="#C05A1A" stroke-width="0.4" opacity="0.3"/>
+    <text x="28" y="165" font-family="'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="10" fill="#9A7A5A" letter-spacing="0.5">BA / 架构师 · 抽象建模 · 规则提取</text>
+    <text x="28" y="196" font-family="'Arial', sans-serif" font-size="8.5" fill="#C0A888" letter-spacing="1">ABSTRACT MODEL</text>
+  </g>
+  <g transform="translate(800, 110)">
+    <rect width="340" height="210" rx="8" fill="url(#greenCard)" filter="url(#cardShadow)"/>
+    <rect width="340" height="3" rx="1.5" fill="url(#greenTopLine)"/>
+    <text x="24" y="36" font-family="Georgia, serif" font-size="36" fill="#276749" opacity="0.25" font-weight="300">③</text>
+    <rect x="0" y="52" width="3" height="148" rx="1.5" fill="#276749" opacity="0.2"/>
+    <text x="28" y="46" font-family="'Arial', sans-serif" font-size="11" fill="#276749" letter-spacing="2.5" font-weight="600">PHASE 03</text>
+    <text x="28" y="76" font-family="Georgia, serif" font-size="20" fill="#0E3324" font-weight="400">隐喻案例实例化</text>
+    <text x="28" y="96" font-family="'PingFang SC', 'Microsoft YaHei', 'SimHei', sans-serif" font-size="13" fill="#276749" font-weight="500" letter-spacing="1">看山还是山</text>
+    <text x="28" y="118" font-family="'PingFang SC', 'Microsoft YaHei', 'SimHei', sans-serif" font-size="11" fill="#4A5568" line-height="18"><tspan x="28" dy="0">用隐喻案例重新实例化，</tspan><tspan x="28" dy="16">验证模型有效性。</tspan></text>
+    <line x1="28" y1="145" x2="312" y2="145" stroke="#276749" stroke-width="0.4" opacity="0.3"/>
+    <text x="28" y="165" font-family="'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="10" fill="#5A8A6A" letter-spacing="0.5">开发测试 · AI 样例 · 隐喻验证</text>
+    <text x="28" y="196" font-family="'Arial', sans-serif" font-size="8.5" fill="#88A898" letter-spacing="1">METAPHORIC REINTEGRATION</text>
+  </g>
+  <line x1="400" y1="340" x2="430" y2="340" stroke="#C0B8B0" stroke-width="1" opacity="0.5"/>
+  <line x1="770" y1="340" x2="800" y2="340" stroke="#C0B8B0" stroke-width="1" opacity="0.5"/>
+  <g transform="translate(180, 342)">
+    <rect width="192" height="40" rx="20" fill="#2C5282" filter="url(#roleShadow)"/>
+    <text x="96" y="25" font-family="'PingFang SC', 'Microsoft YaHei', 'SimHei', sans-serif" font-size="13" fill="#FFFFFF" text-anchor="middle" font-weight="500" letter-spacing="1">看山是山</text>
+  </g>
+  <g transform="translate(500, 342)">
+    <rect width="200" height="40" rx="20" fill="#C05A1A" filter="url(#roleShadow)"/>
+    <text x="100" y="25" font-family="'PingFang SC', 'Microsoft YaHei', 'SimHei', sans-serif" font-size="13" fill="#FFFFFF" text-anchor="middle" font-weight="500" letter-spacing="1">看山不是山</text>
+  </g>
+  <g transform="translate(820, 342)">
+    <rect width="200" height="40" rx="20" fill="#276749" filter="url(#roleShadow)"/>
+    <text x="100" y="25" font-family="'PingFang SC', 'Microsoft YaHei', 'SimHei', sans-serif" font-size="13" fill="#FFFFFF" text-anchor="middle" font-weight="500" letter-spacing="1">看山还是山</text>
+  </g>
+  <line x1="60" y1="406" x2="1140" y2="406" stroke="#D8D4CC" stroke-width="0.5"/>
+  <g transform="translate(60, 416)">
+    <rect width="340" height="32" rx="4" fill="#2C5282" opacity="0.08"/>
+    <text x="170" y="21" font-family="'PingFang SC', 'Microsoft YaHei', 'SimHei', sans-serif" font-size="11" fill="#2C5282" text-anchor="middle" font-weight="600" letter-spacing="1.5">真实业务</text>
+  </g>
+  <g transform="translate(430, 416)">
+    <rect width="340" height="32" rx="4" fill="#C05A1A" opacity="0.08"/>
+    <text x="170" y="21" font-family="'PingFang SC', 'Microsoft YaHei', 'SimHei', sans-serif" font-size="11" fill="#C05A1A" text-anchor="middle" font-weight="600" letter-spacing="1.5">业务概念抽象模型</text>
+  </g>
+  <g transform="translate(800, 416)">
+    <rect width="340" height="32" rx="4" fill="#276749" opacity="0.08"/>
+    <text x="170" y="21" font-family="'PingFang SC', 'Microsoft YaHei', 'SimHei', sans-serif" font-size="11" fill="#276749" text-anchor="middle" font-weight="600" letter-spacing="1.5">隐喻案例</text>
+  </g>
+  <g transform="translate(60, 456)">
+    <rect width="340" height="64" rx="5" fill="#FFFFFF" filter="url(#cardShadow)" opacity="0.8"/>
+    <circle cx="24" cy="20" r="3.5" fill="#2C5282" opacity="0.6"/>
+    <text x="36" y="24" font-family="'PingFang SC', 'Microsoft YaHei', 'SimHei', sans-serif" font-size="11.5" fill="#1A2844" font-weight="500">电信产品</text>
+    <text x="24" y="44" font-family="'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="10" fill="#6B7A9A">交换机 · OLT 产品 · 服务器</text>
+    <rect y="72" width="340" height="64" rx="5" fill="#FFFFFF" filter="url(#cardShadow)" opacity="0.8"/>
+    <circle cx="24" cy="92" r="3.5" fill="#2C5282" opacity="0.6"/>
+    <text x="36" y="96" font-family="'PingFang SC', 'Microsoft YaHei', 'SimHei', sans-serif" font-size="11.5" fill="#1A2844" font-weight="500">通信网络</text>
+    <text x="24" y="116" font-family="'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="10" fill="#6B7A9A">光纤接入 · 宽带配置 · 设备选型</text>
+    <rect y="144" width="340" height="64" rx="5" fill="#FFFFFF" filter="url(#cardShadow)" opacity="0.8"/>
+    <circle cx="24" cy="164" r="3.5" fill="#2C5282" opacity="0.6"/>
+    <text x="36" y="168" font-family="'PingFang SC', 'Microsoft YaHei', 'SimHei', sans-serif" font-size="11.5" fill="#1A2844" font-weight="500">企业 IT 基础设施</text>
+    <text x="24" y="188" font-family="'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="10" fill="#6B7A9A">机房托管 · 云服务器 · 虚拟化平台</text>
+  </g>
+  <g transform="translate(430, 456)">
+    <rect width="340" height="64" rx="5" fill="#FFFFFF" filter="url(#cardShadow)" opacity="0.8"/>
+    <circle cx="24" cy="20" r="3.5" fill="#C05A1A" opacity="0.6"/>
+    <text x="36" y="24" font-family="'PingFang SC', 'Microsoft YaHei', 'SimHei', sans-serif" font-size="11.5" fill="#3D1A08" font-weight="500">Module</text>
+    <text x="24" y="44" font-family="'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="10" fill="#9A7A5A">PartCategory · Part · Para · RuleSchema</text>
+    <rect y="72" width="340" height="64" rx="5" fill="#FFFFFF" filter="url(#cardShadow)" opacity="0.8"/>
+    <circle cx="24" cy="92" r="3.5" fill="#C05A1A" opacity="0.6"/>
+    <text x="36" y="96" font-family="'PingFang SC', 'Microsoft YaHei', 'SimHei', sans-serif" font-size="11.5" fill="#3D1A08" font-weight="500">ModuleInst</text>
+    <text x="24" y="116" font-family="'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="10" fill="#9A7A5A">ParaInst · PartInst · SolverResult</text>
+    <rect y="144" width="340" height="64" rx="5" fill="#FFFFFF" filter="url(#cardShadow)" opacity="0.8"/>
+    <circle cx="24" cy="164" r="3.5" fill="#C05A1A" opacity="0.6"/>
+    <text x="36" y="168" font-family="'PingFang SC', 'Microsoft YaHei', 'SimHei', sans-serif" font-size="11.5" fill="#3D1A08" font-weight="500">约束规则体系</text>
+    <text x="24" y="188" font-family="'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="10" fill="#9A7A5A">兼容性规则 · 计算规则 · 优先级规则</text>
+  </g>
+  <g transform="translate(800, 456)">
+    <rect width="340" height="64" rx="5" fill="#FFFFFF" filter="url(#cardShadow)" opacity="0.8"/>
+    <circle cx="24" cy="20" r="3.5" fill="#276749" opacity="0.6"/>
+    <text x="36" y="24" font-family="'PingFang SC', 'Microsoft YaHei', 'SimHei', sans-serif" font-size="11.5" fill="#0E3324" font-weight="500">电脑</text>
+    <text x="24" y="44" font-family="'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="10" fill="#5A8A6A">PartCategory 示例：整机 → 零部件 → 参数规格</text>
+    <rect y="72" width="340" height="64" rx="5" fill="#FFFFFF" filter="url(#cardShadow)" opacity="0.8"/>
+    <circle cx="24" cy="92" r="3.5" fill="#276749" opacity="0.6"/>
+    <text x="36" y="96" font-family="'PingFang SC', 'Microsoft YaHei', 'SimHei', sans-serif" font-size="11.5" fill="#0E3324" font-weight="500">T恤</text>
+    <text x="24" y="116" font-family="'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="10" fill="#5A8A6A">最小规则闭环示例：尺码 × 颜色 × 材质</text>
+    <rect y="144" width="340" height="64" rx="5" fill="#FFFFFF" filter="url(#cardShadow)" opacity="0.8"/>
+    <circle cx="24" cy="164" r="3.5" fill="#276749" opacity="0.6"/>
+    <text x="36" y="168" font-family="'PingFang SC', 'Microsoft YaHei', 'SimHei', sans-serif" font-size="11.5" fill="#0E3324" font-weight="500">手机 / 服装</text>
+    <text x="24" y="188" font-family="'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="10" fill="#5A8A6A">配置参数组合 · 不兼容约束示例</text>
+  </g>
+  <line x1="400" y1="488" x2="430" y2="488" stroke="#B0A898" stroke-width="1.2" stroke-dasharray="3 2" marker-end="url(#arrowHead)"/>
+  <line x1="770" y1="488" x2="800" y2="488" stroke="#B0A898" stroke-width="1.2" stroke-dasharray="3 2" marker-end="url(#arrowHead)"/>
+  <line x1="60" y1="646" x2="1140" y2="646" stroke="#D8D4CC" stroke-width="0.5"/>
+  <text x="60" y="668" font-family="'Arial', sans-serif" font-size="9" fill="#B0ACA4" letter-spacing="3">ROLE COLLABORATION FLOW</text>
+  <line x1="120" y1="716" x2="1080" y2="716" stroke="#C8C4BC" stroke-width="1.2" stroke-dasharray="6 4" opacity="0.6"/>
+  <g transform="translate(140, 692)">
+    <rect width="120" height="48" rx="24" fill="#2C5282" filter="url(#roleShadow)"/>
+    <text x="60" y="21" font-family="'PingFang SC', 'Microsoft YaHei', 'SimHei', sans-serif" font-size="11" fill="#FFFFFF" text-anchor="middle" font-weight="500">业务专家</text>
+    <text x="60" y="36" font-family="'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="9" fill="#A8C4F0" text-anchor="middle">提供真实案例</text>
+    <circle cx="60" cy="64" r="3" fill="#2C5282" opacity="0.5"/>
+    <text x="60" y="80" font-family="'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="9" fill="#8A9AAA" text-anchor="middle">输入原始需求</text>
+  </g>
+  <line x1="262" y1="716" x2="305" y2="716" stroke="#B0A898" stroke-width="1" opacity="0.5" stroke-dasharray="3 2" marker-end="url(#arrowHead)"/>
+  <g transform="translate(310, 692)">
+    <rect width="120" height="48" rx="24" fill="#C05A1A" filter="url(#roleShadow)"/>
+    <text x="60" y="21" font-family="'PingFang SC', 'Microsoft YaHei', 'SimHei', sans-serif" font-size="11" fill="#FFFFFF" text-anchor="middle" font-weight="500">BA / 架构</text>
+    <text x="60" y="36" font-family="'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="9" fill="#F0C8A0" text-anchor="middle">抽象建模</text>
+    <circle cx="60" cy="64" r="3" fill="#C05A1A" opacity="0.5"/>
+    <text x="60" y="80" font-family="'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="9" fill="#AA8A7A" text-anchor="middle">提取规则与约束</text>
+  </g>
+  <line x1="432" y1="716" x2="475" y2="716" stroke="#B0A898" stroke-width="1" opacity="0.5" stroke-dasharray="3 2" marker-end="url(#arrowHead)"/>
+  <g transform="translate(480, 692)">
+    <rect width="120" height="48" rx="24" fill="#6B7280" filter="url(#roleShadow)"/>
+    <text x="60" y="21" font-family="'PingFang SC', 'Microsoft YaHei', 'SimHei', sans-serif" font-size="11" fill="#FFFFFF" text-anchor="middle" font-weight="500">开发测试</text>
+    <text x="60" y="36" font-family="'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="9" fill="#C8C8D0" text-anchor="middle">编码验证</text>
+    <circle cx="60" cy="64" r="3" fill="#6B7280" opacity="0.5"/>
+    <text x="60" y="80" font-family="'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="9" fill="#8A8A9A" text-anchor="middle">实现与测试</text>
+  </g>
+  <line x1="602" y1="716" x2="645" y2="716" stroke="#B0A898" stroke-width="1" opacity="0.5" stroke-dasharray="3 2" marker-end="url(#arrowHead)"/>
+  <g transform="translate(650, 692)">
+    <rect width="120" height="48" rx="24" fill="#276749" filter="url(#roleShadow)"/>
+    <text x="60" y="21" font-family="'PingFang SC', 'Microsoft YaHei', 'SimHei', sans-serif" font-size="11" fill="#FFFFFF" text-anchor="middle" font-weight="500">AI 样例</text>
+    <text x="60" y="36" font-family="'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="9" fill="#A8E0C0" text-anchor="middle">生成隐喻案例</text>
+    <circle cx="60" cy="64" r="3" fill="#276749" opacity="0.5"/>
+    <text x="60" y="80" font-family="'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="9" fill="#7AAA8A" text-anchor="middle">辅助实例化</text>
+  </g>
+  <rect x="60" y="808" width="340" height="3" rx="1.5" fill="#2C5282" opacity="0.3"/>
+  <rect x="430" y="808" width="340" height="3" rx="1.5" fill="#C05A1A" opacity="0.3"/>
+  <rect x="800" y="808" width="340" height="3" rx="1.5" fill="#276749" opacity="0.3"/>
+  <text x="230" y="840" font-family="'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="10" fill="#9AABB8" text-anchor="middle">看山是山 · 保留真实业务场景</text>
+  <text x="600" y="840" font-family="'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="10" fill="#AA9880" text-anchor="middle">看山不是山 · 抽象成产品配置元模型</text>
+  <text x="970" y="840" font-family="'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="10" fill="#8AAA9A" text-anchor="middle">看山还是山 · 用隐喻案例重新实例化</text>
+  <text x="230" y="856" font-family="Georgia, serif" font-size="9" fill="#C0C0C0" text-anchor="middle">I. CONCRETE</text>
+  <text x="600" y="856" font-family="Georgia, serif" font-size="9" fill="#C0C0C0" text-anchor="middle">II. ABSTRACT</text>
+  <text x="970" y="856" font-family="Georgia, serif" font-size="9" fill="#C0C0C0" text-anchor="middle">III. REINTEGRATED</text>
+  <line x1="60" y1="866" x2="1140" y2="866" stroke="#D8D4CC" stroke-width="0.5"/>
+</svg>
