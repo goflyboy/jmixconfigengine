@@ -1,13 +1,45 @@
 # RFC-0011: RuleTrans 模块 - 自然语言规则转换引擎
 
-> 状态：草案（Draft）
+> 状态：评审中（Review）
 > 日期：2026-06-07
+> 相关文档：`doc/CORE-DESIGN.md`, `doc/ACCEPTANCE.md`, `doc/RFC-0007-Struct-Combination-Rule-Schema.md`, `doc/RFC-0010-Cross-PartCategory-Total-Constraint.md`
+
+---
+
+## 设计决策摘要
+
+| 主题 | 决策 |
+| --- | --- |
+| 模块边界 | 新增 `com.jmix.ruletrans` 包；不修改 `ModelHelper`、`ModuleGenerator`、`cengine/` 模板和既有 `com.jmix.tool` 行为 |
+| 事实数据源 | `RuleContext` 以现有 `com.jmix.executor.bmodel.Module` / `PartCategory` 为事实源；Prompt 用投影视图只负责序列化，不维护第二套领域模型 |
+| 上下文命名 | 保留用户反馈后的 `RuleContext` 命名，不再使用 `RuleInput` |
+| 输出形态 | 输出一个可插入 `ModuleAlgBase` 子类的 Java rule 方法代码片段，而不是完整测试类或完整模型文件 |
+| 组装边界 | `RuleSnippetAssembler` 独立负责把代码片段组装成临时可编译类；不放进 `RuleTransEngine` 主类 |
+| 运行态依赖 | P0 允许生成代码依赖当前南向 facade：`ModuleAlgBase.model()`、`ModuleCPModel`、`PartCategoryVar`、`PartVar` 等；未来再评估完全脱离 `ModuleAlgBase` 的 IR |
+| 产品级规则 | 产品级上下文分两阶段：Stage1 识别涉及的 PartCategory code，Stage2 只携带识别后的分类规格生成代码 |
+| 编译反馈 | 现有 `ModuleCompiler` 只记录日志、不返回错误结构；`ruletrans` 新增结构化编译处理器，复用其 classpath/路径约定，不改原类 |
+| 测试反馈 | 现有 `ModuleRunner` 只记录日志、不返回 JUnit 失败详情；`ruletrans` 新增测试执行处理器，复用 JUnit Launcher 思路并返回结构化失败信息 |
+| 测试样例 | RFC 测试样例优先使用 `ModuleScenarioTestBase`、`inferRecommendModule(...)`、`printSimpleSolutions()`、`validData(...)`、`validateData(...)` |
+| LLM 调用 | 通过构造注入复用 `LLMInvoker` / `LLMInvokerImpl`；不新增另一套 LLM 调用抽象 |
 
 ---
 
 ## 1. 摘要
 
-在 `com.jmix.tool` 包工程化演进过程中，将规则转换能力从 `ModelHelper` 中分离，孵化为独立的 `ruletrans` 模块。该模块以自然语言为输入，经 Prompt 构建、LLM 调用、代码片段生成、编译验证与迭代纠错，输出可用于约束引擎的 Java `rule` 方法代码片段，全程不侵入原有代码。
+当前 `ModelHelper` 同时承担自然语言/伪代码生成、完整测试类生成、编译、运行、结构化规则代码注入等职责。RuleTrans 的目标是把“自然语言规则 -> Java rule 方法片段”的能力拆出来，形成独立模块：
+
+```text
+自然语言规则 + RuleContext
+  -> Prompt 构建
+  -> LLM 生成 Java rule 方法片段
+  -> 片段组装为临时 ModuleAlgBase 子类
+  -> 编译验证
+  -> 测试用例生成与执行
+  -> 编译/测试失败反馈给 LLM 重试
+  -> 返回最终 rule 方法片段
+```
+
+RuleTrans 不替代现有求解器和规则执行模型。它只负责生成可进入现有约束引擎的 `@CodeRuleAnno` rule 方法片段，并尽量复用当前工程已有的领域模型、Prompt 模板加载器、LLM 调用器、测试基类和南向 facade。
 
 ---
 
@@ -15,1060 +47,1124 @@
 
 ### 2.1 问题背景
 
-当前 `ModelHelper` 承担了两类职责：
+`ModelHelper` 的早期目标是验证 AI 生成约束代码的可行性，因此把多种能力放在一起：
 
-1. **模型生成**：`generatorModelFile` / `generatorRunModelFile` —— 输入变量模型 + 逻辑伪代码，生成含约束代码的完整测试类文件。
-2. **代码注入**：`autoInjectConstraintCode` / `StructCodeInjector` —— 将结构化规则展开为约束实现代码。
+- `generatorModelFile` / `generatorRunModelFile`：从变量模型和伪代码生成完整测试类文件。
+- `ModuleGenerator`：基于 `cengine/constraint_generate_prompt.jtl` 调 LLM 生成 Java 代码。
+- `ModuleCompiler` / `ModuleRunner`：编译和运行生成的测试类。
+- `autoInjectConstraintCode` / `StructCodeInjector`：把结构化规则展开或注入到目标类。
 
-两类职责混在同一个类中，导致：
-- Prompt 模板与业务建模 Prompt 耦合，无法独立演进。
-- 产品级规则（跨部件/跨分类）的 Prompt 构建逻辑散落在 `ModuleGenerator` 中。
-- 生成-编译-测试-纠错的迭代循环未封装，外部调用方需要自行拼接。
-- 自然语言驱动的规则代码生成能力缺失——当前需要用户手工写伪代码，未来期望直接输入自然语言。
+随着规则管理工程化，规则转换能力需要独立出来：
 
-### 2.2 具体场景
+1. `ModelHelper` 保持不变，避免影响既有验证工具。
+2. 新增 `ruletrans` 包承接自然语言规则转换。
+3. Prompt 模板放入新的 `src/main/resources/ruletrans/` 目录，不修改 `cengine/`。
+4. 生成目标从“完整测试类”收敛为“纯 Java rule 方法片段”。
+5. 编译、测试、纠错形成可复用管线。
 
-**场景 1：PartCategory 规则**
-用户输入自然语言：`"CPU最多配置一块"`
-上下文：CPU PartCategory 的规格信息（Para、Part、属性等），直接生成代码。
+### 2.2 用户反馈复核
 
-**场景 2：产品级规则**
-用户输入自然语言：`"四核CPU不能兼容转速为5400转的硬盘"`
-上下文：涉及 CPU 和 HDD 两个 PartCategory。处理分两阶段：
-- Stage1：根据自然语言识别关联分类（CPU + HDD）
-- Stage2：携带两个分类的规格信息生成约束代码
+SpecStory 中的人工输入对本 RFC 有三类关键修正：
 
-**场景 3：独立测试用例生成**
-用户希望验证生成的规则代码是否正确。系统根据自然语言和上下文，生成独立测试用例（JSON 格式），包含输入、预期输出描述。
+| 用户修正 | 设计含义 | 本 RFC 处理 |
+| --- | --- | --- |
+| `RuleInput` 不合适，改回 `context` 或 `spec` | 输入不是一次请求 DTO，而是生成规则所需上下文 | 使用 `RuleContext`，删除 `RuleInput` |
+| 原设计没有真正理解 PartCategory 数据结构 | 生成规则需要参数、动态属性、扩展属性和部件结构 | `RuleContext` 直接引用现有 `Module` / `PartCategory`，Prompt 投影覆盖 `paras`、`attrParas`、`dynAttrSchemas`、`dynAttr`、`atomicParts`、`partCategorys` |
+| 代码片段组装不要放在主 Transfer/Engine 类里 | 主入口负责编排，组装是独立后处理能力 | 新增独立 `RuleSnippetAssembler` 和测试 harness |
 
-**场景 4：编译错误驱动的 Prompt 动态纠错**
-生成的 Java 代码编译失败时，系统解析编译错误信息，动态构建纠错 Prompt（含错误详情），反馈给 LLM 重新生成，直到编译通过。
+### 2.3 具体场景
 
-**场景 5：测试用例驱动的逻辑纠错**
-编译通过后，加载 JSON 测试用例，执行测试。测试失败时分析错误数据，判断是否源于规则逻辑错误（LLM 误解自然语言），若是则触发纠错重试。
+#### 场景 1：PartCategory 级规则
 
-### 2.3 为什么需要改变
+输入：
 
-- **职责分离**：`ModelHelper` 保持不变，`ruletrans` 独立演进。
-- **Prompt 独立**：新建 `ruletrans` 专用的 Prompt 模板资源，不修改现有 `cengine/` 目录下的模板。
-- **工程化**：将"生成→编译→纠错→测试→纠错"的循环封装为可复用管线，提升 AI 生成代码的正确率。
-- **上下文感知**：支持 PartCategory 级和产品级两种上下文，构建差异化 Prompt。
-- **测试用例结构化**：独立生成 JSON 测试用例，支持未来流程自动化。
+```text
+CPU 最多配置一块
+```
+
+上下文：`cpu` 分类的 `PartCategory`，包含部件、参数、动态属性、扩展属性和选择策略。
+
+输出：一个 `@CodeRuleAnno` 方法，例如：
+
+```java
+@CodeRuleAnno(normalNaturalCode = "CPU 最多配置一块")
+public void ruleCpuAtMostOne() {
+    model().addLessOrEqual(model().sum4Selected("cpu", "", ""), 1);
+}
+```
+
+#### 场景 2：产品级跨分类规则
+
+输入：
+
+```text
+四核 CPU 不能兼容转速为 5400 转的硬盘
+```
+
+上下文：整个 `Module`。执行分两阶段：
+
+1. Stage1：从自然语言识别涉及 `cpu`、`drive` / `hdd` 等 PartCategory。
+2. Stage2：只把识别到的分类规格投影给 LLM 生成 rule 方法片段。
+
+#### 场景 3：编译错误纠错
+
+LLM 返回的代码片段编译失败时，RuleTrans 捕获 javac 错误、上一版代码、自然语言和上下文摘要，构建纠错 Prompt 后重试。
+
+#### 场景 4：测试用例驱动纠错
+
+编译通过后，RuleTrans 可以让 LLM 生成结构化测试用例，再把测试用例转成临时 JUnit 测试。测试失败时，把失败 case 的输入、预期、实际结果反馈给 LLM 判断是否需要修正规则逻辑。
 
 ---
 
-## 3. 设计方案
+## 3. 范围与非目标
 
-### 3.1 核心流程
+### 3.1 P0 范围
 
-```
-自然语言输入
-    │
-    ▼
-┌──────────────────────────────────────────────────────────────┐
-│  RuleTransEngine（主入口）                                     │
-│                                                              │
-│  ① 接收自然语言 + RuleContext                                  │
-│                                                              │
-│  PartCategoryContext ──────────────────────────────┐        │
-│           │                                             │        │
-│  ProductContext ──▶ CategoryIdentifier ───────┐   │        │
-│           │               │                   │   │        │
-│           │               ▼                   │   │        │
-│           │         识别的分类列表               │   │        │
-│           │               │                   │   │        │
-│           └───────────────┼───────────────────┘   │        │
-│                          ▼                       │        │
-│                  RuleSnippetGenerator ───────────┤        │
-│                          │                      │        │
-│                          ▼                      │        │
-│                  RuleSnippetAssembler            │        │
-│                          │                      │        │
-│                          ▼                      │        │
-│                  CompilationProcessor            │        │
-│                          │                      │        │
-│              ┌───────────┴───────────┐         │        │
-│              ▼                       ▼         │        │
-│         编译失败                   编译通过      │        │
-│              │                       │         │        │
-│              ▼                       ▼         │        │
-│   构建纠错 Prompt          RuleTestCaseGenerator ──┤     │
-│   (含编译错误详情)                │                     │
-│              │                  ▼                     │
-│   ┌──────────┴──────────────── TestExecutionProcessor │
-│   │                              │                    │
-│   │          ┌──────────────────┴────────┐          │
-│   │          ▼                            ▼          │
-│   │     测试通过                       测试失败       │
-│   │          │                            │          │
-│   │          ▼                            ▼          │
-│   │      返回代码片段              分析错误原因        │
-│   │                            │                   │
-│   │            ┌────────────────┘                   │
-│   │            ▼                                     │
-│   │      是规则逻辑错误？                            │
-│   │            │                                   │
-│   │    ┌───────┴───────┐                          │
-│   │    ▼               ▼                          │
-│   │   是               否                          │
-│   │    │               │                          │
-│   │    ▼               ▼                          │
-│   └────纠错 Prompt   返回代码片段+错误报告           │
-│              │                                     │
-│         重新生成                                    │
-└──────────────────────────────────────────────────────────────┘
-    │
-    ▼
-Java 代码片段（@CodeRuleAnno rule 方法，非完整测试类）
-```
+- 新增 `com.jmix.ruletrans` 包骨架。
+- 新增 `RuleContext`、`PartCategoryRuleContext`、`ProductRuleContext` 及工厂。
+- 新增 Prompt 投影器，把现有 `Module` / `PartCategory` 转成 LLM 友好的结构化文本或 JSON。
+- 新增 `RuleSnippetGenerator`，复用 `LLMInvoker`。
+- 新增 `RuleSnippetAssembler`，把 rule 方法片段组装为临时 `ModuleAlgBase` 子类进行编译验证。
+- 新增结构化 `CompilationProcessor`，捕获编译成功/失败和错误详情。
+- 新增产品级 `CategoryIdentifier`，完成 Stage1 分类识别和结果校验。
+- 保证 `ModelHelper` 与现有 `cengine/` Prompt 不受影响。
 
-### 3.2 包结构
+### 3.2 P1 范围
 
-```
-com.jmix.ruletrans
-├── RuleTransEngine.java               # 主入口，对外 API
-├── RuleTransException.java            # 异常定义
-│
-├── context/
-│   ├── RuleContext.java               # 规则上下文接口
-│   ├── PartCategoryContext.java       # PartCategory 级上下文
-│   └── ProductContext.java           # 产品级上下文
-│
-├── identifier/
-│   └── CategoryIdentifier.java       # 分类识别器（产品级用）
-│
-├── generator/
-│   ├── RuleSnippetGenerator.java     # 代码片段生成器
-│   ├── RuleSnippetAssembler.java     # 代码片段组装为可编译单元
-│   └── PromptBuilder.java           # Prompt 构建器（含纠错 Prompt）
-│
-├── testgen/
-│   └── RuleTestCaseGenerator.java   # JSON 测试用例生成器
-│
-├── postprocessor/
-│   ├── CompilationProcessor.java     # 编译验证
-│   └── TestExecutionProcessor.java  # 测试执行与结果解析
-│
-└── template/
-    └── PromptTemplateLoader.java   # Prompt 模板加载器（复用）
+- 新增 `RuleTestCaseGenerator`，生成结构化测试用例。
+- 新增 `TestExecutionProcessor`，把测试用例转成 JUnit 测试并返回结构化测试结果。
+- 实现 `translateWithRetry(...)` 的编译纠错和测试纠错循环。
 
-src/main/resources/ruletrans/
-├── part_category_prompt.jtl         # PartCategory 级 Prompt 模板
-├── product_stage1_prompt.jtl       # 产品级 Stage1 模板（分类识别）
-├── product_stage2_prompt.jtl       # 产品级 Stage2 模板（代码生成）
-├── correction_compilation_prompt.jtl # 编译纠错 Prompt 模板
-└── correction_test_prompt.jtl      # 测试纠错 Prompt 模板
-```
+### 3.3 非目标
 
-### 3.3 详细设计
+- 不重构 `ModelHelper`。
+- 不修改 `LLMInvoker` 接口。
+- 不在 P0 中设计完整规则管理 UI。
+- 不新增第二套 `Module` / `PartCategory` 领域模型。
+- 不在 RFC 中要求产品建模人员维护 `ParaSpec`、`DynamicAttrSpec` 等重复 DTO。
+- 不直接暴露 OR-Tools 类型或 `com.jmix.executor.impl.*` 内部实现给生成代码。
 
-#### 3.3.1 RuleContext（规则上下文接口）
+---
 
-```java
-package com.jmix.ruletrans.context;
+## 4. 现有代码事实
 
-/**
- * 规则上下文接口
- * 作为所有上下文类型的统一入口
- */
-public interface RuleContext {
+### 4.1 领域模型继承链
 
-    /**
-     * 判断是否为产品级上下文（跨分类）
-     */
-    boolean isProductLevel();
+当前 `PartCategory` 的真实结构如下：
 
-    /**
-     * 获取上下文摘要（用于日志和调试）
-     */
-    String summary();
-
-    /**
-     * 获取涉及的所有 PartCategory code
-     */
-    List<String> getCategoryCodes();
-}
-```
-
-#### 3.3.2 数据模型总览
-
-上下文数据模型完整对齐现有 PartCategory 领域模型继承链：
-
-```
+```text
 com.jmix.executor.bmodel.Onto
-├── paras: List<Para>                   # 参数列表（可配置选项）
-├── attrParas: List<AttrPara>          # 属性参数（汇总类型：Sum_MaxSpeed）
-├── dynAttrSchemas: List<DynamicAttribute>  # 动态属性定义（Part 的属性：Speed、Capacity）
-├── dynAttr: Map<String,String>         # 扩展属性值
-└── rules: List<Rule>                  # 已有规则（不作为生成输入）
+├── paras: List<Para>
+├── attrParas: List<AttrPara>
+├── rules: List<Rule>
+├── dynAttr: Map<String, String>
+├── dynAttrSchemas: List<DynamicAttribute>
+└── dynAttrSchema: String
 
-    └── com.jmix.executor.bmodel.ModuleBase
-    ├── atomicParts: List<Part>         # 原子部件列表
-    └── partCategorys: List<PartCategory> # 子分类列表
+  └── com.jmix.executor.bmodel.ModuleBase
+      ├── atomicParts: List<Part>
+      └── partCategorys: List<PartCategory>
 
         └── com.jmix.executor.bmodel.PartCategory
-        ├── partType: PartType          # 部件类型
-        ├── supportMultiInst: boolean   # 是否支持多实例
-        └── selectionPolicy            # 选择策略
+            ├── partType: PartType
+            ├── supportMultiInst: boolean
+            └── selectionPolicy: PartCategorySelectionPolicy
 ```
 
-规则代码生成时，LLM 需要用到：
-1. **Para（参数）**：枚举类型参数的可选值
-2. **Part（部件）**：部件的 maxQuantity（数量约束）
-3. **DynamicAttribute（动态属性）**：Part 的属性字段（Speed、Capacity 等）
-4. **AttrPara（属性参数）**：汇总类型（Sum_Quantity、Sum_Capacity）
+因此 RuleTrans 的上下文必须覆盖：
 
-#### 3.3.3 PartCategoryContext（PartCategory 级上下文）
+| 数据 | 来源 | 生成规则时用途 |
+| --- | --- | --- |
+| 参数 | `Onto.paras` / `Para` | 可配置选项、输入参数、参数兼容关系 |
+| 属性参数 | `Onto.attrParas` / `AttrPara` | `Sum_Quantity`、`Sum_Capacity`、`SumSum_Capacity` 等汇总语义 |
+| 动态属性定义 | `Onto.dynAttrSchemas` / `DynamicAttribute` | Part 的规格字段，如 `CoreNum`、`Speed`、`Capacity` |
+| 扩展属性值 | `Onto.dynAttr` | 建模侧补充信息和扩展属性 |
+| 原子部件 | `ModuleBase.atomicParts` / `Part` | 部件 code、最大数量、价格、属性值 |
+| 子分类 | `ModuleBase.partCategorys` | 嵌套分类和继承结构 |
+| 选择策略 | `PartCategory.selectionPolicy` | 必选/可选分类语义 |
+| 多实例 | `PartCategory.supportMultiInst` | 多实例规则生成和测试用例 |
+
+### 4.2 可复用工具
+
+| 能力 | 当前类 | 复用方式 |
+| --- | --- | --- |
+| LLM 调用 | `LLMInvoker` / `LLMInvokerImpl` | 构造注入，不新增抽象 |
+| Prompt 模板渲染 | `PromptTemplateLoader` | 复用 `loadAndRenderTemplate(...)` |
+| 注解生成 Module | `ModuleGenneratorByAnno` | 可作为 `RuleContextFactory.fromAnnotatedClass(...)` 的来源 |
+| 编译 classpath 约定 | `ModuleCompiler` | 复用约定；新增结构化结果处理器 |
+| JUnit 运行方式 | `ModuleRunner` | 复用思路；新增结构化结果处理器 |
+| 测试 helper | `ModuleScenarioTestBase` | 生成测试优先调用高层 helper |
+| 南向 facade | `ModuleAlgBase` / `ModuleCPModel` / `PartCategoryCPModel` | 生成代码只使用 facade，不导入 `impl` 或 OR-Tools |
+
+### 4.3 现有工具的边界
+
+`ModuleCompiler.compile(...)` 返回 `void`，只输出日志。`ModuleRunner.runTestFile(...)` 也返回 `void`，失败详情只进入日志。因此 RuleTrans 不能把它们简单包装成 `CompilationResult` / `TestResult`。正确做法是：
+
+- 保留原类不变。
+- 新增 RuleTrans 内部处理器，复用现有 classpath、输出目录和 JUnit Launcher 方式。
+- 新处理器必须返回结构化结果，供纠错 Prompt 使用。
+
+---
+
+## 5. 设计方案
+
+### 5.1 总体流程
+
+```text
+RuleTransEngine.translateWithRetry(...)
+  |
+  |-- validate naturalLanguage + RuleContext
+  |
+  |-- ProductRuleContext?
+  |     |
+  |     |-- yes: CategoryIdentifier.identify(...)
+  |     |        validate category codes against Module.getPartCategory(...)
+  |     |
+  |     |-- no: use PartCategoryRuleContext.category
+  |
+  |-- RulePromptProjector.project(...)
+  |
+  |-- PromptBuilder.buildGeneratePrompt(...)
+  |
+  |-- RuleSnippetGenerator.generate(...)
+  |
+  |-- RuleSnippetAssembler.assembleCompileUnit(...)
+  |
+  |-- CompilationProcessor.compile(...)
+  |     |
+  |     |-- failed: build compilation correction prompt and retry
+  |
+  |-- RuleTestCaseGenerator.generate(...)          [P1]
+  |
+  |-- TestExecutionProcessor.execute(...)          [P1]
+        |
+        |-- failed and is rule logic error: build test correction prompt and retry
+        |-- failed but not logic error: return code + diagnostic report
+```
+
+### 5.2 包结构
+
+```text
+com.jmix.ruletrans
+├── RuleTransEngine.java
+├── RuleTransException.java
+├── CategoryNotFoundException.java
+│
+├── context/
+│   ├── RuleContext.java
+│   ├── PartCategoryRuleContext.java
+│   ├── ProductRuleContext.java
+│   └── RuleContextFactory.java
+│
+├── prompt/
+│   ├── PromptBuilder.java
+│   ├── RulePromptProjector.java
+│   ├── PartCategoryPromptView.java
+│   └── ProductPromptView.java
+│
+├── identifier/
+│   └── CategoryIdentifier.java
+│
+├── generator/
+│   ├── RuleSnippetGenerator.java
+│   └── RuleSnippetPostProcessor.java
+│
+├── assembler/
+│   ├── RuleSnippetAssembler.java
+│   └── RuleTransTempFileManager.java
+│
+├── postprocessor/
+│   ├── CompilationProcessor.java
+│   ├── CompilationResult.java
+│   ├── TestExecutionProcessor.java
+│   ├── TestExecutionResult.java
+│   └── FailedTestCase.java
+│
+└── testgen/
+    ├── RuleTestCaseGenerator.java
+    └── RuleTransTestCaseSet.java
+```
+
+模板目录：
+
+```text
+src/main/resources/ruletrans/
+├── part_category_prompt.jtl
+├── product_stage1_prompt.jtl
+├── product_stage2_prompt.jtl
+├── correction_compilation_prompt.jtl
+├── test_case_prompt.jtl
+└── correction_test_prompt.jtl
+```
+
+### 5.3 RuleContext
+
+`RuleContext` 是生成规则的上下文入口，不是重复领域 DTO。
 
 ```java
 package com.jmix.ruletrans.context;
 
-/**
- * PartCategory 级上下文
- * 完整对齐 com.jmix.executor.bmodel.PartCategory 领域模型
- *
- * 继承链：
- *   Onto（paras, attrParas, dynAttrSchemas, dynAttr, rules）
- *     └── ModuleBase（atomicParts, partCategorys）
- *           └── PartCategory（partType, supportMultiInst, selectionPolicy）
- */
-public class PartCategoryContext implements RuleContext {
+import com.jmix.executor.bmodel.Module;
+import com.jmix.executor.bmodel.PartCategory;
 
-    // === Onto 层 ===
-    /** 参数列表（Para 及其选项） */
-    private List<ParaSpec> paras;
+import java.util.List;
 
-    /** 属性参数列表（AttrPara：汇总类型，如 Sum_Quantity、Sum_Capacity） */
-    private List<AttrParaSpec> attrParas;
+public interface RuleContext {
 
-    /** 动态属性列表（DynamicAttribute：Part 的属性，如 Speed、Capacity） */
-    private List<DynamicAttrSpec> dynAttrSchemas;
+    boolean isProductLevel();
 
-    /** 扩展属性（键值对） */
-    private Map<String, String> dynAttr;
+    Module module();
 
-    // === ModuleBase 层 ===
-    /** 原子部件列表 */
-    private List<PartSpec> atomicParts;
+    List<PartCategory> targetCategories();
 
-    /** 子分类列表 */
-    private List<PartCategoryContext> partCategorys;
-
-    // === PartCategory 层 ===
-    /** 分类 code，如 "cpu" */
-    private String categoryCode;
-
-    /** 部件类型 */
-    private String partType;
-
-    /** 是否支持多实例 */
-    private boolean supportMultiInst;
-
-    // 构造方法、getters、toString...
-}
-```
-
-#### 3.3.4 ProductContext（产品级上下文）
-
-```java
-package com.jmix.ruletrans.context;
-
-/**
- * 产品级上下文
- * 包含多个 PartCategoryContext
- */
-public class ProductContext implements RuleContext {
-
-    private final String productCode;
-    private final List<PartCategoryContext> categories;
-
-    @Override
-    public boolean isProductLevel() { return true; }
-
-    @Override
-    public List<String> getCategoryCodes() {
-        return categories.stream()
-                .map(PartCategoryContext::getCategoryCode)
+    default List<String> categoryCodes() {
+        return targetCategories().stream()
+                .map(PartCategory::getCode)
                 .toList();
     }
 
+    String summary();
+}
+```
+
+PartCategory 级上下文：
+
+```java
+public final class PartCategoryRuleContext implements RuleContext {
+    private final Module module;
+    private final PartCategory category;
+
     @Override
-    public String summary() {
-        return String.format("Product[code=%s, categories=%s]",
-                productCode, getCategoryCodes());
+    public boolean isProductLevel() {
+        return false;
+    }
+
+    @Override
+    public Module module() {
+        return module;
+    }
+
+    @Override
+    public List<PartCategory> targetCategories() {
+        return List.of(category);
     }
 }
 ```
 
-#### 3.3.5 ParaSpec（参数规格）
+产品级上下文：
 
 ```java
-package com.jmix.ruletrans.context;
+public final class ProductRuleContext implements RuleContext {
+    private final Module module;
+    private final List<PartCategory> selectedCategories;
 
-/**
- * 参数规格
- * 对齐 com.jmix.executor.bmodel.para.Para
- */
-public class ParaSpec {
+    @Override
+    public boolean isProductLevel() {
+        return true;
+    }
 
-    private String code;           // 参数编码，如 "Color"
-    private String name;           // 参数名称，如 "颜色"
-    private String paraType;      // 类型：ENUM / INTEGER / RANGE / STRING 等（对齐 ParaType 枚举）
+    @Override
+    public Module module() {
+        return module;
+    }
 
-    // ENUM / MULTI_ENUM 类型
-    private List<ParaOptionSpec> options;
-
-    // RANGE / INTEGER / FLOAT / DOUBLE 类型
-    private String minValue;
-    private String maxValue;
-}
-
-/**
- * 参数选项规格
- * 对齐 com.jmix.executor.bmodel.attr.DynamicAttributerOption
- */
-public class ParaOptionSpec {
-
-    private int codeId;           // 选项编码 ID
-    private String code;          // 选项编码（用于代码中引用）
-    private String codeValue;     // 选项值（实际的值内容）
+    @Override
+    public List<PartCategory> targetCategories() {
+        return selectedCategories;
+    }
 }
 ```
 
-#### 3.3.6 AttrParaSpec（属性参数规格）
+工厂建议：
 
 ```java
-package com.jmix.ruletrans.context;
+public final class RuleContextFactory {
 
-/**
- * 属性参数规格
- * 对齐 com.jmix.executor.bmodel.AttrPara
- *
- * 用于汇总类约束，如：
- *   Sum_Quantity >= 2
- *   Sum_Capacity > 100
- *   Max_Speed == 5400
- */
-public class AttrParaSpec {
+    public PartCategoryRuleContext partCategory(Module module, String categoryCode);
 
-    /** 属性编码，如 "Quantity"、"Capacity"、"Speed" */
-    private String attrCode;
+    public ProductRuleContext product(Module module);
 
-    /** 汇总类型：SUM / MAX / MIN / AVG */
-    private String attrType;
+    public ProductRuleContext product(Module module, List<String> categoryCodes);
+
+    public ProductRuleContext fromAnnotatedClass(Class<?> algClass, String tempResourcePath);
 }
 ```
 
-#### 3.3.7 DynamicAttrSpec（动态属性规格）
+说明：
+
+- 如果调用方已有 `Module` / `PartCategory`，直接构建上下文。
+- 如果调用方只有注解类，可通过 `ModuleGenneratorByAnno.build(...)` 得到 `Module`。
+- 工厂必须调用 `module.init()` 或等价初始化，确保 `getPartCategory(...)`、`getAllPartCategorys()` 等查询可用。
+
+### 5.4 Prompt 投影视图
+
+Prompt 投影视图是 LLM 输入格式，不是领域真相来源。它可以用 record 或普通类表达：
 
 ```java
-package com.jmix.ruletrans.context;
-
-/**
- * 动态属性规格
- * 对齐 com.jmix.executor.bmodel.attr.DynamicAttribute
- *
- * 描述 Part 的属性字段（Speed、Capacity 等），用于 where 条件过滤
- */
-public class DynamicAttrSpec {
-
-    private String code;           // 属性编码，如 "Speed"、"Capacity"
-    private String name;           // 属性名称
-    private String dynAttrType;   // 属性类型：E_INT / E_STRING / B_INT 等（对齐 DynamicAttributeType）
-
-    // 选项列表（非选项型属性时为空）
-    private List<ParaOptionSpec> options;
-
-    // 范围
-    private String minValue;
-    private String maxValue;
+public record PartCategoryPromptView(
+        String code,
+        String name,
+        String partType,
+        boolean supportMultiInst,
+        String selectionPolicy,
+        List<ParaPromptView> paras,
+        List<AttrParaPromptView> attrParas,
+        List<DynamicAttrPromptView> dynAttrSchemas,
+        Map<String, String> dynAttr,
+        List<PartPromptView> atomicParts,
+        List<PartCategoryPromptView> childCategories) {
 }
 ```
 
-#### 3.3.8 PartSpec（部件规格）
+投影规则：
+
+| 投影字段 | 从哪里来 | 注意事项 |
+| --- | --- | --- |
+| `paras` | `PartCategory.getParas()` | `Para` 继承 `DynamicAttribute`，选项来自 `getOptions()` |
+| `attrParas` | `PartCategory.getAttrParas()` | 类型是 `AttrParaType.Sum` / `SumSum` / `Org`，不是旧文档中的全大写 `SUM` |
+| `dynAttrSchemas` | `PartCategory.getDynAttrSchemas()` | 必须包含 `dynAttrType`、`instType`、`options` |
+| `dynAttr` | `PartCategory.getDynAttr()` | 表达扩展属性值 |
+| `atomicParts` | `PartCategory.getAtomicParts()` | `Part` 自身也继承 `Onto`，可带 `dynAttr` |
+| `childCategories` | `PartCategory.getPartCategorys()` | 保留嵌套结构，不扁平丢失 |
+
+不要要求调用方手写 `ParaSpec`、`DynamicAttrSpec`、`PartSpec`。如果实现内部为了 Prompt 序列化使用这些类，必须由投影器从现有领域对象自动生成。
+
+### 5.5 产品级 Stage1 分类识别
+
+`CategoryIdentifier` 只负责识别 PartCategory code：
 
 ```java
-package com.jmix.ruletrans.context;
-
-/**
- * 部件规格
- * 对齐 com.jmix.executor.bmodel.Part
- */
-public class PartSpec {
-
-    private String code;           // 部件编码，如 "cpu1"
-    private String name;           // 部件名称
-    private Integer maxQuantity;   // 最大数量，默认 20
-    private Long price;           // 价格
-}
-```
-
-#### 3.3.9 CategoryIdentifier（分类识别器）
-
-```java
-package com.jmix.ruletrans.identifier;
-
-/**
- * 分类识别器
- * 产品级规则专用：根据自然语言识别涉及的 PartCategory
- */
-public class CategoryIdentifier {
-
-    private final LLMInvoker llmInvoker;
-
-    /**
-     * 从自然语言识别涉及的 PartCategory
-     */
-    public List<String> identify(String naturalLanguage, List<String> availableCategories);
-
-    /**
-     * 构建分类识别 Prompt（加载 product_stage1_prompt.jtl）
-     */
-    public String buildIdentifyPrompt(String naturalLanguage, List<String> availableCategories);
-}
-```
-
-#### 3.3.10 PromptBuilder（Prompt 构建器）
-
-```java
-package com.jmix.ruletrans.generator;
-
-/**
- * Prompt 构建器
- * 负责加载模板、注入上下文、构建纠错 Prompt
- */
-public class PromptBuilder {
-
-    /**
-     * 构建 PartCategory 级代码生成 Prompt
-     */
-    public String buildPartCategoryPrompt(PartCategoryContext ctx, String naturalLanguage);
-
-    /**
-     * 构建产品级代码生成 Prompt（Stage2）
-     */
-    public String buildProductPrompt(ProductContext ctx, String naturalLanguage);
-
-    /**
-     * 构建编译错误纠错 Prompt
-     */
-    public String buildCorrectionPrompt(
-            String previousCode, List<String> compilationErrors,
-            String naturalLanguage, RuleContext ctx);
-
-    /**
-     * 构建测试失败纠错 Prompt
-     */
-    public String buildCorrectionPrompt(
-            String previousCode, List<FailedTestCase> failedTestCases,
-            String naturalLanguage, RuleContext ctx);
-}
-```
-
-#### 3.3.11 RuleSnippetGenerator（代码片段生成器）
-
-```java
-package com.jmix.ruletrans.generator;
-
-/**
- * 规则代码片段生成器
- * 调用 LLM 生成 Java rule 方法代码片段
- */
-public class RuleSnippetGenerator {
-
+public final class CategoryIdentifier {
     private final LLMInvoker llmInvoker;
     private final PromptBuilder promptBuilder;
 
-    /**
-     * 生成 PartCategory 级规则代码片段
-     */
-    public String generate(PartCategoryContext ctx, String naturalLanguage);
-
-    /**
-     * 生成产品级规则代码片段（Stage2）
-     */
-    public String generate(ProductContext ctx, String naturalLanguage);
-
-    /**
-     * 基于编译错误反馈生成纠错后的代码片段
-     */
-    public String generateWithCompilationCorrection(
-            String previousCode, List<String> compilationErrors,
-            String naturalLanguage, RuleContext ctx);
-
-    /**
-     * 基于测试失败反馈生成纠错后的代码片段
-     */
-    public String generateWithTestCorrection(
-            String previousCode, List<FailedTestCase> failedTestCases,
-            String naturalLanguage, RuleContext ctx);
+    public List<String> identify(String naturalLanguage, Module module);
 }
 ```
 
-#### 3.3.12 RuleSnippetAssembler（代码片段组装器）
+流程：
+
+1. 从 `module.getAllPartCategorys()` 取可用分类列表。
+2. Prompt 中提供分类 code、名称、动态属性摘要和示例部件短摘要。
+3. LLM 输出 JSON 数组，例如 `["cpu", "drive"]`。
+4. 解析后必须用 `module.getPartCategory(code)` 校验。
+5. 空结果或不存在的 code 抛出 `CategoryNotFoundException`。
+
+Stage1 不生成代码，也不读取完整部件列表，避免 Prompt 过大。
+
+### 5.6 PromptBuilder
 
 ```java
-package com.jmix.ruletrans.generator;
+public final class PromptBuilder {
 
-/**
- * 代码片段组装器
- * 将 rule 方法代码组装为可编译的 Java 类，供编译验证使用
- */
-public class RuleSnippetAssembler {
+    public String buildPartCategoryPrompt(
+            PartCategoryPromptView view,
+            String naturalLanguage);
 
-    /**
-     * 将 rule 方法代码组装为完整类
-     */
-    public String assemble(String ruleCode, String ruleMethodName, RuleContext ctx);
+    public String buildProductStage1Prompt(
+            ProductPromptView view,
+            String naturalLanguage);
 
-    /**
-     * 拆解完整类代码，提取 rule 方法代码片段
-     */
-    public String extractRuleCode(String fullClassCode);
+    public String buildProductStage2Prompt(
+            ProductPromptView view,
+            String naturalLanguage);
+
+    public String buildCompilationCorrectionPrompt(
+            String previousCode,
+            CompilationResult compilationResult,
+            String naturalLanguage,
+            RuleContext context);
+
+    public String buildTestCorrectionPrompt(
+            String previousCode,
+            TestExecutionResult testResult,
+            String naturalLanguage,
+            RuleContext context);
 }
 ```
 
-#### 3.3.13 RuleTestCaseGenerator（JSON 测试用例生成器）
+模板约束：
+
+- 使用 `PromptTemplateLoader.loadAndRenderTemplate("ruletrans/xxx.jtl", variables)`。
+- 不修改 `src/main/resources/cengine/constraint_generate_prompt.jtl`。
+- Prompt 必须说明生成代码运行在 `ModuleAlgBase` 子类中。
+- Prompt 必须禁止输出 package、import、class 声明。
+- Prompt 必须要求日志使用英文。
+- Prompt 应推荐使用南向 facade，例如 `model()`、`partCategoryVar("code")`、`partVar("code")`、`partVars("Attr=value")`、`model().sum4Selected(...)`、`model().sum4Quantity(...)`。
+
+### 5.7 代码片段格式
+
+生成结果只允许是方法片段：
 
 ```java
-package com.jmix.ruletrans.testgen;
+@CodeRuleAnno(normalNaturalCode = "四核 CPU 不能兼容转速为 5400 转的硬盘")
+public void ruleCpu4NotDrive5400() {
+    inCompatible("ruleCpu4NotDrive5400", "cpu:CoreNum=4", "drive:Speed=5400");
+}
+```
 
-/**
- * 规则测试用例生成器
- * 根据自然语言和上下文生成结构化测试用例（JSON 格式）
- */
-public class RuleTestCaseGenerator {
+或使用 CP facade：
 
+```java
+@CodeRuleAnno(normalNaturalCode = "CPU 最多配置一块")
+public void ruleCpuAtMostOne() {
+    model().addLessOrEqual(model().sum4Selected("cpu", "", ""), 1);
+}
+```
+
+禁止：
+
+- 输出完整 Java 类。
+- 输出 package/import。
+- 直接使用 `com.google.ortools.*` 类型。
+- 直接导入或依赖 `com.jmix.executor.impl.*`。
+- 使用旧样例中的内部字段形式，如 `this.partVar.qty`、`getIsSelectedVar()`。
+
+### 5.8 RuleSnippetGenerator
+
+```java
+public final class RuleSnippetGenerator {
     private final LLMInvoker llmInvoker;
+    private final PromptBuilder promptBuilder;
+    private final RulePromptProjector projector;
 
-    /**
-     * 生成测试用例
-     */
-    public String generateTestCases(String naturalLanguage, RuleContext ctx, String generatedCode);
+    public String generate(String naturalLanguage, RuleContext context);
+
+    public String generateWithCompilationCorrection(
+            String previousCode,
+            CompilationResult compilationResult,
+            String naturalLanguage,
+            RuleContext context);
+
+    public String generateWithTestCorrection(
+            String previousCode,
+            TestExecutionResult testResult,
+            String naturalLanguage,
+            RuleContext context);
 }
 ```
 
-JSON 结构示例：
+构造要求：
+
+- 默认构造可使用 `new LLMInvokerImpl()`。
+- 单元测试必须能注入 fake `LLMInvoker`，避免测试依赖真实大模型。
+
+### 5.9 RuleSnippetAssembler
+
+`RuleSnippetAssembler` 独立负责组装，不属于 `RuleTransEngine` 内部私有逻辑。
+
+```java
+public final class RuleSnippetAssembler {
+
+    public AssembledRuleClass assembleCompileUnit(
+            String ruleCode,
+            RuleContext context,
+            String className);
+
+    public AssembledRuleTest assembleExecutableTest(
+            String ruleCode,
+            RuleContext context,
+            RuleTransTestCaseSet testCases,
+            String className);
+}
+```
+
+P0 至少支持编译单元：
+
+```java
+package com.jmix.ruletrans.generated;
+
+import com.jmix.executor.southinf.ModuleAlgBase;
+import com.jmix.executor.southinf.cp.PartAlgCPLinearExpr;
+import com.jmix.executor.southinf.var.PartCategoryVar;
+import com.jmix.executor.southinf.var.PartVar;
+import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
+
+public class RuleTransCandidate001 extends ModuleAlgBase {
+    // generated rule method is inserted here
+}
+```
+
+P1 支持可执行测试单元：
+
+- 生成一个临时 JUnit 测试类。
+- 测试类继承 `ModuleScenarioTestBase`。
+- 内部类继承 `ModuleAlgBase` 并包含从 `RuleContext` 投影出的 `@ModuleAnno`、`@PartAnno`、`@DAttrAnnoN` 和生成 rule 方法。
+- 测试方法使用 `inferRecommendModule(...)`、`printSimpleSolutions()`、`validData(...)`、`validateData(...)` 等 helper。
+
+实现风险：
+
+- 现有 `@DAttrAnno1` 到 `@DAttrAnno13` 对动态属性数量有上限。P1 harness 需要明确超过上限时的失败信息，不能静默漏属性。
+- 对复杂 `Module` 反向生成注解类可能不是完全保真。P0 可先支持编译验证，P1 再扩大可执行测试覆盖。
+
+### 5.10 CompilationProcessor
+
+```java
+public record CompilationResult(
+        boolean success,
+        Path sourceFile,
+        int exitCode,
+        List<String> stdout,
+        List<String> stderr) {
+
+    public List<String> errors() {
+        return stderr;
+    }
+}
+```
+
+`CompilationProcessor` 要求：
+
+- 复用 `ModuleCompiler` 的 classpath 约定：`target/classes`、`target/test-classes`、`lib/*`。
+- 使用 UTF-8 编译。
+- 返回 `exitCode`、stdout、stderr。
+- 不修改现有 `ModuleCompiler`。
+
+### 5.11 RuleTestCaseGenerator 与测试用例格式
+
+测试用例不应使用低层字段，如 `{ "cpu1.quantity": 1 }`。应使用业务输入和现有测试 helper 能表达的格式：
 
 ```json
 {
-  "ruleMethod": "rule1",
-  "testCases": [
+  "ruleMethod": "ruleCpu4NotDrive5400",
+  "cases": [
     {
       "id": "TC-001",
-      "description": "正常场景：CPU配置一块",
-      "input": { "cpu1.quantity": 1 },
-      "expected": { "result": "SUCCESS", "constraints": ["cpu1.quantity == 1"] }
+      "type": "validate",
+      "selectedParts": ["cpu4", "drive5400"],
+      "expectedValid": false,
+      "expectedViolatedRuleCodes": ["ruleCpu4NotDrive5400"]
     },
     {
       "id": "TC-002",
-      "description": "异常场景：CPU配置两块应被拒绝",
-      "input": { "cpu1.quantity": 2 },
-      "expected": { "result": "FAILURE", "reason": "CPU最多配置一块" }
+      "type": "validate",
+      "selectedParts": ["cpu8", "drive7200"],
+      "expectedValid": true
+    },
+    {
+      "id": "TC-003",
+      "type": "recommend",
+      "requests": [
+        "cpu:Sum_Quantity ==1 where CoreNum=4",
+        "drive:Sum_Quantity ==1 where Speed=5400"
+      ],
+      "expectedResult": "NO_SOLUTION"
     }
   ]
 }
 ```
 
-#### 3.3.14 CompilationProcessor（编译验证器）
+生成的 JUnit 样例应接近现有项目测试风格：
 
 ```java
-package com.jmix.ruletrans.postprocessor;
+@Test
+public void testGeneratedRule_ForbiddenPair() {
+    ModuleValidateResp resp = validateData("cpu4", "drive5400");
+    assertFalse(resp.isValid());
+    assertTrue(resp.getViolatedRuleCodes().contains("ruleCpu4NotDrive5400"));
+}
 
-/**
- * 编译验证器
- * 复用 ModuleCompiler，不修改原类
- */
-public class CompilationProcessor {
-
-    public CompilationResult compile(String fullClassCode);
-
-    public record CompilationResult(boolean success, List<String> errors) {}
+@Test
+public void testGeneratedRule_RuntimeFilter() {
+    inferRecommendModule(
+            "cpu:Sum_Quantity ==1 where CoreNum=4",
+            "drive:Sum_Quantity ==1 where Speed=5400");
+    printSimpleSolutions();
+    resultAssert().assertNoSolution();
 }
 ```
 
-#### 3.3.15 TestExecutionProcessor（测试执行器）
+### 5.12 TestExecutionProcessor
 
 ```java
-package com.jmix.ruletrans.postprocessor;
+public record TestExecutionResult(
+        boolean success,
+        long testsFound,
+        long testsSucceeded,
+        long testsFailed,
+        List<FailedTestCase> failedCases) {
+}
 
-/**
- * 测试执行器
- * 加载 JSON 测试用例，通过测试框架执行，返回测试结果
- */
-public class TestExecutionProcessor {
-
-    public TestResult execute(String fullClassCode, String testCasesJson, RuleContext ctx);
-
-    /**
-     * 分析测试失败原因，判断是否源于规则逻辑错误（LLM 误解自然语言）
-     */
-    public boolean isRuleLogicError(List<FailedTestCase> failedCases);
-
-    public record TestResult(boolean success, List<FailedTestCase> failedCases) {}
-
-    public record FailedTestCase(
-            String id, String description,
-            String input, String expected, String actual, String reason) {}
+public record FailedTestCase(
+        String id,
+        String displayName,
+        String input,
+        String expected,
+        String actual,
+        String reason,
+        boolean likelyRuleLogicError) {
 }
 ```
 
-#### 3.3.16 RuleTransEngine（主入口）
+实现要求：
+
+- 使用 JUnit Platform `Launcher` 和 `SummaryGeneratingListener`。
+- 返回失败用例详情，而不只写日志。
+- `isRuleLogicError(...)` 先采用保守策略：断言失败、无解/有解与预期相反、违反规则 code 不符合预期，归为可能的规则逻辑错误；ClassNotFound、编译失败、上下文投影失败不归为规则逻辑错误。
+
+### 5.13 RuleTransEngine
 
 ```java
-package com.jmix.ruletrans;
-
-/**
- * 规则转换引擎主入口
- * 编排生成-编译-测试-纠错全流程
- */
-public class RuleTransEngine {
-
+public final class RuleTransEngine {
     private final CategoryIdentifier identifier;
     private final RuleSnippetGenerator generator;
     private final RuleSnippetAssembler assembler;
-    private final RuleTestCaseGenerator testCaseGenerator;
     private final CompilationProcessor compilationProcessor;
-    private final TestExecutionProcessor testProcessor;
+    private final RuleTestCaseGenerator testCaseGenerator;
+    private final TestExecutionProcessor testExecutionProcessor;
 
-    /**
-     * 从自然语言生成规则代码（无纠错版）
-     */
-    public String translate(String naturalLanguage, RuleContext ctx);
+    public String translate(String naturalLanguage, RuleContext context);
 
-    /**
-     * 从自然语言生成规则代码（带迭代纠错）
-     *
-     * - Step 1: 生成代码片段
-     * - Step 2: 组装为完整类，编译验证
-     * - Step 3: 编译失败 → 解析错误 → 构建纠错 Prompt → 重新生成（循环 Step 2）
-     * - Step 4: 编译通过 → 生成 JSON 测试用例
-     * - Step 5: 执行测试
-     * - Step 6: 测试失败 → 分析原因 → 若为规则逻辑错误则构建纠错 Prompt → 回到 Step 2
-     */
-    public String translateWithRetry(String naturalLanguage, RuleContext ctx, int maxRetries);
+    public RuleTransResult translateWithRetry(
+            String naturalLanguage,
+            RuleContext context,
+            int maxRetries);
 }
 ```
 
-### 3.4 Prompt 模板详细设计
+`translate(...)` 只做生成与基本后处理，不强制编译。`translateWithRetry(...)` 执行完整管线。
 
-#### 3.4.1 PartCategory 级模板（part_category_prompt.jtl）
+边界：
 
-```
-## 任务
-将自然语言规则转换为 Java 约束代码片段，作用域为单个 PartCategory。
-
-## PartCategory 信息
-- 分类代码: ${categoryCode}
-
-## 1. 参数（Para）规格
-### 对齐 com.jmix.executor.bmodel.para.Para
-参数是可配置的选项，供用户选择。
-${parasSpec}
-### 字段说明
-- code: 参数编码
-- name: 参数名称
-- paraType: 参数类型（ENUM / INTEGER / RANGE / STRING / MULTI_ENUM 等）
-- options: 选项列表（仅 ENUM/MULTI_ENUM 类型有值，每个选项含 codeId、code、codeValue）
-- minValue / maxValue: 仅 RANGE / INTEGER / FLOAT / DOUBLE 类型使用
-
-## 2. 属性参数（AttrPara）规格
-### 对齐 com.jmix.executor.bmodel.AttrPara
-用于汇总类约束，支持聚合函数。
-${attrParasSpec}
-### 字段说明
-- attrCode: 属性编码（如 "Quantity"、"Capacity"）
-- attrType: 汇总类型（SUM / MAX / MIN / AVG）
-### 使用示例
-- Sum_Quantity: 对部件数量求和
-- Sum_Capacity: 对容量属性求和
-- Max_Speed: 取速度最大值
-
-## 3. 动态属性（DynamicAttribute）规格
-### 对齐 com.jmix.executor.bmodel.attr.DynamicAttribute
-描述 Part 的属性字段（Speed、Capacity 等），用于 where 条件过滤。
-${dynAttrSchemasSpec}
-### 字段说明
-- code: 属性编码（如 "Speed"、"Capacity"）
-- name: 属性名称
-- dynAttrType: 属性类型（E_INT / E_STRING / B_INT 等）
-- options: 选项列表（选项型属性有值）
-- minValue / maxValue: 范围
-
-## 4. 部件（Part）规格
-### 对齐 com.jmix.executor.bmodel.Part
-${partsSpec}
-### 字段说明
-- code: 部件编码
-- maxQuantity: 最大数量（默认 20）
-
-## 5. 自然语言规则
-${naturalLanguage}
-
-## 代码片段格式要求
-仅输出 Java 代码片段，不得包含 package 声明、import 语句和类声明。
-格式如下：
-```java
-@CodeRuleAnno(normalNaturalCode = "${naturalLanguage}")
-private void ${ruleMethodName}() {
-    // 约束实现代码
-    // 参数引用：this.paraVar.getParaOptionByCode("codeValue").getIsSelectedVar()
-    // 数量引用：this.partVar.qty
-    // 动态属性过滤：使用 Sum_Capacity、Max_Speed 等 AttrPara 类型
-    // 日志使用英文
-}
-```
-
-## 技术约束
-- 使用 Or-Tools CP-SAT 约束求解 API
-- rule 方法体直接使用上下文中的规格信息
-- 参数引用格式：变量名使用 Para.code（首字母小写）
-- 选项引用格式：使用 option.codeValue
-- 支持 AttrPara 类型汇总约束（Sum_Quantity、Max_Speed 等）
-```
-
-#### 3.4.2 产品级 Stage1 模板（product_stage1_prompt.jtl）
-
-```
-## 任务
-从自然语言中识别涉及的 PartCategory。
-
-## 可用的 PartCategory 列表
-${availableCategories}
-
-## 自然语言规则
-${naturalLanguage}
-
-## 输出格式
-输出一个 JSON 数组，包含涉及的 category code：
-```json
-["cpu", "hdd"]
-```
-
-如果无法识别任何分类，输出：
-```json
-[]
-```
-```
-
-#### 3.4.3 产品级 Stage2 模板（product_stage2_prompt.jtl）
-
-```
-## 任务
-将自然语言规则转换为 Java 约束代码片段，作用域为多个 PartCategory。
-
-## PartCategory 规格列表
-${categorySpecs}
-
-每个 PartCategory 包含：
-- 分类代码、部件列表
-- 参数（Para）规格
-- 属性参数（AttrPara）规格
-- 动态属性（DynamicAttribute）规格
-
-## 自然语言规则
-${naturalLanguage}
-
-## 代码片段格式要求
-仅输出 Java 代码片段，不得包含 package 声明、import 语句和类声明。
-```java
-@CodeRuleAnno(normalNaturalCode = "${naturalLanguage}")
-private void ${ruleMethodName}() {
-    // 跨 PartCategory 约束实现代码
-    // 使用 coDependent / compatibility 方法建立分类间约束
-    // 支持 AttrPara 汇总约束和动态属性过滤
-}
-```
-
-## 技术约束
-- 使用 Or-Tools CP-SAT 约束求解 API
-- 跨 PartCategory 约束使用 coDependent / compatibility 方法
-- 支持 Sum_Quantity、Sum_Capacity、Max_Speed 等汇总约束
-- 日志使用英文
-```
-
-#### 3.4.4 编译错误纠错模板（correction_compilation_prompt.jtl）
-
-```
-## 任务
-修正以下 Java 代码片段中的编译错误。
-
-## 上一次生成的代码
-```java
-${previousCode}
-```
-
-## 编译错误详情
-${compilationErrors}
-
-## 自然语言规则（参考）
-${naturalLanguage}
-
-## 修正要求
-1. 仔细分析每一条编译错误
-2. 修正代码中的语法错误、类型错误、缺少 import 等问题
-3. 不得改变业务逻辑，仅修复错误
-4. 仅输出修正后的 Java 代码片段
-
-## 输出格式
-```java
-@CodeRuleAnno(normalNaturalCode = "${naturalLanguage}")
-private void ${ruleMethodName}() {
-    // 修正后的约束实现代码
-}
-```
-```
-
-#### 3.4.5 测试失败纠错模板（correction_test_prompt.jtl）
-
-```
-## 任务
-修正以下规则代码，使其通过所有测试用例。
-
-## 自然语言规则
-${naturalLanguage}
-
-## 上一次生成的代码
-```java
-${previousCode}
-```
-
-## 测试失败详情
-${testFailureDetails}
-
-## 修正要求
-1. 分析每个失败测试用例的输入、预期输出和实际输出
-2. 判断是否因为 LLM 对自然语言规则的理解有偏差导致测试失败
-3. 如果是规则逻辑错误，修正代码使其符合自然语言语义
-4. 如果不是规则逻辑错误，保留原代码并在注释中说明
-
-## 输出格式
-```java
-@CodeRuleAnno(normalNaturalCode = "${naturalLanguage}")
-private void ${ruleMethodName}() {
-    // 修正后的约束实现代码
-}
-```
-```
-
-### 3.5 关键设计决策
-
-#### 决策 1：LLM 调用完全复用
-
-`LLMInvoker` / `LLMInvokerImpl` 不做任何修改。`ruletrans` 各组件通过组合复用。
-
-#### 决策 2：Prompt 模板独立存放
-
-新建 `src/main/resources/ruletrans/` 目录，五个模板文件互不干扰。不修改 `cengine/` 目录。
-
-#### 决策 3：上下文数据模型对齐领域模型
-
-`PartCategoryContext` 完整对齐 PartCategory 继承链（Onto → ModuleBase → PartCategory），包含：
-- `paras`（`List<ParaSpec>`）— 参数规格
-- `attrParas`（`List<AttrParaSpec>`）— 属性参数规格（汇总类型）
-- `dynAttrSchemas`（`List<DynamicAttrSpec>`）— 动态属性规格（Part 属性）
-- `dynAttr`（`Map<String, String>`）— 扩展属性值
-- `atomicParts`（`List<PartSpec>`）— 部件规格
-- `partCategorys`（`List<PartCategoryContext>`）— 子分类
-
-#### 决策 4：纠错 Prompt 动态构建
-
-- 编译失败：解析 javac 输出，构建 `correction_compilation_prompt.jtl`
-- 测试失败：`TestExecutionProcessor` 分析原因，构建 `correction_test_prompt.jtl`
-
-#### 决策 5：输出内容边界
-
-`ruletrans` 输出**纯 Java rule 方法代码片段**。组装为完整类的工作由 `RuleSnippetAssembler` 负责。
+- 主类不负责临时 Java 类字符串拼装细节。
+- 主类不直接读写测试文件。
+- 主类不直接拼 javac 命令。
+- 主类只编排各组件。
 
 ---
 
-## 4. 验收准则
+## 6. Prompt 模板要点
 
-### 4.1 功能验收用例
+### 6.1 PartCategory 模板
 
-#### AC-001：PartCategory 级规则翻译
+必须包含：
+
+- 自然语言规则。
+- 分类 code、名称、选择策略、多实例标记。
+- `paras`：code、name、`paraType`、`assignType`、options。
+- `dynAttrSchemas`：code、name、`dynAttrType`、`instType`、options。
+- `attrParas`：`attrCode`、`AttrParaType`，例如 `Sum`、`SumSum`、`Org`。
+- `dynAttr` 扩展属性。
+- 原子部件：code、name、fatherCode、maxQuantity、price、dynAttr。
+- 推荐使用的南向 API 示例。
+
+### 6.2 产品级 Stage1 模板
+
+只输出 JSON 数组：
+
+```json
+["cpu", "drive"]
+```
+
+如果无法识别，输出：
+
+```json
+[]
+```
+
+### 6.3 产品级 Stage2 模板
+
+只携带 Stage1 已识别分类的完整投影视图。必须说明跨分类规则可优先使用：
+
+```java
+inCompatible("ruleCode", "cpu:CoreNum=4", "drive:Speed=5400");
+```
+
+或使用 `model().sum4Selected(partCategoryCodes, attrCode, filterCondition)` / `model().sum4Quantity(...)` 等 facade。
+
+### 6.4 编译纠错模板
+
+必须包含：
+
+- 上一次代码片段。
+- javac stderr。
+- 自然语言原文。
+- 上下文摘要。
+- 明确要求只输出修正后的 rule 方法片段。
+- 明确要求不改变已正确的业务语义，优先修语法、类型、facade API 使用错误。
+
+### 6.5 测试纠错模板
+
+必须包含：
+
+- 上一次代码片段。
+- 失败测试用例列表。
+- 每个用例的输入、预期、实际。
+- 失败是否被处理器判定为可能的规则逻辑错误。
+- 明确要求只在规则逻辑错误时修正代码。
+
+---
+
+## 7. 关键设计决策
+
+### 决策 1：上下文使用领域对象，不再设计平行 DTO
+
+`PartCategoryRuleContext` 不应要求调用方手写 `ParaSpec`、`AttrParaSpec`、`DynamicAttrSpec`、`PartSpec`。这些结构如果存在，只能是 Prompt 投影器自动生成的视图。
+
+依据：
+
+- 用户明确指出原设计没有体现当前 PartCategory 的参数、动态属性和扩展属性。
+- 当前代码已有完整领域模型继承链。
+- 重复 DTO 会带来双写、字段遗漏和语义漂移。
+
+### 决策 2：当前生成代码绑定 `ModuleAlgBase`，但组装独立
+
+用户反馈中提到代码片段最终是在 `ModuleAlgBase` 中运行。为了当前程序简单，P0 继续生成 `ModuleAlgBase` rule 方法片段。
+
+同时，组装为完整类的工作独立在 `RuleSnippetAssembler` 中，不放进 `RuleTransEngine`。
+
+### 决策 3：编译和测试处理器返回结构化结果
+
+现有 `ModuleCompiler` / `ModuleRunner` 不能直接满足纠错循环，因为它们不返回错误结构。RuleTrans 新增处理器，但不修改原类，避免影响 `ModelHelper`。
+
+### 决策 4：测试样例优先复用项目 helper
+
+RuleTrans 的测试不是为了展示请求对象拼装，而是验证生成规则语义。因此 RFC 和生成测试都优先使用：
+
+- `inferRecommendModule(...)`
+- `printSimpleSolutions()`
+- `validData(...)`
+- `validateData(...)`
+- `resultAssert()`
+- 语义化 short code
+
+### 决策 5：Prompt 模板独立
+
+所有 RuleTrans Prompt 放在 `src/main/resources/ruletrans/`，不修改 `cengine/`。这保证既有 `ModelHelper` 生成完整测试类的能力不被扰动。
+
+---
+
+## 8. 验收准则
+
+### AC-001：RuleContext 从现有领域模型构建
+
+测试目标：
+
+- 通过注解类或现有 `Module` 构建 `RuleContext`。
+- 投影结果包含 `paras`、`attrParas`、`dynAttrSchemas`、`dynAttr`、`atomicParts`、`partCategorys`。
+
+示例：
 
 ```java
 @Test
-public void testPartCategoryTranslate() {
-    // Para: Color = {Red, Black}
-    List<ParaOptionSpec> colorOptions = List.of(
-        new ParaOptionSpec(1, "Red", "Red"),
-        new ParaOptionSpec(2, "Black", "Black")
-    );
-    ParaSpec colorPara = new ParaSpec("Color", "颜色", "ENUM", colorOptions, null, null);
+public void testBuildPartCategoryRuleContextFromAnnotatedClass() {
+    Module module = ModuleGenneratorByAnno.build(CpuDriveConstraint.class, tempPath);
+    RuleContext ctx = RuleContextFactory.partCategory(module, "cpu");
 
-    // Part: cpu1, maxQuantity = 1
-    PartSpec cpu1 = new PartSpec("cpu1", "CPU", 1, 0L);
+    PartCategoryPromptView view = projector.projectPartCategory(ctx);
 
-    PartCategoryContext ctx = new PartCategoryContext();
-    ctx.setCategoryCode("cpu");
-    ctx.setParas(List.of(colorPara));
-    ctx.setAtomicParts(List.of(cpu1));
-
-    RuleTransEngine engine = new RuleTransEngine();
-    String code = engine.translate("CPU最多配置一块", ctx);
-
-    assertNotNull(code);
-    assertTrue(code.contains("@CodeRuleAnno"));
-    assertTrue(code.contains("qty"));
+    assertEquals("cpu", view.code());
+    assertTrue(view.dynAttrSchemas().stream().anyMatch(attr -> attr.code().equals("CoreNum")));
+    assertFalse(view.atomicParts().isEmpty());
 }
 ```
 
-#### AC-002：含动态属性的规则翻译
+### AC-002：PartCategory 级规则生成
+
+使用 fake `LLMInvoker` 返回确定代码：
 
 ```java
-@Test
-public void testDynAttrTranslate() {
-    // DynamicAttribute: Speed = {5400, 7200}
-    List<ParaOptionSpec> speedOptions = List.of(
-        new ParaOptionSpec(1, "5400转", "5400"),
-        new ParaOptionSpec(2, "7200转", "7200")
-    );
-    DynamicAttrSpec speedAttr = new DynamicAttrSpec("Speed", "转速", "E_INT", speedOptions, null, null);
-
-    PartCategoryContext ctx = new PartCategoryContext();
-    ctx.setCategoryCode("hdd");
-    ctx.setDynAttrSchemas(List.of(speedAttr));
-
-    RuleTransEngine engine = new RuleTransEngine();
-    String code = engine.translate("硬盘转速不能是5400转", ctx);
-
-    assertNotNull(code);
-    assertTrue(code.contains("Speed"));
+@CodeRuleAnno(normalNaturalCode = "CPU 最多配置一块")
+public void ruleCpuAtMostOne() {
+    model().addLessOrEqual(model().sum4Selected("cpu", "", ""), 1);
 }
 ```
 
-#### AC-003：编译验证通过
+预期：
+
+- `engine.translate(...)` 返回纯方法片段。
+- 片段不含 package/import/class。
+- 片段包含 `@CodeRuleAnno`。
+
+### AC-003：产品级 Stage1 识别并校验分类
+
+输入：
+
+```text
+四核 CPU 不能兼容转速为 5400 转的硬盘
+```
+
+fake LLM 返回：
+
+```json
+["cpu", "drive"]
+```
+
+预期：
+
+- `CategoryIdentifier.identify(...)` 返回 `cpu` 和 `drive`。
+- 返回不存在的分类 code 时抛出 `CategoryNotFoundException`。
+- 返回空数组时抛出 `CategoryNotFoundException` 或返回明确失败结果。
+
+### AC-004：生成片段可编译
 
 ```java
 @Test
-public void testGeneratedCodeCompiles() {
-    RuleTransEngine engine = new RuleTransEngine();
-    String snippet = engine.translate("CPU最多配置一块", partCategoryCtx);
+public void testGeneratedSnippetCompiles() {
+    String snippet = fakeGeneratedRule();
+    AssembledRuleClass assembled =
+            assembler.assembleCompileUnit(snippet, context, "RuleTransCandidate001");
 
-    RuleSnippetAssembler assembler = new RuleSnippetAssembler();
-    String fullClass = assembler.assemble(snippet, "rule1", partCategoryCtx);
-
-    CompilationProcessor processor = new CompilationProcessor();
-    CompilationResult result = processor.compile(fullClass);
+    CompilationResult result = compilationProcessor.compile(assembled.sourceFile());
 
     assertTrue(result.success(), String.join("\n", result.errors()));
 }
 ```
 
-#### AC-004：JSON 测试用例生成
+预期：
+
+- 编译失败时返回 stderr。
+- 不依赖 `ModuleCompiler.compile(...)` 的日志文本。
+
+### AC-005：产品级禁止组合规则可执行
+
+临时生成的测试类应使用 `validateData(...)`：
 
 ```java
 @Test
-public void testTestCaseGeneration() {
-    RuleTestCaseGenerator gen = new RuleTestCaseGenerator();
-    String json = gen.generateTestCases("CPU最多配置一块", ctx, ruleCode);
-
-    JsonNode node = new ObjectMapper().readTree(json);
-    assertTrue(node.has("ruleMethod"));
-    assertTrue(node.has("testCases"));
-    assertTrue(node.get("testCases").isArray());
-
-    for (JsonNode tc : node.get("testCases")) {
-        assertTrue(tc.has("id"));
-        assertTrue(tc.has("input"));
-        assertTrue(tc.has("expected"));
-    }
+public void testGeneratedRule_ValidateForbiddenPair() {
+    ModuleValidateResp resp = validateData("cpu4", "drive5400");
+    assertFalse(resp.isValid());
+    assertTrue(resp.getViolatedRuleCodes().contains("ruleCpu4NotDrive5400"));
 }
 ```
 
-#### AC-005：原有 ModelHelper 不受影响
+预期：
+
+- `cpu4 + drive5400` 无效。
+- `cpu8 + drive7200` 有效。
+- 失败诊断包含生成 rule method code。
+
+### AC-006：推荐路径与运行时过滤取交集
 
 ```java
 @Test
-public void testModelHelperUnchanged() {
+public void testGeneratedRule_IntersectWithRuntimeFilter() {
+    inferRecommendModule(
+            "cpu:Sum_Quantity ==1 where CoreNum=4",
+            "drive:Sum_Quantity ==1 where Speed=5400");
+    printSimpleSolutions();
+    resultAssert().assertNoSolution();
+}
+```
+
+预期：
+
+- 推荐路径走现有 `inferRecommendModule(...)`。
+- 不在测试中手写 `InferParasReq` 和 `PartConstraintReq`。
+
+### AC-007：编译错误驱动重试
+
+fake LLM 第一次返回错误 API：
+
+```java
+model().addLessOrEquals(model().sum4Selected("cpu", "", ""), 1);
+```
+
+第二次返回正确 API：
+
+```java
+model().addLessOrEqual(model().sum4Selected("cpu", "", ""), 1);
+```
+
+预期：
+
+- 第一次编译失败。
+- 纠错 Prompt 包含 javac stderr。
+- 第二次编译通过。
+- 最终结果返回第二次代码。
+
+### AC-008：测试失败驱动重试
+
+fake LLM 第一次生成反向逻辑，测试失败；第二次修正。
+
+预期：
+
+- `TestExecutionResult.failedCases()` 包含失败用例输入、预期和实际。
+- 失败被标记为可能的规则逻辑错误。
+- 重试后测试通过。
+
+### AC-009：原有 ModelHelper 不受影响
+
+```java
+@Test
+public void testModelHelperUnchanged() throws Exception {
     String source = Files.readString(Path.of("src/main/java/com/jmix/tool/ModelHelper.java"));
     assertFalse(source.contains("ruletrans"));
     assertFalse(source.contains("RuleTransEngine"));
 }
 ```
 
-### 4.2 边界条件
+回归：
 
-| 条件 | 输入 | 预期行为 |
-|------|------|----------|
+- `ModuleGenerator` 现有测试通过。
+- `ModuleCompilerTest` 现有测试通过。
+- `ModuleRunnerTest` 现有测试通过。
+
+### AC-010：边界条件
+
+| 条件 | 输入 | 预期 |
+| --- | --- | --- |
 | 自然语言为空 | `""` | 抛出 `IllegalArgumentException` |
-| RuleContext 为空 | `null` | 抛出 `IllegalArgumentException` |
-| Stage1 未识别任何分类 | 产品级，LLM 返回空 | 抛出 `CategoryNotFoundException` |
-| 重试超过上限 | 连续失败超过 3 次 | 抛出 `RuleTransException`，附最终错误信息 |
-| LLM API 调用失败 | 网络错误/API Key 无效 | 抛出 `RuleTransException`，不修改任何文件 |
-
-### 4.3 回归测试
-
-- [ ] `ModelHelper` 现有测试全部通过
-- [ ] `ModuleGenerator` 现有测试全部通过
-- [ ] `LLMInvoker` 接口契约不变
-- [ ] `ModuleCompiler` / `ModuleRunner` 行为不变
+| `RuleContext` 为空 | `null` | 抛出 `IllegalArgumentException` |
+| Product Stage1 未识别分类 | `[]` | 抛出 `CategoryNotFoundException` |
+| Stage1 返回非法分类 | `["missing"]` | 抛出 `CategoryNotFoundException`，错误信息包含 `missing` |
+| 编译重试超过上限 | 连续编译失败 | 返回失败结果或抛出 `RuleTransException`，包含最后一次错误 |
+| LLM 调用失败 | API key 或网络错误 | 抛出 `RuleTransException`，不写入业务源码 |
+| Prompt 投影超过注解支持上限 | 动态属性超过可生成 `DAttrAnnoN` 上限 | P1 测试 harness 明确失败，不静默丢字段 |
 
 ---
 
-## 5. 实现计划
+## 9. 实现计划
 
 | 阶段 | 任务 | 优先级 | 状态 |
-|------|------|--------|------|
-| 1 | 创建 `com.jmix.ruletrans` 包骨架 | P0 | 待开始 |
-| 2 | 实现 `RuleContext` 及上下文数据类（PartCategoryContext / ProductContext / ParaSpec / AttrParaSpec / DynamicAttrSpec / PartSpec） | P0 | 待开始 |
-| 3 | 创建 `ruletrans/` 目录及五个 Prompt 模板文件 | P0 | 待开始 |
-| 4 | 实现 `PromptBuilder`（含纠错 Prompt 构建） | P0 | 待开始 |
-| 5 | 实现 `RuleSnippetGenerator`（复用 `LLMInvoker`） | P0 | 待开始 |
-| 6 | 实现 `RuleSnippetAssembler`（代码片段组装） | P0 | 待开始 |
-| 7 | 实现 `CompilationProcessor`（复用 `ModuleCompiler`） | P0 | 待开始 |
-| 8 | 实现 `CategoryIdentifier`（产品级 Stage1） | P0 | 待开始 |
-| 9 | 实现 `RuleTransEngine` 主入口（无纠错版） | P0 | 待开始 |
-| 10 | 实现 `translateWithRetry`（编译纠错 + 测试纠错循环） | P1 | 待开始 |
-| 11 | 实现 `RuleTestCaseGenerator`（JSON 测试用例） | P1 | 待开始 |
-| 12 | 实现 `TestExecutionProcessor` | P1 | 待开始 |
-| 13 | 编写单元测试（AC-001 ~ AC-005） | P1 | 待开始 |
-| 14 | 集成测试：端到端自然语言翻译 | P2 | 待开始 |
+| --- | --- | --- | --- |
+| 1 | 创建 `com.jmix.ruletrans` 包骨架和资源目录 `src/main/resources/ruletrans/` | P0 | 待开始 |
+| 2 | 实现 `RuleContext`、`PartCategoryRuleContext`、`ProductRuleContext`、`RuleContextFactory` | P0 | 待开始 |
+| 3 | 实现 `RulePromptProjector` 和 Prompt view，自动从 `Module` / `PartCategory` 投影 | P0 | 待开始 |
+| 4 | 实现 `PromptBuilder`，复用 `PromptTemplateLoader` 加载 `ruletrans/*.jtl` | P0 | 待开始 |
+| 5 | 实现 `CategoryIdentifier`，完成产品级 Stage1 分类识别与校验 | P0 | 待开始 |
+| 6 | 实现 `RuleSnippetGenerator`，通过构造注入复用 `LLMInvoker` | P0 | 待开始 |
+| 7 | 实现 `RuleSnippetPostProcessor`，提取代码块并校验只包含 rule 方法片段 | P0 | 待开始 |
+| 8 | 实现 `RuleSnippetAssembler.assembleCompileUnit(...)` | P0 | 待开始 |
+| 9 | 实现 `CompilationProcessor` 和 `CompilationResult`，返回结构化 javac 结果 | P0 | 待开始 |
+| 10 | 实现 `RuleTransEngine.translate(...)` 和编译纠错版 `translateWithRetry(...)` 的 P0 子集 | P0 | 待开始 |
+| 11 | 用 fake `LLMInvoker` 编写 P0 单元测试，避免依赖真实大模型 | P0 | 待开始 |
+| 12 | 实现 `RuleTestCaseGenerator` 与 `RuleTransTestCaseSet` JSON schema | P1 | 待开始 |
+| 13 | 实现 `RuleSnippetAssembler.assembleExecutableTest(...)`，生成 `ModuleScenarioTestBase` 风格测试 | P1 | 待开始 |
+| 14 | 实现 `TestExecutionProcessor` 和结构化 JUnit 失败结果 | P1 | 待开始 |
+| 15 | 实现测试失败纠错循环 | P1 | 待开始 |
+| 16 | 端到端集成测试：自然语言 -> 代码片段 -> 编译 -> 测试通过 | P1 | 待开始 |
+| 17 | 评估脱离 `ModuleAlgBase` 的中间 IR 或规则 Schema 生成路径 | P2 | 待评估 |
 
 ---
 
-## 6. 参考资料
+## 10. 风险与兼容策略
 
-- [RFC-0004: Hybrid Calculation Pre-Mid-Post](doc/RFC-0004-Hybrid-Calculation-Pre-Mid-Post.md)
-- [RFC-0007: Struct Combination Rule Schema](doc/RFC-0007-Struct-Combination-Rule-Schema.md)
-- [约束生成 Prompt 模板](../src/main/resources/cengine/constraint_generate_prompt.jtl)
-- [ModelHelper](../src/main/java/com/jmix/tool/ModelHelper.java)
-- [PartCategory 领域模型](../src/main/java/com/jmix/executor/bmodel/PartCategory.java)
-- [Onto 领域模型](../src/main/java/com/jmix/executor/bmodel/Onto.java)
-- [Para 领域模型](../src/main/java/com/jmix/executor/bmodel/para/Para.java)
-- [DynamicAttribute 领域模型](../src/main/java/com/jmix/executor/bmodel/attr/DynamicAttribute.java)
-- [AttrPara 领域模型](../src/main/java/com/jmix/executor/bmodel/AttrPara.java)
-- [LLMInvoker](../src/main/java/com/jmix/tool/impl/llm/LLMInvoker.java)
-- [ModuleScenarioTestBase](../src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java)
-- [约束引擎架构](../CLAUDE.md)
+### 10.1 Prompt 投影信息过多
+
+风险：产品级上下文包含大量分类和部件，Prompt 过长。
+
+策略：
+
+- Stage1 只投影分类摘要。
+- Stage2 只投影识别后的分类。
+- 部件列表可提供 short code 和必要属性，不把无关字段全部展开。
+
+### 10.2 反向生成注解测试类不完全保真
+
+风险：现有 `Module` 可能包含无法完整反向表达为注解的字段。
+
+策略：
+
+- P0 先保证编译验证。
+- P1 明确支持范围，无法生成测试 harness 时返回结构化失败。
+- 后续可考虑直接使用 `Module` 数据和生成算法类组装测试，而不是完全反向生成注解。
+
+### 10.3 LLM 生成内部 API
+
+风险：LLM 使用 `impl` 类型、OR-Tools 类型或旧字段名。
+
+策略：
+
+- Prompt 明确只允许南向 facade。
+- 后处理器扫描禁止 import/package/class 和明显的 forbidden package。
+- 编译错误进入纠错 Prompt。
+
+### 10.4 编译和测试处理器与现有工具重复
+
+风险：新增处理器看起来像重复 `ModuleCompiler` / `ModuleRunner`。
+
+策略：
+
+- 不改原类，不影响 `ModelHelper`。
+- 新处理器只服务 RuleTrans 的结构化纠错循环。
+- 复用现有 classpath 和 JUnit Launcher 约定，减少行为分叉。
+
+### 10.5 生成规则逻辑错误
+
+风险：编译通过但业务语义错误。
+
+策略：
+
+- P1 引入 LLM 生成测试用例。
+- 测试用例必须覆盖正向、反向、边界。
+- 失败结果结构化反馈给 LLM 重试。
 
 ---
 
-## 附录 A：复用优先清单
+## 11. 复用优先清单
 
 ### 优先复用
 
-- `com.jmix.tool.impl.llm.LLMInvoker` / `LLMInvokerImpl`：LLM 调用能力
-- `com.jmix.tool.impl.PromptTemplateLoader`：`renderTemplate` 方法
-- `com.jmix.tool.impl.ModuleCompiler`：编译验证逻辑
-- `com.jmix.executor.bmodel.PartCategory`：领域模型（上下文类与其结构对齐）
-- `com.jmix.executor.bmodel.para.Para`：参数领域模型
-- `com.jmix.executor.bmodel.attr.DynamicAttribute`：动态属性领域模型
-- `com.jmix.executor.bmodel.AttrPara`：属性参数领域模型
-- `com.jmix.executor.bmodel.Part`：部件领域模型
+- `com.jmix.executor.bmodel.Module`
+- `com.jmix.executor.bmodel.PartCategory`
+- `com.jmix.executor.bmodel.Part`
+- `com.jmix.executor.bmodel.para.Para`
+- `com.jmix.executor.bmodel.attr.DynamicAttribute`
+- `com.jmix.executor.bmodel.AttrPara`
+- `com.jmix.tool.impl.llm.LLMInvoker` / `LLMInvokerImpl`
+- `com.jmix.tool.impl.PromptTemplateLoader`
+- `com.jmix.tool.bbuilder.ModuleGenneratorByAnno`
+- `com.jmix.executor.southinf.ModuleAlgBase`
+- `com.jmix.executor.southinf.ModuleCPModel`
+- `com.jmix.executor.southinf.PartCategoryCPModel`
+- `com.jmix.coretest.ModuleScenarioTestBase`
 
-### 不新增
+### 不新增或不修改
 
-- 不新建 LLM 调用封装类，直接复用 `LLMInvoker`
-- 不新建编译工具类，复用 `ModuleCompiler`
-- 不修改现有 `cengine/` 目录下的 Prompt 模板
-- 不修改现有 `com.jmix.tool` 包下的任何类
+- 不修改 `ModelHelper`。
+- 不修改 `ModuleGenerator` 现有行为。
+- 不修改 `cengine/` Prompt 模板。
+- 不新增第二套 LLM 调用抽象。
+- 不要求调用方维护平行领域 DTO。
+- 不在测试方法中重复拼大量 `InferParasReq` / `PartConstraintReq`。
 
-### 可由领域模型推导
+### 可由上下文推导
 
-- `ParaSpec` 来自 `Para.getOptions()`（`List<DynamicAttributerOption>`）
-- `DynamicAttrSpec` 来自 `DynamicAttribute`
-- `AttrParaSpec` 来自 `AttrPara`
-- 未来可通过 `ModuleGenneratorByAnno` 从注解自动构造 `PartCategoryContext`
+- `ParaPromptView` 由 `Para` 推导。
+- `DynamicAttrPromptView` 由 `DynamicAttribute` 推导。
+- `AttrParaPromptView` 由 `AttrPara` 推导。
+- `PartPromptView` 由 `Part` 推导。
+- 产品级可用分类由 `Module.getAllPartCategorys()` 推导。
+- Stage2 目标分类由 Stage1 识别结果经 `Module.getPartCategory(code)` 校验后推导。
+
+---
+
+## 12. 待用户确认
+
+1. P0 的可执行测试 harness 是否必须完整支持从任意 `Module` 反向生成注解类，还是可以先以“编译验证 + fake LLM 单元测试”为主，P1 再扩大运行态测试？
+2. `CompilationProcessor` / `TestExecutionProcessor` 是否允许在 `ruletrans` 内复制少量 `ModuleCompiler` / `ModuleRunner` 的 classpath 与 JUnit Launcher 逻辑，以换取结构化返回？
+3. 生成代码方法名是否需要由 RuleTrans 强制规范，例如 `rule` + 语义 slug，还是允许 LLM 自行命名后由后处理器校验唯一性？
+
+---
+
+## 13. 参考资料
+
+- `doc/CORE-DESIGN.md`
+- `doc/ACCEPTANCE.md`
+- `doc/RFC-0007-Struct-Combination-Rule-Schema.md`
+- `doc/RFC-0010-Cross-PartCategory-Total-Constraint.md`
+- `src/main/java/com/jmix/tool/ModelHelper.java`
+- `src/main/java/com/jmix/tool/impl/ModuleGenerator.java`
+- `src/main/java/com/jmix/tool/impl/ModuleCompiler.java`
+- `src/main/java/com/jmix/tool/impl/ModuleRunner.java`
+- `src/main/java/com/jmix/tool/impl/PromptTemplateLoader.java`
+- `src/main/java/com/jmix/tool/impl/llm/LLMInvoker.java`
+- `src/main/java/com/jmix/executor/bmodel/Onto.java`
+- `src/main/java/com/jmix/executor/bmodel/ModuleBase.java`
+- `src/main/java/com/jmix/executor/bmodel/Module.java`
+- `src/main/java/com/jmix/executor/bmodel/PartCategory.java`
+- `src/main/java/com/jmix/executor/bmodel/Part.java`
+- `src/main/java/com/jmix/executor/bmodel/para/Para.java`
+- `src/main/java/com/jmix/executor/bmodel/attr/DynamicAttribute.java`
+- `src/main/java/com/jmix/executor/bmodel/AttrPara.java`
+- `src/main/java/com/jmix/executor/southinf/ModuleAlgBase.java`
+- `src/main/java/com/jmix/executor/southinf/ModuleCPModel.java`
+- `src/main/java/com/jmix/executor/southinf/PartCategoryCPModel.java`
+- `src/main/java/com/jmix/executor/southinf/var/PartCategoryVar.java`
+- `src/main/java/com/jmix/executor/southinf/var/PartVar.java`
+- `src/test/java/com/jmix/coretest/ModuleScenarioTestBase.java`
+- `src/test/java/com/jmix/scenario/ruletest/CodeRuleOnlyValidateTest.java`
+- `src/test/java/com/jmix/scenario/ruletest/CrossPartCategoryTotalConstraintTest.java`
+- `src/test/java/com/jmix/scenario/ruletest/StructCombinationRuleTest.java`
