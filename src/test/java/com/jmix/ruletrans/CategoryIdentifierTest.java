@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.jmix.ruletrans.identifier.CategoryIdentifier;
 import com.jmix.ruletrans.prompt.PromptBuilder;
 import com.jmix.tool.impl.llm.LLMInvoker;
-import com.jmix.tool.impl.llm.LLMInvokerImpl;
 
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +20,7 @@ public class CategoryIdentifierTest {
 
     @Test
     public void testIdentifiesAndValidatesCategories() {
-        CategoryIdentifier identifier = new CategoryIdentifier(realLlm(), new PromptBuilder());
+        CategoryIdentifier identifier = new CategoryIdentifier(invoker("[\"cpu\", \"drive\"]"), new PromptBuilder());
 
         List<String> result = identifier.identify("4-core CPU cannot use 5400 drive", sampleModule());
 
@@ -31,18 +30,25 @@ public class CategoryIdentifierTest {
 
     @Test
     public void testRejectsMissingCategory() {
-        CategoryIdentifier identifier = new CategoryIdentifier(realLlm(), new PromptBuilder());
+        CategoryIdentifier identifier = new CategoryIdentifier(invoker("[\"missing\"]"), new PromptBuilder());
 
         CategoryNotFoundException ex = assertThrows(CategoryNotFoundException.class,
                 () -> identifier.identify("Warranty period must be at least 12 months", sampleModule()));
         assertTrue(ex.getMessage().contains("PartCategory"));
+        assertTrue(ex.getMessage().contains("missing"));
     }
 
-    private LLMInvoker realLlm() {
-        return RealLlmHolder.INSTANCE;
-    }
+    private LLMInvoker invoker(String response) {
+        return new LLMInvoker() {
+            @Override
+            public String generate(String systemMessage, String userMessage) {
+                return response;
+            }
 
-    private static final class RealLlmHolder {
-        private static final LLMInvoker INSTANCE = new LLMInvokerImpl();
+            @Override
+            public String getConfigInfo() {
+                return "scripted";
+            }
+        };
     }
 }

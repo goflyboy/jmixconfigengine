@@ -1,24 +1,58 @@
 package com.jmix.ruletrans.generator;
 
 import com.jmix.ruletrans.RuleTransException;
+import com.jmix.ruletrans.sdk.SdkProfile;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Extracts and validates generated rule method snippets.
+ * Extracts and validates generated Java rule method bodies.
  */
 public final class RuleSnippetPostProcessor {
 
     private static final Pattern PACKAGE_OR_IMPORT = Pattern.compile("(?m)^\\s*(package|import)\\s+");
     private static final Pattern CLASS_DECLARATION =
             Pattern.compile("(?m)^\\s*(public\\s+|final\\s+|abstract\\s+)*class\\s+");
+    private static final Pattern METHOD_DECLARATION = Pattern.compile(
+            "(?m)^\\s*(public|protected|private)?\\s*(static\\s+)?(final\\s+)?"
+                    + "(void|[A-Za-z_$][A-Za-z0-9_$.<>\\[\\]]*)\\s+[A-Za-z_$][A-Za-z0-9_$]*\\s*\\(");
+    private static final Pattern CODE_RULE_ANNOTATION = Pattern.compile("@\\s*CodeRuleAnno\\b");
+    private static final Pattern FORBIDDEN_PACKAGE =
+            Pattern.compile("com\\.google\\.ortools|com\\.jmix\\.executor\\.impl\\.");
+    private static final Pattern CONSTRAINT_FORBIDDEN_API = Pattern.compile(
+            "\\b(currentInst|partCategorySum)\\s*\\(|\\.setValue\\s*\\(|\\bsetDynAttr\\s*\\("
+                    + "|\\bpartCategory\\s*\\(|\\bpart\\s*\\(");
+    private static final Pattern POST_FORBIDDEN_API = Pattern.compile(
+            "\\bmodel\\s*\\(|\\bpartVar\\s*\\(|\\bpartCategoryVar\\s*\\(|\\bpara\\s*\\("
+                    + "|\\binCompatible\\s*\\(|\\baddCompatibleConstraint|\\bonlyEnforceIf\\s*\\("
+                    + "|\\bupdatePriorityObjectFuntion\\s*\\(|\\baddVarAboutHiddenConstraints\\s*\\(");
 
     public String process(String rawResponse) {
-        String snippet = normalizeSnippet(extractCode(rawResponse));
-        validateSnippet(snippet);
-        return snippet;
+        return processMethodBody(rawResponse, SdkProfile.CONSTRAINT);
+    }
+
+    public String process(String rawResponse, SdkProfile sdkProfile) {
+        return processMethodBody(rawResponse, sdkProfile);
+    }
+
+    public String processMethodBody(String rawResponse) {
+        return processMethodBody(rawResponse, SdkProfile.CONSTRAINT);
+    }
+
+    public String processMethodBody(String rawResponse, SdkProfile sdkProfile) {
+        String methodBody = normalizeMethodBody(extractCode(rawResponse));
+        validateMethodBody(methodBody, sdkProfile == null ? SdkProfile.CONSTRAINT : sdkProfile);
+        return methodBody;
+    }
+
+    /**
+     * Compatibility helper for legacy snippet-shaped responses.
+     */
+    public String processLegacySnippetToMethodBody(String rawResponse, SdkProfile sdkProfile) {
+        String code = extractCode(rawResponse);
+        String methodBody = looksLikeMethod(code) ? extractMethodBody(code) : code;
+        return processMethodBody(methodBody, sdkProfile);
     }
 
     private String extractCode(String rawResponse) {
@@ -38,97 +72,61 @@ public final class RuleSnippetPostProcessor {
         return text;
     }
 
-    private String normalizeSnippet(String snippet) {
-        return removeCodeRuleAnnoCodeAttribute(snippet);
-    }
-
-    private String removeCodeRuleAnnoCodeAttribute(String snippet) {
-        String marker = "@CodeRuleAnno";
-        StringBuilder result = new StringBuilder();
-        int cursor = 0;
-        while (cursor < snippet.length()) {
-            int annotationStart = snippet.indexOf(marker, cursor);
-            if (annotationStart < 0) {
-                result.append(snippet.substring(cursor));
-                break;
-            }
-            result.append(snippet, cursor, annotationStart);
-            int markerEnd = annotationStart + marker.length();
-            int argsStart = skipWhitespace(snippet, markerEnd);
-            if (argsStart >= snippet.length() || snippet.charAt(argsStart) != '(') {
-                result.append(marker);
-                cursor = markerEnd;
-                continue;
-            }
-            int argsEnd = findMatchingParen(snippet, argsStart);
-            if (argsEnd < 0) {
-                result.append(snippet.substring(annotationStart));
-                break;
-            }
-            result.append(marker).append(normalizeCodeRuleAnnoArgs(snippet.substring(argsStart + 1, argsEnd)));
-            cursor = argsEnd + 1;
-        }
-        return result.toString();
-    }
-
-    private String normalizeCodeRuleAnnoArgs(String args) {
-        List<String> retained = new ArrayList<>();
-        for (String arg : splitAnnotationArgs(args)) {
-            String trimmed = arg.trim();
-            if (!trimmed.isEmpty() && !trimmed.matches("code\\s*=.*")) {
-                retained.add(trimmed);
-            }
-        }
-        if (retained.isEmpty()) {
+    private String normalizeMethodBody(String methodBody) {
+        if (methodBody == null) {
             return "";
         }
-        return "(" + String.join(", ", retained) + ")";
+        return methodBody.trim();
     }
 
-    private List<String> splitAnnotationArgs(String args) {
-        List<String> parts = new ArrayList<>();
-        int start = 0;
-        int depth = 0;
-        boolean inString = false;
-        boolean escaped = false;
-        for (int i = 0; i < args.length(); i++) {
-            char ch = args.charAt(i);
-            if (inString) {
-                if (escaped) {
-                    escaped = false;
-                } else if (ch == '\\') {
-                    escaped = true;
-                } else if (ch == '"') {
-                    inString = false;
-                }
-                continue;
-            }
-            if (ch == '"') {
-                inString = true;
-                continue;
-            }
-            if (ch == '(' || ch == '{') {
-                depth++;
-            } else if (ch == ')' || ch == '}') {
-                depth = Math.max(0, depth - 1);
-            } else if (ch == ',' && depth == 0) {
-                parts.add(args.substring(start, i));
-                start = i + 1;
-            }
+    private void validateMethodBody(String methodBody, SdkProfile sdkProfile) {
+        if (methodBody == null || methodBody.trim().isEmpty()) {
+            throw new RuleTransException("Generated rule method body is blank");
         }
-        parts.add(args.substring(start));
-        return parts;
-    }
-
-    private int skipWhitespace(String value, int start) {
-        int index = start;
-        while (index < value.length() && Character.isWhitespace(value.charAt(index))) {
-            index++;
+        if (PACKAGE_OR_IMPORT.matcher(methodBody).find()) {
+            throw new RuleTransException("Generated rule method body must not contain package/import declarations");
         }
-        return index;
+        if (CLASS_DECLARATION.matcher(methodBody).find()) {
+            throw new RuleTransException("Generated rule method body must not contain a class declaration");
+        }
+        if (CODE_RULE_ANNOTATION.matcher(methodBody).find()) {
+            throw new RuleTransException("Generated rule method body must not contain @CodeRuleAnno");
+        }
+        if (METHOD_DECLARATION.matcher(methodBody).find()) {
+            throw new RuleTransException("Generated rule method body must not contain a method declaration");
+        }
+        if (FORBIDDEN_PACKAGE.matcher(methodBody).find()) {
+            throw new RuleTransException("Generated rule method body must not use internal or OR-Tools packages");
+        }
+        if (sdkProfile == SdkProfile.POST && POST_FORBIDDEN_API.matcher(methodBody).find()) {
+            throw new RuleTransException("POST rule method body must not use constraint-model APIs");
+        }
+        if (sdkProfile == SdkProfile.CONSTRAINT && CONSTRAINT_FORBIDDEN_API.matcher(methodBody).find()) {
+            throw new RuleTransException("Constraint rule method body must not use POST instance-view APIs");
+        }
     }
 
-    private int findMatchingParen(String value, int openIndex) {
+    private boolean looksLikeMethod(String code) {
+        return CODE_RULE_ANNOTATION.matcher(code).find() || METHOD_DECLARATION.matcher(code).find();
+    }
+
+    private String extractMethodBody(String code) {
+        Matcher matcher = METHOD_DECLARATION.matcher(code);
+        if (!matcher.find()) {
+            throw new RuleTransException("Legacy generated snippet does not contain a method declaration");
+        }
+        int openBrace = code.indexOf('{', matcher.end());
+        if (openBrace < 0) {
+            throw new RuleTransException("Legacy generated snippet does not contain a method body");
+        }
+        int closeBrace = findMatchingBrace(code, openBrace);
+        if (closeBrace < 0) {
+            throw new RuleTransException("Legacy generated snippet has unbalanced braces");
+        }
+        return code.substring(openBrace + 1, closeBrace).trim();
+    }
+
+    private int findMatchingBrace(String value, int openIndex) {
         int depth = 0;
         boolean inString = false;
         boolean escaped = false;
@@ -148,9 +146,9 @@ public final class RuleSnippetPostProcessor {
                 inString = true;
                 continue;
             }
-            if (ch == '(') {
+            if (ch == '{') {
                 depth++;
-            } else if (ch == ')') {
+            } else if (ch == '}') {
                 depth--;
                 if (depth == 0) {
                     return i;
@@ -158,20 +156,5 @@ public final class RuleSnippetPostProcessor {
             }
         }
         return -1;
-    }
-
-    private void validateSnippet(String snippet) {
-        if (snippet == null || snippet.trim().isEmpty()) {
-            throw new RuleTransException("Generated rule snippet is blank");
-        }
-        if (PACKAGE_OR_IMPORT.matcher(snippet).find()) {
-            throw new RuleTransException("Generated rule snippet must not contain package/import declarations");
-        }
-        if (CLASS_DECLARATION.matcher(snippet).find()) {
-            throw new RuleTransException("Generated rule snippet must not contain a class declaration");
-        }
-        if (!snippet.contains("@CodeRuleAnno")) {
-            throw new RuleTransException("Generated rule snippet must contain @CodeRuleAnno");
-        }
     }
 }

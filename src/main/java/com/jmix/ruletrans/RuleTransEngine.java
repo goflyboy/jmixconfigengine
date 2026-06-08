@@ -6,11 +6,14 @@ import com.jmix.ruletrans.context.ProductRuleContext;
 import com.jmix.ruletrans.context.RuleContext;
 import com.jmix.ruletrans.generator.RuleSnippetGenerator;
 import com.jmix.ruletrans.identifier.CategoryIdentifier;
+import com.jmix.ruletrans.metadata.RuleMetadata;
 import com.jmix.ruletrans.postprocessor.CompilationProcessor;
 import com.jmix.ruletrans.postprocessor.CompilationResult;
 import com.jmix.ruletrans.postprocessor.TestExecutionResult;
 import com.jmix.ruletrans.postprocessor.TestExecutionProcessor;
 import com.jmix.ruletrans.prompt.PromptBuilder;
+import com.jmix.ruletrans.scenario.RuleScenario;
+import com.jmix.ruletrans.scenario.RuleScenarioClassifier;
 import com.jmix.ruletrans.testgen.RuleTestCaseGenerator;
 import com.jmix.ruletrans.testgen.RuleTransTestCaseSet;
 
@@ -31,6 +34,7 @@ public final class RuleTransEngine {
     private final RuleTestCaseGenerator testCaseGenerator;
     private final TestExecutionProcessor testExecutionProcessor;
     private final PromptBuilder promptBuilder;
+    private final RuleScenarioClassifier scenarioClassifier;
 
     public RuleTransEngine(
             CategoryIdentifier identifier,
@@ -40,6 +44,19 @@ public final class RuleTransEngine {
             RuleTestCaseGenerator testCaseGenerator,
             TestExecutionProcessor testExecutionProcessor,
             PromptBuilder promptBuilder) {
+        this(identifier, generator, assembler, compilationProcessor, testCaseGenerator,
+                testExecutionProcessor, promptBuilder, new RuleScenarioClassifier());
+    }
+
+    public RuleTransEngine(
+            CategoryIdentifier identifier,
+            RuleSnippetGenerator generator,
+            RuleSnippetAssembler assembler,
+            CompilationProcessor compilationProcessor,
+            RuleTestCaseGenerator testCaseGenerator,
+            TestExecutionProcessor testExecutionProcessor,
+            PromptBuilder promptBuilder,
+            RuleScenarioClassifier scenarioClassifier) {
         this.identifier = identifier;
         this.generator = generator;
         this.assembler = assembler;
@@ -47,28 +64,37 @@ public final class RuleTransEngine {
         this.testCaseGenerator = testCaseGenerator;
         this.testExecutionProcessor = testExecutionProcessor;
         this.promptBuilder = promptBuilder;
+        this.scenarioClassifier = scenarioClassifier == null ? new RuleScenarioClassifier() : scenarioClassifier;
     }
 
     public String translate(String naturalLanguage, RuleContext context) {
         validate(naturalLanguage, context);
-        return generator.generate(naturalLanguage, prepareContext(naturalLanguage, context));
+        RuleContext preparedContext = prepareContext(naturalLanguage, context);
+        RuleScenario scenario = scenarioClassifier.classify(naturalLanguage, preparedContext);
+        return generator.generateMethodBody(naturalLanguage, preparedContext, scenario);
     }
 
     public RuleTransResult translateWithRetry(String naturalLanguage, RuleContext context, int maxRetries) {
         validate(naturalLanguage, context);
         RuleContext preparedContext = prepareContext(naturalLanguage, context);
+        RuleScenario scenario = scenarioClassifier.classify(naturalLanguage, preparedContext);
+        RuleMetadata metadata = RuleMetadata.from(naturalLanguage, preparedContext, scenario);
         int attemptsLimit = Math.max(1, maxRetries + 1);
-        String snippet = null;
+        String methodBody = null;
         CompilationResult lastResult = null;
         TestExecutionResult lastTestResult = null;
         RuleTransTestCaseSet testCaseSet = null;
 
         for (int attempt = 1; attempt <= attemptsLimit; attempt++) {
-            snippet = generateAttemptSnippet(
-                    naturalLanguage, preparedContext, attempt, snippet, lastResult, lastTestResult);
+            methodBody = generateAttemptMethodBody(
+                    naturalLanguage, preparedContext, scenario, attempt, methodBody, lastResult, lastTestResult);
 
             AssembledRuleClass assembled = assembler.assembleCompileUnit(
-                    snippet, preparedContext, "RuleTransCandidate" + String.format("%03d", attempt));
+                    methodBody,
+                    preparedContext,
+                    scenario,
+                    metadata,
+                    "RuleTransCandidate" + String.format("%03d", attempt));
             lastResult = compilationProcessor.compile(assembled);
             if (!lastResult.success()) {
                 lastTestResult = null;
@@ -78,15 +104,17 @@ public final class RuleTransEngine {
             if (testCaseSet == null) {
                 testCaseSet = testCaseGenerator == null
                         ? RuleTransTestCaseSet.empty()
-                        : testCaseGenerator.generate(naturalLanguage, preparedContext, snippet);
+                        : testCaseGenerator.generate(naturalLanguage, preparedContext, scenario, methodBody);
             }
             if (testCaseSet.isEmpty()) {
-                return new RuleTransResult(true, snippet, attempt, lastResult, null);
+                return new RuleTransResult(true, methodBody, attempt, lastResult, null);
             }
 
             AssembledRuleClass assembledTest = assembler.assembleExecutableTest(
-                    snippet,
+                    methodBody,
                     preparedContext,
+                    scenario,
+                    metadata,
                     testCaseSet,
                     "RuleTransExecutableTest" + String.format("%03d", attempt));
             CompilationResult testCompilation = compilationProcessor.compile(assembledTest);
@@ -104,14 +132,14 @@ public final class RuleTransEngine {
             }
             lastTestResult = testExecutionProcessor.execute(assembledTest);
             if (lastTestResult.success()) {
-                return new RuleTransResult(true, snippet, attempt, lastResult, lastTestResult);
+                return new RuleTransResult(true, methodBody, attempt, lastResult, lastTestResult);
             }
             if (!hasLikelyRuleLogicError(lastTestResult)) {
-                return new RuleTransResult(false, snippet, attempt, lastResult, lastTestResult);
+                return new RuleTransResult(false, methodBody, attempt, lastResult, lastTestResult);
             }
         }
         if (lastTestResult != null && !lastTestResult.success()) {
-            return new RuleTransResult(false, snippet, attemptsLimit, lastResult, lastTestResult);
+            return new RuleTransResult(false, methodBody, attemptsLimit, lastResult, lastTestResult);
         }
         List<String> errors = lastResult == null ? List.of() : lastResult.errors();
         String message = "RuleTrans compilation retry limit exceeded: " + String.join("\n", errors);
@@ -135,25 +163,30 @@ public final class RuleTransEngine {
         return new ProductRuleContext(context.module(), categories);
     }
 
-    private String generateAttemptSnippet(
+    private String generateAttemptMethodBody(
             String naturalLanguage,
             RuleContext context,
+            RuleScenario scenario,
             int attempt,
-            String previousSnippet,
+            String previousMethodBody,
             CompilationResult lastCompilation,
             TestExecutionResult lastTestResult) {
         if (attempt == 1) {
-            return generator.generate(naturalLanguage, context);
+            return generator.generateMethodBody(naturalLanguage, context, scenario);
         }
         if (lastCompilation != null && !lastCompilation.success()) {
-            return generator.generateFromPrompt(promptBuilder.buildCompilationCorrectionPrompt(
-                    naturalLanguage, context, previousSnippet, lastCompilation));
+            return generator.generateMethodBodyFromPrompt(
+                    promptBuilder.buildCompilationCorrectionPrompt(
+                            naturalLanguage, context, scenario, previousMethodBody, lastCompilation),
+                    scenario.sdkProfile());
         }
         if (lastTestResult != null && !lastTestResult.success()) {
-            return generator.generateFromPrompt(promptBuilder.buildTestCorrectionPrompt(
-                    naturalLanguage, context, previousSnippet, lastTestResult.failedCases()));
+            return generator.generateMethodBodyFromPrompt(
+                    promptBuilder.buildTestCorrectionPrompt(
+                            naturalLanguage, context, scenario, previousMethodBody, lastTestResult.failedCases()),
+                    scenario.sdkProfile());
         }
-        return generator.generate(naturalLanguage, context);
+        return generator.generateMethodBody(naturalLanguage, context, scenario);
     }
 
     private boolean hasLikelyRuleLogicError(TestExecutionResult result) {

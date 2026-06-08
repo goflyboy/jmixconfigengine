@@ -1,4 +1,4 @@
-The generated rule passed compilation but failed tests.
+The generated rule method body passed compilation but failed tests.
 
 Natural-language rule:
 ${naturalLanguage}
@@ -9,14 +9,24 @@ ${contextSummary}
 Context JSON:
 ${contextJson}
 
-Previous snippet:
-${previousSnippet}
+SDK profile:
+${sdkProfile}
+
+Allowed SDK APIs:
+${allowedSdkApis}
+
+Forbidden SDK APIs:
+${forbiddenSdkApis}
+
+Previous method body:
+${previousMethodBody}
 
 Failed test cases:
 ${failedCases}
 
-Return only a corrected Java rule method snippet if the failure is likely a rule logic error.
-Do not include package, imports, class declarations, markdown, or explanations.
+Return only a corrected Java rule method body if the failure is likely a rule logic error.
+Do not include package, imports, class declarations, annotations, method declarations,
+markdown, or explanations.
 Use only ModuleAlgBase APIs that compile, such as model().sum4Selected(...),
 model().sum4Quantity(...), model().addLessOrEqual(...), model().addGreaterOrEqual(...),
-model().addEqual(...), and inCompatible("ruleCode", "category:Attr=value", "category:Attr=value").
+model().addEqual(...), and inCompatible(ruleCode, "category:Attr=value", "category:Attr=value").

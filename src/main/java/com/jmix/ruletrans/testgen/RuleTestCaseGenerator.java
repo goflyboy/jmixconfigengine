@@ -5,6 +5,7 @@ import com.jmix.executor.bmodel.PartCategory;
 import com.jmix.ruletrans.RuleTransException;
 import com.jmix.ruletrans.context.RuleContext;
 import com.jmix.ruletrans.prompt.PromptBuilder;
+import com.jmix.ruletrans.scenario.RuleScenario;
 import com.jmix.tool.impl.llm.LLMInvoker;
 
 import java.util.ArrayList;
@@ -28,11 +29,19 @@ public final class RuleTestCaseGenerator {
         this.promptBuilder = promptBuilder;
     }
 
-    public RuleTransTestCaseSet generate(String naturalLanguage, RuleContext context, String snippet) {
+    public RuleTransTestCaseSet generate(String naturalLanguage, RuleContext context, String methodBody) {
+        return generate(naturalLanguage, context, null, methodBody);
+    }
+
+    public RuleTransTestCaseSet generate(
+            String naturalLanguage,
+            RuleContext context,
+            RuleScenario scenario,
+            String methodBody) {
         if (llmInvoker == null) {
             return RuleTransTestCaseSet.empty();
         }
-        String prompt = promptBuilder.buildTestCasePrompt(naturalLanguage, context, snippet);
+        String prompt = promptBuilder.buildTestCasePrompt(naturalLanguage, context, scenario, methodBody);
         try {
             String response = llmInvoker.generate(PromptBuilder.SYSTEM_MESSAGE, prompt);
             return pruneGeneratedCases(naturalLanguage, context, RuleTransTestCaseSet.fromJson(response));

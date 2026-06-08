@@ -7,8 +7,8 @@ ${contextSummary}
 Context JSON:
 ${contextJson}
 
-Generated rule snippet:
-${snippet}
+Generated rule method body:
+${methodBody}
 
 Generate structured test cases for validating this rule.
 Return concise JSON only, matching this schema:

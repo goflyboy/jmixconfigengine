@@ -8,8 +8,12 @@ import com.jmix.ruletrans.postprocessor.TestExecutionResult;
  */
 public record RuleTransResult(
         boolean success,
-        String snippet,
+        String methodBody,
         int attempts,
         CompilationResult compilationResult,
         TestExecutionResult testExecutionResult) {
+
+    public String snippet() {
+        return methodBody;
+    }
 }

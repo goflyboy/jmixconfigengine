@@ -3,9 +3,17 @@ package com.jmix.ruletrans.assembler;
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.PartCategory;
+import com.jmix.executor.bmodel.base.AssignType;
 import com.jmix.executor.bmodel.attr.DynamicAttribute;
 import com.jmix.executor.bmodel.attr.DynamicAttributeType;
 import com.jmix.executor.bmodel.attr.DynamicAttributerOption;
+import com.jmix.executor.bmodel.para.Para;
+import com.jmix.executor.bmodel.para.ParaType;
+import com.jmix.executor.bmodel.logic.EffectScope;
+import com.jmix.ruletrans.metadata.RuleMetadata;
+import com.jmix.ruletrans.scenario.RuleFamily;
+import com.jmix.ruletrans.scenario.RuleScenario;
+import com.jmix.ruletrans.scenario.RuleScope;
 import com.jmix.ruletrans.RuleTransException;
 import com.jmix.ruletrans.context.RuleContext;
 import com.jmix.ruletrans.testgen.RuleTransTestCase;
@@ -19,7 +27,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Assembles generated rule method snippets into temporary compile units.
+ * Assembles generated rule method bodies into temporary compile units.
  */
 public final class RuleSnippetAssembler {
 
@@ -36,15 +44,21 @@ public final class RuleSnippetAssembler {
         this.tempFileManager = tempFileManager;
     }
 
-    public AssembledRuleClass assembleCompileUnit(String snippet, RuleContext context, String className) {
-        if (snippet == null || snippet.trim().isEmpty()) {
-            throw new IllegalArgumentException("snippet must not be blank");
-        }
-        if (context == null) {
-            throw new IllegalArgumentException("context must not be null");
-        }
+    public AssembledRuleClass assembleCompileUnit(String methodBody, RuleContext context, String className) {
+        RuleScenario scenario = defaultScenario(context);
+        RuleMetadata metadata = RuleMetadata.from("", context, scenario);
+        return assembleCompileUnit(methodBody, context, scenario, metadata, className);
+    }
+
+    public AssembledRuleClass assembleCompileUnit(
+            String methodBody,
+            RuleContext context,
+            RuleScenario scenario,
+            RuleMetadata metadata,
+            String className) {
+        validateBodyAndContext(methodBody, context);
         String safeClassName = normalizeClassName(className);
-        String source = sourceFor(safeClassName, snippet);
+        String source = sourceFor(safeClassName, completeRuleMethod(methodBody, context, scenario, metadata), context);
         return new AssembledRuleClass(
                 DEFAULT_PACKAGE,
                 safeClassName,
@@ -54,21 +68,32 @@ public final class RuleSnippetAssembler {
     }
 
     public AssembledRuleClass assembleExecutableTest(
-            String snippet,
+            String methodBody,
             RuleContext context,
             RuleTransTestCaseSet testCaseSet,
             String className) {
-        if (snippet == null || snippet.trim().isEmpty()) {
-            throw new IllegalArgumentException("snippet must not be blank");
-        }
-        if (context == null) {
-            throw new IllegalArgumentException("context must not be null");
-        }
+        RuleScenario scenario = defaultScenario(context);
+        RuleMetadata metadata = RuleMetadata.from("", context, scenario);
+        return assembleExecutableTest(methodBody, context, scenario, metadata, testCaseSet, className);
+    }
+
+    public AssembledRuleClass assembleExecutableTest(
+            String methodBody,
+            RuleContext context,
+            RuleScenario scenario,
+            RuleMetadata metadata,
+            RuleTransTestCaseSet testCaseSet,
+            String className) {
+        validateBodyAndContext(methodBody, context);
         if (testCaseSet == null || testCaseSet.isEmpty()) {
             throw new IllegalArgumentException("testCaseSet must not be empty");
         }
         String safeClassName = normalizeClassName(className);
-        String source = executableTestSource(safeClassName, snippet, context, testCaseSet);
+        String source = executableTestSource(
+                safeClassName,
+                completeRuleMethod(methodBody, context, scenario, metadata),
+                context,
+                testCaseSet);
         return new AssembledRuleClass(
                 DEFAULT_PACKAGE,
                 safeClassName,
@@ -81,7 +106,9 @@ public final class RuleSnippetAssembler {
         return tempFileManager;
     }
 
-    private String sourceFor(String className, String snippet) {
+    private String sourceFor(String className, String ruleMethod, RuleContext context) {
+        StringBuilder fields = new StringBuilder();
+        appendModuleFields(fields, context.module());
         return """
                 package %s;
 
@@ -90,19 +117,26 @@ public final class RuleSnippetAssembler {
                 import com.jmix.executor.southinf.PartCategoryCPModel;
                 import com.jmix.executor.southinf.cp.*;
                 import com.jmix.executor.southinf.var.*;
-                import com.jmix.tool.bbuilder.anno.CodeRuleAnno;
+                import com.jmix.executor.bmodel.attr.DynamicAttributeType;
+                import com.jmix.executor.bmodel.base.AssignType;
+                import com.jmix.executor.bmodel.logic.CalcStage;
+                import com.jmix.executor.bmodel.logic.EffectScope;
+                import com.jmix.executor.bmodel.logic.PriorityStrategy;
+                import com.jmix.executor.bmodel.para.ParaType;
+                import com.jmix.tool.bbuilder.anno.*;
                 import java.util.*;
 
                 public class %s extends ModuleAlgBase {
 
                 %s
+                %s
                 }
-                """.formatted(DEFAULT_PACKAGE, className, indent(snippet.trim()));
+                """.formatted(DEFAULT_PACKAGE, className, fields, indent(ruleMethod.trim()));
     }
 
     private String executableTestSource(
             String className,
-            String snippet,
+            String ruleMethod,
             RuleContext context,
             RuleTransTestCaseSet testCaseSet) {
         String constraintClassName = className + "Constraint";
@@ -123,6 +157,17 @@ public final class RuleSnippetAssembler {
 
                 import com.jmix.coretest.ModuleScenarioTestBase;
                 import com.jmix.executor.bmodel.attr.DynamicAttributeType;
+                import com.jmix.executor.bmodel.base.AssignType;
+                import com.jmix.executor.bmodel.logic.CalcStage;
+                import com.jmix.executor.bmodel.logic.EffectScope;
+                import com.jmix.executor.bmodel.logic.PriorityStrategy;
+                import com.jmix.executor.bmodel.para.Para;
+                import com.jmix.executor.bmodel.para.ParaType;
+                import com.jmix.executor.cmodel.ModuleInst;
+                import com.jmix.executor.cmodel.ParaInst;
+                import com.jmix.executor.cmodel.PartCategoryInst;
+                import com.jmix.executor.cmodel.PartInst;
+                import com.jmix.executor.impl.util.ParaTypeHandler;
                 import com.jmix.executor.model.ConstraintConfig;
                 import com.jmix.executor.model.ModuleValidateResp;
                 import com.jmix.executor.southinf.ModuleAlgBase;
@@ -148,6 +193,7 @@ public final class RuleSnippetAssembler {
                     }
 
                 %s
+                %s
                     @ModuleAnno(id = %dL)
                     public static class %s extends ModuleAlgBase {
 
@@ -161,10 +207,153 @@ public final class RuleSnippetAssembler {
                 className,
                 constraintClassName,
                 indent(testMethods.toString().trim(), 1),
+                indent(executableTestHelpers().trim(), 1),
                 context.module().getId(),
                 constraintClassName,
                 fields,
-                indent(snippet.trim(), 2));
+                indent(ruleMethod.trim(), 2));
+    }
+
+    private void validateBodyAndContext(String methodBody, RuleContext context) {
+        if (methodBody == null || methodBody.trim().isEmpty()) {
+            throw new IllegalArgumentException("methodBody must not be blank");
+        }
+        if (context == null) {
+            throw new IllegalArgumentException("context must not be null");
+        }
+    }
+
+    private String executableTestHelpers() {
+        return """
+                private ModuleInst firstSolution(String caseId) {
+                    assertTrue(getSolutions() != null && !getSolutions().isEmpty(),
+                            "RuleTrans case " + caseId + " expected at least one solution");
+                    return getSolutions().get(0);
+                }
+
+                private String paraValue(ModuleInst solution, String paraCode) {
+                    ParaInst paraInst = findPara(solution, paraCode);
+                    if (paraInst == null) {
+                        return null;
+                    }
+                    Optional<Para> para = getModule().getPara(paraCode);
+                    if (para.isPresent()) {
+                        return ParaTypeHandler.getDisplayValue(para.get(), paraInst.getValue());
+                    }
+                    return paraInst.getValue();
+                }
+
+                private boolean paraHidden(ModuleInst solution, String paraCode) {
+                    ParaInst paraInst = findPara(solution, paraCode);
+                    assertTrue(paraInst != null, "Para not found: " + paraCode);
+                    return paraInst.isHidden();
+                }
+
+                private int partQuantity(ModuleInst solution, String partCode) {
+                    PartInst partInst = findPart(solution, partCode);
+                    assertTrue(partInst != null, "Part not found: " + partCode);
+                    return partInst.getQuantity() == null ? 0 : partInst.getQuantity();
+                }
+
+                private ParaInst findPara(ModuleInst solution, String paraCode) {
+                    if (solution.getParas() != null) {
+                        for (ParaInst paraInst : solution.getParas()) {
+                            if (paraCode.equals(paraInst.getCode())) {
+                                return paraInst;
+                            }
+                        }
+                    }
+                    for (PartCategoryInst categoryInst : solution.getAllPartCategorys()) {
+                        if (categoryInst.getParas() == null) {
+                            continue;
+                        }
+                        for (ParaInst paraInst : categoryInst.getParas()) {
+                            if (paraCode.equals(paraInst.getCode())) {
+                                return paraInst;
+                            }
+                        }
+                    }
+                    return null;
+                }
+
+                private PartInst findPart(ModuleInst solution, String partCode) {
+                    if (solution.getAllParts() == null) {
+                        return null;
+                    }
+                    for (PartInst partInst : solution.getAllParts()) {
+                        if (partCode.equals(partInst.getCode())) {
+                            return partInst;
+                        }
+                    }
+                    return null;
+                }
+                """;
+    }
+
+    private RuleScenario defaultScenario(RuleContext context) {
+        RuleScope scope = context != null && context.isProductLevel() ? RuleScope.PRODUCT : RuleScope.PART_CATEGORY;
+        return RuleScenario.constraint(scope, RuleFamily.UNKNOWN);
+    }
+
+    private String completeRuleMethod(
+            String methodBody,
+            RuleContext context,
+            RuleScenario scenario,
+            RuleMetadata metadata) {
+        RuleScenario safeScenario = scenario == null ? defaultScenario(context) : scenario;
+        RuleMetadata safeMetadata = metadata == null ? RuleMetadata.from("", context, safeScenario) : metadata;
+        String methodName = normalizeMethodName(safeMetadata.methodName());
+        String ruleCode = notBlank(safeMetadata.ruleCode()) ? safeMetadata.ruleCode() : methodName;
+        return annotationFor(safeScenario, safeMetadata)
+                + "\n"
+                + "public void " + methodName + "() {\n"
+                + "    String ruleCode = " + javaString(ruleCode) + ";\n"
+                + indent(methodBody.trim(), 1) + "\n"
+                + "}";
+    }
+
+    private String annotationFor(RuleScenario scenario, RuleMetadata metadata) {
+        if (scenario != null && scenario.family() == RuleFamily.PRIORITY) {
+            return priorityAnnotationFor(metadata);
+        }
+        List<String> args = new ArrayList<>();
+        if (scenario != null && scenario.isPost()) {
+            args.add("calcStage = CalcStage.POST");
+        }
+        addAnnotationArg(args, "normalNaturalCode", metadata.normalNaturalCode());
+        addAnnotationArg(args, "fatherCode", metadata.fatherCode());
+        addAnnotationArg(args, "attrParaCodes", metadata.attrParaCodes());
+        addAnnotationArg(args, "leftProObjsStr", metadata.leftProObjsStr());
+        addAnnotationArg(args, "rightProObjsStr", metadata.rightProObjsStr());
+        addEffectScopeArg(args, metadata);
+        if (args.isEmpty()) {
+            return "@CodeRuleAnno";
+        }
+        return "@CodeRuleAnno(" + String.join(", ", args) + ")";
+    }
+
+    private String priorityAnnotationFor(RuleMetadata metadata) {
+        List<String> args = new ArrayList<>();
+        args.add("strategy = PriorityStrategy.MIN");
+        addAnnotationArg(args, "normalNaturalCode", metadata.normalNaturalCode());
+        addAnnotationArg(args, "fatherCode", metadata.fatherCode());
+        addAnnotationArg(args, "attrParaCodes", metadata.attrParaCodes());
+        addAnnotationArg(args, "leftProObjsStr", metadata.leftProObjsStr());
+        addAnnotationArg(args, "rightProObjsStr", metadata.rightProObjsStr());
+        addEffectScopeArg(args, metadata);
+        return "@PriorityRuleAnno(" + String.join(", ", args) + ")";
+    }
+
+    private void addAnnotationArg(List<String> args, String name, String value) {
+        if (notBlank(value)) {
+            args.add(name + " = " + javaString(value));
+        }
+    }
+
+    private void addEffectScopeArg(List<String> args, RuleMetadata metadata) {
+        if (metadata.effectScope() != EffectScope.SingleInst) {
+            args.add("effectScope = EffectScope." + metadata.effectScope().name());
+        }
     }
 
     private void appendTestMethod(StringBuilder builder, RuleTransTestCase testCase, int index) {
@@ -174,6 +363,18 @@ public final class RuleSnippetAssembler {
         }
         if (testCase.isRecommendCase()) {
             appendRecommendTestMethod(builder, testCase, index);
+            return;
+        }
+        if (testCase.isInferPartCase()) {
+            appendInferPartTestMethod(builder, testCase, index);
+            return;
+        }
+        if (testCase.isInferParaCase()) {
+            appendInferParaTestMethod(builder, testCase, index);
+            return;
+        }
+        if (testCase.isPostRecommendCase()) {
+            appendPostRecommendTestMethod(builder, testCase, index);
             return;
         }
         throw new RuleTransException("Unsupported RuleTrans test case type: " + testCase.type());
@@ -233,10 +434,164 @@ public final class RuleSnippetAssembler {
             builder.append("        resultAssert().assertNoSolution();\n");
         } else if (expectsSuccess(expected)) {
             builder.append("        resultAssert().assertSuccess();\n");
+            appendExpectedSolutionCount(builder, testCase);
+            appendFirstSolutionAssertions(builder, testCase, index);
+            appendAllParaAssertions(builder, testCase, index);
         } else {
             throw new RuleTransException("Unsupported recommend expectedResult: " + testCase.expectedResult());
         }
         builder.append("    }\n\n");
+    }
+
+    private void appendInferPartTestMethod(StringBuilder builder, RuleTransTestCase testCase, int index) {
+        if (!notBlank(testCase.partCode()) || testCase.quantity() == null) {
+            throw new RuleTransException("inferPart case requires partCode and quantity: " + testCase.id());
+        }
+        String methodName = testMethodName(testCase, index);
+        builder.append("    @Test\n");
+        builder.append("    public void ").append(methodName).append("() {\n");
+        builder.append("        inferParas(")
+                .append(javaString(testCase.partCode()))
+                .append(", ")
+                .append(testCase.quantity())
+                .append(preParasAsArgsSuffix(testCase))
+                .append(");\n");
+        appendCommonInferenceAssertions(builder, testCase, index);
+        builder.append("    }\n\n");
+    }
+
+    private void appendInferParaTestMethod(StringBuilder builder, RuleTransTestCase testCase, int index) {
+        if (testCase.preParasOrEmpty().isEmpty()) {
+            throw new RuleTransException("inferPara case requires preParas: " + testCase.id());
+        }
+        String methodName = testMethodName(testCase, index);
+        builder.append("    @Test\n");
+        builder.append("    public void ").append(methodName).append("() {\n");
+        builder.append("        inferParasByPara(")
+                .append(stringArrayArgs(testCase.preParasOrEmpty()))
+                .append(");\n");
+        appendCommonInferenceAssertions(builder, testCase, index);
+        builder.append("    }\n\n");
+    }
+
+    private void appendPostRecommendTestMethod(StringBuilder builder, RuleTransTestCase testCase, int index) {
+        if (testCase.requestsOrEmpty().isEmpty()) {
+            throw new RuleTransException("postRecommend case requires requests: " + testCase.id());
+        }
+        String methodName = testMethodName(testCase, index);
+        builder.append("    @Test\n");
+        builder.append("    public void ").append(methodName).append("() {\n");
+        builder.append("        inferRecommendModule(")
+                .append(stringArrayArgs(testCase.requestsOrEmpty()))
+                .append(");\n");
+        builder.append("        printSimpleSolutions();\n");
+        builder.append("        resultAssert().assertSuccess();\n");
+        appendExpectedSolutionCount(builder, testCase);
+        appendFirstSolutionAssertions(builder, testCase, index);
+        appendAllParaAssertions(builder, testCase, index);
+        builder.append("    }\n\n");
+    }
+
+    private void appendCommonInferenceAssertions(StringBuilder builder, RuleTransTestCase testCase, int index) {
+        builder.append("        printSimpleSolutions();\n");
+        builder.append("        resultAssert().assertSuccess();\n");
+        appendExpectedSolutionCount(builder, testCase);
+        appendConditionCountAssertions(builder, testCase);
+        appendFirstSolutionAssertions(builder, testCase, index);
+        appendAllParaAssertions(builder, testCase, index);
+    }
+
+    private void appendExpectedSolutionCount(StringBuilder builder, RuleTransTestCase testCase) {
+        if (testCase.expectedSolutionCount() != null) {
+            builder.append("        resultAssert().assertSolutionSizeEqual(")
+                    .append(testCase.expectedSolutionCount())
+                    .append(");\n");
+        }
+    }
+
+    private void appendConditionCountAssertions(StringBuilder builder, RuleTransTestCase testCase) {
+        for (var entry : testCase.expectedConditionCountsOrEmpty().entrySet()) {
+            builder.append("        assertSolutionNum(")
+                    .append(javaString(entry.getKey()))
+                    .append(", ")
+                    .append(entry.getValue())
+                    .append(");\n");
+        }
+    }
+
+    private void appendFirstSolutionAssertions(StringBuilder builder, RuleTransTestCase testCase, int index) {
+        boolean hasFirstSolutionAssertions = !testCase.expectedFirstParaValuesOrEmpty().isEmpty()
+                || !testCase.expectedFirstParaHiddenOrEmpty().isEmpty()
+                || !testCase.expectedFirstPartQuantitiesOrEmpty().isEmpty();
+        if (!hasFirstSolutionAssertions) {
+            return;
+        }
+        builder.append("        ModuleInst first = firstSolution(")
+                .append(javaString(caseId(testCase, index)))
+                .append(");\n");
+        for (var entry : testCase.expectedFirstParaValuesOrEmpty().entrySet()) {
+            builder.append("        assertEquals(")
+                    .append(javaString(entry.getValue()))
+                    .append(", paraValue(first, ")
+                    .append(javaString(entry.getKey()))
+                    .append("));\n");
+        }
+        for (var entry : testCase.expectedFirstParaHiddenOrEmpty().entrySet()) {
+            builder.append("        assertEquals(")
+                    .append(entry.getValue())
+                    .append(", paraHidden(first, ")
+                    .append(javaString(entry.getKey()))
+                    .append("));\n");
+        }
+        for (var entry : testCase.expectedFirstPartQuantitiesOrEmpty().entrySet()) {
+            builder.append("        assertEquals(")
+                    .append(entry.getValue())
+                    .append(", partQuantity(first, ")
+                    .append(javaString(entry.getKey()))
+                    .append("));\n");
+        }
+    }
+
+    private void appendAllParaAssertions(StringBuilder builder, RuleTransTestCase testCase, int index) {
+        if (testCase.expectedAllParaNonBlankOrEmpty().isEmpty()
+                && testCase.expectedAllParaMinValuesOrEmpty().isEmpty()
+                && testCase.expectedAllParaValuesOrEmpty().isEmpty()) {
+            return;
+        }
+        builder.append("        for (ModuleInst solution : getSolutions()) {\n");
+        for (String paraCode : testCase.expectedAllParaNonBlankOrEmpty()) {
+            builder.append("            assertTrue(paraValue(solution, ")
+                    .append(javaString(paraCode))
+                    .append(") != null && !paraValue(solution, ")
+                    .append(javaString(paraCode))
+                    .append(").isEmpty(), ")
+                    .append(javaString("Expected non-blank para " + paraCode + " for " + caseId(testCase, index)))
+                    .append(");\n");
+        }
+        for (var entry : testCase.expectedAllParaMinValuesOrEmpty().entrySet()) {
+            builder.append("            assertTrue(Integer.parseInt(paraValue(solution, ")
+                    .append(javaString(entry.getKey()))
+                    .append(")) >= ")
+                    .append(entry.getValue())
+                    .append(", ")
+                    .append(javaString("Expected minimum para " + entry.getKey() + " for " + caseId(testCase, index)))
+                    .append(");\n");
+        }
+        for (var entry : testCase.expectedAllParaValuesOrEmpty().entrySet()) {
+            builder.append("            assertEquals(")
+                    .append(javaString(entry.getValue()))
+                    .append(", paraValue(solution, ")
+                    .append(javaString(entry.getKey()))
+                    .append("));\n");
+        }
+        builder.append("        }\n");
+    }
+
+    private String preParasAsArgsSuffix(RuleTransTestCase testCase) {
+        if (testCase.preParasOrEmpty().isEmpty()) {
+            return "";
+        }
+        return ", " + stringArrayArgs(testCase.preParasOrEmpty());
     }
 
     private boolean expectsSuccess(String expected) {
@@ -248,6 +603,14 @@ public final class RuleSnippetAssembler {
 
     private void appendModuleFields(StringBuilder builder, Module module) {
         Set<String> emittedCodes = new HashSet<>();
+        for (Para para : module.getParas()) {
+            appendPara(builder, para, emittedCodes);
+        }
+        List<Part> rootAtomicParts = new ArrayList<>(module.getAtomicParts());
+        rootAtomicParts.sort(Comparator.comparing(Part::getCode));
+        for (Part part : rootAtomicParts) {
+            appendRootAtomicPart(builder, part, emittedCodes);
+        }
         for (PartCategory category : module.getPartCategorys()) {
             appendCategory(builder, category, emittedCodes);
         }
@@ -265,6 +628,10 @@ public final class RuleSnippetAssembler {
         builder.append("        private PartCategoryVar ")
                 .append(fieldName(category.getCode()))
                 .append(";\n\n");
+
+        for (Para para : category.getParas()) {
+            appendPara(builder, para, emittedCodes);
+        }
 
         List<PartCategory> childCategories = new ArrayList<>(category.getPartCategorys());
         childCategories.sort(Comparator.comparing(PartCategory::getCode));
@@ -295,6 +662,32 @@ public final class RuleSnippetAssembler {
                 .append(";\n\n");
     }
 
+    private void appendRootAtomicPart(StringBuilder builder, Part part, Set<String> emittedCodes) {
+        validateJavaCode(part.getCode(), "Part");
+        if (!emittedCodes.add(part.getCode())) {
+            return;
+        }
+        builder.append("        @PartAnno(")
+                .append(rootAtomicPartAnnoArgs(part))
+                .append(")\n");
+        builder.append("        private PartVar ")
+                .append(fieldName(part.getCode()))
+                .append(";\n\n");
+    }
+
+    private void appendPara(StringBuilder builder, Para para, Set<String> emittedCodes) {
+        validateJavaCode(para.getCode(), "Parameter");
+        if (!emittedCodes.add("para:" + para.getCode())) {
+            return;
+        }
+        builder.append("        @ParaAnno(")
+                .append(paraAnnoArgs(para))
+                .append(")\n");
+        builder.append("        private ParaVar ")
+                .append(fieldName(para.getCode()))
+                .append(";\n\n");
+    }
+
     private String categoryPartAnnoArgs(PartCategory category) {
         List<String> args = new ArrayList<>();
         if (notBlank(category.getFatherCode())) {
@@ -305,6 +698,20 @@ public final class RuleSnippetAssembler {
         }
         if (!category.isRequiredSelection()) {
             args.add("required = false");
+        }
+        return String.join(", ", args);
+    }
+
+    private String rootAtomicPartAnnoArgs(Part part) {
+        List<String> args = new ArrayList<>();
+        if (notBlank(part.getFatherCode())) {
+            args.add("fatherCode = " + javaString(part.getFatherCode()));
+        }
+        if (part.getMaxQuantity() != null && part.getMaxQuantity() != Part.MAX_QUANTITY) {
+            args.add("maxQuantity = " + part.getMaxQuantity());
+        }
+        if (part.getPrice() != null && part.getPrice() != 0L) {
+            args.add("price = " + part.getPrice() + "L");
         }
         return String.join(", ", args);
     }
@@ -321,6 +728,37 @@ public final class RuleSnippetAssembler {
         }
         if (part.getPrice() != null && part.getPrice() != 0L) {
             args.add("price = " + part.getPrice() + "L");
+        }
+        return String.join(", ", args);
+    }
+
+    private String paraAnnoArgs(Para para) {
+        List<String> args = new ArrayList<>();
+        if (notBlank(para.getCode())) {
+            args.add("code = " + javaString(para.getCode()));
+        }
+        if (notBlank(para.getFatherCode())) {
+            args.add("fatherCode = " + javaString(para.getFatherCode()));
+        }
+        if (para.getParaType() != null && para.getParaType() != ParaType.ENUM) {
+            args.add("type = ParaType." + para.getParaType().name());
+        }
+        if (para.getAssignType() != null && para.getAssignType() != AssignType.CALC) {
+            args.add("assignType = AssignType." + para.getAssignType().name());
+        }
+        if (notBlank(para.getDefaultValue())) {
+            args.add("defaultValue = " + javaString(para.getDefaultValue()));
+        }
+        if (para.getOptions() != null && !para.getOptions().isEmpty()) {
+            args.add("options = " + annotationArray(para.getOptions().stream()
+                    .map(this::paraOptionString)
+                    .toList()));
+        }
+        if (notBlank(para.getMinValue()) && !Para.DEFAULT_MIN_VALUE.equals(para.getMinValue())) {
+            args.add("minValue = " + javaString(para.getMinValue()));
+        }
+        if (notBlank(para.getMaxValue()) && !Para.DEFAULT_MAX_VALUE.equals(para.getMaxValue())) {
+            args.add("maxValue = " + javaString(para.getMaxValue()));
         }
         return String.join(", ", args);
     }
@@ -393,12 +831,30 @@ public final class RuleSnippetAssembler {
         return code + ":" + codeValue;
     }
 
+    private String paraOptionString(DynamicAttributerOption option) {
+        String code = option.getCode();
+        if (!notBlank(code)) {
+            throw new RuleTransException("Parameter option code must not be blank");
+        }
+        return code;
+    }
+
     private String normalizeClassName(String className) {
         String candidate = className == null || className.trim().isEmpty()
                 ? "RuleTransCandidate"
                 : className.trim();
         if (!candidate.matches("[A-Za-z_$][A-Za-z0-9_$]*")) {
             throw new IllegalArgumentException("Invalid Java class name: " + className);
+        }
+        return candidate;
+    }
+
+    private String normalizeMethodName(String methodName) {
+        String candidate = methodName == null || methodName.trim().isEmpty()
+                ? "ruleGenerated"
+                : methodName.trim();
+        if (!candidate.matches("[A-Za-z_$][A-Za-z0-9_$]*")) {
+            throw new IllegalArgumentException("Invalid Java method name: " + methodName);
         }
         return candidate;
     }

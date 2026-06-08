@@ -20,11 +20,13 @@ import com.jmix.ruletrans.prompt.PromptBuilder;
 import com.jmix.ruletrans.prompt.RulePromptProjector;
 import com.jmix.ruletrans.testgen.RuleTestCaseGenerator;
 import com.jmix.tool.impl.llm.LLMInvoker;
-import com.jmix.tool.impl.llm.LLMInvokerImpl;
 
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
+import java.util.ArrayDeque;
+import java.util.Arrays;
+import java.util.Queue;
 
 /**
  * RFC-0011 RuleTrans engine tests.
@@ -32,45 +34,51 @@ import java.nio.file.Path;
 public class RuleTransModuleTest {
 
     @Test
-    public void testPartCategoryRuleGenerationReturnsPureSnippet() {
-        RuleTransEngine engine = engine(realLlm());
+    public void testPartCategoryRuleGenerationReturnsPureMethodBody() {
+        RuleTransEngine engine = engine(invoker(cpuAtMostOneMethodBody()));
 
-        String snippet = engine.translate("CPU at most one", RuleContextFactory.partCategory(sampleModule(), "cpu"));
+        String methodBody = engine.translate("CPU at most one", RuleContextFactory.partCategory(sampleModule(), "cpu"));
 
-        assertTrue(snippet.contains("@CodeRuleAnno"), snippet);
-        assertTrue(snippet.contains("cpu"), snippet);
-        assertFalse(snippet.contains("package "), snippet);
-        assertFalse(snippet.contains("class "), snippet);
+        assertTrue(methodBody.contains("cpu"), methodBody);
+        assertFalse(methodBody.contains("@CodeRuleAnno"), methodBody);
+        assertFalse(methodBody.contains("public void"), methodBody);
+        assertFalse(methodBody.contains("package "), methodBody);
+        assertFalse(methodBody.contains("class "), methodBody);
     }
 
     @Test
     public void testProductTranslateUsesIdentifiedCategories() {
         ProductRuleContext context = RuleContextFactory.product(sampleModule());
 
-        String snippet = engine(realLlm()).translate("4-core CPU cannot use 5400 drive", context);
+        String methodBody = engine(invoker("[\"cpu\", \"drive\"]", cpuDriveIncompatibleBody()))
+                .translate("4-core CPU cannot use 5400 drive", context);
 
-        assertTrue(snippet.contains("@CodeRuleAnno"), snippet);
-        assertTrue(snippet.contains("cpu"), snippet);
-        assertTrue(snippet.contains("drive"), snippet);
-        assertFalse(snippet.contains("package "), snippet);
-        assertFalse(snippet.contains("class "), snippet);
+        assertTrue(methodBody.contains("cpu"), methodBody);
+        assertTrue(methodBody.contains("drive"), methodBody);
+        assertFalse(methodBody.contains("@CodeRuleAnno"), methodBody);
+        assertFalse(methodBody.contains("public void"), methodBody);
+        assertFalse(methodBody.contains("package "), methodBody);
+        assertFalse(methodBody.contains("class "), methodBody);
     }
 
     @Test
-    public void testPartCategoryTranslateWithRetryCompilesRealSnippet() {
-        RuleTransResult result = engine(realLlm()).translateWithRetry(
+    public void testPartCategoryTranslateWithRetryCompilesMethodBody() {
+        RuleTransResult result = engine(invoker(cpuAtMostOneMethodBody())).translateWithRetry(
                 "CPU at most one",
                 RuleContextFactory.partCategory(sampleModule(), "cpu"),
                 1);
 
         assertTrue(result.success(), String.valueOf(result.testExecutionResult()));
         assertTrue(result.compilationResult().success(), String.join("\n", result.compilationResult().errors()));
-        assertTrue(result.snippet().contains("@CodeRuleAnno"), result.snippet());
+        assertTrue(result.methodBody().contains("model().addLessOrEqual"), result.methodBody());
+        assertFalse(result.methodBody().contains("@CodeRuleAnno"), result.methodBody());
     }
 
     @Test
     public void testPartCategoryEndToEndGeneratedTestCasesPass() {
-        RuleTransResult result = engineWithGeneratedCases(realLlm()).translateWithRetry(
+        RuleTransResult result = engineWithGeneratedCases(invoker(
+                cpuAtMostOneMethodBody(),
+                cpuAtMostOneTestCases())).translateWithRetry(
                 "CPU at most one",
                 RuleContextFactory.partCategory(sampleModule(), "cpu"),
                 0);
@@ -82,7 +90,10 @@ public class RuleTransModuleTest {
 
     @Test
     public void testProductEndToEndGeneratedTestCasesPass() {
-        RuleTransResult result = engineWithGeneratedCases(realLlm()).translateWithRetry(
+        RuleTransResult result = engineWithGeneratedCases(invoker(
+                "[\"cpu\", \"drive\"]",
+                cpuDriveIncompatibleBody(),
+                cpuDriveIncompatibleTestCases())).translateWithRetry(
                 "4-core CPU cannot use 5400 drive",
                 RuleContextFactory.product(sampleModule()),
                 0);
@@ -94,7 +105,9 @@ public class RuleTransModuleTest {
 
     @Test
     public void testPartCategoryGeneratedTestCasesPassWithRetryBudget() {
-        RuleTransResult result = engineWithGeneratedCases(realLlm()).translateWithRetry(
+        RuleTransResult result = engineWithGeneratedCases(invoker(
+                cpuAtMostOneMethodBody(),
+                cpuAtMostOneTestCases())).translateWithRetry(
                 "CPU at most one",
                 RuleContextFactory.partCategory(sampleModule(), "cpu"),
                 1);
@@ -106,7 +119,7 @@ public class RuleTransModuleTest {
 
     @Test
     public void testBoundaryInputs() {
-        RuleTransEngine engine = engine(realLlm());
+        RuleTransEngine engine = engine(invoker(cpuAtMostOneMethodBody()));
 
         assertThrows(IllegalArgumentException.class,
                 () -> engine.translate("", RuleContextFactory.partCategory(sampleModule(), "cpu")));
@@ -137,11 +150,78 @@ public class RuleTransModuleTest {
                 promptBuilder);
     }
 
-    private LLMInvoker realLlm() {
-        return RealLlmHolder.INSTANCE;
+    private String cpuAtMostOneMethodBody() {
+        return RuleTransTestFixtures.cpuAtMostOneMethodBody();
     }
 
-    private static final class RealLlmHolder {
-        private static final LLMInvoker INSTANCE = new LLMInvokerImpl();
+    private String cpuDriveIncompatibleBody() {
+        return RuleTransTestFixtures.cpu4CannotUseDrive5400MethodBody();
+    }
+
+    private String cpuAtMostOneTestCases() {
+        return """
+                {
+                  "cases": [
+                    {
+                      "id": "twoCpuInvalid",
+                      "type": "validate",
+                      "selectedParts": ["cpu4", "cpu8", "drive5400"],
+                      "expectedValid": false
+                    },
+                    {
+                      "id": "oneCpuValid",
+                      "type": "validate",
+                      "selectedParts": ["cpu4", "drive5400"],
+                      "expectedValid": true
+                    }
+                  ]
+                }
+                """;
+    }
+
+    private String cpuDriveIncompatibleTestCases() {
+        return """
+                {
+                  "cases": [
+                    {
+                      "id": "cpu4Drive5400Invalid",
+                      "type": "validate",
+                      "selectedParts": ["cpu4", "drive5400"],
+                      "expectedValid": false
+                    },
+                    {
+                      "id": "cpu8Drive7200Valid",
+                      "type": "validate",
+                      "selectedParts": ["cpu8", "drive7200"],
+                      "expectedValid": true
+                    }
+                  ]
+                }
+                """;
+    }
+
+    private LLMInvoker invoker(String... responses) {
+        return new ScriptedLlmInvoker(responses);
+    }
+
+    private static final class ScriptedLlmInvoker implements LLMInvoker {
+        private final Queue<String> responses;
+
+        private ScriptedLlmInvoker(String... responses) {
+            this.responses = new ArrayDeque<>(Arrays.asList(responses));
+        }
+
+        @Override
+        public String generate(String systemMessage, String userMessage) {
+            if (responses.isEmpty()) {
+                throw new IllegalStateException("No scripted LLM response left for prompt: " + userMessage);
+            }
+            return responses.remove();
+        }
+
+        @Override
+        public String getConfigInfo() {
+            return "scripted";
+        }
     }
 }
