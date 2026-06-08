@@ -14,8 +14,9 @@ Generate exactly one Java rule method snippet for a ModuleAlgBase subclass.
 Requirements:
 - Return only a method annotated with @CodeRuleAnno.
 - Do not include package, imports, class declarations, markdown, or explanations.
-- @CodeRuleAnno supports code, normalNaturalCode, fatherCode, attrParaCodes,
+- @CodeRuleAnno supports normalNaturalCode, fatherCode, attrParaCodes,
   leftProObjsStr, and rightProObjsStr. Do not use module or category attributes.
+- Do not set @CodeRuleAnno code; use the Java method name as the rule identifier.
 - For category selection counts, use model().sum4Selected("categoryCode", "", "optional Attr=value filter").
 - For category quantity sums, use model().sum4Quantity("categoryCode", "", "optional Attr=value filter").
 - For numeric constraints, use model().addLessOrEqual(...), model().addGreaterOrEqual(...),

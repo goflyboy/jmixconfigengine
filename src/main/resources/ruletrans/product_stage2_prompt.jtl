@@ -14,8 +14,9 @@ Generate exactly one Java rule method snippet for a ModuleAlgBase subclass.
 Requirements:
 - Return only a method annotated with @CodeRuleAnno.
 - Do not include package, imports, class declarations, markdown, or explanations.
-- @CodeRuleAnno supports code, normalNaturalCode, fatherCode, attrParaCodes,
+- @CodeRuleAnno supports normalNaturalCode, fatherCode, attrParaCodes,
   leftProObjsStr, and rightProObjsStr. Do not use module or category attributes.
+- Do not set @CodeRuleAnno code; use the Java method name as the rule identifier.
 - For cross-category incompatibility, prefer inCompatible("ruleCode", "category:Attr=value",
   "category:Attr=value") when it expresses the business rule.
 - inCompatible accepts exactly three strings: ruleCode, left expression, right expression.

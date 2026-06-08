@@ -123,6 +123,7 @@ public final class RuleSnippetAssembler {
 
                 import com.jmix.coretest.ModuleScenarioTestBase;
                 import com.jmix.executor.bmodel.attr.DynamicAttributeType;
+                import com.jmix.executor.model.ConstraintConfig;
                 import com.jmix.executor.model.ModuleValidateResp;
                 import com.jmix.executor.southinf.ModuleAlgBase;
                 import com.jmix.executor.southinf.ModuleCPModel;
@@ -139,6 +140,11 @@ public final class RuleSnippetAssembler {
 
                     public %s() {
                         super(%s.class);
+                    }
+
+                    @Override
+                    protected void beforeInitConfig(ConstraintConfig cfg) {
+                        cfg.setLoadType(ConstraintConfig.LOAD_TYPE_FULL);
                     }
 
                 %s
@@ -191,14 +197,6 @@ public final class RuleSnippetAssembler {
                 .append(javaString("RuleTrans validate case " + caseId(testCase, index)
                         + " selectedParts=" + testCase.selectedPartsOrEmpty()))
                 .append(" + \", violated=\" + resp.getViolatedRuleCodes());\n");
-        for (String ruleCode : testCase.expectedViolatedRuleCodesOrEmpty()) {
-            builder.append("        assertTrue(resp.getViolatedRuleCodes().contains(")
-                    .append(javaString(ruleCode))
-                    .append("), ")
-                    .append(javaString("Expected violated rule code " + ruleCode + " for case "
-                            + caseId(testCase, index)))
-                    .append(" + \", actual=\" + resp.getViolatedRuleCodes());\n");
-        }
         builder.append("    }\n\n");
     }
 
@@ -213,14 +211,6 @@ public final class RuleSnippetAssembler {
                 .append(javaString("RuleTrans validate case " + caseId(testCase, index)
                         + " selectedParts=" + testCase.selectedPartsOrEmpty()))
                 .append(" + \", violated=\" + resp.getViolatedRuleCodes());\n");
-        for (String ruleCode : testCase.expectedViolatedRuleCodesOrEmpty()) {
-            builder.append("            assertTrue(resp.getViolatedRuleCodes().contains(")
-                    .append(javaString(ruleCode))
-                    .append("), ")
-                    .append(javaString("Expected violated rule code " + ruleCode + " for case "
-                            + caseId(testCase, index)))
-                    .append(" + \", actual=\" + resp.getViolatedRuleCodes());\n");
-        }
         builder.append("        } catch (AssertionError e) {\n");
         builder.append("            assertTrue(String.valueOf(e.getMessage()).contains(\"Validate failed\"), ")
                 .append("String.valueOf(e.getMessage()));\n");

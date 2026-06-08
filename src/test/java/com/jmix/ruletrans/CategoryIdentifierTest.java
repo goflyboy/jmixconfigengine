@@ -1,12 +1,12 @@
 package com.jmix.ruletrans;
 
+import static com.jmix.ruletrans.RuleTransTestFixtures.sampleModule;
+
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.jmix.executor.bmodel.Module;
 import com.jmix.ruletrans.identifier.CategoryIdentifier;
 import com.jmix.ruletrans.prompt.PromptBuilder;
-import com.jmix.tool.bbuilder.ModuleGenneratorByAnno;
 import com.jmix.tool.impl.llm.LLMInvoker;
 import com.jmix.tool.impl.llm.LLMInvokerImpl;
 
@@ -18,8 +18,6 @@ import java.util.List;
  * Focused tests for product-level stage1 category identification.
  */
 public class CategoryIdentifierTest {
-
-    private static final String TEMP_RESOURCE_PATH = "target/ruletrans-test-resources";
 
     @Test
     public void testIdentifiesAndValidatesCategories() {
@@ -42,12 +40,6 @@ public class CategoryIdentifierTest {
 
     private LLMInvoker realLlm() {
         return RealLlmHolder.INSTANCE;
-    }
-
-    private Module sampleModule() {
-        return ModuleGenneratorByAnno.build(
-                RuleTransModuleTest.SampleRuleTransConstraint.class,
-                TEMP_RESOURCE_PATH);
     }
 
     private static final class RealLlmHolder {
