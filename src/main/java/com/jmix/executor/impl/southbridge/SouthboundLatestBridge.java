@@ -41,7 +41,7 @@ public class SouthboundLatestBridge {
 
         @Override
         public ParaVar para(String code) {
-            return SouthboundVarHandles.para(algorithm.getParaVar(code));
+            return SouthboundVarHandles.para(algorithm.getCurrentOrModuleParaVar(code));
         }
 
         @Override
@@ -179,6 +179,12 @@ public class SouthboundLatestBridge {
         }
 
         @Override
+        public AlgCPConstraint addLessOrEqual(AlgCPLinearArgument left, AlgCPLinearArgument right) {
+            return new AlgCPConstraintImpl(algorithm.getModel().addLessOrEqual(
+                    AlgCPFacadeAdapters.unwrapArgument(left), AlgCPFacadeAdapters.unwrapArgument(right)));
+        }
+
+        @Override
         public AlgCPConstraint addLessOrEqual(AlgCPLinearExpr left, long right) {
             return new AlgCPConstraintImpl(
                     algorithm.getModel().addLessOrEqual(AlgCPFacadeAdapters.unwrapExpr(left), right));
@@ -191,6 +197,12 @@ public class SouthboundLatestBridge {
         }
 
         @Override
+        public AlgCPConstraint addLessThan(AlgCPLinearArgument left, AlgCPLinearArgument right) {
+            return new AlgCPConstraintImpl(algorithm.getModel().addLessThan(
+                    AlgCPFacadeAdapters.unwrapArgument(left), AlgCPFacadeAdapters.unwrapArgument(right)));
+        }
+
+        @Override
         public AlgCPConstraint addLessThan(AlgCPLinearExpr left, long right) {
             return new AlgCPConstraintImpl(algorithm.getModel().addLessThan(AlgCPFacadeAdapters.unwrapExpr(left), right));
         }
@@ -199,6 +211,12 @@ public class SouthboundLatestBridge {
         public AlgCPConstraint addGreaterOrEqual(AlgCPLinearArgument left, long right) {
             return new AlgCPConstraintImpl(
                     algorithm.getModel().addGreaterOrEqual(AlgCPFacadeAdapters.unwrapArgument(left), right));
+        }
+
+        @Override
+        public AlgCPConstraint addGreaterOrEqual(AlgCPLinearArgument left, AlgCPLinearArgument right) {
+            return new AlgCPConstraintImpl(algorithm.getModel().addGreaterOrEqual(
+                    AlgCPFacadeAdapters.unwrapArgument(left), AlgCPFacadeAdapters.unwrapArgument(right)));
         }
 
         @Override
@@ -217,6 +235,12 @@ public class SouthboundLatestBridge {
         public AlgCPConstraint addGreaterThan(AlgCPLinearArgument left, long right) {
             return new AlgCPConstraintImpl(
                     algorithm.getModel().addGreaterThan(AlgCPFacadeAdapters.unwrapArgument(left), right));
+        }
+
+        @Override
+        public AlgCPConstraint addGreaterThan(AlgCPLinearArgument left, AlgCPLinearArgument right) {
+            return new AlgCPConstraintImpl(algorithm.getModel().addGreaterThan(
+                    AlgCPFacadeAdapters.unwrapArgument(left), AlgCPFacadeAdapters.unwrapArgument(right)));
         }
 
         @Override

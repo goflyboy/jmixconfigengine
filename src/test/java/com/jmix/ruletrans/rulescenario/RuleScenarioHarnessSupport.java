@@ -1,7 +1,11 @@
 package com.jmix.ruletrans.rulescenario;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static com.jmix.ruletrans.RuleTransRealLlmSupport.realLlmInvoker;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import com.jmix.executor.bmodel.PartCategory;
 import com.jmix.ruletrans.assembler.AssembledRuleClass;
 import com.jmix.ruletrans.assembler.RuleSnippetAssembler;
 import com.jmix.ruletrans.assembler.RuleTransTempFileManager;
@@ -10,12 +14,16 @@ import com.jmix.ruletrans.context.ProductRuleContext;
 import com.jmix.ruletrans.context.RuleContext;
 import com.jmix.ruletrans.context.RuleContextFactory;
 import com.jmix.ruletrans.generator.RuleSnippetPostProcessor;
+import com.jmix.ruletrans.generator.RuleSnippetGenerator;
+import com.jmix.ruletrans.identifier.CategoryIdentifier;
 import com.jmix.ruletrans.metadata.RuleMetadata;
 import com.jmix.ruletrans.postprocessor.CompilationProcessor;
 import com.jmix.ruletrans.postprocessor.CompilationResult;
 import com.jmix.ruletrans.postprocessor.TestExecutionProcessor;
 import com.jmix.ruletrans.postprocessor.TestExecutionResult;
+import com.jmix.ruletrans.prompt.PromptBuilder;
 import com.jmix.ruletrans.scenario.RuleScenario;
+import com.jmix.ruletrans.scenario.RuleScenarioClassifier;
 import com.jmix.ruletrans.testgen.RuleTransTestCase;
 import com.jmix.ruletrans.testgen.RuleTransTestCaseSet;
 
@@ -24,19 +32,36 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Shared scenario harness.
+ *
+ * <p>Business scenario assertions call the real LLM, translate the supplied
+ * natural language into a rule method body, then compile and execute the
+ * generated rule against SDK-level cases.</p>
+ */
 abstract class RuleScenarioHarnessSupport {
 
     static final String TEMP_RESOURCE_PATH = "target/ruletrans-rulescenario-resources";
 
     private final RuleSnippetPostProcessor postProcessor = new RuleSnippetPostProcessor();
+    private final PromptBuilder promptBuilder = new PromptBuilder();
     private final RuleTransTempFileManager tempFileManager =
             new RuleTransTempFileManager(Path.of("target/ruletrans-rulescenario"));
     private final RuleSnippetAssembler assembler = new RuleSnippetAssembler(tempFileManager);
     private final CompilationProcessor compilationProcessor = new CompilationProcessor(tempFileManager);
     private final TestExecutionProcessor testExecutionProcessor = new TestExecutionProcessor(tempFileManager);
+    private final RuleScenarioClassifier scenarioClassifier = new RuleScenarioClassifier();
 
     protected ProductRuleContext productContext(Class<?> algClass) {
         return RuleContextFactory.fromAnnotatedClass(algClass, TEMP_RESOURCE_PATH);
+    }
+
+    protected ProductRuleContext productContext(Class<?> algClass, String... categoryCodes) {
+        ProductRuleContext context = productContext(algClass);
+        if (categoryCodes == null || categoryCodes.length == 0) {
+            return context;
+        }
+        return RuleContextFactory.product(context.module(), Arrays.asList(categoryCodes));
     }
 
     protected PartCategoryRuleContext partCategoryContext(Class<?> algClass, String categoryCode) {
@@ -186,28 +211,177 @@ abstract class RuleScenarioHarnessSupport {
                 expectedAllParaValues);
     }
 
-    protected void assertExecutableScenario(
-            String methodBody,
+    protected void assertNaturalLanguageTranslatesAndExecutes(
             RuleContext context,
             RuleScenario scenario,
             RuleMetadata metadata,
             RuleTransTestCaseSet testCaseSet,
             String className) {
-        String processedBody = postProcessor.processMethodBody(methodBody, scenario.sdkProfile());
+        assertNaturalLanguageTranslatesAndExecutes(
+                metadata.normalNaturalCode(),
+                context,
+                scenario,
+                metadata,
+                testCaseSet,
+                className);
+    }
 
-        AssembledRuleClass compileUnit = assembler.assembleCompileUnit(
-                processedBody, context, scenario, metadata, className + "CompileUnit");
-        CompilationResult compileResult = compilationProcessor.compile(compileUnit);
-        assertTrue(compileResult.success(), String.join("\n", compileResult.errors()));
+    protected void assertNaturalLanguageTranslatesAndExecutes(
+            String naturalLanguage,
+            RuleContext context,
+            RuleScenario scenario,
+            RuleMetadata metadata,
+            RuleTransTestCaseSet testCaseSet,
+            String className) {
+        RuleContext preparedContext = prepareContext(naturalLanguage, context);
+        RuleScenario effectiveScenario = scenario == null
+                ? scenarioClassifier.classify(naturalLanguage, preparedContext)
+                : scenario;
+        RuleMetadata effectiveMetadata = metadata == null
+                ? RuleMetadata.from(naturalLanguage, preparedContext, effectiveScenario)
+                : metadata;
 
-        AssembledRuleClass executableTest = assembler.assembleExecutableTest(
-                processedBody, context, scenario, metadata, testCaseSet, className);
-        CompilationResult testCompileResult = compilationProcessor.compile(executableTest);
-        assertTrue(testCompileResult.success(), String.join("\n", testCompileResult.errors())
-                + "\n" + executableTest.sourceCode());
+        String methodBody = null;
+        CompilationResult lastCompilation = null;
+        TestExecutionResult lastTestResult = null;
+        int attemptsLimit = 3;
+        for (int attempt = 1; attempt <= attemptsLimit; attempt++) {
+            try {
+                methodBody = generateAttemptMethodBody(
+                        naturalLanguage,
+                        preparedContext,
+                        effectiveScenario,
+                        attempt,
+                        methodBody,
+                        lastCompilation,
+                        lastTestResult);
+            } catch (RuntimeException e) {
+                if (methodBody == null || methodBody.isBlank()) {
+                    lastCompilation = generationFailureResult(e);
+                    lastTestResult = null;
+                } else if (lastTestResult != null && !lastTestResult.success()) {
+                    lastCompilation = null;
+                } else if (lastCompilation == null || lastCompilation.success()) {
+                    lastCompilation = generationFailureResult(e);
+                    lastTestResult = null;
+                }
+                continue;
+            }
 
-        TestExecutionResult result = testExecutionProcessor.execute(executableTest);
-        assertTrue(result.success(), String.valueOf(result.failedCases()));
-        assertTrue(result.testsSucceeded() > 0, String.valueOf(result));
+            AssembledRuleClass compileUnit = assembler.assembleCompileUnit(
+                    methodBody,
+                    preparedContext,
+                    effectiveScenario,
+                    effectiveMetadata,
+                    className + "GeneratedCompileUnit" + attempt);
+            lastCompilation = compilationProcessor.compile(compileUnit);
+            if (!lastCompilation.success()) {
+                lastTestResult = null;
+                continue;
+            }
+
+            AssembledRuleClass executableTest = assembler.assembleExecutableTest(
+                    methodBody,
+                    preparedContext,
+                    effectiveScenario,
+                    effectiveMetadata,
+                    testCaseSet,
+                    className + "Generated" + attempt);
+            CompilationResult testCompileResult = compilationProcessor.compile(executableTest);
+            if (!testCompileResult.success()) {
+                lastCompilation = testCompileResult;
+                lastTestResult = null;
+                continue;
+            }
+
+            lastTestResult = testExecutionProcessor.execute(executableTest);
+            if (lastTestResult.success() && lastTestResult.testsSucceeded() > 0) {
+                return;
+            }
+        }
+
+        fail(buildNaturalLanguageFailureMessage(
+                naturalLanguage, methodBody, lastCompilation, lastTestResult));
+    }
+
+    private String generateAttemptMethodBody(
+            String naturalLanguage,
+            RuleContext context,
+            RuleScenario scenario,
+            int attempt,
+            String previousMethodBody,
+            CompilationResult lastCompilation,
+            TestExecutionResult lastTestResult) {
+        if (attempt == 1 || previousMethodBody == null || previousMethodBody.isBlank()) {
+            return snippetGenerator().generateMethodBody(naturalLanguage, context, scenario);
+        }
+        if (lastCompilation != null && !lastCompilation.success()) {
+            return snippetGenerator().generateMethodBodyFromPrompt(
+                    promptBuilder.buildCompilationCorrectionPrompt(
+                            naturalLanguage, context, scenario, previousMethodBody, lastCompilation),
+                    scenario.sdkProfile(),
+                    context);
+        }
+        if (lastTestResult != null && !lastTestResult.success()) {
+            return snippetGenerator().generateMethodBodyFromPrompt(
+                    promptBuilder.buildTestCorrectionPrompt(
+                            naturalLanguage, context, scenario, previousMethodBody, lastTestResult.failedCases()),
+                    scenario.sdkProfile(),
+                    context);
+        }
+        return snippetGenerator().generateMethodBody(naturalLanguage, context, scenario);
+    }
+
+    private RuleContext prepareContext(String naturalLanguage, RuleContext context) {
+        if (!context.isProductLevel() || !context.targetCategories().isEmpty()) {
+            return context;
+        }
+        if (context.module().getAllPartCategorys().isEmpty()) {
+            return context;
+        }
+        List<String> categoryCodes = categoryIdentifier().identify(naturalLanguage, context.module());
+        List<PartCategory> categories = categoryCodes.stream()
+                .map(code -> context.module().getPartCategory(code))
+                .toList();
+        return new ProductRuleContext(context.module(), categories);
+    }
+
+    private RuleSnippetGenerator snippetGenerator() {
+        return new RuleSnippetGenerator(realLlmInvoker(), promptBuilder, postProcessor);
+    }
+
+    private CategoryIdentifier categoryIdentifier() {
+        return new CategoryIdentifier(realLlmInvoker(), promptBuilder);
+    }
+
+    private CompilationResult generationFailureResult(RuntimeException e) {
+        String message = e.getMessage() == null ? e.getClass().getName() : e.getMessage();
+        return new CompilationResult(false, -1, List.of(message), List.of(message), null, null);
+    }
+
+    private String buildNaturalLanguageFailureMessage(
+            String naturalLanguage,
+            String methodBody,
+            CompilationResult compilationResult,
+            TestExecutionResult testExecutionResult) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Natural-language RuleTrans scenario failed: ")
+                .append(naturalLanguage)
+                .append("\nGenerated method body:\n")
+                .append(methodBody == null ? "<none>" : methodBody)
+                .append("\n");
+        if (compilationResult != null && !compilationResult.success()) {
+            builder.append("Compilation errors:\n")
+                    .append(String.join("\n", compilationResult.errors()))
+                    .append("\nDiagnostics:\n")
+                    .append(String.join("\n", compilationResult.diagnostics()))
+                    .append("\n");
+        }
+        if (testExecutionResult != null && !testExecutionResult.success()) {
+            builder.append("Failed cases:\n")
+                    .append(testExecutionResult.failedCases())
+                    .append("\n");
+        }
+        return builder.toString();
     }
 }

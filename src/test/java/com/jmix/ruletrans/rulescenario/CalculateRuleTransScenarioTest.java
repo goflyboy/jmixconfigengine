@@ -24,25 +24,11 @@ class CalculateRuleTransScenarioTest extends RuleScenarioHarnessSupport {
     void testIfElseCalculationAndNoSolutionBoundary() {
         RuleContext context = productContext(IfElseFacts.class);
         RuleScenario scenario = RuleScenario.constraint(RuleScope.PRODUCT, RuleFamily.CALCULATE);
-        RuleMetadata metadata = metadata("ruleIfElseQuantity", "if p1 op11 and p2 op21 then pt1 is 1 else 3",
+        RuleMetadata metadata = metadata("ruleIfElseQuantity",
+                "如果参数 p1 选择 op11 且参数 p2 选择 op21，则部件 pt1 的数量必须等于 1；否则 pt1 的数量必须等于 3",
                 "", "");
 
-        String methodBody = """
-                AlgCPBoolVar op11AndOp21 = model().newBoolVar("rule_op11_and_op21");
-                model().addBoolAnd(new AlgCPLiteral[] {
-                        p1.option("op11").selectedVar(),
-                        p2.option("op21").selectedVar()
-                }).onlyEnforceIf(op11AndOp21);
-                model().addBoolOr(new AlgCPLiteral[] {
-                        p1.option("op11").selectedVar().not(),
-                        p2.option("op21").selectedVar().not()
-                }).onlyEnforceIf(op11AndOp21.not());
-                model().addEquality(pt1.quantityVar(), 1).onlyEnforceIf(op11AndOp21);
-                model().addEquality(pt1.quantityVar(), 3).onlyEnforceIf(op11AndOp21.not());
-                """;
-
-        assertExecutableScenario(
-                methodBody,
+        assertNaturalLanguageTranslatesAndExecutes(
                 context,
                 scenario,
                 metadata,
@@ -60,17 +46,9 @@ class CalculateRuleTransScenarioTest extends RuleScenarioHarnessSupport {
     void testIntegerParameterCalculationAndReverseInference() {
         RuleContext context = productContext(IntegerFacts.class);
         RuleScenario scenario = RuleScenario.constraint(RuleScope.PRODUCT, RuleFamily.CALCULATE);
-        RuleMetadata metadata = metadata("ruleIntegerParameterSum", "part quantity equals p1 plus p2", "", "");
+        RuleMetadata metadata = metadata("ruleIntegerParameterSum", "部件 part1 的数量必须等于整数参数 p1 加 p2", "", "");
 
-        String methodBody = """
-                AlgCPLinearExpr sumExpr = model().newLinearExpr("sum_p1_p2");
-                sumExpr.addTerm(p1.valueVar(), 1);
-                sumExpr.addTerm(p2.valueVar(), 1);
-                model().addEquality(part1.quantityVar(), sumExpr);
-                """;
-
-        assertExecutableScenario(
-                methodBody,
+        assertNaturalLanguageTranslatesAndExecutes(
                 context,
                 scenario,
                 metadata,

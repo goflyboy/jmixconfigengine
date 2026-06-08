@@ -27,16 +27,11 @@ class AggregateRuleTransScenarioTest extends RuleScenarioHarnessSupport {
     void testSingleCategoryAggregateRule() {
         RuleContext context = partCategoryContext(AggregateFacts.class, "drive");
         RuleScenario scenario = RuleScenario.constraint(RuleScope.PART_CATEGORY, RuleFamily.AGGREGATE);
-        RuleMetadata metadata = metadata("ruleDriveSdAggregate", "SSD at most one selected and two quantity",
+        RuleMetadata metadata = metadata("ruleDriveSdAggregate",
+                "drive 中属性 Type 为 sd 的部件最多选中 1 种，并且这些部件的总数量最多是 2",
                 "drive", "");
 
-        String methodBody = """
-                model().addLessOrEqual(model().sum4Selected("drive", "", "Type=sd"), 1);
-                model().addLessOrEqual(model().sum4Quantity("drive", "", "Type=sd"), 2);
-                """;
-
-        assertExecutableScenario(
-                methodBody,
+        assertNaturalLanguageTranslatesAndExecutes(
                 context,
                 scenario,
                 metadata,
@@ -50,19 +45,13 @@ class AggregateRuleTransScenarioTest extends RuleScenarioHarnessSupport {
 
     @Test
     void testCrossCategoryAggregateRule() {
-        RuleContext context = productContext(AggregateFacts.class);
+        RuleContext context = productContext(AggregateFacts.class, "disk", "mainBoard");
         RuleScenario scenario = RuleScenario.constraint(RuleScope.PRODUCT, RuleFamily.AGGREGATE);
-        RuleMetadata metadata = metadata("ruleCrossCapacityAtLeast100", "disk and board 10G capacity at least 100",
+        RuleMetadata metadata = metadata("ruleCrossCapacityAtLeast100",
+                "disk 和 mainBoard 中属性 PortRate 为 10G 的部件，按属性 Capacity 加权后的总数量至少为 100",
                 "", "");
 
-        String methodBody = """
-                PartAlgCPLinearExpr total = model().sum4Quantity("disk,mainBoard", "Capacity", "PortRate=10G")
-                        .name("disk_board_capacity");
-                model().addGreaterOrEqual(total, 100);
-                """;
-
-        assertExecutableScenario(
-                methodBody,
+        assertNaturalLanguageTranslatesAndExecutes(
                 context,
                 scenario,
                 metadata,
@@ -80,17 +69,11 @@ class AggregateRuleTransScenarioTest extends RuleScenarioHarnessSupport {
     void testMultiInstanceAggregateRule() {
         RuleContext context = partCategoryContext(AggregateFacts.class, "disk");
         RuleScenario scenario = RuleScenario.constraint(RuleScope.PART_CATEGORY, RuleFamily.AGGREGATE);
-        RuleMetadata metadata = metadata("ruleMultiInstDiskCapacity", "all disk instances total capacity at least 100",
+        RuleMetadata metadata = metadata("ruleMultiInstDiskCapacity",
+                "所有 disk 实例中属性 PortRate 为 10G 的部件，按属性 Capacity 加权后的总数量至少为 100",
                 "disk", "").withEffectScope(EffectScope.AllInst);
 
-        String methodBody = """
-                PartAlgCPLinearExpr total = model().sum4Quantity("Capacity", "PortRate=10G")
-                        .name("all_disk_capacity");
-                model().addGreaterOrEqual(total, 100);
-                """;
-
-        assertExecutableScenario(
-                methodBody,
+        assertNaturalLanguageTranslatesAndExecutes(
                 context,
                 scenario,
                 metadata,

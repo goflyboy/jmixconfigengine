@@ -21,11 +21,10 @@ class ParameterRequiresRuleTransScenarioTest extends RuleScenarioHarnessSupport 
     void testRequiresForwardReverseAndMissedDefaultSemantics() {
         RuleContext context = productContext(ParameterFacts.class);
         RuleScenario scenario = RuleScenario.constraint(RuleScope.PRODUCT, RuleFamily.COMPATIBLE);
-        RuleMetadata metadata = metadata("ruleParameterRequires", "A requires B", "", "");
+        RuleMetadata metadata = metadata("ruleParameterRequires",
+                "参数 a 选择 a1 或 a3 时，参数 b 只能选择 b1、b2 或 b3", "", "");
 
-        assertExecutableScenario(
-                "addCompatibleConstraintRequires(ruleCode, a, listOf(\"a1\", \"a3\"), b, "
-                        + "listOf(\"b1\", \"b2\", \"b3\"));",
+        assertNaturalLanguageTranslatesAndExecutes(
                 context,
                 scenario,
                 metadata,

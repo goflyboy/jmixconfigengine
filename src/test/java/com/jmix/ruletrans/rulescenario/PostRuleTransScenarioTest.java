@@ -27,20 +27,13 @@ class PostRuleTransScenarioTest extends RuleScenarioHarnessSupport {
 
     @Test
     void testPostWritesProductCategoryAndPartInstanceState() {
-        RuleContext context = productContext(PostFacts.class);
+        RuleContext context = productContext(PostFacts.class, "drive");
         RuleScenario scenario = RuleScenario.post(RuleScope.PRODUCT, RuleFamily.POST);
-        RuleMetadata metadata = metadata("rulePostDriveWriteBack", "write back drive totals after solving", "", "");
+        RuleMetadata metadata = metadata("rulePostDriveWriteBack",
+                "POST 阶段将 drive 的 Capacity 总和写回产品参数 pDriveSumCapacity 和 drive 分类参数 pSumCapacity；将 drive 的总数量写回产品参数 pDriveQuantity；并将 drive 分类下部件 md1 的数量设置为 2",
+                "", "");
 
-        String methodBody = """
-                int sum = partCategorySum("drive").sumDynAttr4Int("Capacity");
-                parameter("pDriveSumCapacity").setValue(String.valueOf(sum));
-                partCategory("drive").parameter("pSumCapacity").setValue(String.valueOf(sum));
-                parameter("pDriveQuantity").setValue(String.valueOf(partCategory("drive").sumQuantity()));
-                partCategory("drive").part("md1").setQuantity(2);
-                """;
-
-        assertExecutableScenario(
-                methodBody,
+        assertNaturalLanguageTranslatesAndExecutes(
                 context,
                 scenario,
                 metadata,

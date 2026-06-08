@@ -430,6 +430,16 @@ public class ModuleAlgImpl extends ModuleBaseAlgImpl implements IModuleAlg {
         return paraMap;
     }
 
+    public ParaVarImpl getCurrentOrModuleParaVar(String code) {
+        if (currentModuleAlg != null) {
+            ParaVarImpl contextParaVar = currentModuleAlg.getParaVar(code);
+            if (contextParaVar != null) {
+                return contextParaVar;
+            }
+        }
+        return getParaVar(code);
+    }
+
     @Override
     protected Object newPartVar(PartVarImpl internalPartVar) {
         return internalPartVar;

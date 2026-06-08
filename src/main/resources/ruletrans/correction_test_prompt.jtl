@@ -27,6 +27,64 @@ ${failedCases}
 Return only a corrected Java rule method body if the failure is likely a rule logic error.
 Do not include package, imports, class declarations, annotations, method declarations,
 markdown, or explanations.
-Use only ModuleAlgBase APIs that compile, such as model().sum4Selected(...),
+Use only ModuleAlgBase APIs that compile and match the SDK profile.
+
+When SDK profile is POST, use only POST instance-view APIs such as parameter(code).setValue(...),
+part(code).setQuantity(...), partCategory(code).parameter(code).setValue(...),
+partCategory(code).part(code).setQuantity(...), partCategory(code).sumQuantity(),
+and partCategorySum(code).sumDynAttr4Int(...). Wrap numeric parameter writeback values with
+String.valueOf(...). Do not use model(), onlyEnforceIf(...), inCompatible(...), or priority APIs.
+For POST category quantity totals, use partCategory("categoryCode").sumQuantity().
+Use partCategorySum("categoryCode") only for dynamic-attribute aggregation such as
+sumDynAttr4Int(...), dynAttr(...), or dynAttrs(...). Never call
+partCategorySum("categoryCode").sumQuantity() or partCategorySum("categoryCode").quantity().
+
+When SDK profile is CONSTRAINT, use constraint-model APIs such as model().sum4Selected(...),
 model().sum4Quantity(...), model().addLessOrEqual(...), model().addGreaterOrEqual(...),
-model().addEqual(...), and inCompatible(ruleCode, "category:Attr=value", "category:Attr=value").
+model().addEquality(...), and inCompatible(ruleCode, "category:Attr=value", "category:Attr=value").
+model().addBoolAnd and model().addBoolOr accept exactly one AlgCPLiteral[] argument. To bind a
+BoolVar to a conjunction or disjunction, use onlyEnforceIf on both the true and false directions;
+do not call model().addBoolAnd(cond, a, b) or model().addBoolOr(cond, a, b).
+model().addEquality(...), model().addDifferent(...), model().addLessOrEqual(...),
+model().addGreaterOrEqual(...), and similar numeric APIs return AlgCPConstraint, not AlgCPLiteral.
+Never put those calls inside AlgCPLiteral[] and never pass them to model().addImplication(...).
+To use a numeric predicate as a boolean literal, first create an AlgCPBoolVar and bind both directions
+with addEquality(...).onlyEnforceIf(eqVar) and addDifferent(...).onlyEnforceIf(eqVar.not()).
+model().addImplication(left, right) accepts AlgCPLiteral arguments only, such as BoolVar, hiddenVar(),
+option(...).selectedVar(), or their .not() forms.
+Linear expression terms use addTerm(variable, coefficient), such as
+expr.addTerm(para("p1").valueVar(), 1). Do not reverse the arguments.
+To combine aggregate PartAlgCPLinearExpr values such as model().sum4Quantity(...) or
+model().sum4Selected(...), use compositeExpr.addExpr(aggregateExpr, coefficient). Do not pass
+aggregate expressions to addTerm(...).
+PartAlgCPLinearExpr is also a linear expression. It can be used in numeric constraints such as
+model().addGreaterOrEqual(totalExpr, para("p1").valueVar()). When comparing an aggregate expression
+with a parameter, use para("p1").valueVar(), not the ParaVar itself.
+For hidden helper calls, use addVarAboutHiddenConstraints(para("p1"), para("p2")) or
+addVarAboutHiddenConstraints(partVar("part1"), partVar("part2")). Do not pass ruleCode, hiddenVar(),
+valueVar(), or BoolVar, and do not call it through model().
+If a rule can hide a parameter or part, call addVarAboutHiddenConstraints(...) for every parameter
+or part whose hiddenVar() is controlled by the rule. Without this registration, the engine adds default
+visible constraints and hidden solutions can become impossible.
+For aggregate quantity or weighted dynamic-attribute totals, prefer
+model().sum4Quantity("categoryCodeOrCommaSeparatedCodes", "attrCodeOrBlank", "optional Attr=value filter");
+the attrCode argument is a numeric weighting attribute, not a filter attribute. For selected-count rules,
+use attrCode "" and put attribute predicates in the filter condition. For total part quantity rules,
+also use attrCode "" unless the rule says weighted by a numeric dynamic attribute.
+cross-category product-level totals use comma-separated category codes, product-level all-instance
+multi-instance totals use categoryCode*, and part-category effectScope=AllInst rules should use the
+two-argument overloads model().sum4Quantity("attrCode", "filter") or model().sum4Selected("attrCode", "filter").
+Do not add * only because a category supports multi-instance; use * only when the natural language explicitly
+asks for all instances of that category. Do not mix * and comma-separated categories in one aggregate call,
+such as "disk*,mainBoard"; if a true rule needs that shape, build separate aggregate expressions and combine
+them with model().newPartLinearExpr(...).addExpr(...).
+Aggregate totals should not be built by enumerating atomic parts with partVar(...).quantityVar().
+In filter conditions, use dynamic attribute values from context dynAttr or option codeValue, not option codes.
+Filter conditions are rule-engine strings such as Attr=value or Attr>=number; do not use Java == and do
+not quote string values inside the filter.
+For priority rules, add the normal hard constraints first. Then build a separate objective expression
+with PartAlgCPLinearExpr from model().newPartLinearExpr("name"), combine aggregate expressions with
+addExpr(...), call model().setObjectExpr(expr), and call updatePriorityObjectFuntion(ruleCode, expr).
+model().newPartLinearExpr requires a name string.
+Do not use POST instance-view APIs such as parameter(...).setValue(...), partCategorySum(...),
+part(...), or partCategory(...).

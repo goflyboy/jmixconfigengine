@@ -21,11 +21,11 @@ class ParameterCoDependentRuleTransScenarioTest extends RuleScenarioHarnessSuppo
     void testCoDependentForwardReverseAndMissedDefaultSemantics() {
         RuleContext context = productContext(ParameterFacts.class);
         RuleScenario scenario = RuleScenario.constraint(RuleScope.PRODUCT, RuleFamily.COMPATIBLE);
-        RuleMetadata metadata = metadata("ruleParameterCoDependent", "A co-dependent B", "", "");
+        RuleMetadata metadata = metadata("ruleParameterCoDependent",
+                "参数 a 选择 a1 或 a3 时，参数 b 只能选择 b1、b2 或 b3；参数 b 选择 b1、b2 或 b3 时，参数 a 也只能选择 a1 或 a3",
+                "", "");
 
-        assertExecutableScenario(
-                "addCompatibleConstraintCoDependent(ruleCode, a, listOf(\"a1\", \"a3\"), b, "
-                        + "listOf(\"b1\", \"b2\", \"b3\"));",
+        assertNaturalLanguageTranslatesAndExecutes(
                 context,
                 scenario,
                 metadata,

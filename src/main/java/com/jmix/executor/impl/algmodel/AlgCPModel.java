@@ -516,7 +516,7 @@ public class AlgCPModel {
         } else if (expr instanceof BoolVar) {
             return ((BoolVar) expr).getName();
         } else {
-            throw new IllegalArgumentException("Unsupported linear argument type: " + expr.getClass().getName());
+            return String.valueOf(expr);
         }
     }
 

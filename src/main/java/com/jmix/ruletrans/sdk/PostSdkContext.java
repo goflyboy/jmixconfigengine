@@ -16,6 +16,8 @@ public final class PostSdkContext implements SdkContext {
             "part(code).setDynAttr(key, value)",
             "partCategory(code)",
             "partCategory(code).parameter(code).setValue(value)",
+            "partCategory(code).part(code).setQuantity(quantity)",
+            "partCategory(code).part(code).setDynAttr(key, value)",
             "partCategory(code).sumQuantity()",
             "partCategorySum(code)",
             "partCategorySum(code).sumDynAttr4Int(attr)",

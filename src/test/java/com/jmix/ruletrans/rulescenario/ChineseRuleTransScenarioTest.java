@@ -1,5 +1,7 @@
 package com.jmix.ruletrans.rulescenario;
 
+import static com.jmix.ruletrans.RuleTransRealLlmSupport.realLlmInvoker;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -13,7 +15,6 @@ import com.jmix.ruletrans.scenario.RuleScenario;
 import com.jmix.ruletrans.scenario.RuleScenarioClassifier;
 import com.jmix.ruletrans.scenario.RuleScope;
 import com.jmix.ruletrans.sdk.SdkProfile;
-import com.jmix.tool.impl.llm.LLMInvoker;
 
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +26,7 @@ class ChineseRuleTransScenarioTest extends RuleScenarioHarnessSupport {
     void testChineseCategoryIdentificationValidatesMappedCodes() {
         Module module = productContext(ProductCompatibilityRuleTransScenarioTest.CpuDriveFacts.class).module();
         CategoryIdentifier identifier = new CategoryIdentifier(
-                invoker("[\"cpu\", \"drive\"]"),
+                realLlmInvoker(),
                 new PromptBuilder());
 
         List<String> codes = identifier.identify("处理器是四核时不能选择 5400 转硬盘", module);
@@ -65,18 +66,4 @@ class ChineseRuleTransScenarioTest extends RuleScenarioHarnessSupport {
         assertTrue(scenario.family() == RuleFamily.SELECT || scenario.family() == RuleFamily.AGGREGATE);
     }
 
-    private LLMInvoker invoker(String response) {
-        return new LLMInvoker() {
-            @Override
-            public String generate(String systemMessage, String userMessage) {
-                assertTrue(userMessage.contains("处理器"));
-                return response;
-            }
-
-            @Override
-            public String getConfigInfo() {
-                return "scripted";
-            }
-        };
-    }
 }

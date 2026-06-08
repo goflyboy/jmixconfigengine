@@ -1,6 +1,7 @@
 package com.jmix.ruletrans;
 
 import static com.jmix.ruletrans.RuleTransTestFixtures.sampleModule;
+import static com.jmix.ruletrans.RuleTransRealLlmSupport.realLlmInvoker;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -24,9 +25,6 @@ import com.jmix.tool.impl.llm.LLMInvoker;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
-import java.util.ArrayDeque;
-import java.util.Arrays;
-import java.util.Queue;
 
 /**
  * RFC-0011 RuleTrans engine tests.
@@ -35,11 +33,12 @@ public class RuleTransModuleTest {
 
     @Test
     public void testPartCategoryRuleGenerationReturnsPureMethodBody() {
-        RuleTransEngine engine = engine(invoker(cpuAtMostOneMethodBody()));
+        RuleTransEngine engine = engine(realLlmInvoker());
 
-        String methodBody = engine.translate("CPU at most one", RuleContextFactory.partCategory(sampleModule(), "cpu"));
+        String methodBody = engine.translate("cpu 最多只能选择一个部件", RuleContextFactory.partCategory(sampleModule(), "cpu"));
 
-        assertTrue(methodBody.contains("cpu"), methodBody);
+        assertTrue(methodBody.contains("model().addLessOrEqual"), methodBody);
+        assertTrue(methodBody.contains("sum4Selected"), methodBody);
         assertFalse(methodBody.contains("@CodeRuleAnno"), methodBody);
         assertFalse(methodBody.contains("public void"), methodBody);
         assertFalse(methodBody.contains("package "), methodBody);
@@ -50,8 +49,8 @@ public class RuleTransModuleTest {
     public void testProductTranslateUsesIdentifiedCategories() {
         ProductRuleContext context = RuleContextFactory.product(sampleModule());
 
-        String methodBody = engine(invoker("[\"cpu\", \"drive\"]", cpuDriveIncompatibleBody()))
-                .translate("4-core CPU cannot use 5400 drive", context);
+        String methodBody = engine(realLlmInvoker())
+                .translate("cpu 中属性 CoreNum 为 4 的部件不能和 drive 中属性 Speed 为 5400 的部件同时选择", context);
 
         assertTrue(methodBody.contains("cpu"), methodBody);
         assertTrue(methodBody.contains("drive"), methodBody);
@@ -63,8 +62,8 @@ public class RuleTransModuleTest {
 
     @Test
     public void testPartCategoryTranslateWithRetryCompilesMethodBody() {
-        RuleTransResult result = engine(invoker(cpuAtMostOneMethodBody())).translateWithRetry(
-                "CPU at most one",
+        RuleTransResult result = engine(realLlmInvoker()).translateWithRetry(
+                "cpu 最多只能选择一个部件",
                 RuleContextFactory.partCategory(sampleModule(), "cpu"),
                 1);
 
@@ -76,10 +75,8 @@ public class RuleTransModuleTest {
 
     @Test
     public void testPartCategoryEndToEndGeneratedTestCasesPass() {
-        RuleTransResult result = engineWithGeneratedCases(invoker(
-                cpuAtMostOneMethodBody(),
-                cpuAtMostOneTestCases())).translateWithRetry(
-                "CPU at most one",
+        RuleTransResult result = engineWithGeneratedCases(realLlmInvoker()).translateWithRetry(
+                "cpu 最多只能选择一个部件",
                 RuleContextFactory.partCategory(sampleModule(), "cpu"),
                 0);
 
@@ -90,11 +87,8 @@ public class RuleTransModuleTest {
 
     @Test
     public void testProductEndToEndGeneratedTestCasesPass() {
-        RuleTransResult result = engineWithGeneratedCases(invoker(
-                "[\"cpu\", \"drive\"]",
-                cpuDriveIncompatibleBody(),
-                cpuDriveIncompatibleTestCases())).translateWithRetry(
-                "4-core CPU cannot use 5400 drive",
+        RuleTransResult result = engineWithGeneratedCases(realLlmInvoker()).translateWithRetry(
+                "cpu 中属性 CoreNum 为 4 的部件不能和 drive 中属性 Speed 为 5400 的部件同时选择",
                 RuleContextFactory.product(sampleModule()),
                 0);
 
@@ -105,10 +99,8 @@ public class RuleTransModuleTest {
 
     @Test
     public void testPartCategoryGeneratedTestCasesPassWithRetryBudget() {
-        RuleTransResult result = engineWithGeneratedCases(invoker(
-                cpuAtMostOneMethodBody(),
-                cpuAtMostOneTestCases())).translateWithRetry(
-                "CPU at most one",
+        RuleTransResult result = engineWithGeneratedCases(realLlmInvoker()).translateWithRetry(
+                "cpu 最多只能选择一个部件",
                 RuleContextFactory.partCategory(sampleModule(), "cpu"),
                 1);
 
@@ -119,12 +111,12 @@ public class RuleTransModuleTest {
 
     @Test
     public void testBoundaryInputs() {
-        RuleTransEngine engine = engine(invoker(cpuAtMostOneMethodBody()));
+        RuleTransEngine engine = engine(null);
 
         assertThrows(IllegalArgumentException.class,
                 () -> engine.translate("", RuleContextFactory.partCategory(sampleModule(), "cpu")));
         assertThrows(IllegalArgumentException.class,
-                () -> engine.translate("CPU at most one", null));
+                () -> engine.translate("cpu 最多只能选择一个部件", null));
     }
 
     private RuleTransEngine engine(LLMInvoker llmInvoker) {
@@ -150,78 +142,4 @@ public class RuleTransModuleTest {
                 promptBuilder);
     }
 
-    private String cpuAtMostOneMethodBody() {
-        return RuleTransTestFixtures.cpuAtMostOneMethodBody();
-    }
-
-    private String cpuDriveIncompatibleBody() {
-        return RuleTransTestFixtures.cpu4CannotUseDrive5400MethodBody();
-    }
-
-    private String cpuAtMostOneTestCases() {
-        return """
-                {
-                  "cases": [
-                    {
-                      "id": "twoCpuInvalid",
-                      "type": "validate",
-                      "selectedParts": ["cpu4", "cpu8", "drive5400"],
-                      "expectedValid": false
-                    },
-                    {
-                      "id": "oneCpuValid",
-                      "type": "validate",
-                      "selectedParts": ["cpu4", "drive5400"],
-                      "expectedValid": true
-                    }
-                  ]
-                }
-                """;
-    }
-
-    private String cpuDriveIncompatibleTestCases() {
-        return """
-                {
-                  "cases": [
-                    {
-                      "id": "cpu4Drive5400Invalid",
-                      "type": "validate",
-                      "selectedParts": ["cpu4", "drive5400"],
-                      "expectedValid": false
-                    },
-                    {
-                      "id": "cpu8Drive7200Valid",
-                      "type": "validate",
-                      "selectedParts": ["cpu8", "drive7200"],
-                      "expectedValid": true
-                    }
-                  ]
-                }
-                """;
-    }
-
-    private LLMInvoker invoker(String... responses) {
-        return new ScriptedLlmInvoker(responses);
-    }
-
-    private static final class ScriptedLlmInvoker implements LLMInvoker {
-        private final Queue<String> responses;
-
-        private ScriptedLlmInvoker(String... responses) {
-            this.responses = new ArrayDeque<>(Arrays.asList(responses));
-        }
-
-        @Override
-        public String generate(String systemMessage, String userMessage) {
-            if (responses.isEmpty()) {
-                throw new IllegalStateException("No scripted LLM response left for prompt: " + userMessage);
-            }
-            return responses.remove();
-        }
-
-        @Override
-        public String getConfigInfo() {
-            return "scripted";
-        }
-    }
 }

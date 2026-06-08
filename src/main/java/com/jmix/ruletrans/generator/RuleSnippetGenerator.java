@@ -12,6 +12,8 @@ import com.jmix.tool.impl.llm.LLMInvoker;
  */
 public final class RuleSnippetGenerator {
 
+    private static final int LLM_GENERATION_ATTEMPTS = 3;
+
     private final LLMInvoker llmInvoker;
     private final PromptBuilder promptBuilder;
     private final RuleSnippetPostProcessor postProcessor;
@@ -32,7 +34,7 @@ public final class RuleSnippetGenerator {
     public String generateMethodBody(String naturalLanguage, RuleContext context, RuleScenario scenario) {
         String prompt = promptBuilder.buildGeneratePrompt(naturalLanguage, context, scenario);
         SdkProfile sdkProfile = sdkProfile(scenario);
-        return generateMethodBodyFromPrompt(prompt, sdkProfile);
+        return generateMethodBodyFromPrompt(prompt, sdkProfile, context);
     }
 
     public String generateFromPrompt(String prompt) {
@@ -40,14 +42,27 @@ public final class RuleSnippetGenerator {
     }
 
     public String generateMethodBodyFromPrompt(String prompt, SdkProfile sdkProfile) {
-        try {
-            String response = llmInvoker.generate(PromptBuilder.SYSTEM_MESSAGE, prompt);
-            return postProcessor.processMethodBody(response, sdkProfile);
-        } catch (RuleTransException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuleTransException("LLM rule method body generation failed: " + e.getMessage(), e);
+        return generateMethodBodyFromPrompt(prompt, sdkProfile, null);
+    }
+
+    public String generateMethodBodyFromPrompt(String prompt, SdkProfile sdkProfile, RuleContext context) {
+        Exception lastFailure = null;
+        for (int attempt = 1; attempt <= LLM_GENERATION_ATTEMPTS; attempt++) {
+            try {
+                String response = llmInvoker.generate(PromptBuilder.SYSTEM_MESSAGE, prompt);
+                if (response == null || response.isBlank()) {
+                    throw new RuleTransException("LLM returned empty response");
+                }
+                return postProcessor.processMethodBody(response, sdkProfile, context);
+            } catch (Exception e) {
+                lastFailure = e;
+            }
         }
+        String message = lastFailure == null || lastFailure.getMessage() == null
+                ? "unknown error"
+                : lastFailure.getMessage();
+        throw new RuleTransException("LLM rule method body generation failed after "
+                + LLM_GENERATION_ATTEMPTS + " attempts: " + message, lastFailure);
     }
 
     private SdkProfile sdkProfile(RuleScenario scenario) {

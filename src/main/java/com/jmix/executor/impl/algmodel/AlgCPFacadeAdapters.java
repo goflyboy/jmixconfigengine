@@ -43,6 +43,12 @@ public final class AlgCPFacadeAdapters {
         if (argument instanceof AlgCPIntVarImpl impl) {
             return impl.delegate();
         }
+        if (argument instanceof AlgCPLinearExprImpl impl) {
+            return impl.delegate().build();
+        }
+        if (argument instanceof DefaultAlgCPLinearExpr defaultExpr) {
+            return unwrapExpr(defaultExpr).build();
+        }
         throw new IllegalArgumentException(
                 "Unsupported AlgCPLinearArgument implementation: " + argument.getClass().getName());
     }

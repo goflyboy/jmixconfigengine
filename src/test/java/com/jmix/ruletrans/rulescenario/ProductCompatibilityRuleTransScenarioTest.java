@@ -19,13 +19,12 @@ class ProductCompatibilityRuleTransScenarioTest extends RuleScenarioHarnessSuppo
 
     @Test
     void testProductCrossCategoryIncompatibleRule() {
-        RuleContext context = productContext(CpuDriveFacts.class);
+        RuleContext context = productContext(CpuDriveFacts.class, "cpu", "drive");
         RuleScenario scenario = RuleScenario.constraint(RuleScope.PRODUCT, RuleFamily.COMPATIBLE);
         RuleMetadata metadata = metadata("ruleCpu4Drive5400Incompatible",
-                "4-core CPU cannot use 5400 drive", "", "");
+                "cpu 中属性 CoreNum 为 4 的部件不能和 drive 中属性 Speed 为 5400 的部件同时选择", "", "");
 
-        assertExecutableScenario(
-                "inCompatible(ruleCode, \"cpu:CoreNum=4\", \"drive:Speed=5400\");",
+        assertNaturalLanguageTranslatesAndExecutes(
                 context,
                 scenario,
                 metadata,

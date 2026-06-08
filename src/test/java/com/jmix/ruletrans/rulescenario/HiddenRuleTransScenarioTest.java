@@ -24,37 +24,11 @@ class HiddenRuleTransScenarioTest extends RuleScenarioHarnessSupport {
     void testParameterHiddenValueResetAndInference() {
         RuleContext context = productContext(HiddenFacts.class);
         RuleScenario scenario = RuleScenario.constraint(RuleScope.PRODUCT, RuleFamily.HIDDEN);
-        RuleMetadata metadata = metadata("ruleParaHidden", "p0 controls p1 and p2 hidden states", "", "");
+        RuleMetadata metadata = metadata("ruleParaHidden",
+                "p1 和 p2 至少一个可见；当参数 p0 等于 0 或 1 时隐藏 p1，否则隐藏 p2；隐藏参数的值必须为 0；部件 part1 的数量必须等于 p1 加 p2",
+                "", "");
 
-        String methodBody = """
-                model().addBoolOr(new AlgCPLiteral[] { p1.hiddenVar().not(), p2.hiddenVar().not() });
-                addVarAboutHiddenConstraints(p1, p2);
-
-                AlgCPBoolVar p0Eq0 = model().newBoolVar("p0_eq_0");
-                AlgCPBoolVar p0Eq1 = model().newBoolVar("p0_eq_1");
-                model().addEquality(p0.valueVar(), 0).onlyEnforceIf(p0Eq0);
-                model().addDifferent(p0.valueVar(), 0).onlyEnforceIf(p0Eq0.not());
-                model().addEquality(p0.valueVar(), 1).onlyEnforceIf(p0Eq1);
-                model().addDifferent(p0.valueVar(), 1).onlyEnforceIf(p0Eq1.not());
-
-                AlgCPBoolVar p0In01 = model().newBoolVar("p0_in_01");
-                model().addBoolOr(new AlgCPLiteral[] { p0Eq0, p0Eq1 }).onlyEnforceIf(p0In01);
-                model().addBoolAnd(new AlgCPLiteral[] { p0Eq0.not(), p0Eq1.not() }).onlyEnforceIf(p0In01.not());
-                model().addBoolOr(new AlgCPLiteral[] { p0Eq0.not(), p0Eq1.not() });
-
-                model().addEquality(p1.hiddenVar(), 1).onlyEnforceIf(p0In01);
-                model().addEquality(p2.hiddenVar(), 1).onlyEnforceIf(p0In01.not());
-                model().addEquality(p1.valueVar(), 0).onlyEnforceIf(p1.hiddenVar());
-                model().addEquality(p2.valueVar(), 0).onlyEnforceIf(p2.hiddenVar());
-
-                AlgCPLinearExpr sumExpr = model().newLinearExpr("sum_p1_p2");
-                sumExpr.addTerm(p1.valueVar(), 1);
-                sumExpr.addTerm(p2.valueVar(), 1);
-                model().addEquality(part1.quantityVar(), sumExpr);
-                """;
-
-        assertExecutableScenario(
-                methodBody,
+        assertNaturalLanguageTranslatesAndExecutes(
                 context,
                 scenario,
                 metadata,

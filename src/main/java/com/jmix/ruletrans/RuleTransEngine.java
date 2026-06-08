@@ -178,13 +178,15 @@ public final class RuleTransEngine {
             return generator.generateMethodBodyFromPrompt(
                     promptBuilder.buildCompilationCorrectionPrompt(
                             naturalLanguage, context, scenario, previousMethodBody, lastCompilation),
-                    scenario.sdkProfile());
+                    scenario.sdkProfile(),
+                    context);
         }
         if (lastTestResult != null && !lastTestResult.success()) {
             return generator.generateMethodBodyFromPrompt(
                     promptBuilder.buildTestCorrectionPrompt(
                             naturalLanguage, context, scenario, previousMethodBody, lastTestResult.failedCases()),
-                    scenario.sdkProfile());
+                    scenario.sdkProfile(),
+                    context);
         }
         return generator.generateMethodBody(naturalLanguage, context, scenario);
     }

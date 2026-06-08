@@ -27,35 +27,11 @@ class PriorityRuleTransScenarioTest extends RuleScenarioHarnessSupport {
     void testPartAggregatePriorityObjective() {
         RuleContext context = partCategoryContext(PartAggregatePriorityFacts.class, "drive");
         RuleScenario scenario = RuleScenario.constraint(RuleScope.PART_CATEGORY, RuleFamily.PRIORITY);
-        RuleMetadata metadata = metadata("ruleDriveCapacityPriority", "prefer high capacity drives", "drive", "");
+        RuleMetadata metadata = metadata("ruleDriveCapacityPriority",
+                "drive 中按属性 Capacity 加权后的总数量必须至少达到参数 Sum_Capacity；优化目标按最小化构建：先减少 drive 的总数量，再在总数量相同时优先选择 Capacity 更高的部件",
+                "drive", "");
 
-        String methodBody = """
-                if (Sum_Capacity.hasInput()) {
-                    int requiredCapacity = Sum_Capacity.inputValue();
-                    PartAlgCPLinearExpr totalCapacity = model().sum4Quantity("drive", "Capacity", "")
-                            .name("totalCapacity");
-                    model().addGreaterOrEqual(totalCapacity, requiredCapacity);
-
-                    PartAlgCPLinearExpr objectiveExpr = model().newPartLinearExpr("drive_capacity_objective");
-                    PartAlgCPLinearExpr highCapacityExpr = model().sum4Selected("drive", "Capacity", "")
-                            .name("highCapacityExpr");
-                    objectiveExpr.addExpr(highCapacityExpr, -100);
-
-                    PartAlgCPLinearExpr excessCapacityExpr = model().newPartLinearExpr("excessCapacityExpr");
-                    excessCapacityExpr.addExpr(totalCapacity, 1);
-                    excessCapacityExpr.addConstant(-requiredCapacity);
-                    objectiveExpr.addExpr(excessCapacityExpr, 1);
-
-                    PartAlgCPLinearExpr totalQuantity = model().sum4Quantity("drive", "", "")
-                            .name("totalQuantity");
-                    objectiveExpr.addExpr(totalQuantity, 800);
-                    model().setObjectExpr(objectiveExpr);
-                    updatePriorityObjectFuntion(ruleCode, objectiveExpr);
-                }
-                """;
-
-        assertExecutableScenario(
-                methodBody,
+        assertNaturalLanguageTranslatesAndExecutes(
                 context,
                 scenario,
                 metadata,
@@ -69,28 +45,13 @@ class PriorityRuleTransScenarioTest extends RuleScenarioHarnessSupport {
 
     @Test
     void testProductParameterPriorityObjective() {
-        RuleContext context = productContext(ProductParameterPriorityFacts.class);
+        RuleContext context = productContext(ProductParameterPriorityFacts.class, "accelerator");
         RuleScenario scenario = RuleScenario.constraint(RuleScope.PRODUCT, RuleFamily.PRIORITY);
-        RuleMetadata metadata = metadata("ruleProductParameterPriority", "prefer fast part for target quantity",
+        RuleMetadata metadata = metadata("ruleProductParameterPriority",
+                "accelerator 的总数量必须至少达到整数参数 target；优化目标按最小化构建：优先选择属性 Score 更高的 accelerator 部件，同时尽量减少 accelerator 总数量",
                 "", "");
 
-        String methodBody = """
-                PartAlgCPLinearExpr totalQuantity = model().sum4Quantity("accelerator", "", "")
-                        .name("accelerator_total_quantity");
-                PartAlgCPLinearExpr targetGap = model().newPartLinearExpr("target_gap");
-                targetGap.addExpr(totalQuantity, 1);
-                targetGap.addTerm(target.valueVar(), -1);
-                model().addGreaterOrEqual(targetGap, 0);
-
-                PartAlgCPLinearExpr objectiveExpr = model().newPartLinearExpr("product_target_objective");
-                objectiveExpr.addExpr(model().sum4Selected("accelerator", "Score", ""), -100);
-                objectiveExpr.addExpr(totalQuantity, 10);
-                model().setObjectExpr(objectiveExpr);
-                updatePriorityObjectFuntion(ruleCode, objectiveExpr);
-                """;
-
-        assertExecutableScenario(
-                methodBody,
+        assertNaturalLanguageTranslatesAndExecutes(
                 context,
                 scenario,
                 metadata,

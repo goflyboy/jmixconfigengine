@@ -27,7 +27,7 @@ final class RuleTransTestFixtures {
 
     static String cpuAtMostOneSnippet() {
         return """
-                @CodeRuleAnno(normalNaturalCode = "CPU at most one", fatherCode = "cpu")
+                @CodeRuleAnno(normalNaturalCode = "cpu 最多只能选择一个部件", fatherCode = "cpu")
                 public void ruleCpuAtMostOne() {
                     model().addLessOrEqual(model().sum4Selected("cpu", "", ""), 1);
                 }
@@ -57,7 +57,7 @@ final class RuleTransTestFixtures {
     static String crossCategorySnippet() {
         return """
                 @CodeRuleAnno(
-                        normalNaturalCode = "4-core CPU cannot use 5400 drive",
+                        normalNaturalCode = "cpu 中属性 CoreNum 为 4 的部件不能和 drive 中属性 Speed 为 5400 的部件同时选择",
                         leftProObjsStr = "cpu:Select",
                         rightProObjsStr = "drive:Select")
                 public void cpu4NotDrive5400() {

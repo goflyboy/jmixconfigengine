@@ -21,10 +21,9 @@ class SelectionRuleTransScenarioTest extends RuleScenarioHarnessSupport {
     void testAtMostOneOnOptionalCategory() {
         RuleContext context = partCategoryContext(SelectionFacts.class, "gpu");
         RuleScenario scenario = RuleScenario.constraint(RuleScope.PART_CATEGORY, RuleFamily.SELECT);
-        RuleMetadata metadata = metadata("ruleGpuAtMostOne", "GPU at most one", "gpu", "");
+        RuleMetadata metadata = metadata("ruleGpuAtMostOne", "gpu 最多只能选择一个部件", "gpu", "");
 
-        assertExecutableScenario(
-                "model().addLessOrEqual(model().sum4Selected(\"gpu\", \"\", \"\"), 1);",
+        assertNaturalLanguageTranslatesAndExecutes(
                 context,
                 scenario,
                 metadata,
@@ -39,10 +38,9 @@ class SelectionRuleTransScenarioTest extends RuleScenarioHarnessSupport {
     void testExactlyOneOnRequiredCategory() {
         RuleContext context = partCategoryContext(SelectionFacts.class, "cpu");
         RuleScenario scenario = RuleScenario.constraint(RuleScope.PART_CATEGORY, RuleFamily.SELECT);
-        RuleMetadata metadata = metadata("ruleCpuExactlyOne", "CPU exactly one", "cpu", "");
+        RuleMetadata metadata = metadata("ruleCpuExactlyOne", "cpu 必须且只能选择一个部件", "cpu", "");
 
-        assertExecutableScenario(
-                "model().addEquality(model().sum4Selected(\"cpu\", \"\", \"\"), 1);",
+        assertNaturalLanguageTranslatesAndExecutes(
                 context,
                 scenario,
                 metadata,

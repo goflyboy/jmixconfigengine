@@ -51,16 +51,25 @@ public interface AlgCPModel {
     AlgCPConstraint addLessOrEqual(AlgCPLinearArgument left, long right);
 
     @SouthApiSince(SouthApiVersion.V1_0)
+    AlgCPConstraint addLessOrEqual(AlgCPLinearArgument left, AlgCPLinearArgument right);
+
+    @SouthApiSince(SouthApiVersion.V1_0)
     AlgCPConstraint addLessOrEqual(AlgCPLinearExpr left, long right);
 
     @SouthApiSince(SouthApiVersion.V1_0)
     AlgCPConstraint addLessThan(AlgCPLinearArgument left, long right);
 
     @SouthApiSince(SouthApiVersion.V1_0)
+    AlgCPConstraint addLessThan(AlgCPLinearArgument left, AlgCPLinearArgument right);
+
+    @SouthApiSince(SouthApiVersion.V1_0)
     AlgCPConstraint addLessThan(AlgCPLinearExpr left, long right);
 
     @SouthApiSince(SouthApiVersion.V1_0)
     AlgCPConstraint addGreaterOrEqual(AlgCPLinearArgument left, long right);
+
+    @SouthApiSince(SouthApiVersion.V1_0)
+    AlgCPConstraint addGreaterOrEqual(AlgCPLinearArgument left, AlgCPLinearArgument right);
 
     @SouthApiSince(SouthApiVersion.V1_0)
     AlgCPConstraint addGreaterOrEqual(AlgCPLinearExpr left, long right);
@@ -70,6 +79,9 @@ public interface AlgCPModel {
 
     @SouthApiSince(SouthApiVersion.V1_0)
     AlgCPConstraint addGreaterThan(AlgCPLinearArgument left, long right);
+
+    @SouthApiSince(SouthApiVersion.V1_0)
+    AlgCPConstraint addGreaterThan(AlgCPLinearArgument left, AlgCPLinearArgument right);
 
     @SouthApiSince(SouthApiVersion.V1_0)
     AlgCPConstraint addGreaterThan(AlgCPLinearExpr left, long right);
