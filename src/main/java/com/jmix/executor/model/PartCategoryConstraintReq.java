@@ -32,12 +32,12 @@ public class PartCategoryConstraintReq extends PartCategoryConstraintReqBase {
             sb.append(partCategoryCode).append(":");
         }
 
-        if (getAttrCode() != null && !getAttrCode().isEmpty()) {
-            sb.append(getAttrCode());
-            if (getAttrComparator() != null && !getAttrComparator().isEmpty()
-                    && getAttrValue() != null && !getAttrValue().isEmpty()) {
-                sb.append(" ").append(getAttrComparator());
-                sb.append(getAttrValue());
+        if (!getEffectiveAggregateConditions().isEmpty()) {
+            for (int i = 0; i < getEffectiveAggregateConditions().size(); i++) {
+                if (i > 0) {
+                    sb.append(" && ");
+                }
+                sb.append(getEffectiveAggregateConditions().get(i).toShortString());
             }
         }
 

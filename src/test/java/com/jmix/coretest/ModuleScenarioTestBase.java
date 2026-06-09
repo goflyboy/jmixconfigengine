@@ -18,6 +18,7 @@ import com.jmix.executor.impl.ModuleConstraintExecutorImpl;
 import com.jmix.executor.impl.SolutionUtils;
 import com.jmix.executor.impl.util.CommHelper;
 import com.jmix.executor.impl.util.ParaTypeHandler;
+import com.jmix.executor.model.AggregateConditionReq;
 import com.jmix.executor.model.AlgLoaderException;
 import com.jmix.executor.model.ConstraintConfig;
 import com.jmix.executor.model.CrossCategoryPartCategoryConstraintReq;
@@ -25,6 +26,7 @@ import com.jmix.executor.model.InferParasReq;
 import com.jmix.executor.model.ModuleValidateReq;
 import com.jmix.executor.model.ModuleValidateResp;
 import com.jmix.executor.model.PartCategoryConstraintReqBase;
+import com.jmix.executor.model.PartConstantAttr;
 import com.jmix.executor.model.PartConstraintReq;
 import com.jmix.executor.model.Result;
 import com.jmix.executor.model.StrategyConfig;
@@ -838,54 +840,108 @@ public abstract class ModuleScenarioTestBase {
      * @param req 部件约束请求对象，用于设置解析结果
      */
     protected void parseAttrExpr(String attrExpr, PartCategoryConstraintReqBase req) {
-        String trimmedExpr = attrExpr.trim();
+        parseAggregateAttrExpr(attrExpr, req);
+    }
 
-        // 处理 where 子句（过滤条件）
-        // 支持多种格式：",where XXX", "where XXX", ", where XXX"
-        int whereIndex = -1;
-        String whereCondition = null;
+    private void parseAggregateAttrExpr(String attrExpr, PartCategoryConstraintReqBase req) {
+        ParsedAttrExpr parsed = splitWhere(attrExpr);
+        if (parsed.whereCondition != null && !parsed.whereCondition.isEmpty()) {
+            req.setAttrWhereCondition(parsed.whereCondition);
+        }
 
-        // 先尝试 " where " (前后都有空格)
-        whereIndex = trimmedExpr.indexOf(" where ");
-        if (whereIndex >= 0) {
-            whereCondition = trimmedExpr.substring(whereIndex + 7).trim();
-            trimmedExpr = trimmedExpr.substring(0, whereIndex).trim();
-        } else {
-            // 再尝试 "where " (前面没有空格)
-            whereIndex = trimmedExpr.indexOf("where ");
-            if (whereIndex >= 0) {
-                whereCondition = trimmedExpr.substring(whereIndex + 6).trim();
-                trimmedExpr = trimmedExpr.substring(0, whereIndex).trim();
+        req.getAggregateConditions().clear();
+        if (parsed.aggregateClause.isEmpty()) {
+            if (parsed.whereCondition != null && !parsed.whereCondition.isEmpty()) {
+                req.addAggregateCondition(defaultQuantityCondition());
             }
-        }
-
-        if (whereCondition != null && !whereCondition.isEmpty()) {
-            req.setAttrWhereCondition(whereCondition);
-        }
-
-        // 解析汇总条件部分
-        if (trimmedExpr.isEmpty()) {
-            // 场景1：仅有过滤条件，没有汇总条件
             return;
         }
 
-        // 使用正则表达式解析：attrCode comparator value
-        Pattern pattern = Pattern.compile("([A-Za-z_][A-Za-z0-9_]*)\\s*(==|!=|<=|>=|<|>)\\s*(\\d+)");
-        Matcher matcher = pattern.matcher(trimmedExpr);
+        if (containsUnsupportedAggregateOperator(parsed.aggregateClause)) {
+            throw new IllegalArgumentException("Invalid aggregate expression format: " + parsed.aggregateClause);
+        }
+        if (hasEmptyAggregatePart(parsed.aggregateClause)) {
+            throw new IllegalArgumentException("Invalid aggregate expression format: " + parsed.aggregateClause);
+        }
 
-        if (matcher.matches()) {
-            String mergedAttrCode = matcher.group(1).trim();
-            String[] mergedParts = mergedAttrCode.split(AttrPara.CODE_SEPARATOR);
-            if (mergedParts.length == 2) {
-                req.setAttrType(AttrParaType.valueOf(mergedParts[0]));
-                req.setAttrCode(mergedParts[1]);
-            } else {
-                throw new IllegalArgumentException("Invalid attribute expression format: " + trimmedExpr);
+        String[] aggregateParts = parsed.aggregateClause.split("\\s*&&\\s*");
+        if (req instanceof CrossCategoryPartCategoryConstraintReq && aggregateParts.length > 1) {
+            throw new IllegalArgumentException("Cross category total request does not support multi aggregate");
+        }
+        for (String aggregatePart : aggregateParts) {
+            String trimmedPart = aggregatePart.trim();
+            if (trimmedPart.isEmpty()) {
+                throw new IllegalArgumentException("Invalid aggregate expression format: " + parsed.aggregateClause);
             }
-            req.setAttrComparator(matcher.group(2).trim());
-            req.setAttrValue(matcher.group(3).trim());
-        } else {
-            throw new IllegalArgumentException("Invalid attribute expression format: " + trimmedExpr);
+            req.addAggregateCondition(parseAggregateCondition(trimmedPart));
+        }
+    }
+
+    private ParsedAttrExpr splitWhere(String attrExpr) {
+        String trimmedExpr = attrExpr == null ? "" : attrExpr.trim();
+        Pattern wherePattern = Pattern.compile("\\bwhere\\b", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = wherePattern.matcher(trimmedExpr);
+        if (!matcher.find()) {
+            return new ParsedAttrExpr(trimmedExpr, null);
+        }
+        int whereStart = matcher.start();
+        int whereEnd = matcher.end();
+        if (matcher.find()) {
+            throw new IllegalArgumentException("Only one where clause is supported: " + attrExpr);
+        }
+        String aggregateClause = trimmedExpr.substring(0, whereStart).trim();
+        String whereCondition = trimmedExpr.substring(whereEnd).trim();
+        return new ParsedAttrExpr(aggregateClause, whereCondition);
+    }
+
+    private boolean containsUnsupportedAggregateOperator(String aggregateClause) {
+        return aggregateClause.contains("||")
+                || Pattern.compile("\\bOR\\b", Pattern.CASE_INSENSITIVE).matcher(aggregateClause).find();
+    }
+
+    private boolean hasEmptyAggregatePart(String aggregateClause) {
+        return Pattern.compile("(^\\s*&&|&&\\s*$|&&\\s*&&)").matcher(aggregateClause).find();
+    }
+
+    private AggregateConditionReq parseAggregateCondition(String aggregateExpr) {
+        Pattern pattern = Pattern.compile("([A-Za-z_][A-Za-z0-9_]*)\\s*(==|!=|<=|>=|<|>)\\s*(\\d+)");
+        Matcher matcher = pattern.matcher(aggregateExpr);
+
+        if (!matcher.matches()) {
+            throw new IllegalArgumentException("Invalid attribute expression format: " + aggregateExpr);
+        }
+        String mergedAttrCode = matcher.group(1).trim();
+        String[] mergedParts = mergedAttrCode.split(AttrPara.CODE_SEPARATOR);
+        if (mergedParts.length != 2) {
+            throw new IllegalArgumentException("Invalid attribute expression format: " + aggregateExpr);
+        }
+        AggregateConditionReq condition = new AggregateConditionReq();
+        condition.setAttrType(AttrParaType.valueOf(mergedParts[0]));
+        condition.setAttrCode(mergedParts[1]);
+        condition.setComparator(matcher.group(2).trim());
+        condition.setAttrValue(matcher.group(3).trim());
+        return condition;
+    }
+
+    private AggregateConditionReq defaultQuantityCondition() {
+        AggregateConditionReq condition = new AggregateConditionReq();
+        condition.setAttrType(AttrParaType.Sum);
+        condition.setAttrCode(PartConstantAttr.Quantity.getCode());
+        condition.setComparator(">=");
+        condition.setAttrValue("1");
+        condition.setDefaulted(true);
+        return condition;
+    }
+
+    private static class ParsedAttrExpr {
+
+        private final String aggregateClause;
+
+        private final String whereCondition;
+
+        ParsedAttrExpr(String aggregateClause, String whereCondition) {
+            this.aggregateClause = aggregateClause == null ? "" : aggregateClause;
+            this.whereCondition = whereCondition;
         }
     }
 

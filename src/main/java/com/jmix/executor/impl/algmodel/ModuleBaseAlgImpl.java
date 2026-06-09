@@ -15,7 +15,9 @@ import com.jmix.executor.bmodel.logic.RuleTypeConstants;
 import com.jmix.executor.bmodel.para.Para;
 import com.jmix.executor.bmodel.para.ParaType;
 import com.jmix.executor.cmodel.ModuleInst;
+import com.jmix.executor.impl.AggregateConditionInput;
 import com.jmix.executor.impl.IModuleInput;
+import com.jmix.executor.impl.PartCategoryInput;
 import com.jmix.executor.impl.PartCategoryInputBase;
 import com.jmix.executor.impl.PriorityConstraint;
 import com.jmix.executor.impl.util.FilterExpressionExecutor;
@@ -154,33 +156,52 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         if (null == partCategoryInput) {
             return;
         }
+        if (isFilterEmptyPartCategoryInput(partCategoryInput)) {
+            log.info("Skip input constraints for empty filtered category: {}",
+                    partCategoryInput.getPartCategoryCode());
+            return;
+        }
         setPartCategoryInputVariales(partCategoryInput);
-        if (Strings.isNotEmpty(partCategoryInput.getComparator())) {
+        if (!partCategoryInput.getEffectiveAggregateConditions().isEmpty()) {
             model.addRuleSeperator("input_constraint_" + partCategoryInput.getPartCategoryCode() + this.getInstId());
             sumFunConstraint(this, partCategoryInput);
         }
     }
 
     protected void setPartCategoryInputVariales(PartCategoryInputBase ipt) {
-        if (!Strings.isNotEmpty(ipt.getSumAttrCode())) {
+        if (ipt.getEffectiveAggregateConditions().isEmpty()) {
             return;
         }
         // 多实例后，不支持这种方式，ontoCode = pt.getFilteredCategory().getCode(); String paraCode =
         // ontoCode + "Sum" + pt.getSumAttrCode();
-        String paraCode = ipt.getAttrType().name() + AttrPara.CODE_SEPARATOR + ipt.getSumAttrCode();
+        for (AggregateConditionInput condition : ipt.getEffectiveAggregateConditions()) {
+            if (!Strings.isNotEmpty(condition.getSumAttrCode())) {
+                continue;
+            }
+            String paraCode = condition.getAttrType().name() + AttrPara.CODE_SEPARATOR
+                    + condition.getSumAttrCode();
 
-        ParaVarImpl pVar = this.getParaVar(paraCode);
-        if (pVar == null) {
-            pVar = newAttrParaVar(paraCode);
-            log.info("Dynamic created para: {}", paraCode);
-        } else {
-            log.info("Para already exists for paraCode: {}, skipping", paraCode);
+            ParaVarImpl pVar = this.getParaVar(paraCode);
+            if (pVar == null) {
+                pVar = newAttrParaVar(paraCode);
+                log.info("Dynamic created para: {}", paraCode);
+            } else {
+                log.info("Para already exists for paraCode: {}, skipping", paraCode);
+            }
+
+            pVar.setInputValue(condition.getLeftValue());
+            pVar.setIsHasInputed(Boolean.TRUE);
+            log.info("Set input variable {} = {}", paraCode, condition.getLeftValue());
         }
 
-        pVar.setInputValue(ipt.getLeftValue());
-        pVar.setIsHasInputed(Boolean.TRUE);
-        log.info("Set input variable {} = {}", paraCode, ipt.getLeftValue());
+    }
 
+    private boolean isFilterEmptyPartCategoryInput(PartCategoryInputBase partCategoryInput) {
+        if (!(partCategoryInput instanceof PartCategoryInput input)) {
+            return false;
+        }
+        return input.getFilteredCategory() != null
+                && input.getFilteredCategory().getAllAtomicParts().isEmpty();
     }
 
     /**

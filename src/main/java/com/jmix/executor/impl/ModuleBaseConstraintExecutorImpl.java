@@ -1,5 +1,6 @@
 package com.jmix.executor.impl;
 
+import com.jmix.executor.bmodel.AttrParaType;
 import com.jmix.executor.bmodel.IModule;
 import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.PartCategory;
@@ -9,6 +10,7 @@ import com.jmix.executor.cmodel.SolverResult;
 import com.jmix.executor.impl.algmodel.AlgCPModel;
 import com.jmix.executor.impl.algmodel.ModuleAlgImpl;
 import com.jmix.executor.impl.algmodel.PartAlgCPLinearExpr;
+import com.jmix.executor.model.AggregateConditionReq;
 import com.jmix.executor.model.ConstraintConfig;
 import com.jmix.executor.model.InferPartCategoryReq;
 import com.jmix.executor.model.PartConstraintReq;
@@ -285,13 +287,31 @@ public abstract class ModuleBaseConstraintExecutorImpl {
      */
     public static void setPartCategoryInputBase(PartCategoryInputBase partCategoryInput,
             PartConstraintReq partConstraintReq) {
-        partCategoryInput.setSumAttrCode(partConstraintReq.getAttrCode());
-        partCategoryInput.setAttrType(partConstraintReq.getAttrType());
-        partCategoryInput.setComparator(partConstraintReq.getAttrComparator());
-        if (partConstraintReq.getAttrComparator() != null) {
-            partCategoryInput.setLeftValue(Integer.parseInt(partConstraintReq.getAttrValue()));
+        partCategoryInput.getAggregateConditions().clear();
+        List<AggregateConditionReq> conditions = partConstraintReq.getEffectiveAggregateConditions();
+        validateAggregateConditions(conditions);
+        for (AggregateConditionReq conditionReq : conditions) {
+            AggregateConditionInput conditionInput = new AggregateConditionInput();
+            conditionInput.setAttrType(conditionReq.getAttrType());
+            conditionInput.setSumAttrCode(conditionReq.getAttrCode());
+            conditionInput.setComparator(conditionReq.getComparator());
+            conditionInput.setLeftValue(Integer.parseInt(conditionReq.getAttrValue()));
+            conditionInput.setDefaulted(conditionReq.isDefaulted());
+            partCategoryInput.addAggregateCondition(conditionInput);
         }
         partCategoryInput.setOrgReq(partConstraintReq);
+    }
+
+    private static void validateAggregateConditions(List<AggregateConditionReq> conditions) {
+        if (conditions == null || conditions.size() <= 1) {
+            return;
+        }
+        boolean containsSumSum = conditions.stream()
+                .anyMatch(condition -> condition.getAttrType() == AttrParaType.SumSum);
+        if (containsSumSum) {
+            throw new IllegalArgumentException(
+                    "Multi aggregate IEQ cannot mix or contain SumSum aggregate conditions");
+        }
     }
 
     /**
