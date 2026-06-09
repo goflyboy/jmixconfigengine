@@ -26,7 +26,7 @@ public class Chapter3IllustrationTest {
 
     private static final String ASSETS_DIR = "persum/assets/chapter3/";
 
-    private static final String API_KEY = "sk-4552f3b96e14a7eeba207a41659b258c74961fd15e77683c9ddfec5954ef8f29";
+    private static final String API_KEY = "";
     private static final String BASE_URL = "https://code.codingplay.top";
 
     @Test

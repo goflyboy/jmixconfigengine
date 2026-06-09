@@ -26,6 +26,7 @@ import com.jmix.executor.impl.util.ModuleUtils;
 import com.jmix.executor.impl.util.ReqUtils;
 import com.jmix.executor.model.AlgExecutorException;
 import com.jmix.executor.model.AlgLoaderException;
+import com.jmix.executor.model.AggregateConditionReq;
 import com.jmix.executor.model.ConstraintConfig;
 import com.jmix.executor.model.CrossCategoryPartCategoryConstraintReq;
 import com.jmix.executor.model.InferParasReq;
@@ -405,18 +406,26 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
     }
 
     private static void forcePresentOptionalInput(PartCategoryInputBase input) {
-        input.setAttrType(AttrParaType.Sum);
-        input.setSumAttrCode(PartConstantAttr.Quantity.getCode());
-        input.setComparator(">=");
-        input.setLeftValue(1);
+        AggregateConditionInput condition = new AggregateConditionInput();
+        condition.setAttrType(AttrParaType.Sum);
+        condition.setSumAttrCode(PartConstantAttr.Quantity.getCode());
+        condition.setComparator(">=");
+        condition.setLeftValue(1);
+        condition.setDefaulted(true);
+        input.getAggregateConditions().clear();
+        input.addAggregateCondition(condition);
     }
 
     private static boolean isMentionOnlyOptionalReq(PartConstraintReq req) {
         if (req == null) {
             return false;
         }
-        return Strings.isNullOrEmpty(req.getAttrCode())
+        boolean noAggregateFields = Strings.isNullOrEmpty(req.getAttrCode())
                 && Strings.isNullOrEmpty(req.getAttrComparator())
+                && (req.getAggregateConditions() == null || req.getAggregateConditions().isEmpty());
+        boolean defaultWhereOnlyAggregate = req.getEffectiveAggregateConditions().size() == 1
+                && req.getEffectiveAggregateConditions().get(0).isDefaulted();
+        return (noAggregateFields || defaultWhereOnlyAggregate)
                 && (!Strings.isNullOrEmpty(req.getAttrWhereCondition())
                         || (req.getDecisionStrategies() != null && !req.getDecisionStrategies().isEmpty()));
     }
@@ -1106,6 +1115,15 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
         result.setAttrComparator(req.getAttrComparator());
         result.setAttrValue(req.getAttrValue());
         result.setAttrWhereCondition(req.getAttrWhereCondition());
+        for (AggregateConditionReq condition : req.getEffectiveAggregateConditions()) {
+            AggregateConditionReq copy = new AggregateConditionReq();
+            copy.setAttrType(condition.getAttrType());
+            copy.setAttrCode(condition.getAttrCode());
+            copy.setComparator(condition.getComparator());
+            copy.setAttrValue(condition.getAttrValue());
+            copy.setDefaulted(condition.isDefaulted());
+            result.addAggregateCondition(copy);
+        }
         result.setDecisionStrategies(req.getDecisionStrategies());
         return result;
     }
