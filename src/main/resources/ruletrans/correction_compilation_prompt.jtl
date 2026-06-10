@@ -1,123 +1,118 @@
-The previous generated Java rule method body failed to compile.
+上一版生成的 Java 规则方法体编译失败。
 
-Natural-language rule:
+自然语言规则：
 ${naturalLanguage}
 
-Context:
+上下文：
 ${contextSummary}
 
-Context JSON:
+上下文 JSON：
 ${contextJson}
 
-SDK profile:
+SDK profile：
 ${sdkProfile}
 
-Allowed SDK APIs:
+允许使用的 SDK API：
 ${allowedSdkApis}
 
-Forbidden SDK APIs:
+禁止使用的 SDK API：
 ${forbiddenSdkApis}
 
-Previous method body:
+上一版方法体：
 ${previousMethodBody}
 
-Compiler errors:
+编译错误：
 ${compilerErrors}
 
-Diagnostics:
+诊断信息：
 ${diagnostics}
 
-Return only the corrected Java rule method body.
-Keep the intended business semantics unchanged and fix syntax, type, or facade API usage errors.
-Do not include package, imports, class declarations, annotations, method declarations,
-markdown, or explanations.
+只返回修正后的 Java 规则方法体。
+保持原业务语义不变，只修复语法、类型或 facade API 用法错误。
+不要包含 package、import、class 声明、注解、方法声明、Markdown 或解释说明。
 
-Use only APIs that compile in ModuleAlgBase and match the SDK profile.
+只使用能在 ModuleAlgBase 中编译通过且匹配 SDK profile 的 API。
 
-When SDK profile is POST:
-- Use POST instance-view APIs only: currentInst(), parameter(code), part(code),
-  partCategory(code), partCategorySum(code), value(), setValue(...), dynAttr(...),
-  setDynAttr(...), sumQuantity(), and sumDynAttr4Int(...).
-- For numeric writeback to parameters, wrap numeric values with String.valueOf(...).
-- For category-scoped parameter writeback, use partCategory("categoryCode").parameter("paraCode").setValue(...).
-- For category-scoped part writeback, use partCategory("categoryCode").part("partCode").setQuantity(...)
-  or partCategory("categoryCode").part("partCode").setDynAttr(...).
-- Use partCategory("categoryCode").sumQuantity() for category quantity totals.
-- Use partCategorySum("categoryCode") only for dynamic-attribute aggregation such as
-  sumDynAttr4Int("attrCode"), dynAttr("attrCode"), or dynAttrs("attrCode").
-  Do not call partCategorySum("categoryCode").sumQuantity() or .quantity().
-- Do not use constraint-model APIs such as model(), para(...), partVar(...),
-  partCategoryVar(...), onlyEnforceIf(...), addLessOrEqual(...), inCompatible(...),
-  addCompatibleConstraint..., or updatePriorityObjectFuntion(...).
+当 SDK profile 为 POST：
+- 只使用 POST 实例视图 API：currentInst()、parameter(code)、part(code)、
+  partCategory(code)、partCategorySum(code)、value()、setValue(...)、dynAttr(...)、
+  setDynAttr(...)、sumQuantity() 和 sumDynAttr4Int(...)。
+- 数值写回参数时，使用 String.valueOf(...) 包装数值。
+- 分类作用域内的参数写回，使用 partCategory("categoryCode").parameter("paraCode").setValue(...)。
+- 分类作用域内的部件写回，使用 partCategory("categoryCode").part("partCode").setQuantity(...)
+  或 partCategory("categoryCode").part("partCode").setDynAttr(...)。
+- 分类数量总和使用 partCategory("categoryCode").sumQuantity()。
+- partCategorySum("categoryCode") 只用于动态属性聚合，例如
+  sumDynAttr4Int("attrCode")、dynAttr("attrCode") 或 dynAttrs("attrCode")。
+  不要调用 partCategorySum("categoryCode").sumQuantity() 或 .quantity()。
+- 不要使用约束模型 API，例如 model()、para(...)、partVar(...)、
+  partCategoryVar(...)、onlyEnforceIf(...)、addLessOrEqual(...)、inCompatible(...)、
+  addCompatibleConstraint... 或 updatePriorityObjectFuntion(...)。
 
-When SDK profile is CONSTRAINT:
-- Category counts: model().sum4Selected("categoryCode", "", "optional Attr=value filter").
-- Category quantities: model().sum4Quantity("categoryCode", "", "optional Attr=value filter").
-- Aggregate weighted dynamic-attribute totals:
-  model().sum4Quantity("categoryCodeOrCommaSeparatedCodes", "attrCode", "optional Attr=value filter").
-- The attrCode argument is a numeric weighting attribute, not a filter attribute. For selected-count rules,
-  use attrCode "" and put attribute predicates in the filter condition. For total part quantity rules,
-  also use attrCode "" unless the rule says weighted by a numeric dynamic attribute.
-- Cross-category aggregate totals use comma-separated category codes in the first argument.
-- Module-level aggregate totals over all instances of a multi-instance category use categoryCode* in the
-  first argument.
-- Do not add * only because a category supports multi-instance; use * only when the natural language explicitly
-  asks for all instances of that category.
-- Do not mix * and comma-separated categories in one aggregate call, such as "disk*,mainBoard".
-  If a true rule needs all instances of one category plus another category, build separate aggregate
-  expressions and combine them with model().newPartLinearExpr(...).addExpr(...).
-- Part-category rules, including effectScope=AllInst rules, should use two-argument overloads such as
-  model().sum4Quantity("attrCode", "filter") and model().sum4Selected("attrCode", "filter") for that
-  category context.
-- Do not enumerate atomic parts with partVar(...).quantityVar() to build aggregate or weighted totals.
-- In filter conditions, use dynamic attribute values from context dynAttr or option codeValue, not option codes.
-- Filter conditions are rule-engine strings such as Attr=value or Attr>=number; do not use Java == and do
-  not quote string values inside the filter.
-- Numeric constraints: model().addLessOrEqual(...), model().addGreaterOrEqual(...),
-  or model().addEquality(...).
-- Parameter compatibility: addCompatibleConstraintRequires(ruleCode, leftPara, listOf("leftOption"),
-  rightPara, listOf("rightOption")), addCompatibleConstraintInCompatible(...),
-  or addCompatibleConstraintCoDependent(...).
-- Direct expressions: para("p1").valueVar(), para("p1").option("optionCode").selectedVar(),
-  partVar("part1").quantityVar(), partVar("part1").hiddenVar(), model().newBoolVar(...),
-  and onlyEnforceIf(...).
-- Linear expression terms: AlgCPLinearExpr.addTerm and PartAlgCPLinearExpr.addTerm use
-  addTerm(variable, coefficient), such as expr.addTerm(para("p1").valueVar(), 1). Do not reverse
-  the arguments.
-- To combine aggregate PartAlgCPLinearExpr values such as model().sum4Quantity(...) or
-  model().sum4Selected(...), use compositeExpr.addExpr(aggregateExpr, coefficient).
-  Do not pass aggregate expressions to addTerm(...).
-- PartAlgCPLinearExpr is also a linear expression. It can be used in numeric constraints such as
-  model().addGreaterOrEqual(totalExpr, 0), model().addLessOrEqual(totalExpr, limit), or
-  model().addGreaterOrEqual(totalExpr, para("p1").valueVar()). When comparing an aggregate expression
-  with a parameter, use para("p1").valueVar(), not the ParaVar itself.
-- model().addBoolAnd and model().addBoolOr accept exactly one AlgCPLiteral[] argument.
-  To bind a BoolVar to a conjunction, use model().addBoolAnd(new AlgCPLiteral[] {a, b}).onlyEnforceIf(cond)
-  and model().addBoolOr(new AlgCPLiteral[] {a.not(), b.not()}).onlyEnforceIf(cond.not()).
-  To bind a BoolVar to a disjunction, use model().addBoolOr(new AlgCPLiteral[] {a, b}).onlyEnforceIf(cond)
-  and model().addBoolAnd(new AlgCPLiteral[] {a.not(), b.not()}).onlyEnforceIf(cond.not()).
-  Do not call model().addBoolAnd(cond, a, b) or model().addBoolOr(cond, a, b).
-- model().addEquality(...), model().addDifferent(...), model().addLessOrEqual(...),
-  model().addGreaterOrEqual(...), and similar numeric APIs return AlgCPConstraint, not AlgCPLiteral.
-  Never put those calls inside AlgCPLiteral[] and never pass them to model().addImplication(...).
-- To use a numeric predicate as a boolean literal, first create an AlgCPBoolVar and bind both directions:
+当 SDK profile 为 CONSTRAINT：
+- 分类选中个数：model().sum4Selected("categoryCode", "", "optional Attr=value filter")。
+- 分类数量总和：model().sum4Quantity("categoryCode", "", "optional Attr=value filter")。
+- 按动态属性加权的聚合总量：
+  model().sum4Quantity("categoryCodeOrCommaSeparatedCodes", "attrCode", "optional Attr=value filter")。
+- attrCode 参数表示数值型加权属性，不是过滤属性。对 selected-count 规则，
+  attrCode 使用 ""，属性谓词放在 filter condition 中。对部件总数量规则也使用 attrCode ""，
+  除非规则明确要求按数值动态属性加权。
+- 跨分类聚合总量在第一个参数中使用逗号分隔的 category code。
+- 模块级多实例分类的全部实例聚合总量，在第一个参数中使用 categoryCode*。
+- 不要因为分类支持多实例就自动添加 *；只有自然语言明确要求该分类的全部实例时才使用 *。
+- 不要在一次聚合调用中混用 * 和逗号分隔分类，例如 "disk*,mainBoard"。
+  如果真实规则需要“某分类全部实例 + 另一个分类”，应分别构建聚合表达式，再用
+  model().newPartLinearExpr(...).addExpr(...) 组合。
+- part-category 规则，包括 effectScope=AllInst 规则，应使用当前分类上下文的双参数 overload，
+  例如 model().sum4Quantity("attrCode", "filter") 和 model().sum4Selected("attrCode", "filter")。
+- 不要枚举原子部件并用 partVar(...).quantityVar() 构建聚合或加权总量。
+- 在 filter condition 中使用上下文 dynAttr 中的动态属性值，或 option 的 codeValue，不要使用 option code。
+- filter condition 是规则引擎字符串，例如 Attr=value 或 Attr>=number；不要使用 Java ==，
+  也不要给字符串值额外加引号。
+- 数值约束：model().addLessOrEqual(...)、model().addGreaterOrEqual(...)
+  或 model().addEquality(...)。
+- 参数兼容：addCompatibleConstraintRequires(ruleCode, leftPara, listOf("leftOption"),
+  rightPara, listOf("rightOption"))、addCompatibleConstraintInCompatible(...)
+  或 addCompatibleConstraintCoDependent(...)。
+- 直接表达式：para("p1").valueVar()、para("p1").option("optionCode").selectedVar()、
+  partVar("part1").quantityVar()、partVar("part1").hiddenVar()、model().newBoolVar(...)
+  和 onlyEnforceIf(...)。
+- 线性表达式项：AlgCPLinearExpr.addTerm 和 PartAlgCPLinearExpr.addTerm 的参数顺序是
+  addTerm(variable, coefficient)，例如 expr.addTerm(para("p1").valueVar(), 1)。不要反转
+  参数顺序。
+- 组合 model().sum4Quantity(...) 或 model().sum4Selected(...) 这类聚合 PartAlgCPLinearExpr 时，
+  使用 compositeExpr.addExpr(aggregateExpr, coefficient)。
+  不要把聚合表达式传给 addTerm(...)。
+- PartAlgCPLinearExpr 也是线性表达式。它可用于数值约束，例如
+  model().addGreaterOrEqual(totalExpr, 0)、model().addLessOrEqual(totalExpr, limit)，或
+  model().addGreaterOrEqual(totalExpr, para("p1").valueVar())。当聚合表达式与参数比较时，
+  使用 para("p1").valueVar()，不要直接使用 ParaVar。
+- model().addBoolAnd 和 model().addBoolOr 只接受一个 AlgCPLiteral[] 参数。
+  绑定 BoolVar 到 conjunction 时，使用 model().addBoolAnd(new AlgCPLiteral[] {a, b}).onlyEnforceIf(cond)
+  以及 model().addBoolOr(new AlgCPLiteral[] {a.not(), b.not()}).onlyEnforceIf(cond.not())。
+  绑定 BoolVar 到 disjunction 时，使用 model().addBoolOr(new AlgCPLiteral[] {a, b}).onlyEnforceIf(cond)
+  以及 model().addBoolAnd(new AlgCPLiteral[] {a.not(), b.not()}).onlyEnforceIf(cond.not())。
+  不要调用 model().addBoolAnd(cond, a, b) 或 model().addBoolOr(cond, a, b)。
+- model().addEquality(...)、model().addDifferent(...)、model().addLessOrEqual(...)、
+  model().addGreaterOrEqual(...) 以及类似数值 API 返回 AlgCPConstraint，不是 AlgCPLiteral。
+  不要把这些调用放入 AlgCPLiteral[]，也不要传给 model().addImplication(...)。
+- 如需把数值谓词作为布尔 literal 使用，先创建 AlgCPBoolVar，并双向绑定：
   model().addEquality(expr, value).onlyEnforceIf(eqVar);
   model().addDifferent(expr, value).onlyEnforceIf(eqVar.not());
-- model().addImplication(left, right) accepts AlgCPLiteral arguments only, such as BoolVar,
-  hiddenVar(), option(...).selectedVar(), or their .not() forms.
-- Hidden helper signature: use addVarAboutHiddenConstraints(para("p1"), para("p2")) for ParaVar values
-  or addVarAboutHiddenConstraints(partVar("part1"), partVar("part2")) for PartVar values. It is a direct
-  ModuleAlgBase method, not a model() method. Do not pass ruleCode, hiddenVar(), valueVar(), or BoolVar.
-- If a rule can hide a parameter or part, call addVarAboutHiddenConstraints(...) for every parameter
-  or part whose hiddenVar() is controlled by the rule. Without this registration, the engine adds
-  default visible constraints and hidden solutions can become impossible.
-- Priority constraints should be normal numeric constraints. Build a separate PartAlgCPLinearExpr for
-  the objective, use model().newPartLinearExpr("name"), addExpr(...) for aggregate expressions,
-  model().setObjectExpr(expr), and
-  updatePriorityObjectFuntion(ruleCode, expr).
-- Incompatibility: inCompatible(ruleCode, "category:Attr=value", "category:Attr=value").
-Do not use partCategoryVar(...).count(), totalQuantityVariable(), selectedCount(),
-model().addConstraint(...), addCompatibleConstraintInCompatible(partVar(...), partVar(...)),
-inCompatible(partVar(...), partVar(...)), aggregate expressions built by enumerating partVar(...),
-or POST instance-view APIs such as parameter(...).setValue(...), partCategorySum(...),
-part(...), or partCategory(...).
+- model().addImplication(left, right) 只接受 AlgCPLiteral 参数，例如 BoolVar、
+  hiddenVar()、option(...).selectedVar() 或它们的 .not() 形式。
+- 隐藏辅助方法签名：隐藏 ParaVar 值使用 addVarAboutHiddenConstraints(para("p1"), para("p2"))，
+  隐藏 PartVar 值使用 addVarAboutHiddenConstraints(partVar("part1"), partVar("part2"))。
+  它是 ModuleAlgBase 的直接方法，不是 model() 方法。不要传入 ruleCode、hiddenVar()、
+  valueVar() 或 BoolVar。
+- 如果规则可能隐藏某个参数或部件，必须对每个 hiddenVar() 被规则控制的参数或部件调用
+  addVarAboutHiddenConstraints(...)。否则引擎会添加默认可见约束，隐藏解可能变得不可行。
+- 优先级约束应先生成普通数值约束。然后单独构建目标 PartAlgCPLinearExpr，
+  使用 model().newPartLinearExpr("name")、addExpr(...) 组合聚合表达式、
+  model().setObjectExpr(expr)，并调用 updatePriorityObjectFuntion(ruleCode, expr)。
+- 不兼容：inCompatible(ruleCode, "category:Attr=value", "category:Attr=value")。
+不要使用 partCategoryVar(...).count()、totalQuantityVariable()、selectedCount()、
+model().addConstraint(...)、addCompatibleConstraintInCompatible(partVar(...), partVar(...))、
+inCompatible(partVar(...), partVar(...))、通过枚举 partVar(...) 构建的聚合表达式，
+或 POST 实例视图 API，例如 parameter(...).setValue(...)、partCategorySum(...)、
+part(...) 或 partCategory(...)。

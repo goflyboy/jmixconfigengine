@@ -187,14 +187,16 @@ public final class RuleTransEngine {
                     promptBuilder.buildCompilationCorrectionPrompt(
                             naturalLanguage, context, scenario, previousMethodBody, lastCompilation),
                     scenario.sdkProfile(),
-                    context);
+                    context,
+                    naturalLanguage);
         }
         if (lastTestResult != null && !lastTestResult.success()) {
             return generator.generateMethodBodyFromPrompt(
                     promptBuilder.buildTestCorrectionPrompt(
                             naturalLanguage, context, scenario, previousMethodBody, lastTestResult.failedCases()),
                     scenario.sdkProfile(),
-                    context);
+                    context,
+                    naturalLanguage);
         }
         return generator.generateMethodBody(naturalLanguage, context, scenario);
     }

@@ -1,14 +1,19 @@
-Natural-language module-level rule:
+模块级自然语言规则：
 ${naturalLanguage}
 
-Module code:
+模块 code：
 ${moduleCode}
 
-Available PartCategory list:
+可用的 PartCategory 列表：
 ${availableCategories}
 
-Identify the PartCategory codes involved in the rule.
-Return only a JSON string array, for example:
+请识别这条规则涉及的 PartCategory code。
+要求：
+- 只返回 JSON 字符串数组，不要返回解释、Markdown 或其他文本。
+- 数组元素必须来自上面的 PartCategory code，保持原始大小写和英文缩写，不要翻译、不要改写。
+- 可以根据中文名称、英文名称、属性 code、属性值或自然语言同义表达来判断分类，但返回值只能是 code。
+
+返回示例：
 ["cpu","drive"]
 
-Return [] if no category can be identified.
+如果无法识别任何分类，返回 []。

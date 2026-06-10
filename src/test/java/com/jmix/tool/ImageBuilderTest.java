@@ -1,6 +1,8 @@
 package com.jmix.tool;
 
 import lombok.extern.slf4j.Slf4j;
+
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -40,6 +42,7 @@ public class ImageBuilderTest {
     }
 
     @Test
+    @Disabled
     void generateAllImages() throws Exception {
         // 硬编码测试用 API Key
         String apiKey = "";

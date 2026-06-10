@@ -10,6 +10,7 @@ import com.jmix.ruletrans.sdk.SdkProfile;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -60,9 +61,18 @@ public final class RuleSnippetPostProcessor {
     }
 
     public String processMethodBody(String rawResponse, SdkProfile sdkProfile, RuleContext context) {
+        return processMethodBody(rawResponse, sdkProfile, context, null);
+    }
+
+    public String processMethodBody(
+            String rawResponse,
+            SdkProfile sdkProfile,
+            RuleContext context,
+            String naturalLanguage) {
         String methodBody = extractCode(rawResponse);
         methodBody = normalizeAggregateAddTermUsage(methodBody);
         methodBody = normalizePartCategoryAggregateOverloads(methodBody, context);
+        methodBody = normalizeSelectedCountAggregates(methodBody, naturalLanguage);
         methodBody = normalizeInputParameterValueVars(methodBody, context);
         methodBody = normalizeFilterLiteralSyntax(methodBody);
         methodBody = normalizeMethodBody(methodBody);
@@ -210,6 +220,79 @@ public final class RuleSnippetPostProcessor {
             index = closeParen + 1;
         }
         return normalized.toString();
+    }
+
+    private String normalizeSelectedCountAggregates(String methodBody, String naturalLanguage) {
+        if (methodBody == null || methodBody.isEmpty() || !looksLikeSelectedCountRule(naturalLanguage)) {
+            return methodBody;
+        }
+        StringBuilder normalized = new StringBuilder(methodBody.length());
+        int index = 0;
+        while (index < methodBody.length()) {
+            int callStart = nextAggregateCall(methodBody, index);
+            if (callStart < 0) {
+                normalized.append(methodBody, index, methodBody.length());
+                break;
+            }
+            int openParen = methodBody.indexOf('(', callStart);
+            int closeParen = findMatchingParen(methodBody, openParen);
+            if (closeParen < 0) {
+                normalized.append(methodBody, index, methodBody.length());
+                break;
+            }
+
+            List<String> args = splitTopLevelArguments(methodBody.substring(openParen + 1, closeParen));
+            boolean unweightedQuantityCount = methodBody.startsWith("sum4Quantity", callStart)
+                    && isUnweightedAggregate(args);
+            normalized.append(methodBody, index, callStart);
+            if (unweightedQuantityCount) {
+                normalized.append("sum4Selected")
+                        .append(methodBody, callStart + "sum4Quantity".length(), closeParen + 1);
+            } else {
+                normalized.append(methodBody, callStart, closeParen + 1);
+            }
+            index = closeParen + 1;
+        }
+        return normalized.toString();
+    }
+
+    private boolean looksLikeSelectedCountRule(String naturalLanguage) {
+        if (naturalLanguage == null || naturalLanguage.isBlank()) {
+            return false;
+        }
+        String text = naturalLanguage.toLowerCase(Locale.ROOT);
+        if (containsAny(text, "总数量", "总数", "数量", "件数", "用量", "总和", "合计",
+                "加权", "按属性", "quantity", "qty", "weighted", "sum")) {
+            return false;
+        }
+        return containsAny(text, "选择", "选中", "配置", "选配", "select", "choose")
+                && containsAny(text, "最多", "至多", "至少", "不少于", "不超过", "恰好", "正好",
+                "必须且只能", "只能", "at most", "at least", "exactly");
+    }
+
+    private boolean containsAny(String text, String... tokens) {
+        for (String token : tokens) {
+            if (text.contains(token)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isUnweightedAggregate(List<String> args) {
+        if (args.size() == 3) {
+            String attrCode = stringLiteralValue(args.get(1));
+            return attrCode != null && attrCode.isEmpty();
+        }
+        if (args.size() == 2) {
+            String attrCode = stringLiteralValue(args.get(0));
+            return attrCode != null && attrCode.isEmpty();
+        }
+        if (args.size() == 1) {
+            String value = stringLiteralValue(args.get(0));
+            return value != null && (value.isEmpty() || looksLikeFilterCondition(value));
+        }
+        return false;
     }
 
     private String normalizeInputParameterValueVars(String methodBody, RuleContext context) {

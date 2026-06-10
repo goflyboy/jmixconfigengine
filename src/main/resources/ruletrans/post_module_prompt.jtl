@@ -1,4 +1,4 @@
-分类级 POST 自然语言规则：
+模块级 POST 自然语言规则：
 ${naturalLanguage}
 
 上下文：
@@ -7,7 +7,7 @@ ${contextSummary}
 目标分类 code：
 ${targetCategories}
 
-PartCategory JSON：
+模块上下文 JSON：
 ${contextJson}
 
 SDK profile：
@@ -41,6 +41,6 @@ ${forbiddenSdkApis}
 
 有效示例：
 int sum = partCategorySum("drive").sumDynAttr4Int("Capacity");
-partCategory("drive").parameter("pSumCapacity").setValue(String.valueOf(sum));
+parameter("pDriveSumCapacity").setValue(String.valueOf(sum));
 int qty = partCategory("drive").sumQuantity();
 parameter("pDriveQuantity").setValue(String.valueOf(qty));

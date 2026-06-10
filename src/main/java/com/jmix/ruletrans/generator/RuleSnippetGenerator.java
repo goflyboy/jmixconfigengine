@@ -34,7 +34,7 @@ public final class RuleSnippetGenerator {
     public String generateMethodBody(String naturalLanguage, RuleContext context, RuleScenario scenario) {
         String prompt = promptBuilder.buildGeneratePrompt(naturalLanguage, context, scenario);
         SdkProfile sdkProfile = sdkProfile(scenario);
-        return generateMethodBodyFromPrompt(prompt, sdkProfile, context);
+        return generateMethodBodyFromPrompt(prompt, sdkProfile, context, naturalLanguage);
     }
 
     public String generateFromPrompt(String prompt) {
@@ -46,6 +46,14 @@ public final class RuleSnippetGenerator {
     }
 
     public String generateMethodBodyFromPrompt(String prompt, SdkProfile sdkProfile, RuleContext context) {
+        return generateMethodBodyFromPrompt(prompt, sdkProfile, context, null);
+    }
+
+    public String generateMethodBodyFromPrompt(
+            String prompt,
+            SdkProfile sdkProfile,
+            RuleContext context,
+            String naturalLanguage) {
         Exception lastFailure = null;
         for (int attempt = 1; attempt <= LLM_GENERATION_ATTEMPTS; attempt++) {
             try {
@@ -53,7 +61,7 @@ public final class RuleSnippetGenerator {
                 if (response == null || response.isBlank()) {
                     throw new RuleTransException("LLM returned empty response");
                 }
-                return postProcessor.processMethodBody(response, sdkProfile, context);
+                return postProcessor.processMethodBody(response, sdkProfile, context, naturalLanguage);
             } catch (Exception e) {
                 lastFailure = e;
             }

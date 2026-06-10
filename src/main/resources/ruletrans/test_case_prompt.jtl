@@ -1,17 +1,17 @@
-Natural-language rule:
+自然语言规则：
 ${naturalLanguage}
 
-Context:
+上下文：
 ${contextSummary}
 
-Context JSON:
+上下文 JSON：
 ${contextJson}
 
-Generated rule method body:
+已生成的规则方法体：
 ${methodBody}
 
-Generate structured test cases for validating this rule.
-Return concise JSON only, matching this schema:
+请生成用于验证该规则的结构化测试用例。
+只返回简洁 JSON，并匹配以下 schema：
 {
   "ruleMethod": "optional method name",
   "cases": [
@@ -31,11 +31,10 @@ Return concise JSON only, matching this schema:
   ]
 }
 
-Use validate cases for selected part combinations and recommend cases for inference paths.
-For ordinary rule validation, prefer validate cases.
-In validate cases, selectedParts is a set of distinct selected atomic part codes.
-Do not repeat a part code to represent quantity.
-Only generate recommend cases when the natural-language rule explicitly asks for recommendation,
-inference, solving, or no-solution behavior.
-For recommend cases, expectedResult must be only "NO_SOLUTION" or "HAS_SOLUTION".
-Do not put concrete part codes, solution lists, or free-form text in expectedResult.
+selected part 组合校验使用 validate case；推理/求解路径使用 recommend case。
+普通规则校验优先生成 validate case。
+在 validate case 中，selectedParts 是一组互不重复的已选原子部件 code。
+不要重复某个 part code 来表达数量。
+只有当自然语言规则明确要求推荐、推理、求解或无解行为时，才生成 recommend case。
+对 recommend case，expectedResult 只能是 "NO_SOLUTION" 或 "HAS_SOLUTION"。
+不要在 expectedResult 中放入具体部件 code、解列表或自由文本。

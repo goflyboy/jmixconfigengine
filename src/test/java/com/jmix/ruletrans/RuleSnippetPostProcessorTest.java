@@ -202,6 +202,32 @@ public class RuleSnippetPostProcessorTest {
                 methodBody);
     }
 
+    @Test
+    public void testNormalizesUnweightedQuantityAggregateForSelectionCountRule() {
+        RuleSnippetPostProcessor processor = new RuleSnippetPostProcessor();
+
+        String methodBody = processor.processMethodBody("""
+                model().addLessOrEqual(model().sum4Quantity("cpu", "", ""), 1);
+                """, SdkProfile.CONSTRAINT,
+                RuleContextFactory.partCategory(RuleTransTestFixtures.sampleModule(), "cpu"),
+                "cpu 最多只能选择一个部件");
+
+        assertEquals("model().addLessOrEqual(model().sum4Selected(\"\", \"\"), 1);", methodBody);
+    }
+
+    @Test
+    public void testKeepsQuantityAggregateForExplicitTotalQuantityRule() {
+        RuleSnippetPostProcessor processor = new RuleSnippetPostProcessor();
+
+        String methodBody = processor.processMethodBody("""
+                model().addLessOrEqual(model().sum4Quantity("cpu", "", ""), 1);
+                """, SdkProfile.CONSTRAINT,
+                RuleContextFactory.partCategory(RuleTransTestFixtures.sampleModule(), "cpu"),
+                "cpu 的总数量最多为 1");
+
+        assertEquals("model().addLessOrEqual(model().sum4Quantity(\"\", \"\"), 1);", methodBody);
+    }
+
     @ModuleAnno(id = 811113L)
     public static class InputParameterAggregateFacts extends ModuleAlgBase {
 

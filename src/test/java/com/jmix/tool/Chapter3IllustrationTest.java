@@ -1,6 +1,8 @@
 package com.jmix.tool;
 
 import lombok.extern.slf4j.Slf4j;
+
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -30,6 +32,7 @@ public class Chapter3IllustrationTest {
     private static final String BASE_URL = "https://code.codingplay.top";
 
     @Test
+    @Disabled
     void generateAllChapter3Images() throws Exception {
         Files.createDirectories(Paths.get(ASSETS_DIR));
 
