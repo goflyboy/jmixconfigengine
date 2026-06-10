@@ -7,6 +7,7 @@ import com.jmix.executor.bmodel.Part;
 import com.jmix.executor.bmodel.base.Pair;
 import com.jmix.executor.bmodel.logic.CalcStage;
 import com.jmix.executor.cmodel.ModuleInst;
+import com.jmix.executor.impl.AggregateConditionInput;
 import com.jmix.executor.impl.IModuleInput;
 import com.jmix.executor.impl.MultiInstPartCategoryInput;
 import com.jmix.executor.impl.PartCategoryInput;
@@ -31,7 +32,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements PartCategoryAlgImpl {
 
-    private Map<String, Pair<PartCategoryInput, SingleInstPartCategoryAlgImpl>> partCategoryAlgs = new LinkedHashMap<>();
+    private Map<String, Pair<PartCategoryInput, SingleInstPartCategoryAlgImpl>> partCategoryAlgs =
+            new LinkedHashMap<>();
 
     /**
      * 默认构造函数
@@ -155,21 +157,24 @@ public class MultiInstPartCategoryAlgImpl extends ModuleBaseAlgImpl implements P
             PartCategoryInputBase partConstraintTmp) {
         MultiInstPartCategoryAlgImpl multiInstPartCategoryAlgImpl = (MultiInstPartCategoryAlgImpl) moduleBaseAlgImplTmp;
         MultiInstPartCategoryInput partConstraint = (MultiInstPartCategoryInput) partConstraintTmp;
-        PartAlgCPLinearExpr sumFunExpr = new PartAlgCPLinearExpr(
-                multiInstPartCategoryAlgImpl.getCategoryCode() + "_" + multiInstPartCategoryAlgImpl.getInstId()
-                        + "_sumFunConstraint");
-        List<SingleInstPartCategoryAlgImpl> partCategoryAlgImpls = multiInstPartCategoryAlgImpl.getPartCategoryInsts();
-        for (SingleInstPartCategoryAlgImpl partCategoryAlgImpl : partCategoryAlgImpls) {
-            buildSumExprInternal(sumFunExpr, partCategoryAlgImpl,
-                    partConstraint.getSumAttrCode(), "Q",
-                    PartVarImpl::getQty, "");
+        for (AggregateConditionInput condition : partConstraint.getEffectiveAggregateConditions()) {
+            PartAlgCPLinearExpr sumFunExpr = new PartAlgCPLinearExpr(
+                    multiInstPartCategoryAlgImpl.getCategoryCode() + "_" + multiInstPartCategoryAlgImpl.getInstId()
+                            + "_sumFunConstraint_" + condition.getSumAttrCode());
+            List<SingleInstPartCategoryAlgImpl> partCategoryAlgImpls =
+                    multiInstPartCategoryAlgImpl.getPartCategoryInsts();
+            for (SingleInstPartCategoryAlgImpl partCategoryAlgImpl : partCategoryAlgImpls) {
+                buildSumExprInternal(sumFunExpr, partCategoryAlgImpl,
+                        condition.getSumAttrCode(), PartVarImpl.QTY_SHORT_NAME,
+                        PartVarImpl::getQty, "");
+            }
+            // 应用约束
+            ComparisonOperator operator = ComparisonOperator.fromSymbol(condition.getComparator());
+            operator.applyConstraint(model, sumFunExpr, condition.getLeftValue());
+            log.info("Priority-Added sum constraint: {} for {}",
+                    sumFunExpr.getExprStr(),
+                    partConstraint.getOrgReq() != null ? partConstraint.getOrgReq().toString() : "null");
         }
-        // 应用约束
-        ComparisonOperator operator = ComparisonOperator.fromSymbol(partConstraint.getComparator());
-        operator.applyConstraint(model, sumFunExpr, partConstraint.getLeftValue());
-        log.info("Priority-Added sum constraint: {} for {}",
-                sumFunExpr.getExprStr(),
-                partConstraint.getOrgReq() != null ? partConstraint.getOrgReq().toString() : "null");
     }
 
     @Override

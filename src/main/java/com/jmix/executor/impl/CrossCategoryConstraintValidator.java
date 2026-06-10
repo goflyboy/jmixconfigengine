@@ -9,6 +9,7 @@ import com.jmix.executor.bmodel.base.BaseType;
 import com.jmix.executor.impl.algmodel.ComparisonOperator;
 import com.jmix.executor.impl.util.FilterExpressionExecutor;
 import com.jmix.executor.impl.util.FilterExpressionExecutor.FilterCondition;
+import com.jmix.executor.model.AggregateConditionReq;
 import com.jmix.executor.model.CrossCategoryPartCategoryConstraintReq;
 
 import lombok.extern.slf4j.Slf4j;
@@ -57,6 +58,7 @@ public final class CrossCategoryConstraintValidator {
                     "Invalid cross-category total request: partCategoryCodes must contain at least two categories");
         }
 
+        normalizeAggregateCondition(req);
         String attrCode = normalizeAttrCode(req.getAttrCode());
         if (Strings.isBlank(attrCode)) {
             throw new IllegalArgumentException("Invalid cross-category total request: attrCode is required");
@@ -84,6 +86,17 @@ public final class CrossCategoryConstraintValidator {
                         "Invalid cross-category total request: where attr " + whereAttr
                                 + " is not defined on category " + categoryCode);
             }
+        }
+    }
+
+    private static void normalizeAggregateCondition(CrossCategoryPartCategoryConstraintReq req) {
+        List<AggregateConditionReq> conditions = req.getEffectiveAggregateConditions();
+        if (conditions.size() > 1) {
+            throw new IllegalArgumentException(
+                    "Invalid cross-category total request: multi aggregate is not supported");
+        }
+        if (conditions.size() == 1) {
+            req.syncSingleAggregateFields(conditions.get(0));
         }
     }
 
