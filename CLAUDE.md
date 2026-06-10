@@ -71,3 +71,8 @@ Solution enumeration (ModuleInst/ParaInst/PartInst)
 - Communication with this user should be in simplified Chinese.
 - Java source level: 21. Max line length: 120 (per `checkstyle.xml` and `CodeFormatterFromIdea.xml`).
 - Use Lombok (`@Data`, `@Slf4j`, `@EqualsAndHashCode`) for boilerplate reduction.
+
+## Git Commit
+
+- **Default branch: `main`** — always commit directly to `main` unless user explicitly requests a feature branch.
+- **Include all modified files** — `.specstory/`, AI session histories, and other non-standard files are **included by default** unless user explicitly says to ignore them.
