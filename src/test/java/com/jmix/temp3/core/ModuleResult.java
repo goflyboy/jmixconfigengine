@@ -9,7 +9,7 @@ import java.util.List;
  * 解决方案结果类
  */
 @Data
-public class ProductResult {
+public class ModuleResult {
 
     private List<Solution> solutions = new ArrayList<>();
 
@@ -21,7 +21,7 @@ public class ProductResult {
 
     private int iterationTimes = 0;// 迭代次数
 
-    public ProductResult() {
+    public ModuleResult() {
     }
 
     public List<Solution> getSolutions() {

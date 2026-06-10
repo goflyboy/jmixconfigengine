@@ -37,7 +37,7 @@ public final class RulePromptProjector {
         return projectCategory(context.targetCategories().get(0));
     }
 
-    public ProductPromptView projectProduct(RuleContext context) {
+    public ModulePromptView projectModule(RuleContext context) {
         if (context == null) {
             throw new IllegalArgumentException("context must not be null");
         }
@@ -45,7 +45,7 @@ public final class RulePromptProjector {
         List<PartCategory> categories = context.targetCategories().isEmpty()
                 ? module.getPartCategorys()
                 : context.targetCategories();
-        return new ProductPromptView(
+        return new ModulePromptView(
                 module.getCode(),
                 module.getDescription(),
                 module.getVersion(),

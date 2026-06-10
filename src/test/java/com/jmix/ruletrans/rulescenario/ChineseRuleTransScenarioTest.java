@@ -24,7 +24,7 @@ class ChineseRuleTransScenarioTest extends RuleScenarioHarnessSupport {
 
     @Test
     void testChineseCategoryIdentificationValidatesMappedCodes() {
-        Module module = productContext(ProductCompatibilityRuleTransScenarioTest.CpuDriveFacts.class).module();
+        Module module = moduleContext(ModuleCompatibilityRuleTransScenarioTest.CpuDriveFacts.class).module();
         CategoryIdentifier identifier = new CategoryIdentifier(
                 realLlmInvoker(),
                 new PromptBuilder());
@@ -40,16 +40,16 @@ class ChineseRuleTransScenarioTest extends RuleScenarioHarnessSupport {
 
         RuleScenario post = classifier.classify(
                 "把硬盘容量总和写回产品参数",
-                RuleContextFactory.product(
-                        productContext(ProductCompatibilityRuleTransScenarioTest.CpuDriveFacts.class).module()));
+                RuleContextFactory.module(
+                        moduleContext(ModuleCompatibilityRuleTransScenarioTest.CpuDriveFacts.class).module()));
         assertEquals(RuleCalcStage.POST, post.calcStage());
         assertEquals(SdkProfile.POST, post.sdkProfile());
         assertEquals(RuleFamily.POST, post.family());
 
         RuleScenario compatible = classifier.classify(
                 "处理器是四核时不能选择 5400 转硬盘",
-                RuleContextFactory.product(
-                        productContext(ProductCompatibilityRuleTransScenarioTest.CpuDriveFacts.class).module()));
+                RuleContextFactory.module(
+                        moduleContext(ModuleCompatibilityRuleTransScenarioTest.CpuDriveFacts.class).module()));
         assertEquals(RuleScope.PRODUCT, compatible.scope());
         assertEquals(SdkProfile.CONSTRAINT, compatible.sdkProfile());
         assertEquals(RuleFamily.COMPATIBLE, compatible.family());

@@ -22,7 +22,7 @@ class HiddenRuleTransScenarioTest extends RuleScenarioHarnessSupport {
 
     @Test
     void testParameterHiddenValueResetAndInference() {
-        RuleContext context = productContext(HiddenFacts.class);
+        RuleContext context = moduleContext(HiddenFacts.class);
         RuleScenario scenario = RuleScenario.constraint(RuleScope.PRODUCT, RuleFamily.HIDDEN);
         RuleMetadata metadata = metadata("ruleParaHidden",
                 "p1 和 p2 至少一个可见；当参数 p0 等于 0 或 1 时隐藏 p1，否则隐藏 p2；隐藏参数的值必须为 0；部件 part1 的数量必须等于 p1 加 p2",

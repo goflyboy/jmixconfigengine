@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Product-level stage1 category identifier.
+ * Module-level stage1 category identifier.
  */
 public final class CategoryIdentifier {
 
@@ -85,7 +85,7 @@ public final class CategoryIdentifier {
 
     private List<String> validateCodes(List<String> codes, Module module) {
         if (codes.isEmpty()) {
-            throw new CategoryNotFoundException("No PartCategory identified for product-level rule");
+            throw new CategoryNotFoundException("No PartCategory identified for module-level rule");
         }
         Set<String> missing = new LinkedHashSet<>();
         for (String code : codes) {

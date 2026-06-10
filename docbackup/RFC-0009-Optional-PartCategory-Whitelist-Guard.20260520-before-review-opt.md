@@ -923,4 +923,4 @@ Q5：当某条 `REQUIRES` 规则从必选分类指向可选分类时，是否应
 - [ABS Documentation: Feature Model](https://abs-models.org/manual/feature-modeling.html)
 - [FeatureIDE Wiki: Feature Diagram](https://github-wiki-see.page/m/FeatureIDE/FeatureIDE/wiki/Feature-Diagram)
 - [Czarnecki et al., Staged Configuration Using Feature Models](https://gsd.uwaterloo.ca/publications/view/79.html)
-- [FdConfig: A Constraint-Based Interactive Product Configurator](https://arxiv.org/abs/1108.5586)
+- [FdConfig: A Constraint-Based Interactive Module Configurator](https://arxiv.org/abs/1108.5586)

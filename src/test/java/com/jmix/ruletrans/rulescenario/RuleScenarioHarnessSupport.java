@@ -10,7 +10,7 @@ import com.jmix.ruletrans.assembler.AssembledRuleClass;
 import com.jmix.ruletrans.assembler.RuleSnippetAssembler;
 import com.jmix.ruletrans.assembler.RuleTransTempFileManager;
 import com.jmix.ruletrans.context.PartCategoryRuleContext;
-import com.jmix.ruletrans.context.ProductRuleContext;
+import com.jmix.ruletrans.context.ModuleRuleContext;
 import com.jmix.ruletrans.context.RuleContext;
 import com.jmix.ruletrans.context.RuleContextFactory;
 import com.jmix.ruletrans.generator.RuleSnippetPostProcessor;
@@ -52,20 +52,20 @@ abstract class RuleScenarioHarnessSupport {
     private final TestExecutionProcessor testExecutionProcessor = new TestExecutionProcessor(tempFileManager);
     private final RuleScenarioClassifier scenarioClassifier = new RuleScenarioClassifier();
 
-    protected ProductRuleContext productContext(Class<?> algClass) {
+    protected ModuleRuleContext moduleContext(Class<?> algClass) {
         return RuleContextFactory.fromAnnotatedClass(algClass, TEMP_RESOURCE_PATH);
     }
 
-    protected ProductRuleContext productContext(Class<?> algClass, String... categoryCodes) {
-        ProductRuleContext context = productContext(algClass);
+    protected ModuleRuleContext moduleContext(Class<?> algClass, String... categoryCodes) {
+        ModuleRuleContext context = moduleContext(algClass);
         if (categoryCodes == null || categoryCodes.length == 0) {
             return context;
         }
-        return RuleContextFactory.product(context.module(), Arrays.asList(categoryCodes));
+        return RuleContextFactory.module(context.module(), Arrays.asList(categoryCodes));
     }
 
     protected PartCategoryRuleContext partCategoryContext(Class<?> algClass, String categoryCode) {
-        return RuleContextFactory.partCategory(productContext(algClass).module(), categoryCode);
+        return RuleContextFactory.partCategory(moduleContext(algClass).module(), categoryCode);
     }
 
     protected RuleMetadata metadata(
@@ -333,7 +333,7 @@ abstract class RuleScenarioHarnessSupport {
     }
 
     private RuleContext prepareContext(String naturalLanguage, RuleContext context) {
-        if (!context.isProductLevel() || !context.targetCategories().isEmpty()) {
+        if (!context.isModuleLevel() || !context.targetCategories().isEmpty()) {
             return context;
         }
         if (context.module().getAllPartCategorys().isEmpty()) {
@@ -343,7 +343,7 @@ abstract class RuleScenarioHarnessSupport {
         List<PartCategory> categories = categoryCodes.stream()
                 .map(code -> context.module().getPartCategory(code))
                 .toList();
-        return new ProductRuleContext(context.module(), categories);
+        return new ModuleRuleContext(context.module(), categories);
     }
 
     private RuleSnippetGenerator snippetGenerator() {

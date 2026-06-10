@@ -44,7 +44,7 @@
 
   <rect x="24" y="82" width="294" height="50" rx="16" fill="#3b82f6" fill-opacity="0.1"/>
   <text x="171" y="106" text-anchor="middle" font-size="15" font-weight="700" fill="#1d4ed8">1. 真实业务案例</text>
-  <text x="171" y="124" text-anchor="middle" font-size="10" fill="#93c5fd">Product Configuration Metamodel</text>
+  <text x="171" y="124" text-anchor="middle" font-size="10" fill="#93c5fd">Module Configuration Metamodel</text>
 
   <rect x="333" y="82" width="294" height="50" rx="16" fill="#f59e0b" fill-opacity="0.1"/>
   <text x="480" y="106" text-anchor="middle" font-size="15" font-weight="700" fill="#b45309">2. 配置本体 / 元模型</text>
@@ -101,7 +101,7 @@
   <g transform="translate(56, 442)">
     <rect x="0" y="0" width="110" height="36" rx="8" fill="white" stroke="#3b82f6" stroke-width="1.2" filter="url(#cardShadow)"/>
     <text x="55" y="17" text-anchor="middle" font-size="12" font-weight="600" fill="#1e293b">电信产品</text>
-    <text x="55" y="30" text-anchor="middle" font-size="9" fill="#94a3b8">Telecom Product</text>
+    <text x="55" y="30" text-anchor="middle" font-size="9" fill="#94a3b8">Telecom Module</text>
     <rect x="124" y="0" width="110" height="36" rx="8" fill="white" stroke="#3b82f6" stroke-width="1.2" filter="url(#cardShadow)"/>
     <text x="179" y="17" text-anchor="middle" font-size="12" font-weight="600" fill="#1e293b">服务器</text>
     <text x="179" y="30" text-anchor="middle" font-size="9" fill="#94a3b8">Server</text>
@@ -110,7 +110,7 @@
     <text x="55" y="74" text-anchor="middle" font-size="9" fill="#94a3b8">Switch</text>
     <rect x="124" y="44" width="110" height="36" rx="8" fill="white" stroke="#3b82f6" stroke-width="1.2" filter="url(#cardShadow)"/>
     <text x="179" y="61" text-anchor="middle" font-size="12" font-weight="600" fill="#1e293b">OLT 产品</text>
-    <text x="179" y="74" text-anchor="middle" font-size="9" fill="#94a3b8">OLT Product</text>
+    <text x="179" y="74" text-anchor="middle" font-size="9" fill="#94a3b8">OLT Module</text>
   </g>
 
   <text x="480" y="415" text-anchor="middle" font-size="13" font-weight="700" fill="#b45309">业务概念抽象模型</text>

@@ -71,7 +71,7 @@ model().sum4Quantity("categoryCodeOrCommaSeparatedCodes", "attrCodeOrBlank", "op
 the attrCode argument is a numeric weighting attribute, not a filter attribute. For selected-count rules,
 use attrCode "" and put attribute predicates in the filter condition. For total part quantity rules,
 also use attrCode "" unless the rule says weighted by a numeric dynamic attribute.
-cross-category product-level totals use comma-separated category codes, product-level all-instance
+cross-category module-level totals use comma-separated category codes, module-level all-instance
 multi-instance totals use categoryCode*, and part-category effectScope=AllInst rules should use the
 two-argument overloads model().sum4Quantity("attrCode", "filter") or model().sum4Selected("attrCode", "filter").
 Do not add * only because a category supports multi-instance; use * only when the natural language explicitly

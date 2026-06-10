@@ -44,10 +44,10 @@ class PriorityRuleTransScenarioTest extends RuleScenarioHarnessSupport {
     }
 
     @Test
-    void testProductParameterPriorityObjective() {
-        RuleContext context = productContext(ProductParameterPriorityFacts.class, "accelerator");
+    void testModuleParameterPriorityObjective() {
+        RuleContext context = moduleContext(ModuleParameterPriorityFacts.class, "accelerator");
         RuleScenario scenario = RuleScenario.constraint(RuleScope.PRODUCT, RuleFamily.PRIORITY);
-        RuleMetadata metadata = metadata("ruleProductParameterPriority",
+        RuleMetadata metadata = metadata("ruleModuleParameterPriority",
                 "accelerator 的总数量必须至少达到整数参数 target；优化目标按最小化构建：优先选择属性 Score 更高的 accelerator 部件，同时尽量减少 accelerator 总数量",
                 "", "");
 
@@ -58,7 +58,7 @@ class PriorityRuleTransScenarioTest extends RuleScenarioHarnessSupport {
                 caseSet(
                         inferParaCase("targetChoosesFastFirst", java.util.List.of("target", "1"), null,
                                 null, null, null, Map.of("fast", 1, "economy", 0))),
-                "PriorityProductParameterScenario");
+                "PriorityModuleParameterScenario");
     }
 
     @ModuleAnno(id = 811110L)
@@ -81,7 +81,7 @@ class PriorityRuleTransScenarioTest extends RuleScenarioHarnessSupport {
     }
 
     @ModuleAnno(id = 811111L)
-    public static class ProductParameterPriorityFacts extends ModuleAlgBase {
+    public static class ModuleParameterPriorityFacts extends ModuleAlgBase {
 
         @ParaAnno(type = ParaType.INTEGER, defaultValue = "0", minValue = "0", maxValue = "2")
         private ParaVar target;

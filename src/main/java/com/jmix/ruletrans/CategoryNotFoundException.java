@@ -1,7 +1,7 @@
 package com.jmix.ruletrans;
 
 /**
- * Thrown when product-level category identification cannot be mapped back to a module.
+ * Thrown when module-level category identification cannot be mapped back to a module.
  */
 public class CategoryNotFoundException extends RuleTransException {
 

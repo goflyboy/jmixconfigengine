@@ -164,7 +164,7 @@ public final class RuleSnippetPostProcessor {
     }
 
     private String normalizePartCategoryAggregateOverloads(String methodBody, RuleContext context) {
-        if (methodBody == null || methodBody.isEmpty() || context == null || context.isProductLevel()) {
+        if (methodBody == null || methodBody.isEmpty() || context == null || context.isModuleLevel()) {
             return methodBody;
         }
         List<String> categoryCodes = context.categoryCodes();

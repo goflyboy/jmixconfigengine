@@ -24,7 +24,7 @@ public final class PartCategoryRuleContext implements RuleContext {
     }
 
     @Override
-    public boolean isProductLevel() {
+    public boolean isModuleLevel() {
         return false;
     }
 

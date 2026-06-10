@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * Prompt-safe module projection.
  */
-public record ProductPromptView(
+public record ModulePromptView(
         String code,
         String description,
         String version,

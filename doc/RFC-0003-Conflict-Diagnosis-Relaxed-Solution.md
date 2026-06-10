@@ -399,7 +399,7 @@ Executor 层当前存在两条路径:
 | 路径 | 触发条件 | 核心类 | 当前诊断状态 |
 | --- | --- | --- | --- |
 | 旧参数推理路径 | `InferParasReq.partConstraintReqs` 为空 | `ModuleConstraintExecutorImpl.inferParasOld()` | 已有松弛诊断雏形 |
-| 新部件约束路径 | `InferParasReq.partConstraintReqs` 非空 | `ModuleConstraintExecutorImpl.processProduct()` -> `ModuleBaseConstraintExecutorImpl` | 需要补齐诊断入口 |
+| 新部件约束路径 | `InferParasReq.partConstraintReqs` 非空 | `ModuleConstraintExecutorImpl.processModule()` -> `ModuleBaseConstraintExecutorImpl` | 需要补齐诊断入口 |
 
 `ModuleBaseConstraintExecutorImpl` 负责新路径和优先级求解的公共求解过程。它不是创建松弛变量的地方, 但它当前会创建 `AlgCPModel` 并调用 `ModuleAlgImpl.init()`。因此若请求级 `relaxSolve=true` 要覆盖 `PartConstraintReq` 场景, 该基类也必须支持:
 
@@ -834,7 +834,7 @@ mvn test
 6. 是否需要展示自然语言解释?  
    当前 `Rule.normalNaturalCode` 可以作为解释来源, 但结果对象还没有结构化承载。
 
-7. `PartConstraintReq` 路径目前可能走 `processProduct()` 而不是 `inferParasOld()`。  
+7. `PartConstraintReq` 路径目前可能走 `processModule()` 而不是 `inferParasOld()`。  
    该路径是否也必须支持松弛诊断, 还是第一阶段只覆盖 `inferParasOld()`?
 
 8. 请求级字段命名是否采用 `relaxSolve`?  

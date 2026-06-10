@@ -140,7 +140,7 @@ class SpecItem{
 
 
 
-https://e.huawei.com/cn/products/optical-terminal/optixstar-p813e-e
+https://e.huawei.com/cn/modules/optical-terminal/optixstar-p813e-e
 
 
 https://apps.cisco.com/ccw/cpc/guest/catalog/seriesId/286314263/TY164684034QM
@@ -263,7 +263,7 @@ public class Constraint {
 }
 
 // 产品系列
-public class ProductFamily {
+public class ModuleFamily {
     protected String code;
     protected String name;
     protected List<SpecificationDefinition> specificationDefs;
@@ -307,10 +307,10 @@ public class InterfacePort {
 }
 
 // 产品实例
-public class ProductInstance {
+public class ModuleInstance {
     protected String id;
     protected String familyId;
-    protected ProductFamily family;
+    protected ModuleFamily family;
     protected Map<SpecificationDefinition, SpecificationValue> specification;
 }
 

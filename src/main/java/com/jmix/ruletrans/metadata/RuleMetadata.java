@@ -43,7 +43,7 @@ public record RuleMetadata(
     public static RuleMetadata from(String naturalLanguage, RuleContext context, RuleScenario scenario) {
         String base = semanticBase(naturalLanguage, context, scenario);
         String methodName = "rule" + upperFirst(base);
-        String fatherCode = context != null && !context.isProductLevel() && !context.categoryCodes().isEmpty()
+        String fatherCode = context != null && !context.isModuleLevel() && !context.categoryCodes().isEmpty()
                 ? context.categoryCodes().get(0)
                 : "";
         return new RuleMetadata(methodName, methodName, naturalLanguage, fatherCode, "", "", "");

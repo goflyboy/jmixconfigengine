@@ -15,7 +15,7 @@ import com.jmix.ruletrans.assembler.AssembledRuleClass;
 import com.jmix.ruletrans.assembler.RuleSnippetAssembler;
 import com.jmix.ruletrans.assembler.RuleTransTempFileManager;
 import com.jmix.ruletrans.context.PartCategoryRuleContext;
-import com.jmix.ruletrans.context.ProductRuleContext;
+import com.jmix.ruletrans.context.ModuleRuleContext;
 import com.jmix.ruletrans.context.RuleContextFactory;
 import com.jmix.ruletrans.metadata.RuleMetadata;
 import com.jmix.ruletrans.postprocessor.CompilationProcessor;
@@ -53,10 +53,10 @@ public class RuleSnippetAssemblerTest {
 
     @Test
     public void testPriorityAggregateExpressionCanCompareWithParameterValueVar() {
-        ProductRuleContext baseContext = RuleContextFactory.fromAnnotatedClass(
+        ModuleRuleContext baseContext = RuleContextFactory.fromAnnotatedClass(
                 PriorityExpressionFacts.class,
                 "target/ruletrans-test-resources");
-        ProductRuleContext context = RuleContextFactory.product(baseContext.module(), List.of("accelerator"));
+        ModuleRuleContext context = RuleContextFactory.module(baseContext.module(), List.of("accelerator"));
         RuleTransTempFileManager tempFileManager = new RuleTransTempFileManager(Path.of("target/ruletrans-test"));
         RuleSnippetAssembler assembler = new RuleSnippetAssembler(tempFileManager);
         CompilationProcessor processor = new CompilationProcessor(tempFileManager);

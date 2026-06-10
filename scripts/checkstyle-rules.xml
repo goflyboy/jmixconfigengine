@@ -88,7 +88,7 @@
         <module name="Regexp">
             <property name="id" value="logLevelCheck"/>
             <property name="format" value="log\.(debug|trace)\s*\(\s*[""'][^""']*[""']"/>
-            <property name="message" value="Consider if DEBUG/TRACE level is appropriate for production code."/>
+            <property name="message" value="Consider if DEBUG/TRACE level is appropriate for moduleion code."/>
             <property name="severity" value="info"/>
         </module>
     </module>

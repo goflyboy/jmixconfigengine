@@ -24,7 +24,7 @@
 
 | 因子 | 取值 | 判定方式 |
 |---|---|---|
-| 层级 | 产品级、部件分类级、部件级 | 没有设置 Feature Code / `fatherCode` 为空时按产品级处理；`fatherCode` 指向分类时按部件分类级处理；直接绑定具体部件实例或具体 Part 特征时按部件级处理。 |
+| 层级 | 模块级、部件分类级、部件级 | 没有设置 Feature Code / `fatherCode` 为空时按模块级处理；`fatherCode` 指向分类时按部件分类级处理；直接绑定具体部件实例或具体 Part 特征时按部件级处理。 |
 | 元素相关性 | 参数相关、部件相关、参数+部件混合 | 看规则主要约束 `ParaVar`、`PartVar`/`PartCategoryVar`，还是两者共同参与。 |
 | 运行环境 | POST 类型、非 POST 类型 | `CalcStage.POST` 和实例 view 属于 POST；CP-SAT 求解前/中约束属于非 POST。 |
 | 表达方式 | 结构化、非结构化 | 结构化是组合/二元/三元等结构表达；非结构化是自由代码或代码生成后的 Java 规则。 |
@@ -35,29 +35,29 @@
 
 | 场景 | 层级 | 元素相关性 | 运行环境 | 表达方式 | 文法类型 | 业务场景 | 状态 | 南向 API 依赖 | 代表测试 |
 |---|---|---|---|---|---|---|---|---|---|
-| 参数 if-else 反推部件数量 | 产品级 | 参数+部件混合 | 非 POST | 非结构化 | if-else | 计算类 | 已覆盖 | `model().newBoolVar`、`addBoolAnd`、`addBoolOr`、`addEquality`、`onlyEnforceIf`、`ParaVar.option(...).selectedVar()`、`PartVar.quantityVar()` | `CalculateRuleSimpleTest`、`CalculateRuleIfThenTest`、`HelloConstraint` |
-| 参数 Requires | 产品级 | 参数相关 | 非 POST | 非结构化 | 普通蕴含 | 兼容类 | 已覆盖 | `addCompatibleConstraintRequires`、或 `model().addImplication`、`ParaVar.option(...).selectedVar()` | `CompatibleRuleRequireTest` |
-| 参数 Incompatible | 产品级 | 参数相关 | 非 POST | 非结构化 | 普通蕴含/互斥 | 兼容类 | 已覆盖 | `addCompatibleConstraintInCompatible`、或 `addBoolAnd`/`addImplication`、`ParaVar.option(...).selectedVar()` | `CompatibleRuleIncompatibleTest` |
-| 参数 CoDependent | 产品级 | 参数相关 | 非 POST | 非结构化 | 双向蕴含 | 兼容类 | 已覆盖 | `addCompatibleConstraintCoDependent`、或多组 `model().addImplication` | `CompatibleRuleCodependentTest` |
-| 部件互斥表达式 | 产品级 | 部件相关 | 非 POST | 非结构化 | 父子层级 + 过滤表达式 | 兼容类 | 已覆盖 | `inCompatible(ruleCode, leftExpr, rightExpr)`、`partVars(filterCondition)`、`PartVar.attr(...)` | `MultiPCTest`、`OptionalPartCategoryWhitelistGuardTest` |
+| 参数 if-else 反推部件数量 | 模块级 | 参数+部件混合 | 非 POST | 非结构化 | if-else | 计算类 | 已覆盖 | `model().newBoolVar`、`addBoolAnd`、`addBoolOr`、`addEquality`、`onlyEnforceIf`、`ParaVar.option(...).selectedVar()`、`PartVar.quantityVar()` | `CalculateRuleSimpleTest`、`CalculateRuleIfThenTest`、`HelloConstraint` |
+| 参数 Requires | 模块级 | 参数相关 | 非 POST | 非结构化 | 普通蕴含 | 兼容类 | 已覆盖 | `addCompatibleConstraintRequires`、或 `model().addImplication`、`ParaVar.option(...).selectedVar()` | `CompatibleRuleRequireTest` |
+| 参数 Incompatible | 模块级 | 参数相关 | 非 POST | 非结构化 | 普通蕴含/互斥 | 兼容类 | 已覆盖 | `addCompatibleConstraintInCompatible`、或 `addBoolAnd`/`addImplication`、`ParaVar.option(...).selectedVar()` | `CompatibleRuleIncompatibleTest` |
+| 参数 CoDependent | 模块级 | 参数相关 | 非 POST | 非结构化 | 双向蕴含 | 兼容类 | 已覆盖 | `addCompatibleConstraintCoDependent`、或多组 `model().addImplication` | `CompatibleRuleCodependentTest` |
+| 部件互斥表达式 | 模块级 | 部件相关 | 非 POST | 非结构化 | 父子层级 + 过滤表达式 | 兼容类 | 已覆盖 | `inCompatible(ruleCode, leftExpr, rightExpr)`、`partVars(filterCondition)`、`PartVar.attr(...)` | `MultiPCTest`、`OptionalPartCategoryWhitelistGuardTest` |
 | 单分类数量/属性汇总 | 部件分类级 | 部件相关 | 非 POST | 非结构化 | 线性表达式 | 汇总类 | 已覆盖 | `model().sum4Quantity(attr, filter)`、`model().sum4Selected(filter)`、`addLessOrEqual`、`addGreaterOrEqual` | `BaseOptiTest` |
-| 跨分类数量/属性汇总 | 产品级 | 部件相关 | 非 POST | 非结构化 | 线性表达式 | 汇总类 | 已覆盖 | `model().sum4Quantity(partCategoryCodes, attr, filter)`、`model().sum4Selected(partCategoryCodes, attr, filter)`、`addGreaterOrEqual` | `MultiPCTest`、`CrossPartCategoryTotalConstraintTest` |
-| 多实例分类汇总 | 产品级 | 部件相关 | 非 POST | 非结构化 | for/实例展开 + 线性表达式 | 汇总类 | 已覆盖 | `model().sum4Quantity("drive*", attr, filter)`、`model().sum4Selected("drive*", attr, filter)`、`PartCategoryVar.sumSumPara(attr)` | `DynMultReq4MultiReqTest`、`EnumMultReq4MultiReqTest` |
+| 跨分类数量/属性汇总 | 模块级 | 部件相关 | 非 POST | 非结构化 | 线性表达式 | 汇总类 | 已覆盖 | `model().sum4Quantity(partCategoryCodes, attr, filter)`、`model().sum4Selected(partCategoryCodes, attr, filter)`、`addGreaterOrEqual` | `MultiPCTest`、`CrossPartCategoryTotalConstraintTest` |
+| 多实例分类汇总 | 模块级 | 部件相关 | 非 POST | 非结构化 | for/实例展开 + 线性表达式 | 汇总类 | 已覆盖 | `model().sum4Quantity("drive*", attr, filter)`、`model().sum4Selected("drive*", attr, filter)`、`PartCategoryVar.sumSumPara(attr)` | `DynMultReq4MultiReqTest`、`EnumMultReq4MultiReqTest` |
 | 单选/至多单选 | 部件分类级 | 部件相关 | 非 POST | 非结构化 | 父子层级 | 选择类 | 已覆盖 | `PartCategoryVar.parts()`、`PartVar.selectedVar()`、`model().addExactlyOne`、`model().addAtMostOne` | `SearchStrategyTest`、`SearchStrategyMultiTest`、`MultiPCTest` |
-| 优先级目标函数 | 部件分类级/产品级 | 部件相关 | 非 POST | 非结构化 | 线性表达式 | 优先类 | 已覆盖 | `model().newPartLinearExpr`、`PartAlgCPLinearExpr.addExpr`、`addConstant`、`model().setObjectExpr`、`updatePriorityObjectFuntion` | `BaseOptiTest`、`MultiPCTest`、`DynMultReq4MultiReqTest` |
-| 整数参数计算 | 产品级 | 参数+部件混合 | 非 POST | 非结构化 | 线性表达式 | 计算类 | 已覆盖 | `model().newLinearExpr`、`AlgCPLinearExpr.addTerm`、`addEquality`、`ParaVar.valueVar()`、`PartVar.quantityVar()` | `ParaIntegerTest` |
-| 参数隐藏逻辑 | 产品级 | 参数相关 | 非 POST | 非结构化 | if-else + 布尔表达式 | 隐藏类 | 已覆盖 | `ParaVar.hiddenVar()`、`PartVar.hiddenVar()`、`addBoolOr`、`addBoolAnd`、`addDifferent`、`addEquality`、`addVarAboutHiddenConstraints` | `ParaIsHiddenTest` |
-| CodeRule 校验型组合 | 产品级 | 部件相关 | 非 POST | 非结构化 | 线性表达式 | 兼容类 | 已覆盖 | `model().sum4Selected(partCategoryCodes, attr, filter)`、`model().newPartLinearExpr`、`addLessOrEqual` | `CodeRuleOnlyValidateTest` |
-| 结构化二元白名单 | 产品级 | 部件相关 | 非 POST | 结构化 | 结构化二元 | 兼容类 | 已覆盖，生成器可后置 | 执行态由结构化展开为约束；生成代码时可映射到 `sum4Selected`、`newPartLinearExpr`、`addLessOrEqual` | `StructCombinationRuleTest` |
-| 结构化二元黑名单 | 产品级 | 部件相关 | 非 POST | 结构化 | 结构化二元 | 兼容类 | 已覆盖，生成器可后置 | 执行态由结构化展开为约束；生成代码时可映射到 `sum4Selected`、`newPartLinearExpr`、`addLessOrEqual` | `StructCombinationOtherRuleTest` |
-| 结构化三元白/黑名单 | 产品级 | 部件相关 | 非 POST | 结构化 | 结构化三元 | 兼容类 | 已覆盖，生成器可后置 | 执行态由结构化展开为约束；未来生成三元组合时需要支持 tuple 展开 | `StructCombinationRuleTest`、`StructCombinationOtherRuleTest` |
-| 结构化 + 非结构化混合 | 产品级 | 部件相关 | 非 POST | 结构化 + 非结构化 | 结构化二元 + 线性表达式 | 兼容类 | 已覆盖，生成器可后置 | 结构化约束展开 + `model().sum4Selected`、`newPartLinearExpr`、`addLessOrEqual` | `StructCodeRuleMixedValidateTest` |
-| POST 后置计算写回产品参数 | 产品级 | 参数+部件混合 | POST | 非结构化 | 实例 view 访问 | 计算类 | 已覆盖 | `partCategorySum(code)`、`sumDynAttr4Int`、`dynAttr`、`dynAttrs`、`parameter(code).setValue(...)` | `PostCalcRuleTest` |
+| 优先级目标函数 | 部件分类级/模块级 | 部件相关 | 非 POST | 非结构化 | 线性表达式 | 优先类 | 已覆盖 | `model().newPartLinearExpr`、`PartAlgCPLinearExpr.addExpr`、`addConstant`、`model().setObjectExpr`、`updatePriorityObjectFuntion` | `BaseOptiTest`、`MultiPCTest`、`DynMultReq4MultiReqTest` |
+| 整数参数计算 | 模块级 | 参数+部件混合 | 非 POST | 非结构化 | 线性表达式 | 计算类 | 已覆盖 | `model().newLinearExpr`、`AlgCPLinearExpr.addTerm`、`addEquality`、`ParaVar.valueVar()`、`PartVar.quantityVar()` | `ParaIntegerTest` |
+| 参数隐藏逻辑 | 模块级 | 参数相关 | 非 POST | 非结构化 | if-else + 布尔表达式 | 隐藏类 | 已覆盖 | `ParaVar.hiddenVar()`、`PartVar.hiddenVar()`、`addBoolOr`、`addBoolAnd`、`addDifferent`、`addEquality`、`addVarAboutHiddenConstraints` | `ParaIsHiddenTest` |
+| CodeRule 校验型组合 | 模块级 | 部件相关 | 非 POST | 非结构化 | 线性表达式 | 兼容类 | 已覆盖 | `model().sum4Selected(partCategoryCodes, attr, filter)`、`model().newPartLinearExpr`、`addLessOrEqual` | `CodeRuleOnlyValidateTest` |
+| 结构化二元白名单 | 模块级 | 部件相关 | 非 POST | 结构化 | 结构化二元 | 兼容类 | 已覆盖，生成器可后置 | 执行态由结构化展开为约束；生成代码时可映射到 `sum4Selected`、`newPartLinearExpr`、`addLessOrEqual` | `StructCombinationRuleTest` |
+| 结构化二元黑名单 | 模块级 | 部件相关 | 非 POST | 结构化 | 结构化二元 | 兼容类 | 已覆盖，生成器可后置 | 执行态由结构化展开为约束；生成代码时可映射到 `sum4Selected`、`newPartLinearExpr`、`addLessOrEqual` | `StructCombinationOtherRuleTest` |
+| 结构化三元白/黑名单 | 模块级 | 部件相关 | 非 POST | 结构化 | 结构化三元 | 兼容类 | 已覆盖，生成器可后置 | 执行态由结构化展开为约束；未来生成三元组合时需要支持 tuple 展开 | `StructCombinationRuleTest`、`StructCombinationOtherRuleTest` |
+| 结构化 + 非结构化混合 | 模块级 | 部件相关 | 非 POST | 结构化 + 非结构化 | 结构化二元 + 线性表达式 | 兼容类 | 已覆盖，生成器可后置 | 结构化约束展开 + `model().sum4Selected`、`newPartLinearExpr`、`addLessOrEqual` | `StructCodeRuleMixedValidateTest` |
+| POST 后置计算写回产品参数 | 模块级 | 参数+部件混合 | POST | 非结构化 | 实例 view 访问 | 计算类 | 已覆盖 | `partCategorySum(code)`、`sumDynAttr4Int`、`dynAttr`、`dynAttrs`、`parameter(code).setValue(...)` | `PostCalcRuleTest` |
 | POST 后置计算写回分类参数 | 部件分类级 | 参数+部件混合 | POST | 非结构化 | 实例 view 访问 | 计算类 | 已覆盖 | `partCategory(code).parameter(code).setValue(...)`、`partCategory(code).sumQuantity()` | `PostCalcRuleTest` |
-| 部件级专属规则 | 部件级 | 部件相关 | 非 POST | 非结构化 | 普通/父子层级 | 兼容类/计算类 | TODO | 预计依赖 `partVar(code)`、`PartVar.quantityVar()`、`selectedVar()`、`attr(...)` | 当前测试主要访问部件变量，但规则挂载层级多为产品级或部件分类级 |
-| 结构化部件分类级规则 | 部件分类级 | 部件相关 | 非 POST | 结构化 | 结构化二元/三元 | 兼容类 | TODO | 预计复用结构化展开 + `sum4Selected`/`addLessOrEqual` | 当前结构化组合样例主要是产品级跨分类组合 |
-| 结构化 POST 规则 | 产品级/部件分类级 | 参数+部件混合 | POST | 结构化 | 结构化计算 | 计算类 | TODO | 预计映射到 POST view：`partCategorySum`、`parameter().setValue` | 当前 POST 样例为非结构化代码 |
-| 显式 for 循环生成规则 | 产品级/部件分类级 | 部件相关 | 非 POST | 非结构化 | for/遍历 | 汇总类/兼容类 | TODO | 预计依赖 `partVars(filter)`、`PartCategoryVar.parts(filter)`、循环内 `selectedVar`/`quantityVar` | 当前多实例多由聚合 API 或手写实例名表达 |
+| 部件级专属规则 | 部件级 | 部件相关 | 非 POST | 非结构化 | 普通/父子层级 | 兼容类/计算类 | TODO | 预计依赖 `partVar(code)`、`PartVar.quantityVar()`、`selectedVar()`、`attr(...)` | 当前测试主要访问部件变量，但规则挂载层级多为模块级或部件分类级 |
+| 结构化部件分类级规则 | 部件分类级 | 部件相关 | 非 POST | 结构化 | 结构化二元/三元 | 兼容类 | TODO | 预计复用结构化展开 + `sum4Selected`/`addLessOrEqual` | 当前结构化组合样例主要是模块级跨分类组合 |
+| 结构化 POST 规则 | 模块级/部件分类级 | 参数+部件混合 | POST | 结构化 | 结构化计算 | 计算类 | TODO | 预计映射到 POST view：`partCategorySum`、`parameter().setValue` | 当前 POST 样例为非结构化代码 |
+| 显式 for 循环生成规则 | 模块级/部件分类级 | 部件相关 | 非 POST | 非结构化 | for/遍历 | 汇总类/兼容类 | TODO | 预计依赖 `partVars(filter)`、`PartCategoryVar.parts(filter)`、循环内 `selectedVar`/`quantityVar` | 当前多实例多由聚合 API 或手写实例名表达 |
 
 ## 4. 南向 SDK/API 分类
 
@@ -92,8 +92,8 @@ POST 规则不再构造 CP 约束，而是在已有配置解上读取实例 view
 | 类别 | API | 用途 |
 |---|---|---|
 | 当前解入口 | `currentInst()`、`moduleId()`、`instanceConfigId()`、`quantity()` | 访问当前 `ModuleInstView`。 |
-| 产品参数 | `parameter(code).value()`、`parameter(code).setValue(value)` | 读取/写回产品级参数。 |
-| 产品部件 | `part(code)`、`PartInstView.quantity()`、`setQuantity(q)`、`selected()` | 读取/调整产品级部件实例。 |
+| 产品参数 | `parameter(code).value()`、`parameter(code).setValue(value)` | 读取/写回模块级参数。 |
+| 产品部件 | `part(code)`、`PartInstView.quantity()`、`setQuantity(q)`、`selected()` | 读取/调整模块级部件实例。 |
 | 分类实例 | `partCategory(code)`、`partCategory(code, instId)` | 访问单个部件分类实例。 |
 | 分类参数 | `partCategory(code).parameter(code).value()`、`setValue(value)` | 读取/写回部件分类级参数。 |
 | 分类部件 | `partCategory(code).part(code)`、`partCategory(code).parts()` | 访问分类实例内的部件。 |
@@ -139,10 +139,10 @@ POST 规则不再构造 CP 约束，而是在已有配置解上读取实例 view
 | TODO | 缺失因子 | 建议补充 |
 |---|---|---|
 | 补部件级规则样例 | 层级=部件级 | 增加明确绑定到具体 Part/Feature Code 的兼容、计算或隐藏规则。 |
-| 补结构化部件分类级样例 | 层级=部件分类级，表达方式=结构化 | 将二元/三元结构化规则限定在一个部件分类内，验证与产品级跨分类组合的差异。 |
+| 补结构化部件分类级样例 | 层级=部件分类级，表达方式=结构化 | 将二元/三元结构化规则限定在一个部件分类内，验证与模块级跨分类组合的差异。 |
 | 补结构化 POST 样例 | 运行环境=POST，表达方式=结构化 | 结构化计算规则映射到 `partCategorySum`、`parameter().setValue` 等 POST view。 |
 | 补显式 for/遍历生成样例 | 文法类型=for/遍历 | 对 `partVars(filter)` 或 `PartCategoryVar.parts(filter)` 生成循环式约束，而不是全部依赖聚合 API。 |
-| 补产品级参数优先类样例 | 层级=产品级，元素=参数相关，业务=优先类 | 当前优先级多围绕部件聚合，缺少以参数取值为目标函数或偏好的样例。 |
+| 补模块级参数优先类样例 | 层级=模块级，元素=参数相关，业务=优先类 | 当前优先级多围绕部件聚合，缺少以参数取值为目标函数或偏好的样例。 |
 | 补部件级 POST 写回样例 | 层级=部件级，运行环境=POST | 使用 `part(code).setQuantity` 或 `setDynAttr` 写回具体部件实例。 |
 
 ## 7. 维护原则

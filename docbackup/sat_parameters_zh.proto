@@ -1056,7 +1056,7 @@ message SatParameters {
   optional bool exploit_objective = 131 [default = true];
 
   // 从问题中的线性约束推断布尔变量或布尔变量乘整数变量的积（可用于某些割，但当前未充分利用）。
-  optional bool detect_linearized_product = 277 [default = false];
+  optional bool detect_linearized_module = 277 [default = false];
 
   // ==========================================================================
   // MIP -> CP-SAT（即整数系数的 IP）转换参数（由自动"缩放"算法使用）。

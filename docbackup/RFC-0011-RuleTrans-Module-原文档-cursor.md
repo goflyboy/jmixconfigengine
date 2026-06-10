@@ -22,7 +22,7 @@
 
 两类职责混在同一个类中，导致：
 - Prompt 模板与业务建模 Prompt 耦合，无法独立演进。
-- 产品级规则（跨部件/跨分类）的 Prompt 构建逻辑散落在 `ModuleGenerator` 中。
+- 模块级规则（跨部件/跨分类）的 Prompt 构建逻辑散落在 `ModuleGenerator` 中。
 - 生成-编译-测试-纠错的迭代循环未封装，外部调用方需要自行拼接。
 - 自然语言驱动的规则代码生成能力缺失——当前需要用户手工写伪代码，未来期望直接输入自然语言。
 
@@ -32,7 +32,7 @@
 用户输入自然语言：`"CPU最多配置一块"`
 上下文：CPU PartCategory 的规格信息（Para、Part、属性等），直接生成代码。
 
-**场景 2：产品级规则**
+**场景 2：模块级规则**
 用户输入自然语言：`"四核CPU不能兼容转速为5400转的硬盘"`
 上下文：涉及 CPU 和 HDD 两个 PartCategory。处理分两阶段：
 - Stage1：根据自然语言识别关联分类（CPU + HDD）
@@ -52,7 +52,7 @@
 - **职责分离**：`ModelHelper` 保持不变，`ruletrans` 独立演进。
 - **Prompt 独立**：新建 `ruletrans` 专用的 Prompt 模板资源，不修改现有 `cengine/` 目录下的模板。
 - **工程化**：将"生成→编译→纠错→测试→纠错"的循环封装为可复用管线，提升 AI 生成代码的正确率。
-- **上下文感知**：支持 PartCategory 级和产品级两种上下文，构建差异化 Prompt。
+- **上下文感知**：支持 PartCategory 级和模块级两种上下文，构建差异化 Prompt。
 - **测试用例结构化**：独立生成 JSON 测试用例，支持未来流程自动化。
 
 ---
@@ -72,7 +72,7 @@
 │                                                              │
 │  PartCategoryContext ──────────────────────────────┐        │
 │           │                                             │        │
-│  ProductContext ──▶ CategoryIdentifier ───────┐   │        │
+│  ModuleContext ──▶ CategoryIdentifier ───────┐   │        │
 │           │               │                   │   │        │
 │           │               ▼                   │   │        │
 │           │         识别的分类列表               │   │        │
@@ -132,10 +132,10 @@ com.jmix.ruletrans
 ├── context/
 │   ├── RuleContext.java               # 规则上下文接口
 │   ├── PartCategoryContext.java       # PartCategory 级上下文
-│   └── ProductContext.java           # 产品级上下文
+│   └── ModuleContext.java           # 模块级上下文
 │
 ├── identifier/
-│   └── CategoryIdentifier.java       # 分类识别器（产品级用）
+│   └── CategoryIdentifier.java       # 分类识别器（模块级用）
 │
 ├── generator/
 │   ├── RuleSnippetGenerator.java     # 代码片段生成器
@@ -154,8 +154,8 @@ com.jmix.ruletrans
 
 src/main/resources/ruletrans/
 ├── part_category_prompt.jtl         # PartCategory 级 Prompt 模板
-├── product_stage1_prompt.jtl       # 产品级 Stage1 模板（分类识别）
-├── product_stage2_prompt.jtl       # 产品级 Stage2 模板（代码生成）
+├── module_stage1_prompt.jtl       # 模块级 Stage1 模板（分类识别）
+├── module_stage2_prompt.jtl       # 模块级 Stage2 模板（代码生成）
 ├── correction_compilation_prompt.jtl # 编译纠错 Prompt 模板
 └── correction_test_prompt.jtl      # 测试纠错 Prompt 模板
 ```
@@ -174,9 +174,9 @@ package com.jmix.ruletrans.context;
 public interface RuleContext {
 
     /**
-     * 判断是否为产品级上下文（跨分类）
+     * 判断是否为模块级上下文（跨分类）
      */
-    boolean isProductLevel();
+    boolean isModuleLevel();
 
     /**
      * 获取上下文摘要（用于日志和调试）
@@ -268,22 +268,22 @@ public class PartCategoryContext implements RuleContext {
 }
 ```
 
-#### 3.3.4 ProductContext（产品级上下文）
+#### 3.3.4 ModuleContext（模块级上下文）
 
 ```java
 package com.jmix.ruletrans.context;
 
 /**
- * 产品级上下文
+ * 模块级上下文
  * 包含多个 PartCategoryContext
  */
-public class ProductContext implements RuleContext {
+public class ModuleContext implements RuleContext {
 
-    private final String productCode;
+    private final String moduleCode;
     private final List<PartCategoryContext> categories;
 
     @Override
-    public boolean isProductLevel() { return true; }
+    public boolean isModuleLevel() { return true; }
 
     @Override
     public List<String> getCategoryCodes() {
@@ -294,8 +294,8 @@ public class ProductContext implements RuleContext {
 
     @Override
     public String summary() {
-        return String.format("Product[code=%s, categories=%s]",
-                productCode, getCategoryCodes());
+        return String.format("Module[code=%s, categories=%s]",
+                moduleCode, getCategoryCodes());
     }
 }
 ```
@@ -410,7 +410,7 @@ package com.jmix.ruletrans.identifier;
 
 /**
  * 分类识别器
- * 产品级规则专用：根据自然语言识别涉及的 PartCategory
+ * 模块级规则专用：根据自然语言识别涉及的 PartCategory
  */
 public class CategoryIdentifier {
 
@@ -422,7 +422,7 @@ public class CategoryIdentifier {
     public List<String> identify(String naturalLanguage, List<String> availableCategories);
 
     /**
-     * 构建分类识别 Prompt（加载 product_stage1_prompt.jtl）
+     * 构建分类识别 Prompt（加载 module_stage1_prompt.jtl）
      */
     public String buildIdentifyPrompt(String naturalLanguage, List<String> availableCategories);
 }
@@ -445,9 +445,9 @@ public class PromptBuilder {
     public String buildPartCategoryPrompt(PartCategoryContext ctx, String naturalLanguage);
 
     /**
-     * 构建产品级代码生成 Prompt（Stage2）
+     * 构建模块级代码生成 Prompt（Stage2）
      */
-    public String buildProductPrompt(ProductContext ctx, String naturalLanguage);
+    public String buildModulePrompt(ModuleContext ctx, String naturalLanguage);
 
     /**
      * 构建编译错误纠错 Prompt
@@ -485,9 +485,9 @@ public class RuleSnippetGenerator {
     public String generate(PartCategoryContext ctx, String naturalLanguage);
 
     /**
-     * 生成产品级规则代码片段（Stage2）
+     * 生成模块级规则代码片段（Stage2）
      */
-    public String generate(ProductContext ctx, String naturalLanguage);
+    public String generate(ModuleContext ctx, String naturalLanguage);
 
     /**
      * 基于编译错误反馈生成纠错后的代码片段
@@ -727,7 +727,7 @@ private void ${ruleMethodName}() {
 - 支持 AttrPara 类型汇总约束（Sum_Quantity、Max_Speed 等）
 ```
 
-#### 3.4.2 产品级 Stage1 模板（product_stage1_prompt.jtl）
+#### 3.4.2 模块级 Stage1 模板（module_stage1_prompt.jtl）
 
 ```
 ## 任务
@@ -751,7 +751,7 @@ ${naturalLanguage}
 ```
 ```
 
-#### 3.4.3 产品级 Stage2 模板（product_stage2_prompt.jtl）
+#### 3.4.3 模块级 Stage2 模板（module_stage2_prompt.jtl）
 
 ```
 ## 任务
@@ -995,7 +995,7 @@ public void testModelHelperUnchanged() {
 |------|------|----------|
 | 自然语言为空 | `""` | 抛出 `IllegalArgumentException` |
 | RuleContext 为空 | `null` | 抛出 `IllegalArgumentException` |
-| Stage1 未识别任何分类 | 产品级，LLM 返回空 | 抛出 `CategoryNotFoundException` |
+| Stage1 未识别任何分类 | 模块级，LLM 返回空 | 抛出 `CategoryNotFoundException` |
 | 重试超过上限 | 连续失败超过 3 次 | 抛出 `RuleTransException`，附最终错误信息 |
 | LLM API 调用失败 | 网络错误/API Key 无效 | 抛出 `RuleTransException`，不修改任何文件 |
 
@@ -1013,13 +1013,13 @@ public void testModelHelperUnchanged() {
 | 阶段 | 任务 | 优先级 | 状态 |
 |------|------|--------|------|
 | 1 | 创建 `com.jmix.ruletrans` 包骨架 | P0 | 待开始 |
-| 2 | 实现 `RuleContext` 及上下文数据类（PartCategoryContext / ProductContext / ParaSpec / AttrParaSpec / DynamicAttrSpec / PartSpec） | P0 | 待开始 |
+| 2 | 实现 `RuleContext` 及上下文数据类（PartCategoryContext / ModuleContext / ParaSpec / AttrParaSpec / DynamicAttrSpec / PartSpec） | P0 | 待开始 |
 | 3 | 创建 `ruletrans/` 目录及五个 Prompt 模板文件 | P0 | 待开始 |
 | 4 | 实现 `PromptBuilder`（含纠错 Prompt 构建） | P0 | 待开始 |
 | 5 | 实现 `RuleSnippetGenerator`（复用 `LLMInvoker`） | P0 | 待开始 |
 | 6 | 实现 `RuleSnippetAssembler`（代码片段组装） | P0 | 待开始 |
 | 7 | 实现 `CompilationProcessor`（复用 `ModuleCompiler`） | P0 | 待开始 |
-| 8 | 实现 `CategoryIdentifier`（产品级 Stage1） | P0 | 待开始 |
+| 8 | 实现 `CategoryIdentifier`（模块级 Stage1） | P0 | 待开始 |
 | 9 | 实现 `RuleTransEngine` 主入口（无纠错版） | P0 | 待开始 |
 | 10 | 实现 `translateWithRetry`（编译纠错 + 测试纠错循环） | P1 | 待开始 |
 | 11 | 实现 `RuleTestCaseGenerator`（JSON 测试用例） | P1 | 待开始 |

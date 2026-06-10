@@ -10,7 +10,7 @@ import java.util.List;
  */
 public interface RuleContext {
 
-    boolean isProductLevel();
+    boolean isModuleLevel();
 
     Module module();
 

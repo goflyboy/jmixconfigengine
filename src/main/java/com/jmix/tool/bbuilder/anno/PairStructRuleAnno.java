@@ -10,7 +10,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation for declaring a binary structured rule in product metadata.
+ * Annotation for declaring a binary structured rule in module metadata.
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 /**
- * Focused tests for product-level stage1 category identification.
+ * Focused tests for module-level stage1 category identification.
  */
 public class CategoryIdentifierTest {
 

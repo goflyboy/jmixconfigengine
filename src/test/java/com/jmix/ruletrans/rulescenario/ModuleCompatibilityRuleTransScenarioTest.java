@@ -15,11 +15,11 @@ import com.jmix.tool.bbuilder.anno.PartAnno;
 
 import org.junit.jupiter.api.Test;
 
-class ProductCompatibilityRuleTransScenarioTest extends RuleScenarioHarnessSupport {
+class ModuleCompatibilityRuleTransScenarioTest extends RuleScenarioHarnessSupport {
 
     @Test
-    void testProductCrossCategoryIncompatibleRule() {
-        RuleContext context = productContext(CpuDriveFacts.class, "cpu", "drive");
+    void testModuleCrossCategoryIncompatibleRule() {
+        RuleContext context = moduleContext(CpuDriveFacts.class, "cpu", "drive");
         RuleScenario scenario = RuleScenario.constraint(RuleScope.PRODUCT, RuleFamily.COMPATIBLE);
         RuleMetadata metadata = metadata("ruleCpu4Drive5400Incompatible",
                 "cpu 中属性 CoreNum 为 4 的部件不能和 drive 中属性 Speed 为 5400 的部件同时选择", "", "");
@@ -37,7 +37,7 @@ class ProductCompatibilityRuleTransScenarioTest extends RuleScenarioHarnessSuppo
                         recommendCase("cpu8AndDrive5400HasSolution", "HAS_SOLUTION",
                                 "cpu:Sum_Quantity ==1 where CoreNum=8",
                                 "drive:Sum_Quantity ==1 where Speed=5400")),
-                "ProductCompatibilityScenario");
+                "ModuleCompatibilityScenario");
     }
 
     @ModuleAnno(id = 811102L)

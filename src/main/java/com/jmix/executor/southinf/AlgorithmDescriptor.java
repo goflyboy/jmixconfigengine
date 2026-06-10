@@ -3,7 +3,7 @@ package com.jmix.executor.southinf;
 import lombok.Data;
 
 /**
- * Stable metadata exposed to product algorithms.
+ * Stable metadata exposed to module algorithms.
  */
 @Data
 public final class AlgorithmDescriptor {

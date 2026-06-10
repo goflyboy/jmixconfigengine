@@ -28,29 +28,29 @@ public final class RuleContextFactory {
         return new PartCategoryRuleContext(module, category);
     }
 
-    public static ProductRuleContext product(Module module) {
+    public static ModuleRuleContext module(Module module) {
         validateModule(module);
-        return new ProductRuleContext(module, List.of());
+        return new ModuleRuleContext(module, List.of());
     }
 
-    public static ProductRuleContext product(Module module, List<String> categoryCodes) {
+    public static ModuleRuleContext module(Module module, List<String> categoryCodes) {
         validateModule(module);
         if (categoryCodes == null || categoryCodes.isEmpty()) {
-            return product(module);
+            return module(module);
         }
         List<PartCategory> categories = categoryCodes.stream()
                 .map(code -> findCategory(module, code))
                 .toList();
-        return new ProductRuleContext(module, categories);
+        return new ModuleRuleContext(module, categories);
     }
 
-    public static ProductRuleContext fromAnnotatedClass(Class<?> algClass, String tempResourcePath) {
+    public static ModuleRuleContext fromAnnotatedClass(Class<?> algClass, String tempResourcePath) {
         if (algClass == null) {
             throw new IllegalArgumentException("algClass must not be null");
         }
         Module module = ModuleGenneratorByAnno.build(algClass, tempResourcePath);
         module.init();
-        return product(module);
+        return module(module);
     }
 
     private static void validateModule(Module module) {

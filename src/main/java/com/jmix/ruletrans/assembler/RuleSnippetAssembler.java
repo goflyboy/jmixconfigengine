@@ -291,7 +291,7 @@ public final class RuleSnippetAssembler {
     }
 
     private RuleScenario defaultScenario(RuleContext context) {
-        RuleScope scope = context != null && context.isProductLevel() ? RuleScope.PRODUCT : RuleScope.PART_CATEGORY;
+        RuleScope scope = context != null && context.isModuleLevel() ? RuleScope.PRODUCT : RuleScope.PART_CATEGORY;
         return RuleScenario.constraint(scope, RuleFamily.UNKNOWN);
     }
 

@@ -171,7 +171,7 @@ public class PriorityConstraint {
         private int index;
 
         /**
-         * 当前部件所属的部件分类代码，如果是产品级，则为空
+         * 当前部件所属的部件分类代码，如果是模块级，则为空
          */
         private String partCategoryCode;
 

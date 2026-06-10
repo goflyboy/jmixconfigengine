@@ -676,7 +676,7 @@ public class ModuleInput implements IModuleInput {
 }
 ```
 
-`toModuleInput(...)` 和 `processProduct(...)` 应共享同一次 `ModuleInput` 构建结果，避免同一个请求在不同路径下重复标准化和重复过滤。
+`toModuleInput(...)` 和 `processModule(...)` 应共享同一次 `ModuleInput` 构建结果，避免同一个请求在不同路径下重复标准化和重复过滤。
 
 ### 6.5 ModuleAlgImpl 构建总量约束
 

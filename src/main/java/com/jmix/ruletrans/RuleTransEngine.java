@@ -2,7 +2,7 @@ package com.jmix.ruletrans;
 
 import com.jmix.ruletrans.assembler.AssembledRuleClass;
 import com.jmix.ruletrans.assembler.RuleSnippetAssembler;
-import com.jmix.ruletrans.context.ProductRuleContext;
+import com.jmix.ruletrans.context.ModuleRuleContext;
 import com.jmix.ruletrans.context.RuleContext;
 import com.jmix.ruletrans.generator.RuleSnippetGenerator;
 import com.jmix.ruletrans.identifier.CategoryIdentifier;
@@ -17,6 +17,7 @@ import com.jmix.ruletrans.scenario.RuleScenarioClassifier;
 import com.jmix.ruletrans.testgen.RuleTestCaseGenerator;
 import com.jmix.ruletrans.testgen.RuleTransTestCaseSet;
 
+import com.jmix.executor.bmodel.PartCategory;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -67,6 +68,13 @@ public final class RuleTransEngine {
         this.scenarioClassifier = scenarioClassifier == null ? new RuleScenarioClassifier() : scenarioClassifier;
     }
 
+    /**
+     * 将自然语言规则翻译为代码方法体（无重试）。
+     *
+     * @param naturalLanguage 自然语言描述的规则
+     * @param context 规则上下文（包含模块、模块级别信息等）
+     * @return 生成的代码方法体
+     */
     public String translate(String naturalLanguage, RuleContext context) {
         validate(naturalLanguage, context);
         RuleContext preparedContext = prepareContext(naturalLanguage, context);
@@ -153,14 +161,14 @@ public final class RuleTransEngine {
     }
 
     private RuleContext prepareContext(String naturalLanguage, RuleContext context) {
-        if (!context.isProductLevel() || !context.targetCategories().isEmpty()) {
+        if (!context.isModuleLevel() || !context.targetCategories().isEmpty()) {
             return context;
         }
         List<String> categoryCodes = identifier.identify(naturalLanguage, context.module());
-        List<com.jmix.executor.bmodel.PartCategory> categories = categoryCodes.stream()
+        List<PartCategory> categories = categoryCodes.stream()
                 .map(code -> context.module().getPartCategory(code))
                 .toList();
-        return new ProductRuleContext(context.module(), categories);
+        return new ModuleRuleContext(context.module(), categories);
     }
 
     private String generateAttemptMethodBody(

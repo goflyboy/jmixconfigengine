@@ -1,4 +1,4 @@
-Natural-language POST product rule:
+Natural-language POST module rule:
 ${naturalLanguage}
 
 Context:
@@ -7,7 +7,7 @@ ${contextSummary}
 Target category codes:
 ${targetCategories}
 
-Product context JSON:
+Module context JSON:
 ${contextJson}
 
 SDK profile:

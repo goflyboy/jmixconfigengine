@@ -124,7 +124,7 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
 
     @Override
     public Result<List<ModuleInst>> doProcess(InferPartCategoryReq partCategoryReq) {
-        return processProduct(module, partCategoryReq);
+        return processModule(module, partCategoryReq);
     }
 
     private Map<String, List<PartConstraintReq>> normalizePartConstraint(List<PartConstraintReq> orgReqs,
@@ -153,7 +153,7 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
      * @param partCategoryReq 部件分类请求
      * @return 推理结果
      */
-    public Result<List<ModuleInst>> processProduct(Module startModule, InferPartCategoryReq partCategoryReq) {
+    public Result<List<ModuleInst>> processModule(Module startModule, InferPartCategoryReq partCategoryReq) {
         try {
             List<CrossCategoryPartCategoryConstraintReq> crossReqs = CrossCategoryConstraintValidator.validate(
                     partCategoryReq.getCrossCategoryConstraintReqs(), startModule);
@@ -165,7 +165,7 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
             Module filterModule = filterResult.filteredModule();
             log.info("Priority-orignal module: {}", ModuleUtils.toShortString(startModule));
             log.info("Priority-filter module: {}", ModuleUtils.toShortString(filterModule));
-            SolverResult sr = solveProductBranches(filterModule, filterResult, partCategoryReq, crossReqs);
+            SolverResult sr = solveModuleBranches(filterModule, filterResult, partCategoryReq, crossReqs);
             // 后处理：注入过滤为空的 PartCategoryInst 错误信息
             injectPartCategoryErrors(sr.getSolutions(), filterResult.errorInfoMap());
 
@@ -291,9 +291,9 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
         return new FilterCloneResult(result, partCategoryInputs, errorInfoMap, optionalPartCategoryInputs);
     }
 
-    private SolverResult solveProductBranches(Module baseModule, FilterCloneResult filterResult,
+    private SolverResult solveModuleBranches(Module baseModule, FilterCloneResult filterResult,
             InferPartCategoryReq req, List<CrossCategoryPartCategoryConstraintReq> crossReqs) {
-        ModuleInput baseInput = toProductModuleInput(baseModule, filterResult, req, crossReqs);
+        ModuleInput baseInput = toModuleModuleInput(baseModule, filterResult, req, crossReqs);
 
         SolverResult merged = solveBranch(baseModule, baseInput);
         appendOptionalBranches(baseModule, filterResult, req, crossReqs, 0, new ArrayList<>(), merged,
@@ -331,7 +331,7 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
             InferPartCategoryReq req, List<CrossCategoryPartCategoryConstraintReq> crossReqs,
             List<PartCategoryInputBase> optionalInputs) {
         Module presentModule = cloneModuleWithCurrentCategories(baseModule);
-        ModuleInput presentInput = toProductModuleInput(presentModule, filterResult, req, crossReqs);
+        ModuleInput presentInput = toModuleModuleInput(presentModule, filterResult, req, crossReqs);
 
         for (PartCategoryInputBase optionalInput : optionalInputs) {
             PartCategory presentCategory = toPresentPartCategory(optionalInput);
@@ -344,7 +344,7 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
         return solveBranch(presentModule, presentInput);
     }
 
-    private ModuleInput toProductModuleInput(Module module, FilterCloneResult filterResult,
+    private ModuleInput toModuleModuleInput(Module module, FilterCloneResult filterResult,
             InferPartCategoryReq req, List<CrossCategoryPartCategoryConstraintReq> crossReqs) {
         ModuleInput input = new ModuleInput();
         input.setModuleId(module.getId());

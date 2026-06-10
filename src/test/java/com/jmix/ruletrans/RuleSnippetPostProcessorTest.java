@@ -160,7 +160,7 @@ public class RuleSnippetPostProcessorTest {
     }
 
     @Test
-    public void testNormalizesPartCategoryAggregateOverloadsFromProductShape() {
+    public void testNormalizesPartCategoryAggregateOverloadsFromModuleShape() {
         RuleSnippetPostProcessor processor = new RuleSnippetPostProcessor();
 
         String methodBody = processor.processMethodBody("""

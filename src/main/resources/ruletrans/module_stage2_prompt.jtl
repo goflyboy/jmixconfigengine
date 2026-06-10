@@ -1,4 +1,4 @@
-Natural-language product-level rule:
+Natural-language module-level rule:
 ${naturalLanguage}
 
 Context:
@@ -7,7 +7,7 @@ ${contextSummary}
 Identified target category codes:
 ${targetCategories}
 
-Product context JSON:
+Module context JSON:
 ${contextJson}
 
 SDK profile:

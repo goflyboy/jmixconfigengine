@@ -70,7 +70,7 @@ public final class RuleTestCaseGenerator {
     }
 
     private boolean allowsRecommendCases(String naturalLanguage, RuleContext context) {
-        if (context != null && context.isProductLevel()) {
+        if (context != null && context.isModuleLevel()) {
             return true;
         }
         String text = naturalLanguage == null ? "" : naturalLanguage.toLowerCase(Locale.ROOT);

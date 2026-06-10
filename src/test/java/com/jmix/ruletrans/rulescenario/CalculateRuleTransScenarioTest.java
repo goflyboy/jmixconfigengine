@@ -22,7 +22,7 @@ class CalculateRuleTransScenarioTest extends RuleScenarioHarnessSupport {
 
     @Test
     void testIfElseCalculationAndNoSolutionBoundary() {
-        RuleContext context = productContext(IfElseFacts.class);
+        RuleContext context = moduleContext(IfElseFacts.class);
         RuleScenario scenario = RuleScenario.constraint(RuleScope.PRODUCT, RuleFamily.CALCULATE);
         RuleMetadata metadata = metadata("ruleIfElseQuantity",
                 "如果参数 p1 选择 op11 且参数 p2 选择 op21，则部件 pt1 的数量必须等于 1；否则 pt1 的数量必须等于 3",
@@ -44,7 +44,7 @@ class CalculateRuleTransScenarioTest extends RuleScenarioHarnessSupport {
 
     @Test
     void testIntegerParameterCalculationAndReverseInference() {
-        RuleContext context = productContext(IntegerFacts.class);
+        RuleContext context = moduleContext(IntegerFacts.class);
         RuleScenario scenario = RuleScenario.constraint(RuleScope.PRODUCT, RuleFamily.CALCULATE);
         RuleMetadata metadata = metadata("ruleIntegerParameterSum", "部件 part1 的数量必须等于整数参数 p1 加 p2", "", "");
 

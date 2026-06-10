@@ -59,7 +59,7 @@ When SDK profile is CONSTRAINT:
   use attrCode "" and put attribute predicates in the filter condition. For total part quantity rules,
   also use attrCode "" unless the rule says weighted by a numeric dynamic attribute.
 - Cross-category aggregate totals use comma-separated category codes in the first argument.
-- Product-level aggregate totals over all instances of a multi-instance category use categoryCode* in the
+- Module-level aggregate totals over all instances of a multi-instance category use categoryCode* in the
   first argument.
 - Do not add * only because a category supports multi-instance; use * only when the natural language explicitly
   asks for all instances of that category.

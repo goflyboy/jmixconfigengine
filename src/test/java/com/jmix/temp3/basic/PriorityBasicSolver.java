@@ -7,7 +7,7 @@ import com.jmix.temp3.core.Part;
 import com.jmix.temp3.core.PartConstraintReq;
 import com.jmix.temp3.core.PartResult;
 import com.jmix.temp3.core.PartVar;
-import com.jmix.temp3.core.ProductResult;
+import com.jmix.temp3.core.ModuleResult;
 import com.jmix.temp3.core.Solution;
 import com.jmix.temp3.core.TrackedLinearExpr;
 
@@ -101,7 +101,7 @@ public class PriorityBasicSolver {
     }
 
     // 主求解方法
-    public ProductResult solve(String strReq) {
+    public ModuleResult solve(String strReq) {
         // 1. 解析需求
         PartConstraintReq req = parseRequirement(strReq);
 
@@ -135,7 +135,7 @@ public class PriorityBasicSolver {
         solver.getParameters().setNumSearchWorkers(1); // 单线程搜索，防止有重复解
 
         // 收集多个解
-        ProductResult pResult = new ProductResult();
+        ModuleResult pResult = new ModuleResult();
         SolutionCollector cb = new SolutionCollector(model, partVars, pResult);
         model.printModelSummary();
         CpSolverStatus status = solver.solve(model.getModel(), cb);
@@ -382,7 +382,7 @@ public class PriorityBasicSolver {
     // }
 
     // 排序解决方案
-    private void sortSolutions(ProductResult pResult) {
+    private void sortSolutions(ModuleResult pResult) {
         sortSolutions(pResult.getSolutions());
     }
 
@@ -462,14 +462,14 @@ public class PriorityBasicSolver {
         private CpModelTracker model;
         private final List<PartVar> partVars;
 
-        private final ProductResult productResult;
+        private final ModuleResult moduleResult;
         final int SEARCH_MAX = 100;// 搜索的最大解
 
-        public SolutionCollector(CpModelTracker model, List<PartVar> partVars, ProductResult productResult) {
+        public SolutionCollector(CpModelTracker model, List<PartVar> partVars, ModuleResult moduleResult) {
             this.model = model;
             this.partVars = partVars;
-            this.productResult = productResult;
-            this.productResult.setSearchMax(SEARCH_MAX);
+            this.moduleResult = moduleResult;
+            this.moduleResult.setSearchMax(SEARCH_MAX);
         }
 
         @Override
@@ -485,14 +485,14 @@ public class PriorityBasicSolver {
 
             double objectValue = calcObjectValue(model.getObjectExpr(), partQtyMap);
             Solution solution = new Solution(partResults, objectValue);
-            solution.setSearchStep(productResult.getSolutions().size() + 1);
-            productResult.getSolutions().add(solution);
-            log.info("Current Solution: " + productResult.getSolutions().size() + " OV=" + objectValue);
+            solution.setSearchStep(moduleResult.getSolutions().size() + 1);
+            moduleResult.getSolutions().add(solution);
+            log.info("Current Solution: " + moduleResult.getSolutions().size() + " OV=" + objectValue);
             // 限制最多收集100个解
 
-            if (productResult.getSolutions().size() >= SEARCH_MAX) {
+            if (moduleResult.getSolutions().size() >= SEARCH_MAX) {
                 log.warn("Has reach the max:" + SEARCH_MAX + " will stop!");
-                productResult.setHasSearchMax(true);
+                moduleResult.setHasSearchMax(true);
                 stopSearch();
             }
         }
@@ -511,32 +511,32 @@ public class PriorityBasicSolver {
 
         System.out.println("=== 测试用例0 ===");
         System.out.println("需求: Capacity >=6 where Speed = 5400");
-        ProductResult result0 = solver.solve("Capacity >=6 where Speed = 5400");
+        ModuleResult result0 = solver.solve("Capacity >=6 where Speed = 5400");
         System.out.println(result0);
 
         System.out.println("\n=== 测试用例1 ===");
         System.out.println("需求: Capacity >=5 where Speed = 5400");
-        ProductResult result1 = solver.solve("Capacity >=5 where Speed = 5400");
+        ModuleResult result1 = solver.solve("Capacity >=5 where Speed = 5400");
         System.out.println(result1);
 
         System.out.println("\n=== 测试用例2 ===");
         System.out.println("需求: Capacity >=7 where Speed = 5400");
-        ProductResult result2 = solver.solve("Capacity >=7 where Speed = 5400");
+        ModuleResult result2 = solver.solve("Capacity >=7 where Speed = 5400");
         System.out.println(result2);
 
         System.out.println("\n=== 测试用例3 ===");
         System.out.println("需求: Qty >=2 where Speed = 5400");
-        ProductResult result3 = solver.solve("Qty >=2 where Speed = 5400");
+        ModuleResult result3 = solver.solve("Qty >=2 where Speed = 5400");
         System.out.println(result3);
 
         System.out.println("\n=== 测试用例4 ===");
         System.out.println("需求: Qty >=3 where Speed = 5400");
-        ProductResult result4 = solver.solve("Qty >=3 where Speed = 5400");
+        ModuleResult result4 = solver.solve("Qty >=3 where Speed = 5400");
         System.out.println(result4);
 
         System.out.println("\n=== 测试用例5 ===");
         System.out.println("需求: Capacity >=5");
-        ProductResult result5 = solver.solve("Capacity >=5");
+        ModuleResult result5 = solver.solve("Capacity >=5");
         System.out.println(result5);
     }
 }

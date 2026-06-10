@@ -19,7 +19,7 @@ class ParameterIncompatibleRuleTransScenarioTest extends RuleScenarioHarnessSupp
 
     @Test
     void testIncompatibleForwardReverseAndMissedDefaultSemantics() {
-        RuleContext context = productContext(ParameterFacts.class);
+        RuleContext context = moduleContext(ParameterFacts.class);
         RuleScenario scenario = RuleScenario.constraint(RuleScope.PRODUCT, RuleFamily.COMPATIBLE);
         RuleMetadata metadata = metadata("ruleParameterIncompatible",
                 "参数 a 选择 a1 或 a3 时，参数 b 不能选择 b1、b2 或 b3", "", "");

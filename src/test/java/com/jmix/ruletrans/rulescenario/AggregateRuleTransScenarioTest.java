@@ -45,7 +45,7 @@ class AggregateRuleTransScenarioTest extends RuleScenarioHarnessSupport {
 
     @Test
     void testCrossCategoryAggregateRule() {
-        RuleContext context = productContext(AggregateFacts.class, "disk", "mainBoard");
+        RuleContext context = moduleContext(AggregateFacts.class, "disk", "mainBoard");
         RuleScenario scenario = RuleScenario.constraint(RuleScope.PRODUCT, RuleFamily.AGGREGATE);
         RuleMetadata metadata = metadata("ruleCrossCapacityAtLeast100",
                 "disk 和 mainBoard 中属性 PortRate 为 10G 的部件，按属性 Capacity 加权后的总数量至少为 100",

@@ -1,4 +1,4 @@
-# Product configurator constraint code generation prompt
+# Module configurator constraint code generation prompt
 
 ## Inputs
 - Package name: ${packageName}

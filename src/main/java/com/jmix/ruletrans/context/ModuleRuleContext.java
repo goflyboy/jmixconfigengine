@@ -7,20 +7,20 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Context for product-level rules, optionally narrowed to identified categories.
+ * Context for module-level rules, optionally narrowed to identified categories.
  */
-public final class ProductRuleContext implements RuleContext {
+public final class ModuleRuleContext implements RuleContext {
 
     private final Module module;
     private final List<PartCategory> selectedCategories;
 
-    public ProductRuleContext(Module module, List<PartCategory> selectedCategories) {
+    public ModuleRuleContext(Module module, List<PartCategory> selectedCategories) {
         this.module = Objects.requireNonNull(module, "module must not be null");
         this.selectedCategories = selectedCategories == null ? List.of() : List.copyOf(selectedCategories);
     }
 
     @Override
-    public boolean isProductLevel() {
+    public boolean isModuleLevel() {
         return true;
     }
 
@@ -37,6 +37,6 @@ public final class ProductRuleContext implements RuleContext {
     @Override
     public String summary() {
         String codes = categoryCodes().isEmpty() ? "<all categories>" : String.join(",", categoryCodes());
-        return "Product rule context: module=" + module.getCode() + ", categories=" + codes;
+        return "Module rule context: module=" + module.getCode() + ", categories=" + codes;
     }
 }

@@ -12,7 +12,7 @@ public final class RuleScenarioClassifier {
 
     public RuleScenario classify(String naturalLanguage, RuleContext context) {
         String text = naturalLanguage == null ? "" : naturalLanguage.toLowerCase(Locale.ROOT);
-        RuleScope scope = context != null && !context.isProductLevel()
+        RuleScope scope = context != null && !context.isModuleLevel()
                 ? RuleScope.PART_CATEGORY
                 : RuleScope.PRODUCT;
         boolean post = containsAny(text,

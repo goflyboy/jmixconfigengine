@@ -75,14 +75,14 @@ public class EnumMultReq4MultiReqTest extends ModuleScenarioTestBase {
         @PartAnno(fatherCode = "drive", attrs = { "9000", "3", "md" }, price = 60)
         private PartVar md3;
 
-        // 改动4：原来属于分类2（多）的参数，由于属于整个分类2，当前多实例化，只能提升到产品级fatherCode = "drive"-> ""
+        // 改动4：原来属于分类2（多）的参数，由于属于整个分类2，当前多实例化，只能提升到模块级fatherCode = "drive"-> ""
         @ParaAnno(fatherCode = "", type = ParaType.INTEGER, assignType = AssignType.INPUT)
         private ParaVar driveSumCapacity;// 输入参数
 
         @ParaAnno(fatherCode = "", type = ParaType.INTEGER, assignType = AssignType.INPUT)
         private ParaVar driveSumQuantity; // 输入参数
 
-        // 改动4：原来属于分类2（多）的参数，由于属于整个分类2，当前多实例化，只能提升到产品级fatherCode = "drive"-> ""
+        // 改动4：原来属于分类2（多）的参数，由于属于整个分类2，当前多实例化，只能提升到模块级fatherCode = "drive"-> ""
         @ParaAnno(fatherCode = "drive", type = ParaType.INTEGER, assignType = AssignType.INPUT)
         private ParaVar Sum_Capacity;// 输入参数
 

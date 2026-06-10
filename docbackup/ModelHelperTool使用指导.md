@@ -134,7 +134,7 @@ com.mycompany.constraints
 ```java
 MyTShirt
 CalculateRule
-ProductConstraint
+ModuleConstraint
 UserPreference
 ```
 
@@ -195,11 +195,11 @@ private ParaVar sizeVar;
 
 // 产品部件
 @PartAnno()
-private PartVar ProductVar;
+private PartVar ModuleVar;
 
 // 限量部件（最大数量为50）
 @PartAnno(maxQuantity = 50)
-private PartVar LimitedProductVar;
+private PartVar LimitedModuleVar;
 ```
 
 ### userLogicByPseudocode 配置
@@ -230,11 +230,11 @@ else {
 ```java
 // 如果颜色是红色且尺寸是小号，则产品数量为1
 if(colorVar.value == Red && sizeVar.value == Small) {
-    ProductVar.qty = 1;
+    ModuleVar.qty = 1;
 }
 // 否则产品数量为3
 else {
-    ProductVar.qty = 3;
+    ModuleVar.qty = 3;
 }
 ```
 
@@ -262,16 +262,16 @@ else {
 ```java
 // 多条件组合
 if(colorVar.value == Red && sizeVar.value == Small) {
-    ProductVar.qty = 1;
+    ModuleVar.qty = 1;
 }
 else if(colorVar.value == Blue && sizeVar.value == Medium) {
-    ProductVar.qty = 2;
+    ModuleVar.qty = 2;
 }
 else if(colorVar.value == Green && sizeVar.value == Large) {
-    ProductVar.qty = 3;
+    ModuleVar.qty = 3;
 }
 else {
-    ProductVar.qty = 5;
+    ModuleVar.qty = 5;
 }
 ```
 
@@ -403,7 +403,7 @@ if(CompatibilityRule(colorVar, sizeVar)) {
 
 ### 1. 命名规范
 
-- **模型名**: 使用描述性的英文名称，如 `ProductConstraint`、`UserPreference`
+- **模型名**: 使用描述性的英文名称，如 `ModuleConstraint`、`UserPreference`
 - **参数名**: 使用驼峰命名，如 `colorVar`、`sizeVar`
 - **选项值**: 使用有意义的标识符，如 `Red`、`Small`、`Premium`
 

@@ -25,7 +25,7 @@ Lombok is used throughout — ensure annotation processing is enabled in your ID
 
 ## Architecture
 
-This is a **constraint-based configuration engine** that uses Google OR-Tools (CP-SAT solver) to reason about product configurations. The system models products as Modules with Params, Parts, and Rules, then uses the CP-SAT solver to find valid configurations or infer parameter values.
+This is a **constraint-based configuration engine** that uses Google OR-Tools (CP-SAT solver) to reason about product configurations. The system models modules as Modules with Params, Parts, and Rules, then uses the CP-SAT solver to find valid configurations or infer parameter values.
 
 ### Layer Model
 

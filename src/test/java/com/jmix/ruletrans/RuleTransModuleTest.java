@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jmix.ruletrans.assembler.RuleSnippetAssembler;
 import com.jmix.ruletrans.assembler.RuleTransTempFileManager;
-import com.jmix.ruletrans.context.ProductRuleContext;
+import com.jmix.ruletrans.context.ModuleRuleContext;
 import com.jmix.ruletrans.context.RuleContextFactory;
 import com.jmix.ruletrans.generator.RuleSnippetGenerator;
 import com.jmix.ruletrans.generator.RuleSnippetPostProcessor;
@@ -46,8 +46,8 @@ public class RuleTransModuleTest {
     }
 
     @Test
-    public void testProductTranslateUsesIdentifiedCategories() {
-        ProductRuleContext context = RuleContextFactory.product(sampleModule());
+    public void testModuleTranslateUsesIdentifiedCategories() {
+        ModuleRuleContext context = RuleContextFactory.module(sampleModule());
 
         String methodBody = engine(realLlmInvoker())
                 .translate("cpu 中属性 CoreNum 为 4 的部件不能和 drive 中属性 Speed 为 5400 的部件同时选择", context);
@@ -86,10 +86,10 @@ public class RuleTransModuleTest {
     }
 
     @Test
-    public void testProductEndToEndGeneratedTestCasesPass() {
+    public void testModuleEndToEndGeneratedTestCasesPass() {
         RuleTransResult result = engineWithGeneratedCases(realLlmInvoker()).translateWithRetry(
                 "cpu 中属性 CoreNum 为 4 的部件不能和 drive 中属性 Speed 为 5400 的部件同时选择",
-                RuleContextFactory.product(sampleModule()),
+                RuleContextFactory.module(sampleModule()),
                 0);
 
         assertTrue(result.success(), String.valueOf(result.testExecutionResult()));

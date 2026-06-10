@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jmix.temp3.core.PartResult;
-import com.jmix.temp3.core.ProductResult;
+import com.jmix.temp3.core.ModuleResult;
 import com.jmix.temp3.core.Solution;
 
 import org.junit.jupiter.api.Test;
@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * ProductSolver 测试类
+ * ModuleSolver 测试类
  * 
  * @since 2025-01-17
  */
@@ -147,7 +147,7 @@ public class PriorityBasicSolverTest {
         // * md2_Q + 1 * md3_Q) - 2) <= 1000
     }
 
-    ProductResult result = null;
+    ModuleResult result = null;
 
     /**
      * 求解并打印调试信息
@@ -156,7 +156,7 @@ public class PriorityBasicSolverTest {
      * @param testCaseName 测试用例名称
      * @return 解列表
      */
-    private ProductResult solve(String strReq) {
+    private ModuleResult solve(String strReq) {
         PriorityBasicSolver solver = new PriorityBasicSolver();
 
         result = solver.solve(strReq);

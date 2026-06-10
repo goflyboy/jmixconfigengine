@@ -77,7 +77,7 @@ public final class PromptBuilder {
         variables.put("naturalLanguage", naturalLanguage);
         variables.put("moduleCode", value(module.getCode()));
         variables.put("availableCategories", categoryMemo(module.getAllPartCategorys()));
-        return PromptTemplateLoader.loadAndRenderTemplate("ruletrans/product_stage1_prompt.jtl", variables);
+        return PromptTemplateLoader.loadAndRenderTemplate("ruletrans/module_stage1_prompt.jtl", variables);
     }
 
     public String buildCompilationCorrectionPrompt(
@@ -145,19 +145,19 @@ public final class PromptBuilder {
     }
 
     private Object promptView(RuleContext context) {
-        return context.isProductLevel()
-                ? projector.projectProduct(context)
+        return context.isModuleLevel()
+                ? projector.projectModule(context)
                 : projector.projectPartCategory(context);
     }
 
     private String generateTemplate(RuleContext context, RuleScenario scenario) {
         if (scenario != null && scenario.isPost()) {
-            return context.isProductLevel()
-                    ? "ruletrans/post_product_prompt.jtl"
+            return context.isModuleLevel()
+                    ? "ruletrans/post_module_prompt.jtl"
                     : "ruletrans/post_part_category_prompt.jtl";
         }
-        return context.isProductLevel()
-                ? "ruletrans/product_stage2_prompt.jtl"
+        return context.isModuleLevel()
+                ? "ruletrans/module_stage2_prompt.jtl"
                 : "ruletrans/part_category_prompt.jtl";
     }
 

@@ -571,7 +571,7 @@ final class StructRuleBuildExpander {
         List<PartCombination> combinations = new ArrayList<>();
         for (Rule subRule : subRules) {
             List<List<String>> partCodeSets = resolveExprsToPartCodes(subRule, module);
-            combinations.addAll(cartesianProduct(partCodeSets, subRule.getCode()));
+            combinations.addAll(cartesianModule(partCodeSets, subRule.getCode()));
         }
 
         CodependantRuleSchema exe = new CodependantRuleSchema();
