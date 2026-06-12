@@ -130,7 +130,8 @@ public class ModuleBaseInst {
         Collections.sort(parts, (a, b) -> a.getCode().compareTo(b.getCode()));
         // 添加参数信息（排除 INPUT 类型，这些是约束输入数据，不属于求解器输出）
         for (ParaInst para : paras) {
-            if ("INPUT".equals(para.getExtAttrs().get(ModuleBaseInst.PARA_INST_TYPE_KEY))) {
+            if (para.getExtAttrs() != null
+                    && "INPUT".equals(para.getExtAttrs().get(ModuleBaseInst.PARA_INST_TYPE_KEY))) {
                 continue;
             }
             if (sb.length() > 0) {

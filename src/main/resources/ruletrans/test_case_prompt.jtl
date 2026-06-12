@@ -1,6 +1,9 @@
 自然语言规则：
 ${naturalLanguage}
 
+规则场景：
+${ruleScenario}
+
 上下文：
 ${contextSummary}
 
@@ -10,31 +13,61 @@ ${contextJson}
 已生成的规则方法体：
 ${methodBody}
 
-请生成用于验证该规则的结构化测试用例。
-只返回简洁 JSON，并匹配以下 schema：
+请生成用于验证该规则的业务可读 JSON 测试用例。
+只返回 JSON，不要返回 markdown、解释或 Java 代码。
+
+输出必须匹配以下 schema：
 {
   "ruleMethod": "optional method name",
   "cases": [
     {
       "id": "shortCaseId",
-      "type": "validate",
-      "selectedParts": ["partCode1", "partCode2"],
-      "expectedValid": false,
-      "expectedViolatedRuleCodes": ["ruleCode"]
-    },
-    {
-      "id": "shortRecommendCaseId",
-      "type": "recommend",
-      "requests": ["category:Sum_Quantity ==1 where Attr=Value"],
-      "expectedResult": "NO_SOLUTION"
+      "title": "业务标题",
+      "businessFamily": "ASSIGNMENT | COMPATIBILITY | PRIORITY",
+      "scenario": "业务场景",
+      "environment": "CONSTRAINT | NON_CONSTRAINT",
+      "serviceMethod": "testAssignment | testCompatibility | testPriority | testPostAssignment",
+      "given": {
+        "parameters": [{"code": "paraCode", "value": "optionOrValue"}],
+        "parts": [{"code": "partCode", "quantity": 1, "isSelected": true}],
+        "partCategories": [
+          {
+            "category": "categoryCode",
+            "aggregate": "Sum_Quantity",
+            "operator": "==",
+            "value": 1,
+            "where": {"Attr": "Value"}
+          }
+        ]
+      },
+      "expect": {
+        "compatible": true,
+        "parameters": [{"code": "paraCode", "value": "optionOrValue"}],
+        "parts": [{"code": "partCode", "quantity": 1}],
+        "solutions": [
+          {
+            "rank": 1,
+            "parts": [{"code": "partCode", "quantity": 1}],
+            "parameters": []
+          }
+        ],
+        "diagnostics": [{"ruleCode": "ruleCode"}]
+      },
+      "note": "optional note"
     }
   ]
 }
 
-selected part 组合校验使用 validate case；推理/求解路径使用 recommend case。
-普通规则校验优先生成 validate case。
-在 validate case 中，selectedParts 是一组互不重复的已选原子部件 code。
-不要重复某个 part code 来表达数量。
-只有当自然语言规则明确要求推荐、推理、求解或无解行为时，才生成 recommend case。
-对 recommend case，expectedResult 只能是 "NO_SOLUTION" 或 "HAS_SOLUTION"。
-不要在 expectedResult 中放入具体部件 code、解列表或自由文本。
+要求：
+1. 用业务领域对象表达输入和预期输出，只写当前规则关注的关键字段。
+2. 不要输出 InferParasReq、PartConstraintReq、ModuleInst、selectedParts、requests、
+   expectedFirstPartQuantities、inferRecommendModule、validateData 等内部字段或代码。
+3. 计算赋值类使用 businessFamily=ASSIGNMENT。给定参数推导部件/参数时优先用
+   serviceMethod=testAssignment；POST 后置写回使用 serviceMethod=testPostAssignment。
+4. 兼容类使用 businessFamily=COMPATIBILITY，serviceMethod=testCompatibility，
+   预期优先写 expect.compatible=true/false，必要时补 diagnostics.ruleCode。
+5. 优先类使用 businessFamily=PRIORITY，serviceMethod=testPriority，
+   显式需要排序时在 expect.solutions 中写 rank，rank=1 必须代表第一个解。
+6. PartCategory 聚合输入使用 partCategories；where 使用属性到值的 JSON 对象，
+   aggregate 使用 Sum_Quantity、Sum_Capacity、SumSum_Quantity 这类业务表达。
+7. 不要为了测试方便补充无关参数、部件、价格或重复字段。

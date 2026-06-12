@@ -6,6 +6,11 @@ import com.jmix.ruletrans.RuleTransException;
 import com.jmix.ruletrans.context.RuleContext;
 import com.jmix.ruletrans.prompt.PromptBuilder;
 import com.jmix.ruletrans.scenario.RuleScenario;
+import com.jmix.ruletrans.testgen.business.BusinessRuleFamily;
+import com.jmix.ruletrans.testgen.business.BusinessRuleTestCase;
+import com.jmix.ruletrans.testgen.business.BusinessRuleTestCaseSet;
+import com.jmix.ruletrans.testgen.business.RuleUnitServiceMethod;
+import com.jmix.ruletrans.testgen.business.TestEnvironment;
 import com.jmix.tool.impl.llm.LLMInvoker;
 
 import java.util.ArrayList;
@@ -50,6 +55,61 @@ public final class RuleTestCaseGenerator {
         } catch (Exception e) {
             throw new RuleTransException("LLM test case generation failed: " + e.getMessage(), e);
         }
+    }
+
+    public BusinessRuleTestCaseSet generateBusinessCases(
+            String naturalLanguage,
+            RuleContext context,
+            RuleScenario scenario,
+            String methodBody) {
+        if (llmInvoker == null) {
+            return BusinessRuleTestCaseSet.empty();
+        }
+        String prompt = promptBuilder.buildTestCasePrompt(naturalLanguage, context, scenario, methodBody);
+        try {
+            String response = llmInvoker.generate(PromptBuilder.SYSTEM_MESSAGE, prompt);
+            return normalizeBusinessCases(scenario, BusinessRuleTestCaseSet.fromJson(response));
+        } catch (RuleTransException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuleTransException("LLM business test case generation failed: " + e.getMessage(), e);
+        }
+    }
+
+    private BusinessRuleTestCaseSet normalizeBusinessCases(
+            RuleScenario scenario,
+            BusinessRuleTestCaseSet caseSet) {
+        if (caseSet.isEmpty()) {
+            return caseSet;
+        }
+        List<BusinessRuleTestCase> cases = caseSet.cases().stream()
+                .map(testCase -> normalizeBusinessCase(scenario, testCase))
+                .toList();
+        return new BusinessRuleTestCaseSet(caseSet.ruleMethod(), cases);
+    }
+
+    private BusinessRuleTestCase normalizeBusinessCase(
+            RuleScenario scenario,
+            BusinessRuleTestCase testCase) {
+        BusinessRuleFamily family = testCase.businessFamily() == null
+                ? businessFamily(scenario)
+                : testCase.businessFamily();
+        TestEnvironment environment = testCase.environment() == null
+                ? defaultEnvironment(scenario)
+                : testCase.environment();
+        String serviceMethod = notBlank(testCase.serviceMethod())
+                ? RuleUnitServiceMethod.from(testCase.serviceMethod()).name()
+                : serviceMethod(family, environment);
+        return new BusinessRuleTestCase(
+                testCase.id(),
+                testCase.title(),
+                family,
+                testCase.scenario(),
+                environment,
+                serviceMethod,
+                testCase.given(),
+                testCase.expect(),
+                testCase.note());
     }
 
     private RuleTransTestCaseSet pruneGeneratedCases(
@@ -160,5 +220,37 @@ public final class RuleTestCaseGenerator {
                 .map(Part::getCode)
                 .sorted()
                 .findFirst();
+    }
+
+    private BusinessRuleFamily businessFamily(RuleScenario scenario) {
+        if (scenario == null) {
+            return BusinessRuleFamily.ASSIGNMENT;
+        }
+        return switch (scenario.family()) {
+            case COMPATIBLE, STRUCTURED -> BusinessRuleFamily.COMPATIBILITY;
+            case PRIORITY -> BusinessRuleFamily.PRIORITY;
+            default -> BusinessRuleFamily.ASSIGNMENT;
+        };
+    }
+
+    private TestEnvironment defaultEnvironment(RuleScenario scenario) {
+        return scenario != null && scenario.isPost()
+                ? TestEnvironment.NON_CONSTRAINT
+                : TestEnvironment.CONSTRAINT;
+    }
+
+    private String serviceMethod(BusinessRuleFamily family, TestEnvironment environment) {
+        if (environment == TestEnvironment.NON_CONSTRAINT) {
+            return RuleUnitServiceMethod.testPostAssignment.name();
+        }
+        return switch (family) {
+            case COMPATIBILITY -> RuleUnitServiceMethod.testCompatibility.name();
+            case PRIORITY -> RuleUnitServiceMethod.testPriority.name();
+            case ASSIGNMENT -> RuleUnitServiceMethod.testAssignment.name();
+        };
+    }
+
+    private boolean notBlank(String value) {
+        return value != null && !value.trim().isEmpty();
     }
 }

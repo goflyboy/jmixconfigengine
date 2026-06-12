@@ -3,6 +3,7 @@ package com.jmix.executor.impl.algmodel;
 import com.jmix.executor.bmodel.AttrPara;
 import com.jmix.executor.bmodel.IModule;
 import com.jmix.executor.bmodel.Part;
+import com.jmix.executor.bmodel.PartCategory;
 import com.jmix.executor.bmodel.PartUtils;
 import com.jmix.executor.bmodel.attr.DynamicAttributerOption;
 import com.jmix.executor.bmodel.base.AssignType;
@@ -370,7 +371,8 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
         log.info("Initialized {} para variables", paraMap.size());
 
         // 初始化所有parts（原子部件）
-        for (Part part : module.getAtomicParts()) {
+        List<Part> parts = module instanceof PartCategory ? module.getAllAtomicParts() : module.getAtomicParts();
+        for (Part part : parts) {
             PartVarImpl partVar = initPartVar(part);
             partMap.put(part.getCode(), partVar);
         }
@@ -1259,7 +1261,7 @@ public abstract class ModuleBaseAlgImpl implements IModuleAlg {
      * @param paraVar 参数变量
      */
     private void addExactlyOneConstraint(ParaVarImpl paraVar) {
-        model.addExactlyOne(paraVar.getOptionSelectVars().values().stream()
+        model.addHardExactlyOne(paraVar.getOptionSelectVars().values().stream()
                 .map(option -> option.getIsSelectedVar())
                 .toArray(BoolVar[]::new));
     }

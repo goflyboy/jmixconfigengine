@@ -69,7 +69,7 @@ public class CompatibleConstraintAlg {
     }
 
     private void addExactlyOneConstraint(List<PartVarImpl> partVars) {
-        model.addExactlyOne(partVars.stream()
+        model.addHardExactlyOne(partVars.stream()
                 .map(partVar -> partVar.getIsSelected())
                 .toArray(Literal[]::new));
     }

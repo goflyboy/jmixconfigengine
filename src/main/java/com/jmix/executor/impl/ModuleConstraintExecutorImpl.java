@@ -199,6 +199,7 @@ public class ModuleConstraintExecutorImpl extends ModuleBaseConstraintExecutorIm
     public static FilterCloneResult filterClone(Module startModule,
             Map<String, List<PartConstraintReq>> partConstraintReqMap) {
         Module result = startModule.clone();
+        result.addAtomicPartsWithoutStructure(startModule.getAtomicParts());
         List<PartCategoryInputBase> partCategoryInputs = new ArrayList<>();
         List<PartCategoryInputBase> optionalPartCategoryInputs = new ArrayList<>();
         Map<String, ErrorInfo> errorInfoMap = new LinkedHashMap<>();

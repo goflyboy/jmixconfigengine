@@ -157,17 +157,21 @@ public class AlgCPModel {
         }
         log.info("relax:{} relax is attached,setCurrentRelaxVarName", ruleCode);
         this.currentRelaxVarName = "relax_" + ruleCode;
-        this.currentRelaxVar = newBoolVar(this.currentRelaxVarName);
 
         int tempWeight = weight;
         if (confictedRelaxVarMap.containsKey(this.currentRelaxVarName)) {
             tempWeight = tempWeight + RelaxVar.WEIGHT_ADDER;
         }
 
-        RelaxVar relaxVar = new RelaxVar(this.currentRelaxVarName, ruleCode, this.currentRelaxVar, tempWeight);
         if (relaxationVarMap.containsKey(this.currentRelaxVarName)) {
-            throw new AlgLoaderException("Relaxation variable already exists: " + ruleCode);
+            RelaxVar relaxVar = relaxationVarMap.get(this.currentRelaxVarName);
+            this.currentRelaxVar = relaxVar.getValue();
+            relaxVar.setWeight(Math.max(relaxVar.getWeight(), tempWeight));
+            return;
         }
+
+        this.currentRelaxVar = newBoolVar(this.currentRelaxVarName);
+        RelaxVar relaxVar = new RelaxVar(this.currentRelaxVarName, ruleCode, this.currentRelaxVar, tempWeight);
         relaxationVarMap.put(this.currentRelaxVarName, relaxVar);
     }
 
@@ -504,6 +508,13 @@ public class AlgCPModel {
         return algCt;
     }
 
+    private AlgCPConstraint createAndTrackHardBoolConstraint(Constraint constraint, String constraintName) {
+        AlgCPConstraint algCt = new AlgCPConstraint(constraint, null, "");
+        algCt.setName(constraintName);
+        constraints.add(algCt);
+        return algCt;
+    }
+
     /**
      * 将LinearArgument转换为名称字符串
      *
@@ -601,6 +612,15 @@ public class AlgCPModel {
     }
 
     /**
+     * Adds a structural exactly-one constraint without attaching the current relaxation
+     * variable.
+     */
+    public AlgCPConstraint addHardExactlyOne(final Literal[] literals) {
+        Constraint ct = cpModel.addExactlyOne(literals);
+        return createAndTrackHardBoolConstraint(ct, "addHardExactlyOne");
+    }
+
+    /**
      * 添加恰好一个约束，恰好有一个字面量为真
      *
      * @param literals 字面量集合
@@ -609,6 +629,15 @@ public class AlgCPModel {
     public AlgCPConstraint addExactlyOne(final Iterable<Literal> literals) {
         Constraint ct = cpModel.addExactlyOne(literals);
         return createAndTrackBoolConstraint(ct, "addExactlyOne");
+    }
+
+    /**
+     * Adds a structural exactly-one constraint without attaching the current relaxation
+     * variable.
+     */
+    public AlgCPConstraint addHardExactlyOne(final Iterable<Literal> literals) {
+        Constraint ct = cpModel.addExactlyOne(literals);
+        return createAndTrackHardBoolConstraint(ct, "addHardExactlyOne");
     }
 
     /**
