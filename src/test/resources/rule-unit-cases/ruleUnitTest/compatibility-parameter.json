@@ -1,0 +1,25 @@
+{
+  "ruleMethod": "incompatibleA1B1",
+  "cases": [
+    {
+      "id": "COMP-PARA-001",
+      "title": "A=a1 与 B=b1 不兼容",
+      "businessFamily": "COMPATIBILITY",
+      "scenario": "参数 Incompatible",
+      "environment": "CONSTRAINT",
+      "serviceMethod": "testCompatibility",
+      "given": {
+        "parameters": [
+          {"code": "a", "value": "a1"},
+          {"code": "b", "value": "b1"}
+        ]
+      },
+      "expect": {
+        "compatible": false,
+        "diagnostics": [
+          {"ruleCode": "incompatibleA1B1"}
+        ]
+      }
+    }
+  ]
+}

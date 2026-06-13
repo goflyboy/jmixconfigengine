@@ -126,12 +126,13 @@ public final class RuleSnippetAssembler {
                 import com.jmix.tool.bbuilder.anno.*;
                 import java.util.*;
 
+                @ModuleAnno(id = %dL)
                 public class %s extends ModuleAlgBase {
 
                 %s
                 %s
                 }
-                """.formatted(DEFAULT_PACKAGE, className, fields, indent(ruleMethod.trim()));
+                """.formatted(DEFAULT_PACKAGE, context.module().getId(), className, fields, indent(ruleMethod.trim()));
     }
 
     private String executableTestSource(

@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 模块实例解决方案回调类
@@ -227,8 +228,7 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
         List<Integer> exprVariablesValues = new ArrayList<>();
         // 遍历表达式变量
         for (PriorityConstraint.PartTerm exprVariable : priorityExpr.getPartTerms()) {
-            PartInst pInst = moduleInst.queryPart(exprVariable.getPartCategoryCode(), exprVariable.getInstId(),
-                    exprVariable.getPartCode());
+            PartInst pInst = queryPriorityPart(moduleInst, exprVariable);
             if (pInst == null) {
                 exprVariablesValues.add(0);
                 log.error("PartInst not found: partCategoryCode={}, instId={}, partCode={}",
@@ -245,5 +245,36 @@ public class ModuleInstSolutionCallBack extends CpSolverSolutionCallback {
         // 计算最优值
         double calculatedValue = PriorityConstraint.calcToString(priorityExpr, exprVariablesValues);
         moduleInst.setPriorityOverallValue(calculatedValue);
+    }
+
+    private PartInst queryPriorityPart(ModuleInst moduleInst, PriorityConstraint.PartTerm exprVariable) {
+        PartInst pInst = moduleInst.queryPart(exprVariable.getPartCategoryCode(), exprVariable.getInstId(),
+                exprVariable.getPartCode());
+        if (pInst != null) {
+            return pInst;
+        }
+        return moduleInst.getAllParts().stream()
+                .filter(part -> Objects.equals(part.getCode(), exprVariable.getPartCode()))
+                .reduce(this::moreMeaningfulPart)
+                .orElse(null);
+    }
+
+    private PartInst moreMeaningfulPart(PartInst current, PartInst candidate) {
+        if (partScore(candidate) > partScore(current)) {
+            return candidate;
+        }
+        return current;
+    }
+
+    private int partScore(PartInst partInst) {
+        int score = 0;
+        if (partInst.isSelected()) {
+            score += 2;
+        }
+        Integer quantity = partInst.getQuantity();
+        if (quantity != null && quantity > 0) {
+            score += 1;
+        }
+        return score;
     }
 }

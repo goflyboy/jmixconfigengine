@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Extended linear expression that carries part-related term metadata for
@@ -20,6 +22,8 @@ import java.util.List;
 @Slf4j
 @Data
 public class PartAlgCPLinearExpr extends AlgCPLinearExpr {
+
+    private static final Pattern PART_VAR_PATTERN = Pattern.compile("^##Part\\.(?:I(\\d+)_)?([^.]+)\\.([A-Z])$");
 
     private final List<String> termStrs = new ArrayList<>();
 
@@ -145,6 +149,40 @@ public class PartAlgCPLinearExpr extends AlgCPLinearExpr {
 
         // delegate to parent to build numeric expression
         super.addTerm(var, coefficient);
+    }
+
+    @Override
+    public void addTerm(IntVar var, long coefficient) {
+        super.addTerm(var, coefficient);
+        addPartTermFromVarName(var.getName(), coefficient);
+    }
+
+    public void addTerm(BoolVar var, long coefficient) {
+        super.addTerm(var, coefficient);
+        addPartTermFromVarName(var.getName(), coefficient);
+    }
+
+    private void addPartTermFromVarName(String varName, long coefficient) {
+        Matcher matcher = PART_VAR_PATTERN.matcher(varName);
+        if (!matcher.matches()) {
+            return;
+        }
+        int instId = matcher.group(1) == null ? ModuleInst.DEFAULT_INSTANCE_ID : Integer.parseInt(matcher.group(1));
+        String partCode = matcher.group(2);
+        String termValue = matcher.group(3);
+
+        termStrs.add(coefficient + "*" + partCode + "." + termValue);
+        termTemplates.add(coefficient + "*" + "%d");
+        termTemplateStrs.add(coefficient + "*" + partCode + "." + termValue + "_%d");
+
+        PriorityConstraint.PartTerm term = new PriorityConstraint.PartTerm();
+        term.setIndex(termIndex);
+        term.setPartCategoryCode("");
+        term.setInstId(instId);
+        term.setPartCode(partCode);
+        term.setTermValue(termValue);
+        partTerms.add(term);
+        termIndex++;
     }
 
     private boolean isSinglePositiveExpr(String expr) {
