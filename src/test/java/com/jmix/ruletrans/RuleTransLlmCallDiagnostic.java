@@ -1,5 +1,7 @@
 package com.jmix.ruletrans;
 
+import com.jmix.tool.impl.llm.LlmCacheStatus;
+
 import java.nio.file.Path;
 
 /**
@@ -14,5 +16,10 @@ public record RuleTransLlmCallDiagnostic(
         Path fullResponseFile,
         long durationMillis,
         boolean success,
-        String errorMessage) {
+        String errorMessage,
+        String modelTag,
+        String modelIdentity,
+        LlmCacheStatus cacheStatus,
+        String cacheKey,
+        Path cacheEntryFile) {
 }

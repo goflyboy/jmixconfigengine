@@ -61,10 +61,15 @@ public final class RuleTransPipelineResultPrinter {
         for (RuleTransLlmCallDiagnostic call : calls) {
             out.println("#" + call.index()
                     + " stage=" + call.stage()
+                    + modelSummary(call)
+                    + cacheSummary(call)
                     + " duration=" + call.durationMillis() + "ms"
                     + " success=" + call.success());
             if (!call.errorMessage().isBlank()) {
                 out.println("error: " + call.errorMessage());
+            }
+            if (!value(call.cacheKey()).isBlank()) {
+                out.println("cacheKey=" + call.cacheKey() + " entry=" + path(call.cacheEntryFile()));
             }
             out.println("Prompt summary:");
             out.println(indent(call.promptSummary()));
@@ -235,6 +240,24 @@ public final class RuleTransPipelineResultPrinter {
         return safe.lines()
                 .map(line -> "  " + line)
                 .collect(Collectors.joining("\n"));
+    }
+
+    private static String modelSummary(RuleTransLlmCallDiagnostic call) {
+        if (value(call.modelTag()).isBlank()) {
+            return "";
+        }
+        String model = call.modelTag();
+        if (!value(call.modelIdentity()).isBlank()) {
+            model += "/" + call.modelIdentity();
+        }
+        return " model=" + model;
+    }
+
+    private static String cacheSummary(RuleTransLlmCallDiagnostic call) {
+        if (call.cacheStatus() == null) {
+            return "";
+        }
+        return " cache=" + call.cacheStatus();
     }
 
     private static String value(String value) {

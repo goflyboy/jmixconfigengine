@@ -19,7 +19,14 @@ public abstract class LLMInvokerBase {
 
     protected LLMInvokerBase() {
         this.config = loadLLMConfig();
-        this.modelName = normalizedOrDefault(this.config.getProperty("default.model"), "deepseek");
+        this.modelName = normalizedOrDefault(
+                this.config.getProperty("llm.default.model", this.config.getProperty("default.model")),
+                "deepseek");
+    }
+
+    protected LLMInvokerBase(String modelName) {
+        this.config = loadLLMConfig();
+        this.modelName = normalizedOrDefault(modelName, "deepseek");
     }
 
     /**
@@ -49,17 +56,21 @@ public abstract class LLMInvokerBase {
      */
     protected Properties getDefaultLLMConfig() {
         Properties defaultConfig = new Properties();
-        defaultConfig.setProperty("default.model", "deepseek");
-        defaultConfig.setProperty("llm.deepseek.apiKey", "${DEEPSEEK_API_KEY}");
-        defaultConfig.setProperty("llm.deepseek.baseUrl", "https://api.deepseek.com");
-        defaultConfig.setProperty("llm.deepseek.modelName", "deepseek-v4-pro");
-        defaultConfig.setProperty("llm.deepseek.temperature", "0.7");
-        defaultConfig.setProperty("llm.deepseek.maxTokens", "4000");
-        defaultConfig.setProperty("llm.qwen.apiKey", "${QWEN_API_KEY}");
-        defaultConfig.setProperty("llm.qwen.baseUrl", "https://dashscope.aliyuncs.com/compatible-mode/v1");
-        defaultConfig.setProperty("llm.qwen.modelName", "qwen-plus");
-        defaultConfig.setProperty("llm.qwen.temperature", "0.7");
-        defaultConfig.setProperty("llm.qwen.maxTokens", "4000");
+        defaultConfig.setProperty("llm.default.model", "deepseek");
+        defaultConfig.setProperty("llm.model.deepseek.provider", "openai-compatible");
+        defaultConfig.setProperty("llm.model.deepseek.apiKeyEnv", "DEEPSEEK_API_KEY");
+        defaultConfig.setProperty("llm.model.deepseek.baseUrl", "https://api.deepseek.com");
+        defaultConfig.setProperty("llm.model.deepseek.modelName", "deepseek-v4-pro");
+        defaultConfig.setProperty("llm.model.deepseek.temperature", "0.3");
+        defaultConfig.setProperty("llm.model.deepseek.maxTokens", "4000");
+        defaultConfig.setProperty("llm.model.deepseek.completionsPath", "/chat/completions");
+        defaultConfig.setProperty("llm.model.qwen.provider", "openai-compatible");
+        defaultConfig.setProperty("llm.model.qwen.apiKeyEnv", "QWEN_API_KEY");
+        defaultConfig.setProperty("llm.model.qwen.baseUrl", "https://dashscope.aliyuncs.com/compatible-mode/v1");
+        defaultConfig.setProperty("llm.model.qwen.modelName", "qwen-plus");
+        defaultConfig.setProperty("llm.model.qwen.temperature", "0.7");
+        defaultConfig.setProperty("llm.model.qwen.maxTokens", "4000");
+        defaultConfig.setProperty("llm.model.qwen.completionsPath", "/chat/completions");
         return defaultConfig;
     }
 

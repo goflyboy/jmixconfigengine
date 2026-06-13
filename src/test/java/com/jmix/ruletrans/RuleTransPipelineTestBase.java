@@ -1,7 +1,5 @@
 package com.jmix.ruletrans;
 
-import static com.jmix.ruletrans.RuleTransRealLlmSupport.realLlmInvoker;
-
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jmix.ruletrans.assembler.RuleSnippetAssembler;
@@ -17,7 +15,13 @@ import com.jmix.ruletrans.postprocessor.RuleUnitCaseExecutionProcessor;
 import com.jmix.ruletrans.prompt.PromptBuilder;
 import com.jmix.ruletrans.prompt.RulePromptProjector;
 import com.jmix.ruletrans.testgen.RuleTestCaseGenerator;
+import com.jmix.tool.impl.llm.CachedLLMInvoker;
+import com.jmix.tool.impl.llm.FileLLMCacheStore;
 import com.jmix.tool.impl.llm.LLMInvoker;
+import com.jmix.tool.impl.llm.LLMInvokerFactory;
+import com.jmix.tool.impl.llm.LLMInvokerImpl;
+import com.jmix.tool.impl.llm.LlmModelProfile;
+import com.jmix.tool.impl.llm.LlmRuntimeOptions;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -91,9 +95,10 @@ public abstract class RuleTransPipelineTestBase {
         RuleTransPipelineDiagnostics diagnostics = new RuleTransPipelineDiagnostics(
                 outputDir(annotatedModelClass, categoryCode, naturalLanguage),
                 diagnosticsEnabled());
-        LLMInvoker invoker = diagnostics.enabled()
-                ? new DiagnosticLlmInvoker(llmInvoker(), diagnostics)
-                : llmInvoker();
+        LLMInvoker invoker = llmInvoker(options);
+        if (diagnostics.enabled()) {
+            invoker = new DiagnosticLlmInvoker(invoker, diagnostics);
+        }
         RuleTransPipelineResult pipelineResult = pipeline(invoker, diagnostics.outputDir()).execute(
                 new RuleTransRequest(naturalLanguage, context, maxRetries(), options));
         return new RuleTransPipelineRunResult(naturalLanguage, context.summary(), pipelineResult, diagnostics);
@@ -123,7 +128,20 @@ public abstract class RuleTransPipelineTestBase {
     }
 
     protected LLMInvoker llmInvoker() {
-        return realLlmInvoker();
+        return llmInvoker(RuleTransPipelineOptions.defaults());
+    }
+
+    protected LLMInvoker llmInvoker(RuleTransPipelineOptions options) {
+        LlmRuntimeOptions runtime = options == null
+                ? LlmRuntimeOptions.defaults()
+                : options.llmRuntime();
+        LlmModelProfile profile = LLMInvokerFactory.profile(runtime.modelTag());
+        LLMInvoker realInvoker = new LLMInvokerImpl(profile);
+        return new CachedLLMInvoker(
+                realInvoker,
+                new FileLLMCacheStore(runtime.cacheDir()),
+                runtime,
+                profile);
     }
 
     protected int maxRetries() {
