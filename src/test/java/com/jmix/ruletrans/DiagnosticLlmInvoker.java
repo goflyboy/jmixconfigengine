@@ -1,6 +1,8 @@
 package com.jmix.ruletrans;
 
 import com.jmix.tool.impl.llm.LLMInvoker;
+import com.jmix.tool.impl.llm.LlmInvocationTrace;
+import com.jmix.tool.impl.llm.LlmInvocationTraceProvider;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -38,6 +40,7 @@ final class DiagnosticLlmInvoker implements LLMInvoker {
             String response = delegate.generate(systemMessage, userMessage);
             long durationMillis = elapsedMillis(start);
             Path responseFile = writeDiagnosticFile(index, "response", response);
+            LlmInvocationTrace trace = traceOf(delegate);
             diagnostics.addLlmCall(new RuleTransLlmCallDiagnostic(
                     index,
                     stage,
@@ -47,11 +50,17 @@ final class DiagnosticLlmInvoker implements LLMInvoker {
                     responseFile,
                     durationMillis,
                     true,
-                    ""));
+                    "",
+                    trace.modelTag(),
+                    trace.modelIdentity(),
+                    trace.cacheStatus(),
+                    trace.cacheKey(),
+                    trace.cacheEntryFile()));
             return response;
         } catch (Exception e) {
             long durationMillis = elapsedMillis(start);
             Path responseFile = writeDiagnosticFile(index, "response", "");
+            LlmInvocationTrace trace = traceOf(delegate);
             diagnostics.addLlmCall(new RuleTransLlmCallDiagnostic(
                     index,
                     stage,
@@ -61,7 +70,12 @@ final class DiagnosticLlmInvoker implements LLMInvoker {
                     responseFile,
                     durationMillis,
                     false,
-                    messageOf(e)));
+                    messageOf(e),
+                    trace.modelTag(),
+                    trace.modelIdentity(),
+                    trace.cacheStatus(),
+                    trace.cacheKey(),
+                    trace.cacheEntryFile()));
             throw e;
         }
     }
@@ -85,22 +99,30 @@ final class DiagnosticLlmInvoker implements LLMInvoker {
     private String identifyStage(String prompt) {
         String text = prompt == null ? "" : prompt;
         String lower = text.toLowerCase(Locale.ROOT);
-        if (text.contains("可用的 PartCategory 列表") || lower.contains("identify")) {
+        if (lower.contains("partcategory code") && lower.contains("json")) {
             return "CATEGORY_IDENTIFICATION";
         }
-        if (text.contains("编译错误") || lower.contains("compiler errors")) {
+        if (lower.contains("compiler errors") || lower.contains("compilation")) {
             return "COMPILATION_CORRECTION";
         }
-        if (text.contains("失败测试用例") || lower.contains("failed cases")) {
+        if (lower.contains("failed cases") || lower.contains("test correction")) {
             return "TEST_CORRECTION";
         }
-        if (text.contains("业务可读 JSON 测试用例") || text.contains("\"businessFamily\"")) {
+        if (text.contains("\"businessFamily\"") || lower.contains("business test")) {
             return "BUSINESS_CASE_GENERATION";
         }
-        if (text.contains("Java 规则方法体") || lower.contains("java rule method")) {
+        if (lower.contains("java rule method") || lower.contains("method body")) {
             return "RULE_GENERATION";
         }
         return "LLM_CALL";
+    }
+
+    private LlmInvocationTrace traceOf(LLMInvoker invoker) {
+        if (invoker instanceof LlmInvocationTraceProvider provider) {
+            LlmInvocationTrace trace = provider.lastInvocationTrace();
+            return trace == null ? LlmInvocationTrace.empty() : trace;
+        }
+        return LlmInvocationTrace.empty();
     }
 
     private String summarize(String value) {
