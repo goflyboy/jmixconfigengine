@@ -65686,3 +65686,32 @@ _**Agent (gpt-5.5 2026-06-12 22:43:08Z)**_
 - 给出 P0/P1 实现计划、验收标准、测试计划和 3 个待确认问题。
 
 这次只新增 RFC 文档，没有改实现代码。
+
+---
+
+_**User (2026-06-13 01:08:06Z)**_
+
+# Context from my IDE setup:
+
+## Open tabs:
+- RFC-0014-RuleTrans-End-to-End-RuleUnit-Pipeline.md: doc/RFC-0014-RuleTrans-End-to-End-RuleUnit-Pipeline.md
+- TestExecutionProcessorTest.java: src/test/java/com/jmix/ruletrans/TestExecutionProcessorTest.java
+- RuleScenarioHarnessSupport.java: src/test/java/com/jmix/ruletrans/rulescenario/RuleScenarioHarnessSupport.java
+- TestExecutionProcessor.java: src/main/java/com/jmix/ruletrans/postprocessor/TestExecutionProcessor.java
+- RuleUnitBusinessCaseTest.java: src/test/java/com/jmix/ruleunit/RuleUnitBusinessCaseTest.java
+
+## My request for Codex:
+
+Q1. `TestExecutionProcessor` 是直接删除，还是移动到 `src/test/java` 作为历史测试迁移期工具？
+答：直接删除吧，但是要小心一点。
+
+现在我们src/test/需要调用我们新的 Rule单元测试执行器，这个需要改造。
+
+Q2. 成功后的业务 JSON 是否默认写入 `src/test/resources/rule-unit-cases`？本 RFC 建议默认不写，只有显式 `persistBusinessCases=true` 时写入。
+答：这个先暂时不写吧。后续我们要做规则管理，在那块记；在这地方纯粹的就是转发服务，先不记录了
+
+Q3. `translateWithRetry(...)` 是否保持原方法签名并返回增强后的 `RuleTransResult`，还是新增 `translateAndVerify(...)` / `RuleTransPipeline.execute(...)` 作为新入口，旧方法标记废弃？
+答：不保留原有的方法了，直接把原有的方法就废弃掉吧
+
+
+

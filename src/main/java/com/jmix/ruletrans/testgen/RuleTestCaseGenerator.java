@@ -34,10 +34,12 @@ public final class RuleTestCaseGenerator {
         this.promptBuilder = promptBuilder;
     }
 
+    @Deprecated(since = "RFC-0014", forRemoval = false)
     public RuleTransTestCaseSet generate(String naturalLanguage, RuleContext context, String methodBody) {
         return generate(naturalLanguage, context, null, methodBody);
     }
 
+    @Deprecated(since = "RFC-0014", forRemoval = false)
     public RuleTransTestCaseSet generate(
             String naturalLanguage,
             RuleContext context,

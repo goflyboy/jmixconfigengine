@@ -4,7 +4,7 @@ import com.jmix.executor.bmodel.Module;
 import com.jmix.executor.bmodel.PartCategory;
 import com.jmix.ruletrans.context.RuleContext;
 import com.jmix.ruletrans.postprocessor.CompilationResult;
-import com.jmix.ruletrans.postprocessor.FailedTestCase;
+import com.jmix.ruletrans.postprocessor.RuleTransVerificationFailure;
 import com.jmix.ruletrans.scenario.RuleScenario;
 import com.jmix.ruletrans.sdk.SdkContext;
 import com.jmix.ruletrans.sdk.SdkContextBuilder;
@@ -125,7 +125,7 @@ public final class PromptBuilder {
             String naturalLanguage,
             RuleContext context,
             String previousSnippet,
-            List<FailedTestCase> failedCases) {
+            List<RuleTransVerificationFailure> failedCases) {
         return buildTestCorrectionPrompt(naturalLanguage, context, null, previousSnippet, failedCases);
     }
 
@@ -134,7 +134,7 @@ public final class PromptBuilder {
             RuleContext context,
             RuleScenario scenario,
             String previousMethodBody,
-            List<FailedTestCase> failedCases) {
+            List<RuleTransVerificationFailure> failedCases) {
         validate(naturalLanguage, context);
         Map<String, String> variables = baseVariables(
                 naturalLanguage, context, promptView(context), scenario, sdkContextBuilder.build(context, scenario));

@@ -1,7 +1,7 @@
 package com.jmix.ruletrans;
 
-import static com.jmix.ruletrans.RuleTransTestFixtures.sampleModule;
 import static com.jmix.ruletrans.RuleTransRealLlmSupport.realLlmInvoker;
+import static com.jmix.ruletrans.RuleTransTestFixtures.sampleModule;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -16,7 +16,7 @@ import com.jmix.ruletrans.generator.RuleSnippetGenerator;
 import com.jmix.ruletrans.generator.RuleSnippetPostProcessor;
 import com.jmix.ruletrans.identifier.CategoryIdentifier;
 import com.jmix.ruletrans.postprocessor.CompilationProcessor;
-import com.jmix.ruletrans.postprocessor.TestExecutionProcessor;
+import com.jmix.ruletrans.postprocessor.RuleUnitCaseExecutionProcessor;
 import com.jmix.ruletrans.prompt.PromptBuilder;
 import com.jmix.ruletrans.prompt.RulePromptProjector;
 import com.jmix.ruletrans.testgen.RuleTestCaseGenerator;
@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 import java.nio.file.Path;
 
 /**
- * RFC-0011 RuleTrans engine tests.
+ * RuleTrans engine and pipeline tests.
  */
 public class RuleTransModuleTest {
 
@@ -35,7 +35,9 @@ public class RuleTransModuleTest {
     public void testPartCategoryRuleGenerationReturnsPureMethodBody() {
         RuleTransEngine engine = engine(realLlmInvoker());
 
-        String methodBody = engine.translate("cpu 最多只能选择一个部件", RuleContextFactory.partCategory(sampleModule(), "cpu"));
+        String methodBody = engine.translate(
+                "cpu can select at most one part",
+                RuleContextFactory.partCategory(sampleModule(), "cpu"));
 
         assertTrue(methodBody.contains("model().addLessOrEqual"), methodBody);
         assertTrue(methodBody.contains("sum4Selected"), methodBody);
@@ -49,8 +51,9 @@ public class RuleTransModuleTest {
     public void testModuleTranslateUsesIdentifiedCategories() {
         ModuleRuleContext context = RuleContextFactory.module(sampleModule());
 
-        String methodBody = engine(realLlmInvoker())
-                .translate("cpu 中属性 CoreNum 为 4 的部件不能和 drive 中属性 Speed 为 5400 的部件同时选择", context);
+        String methodBody = engine(realLlmInvoker()).translate(
+                "cpu CoreNum=4 cannot be selected together with drive Speed=5400",
+                context);
 
         assertTrue(methodBody.contains("cpu"), methodBody);
         assertTrue(methodBody.contains("drive"), methodBody);
@@ -61,13 +64,14 @@ public class RuleTransModuleTest {
     }
 
     @Test
-    public void testPartCategoryTranslateWithRetryCompilesMethodBody() {
-        RuleTransResult result = engine(realLlmInvoker()).translateWithRetry(
-                "cpu 最多只能选择一个部件",
+    public void testPartCategoryPipelineCompilesMethodBody() {
+        RuleTransPipelineResult result = pipeline(realLlmInvoker(), false).execute(new RuleTransRequest(
+                "cpu can select at most one part",
                 RuleContextFactory.partCategory(sampleModule(), "cpu"),
-                1);
+                1,
+                RuleTransPipelineOptions.compileOnly()));
 
-        assertTrue(result.success(), String.valueOf(result.testExecutionResult()));
+        assertTrue(result.success(), result.messages().toString());
         assertTrue(result.compilationResult().success(), String.join("\n", result.compilationResult().errors()));
         assertTrue(result.methodBody().contains("model().addLessOrEqual"), result.methodBody());
         assertFalse(result.methodBody().contains("@CodeRuleAnno"), result.methodBody());
@@ -75,38 +79,41 @@ public class RuleTransModuleTest {
 
     @Test
     public void testPartCategoryEndToEndGeneratedTestCasesPass() {
-        RuleTransResult result = engineWithGeneratedCases(realLlmInvoker()).translateWithRetry(
-                "cpu 最多只能选择一个部件",
+        RuleTransPipelineResult result = pipeline(realLlmInvoker(), true).execute(new RuleTransRequest(
+                "cpu can select at most one part",
                 RuleContextFactory.partCategory(sampleModule(), "cpu"),
-                0);
+                0,
+                RuleTransPipelineOptions.defaults()));
 
-        assertTrue(result.success(), String.valueOf(result.testExecutionResult()));
-        assertNotNull(result.testExecutionResult());
-        assertTrue(result.testExecutionResult().testsSucceeded() > 0);
+        assertTrue(result.success(), result.messages().toString());
+        assertNotNull(result.ruleUnitReport());
+        assertTrue(result.ruleUnitReport().caseReports().stream().anyMatch(report -> report.passed()));
     }
 
     @Test
     public void testModuleEndToEndGeneratedTestCasesPass() {
-        RuleTransResult result = engineWithGeneratedCases(realLlmInvoker()).translateWithRetry(
-                "cpu 中属性 CoreNum 为 4 的部件不能和 drive 中属性 Speed 为 5400 的部件同时选择",
+        RuleTransPipelineResult result = pipeline(realLlmInvoker(), true).execute(new RuleTransRequest(
+                "cpu CoreNum=4 cannot be selected together with drive Speed=5400",
                 RuleContextFactory.module(sampleModule()),
-                0);
+                0,
+                RuleTransPipelineOptions.defaults()));
 
-        assertTrue(result.success(), String.valueOf(result.testExecutionResult()));
-        assertNotNull(result.testExecutionResult());
-        assertTrue(result.testExecutionResult().testsSucceeded() > 0);
+        assertTrue(result.success(), result.messages().toString());
+        assertNotNull(result.ruleUnitReport());
+        assertTrue(result.ruleUnitReport().caseReports().stream().anyMatch(report -> report.passed()));
     }
 
     @Test
     public void testPartCategoryGeneratedTestCasesPassWithRetryBudget() {
-        RuleTransResult result = engineWithGeneratedCases(realLlmInvoker()).translateWithRetry(
-                "cpu 最多只能选择一个部件",
+        RuleTransPipelineResult result = pipeline(realLlmInvoker(), true).execute(new RuleTransRequest(
+                "cpu can select at most one part",
                 RuleContextFactory.partCategory(sampleModule(), "cpu"),
-                1);
+                1,
+                RuleTransPipelineOptions.defaults()));
 
-        assertTrue(result.success(), String.valueOf(result.testExecutionResult()));
-        assertNotNull(result.testExecutionResult());
-        assertTrue(result.testExecutionResult().success());
+        assertTrue(result.success(), result.messages().toString());
+        assertNotNull(result.ruleUnitReport());
+        assertTrue(result.ruleUnitReport().passed());
     }
 
     @Test
@@ -116,30 +123,31 @@ public class RuleTransModuleTest {
         assertThrows(IllegalArgumentException.class,
                 () -> engine.translate("", RuleContextFactory.partCategory(sampleModule(), "cpu")));
         assertThrows(IllegalArgumentException.class,
-                () -> engine.translate("cpu 最多只能选择一个部件", null));
+                () -> engine.translate("cpu can select at most one part", null));
     }
 
     private RuleTransEngine engine(LLMInvoker llmInvoker) {
-        return engine(llmInvoker, false);
+        RulePromptProjector projector = new RulePromptProjector();
+        PromptBuilder promptBuilder = new PromptBuilder(projector);
+        RuleSnippetPostProcessor postProcessor = new RuleSnippetPostProcessor();
+        return new RuleTransEngine(
+                new CategoryIdentifier(llmInvoker, promptBuilder),
+                new RuleSnippetGenerator(llmInvoker, promptBuilder, postProcessor),
+                promptBuilder);
     }
 
-    private RuleTransEngine engineWithGeneratedCases(LLMInvoker llmInvoker) {
-        return engine(llmInvoker, true);
-    }
-
-    private RuleTransEngine engine(LLMInvoker llmInvoker, boolean generateCases) {
+    private RuleTransPipeline pipeline(LLMInvoker llmInvoker, boolean generateCases) {
         RulePromptProjector projector = new RulePromptProjector();
         PromptBuilder promptBuilder = new PromptBuilder(projector);
         RuleSnippetPostProcessor postProcessor = new RuleSnippetPostProcessor();
         RuleTransTempFileManager tempFileManager = new RuleTransTempFileManager(Path.of("target/ruletrans-test"));
-        return new RuleTransEngine(
+        return new RuleTransPipeline(
                 new CategoryIdentifier(llmInvoker, promptBuilder),
                 new RuleSnippetGenerator(llmInvoker, promptBuilder, postProcessor),
                 new RuleSnippetAssembler(tempFileManager),
                 new CompilationProcessor(tempFileManager),
                 new RuleTestCaseGenerator(generateCases ? llmInvoker : null, promptBuilder),
-                new TestExecutionProcessor(tempFileManager),
+                new RuleUnitCaseExecutionProcessor(tempFileManager),
                 promptBuilder);
     }
-
 }
