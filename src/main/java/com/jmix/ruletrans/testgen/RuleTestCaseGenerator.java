@@ -13,6 +13,8 @@ import com.jmix.ruletrans.testgen.business.RuleUnitServiceMethod;
 import com.jmix.ruletrans.testgen.business.TestEnvironment;
 import com.jmix.tool.impl.llm.LLMInvoker;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -24,6 +26,7 @@ import java.util.Set;
 /**
  * Generates and parses structured P1 test cases using the existing LLM invoker.
  */
+@Slf4j
 public final class RuleTestCaseGenerator {
 
     private final LLMInvoker llmInvoker;
@@ -34,10 +37,12 @@ public final class RuleTestCaseGenerator {
         this.promptBuilder = promptBuilder;
     }
 
+    @Deprecated(since = "RFC-0014", forRemoval = false)
     public RuleTransTestCaseSet generate(String naturalLanguage, RuleContext context, String methodBody) {
         return generate(naturalLanguage, context, null, methodBody);
     }
 
+    @Deprecated(since = "RFC-0014", forRemoval = false)
     public RuleTransTestCaseSet generate(
             String naturalLanguage,
             RuleContext context,
@@ -53,6 +58,8 @@ public final class RuleTestCaseGenerator {
         } catch (RuleTransException e) {
             throw e;
         } catch (Exception e) {
+            log.error("LLM test case generation failed for naturalLanguage=[{}], module=[{}]",
+                    naturalLanguage, context != null ? context.module().getCode() : "null", e);
             throw new RuleTransException("LLM test case generation failed: " + e.getMessage(), e);
         }
     }
@@ -72,6 +79,8 @@ public final class RuleTestCaseGenerator {
         } catch (RuleTransException e) {
             throw e;
         } catch (Exception e) {
+            log.error("LLM business test case generation failed for naturalLanguage=[{}], module=[{}]",
+                    naturalLanguage, context != null ? context.module().getCode() : "null", e);
             throw new RuleTransException("LLM business test case generation failed: " + e.getMessage(), e);
         }
     }

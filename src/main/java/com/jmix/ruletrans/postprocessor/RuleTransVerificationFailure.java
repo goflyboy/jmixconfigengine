@@ -1,9 +1,9 @@
 package com.jmix.ruletrans.postprocessor;
 
 /**
- * Structured failed JUnit test case.
+ * Business-case verification failure used by RuleTrans correction prompts.
  */
-public record FailedTestCase(
+public record RuleTransVerificationFailure(
         String id,
         String displayName,
         String input,
