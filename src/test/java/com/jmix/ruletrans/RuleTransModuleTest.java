@@ -66,7 +66,8 @@ public class RuleTransModuleTest {
     @Test
     public void testPartCategoryPipelineCompilesMethodBody() {
         RuleTransPipelineResult result = pipeline(realLlmInvoker(), false).execute(new RuleTransRequest(
-                "cpu can select at most one part",
+                // "cpu can select at most one part",
+                "CPU最多只能配一个",
                 RuleContextFactory.partCategory(sampleModule(), "cpu"),
                 1,
                 RuleTransPipelineOptions.compileOnly()));
