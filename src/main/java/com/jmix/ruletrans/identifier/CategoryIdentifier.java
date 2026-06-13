@@ -10,6 +10,8 @@ import com.jmix.tool.impl.llm.LLMInvoker;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -17,6 +19,7 @@ import java.util.Set;
 /**
  * Module-level stage1 category identifier.
  */
+@Slf4j
 public final class CategoryIdentifier {
 
     private final LLMInvoker llmInvoker;
@@ -43,6 +46,8 @@ public final class CategoryIdentifier {
         } catch (CategoryNotFoundException e) {
             throw e;
         } catch (Exception e) {
+            log.error("Failed to identify rule categories for naturalLanguage=[{}], module=[{}]",
+                    naturalLanguage, module.getCode(), e);
             throw new RuleTransException("Failed to identify rule categories: " + e.getMessage(), e);
         }
     }

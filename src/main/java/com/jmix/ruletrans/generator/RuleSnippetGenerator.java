@@ -7,9 +7,12 @@ import com.jmix.ruletrans.scenario.RuleScenario;
 import com.jmix.ruletrans.sdk.SdkProfile;
 import com.jmix.tool.impl.llm.LLMInvoker;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Generates Java rule method bodies through the existing LLM invoker.
  */
+@Slf4j
 public final class RuleSnippetGenerator {
 
     private static final int LLM_GENERATION_ATTEMPTS = 3;
@@ -64,11 +67,13 @@ public final class RuleSnippetGenerator {
                 return postProcessor.processMethodBody(response, sdkProfile, context, naturalLanguage);
             } catch (Exception e) {
                 lastFailure = e;
+                log.warn("LLM generation attempt {} failed: {}", attempt, e.getMessage());
             }
         }
         String message = lastFailure == null || lastFailure.getMessage() == null
                 ? "unknown error"
                 : lastFailure.getMessage();
+        log.error("LLM rule method body generation failed after {} attempts", LLM_GENERATION_ATTEMPTS, lastFailure);
         throw new RuleTransException("LLM rule method body generation failed after "
                 + LLM_GENERATION_ATTEMPTS + " attempts: " + message, lastFailure);
     }
