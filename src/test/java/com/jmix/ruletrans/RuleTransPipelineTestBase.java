@@ -19,9 +19,9 @@ import com.jmix.ruletrans.prompt.RulePromptProjector;
 import com.jmix.ruletrans.testgen.RuleTestCaseGenerator;
 import com.jmix.tool.impl.llm.LLMInvoker;
 
-import java.nio.file.Path;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Locale;
 
 /**
@@ -41,16 +41,41 @@ public abstract class RuleTransPipelineTestBase {
 
     protected RuleTransPipelineRunResult assertRuleTrans(
             Class<?> annotatedModelClass,
+            String naturalLanguage,
+            RuleTransJavaExpectation javaExpectation,
+            RuleTransBusinessCaseExpectation caseExpectation) {
+        return assertRuleTrans(annotatedModelClass, null, naturalLanguage, javaExpectation, caseExpectation);
+    }
+
+    protected RuleTransPipelineRunResult assertRuleTrans(
+            Class<?> annotatedModelClass,
             String categoryCode,
             String naturalLanguage,
             RuleTransJavaExpectation expectation) {
+        return assertRuleTrans(
+                annotatedModelClass,
+                categoryCode,
+                naturalLanguage,
+                expectation,
+                RuleTransBusinessCaseExpectation.any());
+    }
+
+    protected RuleTransPipelineRunResult assertRuleTrans(
+            Class<?> annotatedModelClass,
+            String categoryCode,
+            String naturalLanguage,
+            RuleTransJavaExpectation javaExpectation,
+            RuleTransBusinessCaseExpectation caseExpectation) {
         RuleTransPipelineRunResult result = runRuleTrans(
                 annotatedModelClass,
                 categoryCode,
                 naturalLanguage,
                 RuleTransPipelineOptions.defaults());
         assertTrue(result.success(), result.pipelineResult().messages().toString());
-        expectation.assertMatches(result.methodBody());
+        javaExpectation.assertMatches(result.methodBody());
+        if (caseExpectation != null) {
+            caseExpectation.assertMatches(result.pipelineResult().businessCaseSet());
+        }
         return result;
     }
 
@@ -64,9 +89,12 @@ public abstract class RuleTransPipelineTestBase {
                 TEMP_RESOURCE_PATH);
         RuleContext context = context(moduleContext, categoryCode);
         RuleTransPipelineDiagnostics diagnostics = new RuleTransPipelineDiagnostics(
-                outputDir(annotatedModelClass, categoryCode, naturalLanguage));
-        DiagnosticLlmInvoker diagnosticInvoker = new DiagnosticLlmInvoker(llmInvoker(), diagnostics);
-        RuleTransPipelineResult pipelineResult = pipeline(diagnosticInvoker, diagnostics.outputDir()).execute(
+                outputDir(annotatedModelClass, categoryCode, naturalLanguage),
+                diagnosticsEnabled());
+        LLMInvoker invoker = diagnostics.enabled()
+                ? new DiagnosticLlmInvoker(llmInvoker(), diagnostics)
+                : llmInvoker();
+        RuleTransPipelineResult pipelineResult = pipeline(invoker, diagnostics.outputDir()).execute(
                 new RuleTransRequest(naturalLanguage, context, maxRetries(), options));
         return new RuleTransPipelineRunResult(naturalLanguage, context.summary(), pipelineResult, diagnostics);
     }
@@ -79,7 +107,17 @@ public abstract class RuleTransPipelineTestBase {
         return RuleTransJavaExpectation.equalsIgnoringWhitespace(expectedMethodBody);
     }
 
+    protected RuleTransBusinessCaseExpectation expectBusinessCase(
+            String caseId,
+            String expectedGivenJson,
+            String expectedExpectJson) {
+        return RuleTransBusinessCaseExpectation.expectCase(caseId, expectedGivenJson, expectedExpectJson);
+    }
+
     protected void print(RuleTransPipelineRunResult result) {
+        if (!result.diagnostics().enabled()) {
+            return;
+        }
         PrintStream utf8Out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         RuleTransPipelineResultPrinter.print(result, utf8Out);
     }
@@ -90,6 +128,10 @@ public abstract class RuleTransPipelineTestBase {
 
     protected int maxRetries() {
         return 1;
+    }
+
+    protected boolean diagnosticsEnabled() {
+        return false;
     }
 
     private RuleContext context(ModuleRuleContext moduleContext, String categoryCode) {

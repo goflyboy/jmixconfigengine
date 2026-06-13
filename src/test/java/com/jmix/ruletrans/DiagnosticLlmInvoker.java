@@ -27,6 +27,9 @@ final class DiagnosticLlmInvoker implements LLMInvoker {
         if (delegate == null) {
             throw new IllegalStateException("delegate LLM invoker must not be null");
         }
+        if (!diagnostics.enabled()) {
+            return delegate.generate(systemMessage, userMessage);
+        }
         int index = diagnostics.nextLlmCallIndex();
         String stage = identifyStage(userMessage);
         Path promptFile = writeDiagnosticFile(index, "prompt", userMessage);

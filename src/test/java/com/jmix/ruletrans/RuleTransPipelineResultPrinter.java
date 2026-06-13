@@ -1,6 +1,9 @@
 package com.jmix.ruletrans;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.jmix.ruletrans.postprocessor.CompilationResult;
+import com.jmix.ruletrans.testgen.business.BusinessRuleTestCase;
 import com.jmix.ruletrans.testgen.business.BusinessRuleTestCaseSet;
 import com.jmix.ruleunit.RuleUnitTestCaseSetReport;
 import com.jmix.ruleunit.RuleUnitTestReport;
@@ -9,13 +12,18 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
  * Prints a compact system-test diagnostic report for RuleTrans pipeline runs.
  */
 public final class RuleTransPipelineResultPrinter {
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
+            .enable(SerializationFeature.INDENT_OUTPUT);
 
     private RuleTransPipelineResultPrinter() {
     }
@@ -27,6 +35,7 @@ public final class RuleTransPipelineResultPrinter {
         printInput(result, utf8Out);
         printLlmCalls(result.diagnostics().llmCalls(), utf8Out);
         printAttempts(pipelineResult, utf8Out);
+        printBusinessTestCases(pipelineResult.businessCaseSet(), pipelineResult.ruleUnitReport(), utf8Out);
         printSummary(pipelineResult, utf8Out);
         utf8Out.println();
         utf8Out.println("[Final Method Body]");
@@ -101,7 +110,7 @@ public final class RuleTransPipelineResultPrinter {
         out.println("methodBody:");
         out.println(indent(value(methodBody)));
         printCompilation(compilationResult, out);
-        printBusinessCases(businessCaseSet, out);
+        printBusinessCaseSummary(businessCaseSet, out);
         printRuleUnit(report, out);
     }
 
@@ -119,7 +128,7 @@ public final class RuleTransPipelineResultPrinter {
         }
     }
 
-    private static void printBusinessCases(BusinessRuleTestCaseSet caseSet, PrintStream out) {
+    private static void printBusinessCaseSummary(BusinessRuleTestCaseSet caseSet, PrintStream out) {
         if (caseSet == null) {
             out.println("businessCases: skipped");
             return;
@@ -128,6 +137,69 @@ public final class RuleTransPipelineResultPrinter {
                 .map(testCase -> value(testCase.id()))
                 .toList();
         out.println("businessCases: count=" + caseSet.cases().size() + " ids=" + ids);
+    }
+
+    private static void printBusinessTestCases(
+            BusinessRuleTestCaseSet caseSet,
+            RuleUnitTestCaseSetReport report,
+            PrintStream out) {
+        out.println("[Business Test Cases]");
+        if (caseSet == null) {
+            out.println("skipped");
+            out.println();
+            return;
+        }
+        if (caseSet.cases().isEmpty()) {
+            out.println("(none)");
+            out.println();
+            return;
+        }
+        Map<String, RuleUnitTestReport> reportById = reportByCaseId(report);
+        for (int i = 0; i < caseSet.cases().size(); i++) {
+            BusinessRuleTestCase testCase = caseSet.cases().get(i);
+            out.println("#" + (i + 1)
+                    + " id=" + value(testCase.id())
+                    + " family=" + value(testCase.businessFamily())
+                    + " serviceMethod=" + value(testCase.serviceMethod()));
+            if (!value(testCase.title()).isBlank()) {
+                out.println("title=" + testCase.title());
+            }
+            if (!value(testCase.scenario()).isBlank()) {
+                out.println("scenario=" + testCase.scenario());
+            }
+            out.println("given:");
+            out.println(indent(json(testCase.given())));
+            out.println("expect:");
+            out.println(indent(json(testCase.expect())));
+            RuleUnitTestReport caseReport = reportById.get(testCase.id());
+            printCaseActual(caseReport, out);
+        }
+        out.println();
+    }
+
+    private static Map<String, RuleUnitTestReport> reportByCaseId(RuleUnitTestCaseSetReport report) {
+        if (report == null) {
+            return Map.of();
+        }
+        return report.caseReports().stream()
+                .collect(Collectors.toMap(
+                        RuleUnitTestReport::caseId,
+                        Function.identity(),
+                        (first, second) -> first));
+    }
+
+    private static void printCaseActual(RuleUnitTestReport caseReport, PrintStream out) {
+        if (caseReport == null) {
+            out.println("actual: skipped");
+            return;
+        }
+        out.println("actual:");
+        out.println(indent(json(caseReport.actual())));
+        out.println("passed=" + caseReport.passed());
+        if (!caseReport.failures().isEmpty()) {
+            out.println("failures:");
+            out.println(indent(String.join("\n", caseReport.failures())));
+        }
     }
 
     private static void printRuleUnit(RuleUnitTestCaseSetReport report, PrintStream out) {
@@ -169,7 +241,19 @@ public final class RuleTransPipelineResultPrinter {
         return value == null ? "" : value;
     }
 
+    private static String value(Object value) {
+        return value == null ? "" : value.toString();
+    }
+
     private static String path(Path path) {
         return path == null ? "" : path.toString();
+    }
+
+    private static String json(Object value) {
+        try {
+            return OBJECT_MAPPER.writeValueAsString(value);
+        } catch (Exception e) {
+            return String.valueOf(value);
+        }
     }
 }

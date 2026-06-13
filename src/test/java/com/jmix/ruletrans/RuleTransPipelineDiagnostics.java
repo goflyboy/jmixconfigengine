@@ -10,17 +10,30 @@ import java.util.List;
 public final class RuleTransPipelineDiagnostics {
 
     private final Path outputDir;
+    private final boolean enabled;
     private final List<RuleTransLlmCallDiagnostic> llmCalls = new ArrayList<>();
 
     public RuleTransPipelineDiagnostics(Path outputDir) {
+        this(outputDir, true);
+    }
+
+    public RuleTransPipelineDiagnostics(Path outputDir, boolean enabled) {
         this.outputDir = outputDir;
+        this.enabled = enabled;
     }
 
     public Path outputDir() {
         return outputDir;
     }
 
+    public boolean enabled() {
+        return enabled;
+    }
+
     public void addLlmCall(RuleTransLlmCallDiagnostic call) {
+        if (!enabled) {
+            return;
+        }
         llmCalls.add(call);
     }
 
