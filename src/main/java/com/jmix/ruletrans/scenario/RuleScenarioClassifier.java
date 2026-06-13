@@ -29,22 +29,24 @@ public final class RuleScenarioClassifier {
         if (post) {
             return RuleFamily.POST;
         }
-        if (containsAny(text, "兼容", "不能", "不可", "incompatible", "requires", "依赖", "同选")) {
+        if (containsAny(text, "兼容", "不能", "不可", "互斥", "依赖", "同选",
+                "incompatible", "requires")) {
             return RuleFamily.COMPATIBLE;
         }
         if (containsAny(text, "隐藏", "hide", "hidden")) {
             return RuleFamily.HIDDEN;
         }
-        if (containsAny(text, "优先", "priority", "最小", "最大", "目标")) {
+        if (containsAny(text, "优先", "priority", "目标")) {
             return RuleFamily.PRIORITY;
         }
-        if (containsAny(text, "汇总", "总和", "sum", "容量", "数量")) {
-            return RuleFamily.AGGREGATE;
-        }
-        if (containsAny(text, "如果", "if", "计算", "等于")) {
+        if (containsAny(text, "如果", "当", "否则", "if", "计算", "等于", "赋值")) {
             return RuleFamily.CALCULATE;
         }
-        if (containsAny(text, "最多", "至多", "只能", "exactly", "at most", "选择")) {
+        if (containsAny(text, "汇总", "总和", "sum", "容量", "总数量", "总功耗", "评分", "数量")) {
+            return RuleFamily.AGGREGATE;
+        }
+        if (containsAny(text, "最大", "最小", "至多", "至少", "只能", "必须选择",
+                "exactly", "at most", "选择")) {
             return RuleFamily.SELECT;
         }
         return RuleFamily.UNKNOWN;
